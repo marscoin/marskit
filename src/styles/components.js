@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import _Feather from "react-native-vector-icons/Feather";
+import _EvilIcon from "react-native-vector-icons/EvilIcons";
 
 export const SafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -28,6 +29,11 @@ export const Text = styled.Text`
 `;
 
 export const Feather = styled(_Feather).attrs((props) => ({
+	color: props.type ? props.theme[props.type] : props.theme.colors.text
+}))`
+`;
+
+export const EvilIcon = styled(_EvilIcon).attrs((props) => ({
 	color: props.type ? props.theme[props.type] : props.theme.colors.text
 }))`
 `;
