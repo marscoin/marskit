@@ -3,7 +3,7 @@ import {
 	View,
 	StyleSheet
 } from "react-native";
-import App from "./src/components/App";
+import App from "./src/views/App";
 import { createStore, applyMiddleware } from "redux";
 import reducers from "./src/reducers";
 import thunk from "redux-thunk";

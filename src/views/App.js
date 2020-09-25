@@ -14,8 +14,8 @@ import {
 } from "../styles/components";
 import { useSelector } from "react-redux";
 import { ThemeProvider } from "styled-components/native";
-import Logo from "./Logo";
-import Header from "./Header";
+import Logo from "../components/Logo";
+import Header from "../components/Header";
 
 const App = () => {
 	const { settings } = useSelector((state) => state);
