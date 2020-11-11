@@ -332,7 +332,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -502,7 +502,7 @@
 			name = "[CP-User] [NODEJS MOBILE] Build Native Modules";
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\nset -e\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, look for it in the project's\n#nodejs-assets/BUILD_NATIVE_MODULES.txt file.\nNODEJS_ASSETS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../nodejs-assets/ && pwd )\"\nPREFERENCE_FILE_PATH=\"$NODEJS_ASSETS_DIR/BUILD_NATIVE_MODULES.txt\"\n  if [ -f \"$PREFERENCE_FILE_PATH\" ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=\"$(cat $PREFERENCE_FILE_PATH | xargs)\"\n  fi\nfi\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, try to find .gyp files\n#to turn it on.\n  gypfiles=($(find \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -type f -name \"*.gyp\"))\n  if [ ${#gypfiles[@]} -gt 0 ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=1\n  else\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=0\n  fi\nfi\nif [ \"1\" != \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then exit 0; fi\n# Delete object files that may already come from within the npm package.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.o\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.a\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type f -delete\n# Delete bundle contents that may be there from previous builds.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.node/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type d -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.framework/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.framework\" -type d -delete\n# Apply patches to the modules package.json\nif [ -d \"$CODESIGNING_FOLDER_PATH\"/nodejs-project/node_modules/ ]; then\n  PATCH_SCRIPT_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/scripts/ && pwd )\"\n  NODEJS_PROJECT_MODULES_DIR=\"$( cd \"$CODESIGNING_FOLDER_PATH\" && cd nodejs-project/node_modules/ && pwd )\"\n  node \"$PATCH_SCRIPT_DIR\"/patch-package.js $NODEJS_PROJECT_MODULES_DIR\nfi\n# Get the nodejs-mobile-gyp location\nif [ -d \"$PROJECT_DIR/../node_modules/nodejs-mobile-gyp/\" ]; then\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-gyp/ && pwd )\"\nelse\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/node_modules/nodejs-mobile-gyp/ && pwd )\"\nfi\nNODEJS_MOBILE_GYP_BIN_FILE=\"$NODEJS_MOBILE_GYP_DIR\"/bin/node-gyp.js\n# Rebuild modules with right environment\nNODEJS_HEADERS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/ios/libnode/ && pwd )\"\npushd $CODESIGNING_FOLDER_PATH/nodejs-project/\nif [ \"$PLATFORM_NAME\" == \"iphoneos\" ]\nthen\n  GYP_DEFINES=\"OS=ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"arm64\" npm --verbose rebuild --build-from-source\nelse\n  GYP_DEFINES=\"OS=ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"x64\" npm --verbose rebuild --build-from-source\nfi\npopd\n";
+			shellScript = "#!/bin/sh\nset -e\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, look for it in the project's\n#nodejs-assets/BUILD_NATIVE_MODULES.txt file.\nNODEJS_ASSETS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../nodejs-assets/ && pwd )\"\nPREFERENCE_FILE_PATH=\"$NODEJS_ASSETS_DIR/BUILD_NATIVE_MODULES.txt\"\n  if [ -f \"$PREFERENCE_FILE_PATH\" ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=\"$(cat $PREFERENCE_FILE_PATH | xargs)\"\n  fi\nfi\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, try to find .gyp files\n#to turn it on.\n  gypfiles=($(find \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -type f -name \"*.gyp\"))\n  if [ ${#gypfiles[@]} -gt 0 ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=1\n  else\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=0\n  fi\nfi\nif [ \"1\" != \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then exit 0; fi\n# Delete object files that may already come from within the npm package.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.o\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.a\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type f -delete\n# Delete bundle contents that may be there from previous builds.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.node/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type d -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.framework/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.framework\" -type d -delete\n# Apply patches to the modules package.json\nif [ -d \"$CODESIGNING_FOLDER_PATH\"/nodejs-project/node_modules/ ]; then\n  PATCH_SCRIPT_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/scripts/ && pwd )\"\n  NODEJS_PROJECT_MODULES_DIR=\"$( cd \"$CODESIGNING_FOLDER_PATH\" && cd nodejs-project/node_modules/ && pwd )\"\n  node \"$PATCH_SCRIPT_DIR\"/patch-package.js $NODEJS_PROJECT_MODULES_DIR\nfi\n# Get the nodejs-mobile-gyp location\nif [ -d \"$PROJECT_DIR/../node_modules/nodejs-mobile-gyp/\" ]; then\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-gyp/ && pwd )\"\nelse\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/node_modules/nodejs-mobile-gyp/ && pwd )\"\nfi\nNODEJS_MOBILE_GYP_BIN_FILE=\"$NODEJS_MOBILE_GYP_DIR\"/bin/node-gyp.js\n# Support building neon-bindings (Rust) native modules\nif [ -f ~/.cargo/env ]; then\n  source ~/.cargo/env;\nfi\n# Rebuild modules with right environment\nNODEJS_HEADERS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/ios/libnode/ && pwd )\"\npushd $CODESIGNING_FOLDER_PATH/nodejs-project/\nif [ \"$PLATFORM_NAME\" == \"iphoneos\" ]\nthen\n  GYP_DEFINES=\"OS=ios\" CARGO_BUILD_TARGET=\"aarch64-apple-ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"arm64\" npm --verbose rebuild --build-from-source\nelse\n  GYP_DEFINES=\"OS=ios\" CARGO_BUILD_TARGET=\"x86_64-apple-ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"x64\" npm --verbose rebuild --build-from-source\nfi\npopd\n";
 		};
 		2CB56E02EC3CC237CF00B5FB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -795,13 +795,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8690714A0058642313A5AAF4 /* Pods-spectrum-spectrumTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = spectrumTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -818,10 +819,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DAC9AB624E4C3729513677E4 /* Pods-spectrum-spectrumTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = spectrumTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -904,7 +906,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Debug;
 		};
@@ -932,7 +934,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Release;
 		};
@@ -959,7 +961,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/spectrum-tvOS.app/spectrum-tvOS";
-				TVOS_DEPLOYMENT_TARGET = 10.1;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Debug;
 		};
@@ -986,7 +988,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/spectrum-tvOS.app/spectrum-tvOS";
-				TVOS_DEPLOYMENT_TARGET = 10.1;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Release;
 		};
@@ -1013,6 +1015,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1037,7 +1040,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -1073,6 +1076,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1090,7 +1094,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
