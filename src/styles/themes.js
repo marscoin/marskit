@@ -14,12 +14,12 @@ export const light = {
 	id: "light",
 	colors: {
 		...defaultThemeValues.colors,
-		text: "#000000",
-		primary: "#000000",
+		text: "#121212",
+		primary: "#121212",
 		background: "#FFFFFF",
 		surface: "#FFFFFF",
-		onBackground: "#000000",
-		onSurface: "#000000",
+		onBackground: "#121212",
+		onSurface: "#121212",
 	}
 };
 
