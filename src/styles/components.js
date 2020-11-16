@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import _Feather from "react-native-vector-icons/Feather";
 import _EvilIcon from "react-native-vector-icons/EvilIcons";
+import _Ionicons from "react-native-vector-icons/Ionicons";
+import _MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 export const SafeAreaView = styled.SafeAreaView`
   flex: 1;
@@ -13,6 +15,14 @@ export const Container = styled.View`
 `;
 
 export const View = styled.View`
+  background-color: ${props => props.theme.colors.background};
+`;
+
+export const TouchableOpacity = styled.TouchableOpacity`
+  background-color: ${props => props.theme.colors.background};
+`;
+
+export const ScrollView = styled.ScrollView`
   background-color: ${props => props.theme.colors.background};
 `;
 
@@ -33,7 +43,17 @@ export const Feather = styled(_Feather).attrs((props) => ({
 }))`
 `;
 
+export const MaterialIcons = styled(_MaterialIcons).attrs((props) => ({
+	color: props.type ? props.theme[props.type] : props.theme.colors.text
+}))`
+`;
+
 export const EvilIcon = styled(_EvilIcon).attrs((props) => ({
+	color: props.type ? props.theme[props.type] : props.theme.colors.text
+}))`
+`;
+
+export const Ionicons = styled(_Ionicons).attrs((props) => ({
 	color: props.type ? props.theme[props.type] : props.theme.colors.text
 }))`
 `;
