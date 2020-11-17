@@ -3,14 +3,15 @@ import {
 	View,
 	StyleSheet
 } from "react-native";
-import App from "./src/views/App";
+import App from "./src/screens/App";
 import { createStore, applyMiddleware } from "redux";
 import reducers from "./src/reducers";
 import thunk from "redux-thunk";
 import logger from "redux-logger";
 import { PersistGate } from "redux-persist/integration/react";
 import AsyncStorage from "@react-native-community/async-storage";
-
+//import { enableScreens } from 'react-native-screens';
+//enableScreens();
 const Provider = require("react-redux").Provider;
 const { persistStore, persistReducer } = require("redux-persist");
 const createStoreWithMiddleware = applyMiddleware(thunk, logger)(createStore);

@@ -1,8 +1,3 @@
-/**
- * @format
- * @flow strict-local
- */
-
 import React, { useState, useEffect, memo } from "react";
 import {
 	Animated as RNAnimated,
@@ -26,11 +21,11 @@ const Logo = () => {
 				},
 			),
 		]).start();
-	}, [circleOpacity]);
+	}, []);
 
 	return (
 		<Animated.View style={{ opacity: circleOpacity }}>
-			<Icon name="circle" size={100} color={colors.orange} />
+			<Icon name="circle" size={80} color={colors.orange} />
 		</Animated.View>
 	);
 };
