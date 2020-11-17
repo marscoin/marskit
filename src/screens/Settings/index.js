@@ -2,7 +2,9 @@ import React, { memo } from "react";
 import { StyleSheet } from "react-native";
 import {
 	View,
-	Feather
+	Feather,
+	Text,
+	TouchableOpacity
 } from "../../styles/components";
 import { useDispatch, useSelector } from "react-redux";
 import { updateSettings } from "../../actions/settings";
@@ -62,7 +64,7 @@ const Settings = ({ navigation }) => {
 			title: "About",
 			data: [
 				{
-					title: "Twitter",
+					title: "Twitter: @synonym_to",
 					type: "button",
 					onPress: () => navigation.navigate("TempSettings")
 				},
@@ -72,7 +74,7 @@ const Settings = ({ navigation }) => {
 					onPress: () => navigation.navigate("TempSettings")
 				},
 				{
-					title: "Website",
+					title: "Website: synonym.to",
 					type: "button",
 					onPress: () => navigation.navigate("TempSettings")
 				},
@@ -107,7 +109,7 @@ const Settings = ({ navigation }) => {
 					onPress: () => navigation.navigate("TempSettings")
 				},
 				{
-					title: "Email: support@synonym.com",
+					title: "Email: support@synonym.to",
 					type: "button",
 					onPress: () => navigation.navigate("TempSettings")
 				}
@@ -117,7 +119,10 @@ const Settings = ({ navigation }) => {
 	
 	return (
 		<View style={styles.container}>
-			<Feather style={{ marginVertical: 8 }} name="arrow-left" size={30} onPress={navigation.goBack} />
+			<TouchableOpacity activeOpacity={0.7} onPress={navigation.goBack} style={styles.row}>
+				<Feather style={{}} name="arrow-left" size={30} />
+				<Text style={styles.backText}>Settings</Text>
+			</TouchableOpacity>
 			<List data={DATA} />
 		</View>
 	);
@@ -126,6 +131,15 @@ const Settings = ({ navigation }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1
+	},
+	row: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingLeft: 10,
+		paddingVertical: 8
+	},
+	backText: {
+		fontSize: 20
 	}
 });
 
