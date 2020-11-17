@@ -7082,6 +7082,13 @@ react-native-typography@^1.4.1:
   resolved "https://registry.yarnpkg.com/react-native-typography/-/react-native-typography-1.4.1.tgz#2d05cb5935a2f7fdb6b43bbde93d60f1324578e3"
   integrity sha512-dc9Zfs4jUdq4ygx4/KwO6jKTERBu6cRrfPJGntw/pA+D6BMjlWfMNuhZ/69vf4Zpsnt9s4AGe+Z/V1QFYaCXAA==
 
+react-native-v8@^0.63.3-patch.0:
+  version "0.63.3-patch.0"
+  resolved "https://registry.yarnpkg.com/react-native-v8/-/react-native-v8-0.63.3-patch.0.tgz#96e49f6a474f6d2e0e704e28a0d3c20e89c6a3fc"
+  integrity sha512-Z8oJ2aJt1T6JaObMlLAuvdNEFHNWwhpmx4XftdtJHWTusTDO0FOiVJ6aUwm9yJC2Tqq6m3ByX+dV1xH/6U5h9Q==
+  dependencies:
+    v8-android "~8.84.0"
+
 react-native-vector-icons@^7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-7.1.0.tgz#145487d617b2a81d395d2cf64e6e065fcab3a454"
@@ -8581,6 +8588,16 @@ uuid@^8.3.0, uuid@^8.3.1:
   version "8.3.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.1.tgz#2ba2e6ca000da60fce5a196954ab241131e05a31"
   integrity sha512-FOmRr+FmWEIG8uhZv6C2bTgEVXsHk08kE7mPlrBbEe+c3r9pjceVPgupIfNIhc4yx55H69OXANrUaSuu9eInKg==
+
+v8-android-jit-nointl@^8.84.0:
+  version "8.84.0"
+  resolved "https://registry.yarnpkg.com/v8-android-jit-nointl/-/v8-android-jit-nointl-8.84.0.tgz#ff51491b5ccbc5f7e98a57bf3496e6db6cc0fc5f"
+  integrity sha512-7vHDgY1LvDpDeJsKaIgiWgC404zzt5KCpPWBCIjxNuRZivGqi5J7ssjw+7+q2LUdQovePtJ1w6gSTMLHYCG1xA==
+
+v8-android@~8.84.0:
+  version "8.84.0"
+  resolved "https://registry.yarnpkg.com/v8-android/-/v8-android-8.84.0.tgz#b9a5b2284d31f530598d7dd5c0124e300999bc6a"
+  integrity sha512-A03L2HfwdobdMSXpGe9fBFqM3tOXh6NWmhkB2cWyav5eQnmF+ajl6Ryyw+Dhwh/GbQXbqgkvZJmBb6dRk+1wYA==
 
 v8-compile-cache@^2.0.3:
   version "2.2.0"

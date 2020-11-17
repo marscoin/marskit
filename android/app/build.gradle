@@ -181,6 +181,12 @@ android {
 
         }
     }
+    packagingOptions {
+        // exclude ARMEABI native so file, ARMEABI has been removed in NDK r17.
+        //exclude "lib/armeabi/**"
+        // Make sure libjsc.so does not get packed in APK
+        exclude "**/libjsc.so"
+    }
 }
 
 dependencies {
@@ -189,6 +195,8 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.android.support:multidex:1.0.3'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    // Add v8-android - prebuilt libv8android.so into APK
+    implementation 'org.chromium:v8-android:+'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
