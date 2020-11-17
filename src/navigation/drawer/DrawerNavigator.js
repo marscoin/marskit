@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import TabNavigator from "../tabs/TabNavigator";
-import Settings from "../../Settings";
+import Settings from "../../screens/Settings";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
 const Drawer = createDrawerNavigator();

@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import DrawerNavigator from "../drawer/DrawerNavigator";
-import TempSettings from "../../Settings/TempSettings";
+import TempSettings from "../../screens/Settings/TempSettings";
 
 const Stack = createStackNavigator();
 

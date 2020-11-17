@@ -2,18 +2,18 @@ import React, { memo } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import WalletsScreen from "../../Wallets";
-import WalletsDetail from "../../Wallets/WalletsDetail";
-import ProfileScreen from "../../Profile";
-import ProfileDetail from "../../Profile/ProfileDetail";
-import HistoryScreen from "../../History";
-import HistoryDetail from "../../History/HistoryDetail";
+import WalletsScreen from "../../screens/Wallets";
+import WalletsDetail from "../../screens/Wallets/WalletsDetail";
+import ProfileScreen from "../../screens/Profile";
+import ProfileDetail from "../../screens/Profile/ProfileDetail";
+import HistoryScreen from "../../screens/History";
+import HistoryDetail from "../../screens/History/HistoryDetail";
 import { useSelector } from "react-redux";
 
 const Tab = createBottomTabNavigator();
 const StackHome = createStackNavigator();
 const StackSettings = createStackNavigator();
-const themes = require("../../../styles/themes");
+const themes = require("../../styles/themes");
 
 const navOptionHandler = () => ({
 	headerShown: false,
