@@ -11,8 +11,7 @@ import HistoryDetail from "../../screens/History/HistoryDetail";
 import { useSelector } from "react-redux";
 
 const Tab = createBottomTabNavigator();
-const StackHome = createStackNavigator();
-const StackSettings = createStackNavigator();
+const Stack = createStackNavigator();
 const themes = require("../../styles/themes");
 
 const navOptionHandler = () => ({
@@ -24,28 +23,28 @@ const navOptionHandler = () => ({
 
 const WalletsStack = () => {
 	return (
-		<StackHome.Navigator initialRouteName="Wallets">
-			<StackHome.Screen name="Wallets" component={WalletsScreen} options={navOptionHandler} />
-			<StackHome.Screen name="WalletsDetail" component={WalletsDetail} options={navOptionHandler} />
-		</StackHome.Navigator>
+		<Stack.Navigator initialRouteName="Wallets">
+			<Stack.Screen name="Wallets" component={WalletsScreen} options={navOptionHandler} />
+			<Stack.Screen name="WalletsDetail" component={WalletsDetail} options={navOptionHandler} />
+		</Stack.Navigator>
 	);
 };
 
 const ProfileStack = () => {
 	return (
-		<StackSettings.Navigator initialRouteName="Profile">
-			<StackSettings.Screen name="Profile" component={ProfileScreen} options={navOptionHandler} />
-			<StackSettings.Screen name="ProfileDetail" component={ProfileDetail} options={navOptionHandler} />
-		</StackSettings.Navigator>
+		<Stack.Navigator initialRouteName="Profile">
+			<Stack.Screen name="Profile" component={ProfileScreen} options={navOptionHandler} />
+			<Stack.Screen name="ProfileDetail" component={ProfileDetail} options={navOptionHandler} />
+		</Stack.Navigator>
 	);
 };
 
 const HistoryStack = () => {
 	return (
-		<StackSettings.Navigator initialRouteName="History">
-			<StackSettings.Screen name="History" component={HistoryScreen} options={navOptionHandler} />
-			<StackSettings.Screen name="HistoryDetail" component={HistoryDetail} options={navOptionHandler} />
-		</StackSettings.Navigator>
+		<Stack.Navigator initialRouteName="History">
+			<Stack.Screen name="History" component={HistoryScreen} options={navOptionHandler} />
+			<Stack.Screen name="HistoryDetail" component={HistoryDetail} options={navOptionHandler} />
+		</Stack.Navigator>
 	);
 };
 
