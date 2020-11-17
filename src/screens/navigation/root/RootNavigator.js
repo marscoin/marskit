@@ -9,7 +9,8 @@ const Stack = createStackNavigator();
 const navOptionHandler = () => ({
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS
+	...TransitionPresets.SlideFromRightIOS,
+	detachPreviousScreen: false
 });
 
 const RootNavigator = () => {

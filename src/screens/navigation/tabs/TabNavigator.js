@@ -18,7 +18,8 @@ const themes = require("../../../styles/themes");
 const navOptionHandler = () => ({
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS
+	...TransitionPresets.SlideFromRightIOS,
+	detachPreviousScreen: false
 });
 
 const WalletsStack = () => {
@@ -79,7 +80,8 @@ const TabNavigator = () => {
 					fontSize: 14,
 					paddingBottom: 4
 				},
-				style:{ height: "8%" }
+				style:{ height: "8%" },
+				keyboardHidesTabBar: true
 			}}
 		>
 			<Tab.Screen name="Wallets" component={WalletsStack} />

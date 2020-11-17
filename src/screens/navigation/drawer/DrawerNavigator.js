@@ -5,16 +5,25 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 
 const Drawer = createDrawerNavigator();
 
+const screenOptions = {
+	headerShown: false,
+	gestureEnabled: true
+};
+
+const navOptionHandler = () => ({
+	detachPreviousScreen: false
+});
+
 const DrawerNavigator = () => {
 	return (
 		<Drawer.Navigator
+			screenOptions={screenOptions}
 			initialRouteName="Wallets"
-			screenOptions={{ headerShown: false }}
 			drawerContent={(props) => <Settings {...props} />}
 			drawerPosition="right"
 			drawerStyle={{ width: "100%" }}
 		>
-			<Drawer.Screen name="Wallets" component={TabNavigator} />
+			<Drawer.Screen name="Wallets" component={TabNavigator} options={navOptionHandler} />
 		</Drawer.Navigator>
 	);
 };
