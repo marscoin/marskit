@@ -7484,6 +7484,10 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
+"rn-electrum-client@git+ssh://git@github.com/synonymdev/rn-electrum-client":
+  version "0.0.7"
+  resolved "git+ssh://git@github.com/synonymdev/rn-electrum-client#7b2f275766edb8b662893525e1759e63e7836a25"
+
 rn-nodeify@^10.2.0:
   version "10.2.0"
   resolved "https://registry.yarnpkg.com/rn-nodeify/-/rn-nodeify-10.2.0.tgz#e68843bf280edf878b7615b255fb5e71cde9f8f6"
