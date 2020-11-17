@@ -1,6 +1,6 @@
-export const colors = {
+const colors = {
 	orange: "#ED6C2D",
-	black: "#1B1A1B",
+	black: "#121212",
 	darkGray: "#6e6e6e",
 	white: "#FFFFFF",
 	green: "#A2BC91",

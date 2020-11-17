@@ -1,10 +1,13 @@
 import configureFonts from "./fonts";
+import colors from "./colors";
 
 const defaultThemeValues = {
 	colors: {
+		...colors,
 		accent: "#0000007F",
 		success: "#A2BC91",
 		error: "#D87682",
+		transparent: "transparent"
 	},
 	fonts: configureFonts(),
 };
