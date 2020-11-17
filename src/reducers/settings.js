@@ -1,5 +1,5 @@
 import actions from "../actions/actions";
-import { light } from '../styles/themes';
+import { dark } from '../styles/themes';
 
 const settings = (state = {
 	loading: false,
@@ -9,7 +9,7 @@ const settings = (state = {
 	biometrics: false,
 	pin: false,
 	pinAttemptsRemaining: 5,
-	theme: light
+	theme: dark
 }, action) => {
 	switch (action.type) {
 
