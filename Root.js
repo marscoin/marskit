@@ -4,26 +4,13 @@ import {
 	StyleSheet
 } from "react-native";
 import App from "./src/App";
-import { createStore, applyMiddleware } from "redux";
-import reducers from "./src/reducers";
-import thunk from "redux-thunk";
-import logger from "redux-logger";
+import store from "./store";
 import { PersistGate } from "redux-persist/integration/react";
-import AsyncStorage from "@react-native-community/async-storage";
 import { enableScreens } from 'react-native-screens';
 enableScreens(true);
+
 const Provider = require("react-redux").Provider;
-const { persistStore, persistReducer } = require("redux-persist");
-const createStoreWithMiddleware = applyMiddleware(thunk, logger)(createStore);
-
-const persistConfig = {
-	key: 'root',
-	storage: AsyncStorage,
-};
-
-const persistedReducer = persistReducer(persistConfig, reducers);
-
-const store = createStoreWithMiddleware(persistedReducer);
+const { persistStore } = require("redux-persist");
 const persistor = persistStore(store);
 
 const Root = () => {
