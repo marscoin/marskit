@@ -13,6 +13,7 @@
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
+    "@photon-sdk/react-native-tcp": "https://github.com/coreyphillips/react-native-tcp",
     "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/clipboard": "^1.5.1",
