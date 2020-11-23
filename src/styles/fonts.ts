@@ -57,5 +57,5 @@ const fontConfig = {
 	},
 };
 
-const configureFonts = (config) => Platform.select({ ...fontConfig, ...config });
+const configureFonts = (config = {}): {} => Platform.select({ ...fontConfig, ...config });
 export default configureFonts;

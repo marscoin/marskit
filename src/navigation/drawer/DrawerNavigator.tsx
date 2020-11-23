@@ -10,10 +10,6 @@ const screenOptions = {
 	gestureEnabled: true
 };
 
-const navOptionHandler = () => ({
-	detachPreviousScreen: false
-});
-
 const DrawerNavigator = () => {
 	return (
 		<Drawer.Navigator
@@ -23,7 +19,7 @@ const DrawerNavigator = () => {
 			drawerPosition="right"
 			drawerStyle={{ width: "100%" }}
 		>
-			<Drawer.Screen name="Wallets" component={TabNavigator} options={navOptionHandler} />
+			<Drawer.Screen name="Wallets" component={TabNavigator} />
 		</Drawer.Navigator>
 	);
 };

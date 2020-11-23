@@ -2,15 +2,16 @@ import React, { memo } from "react";
 import { StyleSheet } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { Feather, View } from "../../styles/components";
-import { updateSettings } from "../../actions/settings";
+import { updateSettings } from "../../store/actions/settings";
 import { useNavigation } from "@react-navigation/native";
+import {DrawerNavigationProp} from "@react-navigation/drawer";
 
 const themes = require("../../styles/themes");
 
 const Header = () => {
 	const dispatch = useDispatch();
 	const settings = useSelector((state) => state.settings);
-	const navigation = useNavigation();
+	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
 	const updateTheme = () => {
 		try {
@@ -48,6 +49,8 @@ const styles = StyleSheet.create({
 		marginTop: 15,
 		marginHorizontal: 10,
 		marginBottom: 20,
+	},
+	rightIcon: {
 	},
 	leftColumn: {
 		flex: 1,

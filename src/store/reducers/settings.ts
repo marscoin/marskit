@@ -1,5 +1,5 @@
 import actions from "../actions/actions";
-import { dark } from '../styles/themes';
+import { dark } from '../../styles/themes';
 
 const settings = (state = {
 	loading: false,

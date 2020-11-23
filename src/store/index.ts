@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware } from "redux";
-import reducers from "./src/reducers";
+import reducers from "./reducers";
 import thunk from "redux-thunk";
 import logger from "redux-logger";
 import AsyncStorage from "@react-native-community/async-storage";

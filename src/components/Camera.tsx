@@ -14,7 +14,10 @@ const _Camera = (
 	{
 		onBarCodeRead = () => null,
 		onClose = () => null
-	}: { onBarCodeRead: Function, onClose: Function }) => {
+	}: {
+		onBarCodeRead: Function,
+		onClose: Function
+	}) => {
 	const [_data, setData] = useState("");
 	const notAuthorizedView = (
 		<View style={styles.notAuthorizedView}>

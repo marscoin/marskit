@@ -9,10 +9,20 @@ import {
 	Pressable,
 } from "react-native";
 
-const Button = ({ style = {}, text = "", onPress = () => null }) => {
+const Button = (
+	{
+		text = "",
+		onPress = () => null,
+		style = {},
+	}: {
+		text: string,
+		onPress?: Function,
+		style?: Object
+	}) => {
 	return (
 		<Pressable
 			style={[styles.button, style]}
+			//@ts-ignore
 			onPress={onPress}
 		>
 			<Text style={styles.text}>

@@ -1,13 +1,15 @@
 import React from "react";
 import {
 	View,
-	StyleSheet
+	StyleSheet,
+	Platform
 } from "react-native";
 import App from "./src/App";
-import store from "./store";
+import store from "./src/store";
 import { PersistGate } from "redux-persist/integration/react";
-import { enableScreens } from 'react-native-screens';
-enableScreens(true);
+import { enableScreens } from "react-native-screens";
+
+if (Platform.OS === "ios") enableScreens(true);
 
 const Provider = require("react-redux").Provider;
 const { persistStore } = require("redux-persist");
@@ -18,7 +20,6 @@ const Root = () => {
 		<Provider store={store}>
 			<PersistGate
 				loading={<View style={styles.container} />}
-				onBeforeLift={null}
 				persistor={persistor}
 			>
 				<App />

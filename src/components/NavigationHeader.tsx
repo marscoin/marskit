@@ -2,8 +2,9 @@ import React, { memo } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 import { Feather, MaterialIcons, View, TouchableOpacity, Text } from "../styles/components";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
-const BackButton = ({ onPress = () => null }) => {
+const BackButton = ({ onPress = () => null }: { onPress: Function }) => {
 	try {
 		return (
 			<TouchableOpacity
@@ -21,8 +22,8 @@ const BackButton = ({ onPress = () => null }) => {
 	} catch {return <View />;}
 };
 
-const NavigationHeader = ({ title, isHome = false }) => {
-	const navigation = useNavigation();
+const NavigationHeader = ({ title = "", isHome = false }: { title: string, isHome?: boolean }) => {
+	const navigation = useNavigation<DrawerNavigationProp<any>>();
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>

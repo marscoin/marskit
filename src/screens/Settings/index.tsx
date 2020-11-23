@@ -7,7 +7,7 @@ import {
 	TouchableOpacity
 } from "../../styles/components";
 import { useDispatch, useSelector } from "react-redux";
-import { updateSettings } from "../../actions/settings";
+import { updateSettings } from "../../store/actions/settings";
 import List from "../../components/List";
 
 const themes = require("../../styles/themes");
@@ -15,15 +15,15 @@ const themes = require("../../styles/themes");
 const Settings = ({ navigation }) => {
 	const dispatch = useDispatch();
 	const settings = useSelector((state) => state.settings);
-	
+
 	const updateTheme = () => {
 		try {
 			const theme = settings.theme.id === "dark" ? themes["light"] : themes["dark"];
 			dispatch(updateSettings({ theme }));
 		} catch {}
 	};
-	
-	const DATA = [
+
+	const SettingsListData = [
 		{
 			title: "Settings",
 			data: [
@@ -116,14 +116,14 @@ const Settings = ({ navigation }) => {
 			]
 		}
 	];
-	
+
 	return (
 		<View style={styles.container}>
 			<TouchableOpacity activeOpacity={0.7} onPress={navigation.goBack} style={styles.row}>
 				<Feather style={{}} name="arrow-left" size={30} />
 				<Text style={styles.backText}>Settings</Text>
 			</TouchableOpacity>
-			<List data={DATA} />
+			<List data={SettingsListData} />
 		</View>
 	);
 };

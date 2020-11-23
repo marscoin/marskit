@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, ReactElement } from "react";
 import { SectionList, StyleSheet, Switch } from "react-native";
 import {
 	View,
@@ -7,13 +7,30 @@ import {
 } from "../styles/components";
 import { useNavigation } from "@react-navigation/native";
 
-const ItemHeader = ({ title }) => (
+const ItemHeader = ({ title }: { title: string }): ReactElement => (
 	<View style={styles.itemHeader}>
 		<Text type="white" style={styles.header}>{title}</Text>
 	</View>
 );
 
-const Item = ({ type, title, onPress, navigation, enabled = true }) => {
+type ItemData = {
+	title: string,
+	type: string,
+	onPress: Function,
+	enabled?: boolean,
+}
+interface IItem extends ItemData {
+	navigation: Object,
+	type: string
+}
+const Item = (
+	{
+		type,
+		title,
+		onPress,
+		navigation,
+		enabled = true
+	}: IItem): ReactElement => {
 	const _onPress = () => onPress(navigation);
 	if (type === "switch") {
 		return (
@@ -26,7 +43,7 @@ const Item = ({ type, title, onPress, navigation, enabled = true }) => {
 						trackColor={{ false: "#767577", true: "#81b0ff" }}
 						thumbColor={"#f4f3f4"}
 						ios_backgroundColor="#3e3e3e"
-						onValueChange={onPress}
+						onValueChange={_onPress}
 						value={enabled}
 					/>
 				</View>
@@ -40,12 +57,16 @@ const Item = ({ type, title, onPress, navigation, enabled = true }) => {
 	);
 };
 
-const List = ({ data = [] }) => {
+interface IListData {
+	title: string,
+	data: ItemData[]
+}
+const List = ({ data }: { data: IListData[] }) => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
 			sections={data}
-			keyExtractor={(item, index) => item + index}
+			keyExtractor={(item, index) => `${item}${index}`}
 			renderSectionHeader={({ section: { title } }) => <ItemHeader title={title} />}
 			renderItem={({ item }) => <Item {...item} navigation={navigation} />}
 			ItemSeparatorComponent={() => <View style={styles.separator} />}
