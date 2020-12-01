@@ -32,7 +32,6 @@ module.exports = {
 		"no-buffer-constructor": 0,
 		"no-case-declarations": 0,
 		"no-useless-escape": 0,
-		"semi": 2,
 		"react/jsx-no-duplicate-props": [2, { "ignoreCase": true }],
 		"react-native/no-unused-styles": 1,
 		"react-native/no-raw-text": 2,

@@ -1,11 +1,10 @@
 import actions from "../actions/actions";
 import { dark } from '../../styles/themes';
+import { ISettings } from "../types/settings";
 
-const settings = (state = {
+const settings = (state: ISettings = {
 	loading: false,
 	error: false,
-	errorTitle: "",
-	errorMsg: "",
 	biometrics: false,
 	pin: false,
 	pinAttemptsRemaining: 5,

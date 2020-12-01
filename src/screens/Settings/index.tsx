@@ -6,6 +6,7 @@ import {
 	Text,
 	TouchableOpacity
 } from "../../styles/components";
+import Store from "../../store/types";
 import { useDispatch, useSelector } from "react-redux";
 import { updateSettings } from "../../store/actions/settings";
 import List from "../../components/List";
@@ -14,7 +15,7 @@ const themes = require("../../styles/themes");
 
 const Settings = ({ navigation }) => {
 	const dispatch = useDispatch();
-	const settings = useSelector((state) => state.settings);
+	const settings = useSelector((state: Store) => state.settings);
 
 	const updateTheme = () => {
 		try {

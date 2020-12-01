@@ -1,10 +1,9 @@
 import actions from "../actions/actions";
+import { IWallet } from "../types/wallet";
 
-const wallet = (state = {
+const wallet = (state: IWallet = {
 	loading: false,
 	error: false,
-	errorTitle: "",
-	errorMsg: "",
 	selectedNetwork: "bitcoin",
 	selectedWallet: "wallet0",
 	wallets: {}

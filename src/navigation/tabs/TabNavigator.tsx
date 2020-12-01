@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -9,6 +9,7 @@ import ProfileDetail from "../../screens/Profile/ProfileDetail";
 import HistoryScreen from "../../screens/History";
 import HistoryDetail from "../../screens/History/HistoryDetail";
 import { useSelector } from "react-redux";
+import Store from "../../store/types";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -49,7 +50,7 @@ const HistoryStack = () => {
 };
 
 const TabNavigator = () => {
-	const settings = useSelector((state) => state.settings);
+	const settings = useSelector((state: Store) => state.settings);
 	const theme = settings.theme.id !== "dark" ? themes["light"] : themes["dark"];
 	return (
 		<Tab.Navigator
@@ -90,4 +91,4 @@ const TabNavigator = () => {
 	);
 };
 
-export default memo(TabNavigator);
+export default TabNavigator;

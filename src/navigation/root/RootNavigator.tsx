@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import DrawerNavigator from "../drawer/DrawerNavigator";
@@ -24,4 +24,4 @@ const RootNavigator = () => {
 	);
 };
 
-export default memo(RootNavigator);
+export default RootNavigator;

@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import TabNavigator from "../tabs/TabNavigator";
 import Settings from "../../screens/Settings";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -24,4 +24,4 @@ const DrawerNavigator = () => {
 	);
 };
 
-export default memo(DrawerNavigator);
+export default DrawerNavigator;

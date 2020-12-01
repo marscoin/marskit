@@ -1,10 +1,9 @@
 import actions from "../actions/actions";
+import { IUser } from "../types/user";
 
-const user = (state = {
+const user = (state: IUser = {
 	loading: false,
 	error: false,
-	errorTitle: "",
-	errorMsg: "",
 	isHydrated: false,
 	isOnline: true
 }, action) => {

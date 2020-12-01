@@ -5,12 +5,12 @@ import { Feather, View } from "../../styles/components";
 import { updateSettings } from "../../store/actions/settings";
 import { useNavigation } from "@react-navigation/native";
 import {DrawerNavigationProp} from "@react-navigation/drawer";
-
+import Store from "../../store/types";
 const themes = require("../../styles/themes");
 
 const Header = () => {
 	const dispatch = useDispatch();
-	const settings = useSelector((state) => state.settings);
+	const settings = useSelector((state: Store ) => state.settings);
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
 	const updateTheme = () => {
