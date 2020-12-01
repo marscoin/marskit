@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@photon-sdk/react-native-tcp": "https://github.com/coreyphillips/react-native-tcp",
-    "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/masked-view": "^0.1.10",
