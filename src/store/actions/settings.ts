@@ -1,6 +1,6 @@
 import actions from "./actions";
 
-export const updateSettings = payload => async dispatch => {
+export const updateSettings = payload => dispatch => {
 	return new Promise(async resolve => {
 		await dispatch({
 			type: actions.UPDATE_SETTINGS,
