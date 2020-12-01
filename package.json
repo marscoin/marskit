@@ -34,7 +34,6 @@
     "events": "^3.2.0",
     "lottie-ios": "^3.1.9",
     "lottie-react-native": "^3.5.0",
-    "nodejs-mobile-react-native": "^0.6.2",
     "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js",
     "process": "^0.11.10",
     "react": "17.0.1",
