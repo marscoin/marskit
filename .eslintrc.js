@@ -41,9 +41,10 @@ module.exports = {
 			"when": "never",
 			"attributes": { "allowMultiline": true },
 			"children": true,
-			"spacing": {
-				"objectLiterals": "never"
-			}
+		}],
+		"indent": [2, "tab"],
+		"object-curly-spacing": ["error", "always", {
+			"objectsInObjects": false,
 		}],
 		"react/jsx-uses-vars": 2,
 		"react/jsx-wrap-multilines": 2,
@@ -55,7 +56,7 @@ module.exports = {
 				"beforeClosing": "never"
 			}
 		],
-		"react/jsx-indent": [2, "tab"],
+		"react/jsx-indent": [2, "tab", { indentLogicalExpressions: false }],
 		"react/jsx-closing-bracket-location": 2,
 		"react/jsx-child-element-spacing": 2,
 		"react/no-unused-prop-types": 2,

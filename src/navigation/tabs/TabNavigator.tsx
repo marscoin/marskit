@@ -58,15 +58,15 @@ const TabNavigator = () => {
 				tabBarIcon: ({ focused, color, size }) => {
 					let iconName;
 					switch (route.name) {
-						case "Wallets":
-							iconName = focused ? "wallet" : "wallet-outline";
-							break;
-						case "Profile":
-							iconName = focused ? "person-circle" : "person-circle-outline";
-							break;
-						case "History":
-							iconName = focused ? "notifications-circle" : "notifications";
-							break;
+					case "Wallets":
+						iconName = focused ? "wallet" : "wallet-outline";
+						break;
+					case "Profile":
+						iconName = focused ? "person-circle" : "person-circle-outline";
+						break;
+					case "History":
+						iconName = focused ? "notifications-circle" : "notifications";
+						break;
 					}
 					return <Ionicons name={iconName} size={size} color={color} />;
 				}

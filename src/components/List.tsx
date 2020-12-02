@@ -1,15 +1,11 @@
 import React, { memo, ReactElement } from "react";
 import { SectionList, StyleSheet, Switch } from "react-native";
-import {
-	View,
-	TouchableOpacity,
-	Text
-} from "../styles/components";
+import { Text, TouchableOpacity, View } from "../styles/components";
 import { useNavigation } from "@react-navigation/native";
 
 const ItemHeader = ({ title }: { title: string }): ReactElement => (
 	<View style={styles.itemHeader}>
-		<Text type="white" style={styles.header}>{title}</Text>
+		<Text color="white" style={styles.header}>{title}</Text>
 	</View>
 );
 
@@ -19,10 +15,12 @@ type ItemData = {
 	onPress: Function,
 	enabled?: boolean,
 }
+
 interface IItem extends ItemData {
 	navigation: Object,
 	type: string
 }
+
 const Item = (
 	{
 		type,
@@ -35,10 +33,10 @@ const Item = (
 	if (type === "switch") {
 		return (
 			<TouchableOpacity activeOpacity={0.7} onPress={_onPress} style={styles.row}>
-				<View type="transparent" style={styles.leftColumn}>
-					<Text type="white" style={styles.title}>{title}</Text>
+				<View color="transparent" style={styles.leftColumn}>
+					<Text color="white" style={styles.title}>{title}</Text>
 				</View>
-				<View type="transparent" style={styles.rightColumn}>
+				<View color="transparent" style={styles.rightColumn}>
 					<Switch
 						trackColor={{ false: "#767577", true: "#81b0ff" }}
 						thumbColor={"#f4f3f4"}
@@ -52,7 +50,7 @@ const Item = (
 	}
 	return (
 		<TouchableOpacity activeOpacity={0.7} onPress={enabled ? _onPress : null} style={styles.row}>
-			<Text type="white" style={styles.title}>{title}</Text>
+			<Text color="white" style={styles.title}>{title}</Text>
 		</TouchableOpacity>
 	);
 };
@@ -61,13 +59,14 @@ interface IListData {
 	title: string,
 	data: ItemData[]
 }
+
 const List = ({ data }: { data: IListData[] }) => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
 			sections={data}
 			keyExtractor={(item, index) => `${item}${index}`}
-			renderSectionHeader={({ section: { title } }) => <ItemHeader title={title} />}
+			renderSectionHeader={({ section: { title }}) => <ItemHeader title={title} />}
 			renderItem={({ item }) => <Item {...item} navigation={navigation} />}
 			ItemSeparatorComponent={() => <View style={styles.separator} />}
 			stickySectionHeadersEnabled={true}

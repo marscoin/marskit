@@ -16,7 +16,7 @@ export const Container = styled.View`
 `;
 
 export const View = styled.View`
-  background-color: ${props => props.type ? props.theme.colors[props.type] : props.theme.colors.background};
+  background-color: ${props => props.color ? props.theme.colors[props.color] : props.theme.colors.background};
 `;
 
 export const TouchableOpacity = styled.TouchableOpacity`
@@ -40,21 +40,21 @@ export const Text = styled.Text`
 `;
 
 export const Feather = styled(_Feather).attrs((props) => ({
-	color: props.type ? props.theme.colors[props.type] : props.theme.colors.text
+	color: props.color ? props.theme.colors[props.color] : props.theme.colors.text
 }))`
 `;
 
 export const MaterialIcons = styled(_MaterialIcons).attrs((props) => ({
-	color: props.type ? props.theme.colors[props.type] : props.theme.colors.text
+	color: props.color ? props.theme.colors[props.color] : props.theme.colors.text
 }))`
 `;
 
 export const EvilIcon = styled(_EvilIcon).attrs((props) => ({
-	color: props.type ? props.theme.colors[props.type] : props.theme.colors.text
+	color: props.color ? props.theme.colors[props.color] : props.theme.colors.text
 }))`
 `;
 
 export const Ionicons = styled(_Ionicons).attrs((props) => ({
-	color: props.type ? props.theme.colors[props.type] : props.theme.colors.text
+	color: props.color ? props.theme.colors[props.color] : props.theme.colors.text
 }))`
 `;

@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Feather, View } from "../../styles/components";
 import { updateSettings } from "../../store/actions/settings";
 import { useNavigation } from "@react-navigation/native";
-import {DrawerNavigationProp} from "@react-navigation/drawer";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 import Store from "../../store/types";
 const themes = require("../../styles/themes");
 

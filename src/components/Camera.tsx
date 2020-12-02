@@ -1,12 +1,6 @@
-import React, {memo, useState} from "react";
-import {
-	StyleSheet
-} from "react-native";
-import {
-	View,
-	Text,
-	EvilIcon
-} from "../styles/components";
+import React, { memo, useState } from "react";
+import { StyleSheet } from "react-native";
+import { EvilIcon, Text, View } from "../styles/components";
 import { RNCamera } from 'react-native-camera';
 import { systemWeights } from "react-native-typography";
 
@@ -15,15 +9,16 @@ const _Camera = (
 		onBarCodeRead = () => null,
 		onClose = () => null
 	}: {
-		onBarCodeRead: Function,
-		onClose: Function
-	}) => {
+        onBarCodeRead: Function,
+        onClose: Function
+    }) => {
 	const [_data, setData] = useState("");
 	const notAuthorizedView = (
 		<View style={styles.notAuthorizedView}>
 			<EvilIcon name={"exclamation"} size={60} />
 			<Text style={styles.boldText}>It appears Spectrum does not have permission to access your camera.</Text>
-			<Text style={styles.text}>To utilize this feature in the future you will need to enable camera permissions for this app from your phones settings.</Text>
+			<Text style={styles.text}>To utilize this feature in the future you will need to enable camera permissions
+				for this app from your phones settings.</Text>
 		</View>
 	);
 

@@ -12,14 +12,14 @@ const settings = (state: ISettings = {
 }, action) => {
 	switch (action.type) {
 
-		case actions.UPDATE_SETTINGS:
-			return {
-				...state,
-				...action.payload
-			};
+	case actions.UPDATE_SETTINGS:
+		return {
+			...state,
+			...action.payload
+		};
 
-		default:
-			return state;
+	default:
+		return state;
 
 	}
 };

@@ -10,14 +10,14 @@ const wallet = (state: IWallet = {
 }, action) => {
 	switch (action.type) {
 
-		case actions.UPDATE_WALLET:
-			return {
-				...state,
-				...action.payload
-			};
+	case actions.UPDATE_WALLET:
+		return {
+			...state,
+			...action.payload
+		};
 
-		default:
-			return state;
+	default:
+		return state;
 
 	}
 };

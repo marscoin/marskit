@@ -19,7 +19,9 @@ const BackButton = ({ onPress = () => null }: { onPress: Function }) => {
 				<Text>Back</Text>
 			</TouchableOpacity>
 		);
-	} catch {return <View />;}
+	} catch {
+		return <View />;
+	}
 };
 
 const NavigationHeader = ({ title = "", isHome = false }: { title: string, isHome?: boolean }) => {
