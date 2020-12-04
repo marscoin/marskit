@@ -1,9 +1,9 @@
-type SelectedNetwork = "bitcoin" | "bitcoinTestnet";
+import { AvailableNetworks } from "../../utils/networks";
 
 export interface IWallet {
     loading: boolean;
     error: boolean;
-    selectedNetwork: SelectedNetwork;
+    selectedNetwork: AvailableNetworks;
     selectedWallet: string;
     wallets: object;
     [key: string]: any;
