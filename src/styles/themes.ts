@@ -12,7 +12,7 @@ const defaultThemeValues = {
 	fonts: configureFonts(),
 };
 
-export const light = {
+const light = {
 	...defaultThemeValues,
 	id: "light",
 	colors: {
@@ -26,7 +26,7 @@ export const light = {
 	}
 };
 
-export const dark = {
+const dark = {
 	...defaultThemeValues,
 	id: "dark",
 	colors: {
@@ -34,8 +34,10 @@ export const dark = {
 		text: "#FFFFFF",
 		primary: "#FFFFFF",
 		background: "#121212",
-		surface: "#121212",
+		surface: "#333333",
 		onBackground: "#FFFFFF",
-		onSurface: "#FFFFFF",
+		onSurface: "#5C5C5C",
 	},
 };
+
+export default { light, dark };

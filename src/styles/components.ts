@@ -34,7 +34,7 @@ export const StatusBar = styled.StatusBar.attrs((props) => ({
 `;
 
 export const Text = styled.Text`
-  color: ${props => props.type ? props.theme.colors[props.type] : props.theme.colors.text};
+  color: ${props => props.color ? props.theme.colors[props.color] : props.theme.colors.text};
   font-family: ${props => props.font ? props.theme.fonts[props.font].fontFamily : props.theme.fonts.medium.fontFamily};
   font-weight: ${props => props.font ? props.theme.fonts[props.font].fontWeight : props.theme.fonts.medium.fontWeight};
 `;

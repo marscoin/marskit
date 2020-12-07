@@ -10,17 +10,17 @@ import HistoryScreen from "../../screens/History";
 import HistoryDetail from "../../screens/History/HistoryDetail";
 import { useSelector } from "react-redux";
 import Store from "../../store/types";
+import themes from "../../styles/themes";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-const themes = require("../../styles/themes");
 
-const navOptionHandler = () => ({
+const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
 	detachPreviousScreen: false
-});
+};
 
 const WalletsStack = () => {
 	return (
@@ -51,7 +51,9 @@ const HistoryStack = () => {
 
 const TabNavigator = () => {
 	const settings = useSelector((state: Store) => state.settings);
-	const theme = settings.theme.id !== "dark" ? themes["light"] : themes["dark"];
+	const theme = themes[settings.theme];
+	const activeTintColor = theme.colors.text;
+	const backgroundColor = theme.colors.background;
 	return (
 		<Tab.Navigator
 			screenOptions={({ route }) => ({
@@ -72,10 +74,10 @@ const TabNavigator = () => {
 				}
 			})}
 			tabBarOptions={{
-				activeTintColor: theme.colors.text,
+				activeTintColor,
 				inactiveTintColor: "gray",
-				activeBackgroundColor: theme.colors.background,
-				inactiveBackgroundColor: theme.colors.background,
+				activeBackgroundColor: backgroundColor,
+				inactiveBackgroundColor: backgroundColor,
 				labelStyle:{
 					fontSize: 14,
 					paddingBottom: 4

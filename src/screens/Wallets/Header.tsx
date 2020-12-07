@@ -6,7 +6,6 @@ import { updateSettings } from "../../store/actions/settings";
 import { useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import Store from "../../store/types";
-const themes = require("../../styles/themes");
 
 const Header = () => {
 	const dispatch = useDispatch();
@@ -15,7 +14,7 @@ const Header = () => {
 
 	const updateTheme = () => {
 		try {
-			const theme = settings.theme.id === "dark" ? themes["light"] : themes["dark"];
+			const theme = settings.theme === "dark" ? "light" : "dark";
 			dispatch(updateSettings({ theme }));
 		} catch {}
 	};
@@ -25,7 +24,7 @@ const Header = () => {
 			<View style={styles.leftColumn}>
 				<Feather
 					onPress={updateTheme}
-					name={settings.theme.id === "light" ? "moon" : "sun"}
+					name={settings.theme === "light" ? "moon" : "sun"}
 					size={30}
 				/>
 			</View>
