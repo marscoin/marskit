@@ -338,6 +338,7 @@ PODS:
     - React
   - RNVectorIcons (7.1.0):
     - React
+  - SwiftProtobuf (1.13.0)
   - TouchID (4.4.1):
     - React
   - Yoga (1.14.0)
@@ -409,6 +410,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - SwiftProtobuf (~> 1.0)
   - TouchID (from `../node_modules/react-native-touch-id`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -425,6 +427,7 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - OpenSSL-Universal
+    - SwiftProtobuf
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -574,10 +577,11 @@ SPEC CHECKSUMS:
   RNScreens: 2ad555d4d9fa10b91bb765ca07fe9b29d59573f0
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
+  SwiftProtobuf: fd4693388a96c8c2df35d3b063272b0e7c499d00
   TouchID: ba4c656d849cceabc2e4eef722dea5e55959ecf4
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: da58039f138611d6c1fd2fb507ada8a941718d3b
+PODFILE CHECKSUM: a5ae650aea49639164e4eb707d3052e4a44c2e0c
 
-COCOAPODS: 1.10.0.rc.1
+COCOAPODS: 1.10.0
