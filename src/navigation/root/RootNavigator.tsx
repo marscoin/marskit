@@ -1,17 +1,18 @@
 import React from "react";
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
+import { TransitionPresets } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "react-native-screens/native-stack";
 import DrawerNavigator from "../drawer/DrawerNavigator";
 import TempSettings from "../../screens/Settings/TempSettings";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
-const navOptionHandler = () => ({
+const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
 	detachPreviousScreen: false
-});
+};
 
 const RootNavigator = () => {
 	return (
