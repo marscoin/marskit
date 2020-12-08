@@ -9,7 +9,11 @@ export interface IWallet {
     [key: string]: any;
 }
 
-export type AddressType = "bech32" | "segwit" | "legacy";
+export type AddressType = "bech32" | "segwit" | "legacy"; //"84" | "49" | "44";
+
+export type KeyDerivationPath = "84" | "49" | "44"; //"bech32" | "segwit" | "legacy";
+
+export type NetworkTypePath = "0" | "1" //"mainnet" | "testnet"
 
 export interface IWalletItem<T> {
     bitcoin: T,
@@ -22,13 +26,22 @@ export interface IAddress {
         path: string,
         address: string,
         scriptHash: string
-    } | []
+    }
 }
 
 export interface IAddresses {
     bitcoin: IAddress[] | [],
     bitcoinTestnet: IAddress[] | [],
     timestamp: null
+}
+
+export interface ICreateWallet {
+    wallet: string,
+    mnemonic?: string,
+    selectedNetwork?: AvailableNetworks,
+    addressAmount?: number,
+    changeAddressAmount?: number,
+    keyDerivationPath?: KeyDerivationPath,
 }
 
 export interface IDefaultWalletShape {
@@ -47,7 +60,7 @@ export interface IDefaultWalletShape {
     lastUpdated: IWalletItem<number>,
     hasBackedUpWallet: boolean,
     walletBackupTimestamp: string,
-    keyDerivationPath: IWalletItem<string>,
+    keyDerivationPath: IWalletItem<KeyDerivationPath>,
     networkTypePath: IWalletItem<string>,
     addressType: {
         bitcoin: AddressType,
