@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import DrawerNavigator from "../drawer/DrawerNavigator";
 import TempSettings from "../../screens/Settings/TempSettings";
+import LightningInfo from "../../screens/Settings/Lightning/LightningInfo";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ const RootNavigator = () => {
 			<Stack.Navigator initialRouteName="Drawer">
 				<Stack.Screen name="Drawer" component={DrawerNavigator} options={navOptionHandler} />
 				<Stack.Screen name="TempSettings" component={TempSettings} options={navOptionHandler} />
+				<Stack.Screen name="TempLightningOptions" component={LightningInfo} options={navOptionHandler} />
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

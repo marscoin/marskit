@@ -62,6 +62,21 @@ const Settings = ({ navigation }) => {
 			]
 		},
 		{
+			title: "Lightning Debug",
+			data: [
+				{
+					title: "Open debug logs",
+					type: "button",
+					onPress: () => navigation.navigate("TempSettings")
+				},
+				{
+					title: "Test commands",
+					type: "button",
+					onPress: () => navigation.navigate("TempLightningOptions")
+				},
+			]
+		},
+		{
 			title: "About",
 			data: [
 				{
