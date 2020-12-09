@@ -1,5 +1,4 @@
 import actions from "../actions/actions";
-import themes from '../../styles/themes';
 import { ISettings } from "../types/settings";
 
 const settings = (state: ISettings = {
@@ -8,7 +7,7 @@ const settings = (state: ISettings = {
 	biometrics: false,
 	pin: false,
 	pinAttemptsRemaining: 5,
-	theme: themes.dark
+	theme: "dark"
 }, action) => {
 	switch (action.type) {
 
