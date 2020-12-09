@@ -11,15 +11,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateSettings } from "../../store/actions/settings";
 import List from "../../components/List";
 
-const themes = require("../../styles/themes");
-
 const Settings = ({ navigation }) => {
 	const dispatch = useDispatch();
 	const settings = useSelector((state: Store) => state.settings);
 
 	const updateTheme = () => {
 		try {
-			const theme = settings.theme.id === "dark" ? themes["light"] : themes["dark"];
+			const theme = settings.theme === "dark" ? "light" : "dark";
 			dispatch(updateSettings({ theme }));
 		} catch {}
 	};
@@ -31,7 +29,7 @@ const Settings = ({ navigation }) => {
 				{
 					title: "Dark Mode",
 					type: "switch",
-					enabled: settings.theme.id === "dark",
+					enabled: settings.theme === "dark",
 					onPress: updateTheme
 				},
 				{

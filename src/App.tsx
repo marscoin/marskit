@@ -6,13 +6,14 @@ import { StatusBar, SafeAreaView } from "./styles/components";
 import RootNavigator from "./navigation/root/RootNavigator";
 import Store from "./store/types";
 import { startLnd } from "./utils/lightning-debug";
+import themes from "./styles/themes";
 
 const App = () => {
 	useEffect(() => {(async () => await startLnd())()}, []);
 
 	const settings = useSelector((state: Store) => state.settings);
 	return (
-		<ThemeProvider theme={settings.theme}>
+		<ThemeProvider theme={themes[settings.theme]}>
 			<StatusBar />
 			<SafeAreaView style={styles.container}>
 				<RootNavigator />

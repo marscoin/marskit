@@ -44,7 +44,7 @@ module.exports = {
 		}],
 		"indent": [2, "tab"],
 		"object-curly-spacing": ["error", "always", {
-			"objectsInObjects": false,
+			"objectsInObjects": true,
 		}],
 		"react/jsx-uses-vars": 2,
 		"react/jsx-wrap-multilines": 2,

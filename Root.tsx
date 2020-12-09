@@ -1,15 +1,14 @@
 import React from "react";
 import {
 	View,
-	StyleSheet,
-	Platform
+	StyleSheet
 } from "react-native";
 import App from "./src/App";
 import store from "./src/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { enableScreens } from "react-native-screens";
 
-if (Platform.OS === "ios") enableScreens(true);
+enableScreens(true);
 
 const Provider = require("react-redux").Provider;
 const { persistStore } = require("redux-persist");
