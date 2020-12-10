@@ -55,7 +55,7 @@ const LightningInfo = ({ navigation }) => {
 		<View style={styles.container}>
 			<TouchableOpacity activeOpacity={0.7} onPress={navigation.goBack} style={styles.row}>
 				<Feather style={{}} name="arrow-left" size={30} />
-				<Text style={styles.backText}>Settings</Text>
+				<Text style={styles.backText}>Lightning</Text>
 			</TouchableOpacity>
 			<List data={SettingsListData} />
 			<ScrollView>

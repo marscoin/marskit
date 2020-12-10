@@ -23,6 +23,7 @@ const light = {
 		surface: "#FFFFFF",
 		onBackground: "#121212",
 		onSurface: "#121212",
+		logText: "#121212",
 	}
 };
 
@@ -37,6 +38,7 @@ const dark = {
 		surface: "#333333",
 		onBackground: "#FFFFFF",
 		onSurface: "#5C5C5C",
+		logText: "#16ff00",
 	},
 };
 

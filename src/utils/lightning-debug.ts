@@ -76,7 +76,8 @@ const createWallet = async () => {
 		return;
 	}
 
-	console.log(`Wallet created with seed: \n${seed.join(" ")}`);
+
+	console.log(`Wallet created`);
 }
 
 const unlockWallet = async () => {
@@ -130,7 +131,6 @@ export const getBalance = async (onComplete: (msg: string) => void) => {
 		return;
 	}
 
-	//02289084a31b0e08307a5c6d61a89728d61e0cea2a39e65ed2713c4807891d0c50@127.0.0.1:9735
 	Object.keys(channelRes.value).forEach(key => {
 		const value = channelRes.value[key];
 		if (value != null && typeof value != "object") {
@@ -169,6 +169,8 @@ export const openMaxChannel = async (onComplete: (msg: string) => void) => {
 			{
 				text: "Open",
 				onPress: async(nodeDetails) => {
+					onComplete("Connecting...");
+
 					const split = nodeDetails?.split("@");
 					if (!split) {
 						onDebugError(new Error("Enter node details"), onComplete);
@@ -181,8 +183,6 @@ export const openMaxChannel = async (onComplete: (msg: string) => void) => {
 						return;
 					}
 
-					//03d5524da52b1b632e766a1af7f917be0fffc905eb6cc0f4d8d1b40b72e26cb483@10.0.0.100:9736
-
 					onComplete("Connected to node...")
 
 					const balanceRes = await lnd.getWalletBalance();
@@ -191,7 +191,7 @@ export const openMaxChannel = async (onComplete: (msg: string) => void) => {
 						return;
 					}
 
-					let value = balanceRes.value.confirmedBalance;
+					let value = balanceRes.value.confirmedBalance * 0.8;
 					const max = 16000000;
 					if (value > max) {
 						value = max;
