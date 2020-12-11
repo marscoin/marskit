@@ -218,6 +218,10 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation project(path: ':Lndmobile')
+    implementation 'com.google.protobuf:protobuf-java:3.13.0'
+    implementation 'com.android.support:multidex:1.0.3'
 }
 
 // Run this once to be able to run the application with BUCK
