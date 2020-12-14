@@ -1,15 +1,15 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { ThemeProvider } from "styled-components/native";
 import { StatusBar, SafeAreaView } from "./styles/components";
 import RootNavigator from "./navigation/root/RootNavigator";
 import Store from "./store/types";
-import { startLnd } from "./utils/lightning-debug";
+import useLightning from "./utils/hooks/lightning";
 import themes from "./styles/themes";
 
 const App = () => {
-	useEffect(() => {(async () => await startLnd())()}, []);
+	useLightning();
 
 	const settings = useSelector((state: Store) => state.settings);
 	return (
