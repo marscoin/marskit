@@ -3,7 +3,11 @@ module.exports = {
 	extends: '@react-native-community',
 	parser: '@typescript-eslint/parser',
 	plugins: ['@typescript-eslint'],
+	globals: {
+		localStorage: false,
+	},
 	rules: {
+		'@typescript-eslint/no-unused-vars': 'warn',
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
 		'no-console': 0,
@@ -24,7 +28,11 @@ module.exports = {
 				children: true,
 			},
 		],
-		indent: [2, 'tab'],
+		indent: [
+			2,
+			'tab',
+			{ SwitchCase: 1, ignoredNodes: ['ConditionalExpression'] },
+		],
 		'object-curly-spacing': [
 			'error',
 			'always',
@@ -43,8 +51,12 @@ module.exports = {
 				beforeClosing: 'never',
 			},
 		],
-		// 'react/jsx-indent': [2, 'tab', { indentLogicalExpressions: false }],
-		'react/jsx-closing-bracket-location': 2,
+		'react/jsx-indent': [2, 'tab', { indentLogicalExpressions: false }],
+		//TODO try get this working again
+		// 'react/jsx-closing-bracket-location': [
+		// 	'error',
+		// 	{ selfClosing: 'props-aligned', nonEmpty: 'after-props' },
+		// ],
 		'react/jsx-child-element-spacing': 2,
 		'react/no-unused-prop-types': 2,
 		'react/prop-types': 0,
