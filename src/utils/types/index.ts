@@ -4,7 +4,7 @@ import { TAddressType, IAddress, TKeyDerivationPath } from "../../store/types/wa
 
 export interface IResponse<T> {
 	error: boolean;
-	data: T | Object | string;
+	data: T;
 }
 
 export interface ISetKeychainValue {

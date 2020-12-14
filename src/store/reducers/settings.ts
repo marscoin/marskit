@@ -7,7 +7,8 @@ const settings = (state: ISettings = {
 	biometrics: false,
 	pin: false,
 	pinAttemptsRemaining: 5,
-	theme: "dark"
+	theme: "dark",
+	bitcoinUnit: "satoshi", //BTC, mBTC, μBTC or satoshi
 }, action) => {
 	switch (action.type) {
 

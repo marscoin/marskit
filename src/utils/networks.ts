@@ -51,4 +51,4 @@ export const networks: INetworks = {
 };
 
 //Returns an array of all available networks from the networks object.
-export const availableNetworks: string[] = Object.keys(networks).map(coin => coin);
+export const availableNetworks = (): EAvailableNetworks[] => Object.values(EAvailableNetworks);
