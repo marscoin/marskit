@@ -7,6 +7,7 @@ import LndConf from "react-native-lightning/dist/lnd.conf";
 import { ENetworks as LndNetworks } from "react-native-lightning/dist/types";
 import { Alert } from "react-native";
 import Clipboard from "@react-native-community/clipboard";
+import { ILightning } from "../store/types/lightning";
 
 const tempPassword = "shhhhhhhh123";
 const testnetNodePubkey = "0324b835e1484d6637594edc2b97f3f85490afb782dd308b241485216ad47598df";
@@ -29,14 +30,20 @@ export const startLnd = async () => {
 		}
 	};
 
-	const lndConf = new LndConf(LndNetworks.testnet);
+	const testNetconf = {
+		Neutrino: {
+			'neutrino.connect': '174.138.2.184:18333',
+		}
+	}
+
+	const lndConf = new LndConf(LndNetworks.testnet, testNetconf);
 
 	const res = await lnd.start(lndConf);
 	if (res.isErr()) {
 		Alert.alert("LND failed to start", res.error.message);
 		return;
 	}
-	
+
 	const existsRes = await lnd.walletExists(lndConf.network);
 	if (existsRes.isErr()) {
 		Alert.alert("LND failed to check if wallet exists", existsRes.error.message);
@@ -224,4 +231,24 @@ export const payInvoice = async (onComplete: (msg: string) => void) => {
 			}
 		]
 	);
+}
+
+export const lightningStatusMessage = (lightning: ILightning): string => {
+	if (!lightning.state.lndRunning) {
+		return "Starting ⌛";
+	}
+
+	if (!lightning.state.walletUnlocked) {
+		return "Unlocking ⌛";
+	}
+
+	if (!lightning.state.grpcReady) {
+		return "Unlocked ⌛";
+	}
+
+	if (!lightning.info.syncedToChain) {
+		return `Syncing ⌛ ${lightning.info.blockHeight}`;
+	}
+
+	return "Ready ✅";
 }
