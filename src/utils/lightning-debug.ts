@@ -7,8 +7,11 @@ import LndConf from "react-native-lightning/dist/lnd.conf";
 import { ENetworks as LndNetworks } from "react-native-lightning/dist/types";
 import { Alert } from "react-native";
 import Clipboard from "@react-native-community/clipboard";
+import { ILightning } from "../store/types/lightning";
 
 const tempPassword = "shhhhhhhh123";
+const testnetNodePubkey = "0324b835e1484d6637594edc2b97f3f85490afb782dd308b241485216ad47598df";
+const testnetNodeHost = "174.138.2.184:9735";
 
 /**
  * Start LND and unlock a wallet if one exists
@@ -27,7 +30,13 @@ export const startLnd = async () => {
 		}
 	};
 
-	const lndConf = new LndConf(LndNetworks.testnet);
+	const testNetconf = {
+		Neutrino: {
+			'neutrino.connect': '174.138.2.184:18333',
+		}
+	}
+
+	const lndConf = new LndConf(LndNetworks.testnet, testNetconf);
 
 	const res = await lnd.start(lndConf);
 	if (res.isErr()) {
@@ -35,22 +44,13 @@ export const startLnd = async () => {
 		return;
 	}
 
-	const stateRes = await lnd.currentState();
-	if (stateRes.isErr()) {
-		Alert.alert("LND failed to get current state", stateRes.error.message);
-		return;
-	}
-
-	if (stateRes.value.grpcReady) {
-		return;
-	}
-
 	const existsRes = await lnd.walletExists(lndConf.network);
 	if (existsRes.isErr()) {
-		Alert.alert("LND failed to check if wallet exists", stateRes.error.message);
+		Alert.alert("LND failed to check if wallet exists", existsRes.error.message);
 		return;
 	}
 
+	//TODO If a wallet doesn't exist we need to onboard the user so they can create one
 	if (existsRes.value === true) {
 		await unlockWallet();
 	} else {
@@ -88,26 +88,6 @@ const unlockWallet = async () => {
 	}
 
 	console.log(`Wallet unlocked.`);
-}
-
-export const getInfo = async (onComplete: (msg: string) => void) => {
-	const res = await lnd.getInfo();
-	if (res.isErr()) {
-		onDebugError(res.error, onComplete);
-		return;
-	}
-
-	const { blockHeight, chains, identityPubkey, numActiveChannels, numInactiveChannels, numPeers, syncedToChain, version } = res.value;
-	let output = `Version: ${version}`
-	output += `\n\nSynced: ${syncedToChain ? '✅' : '❌'}`;
-	output += `\n\nBlock Height: ${blockHeight}`;
-	output += `\n\nIdentity Pubkey: ${identityPubkey}`;
-	output += `\n\nActive Channels: ${numActiveChannels}`;
-	output += `\n\nInactive Channels: ${numInactiveChannels}`;
-	output += `\n\nPeers: ${numPeers}`;
-	output += `\n\nNetwork: ${chains[0].network}`;
-
-	onDebugSuccess(output, onComplete);
 }
 
 export const getBalance = async (onComplete: (msg: string) => void) => {
@@ -156,10 +136,22 @@ export const copyNewAddressToClipboard = async (onComplete: (msg: string) => voi
 	onDebugSuccess(`Copied to clipboard:\n${res.value.address}`, onComplete);
 }
 
+export const connectToPeer = async (onComplete: (msg: string) => void) => {
+	onComplete("Connecting");
+
+	const connectRes = await lnd.connectPeer(testnetNodePubkey, testnetNodeHost);
+	if (connectRes.isErr()) {
+		onDebugError(connectRes.error, onComplete);
+		return;
+	}
+
+	onComplete("Connected to node...");
+}
+
 export const openMaxChannel = async (onComplete: (msg: string) => void) => {
 	Alert.prompt(
-		"Node details",
-		"<pubKey>@<address>:<port>",
+		"Sats",
+		"",
 		[
 			{
 				text: "Cancel",
@@ -168,42 +160,20 @@ export const openMaxChannel = async (onComplete: (msg: string) => void) => {
 			},
 			{
 				text: "Open",
-				onPress: async(nodeDetails) => {
-					onComplete("Connecting...");
-
-					const split = nodeDetails?.split("@");
-					if (!split) {
-						onDebugError(new Error("Enter node details"), onComplete);
+				onPress: async(sats) => {
+					const value = Number(sats);
+					if (!value) {
+						onDebugError(new Error("Invalid sats amount"), onComplete);
 						return;
 					}
 
-					const connectRes = await lnd.connectPeer(split[0], split[1]);
-					if (connectRes.isErr() && connectRes.error.message.indexOf("already connected to peer") < 0) {
-						onDebugError(connectRes.error, onComplete);
-						return;
-					}
-
-					onComplete("Connected to node...")
-
-					const balanceRes = await lnd.getWalletBalance();
-					if (balanceRes.isErr()) {
-						onDebugError(balanceRes.error, onComplete);
-						return;
-					}
-
-					let value = balanceRes.value.confirmedBalance * 0.8;
-					const max = 16000000;
-					if (value > max) {
-						value = max;
-					}
-
-					const openRes = await lnd.openChannel(Number(value), split[0]);
+					const openRes = await lnd.openChannel(value, testnetNodePubkey);
 					if (openRes.isErr()) {
 						onDebugError(openRes.error, onComplete);
 						return;
 					}
 
-					onDebugSuccess("Channel opening...", onComplete);
+					onDebugSuccess("Channel opening. Wait for confirmation.", onComplete);
 				}
 			}
 		]
@@ -261,4 +231,24 @@ export const payInvoice = async (onComplete: (msg: string) => void) => {
 			}
 		]
 	);
+}
+
+export const lightningStatusMessage = (lightning: ILightning): string => {
+	if (!lightning.state.lndRunning) {
+		return "Starting ⌛";
+	}
+
+	if (!lightning.state.walletUnlocked) {
+		return "Unlocking ⌛";
+	}
+
+	if (!lightning.state.grpcReady) {
+		return "Unlocked ⌛";
+	}
+
+	if (!lightning.info.syncedToChain) {
+		return `Syncing ⌛ ${lightning.info.blockHeight}`;
+	}
+
+	return "Ready ✅";
 }

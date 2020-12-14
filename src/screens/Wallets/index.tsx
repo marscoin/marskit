@@ -10,20 +10,28 @@ import {
 import { View, Text, TouchableOpacity } from "../../styles/components";
 import Logo from "../../components/Logo";
 import Header from "./Header";
+import Store from "../../store/types";
+import { useSelector } from "react-redux";
+import { lightningStatusMessage } from "../../utils/lightning-debug";
+import WalletListItem from "./WalletListItem";
 
 const Wallets = ({ navigation }) => {
+	const lightning = useSelector((state: Store) => state.lightning);
+
+	//TODO this will probably fetch all available wallets and list them
+
 	return (
 		<View style={styles.container}>
 			<Header />
 			<View style={styles.logo}>
 				<Logo />
-				<TouchableOpacity
-					onPress={() => navigation.navigate("WalletsDetail")}
-					style={styles.button}
-				>
-					<Text>Go To Nested Wallets Screen</Text>
-				</TouchableOpacity>
 			</View>
+
+			<TouchableOpacity
+				onPress={() => navigation.navigate("WalletsDetail")}
+			>
+				<WalletListItem title={"Bitcoin"} network={`Lightning network (${lightningStatusMessage(lightning)})`} balance={0} fiatBalance={0} />
+			</TouchableOpacity>
 		</View>
 	);
 };
@@ -31,15 +39,14 @@ const Wallets = ({ navigation }) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		paddingRight: 20,
+		paddingLeft: 20,
 	},
 	logo: {
-		flex: 1,
 		alignItems: "center",
 		justifyContent: "center",
+		marginBottom: 20,
 	},
-	button: {
-		marginTop: 20
-	}
 });
 
 export default memo(Wallets);
