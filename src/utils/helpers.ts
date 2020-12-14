@@ -1,5 +1,5 @@
 import Keychain from "react-native-keychain";
-
+import NetInfo from "@react-native-community/netinfo";
 import {
 	IGetKeychainValue,
 	IResponse,
@@ -30,10 +30,17 @@ export const setKeychainValue = async (
 	Promise<IResponse<string>> => {
 	return new Promise(async (resolve) => {
 		try {
-			const result = await Keychain.setGenericPassword(key, value, { service: key });
-			resolve({ error: false, data: result });
+			await Keychain.setGenericPassword(key, value, { service: key });
+			resolve({ error: false, data: "" });
 		} catch (e) {resolve({ error: true, data: e });}
 	});
+};
+
+export const isOnline = async (): Promise<boolean> => {
+	try {
+		const connectionInfo = await NetInfo.fetch();
+		return connectionInfo.isConnected;
+	} catch {return false;}
 };
 
 export const getKeychainValue = async (
