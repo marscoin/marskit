@@ -1,6 +1,6 @@
 import { ECPairInterface } from "bitcoinjs-lib";
-import { AvailableNetworks, INetwork } from "../networks";
-import { AddressType, IAddress, KeyDerivationPath } from "../../store/types/wallet";
+import { TAvailableNetworks, INetwork } from "../networks";
+import { TAddressType, IAddress, TKeyDerivationPath } from "../../store/types/wallet";
 
 export interface IResponse<T> {
 	error: boolean;
@@ -17,7 +17,7 @@ export interface IGetKeychainValue { key: string }
 export interface IGetAddress {
 	keyPair: ECPairInterface | undefined;
 	network: INetwork | undefined;
-	type?: AddressType
+	type?: TAddressType
 }
 
 export interface IGetInfoFromAddressPath {
@@ -33,15 +33,15 @@ export interface IGenerateAddresses {
 	changeAddressAmount?: number,
 	addressIndex?: number,
 	changeAddressIndex?: number,
-	selectedNetwork?: AvailableNetworks,
-	keyDerivationPath?: KeyDerivationPath,
-	addressType?: AddressType,
+	selectedNetwork?: TAvailableNetworks,
+	keyDerivationPath?: TKeyDerivationPath,
+	addressType?: TAddressType,
 }
 
 export interface IGenerateAddressesResponse {
 	error: boolean,
 	data: {
-		addresses: IAddress[],
-		changeAddresses: IAddress[]
+		addresses: IAddress,
+		changeAddresses: IAddress
 	}
 }
