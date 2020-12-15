@@ -12,7 +12,7 @@ import Logo from "../../components/Logo";
 import Header from "./Header";
 import Store from "../../store/types";
 import { useSelector } from "react-redux";
-import { lightningStatusMessage } from "../../utils/lightning-debug";
+import { lightningStatusMessage } from "../../utils/lightning";
 import WalletListItem from "./WalletListItem";
 
 const Wallets = ({ navigation }) => {

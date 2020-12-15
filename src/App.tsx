@@ -1,37 +1,53 @@
-import "../shim";
-import React, { memo, useEffect } from "react";
-import { InteractionManager, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
-import { ThemeProvider } from "styled-components/native";
-import { StatusBar, SafeAreaView } from "./styles/components";
-import RootNavigator from "./navigation/root/RootNavigator";
-import Store from "./store/types";
-import useLightning from "./utils/hooks/lightning";
-import themes from "./styles/themes";
-import { getStore } from "./store/helpers";
-import { createWallet } from "./store/actions/wallet";
-import { start as startElectrum } from "rn-electrum-client/helpers";
+import '../shim';
+import React, { memo, useEffect } from 'react';
+import { InteractionManager, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import { ThemeProvider } from 'styled-components/native';
+import { StatusBar, SafeAreaView } from './styles/components';
+import RootNavigator from './navigation/root/RootNavigator';
+import Store from './store/types';
+import themes from './styles/themes';
+import { getStore } from './store/helpers';
+import { createWallet } from './store/actions/wallet';
+import { start as startElectrum } from 'rn-electrum-client/helpers';
+import {
+	startLnd,
+	updateLightningState,
+	createOrUnlockLndWallet,
+} from './utils/lightning';
 
 const startApp = async (): Promise<void> => {
+	//Need to set the LND state from the start or it assumes previous incorrect state until LND is started
+	await updateLightningState();
+
 	try {
 		InteractionManager.runAfterInteractions(async () => {
+			//Start LND service first as neutrino sync times can take time
+			await startLnd();
+
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork } = getStore().wallet;
-			if (Object.keys(wallets).length < 1) await createWallet({});
+			if (Object.keys(wallets).length < 1) {
+				await createWallet({});
+			}
 
 			//Connect To A Random Electrum Server
 			const startResponse = await startElectrum({ network: selectedNetwork });
-			if (startResponse.error) return;
-		})
+			if (startResponse.error) {
+				return;
+			}
+
+			//TODO try use same seed as on chain wallet
+			await createOrUnlockLndWallet();
+		});
 	} catch {}
 };
 
-
 const App = () => {
-	useLightning();
-
 	useEffect(() => {
-		startApp();
+		(async () => {
+			await startApp();
+		})();
 	}, []);
 
 	const settings = useSelector((state: Store) => state.settings);
@@ -47,8 +63,8 @@ const App = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1
-	}
+		flex: 1,
+	},
 });
 
 export default memo(App);
