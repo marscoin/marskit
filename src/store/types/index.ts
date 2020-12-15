@@ -10,4 +10,4 @@ export default interface Store {
 	omnibolt: IOmniBolt;
 	settings: ISettings;
 	lightning: ILightning;
-};
+}
