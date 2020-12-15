@@ -25,6 +25,7 @@ module.exports = {
 		"plugin:react/recommended"
 	],
 	"rules": {
+		"@typescript-eslint/no-unused-vars": "error",
 		"react-hooks/rules-of-hooks": "error",
 		"react-hooks/exhaustive-deps": "warn",
 		"no-console": 0,
@@ -65,7 +66,7 @@ module.exports = {
 		"react/display-name": 0,
 		"require-atomic-updates": 0,
 		"no-async-promise-executor": 0,
-		"brace-style": [2, "1tbs", { "allowSingleLine": true }]
+		"brace-style": [2, "1tbs", { "allowSingleLine": true }],
 	},
 	"globals": {
 		"fetch": false
