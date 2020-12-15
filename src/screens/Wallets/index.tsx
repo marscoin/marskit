@@ -3,17 +3,15 @@
  * @flow strict-local
  */
 
-import React, { memo } from "react";
-import {
-	StyleSheet,
-} from "react-native";
-import { View, Text, TouchableOpacity } from "../../styles/components";
-import Logo from "../../components/Logo";
-import Header from "./Header";
-import Store from "../../store/types";
-import { useSelector } from "react-redux";
-import { lightningStatusMessage } from "../../utils/lightning-debug";
-import WalletListItem from "./WalletListItem";
+import React, { memo } from 'react';
+import { StyleSheet } from 'react-native';
+import { View, TouchableOpacity } from '../../styles/components';
+import Logo from '../../components/Logo';
+import Header from './Header';
+import Store from '../../store/types';
+import { useSelector } from 'react-redux';
+import { lightningStatusMessage } from '../../utils/lightning-debug';
+import WalletListItem from './WalletListItem';
 
 const Wallets = ({ navigation }) => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -27,10 +25,13 @@ const Wallets = ({ navigation }) => {
 				<Logo />
 			</View>
 
-			<TouchableOpacity
-				onPress={() => navigation.navigate("WalletsDetail")}
-			>
-				<WalletListItem title={"Bitcoin"} network={`Lightning network (${lightningStatusMessage(lightning)})`} balance={0} fiatBalance={0} />
+			<TouchableOpacity onPress={() => navigation.navigate('WalletsDetail')}>
+				<WalletListItem
+					title={'Bitcoin'}
+					network={`Lightning network (${lightningStatusMessage(lightning)})`}
+					balance={0}
+					fiatBalance={0}
+				/>
 			</TouchableOpacity>
 		</View>
 	);
@@ -43,8 +44,8 @@ const styles = StyleSheet.create({
 		paddingLeft: 20,
 	},
 	logo: {
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginBottom: 20,
 	},
 });

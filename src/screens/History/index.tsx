@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { Text, TouchableOpacity, View } from "../../styles/components";
-import NavigationHeader from "../../components/NavigationHeader";
-import { StyleSheet } from "react-native";
+import React, { memo } from 'react';
+import { Text, TouchableOpacity, View } from '../../styles/components';
+import NavigationHeader from '../../components/NavigationHeader';
+import { StyleSheet } from 'react-native';
 
 const HistoryScreen = ({ navigation }) => {
 	return (
@@ -10,9 +10,8 @@ const HistoryScreen = ({ navigation }) => {
 			<View style={styles.content}>
 				<Text>History!</Text>
 				<TouchableOpacity
-					onPress={() => navigation.navigate("HistoryDetail")}
-					style={styles.button}
-				>
+					onPress={() => navigation.navigate('HistoryDetail')}
+					style={styles.button}>
 					<Text>Go To Nested History Screen</Text>
 				</TouchableOpacity>
 			</View>
@@ -26,12 +25,12 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center"
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	button: {
-		marginTop: 20
-	}
+		marginTop: 20,
+	},
 });
 
 export default memo(HistoryScreen);

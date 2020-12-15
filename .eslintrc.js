@@ -7,6 +7,7 @@ module.exports = {
 		localStorage: false,
 	},
 	rules: {
+		semi: ['error', 'always'],
 		'@typescript-eslint/no-unused-vars': 'error',
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
@@ -52,11 +53,6 @@ module.exports = {
 			},
 		],
 		'react/jsx-indent': [2, 'tab', { indentLogicalExpressions: false }],
-		//TODO try get this working again
-		// 'react/jsx-closing-bracket-location': [
-		// 	'error',
-		// 	{ selfClosing: 'props-aligned', nonEmpty: 'after-props' },
-		// ],
 		'react/jsx-child-element-spacing': 2,
 		'react/no-unused-prop-types': 2,
 		'react/prop-types': 0,

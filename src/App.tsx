@@ -1,31 +1,34 @@
-import "../shim";
-import React, { memo, useEffect } from "react";
-import { InteractionManager, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
-import { ThemeProvider } from "styled-components/native";
-import { StatusBar, SafeAreaView } from "./styles/components";
-import RootNavigator from "./navigation/root/RootNavigator";
-import Store from "./store/types";
-import useLightning from "./utils/hooks/lightning";
-import themes from "./styles/themes";
-import { getStore } from "./store/helpers";
-import { createWallet } from "./store/actions/wallet";
-import { start as startElectrum } from "rn-electrum-client/helpers";
+import '../shim';
+import React, { memo, useEffect } from 'react';
+import { InteractionManager, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import { ThemeProvider } from 'styled-components/native';
+import { StatusBar, SafeAreaView } from './styles/components';
+import RootNavigator from './navigation/root/RootNavigator';
+import Store from './store/types';
+import useLightning from './utils/hooks/lightning';
+import themes from './styles/themes';
+import { getStore } from './store/helpers';
+import { createWallet } from './store/actions/wallet';
+import { start as startElectrum } from 'rn-electrum-client/helpers';
 
 const startApp = async (): Promise<void> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork } = getStore().wallet;
-			if (Object.keys(wallets).length < 1) await createWallet({});
+			if (Object.keys(wallets).length < 1) {
+				await createWallet({});
+			}
 
 			//Connect To A Random Electrum Server
 			const startResponse = await startElectrum({ network: selectedNetwork });
-			if (startResponse.error) return;
-		})
+			if (startResponse.error) {
+				return;
+			}
+		});
 	} catch {}
 };
-
 
 const App = () => {
 	useLightning();
@@ -47,8 +50,8 @@ const App = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1
-	}
+		flex: 1,
+	},
 });
 
 export default memo(App);
