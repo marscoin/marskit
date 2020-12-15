@@ -20,9 +20,9 @@ const light = {
 		text: "#121212",
 		primary: "#121212",
 		background: "#FFFFFF",
-		surface: "#FFFFFF",
+		surface: "#E8E8E8",
 		onBackground: "#121212",
-		onSurface: "#121212",
+		onSurface: "#D6D6D6",
 		logText: "#121212",
 	}
 };

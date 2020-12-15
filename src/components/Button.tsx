@@ -4,26 +4,33 @@
  */
 import React from "react";
 import {
-	StyleSheet,
-	Text,
-	Pressable,
+	StyleSheet
 } from "react-native";
+import { Pressable, Text } from "../styles/components";
 
+interface IButton {
+	text: string,
+	color?: string,
+	onPress?: Function,
+	onLongPress?: Function,
+	style?: Object
+}
 const Button = (
 	{
 		text = "",
+		color = "background",
 		onPress = () => null,
+		onLongPress = () => null,
 		style = {},
-	}: {
-		text: string,
-		onPress?: Function,
-		style?: Object
-	}) => {
+	}: IButton) => {
 	return (
 		<Pressable
+			color={color}
 			style={[styles.button, style]}
 			//@ts-ignore
 			onPress={onPress}
+			//@ts-ignore
+			onLongPress={onLongPress}
 		>
 			<Text style={styles.text}>
 				{text}
@@ -37,25 +44,21 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 		alignSelf: "center",
-		borderRadius: 25,
-		paddingTop: 5,
-		paddingBottom: 5,
-		paddingHorizontal: 20,
-		backgroundColor: "#FFFFFF",
+		borderRadius: 10,
+		paddingVertical: 5,
 		shadowColor: "rgba(0, 0, 0, 0.1)",
 		shadowOpacity: 0.8,
 		elevation: 6,
 		shadowRadius: 15,
 		shadowOffset: { width: 1, height: 13 },
-		minWidth: 150,
-		marginVertical: 20,
+		minWidth: 110,
+		marginVertical: 5,
 	},
 	text: {
-		fontSize: 20,
-		color: "black",
+		fontSize: 14,
 		fontWeight: "bold",
 		textAlign: "center",
-		padding: 15,
+		paddingVertical: 8,
 	},
 });
 

@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactElement } from "react";
 import {
 	StyleSheet
 } from "react-native";
@@ -6,9 +6,9 @@ import { View } from "../styles/components";
 
 interface ICard {
 	style?: {},
-	children?: ReactNode;
+	children?: ReactElement;
 }
-const Card = ({ style = {}, children = {} }: ICard) => (
+const Card = ({ style = {}, children = <View /> }: ICard) => (
 	<View color="surface" style={[styles.container, { style }]}>
 		{children}
 	</View>
@@ -16,8 +16,7 @@ const Card = ({ style = {}, children = {} }: ICard) => (
 
 const styles = StyleSheet.create({
 	container: {
-		width: "90%",
-		minHeight: "10%",
+		width: "100%",
 		alignSelf: "center",
 		borderRadius: 15,
 		marginVertical: 10,
