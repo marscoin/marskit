@@ -1,20 +1,21 @@
-export type TAvailableNetworks = "bitcoin" | "bitcoinTestnet";
+export type TAvailableNetworks = 'bitcoin' | 'bitcoinTestnet';
 
+// eslint-disable-next-line no-shadow
 export enum EAvailableNetworks {
-	bitcoin = "bitcoin",
-	bitcoinTestnet = "bitcoinTestnet"
+	bitcoin = 'bitcoin',
+	bitcoinTestnet = 'bitcoinTestnet',
 }
 
 export interface INetwork {
-	messagePrefix: string
-	bech32: string,
+	messagePrefix: string;
+	bech32: string;
 	bip32: {
-		public: number,
-		private: number
-	},
-	pubKeyHash: number,
-	scriptHash: number,
-	wif: number,
+		public: number;
+		private: number;
+	};
+	pubKeyHash: number;
+	scriptHash: number;
+	wif: number;
 }
 
 export type INetworks = {
@@ -31,24 +32,25 @@ export const networks: INetworks = {
 		bech32: 'bc',
 		bip32: {
 			public: 0x0488b21e,
-			private: 0x0488ade4
+			private: 0x0488ade4,
 		},
 		pubKeyHash: 0x00,
 		scriptHash: 0x05,
-		wif: 0x80
+		wif: 0x80,
 	},
 	bitcoinTestnet: {
 		messagePrefix: '\x18Bitcoin Signed Message:\n',
 		bech32: 'tb',
 		bip32: {
 			public: 0x043587cf,
-			private: 0x04358394
+			private: 0x04358394,
 		},
 		pubKeyHash: 0x6f,
 		scriptHash: 0xc4,
-		wif: 0xef
-	}
+		wif: 0xef,
+	},
 };
 
 //Returns an array of all available networks from the networks object.
-export const availableNetworks = (): EAvailableNetworks[] => Object.values(EAvailableNetworks);
+export const availableNetworks = (): EAvailableNetworks[] =>
+	Object.values(EAvailableNetworks);

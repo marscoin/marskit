@@ -1,46 +1,47 @@
-import actions from "./actions";
-import { ICreateWallet } from "../types/wallet";
+import actions from './actions';
+import { ICreateWallet } from '../types/wallet';
 import {
 	generateAddresses,
 	generateMnemonic,
 	getMnemonicPhrase,
-	validateMnemonic
-} from "../../utils/wallet";
-import { getDispatch, getStore } from "../helpers";
-import { setKeychainValue } from "../../utils/helpers";
-import { availableNetworks } from "../../utils/networks";
-import { defaultWalletShape } from "../shapes/wallet";
+	validateMnemonic,
+} from '../../utils/wallet';
+import { getDispatch, getStore } from '../helpers';
+import { setKeychainValue } from '../../utils/helpers';
+import { availableNetworks } from '../../utils/networks';
+import { defaultWalletShape } from '../shapes/wallet';
 
 const dispatch = getDispatch();
 
-export const updateWallet = payload => dispatch => {
-	return new Promise(async resolve => {
+export const updateWallet = (payload) => {
+	return new Promise(async (resolve) => {
 		await dispatch({
 			type: actions.UPDATE_WALLET,
-			payload
+			payload,
 		});
-		resolve({ error: false, data: "" });
+		resolve({ error: false, data: '' });
 	});
 };
 
-export const createWallet = (
-	{
-		wallet = "wallet0",
-		addressAmount = 2,
-		changeAddressAmount = 2,
-		mnemonic = "",
-		keyDerivationPath = "84"
-	}: ICreateWallet) => {
+export const createWallet = ({
+	wallet = 'wallet0',
+	addressAmount = 2,
+	changeAddressAmount = 2,
+	mnemonic = '',
+	keyDerivationPath = '84',
+}: ICreateWallet) => {
 	return new Promise(async (resolve) => {
 		const failure = (data) => resolve({ error: true, data });
 		try {
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			const { error, data } = getMnemonicPhraseResponse;
 			const { wallets } = getStore().wallet;
-			if (!error && data && wallet in wallets) return failure(`Wallet ID, "${wallet}" already exists.`);
+			if (!error && data && wallet in wallets) {
+				return failure(`Wallet ID, "${wallet}" already exists.`);
+			}
 
 			//Generate Mnemonic if none was provided
-			if (mnemonic === "") {
+			if (mnemonic === '') {
 				mnemonic = validateMnemonic(data) ? data : await generateMnemonic();
 			}
 			//if (!validateMnemonic(mnemonic)) return failure("Invalid Mnemonic");
@@ -57,28 +58,32 @@ export const createWallet = (
 						selectedNetwork: network,
 						addressAmount,
 						changeAddressAmount,
-						keyDerivationPath
+						keyDerivationPath,
 					});
-					if (generatedAddresses.error) return failure(generatedAddresses.data);
+					if (generatedAddresses.error) {
+						return failure(generatedAddresses.data);
+					}
 					const { addresses, changeAddresses } = generatedAddresses.data;
 					_addresses[network] = addresses;
 					_changeAddresses[network] = changeAddresses;
-				})
-			)
+				}),
+			);
 			const payload = {
 				[wallet]: {
 					...defaultWalletShape,
 					addresses: _addresses,
-					changeAddresses: _changeAddresses
-				}
+					changeAddresses: _changeAddresses,
+				},
 			};
 
 			await dispatch({
 				type: actions.CREATE_WALLET,
-				payload
+				payload,
 			});
 
-			resolve({ error: false, data: "" });
-		} catch (e) {failure(e);}
+			resolve({ error: false, data: '' });
+		} catch (e) {
+			failure(e);
+		}
 	});
 };

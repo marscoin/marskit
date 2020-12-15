@@ -1,16 +1,19 @@
-import React, { memo } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { StyleSheet } from "react-native";
-import { Feather, MaterialIcons, View, TouchableOpacity, Text } from "../styles/components";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
+import React, { memo } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { StyleSheet } from 'react-native';
+import {
+	Feather,
+	MaterialIcons,
+	View,
+	TouchableOpacity,
+	Text,
+} from '../styles/components';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const BackButton = ({ onPress = () => null }: { onPress: Function }) => {
 	try {
 		return (
-			<TouchableOpacity
-				onPress={onPress}
-				style={styles.iconContainer}
-			>
+			<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
 				<MaterialIcons
 					style={styles.leftIcon}
 					name="arrow-back-ios"
@@ -24,7 +27,13 @@ const BackButton = ({ onPress = () => null }: { onPress: Function }) => {
 	}
 };
 
-const NavigationHeader = ({ title = "", isHome = false }: { title: string, isHome?: boolean }) => {
+const NavigationHeader = ({
+	title = '',
+	isHome = false,
+}: {
+	title: string;
+	isHome?: boolean;
+}) => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 	return (
 		<View style={styles.container}>
@@ -35,13 +44,14 @@ const NavigationHeader = ({ title = "", isHome = false }: { title: string, isHom
 				<Text style={styles.title}>{title}</Text>
 			</View>
 			<View style={styles.rightColumn}>
-				{isHome &&
-				<Feather
-					style={styles.rightIcon}
-					onPress={navigation.openDrawer}
-					name="menu"
-					size={30}
-				/>}
+				{isHome && (
+					<Feather
+						style={styles.rightIcon}
+						onPress={navigation.openDrawer}
+						name="menu"
+						size={30}
+					/>
+				)}
 			</View>
 		</View>
 	);
@@ -49,34 +59,34 @@ const NavigationHeader = ({ title = "", isHome = false }: { title: string, isHom
 
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		marginTop: 15,
 		marginHorizontal: 10,
 		marginBottom: 20,
 	},
 	leftColumn: {
 		flex: 1,
-		justifyContent: "center"
+		justifyContent: 'center',
 	},
 	middleColumn: {
 		flex: 1.5,
-		justifyContent: "center",
-		alignItems: "center"
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	rightColumn: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "flex-end"
+		justifyContent: 'center',
+		alignItems: 'flex-end',
 	},
 	title: {
-		textAlign: "center"
+		textAlign: 'center',
 	},
 	iconContainer: {
-		flexDirection: "row",
-		alignItems: "center"
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	leftIcon: {},
-	rightIcon: {}
+	rightIcon: {},
 });
 
 export default memo(NavigationHeader);

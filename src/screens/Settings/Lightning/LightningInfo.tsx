@@ -1,21 +1,21 @@
-import React, { memo, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import React, { memo, useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 import {
 	View,
 	Feather,
 	Text,
-	TouchableOpacity
-} from "../../../styles/components";
-import List from "../../../components/List";
+	TouchableOpacity,
+} from '../../../styles/components';
+import List from '../../../components/List';
 import {
 	connectToPeer,
 	copyNewAddressToClipboard,
 	getBalance,
 	openMaxChannel,
-	payInvoice
-} from "../../../utils/lightning-debug";
-import { useSelector } from "react-redux";
-import Store from "../../../store/types";
+	payInvoice,
+} from '../../../utils/lightning-debug';
+import { useSelector } from 'react-redux';
+import Store from '../../../store/types';
 
 const LightningInfo = ({ navigation }) => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -24,15 +24,26 @@ const LightningInfo = ({ navigation }) => {
 
 	const SettingsListData = [
 		{
-			title: "LND debug commands",
+			title: 'LND debug commands',
 			data: [
 				{
-					title: "Show Info",
-					type: "button",
+					title: 'Show Info',
+					type: 'button',
 					onPress: async () => {
-						const { blockHeight, chains, identityPubkey, numActiveChannels, numInactiveChannels, numPeers, syncedToChain, version, alias, syncedToGraph } = lightning.info;
+						const {
+							blockHeight,
+							chains,
+							identityPubkey,
+							numActiveChannels,
+							numInactiveChannels,
+							numPeers,
+							syncedToChain,
+							version,
+							alias,
+							syncedToGraph,
+						} = lightning.info;
 
-						let output = `Version: ${version}`
+						let output = `Version: ${version}`;
 						output += `\n\nSynced: ${syncedToChain ? '✅' : '❌'}`;
 						output += `\n\nBlock Height: ${blockHeight}`;
 						output += `\n\nIdentity Pubkey: ${identityPubkey}`;
@@ -42,40 +53,43 @@ const LightningInfo = ({ navigation }) => {
 						output += `\n\nNetwork: ${chains[0].network}`;
 
 						setContent(output);
-					}
+					},
 				},
 				{
-					title: "Show all balances",
-					type: "button",
-					onPress: () => getBalance(setContent)
+					title: 'Show all balances',
+					type: 'button',
+					onPress: () => getBalance(setContent),
 				},
 				{
-					title: "Copy receive address",
-					type: "button",
-					onPress: () => copyNewAddressToClipboard(setContent)
+					title: 'Copy receive address',
+					type: 'button',
+					onPress: () => copyNewAddressToClipboard(setContent),
 				},
 				{
-					title: "Connect to peer",
-					type: "button",
-					onPress: () => connectToPeer(setContent)
+					title: 'Connect to peer',
+					type: 'button',
+					onPress: () => connectToPeer(setContent),
 				},
 				{
-					title: "Open channel",
-					type: "button",
-					onPress: () => openMaxChannel(setContent)
+					title: 'Open channel',
+					type: 'button',
+					onPress: () => openMaxChannel(setContent),
 				},
 				{
-					title: "Pay invoice",
-					type: "button",
-					onPress: () => payInvoice(setContent)
+					title: 'Pay invoice',
+					type: 'button',
+					onPress: () => payInvoice(setContent),
 				},
-			]
+			],
 		},
 	];
 
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity activeOpacity={0.7} onPress={navigation.goBack} style={styles.row}>
+			<TouchableOpacity
+				activeOpacity={0.7}
+				onPress={navigation.goBack}
+				style={styles.row}>
 				<Feather style={{}} name="arrow-left" size={30} />
 				<Text style={styles.backText}>Lightning</Text>
 			</TouchableOpacity>
@@ -89,20 +103,20 @@ const LightningInfo = ({ navigation }) => {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1
+		flex: 1,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		paddingLeft: 10,
-		paddingVertical: 8
+		paddingVertical: 8,
 	},
 	backText: {
-		fontSize: 20
+		fontSize: 20,
 	},
 	debugContent: {
-		textAlign: "center"
-	}
+		textAlign: 'center',
+	},
 });
 
 export default memo(LightningInfo);

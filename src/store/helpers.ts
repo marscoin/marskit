@@ -1,6 +1,6 @@
-import store from "../store";
-import Store from "./types";
-import { Dispatch } from "redux";
+import store from '../store';
+import Store from './types';
+import { Dispatch } from 'redux';
 
 /*
 Used to retrieve the store outside of a component.

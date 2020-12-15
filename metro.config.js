@@ -4,12 +4,12 @@
  *
  * @format
  */
-const { getDefaultConfig } = require("metro-config");
+const { getDefaultConfig } = require('metro-config');
 const blacklist = require('metro-config/src/defaults/blacklist');
 
 module.exports = (async () => {
 	const {
-		resolver: { sourceExts, assetExts }
+		resolver: { sourceExts, assetExts },
 	} = await getDefaultConfig();
 	return {
 		transformer: {
@@ -19,12 +19,12 @@ module.exports = (async () => {
 					inlineRequires: false,
 				},
 			}),
-			babelTransformerPath: require.resolve("react-native-svg-transformer")
+			babelTransformerPath: require.resolve('react-native-svg-transformer'),
 		},
 		resolver: {
 			blacklistRE: blacklist([/nodejs-assets\/.*/, /android\/.*/, /ios\/.*/]),
-			assetExts: assetExts.filter(ext => ext !== "svg"),
-			sourceExts: [...sourceExts, "svg"]
-		}
+			assetExts: assetExts.filter((ext) => ext !== 'svg'),
+			sourceExts: [...sourceExts, 'svg'],
+		},
 	};
 })();
