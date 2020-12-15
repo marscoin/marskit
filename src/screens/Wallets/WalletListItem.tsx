@@ -1,6 +1,6 @@
-import { Text, View } from "../../styles/components";
-import React, { memo } from "react";
-import { StyleSheet } from "react-native";
+import { Text, View } from '../../styles/components';
+import React, { memo } from 'react';
+import { StyleSheet } from 'react-native';
 
 const WalletListItem = ({ title, network, balance, fiatBalance }) => {
 	return (
@@ -15,13 +15,13 @@ const WalletListItem = ({ title, network, balance, fiatBalance }) => {
 			</View>
 		</View>
 	);
-}
+};
 
 const styles = StyleSheet.create({
 	container: {
-		display: "flex",
+		display: 'flex',
 		flexDirection: 'row',
-		justifyContent: "space-between"
+		justifyContent: 'space-between',
 	},
 });
 

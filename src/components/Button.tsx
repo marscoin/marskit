@@ -2,10 +2,10 @@
  * @format
  * @flow strict-local
  */
-import React from "react";
+import React from 'react';
 import {
 	StyleSheet
-} from "react-native";
+} from 'react-native';
 import { Pressable, Text } from "../styles/components";
 
 interface IButton {
@@ -17,8 +17,8 @@ interface IButton {
 }
 const Button = (
 	{
-		text = "",
-		color = "background",
+		text = '',
+		color = 'background',
 		onPress = () => null,
 		onLongPress = () => null,
 		style = {},
@@ -41,9 +41,9 @@ const Button = (
 
 const styles = StyleSheet.create({
 	button: {
-		alignItems: "center",
-		justifyContent: "center",
-		alignSelf: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
+		alignSelf: 'center',
 		borderRadius: 10,
 		paddingVertical: 5,
 		shadowColor: "rgba(0, 0, 0, 0.1)",
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
 	},
 	text: {
 		fontSize: 14,
-		fontWeight: "bold",
-		textAlign: "center",
+		fontWeight: 'bold',
+		textAlign: 'center',
 		paddingVertical: 8,
 	},
 });

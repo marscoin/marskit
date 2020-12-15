@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { Text, View } from "../../styles/components";
-import { StyleSheet } from "react-native";
-import NavigationHeader from "../../components/NavigationHeader";
+import React, { memo } from 'react';
+import { Text, View } from '../../styles/components';
+import { StyleSheet } from 'react-native';
+import NavigationHeader from '../../components/NavigationHeader';
 
 const WalletsDetail = () => {
 	return (
@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center"
-	}
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 });
 
 export default memo(WalletsDetail);

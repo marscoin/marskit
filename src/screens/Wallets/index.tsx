@@ -3,18 +3,18 @@
  * @flow strict-local
  */
 
-import React, { memo } from "react";
+import React, { memo } from 'react';
 import {
 	LayoutAnimation,
 	StyleSheet,
-} from "react-native";
-import { View, TouchableOpacity } from "../../styles/components";
-import Header from "./Header";
-import Store from "../../store/types";
-import { useSelector } from "react-redux";
-import { lightningStatusMessage } from "../../utils/lightning-debug";
-import WalletListItem from "./WalletListItem";
-import BitcoinCard from "./BitcoinCard";
+} from 'react-native';
+import { View, TouchableOpacity } from '../../styles/components';
+import Header from './Header';
+import Store from '../../store/types';
+import { useSelector } from 'react-redux';
+import { lightningStatusMessage } from '../../utils/lightning-debug';
+import WalletListItem from './WalletListItem';
+import BitcoinCard from './BitcoinCard';
 
 const Wallets = ({ navigation }) => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -28,9 +28,9 @@ const Wallets = ({ navigation }) => {
 			<Header />
 
 			<TouchableOpacity
-				onPress={() => navigation.navigate("WalletsDetail")}
+				onPress={() => navigation.navigate('WalletsDetail')}
 			>
-				<WalletListItem title={"Bitcoin"} network={`Lightning network (${lightningStatusMessage(lightning)})`} balance={0} fiatBalance={0} />
+				<WalletListItem title={'Bitcoin'} network={`Lightning network (${lightningStatusMessage(lightning)})`} balance={0} fiatBalance={0} />
 			</TouchableOpacity>
 
 			<BitcoinCard />
