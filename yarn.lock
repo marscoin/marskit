@@ -7503,7 +7503,7 @@ react-native-keychain@^6.2.0:
   integrity sha512-U6fnOQRJPq+c0Abl+FoYy9v0H3kQU587tMamU/o+MoBSUScFLE3DQpkyT1PW4NF5IObgiGuqQdmjC2KgtBpjGA==
 
 react-native-lightning@../react-native-lightning:
-  version "0.0.3"
+  version "0.0.4"
   dependencies:
     "@types/jest" "^26.0.17"
     "@types/node" "^14.14.10"

@@ -1,19 +1,21 @@
-import { AvailableNetworks } from "../../utils/networks";
+import { TAvailableNetworks } from "../../utils/networks";
+
+export type TAddressType = "bech32" | "segwit" | "legacy"; //"84" | "49" | "44";
+
+export type TKeyDerivationPath = "84" | "49" | "44"; //"bech32" | "segwit" | "legacy";
+
+export type NetworkTypePath = "0" | "1" //"mainnet" | "testnet"
+
+export type TBitcoinUnit = "satoshi" | "BTC" | "mBTC" | "μBTC";
 
 export interface IWallet {
     loading: boolean;
     error: boolean;
-    selectedNetwork: AvailableNetworks;
+    selectedNetwork: TAvailableNetworks;
     selectedWallet: string;
     wallets: { [key: string]: IDefaultWalletShape } | {};
     [key: string]: any;
 }
-
-export type AddressType = "bech32" | "segwit" | "legacy"; //"84" | "49" | "44";
-
-export type KeyDerivationPath = "84" | "49" | "44"; //"bech32" | "segwit" | "legacy";
-
-export type NetworkTypePath = "0" | "1" //"mainnet" | "testnet"
 
 export interface IWalletItem<T> {
     bitcoin: T,
@@ -30,27 +32,26 @@ export interface IAddress {
 }
 
 export interface IAddresses {
-    bitcoin: IAddress[] | [],
-    bitcoinTestnet: IAddress[] | [],
+    bitcoin: IAddress | {},
+    bitcoinTestnet: IAddress | {},
     timestamp: null
 }
 
 export interface ICreateWallet {
-    wallet: string,
+    wallet?: string,
     mnemonic?: string,
-    selectedNetwork?: AvailableNetworks,
     addressAmount?: number,
     changeAddressAmount?: number,
-    keyDerivationPath?: KeyDerivationPath,
+    keyDerivationPath?: TKeyDerivationPath,
 }
 
 export interface IDefaultWalletShape {
     id: string,
     name: string,
     type: string,
-    addresses: IAddresses[] | IWalletItem<[]>,
+    addresses: IAddresses | IWalletItem<object>,
     addressIndex: IWalletItem<number>,
-    changeAddresses: IAddresses[] | IWalletItem<[]>,
+    changeAddresses: IAddresses | IWalletItem<object>,
     changeAddressIndex: IWalletItem<number>,
     utxos: IWalletItem<[]>,
     transactions: IWalletItem<[]>,
@@ -60,11 +61,11 @@ export interface IDefaultWalletShape {
     lastUpdated: IWalletItem<number>,
     hasBackedUpWallet: boolean,
     walletBackupTimestamp: string,
-    keyDerivationPath: IWalletItem<KeyDerivationPath>,
+    keyDerivationPath: IWalletItem<TKeyDerivationPath>,
     networkTypePath: IWalletItem<string>,
     addressType: {
-        bitcoin: AddressType,
-        bitcoinTestnet: AddressType
+        bitcoin: TAddressType,
+        bitcoinTestnet: TAddressType
     },
     rbfData: IWalletItem<object>
 }

@@ -1,4 +1,9 @@
-export type AvailableNetworks = "bitcoin" | "bitcoinTestnet";
+export type TAvailableNetworks = "bitcoin" | "bitcoinTestnet";
+
+export enum EAvailableNetworks {
+	bitcoin = "bitcoin",
+	bitcoinTestnet = "bitcoinTestnet"
+}
 
 export interface INetwork {
 	messagePrefix: string
@@ -12,9 +17,9 @@ export interface INetwork {
 	wif: number,
 }
 
-export interface INetworks {
-	[key: string]: INetwork
-}
+export type INetworks = {
+	[key in EAvailableNetworks]: INetwork;
+};
 
 /*
 Source: https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/networks.js
@@ -46,4 +51,4 @@ export const networks: INetworks = {
 };
 
 //Returns an array of all available networks from the networks object.
-export const availableNetworks: string[] = Object.keys(networks).map(coin => coin);
+export const availableNetworks = (): EAvailableNetworks[] => Object.values(EAvailableNetworks);

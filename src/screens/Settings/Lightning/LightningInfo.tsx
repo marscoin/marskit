@@ -8,14 +8,18 @@ import {
 } from "../../../styles/components";
 import List from "../../../components/List";
 import {
+	connectToPeer,
 	copyNewAddressToClipboard,
 	getBalance,
-	getInfo,
 	openMaxChannel,
 	payInvoice
 } from "../../../utils/lightning-debug";
+import { useSelector } from "react-redux";
+import Store from "../../../store/types";
 
 const LightningInfo = ({ navigation }) => {
+	const lightning = useSelector((state: Store) => state.lightning);
+
 	const [content, setContent] = useState<string>('');
 
 	const SettingsListData = [
@@ -23,9 +27,22 @@ const LightningInfo = ({ navigation }) => {
 			title: "LND debug commands",
 			data: [
 				{
-					title: "Get Info",
+					title: "Show Info",
 					type: "button",
-					onPress: () => getInfo(setContent)
+					onPress: async () => {
+						const { blockHeight, chains, identityPubkey, numActiveChannels, numInactiveChannels, numPeers, syncedToChain, version, alias, syncedToGraph } = lightning.info;
+
+						let output = `Version: ${version}`
+						output += `\n\nSynced: ${syncedToChain ? '✅' : '❌'}`;
+						output += `\n\nBlock Height: ${blockHeight}`;
+						output += `\n\nIdentity Pubkey: ${identityPubkey}`;
+						output += `\n\nActive Channels: ${numActiveChannels}`;
+						output += `\n\nInactive Channels: ${numInactiveChannels}`;
+						output += `\n\nPeers: ${numPeers}`;
+						output += `\n\nNetwork: ${chains[0].network}`;
+
+						setContent(output);
+					}
 				},
 				{
 					title: "Show all balances",
@@ -36,6 +53,11 @@ const LightningInfo = ({ navigation }) => {
 					title: "Copy receive address",
 					type: "button",
 					onPress: () => copyNewAddressToClipboard(setContent)
+				},
+				{
+					title: "Connect to peer",
+					type: "button",
+					onPress: () => connectToPeer(setContent)
 				},
 				{
 					title: "Open channel",
