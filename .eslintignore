@@ -1,4 +1,5 @@
-/nodejs-assets/*
-/ios/*
-/android/*
+node_modules
+nodejs-assets/*
+ios/*
+android/*
 !.eslintrc.js
