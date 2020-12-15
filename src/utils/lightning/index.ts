@@ -55,7 +55,7 @@ export const startLnd = async () => {
 
 	//Any future updates to LND state
 	lnd.subscribeToCurrentState(updateLightningState);
-	pollLndGetInfo(stateRes.isOk() && stateRes.value.grpcReady);
+	pollLndGetInfo().then();
 
 	if (stateRes.isOk() && stateRes.value.grpcReady) {
 		return; //LND already running and unlocked
@@ -95,11 +95,12 @@ export const createOrUnlockLndWallet = async () => {
 };
 
 let previousInfoResponseString = '';
-const pollLndGetInfo = (grpcReady = true): void => {
+const pollLndGetInfo = async (): Promise<void> => {
 	clearTimeout(pollLndGetInfoTimeout); //If previously subscribed make sure we don't keep have more than 1
 
 	//If grpc hasn't even started yet rather assume lnd is not synced
-	if (!grpcReady) {
+	const stateRes = await lnd.currentState();
+	if (stateRes.isOk() && !stateRes.value.grpcReady) {
 		getDispatch()(
 			updateLightning({
 				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }),
@@ -205,17 +206,14 @@ export const getBalance = async (onComplete: (msg: string) => void) => {
 	onDebugSuccess(output, onComplete);
 };
 
-export const copyNewAddressToClipboard = async (
-	onComplete: (msg: string) => void,
-) => {
+export const copyNewAddressToClipboard = async (): Promise<string> => {
 	const res = await lnd.getAddress();
 	if (res.isErr()) {
-		onDebugError(res.error, onComplete);
-		return;
+		return '';
 	}
 
 	Clipboard.setString(res.value.address);
-	onDebugSuccess(`Copied to clipboard:\n${res.value.address}`, onComplete);
+	return res.value.address;
 };
 
 export const connectToPeer = async (onComplete: (msg: string) => void) => {
