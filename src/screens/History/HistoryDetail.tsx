@@ -1,7 +1,7 @@
-import React from "react";
-import { Text, View } from "../../styles/components";
-import NavigationHeader from "../../components/NavigationHeader";
-import { StyleSheet } from "react-native";
+import React from 'react';
+import { Text, View } from '../../styles/components';
+import NavigationHeader from '../../components/NavigationHeader';
+import { StyleSheet } from 'react-native';
 
 const HistoryDetail = () => {
 	return (
@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center"
-	}
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 });
 
 export default HistoryDetail;
