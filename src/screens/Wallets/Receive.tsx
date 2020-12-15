@@ -25,7 +25,7 @@ const updateOpacity = ({
 	} catch {}
 };
 
-const Receive = () => {
+const Receive = ({ animate = true }: { animate?: boolean }) => {
 	const wallet = useSelector((state: Store) => state.wallet);
 	const [opacity] = useState(new Animated.Value(0));
 	const { selectedWallet, selectedNetwork } = wallet;
@@ -34,17 +34,19 @@ const Receive = () => {
 	const address = addresses[key].address;
 
 	useEffect(() => {
-		setTimeout(() => {
-			updateOpacity({ opacity, toValue: 1 });
-		}, 100);
-		return () => updateOpacity({ opacity, toValue: 0, duration: 0 });
+		if (animate) {
+			setTimeout(() => {
+				updateOpacity({ opacity, toValue: 1 });
+			}, 100);
+			return () => updateOpacity({ opacity, toValue: 0, duration: 0 });
+		}
 	}, []);
 
 	LayoutAnimation.easeInEaseOut();
 
 	return (
 		<Animated.View style={[styles.container, { opacity }]}>
-			<View color="transparent" style={{ alignItems: 'center' }}>
+			<View color="transparent" style={styles.qrCode}>
 				<QRCode value={address} size={200} />
 				<Text style={styles.text}>{address}</Text>
 			</View>
@@ -61,6 +63,9 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		textAlign: 'center',
 		marginTop: 10,
+	},
+	qrCode: {
+		alignItems: 'center',
 	},
 });
 

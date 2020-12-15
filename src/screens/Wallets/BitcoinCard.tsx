@@ -19,7 +19,7 @@ const BitcoinCard = () => {
 			title="Bitcoin Wallet"
 			assetBalanceLabel="0 BTC"
 			fiatBalanceLabel="$0"
-			assetType="bitcoin">
+			asset="bitcoin">
 			<>
 				<View color="transparent" style={styles.buttonRow}>
 					<Button color="onSurface" style={styles.sendButton} text="Send" />

@@ -26,13 +26,13 @@ const HeaderIcon = ({ id = 'bitcoin' }): ReactElement => {
 };
 
 const AssetCard = ({
-	assetType = 'bitcoin',
+	asset = 'bitcoin',
 	title = 'Bitcoin Wallet',
 	assetBalanceLabel = '0 BTC',
 	fiatBalanceLabel = '$0',
 	children = <View />,
 }: {
-	assetType: string;
+	asset: string;
 	title: string;
 	assetBalanceLabel: string;
 	fiatBalanceLabel: string;
@@ -45,7 +45,7 @@ const AssetCard = ({
 			<>
 				<View color="transparent" style={styles.row}>
 					<View color="transparent" style={styles.col1}>
-						<HeaderIcon id={assetType} />
+						<HeaderIcon id={asset} />
 					</View>
 					<View color="transparent" style={styles.col2}>
 						<>
