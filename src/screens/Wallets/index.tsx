@@ -4,10 +4,7 @@
  */
 
 import React, { memo } from 'react';
-import {
-	LayoutAnimation,
-	StyleSheet,
-} from 'react-native';
+import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View, TouchableOpacity } from '../../styles/components';
 import Header from './Header';
 import Store from '../../store/types';
@@ -27,10 +24,13 @@ const Wallets = ({ navigation }) => {
 		<View style={styles.container}>
 			<Header />
 
-			<TouchableOpacity
-				onPress={() => navigation.navigate('WalletsDetail')}
-			>
-				<WalletListItem title={'Bitcoin'} network={`Lightning network (${lightningStatusMessage(lightning)})`} balance={0} fiatBalance={0} />
+			<TouchableOpacity onPress={() => navigation.navigate('WalletsDetail')}>
+				<WalletListItem
+					title={'Bitcoin'}
+					network={`Lightning network (${lightningStatusMessage(lightning)})`}
+					balance={0}
+					fiatBalance={0}
+				/>
 			</TouchableOpacity>
 
 			<BitcoinCard />

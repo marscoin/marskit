@@ -27,7 +27,10 @@ export const TouchableOpacity = styled.TouchableOpacity`
 `;
 
 export const Pressable = styled.Pressable`
-  background-color: ${props => props.color ? props.theme.colors[props.color] : props.theme.colors.background};
+	background-color: ${(props) =>
+		props.color
+			? props.theme.colors[props.color]
+			: props.theme.colors.background};
 `;
 
 export const ScrollView = styled.ScrollView`

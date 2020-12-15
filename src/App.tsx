@@ -4,7 +4,7 @@ import {
 	InteractionManager,
 	Platform,
 	StyleSheet,
-	UIManager
+	UIManager,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
@@ -16,7 +16,6 @@ import themes from './styles/themes';
 import { getStore } from './store/helpers';
 import { createWallet } from './store/actions/wallet';
 import { start as startElectrum } from 'rn-electrum-client/helpers';
-
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
