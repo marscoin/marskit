@@ -7,7 +7,7 @@ module.exports = {
 		localStorage: false,
 	},
 	rules: {
-		'@typescript-eslint/no-unused-vars': 'warn',
+		'@typescript-eslint/no-unused-vars': 'error',
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
 		'no-console': 0,
