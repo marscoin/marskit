@@ -4,6 +4,7 @@ import _Feather from 'react-native-vector-icons/Feather';
 import _EvilIcon from 'react-native-vector-icons/EvilIcons';
 import _Ionicons from 'react-native-vector-icons/Ionicons';
 import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Animated from 'react-native-reanimated';
 
 export const SafeAreaView = styled.SafeAreaView`
 	flex: 1;
@@ -22,8 +23,26 @@ export const View = styled.View`
 			: props.theme.colors.background};
 `;
 
+export const AnimatedView = styled(Animated.View)`
+	background-color: ${(props) =>
+		props.color
+			? props.theme.colors[props.color]
+			: props.theme.colors.background};
+`;
+
 export const TouchableOpacity = styled.TouchableOpacity`
-	background-color: ${(props) => props.theme.colors.background};
+	background-color: ${(props) =>
+		props.color
+			? props.theme.colors[props.color]
+			: props.theme.colors.background};
+`;
+
+export const Pressable = styled.Pressable`
+	background-color: ${(props) =>
+		props.color
+			? props.theme.colors[props.color]
+			: props.theme.colors.background};
+	opacity: ${(props) => (props.disabled ? 0.4 : 1)};
 `;
 
 export const ScrollView = styled.ScrollView`

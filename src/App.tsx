@@ -1,6 +1,11 @@
 import '../shim';
 import React, { memo, useEffect } from 'react';
-import { InteractionManager, StyleSheet } from 'react-native';
+import {
+	InteractionManager,
+	Platform,
+	StyleSheet,
+	UIManager,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { StatusBar, SafeAreaView } from './styles/components';
@@ -11,6 +16,12 @@ import themes from './styles/themes';
 import { getStore } from './store/helpers';
 import { createWallet } from './store/actions/wallet';
 import { start as startElectrum } from 'rn-electrum-client/helpers';
+
+if (Platform.OS === 'android') {
+	if (UIManager.setLayoutAnimationEnabledExperimental) {
+		UIManager.setLayoutAnimationEnabledExperimental(true);
+	}
+}
 
 const startApp = async (): Promise<void> => {
 	try {
@@ -29,7 +40,6 @@ const startApp = async (): Promise<void> => {
 		});
 	} catch {}
 };
-
 const App = () => {
 	useLightning();
 
