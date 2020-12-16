@@ -3,14 +3,16 @@
  * @flow strict-local
  */
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Pressable, Text } from '../styles/components';
+import { StyleSheet, ActivityIndicator } from 'react-native';
+import { Pressable, Text, View } from '../styles/components';
 
 interface IButton {
 	text: string;
 	color?: string;
 	onPress?: Function;
 	onLongPress?: Function;
+	disabled?: boolean;
+	loading?: boolean;
 	style?: Object;
 }
 const Button = ({
@@ -18,6 +20,8 @@ const Button = ({
 	color = 'background',
 	onPress = () => null,
 	onLongPress = () => null,
+	disabled = false,
+	loading = false,
 	style = {},
 }: IButton) => {
 	return (
@@ -27,8 +31,14 @@ const Button = ({
 			//@ts-ignore
 			onPress={onPress}
 			//@ts-ignore
-			onLongPress={onLongPress}>
+			onLongPress={onLongPress}
+			disabled={disabled}>
 			<Text style={styles.text}>{text}</Text>
+			{loading && (
+				<View color="onSurface" style={styles.loading}>
+					<ActivityIndicator size="small" />
+				</View>
+			)}
 		</Pressable>
 	);
 };
@@ -53,6 +63,19 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 		textAlign: 'center',
 		paddingVertical: 8,
+	},
+	loading: {
+		...StyleSheet.absoluteFillObject,
+		alignItems: 'center',
+		justifyContent: 'center',
+		alignSelf: 'center',
+		borderRadius: 10,
+		paddingVertical: 5,
+		shadowColor: 'rgba(0, 0, 0, 0.1)',
+		shadowOpacity: 0.8,
+		elevation: 6,
+		shadowRadius: 15,
+		shadowOffset: { width: 1, height: 13 },
 	},
 });
 
