@@ -63,20 +63,24 @@ const styles = StyleSheet.create({
 		marginTop: 15,
 		marginHorizontal: 10,
 		marginBottom: 20,
+		backgroundColor: 'transparent',
 	},
 	leftColumn: {
 		flex: 1,
 		justifyContent: 'center',
+		backgroundColor: 'transparent',
 	},
 	middleColumn: {
 		flex: 1.5,
 		justifyContent: 'center',
 		alignItems: 'center',
+		backgroundColor: 'transparent',
 	},
 	rightColumn: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'flex-end',
+		backgroundColor: 'transparent',
 	},
 	title: {
 		textAlign: 'center',
@@ -84,6 +88,7 @@ const styles = StyleSheet.create({
 	iconContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		backgroundColor: 'transparent',
 	},
 	leftIcon: {},
 	rightIcon: {},
