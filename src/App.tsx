@@ -1,6 +1,11 @@
 import '../shim';
 import React, { memo, useEffect } from 'react';
-import { InteractionManager, StyleSheet } from 'react-native';
+import {
+	InteractionManager,
+	Platform,
+	StyleSheet,
+	UIManager,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { StatusBar, SafeAreaView } from './styles/components';
@@ -15,6 +20,12 @@ import {
 	updateLightningState,
 	createOrUnlockLndWallet,
 } from './utils/lightning';
+
+if (Platform.OS === 'android') {
+	if (UIManager.setLayoutAnimationEnabledExperimental) {
+		UIManager.setLayoutAnimationEnabledExperimental(true);
+	}
+}
 
 const startApp = async (): Promise<void> => {
 	//Need to set the LND state from the start or it assumes previous incorrect state until LND is started
@@ -42,7 +53,6 @@ const startApp = async (): Promise<void> => {
 		});
 	} catch {}
 };
-
 const App = () => {
 	useEffect(() => {
 		(async () => {
