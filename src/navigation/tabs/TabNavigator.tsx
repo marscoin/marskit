@@ -14,6 +14,7 @@ import HistoryDetail from '../../screens/History/HistoryDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
+import Receive from '../../screens/Wallets/Receive';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -37,6 +38,14 @@ const WalletsStack = () => {
 				name="WalletsDetail"
 				component={WalletsDetail}
 				options={navOptionHandler}
+			/>
+			<Stack.Screen
+				name="ReceiveAsset"
+				component={Receive}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
 			/>
 		</Stack.Navigator>
 	);
