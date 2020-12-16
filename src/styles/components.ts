@@ -31,7 +31,10 @@ export const AnimatedView = styled(Animated.View)`
 `;
 
 export const TouchableOpacity = styled.TouchableOpacity`
-	background-color: ${(props) => props.theme.colors.background};
+	background-color: ${(props) =>
+		props.color
+			? props.theme.colors[props.color]
+			: props.theme.colors.background};
 `;
 
 export const Pressable = styled.Pressable`
@@ -39,6 +42,7 @@ export const Pressable = styled.Pressable`
 		props.color
 			? props.theme.colors[props.color]
 			: props.theme.colors.background};
+	opacity: ${(props) => (props.disabled ? 0.4 : 1)};
 `;
 
 export const ScrollView = styled.ScrollView`
