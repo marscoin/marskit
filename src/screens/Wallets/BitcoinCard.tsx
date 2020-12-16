@@ -9,9 +9,12 @@ import { View } from '../../styles/components';
 import Receive from './Receive';
 import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard';
+import { useNavigation } from '@react-navigation/native';
 
 const BitcoinCard = () => {
 	const [displayReceive, setDisplayReceive] = useState(false);
+	const navigation = useNavigation();
+
 	LayoutAnimation.easeInEaseOut();
 
 	return (
@@ -27,10 +30,15 @@ const BitcoinCard = () => {
 						color="onSurface"
 						style={styles.receiveButton}
 						onPress={() => setDisplayReceive(!displayReceive)}
+						onLongPress={() =>
+							navigation.navigate('ReceiveAsset', {
+								id: 'bitcoin',
+							})
+						}
 						text="Receive"
 					/>
 				</View>
-				{displayReceive && <Receive />}
+				{displayReceive && <Receive header={false} />}
 			</>
 		</AssetCard>
 	);
