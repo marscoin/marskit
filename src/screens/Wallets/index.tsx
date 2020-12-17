@@ -5,17 +5,12 @@
 
 import React, { memo } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
-import { View, TouchableOpacity } from '../../styles/components';
+import { View } from '../../styles/components';
 import Header from './Header';
-import Store from '../../store/types';
-import { useSelector } from 'react-redux';
-import { lightningStatusMessage } from '../../utils/lightning-debug';
-import WalletListItem from './WalletListItem';
 import BitcoinCard from './BitcoinCard';
+import LightningCard from './lighting/LightningCard';
 
 const Wallets = ({ navigation }) => {
-	const lightning = useSelector((state: Store) => state.lightning);
-
 	LayoutAnimation.easeInEaseOut();
 
 	//TODO this will probably fetch all available wallets and list them
@@ -24,16 +19,8 @@ const Wallets = ({ navigation }) => {
 		<View style={styles.container}>
 			<Header />
 
-			<TouchableOpacity onPress={() => navigation.navigate('WalletsDetail')}>
-				<WalletListItem
-					title={'Bitcoin'}
-					network={`Lightning network (${lightningStatusMessage(lightning)})`}
-					balance={0}
-					fiatBalance={0}
-				/>
-			</TouchableOpacity>
-
 			<BitcoinCard />
+			<LightningCard />
 		</View>
 	);
 };

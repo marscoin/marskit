@@ -7,13 +7,7 @@ import {
 	TouchableOpacity,
 } from '../../../styles/components';
 import List from '../../../components/List';
-import {
-	connectToPeer,
-	copyNewAddressToClipboard,
-	getBalance,
-	openMaxChannel,
-	payInvoice,
-} from '../../../utils/lightning';
+import { debugGetBalance, debugListPeers } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
@@ -40,13 +34,13 @@ const LightningInfo = ({ navigation }) => {
 							syncedToChain,
 							version,
 							alias,
-							syncedToGraph,
 						} = lightning.info;
 
 						let output = `Version: ${version}`;
 						output += `\n\nSynced: ${syncedToChain ? '✅' : '❌'}`;
 						output += `\n\nBlock Height: ${blockHeight}`;
 						output += `\n\nIdentity Pubkey: ${identityPubkey}`;
+						output += `\n\nAlias: ${alias}`;
 						output += `\n\nActive Channels: ${numActiveChannels}`;
 						output += `\n\nInactive Channels: ${numInactiveChannels}`;
 						output += `\n\nPeers: ${numPeers}`;
@@ -58,27 +52,12 @@ const LightningInfo = ({ navigation }) => {
 				{
 					title: 'Show all balances',
 					type: 'button',
-					onPress: () => getBalance(setContent),
+					onPress: () => debugGetBalance(setContent),
 				},
 				{
-					title: 'Copy receive address',
+					title: 'List peers',
 					type: 'button',
-					onPress: () => copyNewAddressToClipboard(setContent),
-				},
-				{
-					title: 'Connect to peer',
-					type: 'button',
-					onPress: () => connectToPeer(setContent),
-				},
-				{
-					title: 'Open channel',
-					type: 'button',
-					onPress: () => openMaxChannel(setContent),
-				},
-				{
-					title: 'Pay invoice',
-					type: 'button',
-					onPress: () => payInvoice(setContent),
+					onPress: () => debugListPeers(setContent),
 				},
 			],
 		},

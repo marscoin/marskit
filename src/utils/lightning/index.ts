@@ -8,17 +8,23 @@ import {
 	ENetworks as LndNetworks,
 	TCurrentLndState,
 } from 'react-native-lightning/dist/types';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { ILightning } from '../../store/types/lightning';
 import { updateLightning } from '../../store/actions/lightning';
-import { getDispatch } from '../../store/helpers';
+import { getDispatch, getStore } from '../../store/helpers';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
+var pjson = require('../../../package.json');
 
 const tempPassword = 'shhhhhhhh123';
-const testnetNodePubkey =
-	'0324b835e1484d6637594edc2b97f3f85490afb782dd308b241485216ad47598df';
-const testnetNodeHost = '174.138.2.184:9735';
+
+const defaultNodePubKey =
+	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
+const defaultNodeHost = '4.tcp.ngrok.io:12749'; // '35.240.72.95:9735'; //Our testnet server
+
+// const defaultNodePubKey =
+// 	'024684a0ed0cf7075b9e56d7825e44eb30ac7de7b93dea1b72dab05d23b90c8dbd'; //Local regtest node
+// const defaultNodeHost = '127.0.0.1:9737'; //Local regtest node
 
 const regtestPolarConf = {
 	Bitcoind: {
@@ -30,9 +36,17 @@ const regtestPolarConf = {
 	},
 };
 
+let alias = `Spectrum v${pjson.version}`;
+if (__DEV__) {
+	alias = `${alias} (${Platform.OS} ${Platform.Version})`;
+}
+
 const testNetconf = {
+	'Application Options': {
+		alias,
+	},
 	Neutrino: {
-		'neutrino.connect': '174.138.2.184:18333',
+		'neutrino.connect': '0.tcp.ngrok.io:12782',
 	},
 };
 
@@ -94,7 +108,8 @@ export const createOrUnlockLndWallet = async () => {
 	}
 };
 
-let previousInfoResponseString = '';
+//TODO try subscribe to all this instead of polling
+let previousLndPayloadString = '';
 const pollLndGetInfo = async (): Promise<void> => {
 	clearTimeout(pollLndGetInfoTimeout); //If previously subscribed make sure we don't keep have more than 1
 
@@ -110,20 +125,29 @@ const pollLndGetInfo = async (): Promise<void> => {
 		return;
 	}
 
-	lnd
-		.getInfo()
-		.then((res) => {
-			if (res.isOk()) {
-				if (previousInfoResponseString !== JSON.stringify(res.value)) {
-					getDispatch()(updateLightning({ info: res.value }));
-				}
+	let payload = {};
+	const infoRes = await lnd.getInfo();
+	if (infoRes.isOk()) {
+		payload = { info: infoRes.value };
+	}
 
-				previousInfoResponseString = JSON.stringify(res.value);
-			}
-		})
-		.finally(() => {
-			pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
-		});
+	const walletBalanceRes = await lnd.getWalletBalance();
+	if (walletBalanceRes.isOk()) {
+		payload = { ...payload, onChainBalance: walletBalanceRes.value };
+	}
+
+	const channelBalanceRes = await lnd.getChannelBalance();
+	if (channelBalanceRes.isOk()) {
+		payload = { ...payload, channelBalance: channelBalanceRes.value };
+	}
+
+	//If nothing has changed don't spam the logs with updates
+	if (previousLndPayloadString !== JSON.stringify(payload)) {
+		getDispatch()(updateLightning(payload));
+	}
+	previousLndPayloadString = JSON.stringify(payload);
+
+	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
 };
 
 export const updateLightningState = async (state?: TCurrentLndState) => {
@@ -171,7 +195,38 @@ const unlockWallet = async () => {
 	console.log('Wallet unlocked.');
 };
 
-export const getBalance = async (onComplete: (msg: string) => void) => {
+export const copyNewAddressToClipboard = async (): Promise<string> => {
+	const res = await lnd.getAddress();
+	if (res.isErr()) {
+		return '';
+	}
+
+	Clipboard.setString(res.value.address);
+	return res.value.address;
+};
+
+export const connectToDefaultPeer = async () => {
+	return await lnd.connectPeer(defaultNodePubKey, defaultNodeHost);
+};
+
+export const openMaxChannel = async () => {
+	let value = getStore().lightning.onChainBalance.confirmedBalance;
+
+	const maxChannel = 0.16 * 100000000;
+	if (value > maxChannel) {
+		value = maxChannel;
+	}
+
+	//TODO use actual fee estimate
+	value = Number(value) - 50000;
+	// const feeEstimateRes = lnd.feeEstimate()
+
+	return await lnd.openChannel(value, defaultNodePubKey);
+};
+
+//Debug functions to help with development
+
+export const debugGetBalance = async (onComplete: (msg: string) => void) => {
 	const walletRes = await lnd.getWalletBalance();
 	if (walletRes.isErr()) {
 		onDebugError(walletRes.error, onComplete);
@@ -206,57 +261,22 @@ export const getBalance = async (onComplete: (msg: string) => void) => {
 	onDebugSuccess(output, onComplete);
 };
 
-export const copyNewAddressToClipboard = async (): Promise<string> => {
-	const res = await lnd.getAddress();
+export const debugListPeers = async (onComplete: (msg: string) => void) => {
+	const res = await lnd.listPeers();
 	if (res.isErr()) {
-		return '';
-	}
-
-	Clipboard.setString(res.value.address);
-	return res.value.address;
-};
-
-export const connectToPeer = async (onComplete: (msg: string) => void) => {
-	onComplete('Connecting');
-
-	const connectRes = await lnd.connectPeer(testnetNodePubkey, testnetNodeHost);
-	if (connectRes.isErr()) {
-		onDebugError(connectRes.error, onComplete);
+		onDebugError(res.error, onComplete);
 		return;
 	}
 
-	onComplete('Connected to node...');
+	let output = '';
+	res.value.peers.forEach((peer) => {
+		output += `\n${peer.address} ${peer.pubKey}\n`;
+	});
+
+	onDebugSuccess(output, onComplete);
 };
 
-export const openMaxChannel = async (onComplete: (msg: string) => void) => {
-	Alert.prompt('Sats', '', [
-		{
-			text: 'Cancel',
-			onPress: () => console.log('Cancel Pressed'),
-			style: 'cancel',
-		},
-		{
-			text: 'Open',
-			onPress: async (sats) => {
-				const value = Number(sats);
-				if (!value) {
-					onDebugError(new Error('Invalid sats amount'), onComplete);
-					return;
-				}
-
-				const openRes = await lnd.openChannel(value, testnetNodePubkey);
-				if (openRes.isErr()) {
-					onDebugError(openRes.error, onComplete);
-					return;
-				}
-
-				onDebugSuccess('Channel opening. Wait for confirmation.', onComplete);
-			},
-		},
-	]);
-};
-
-export const payInvoice = async (onComplete: (msg: string) => void) => {
+export const debugPayInvoice = async (onComplete: (msg: string) => void) => {
 	const confirmPay = (invoice: string, message: string): void => {
 		Alert.alert('Pay Invoice', message, [
 			{
@@ -301,7 +321,7 @@ export const payInvoice = async (onComplete: (msg: string) => void) => {
 	]);
 };
 
-export const lightningStatusMessage = (lightning: ILightning): string => {
+export const debugLightningStatusMessage = (lightning: ILightning): string => {
 	if (!lightning.state.lndRunning) {
 		return 'Starting ⌛';
 	}
@@ -318,5 +338,5 @@ export const lightningStatusMessage = (lightning: ILightning): string => {
 		return `Syncing ⌛ ${lightning.info.blockHeight}`;
 	}
 
-	return 'Ready ✅';
+	return `Ready ✅${__DEV__ ? ` (${lightning.info.blockHeight})` : ''}`;
 };
