@@ -16,7 +16,7 @@ const packageJson = require('../../../package.json');
 
 const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
-const defaultNodeHost = '0.tcp.ngrok.io:17949'; //'35.240.72.95:9735'; //Our testnet server
+const defaultNodeHost = '35.240.72.95:9735'; //Our testnet server
 
 // const defaultNodePubKey =
 // 	'024684a0ed0cf7075b9e56d7825e44eb30ac7de7b93dea1b72dab05d23b90c8dbd'; //Local regtest node
