@@ -14,13 +14,14 @@ import { ILightning } from '../../store/types/lightning';
 import { updateLightning } from '../../store/actions/lightning';
 import { getDispatch, getStore } from '../../store/helpers';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
-var pjson = require('../../../package.json');
+
+const packageJson = require('../../../package.json');
 
 const tempPassword = 'shhhhhhhh123';
 
 const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
-const defaultNodeHost = '4.tcp.ngrok.io:12749'; // '35.240.72.95:9735'; //Our testnet server
+const defaultNodeHost = '0.tcp.ngrok.io:17949'; //'35.240.72.95:9735'; //Our testnet server
 
 // const defaultNodePubKey =
 // 	'024684a0ed0cf7075b9e56d7825e44eb30ac7de7b93dea1b72dab05d23b90c8dbd'; //Local regtest node
@@ -36,7 +37,8 @@ const regtestPolarConf = {
 	},
 };
 
-let alias = `Spectrum v${pjson.version}`;
+//Lightning alias to help identify users on our node
+let alias = `Spectrum v${packageJson.version}`;
 if (__DEV__) {
 	alias = `${alias} (${Platform.OS} ${Platform.Version})`;
 }
@@ -46,7 +48,7 @@ const testNetconf = {
 		alias,
 	},
 	Neutrino: {
-		'neutrino.connect': '0.tcp.ngrok.io:12782',
+		'neutrino.connect': '35.240.72.95:18333',
 	},
 };
 
@@ -270,55 +272,12 @@ export const debugListPeers = async (onComplete: (msg: string) => void) => {
 
 	let output = '';
 	res.value.peers.forEach((peer) => {
-		output += `\n${peer.address} ${peer.pubKey}\n`;
+		output += `\n${peer.pubKey == defaultNodePubKey ? '*Default node - ' : ''}${
+			peer.address
+		}\n${peer.pubKey?.substring(0, 20)}...\n`;
 	});
 
 	onDebugSuccess(output, onComplete);
-};
-
-export const debugPayInvoice = async (onComplete: (msg: string) => void) => {
-	const confirmPay = (invoice: string, message: string): void => {
-		Alert.alert('Pay Invoice', message, [
-			{
-				text: 'Cancel',
-				onPress: () => console.log('Cancel Pressed'),
-				style: 'cancel',
-			},
-			{
-				text: 'Confirm',
-				onPress: async () => {
-					const res = await lnd.payInvoice(invoice ?? '');
-					if (res.isErr()) {
-						onDebugError(res.error, onComplete);
-						return;
-					}
-
-					onDebugSuccess('Paid!', onComplete);
-				},
-			},
-		]);
-	};
-
-	Alert.prompt('Invoice', 'ln...', [
-		{
-			text: 'Cancel',
-			onPress: () => console.log('Cancel Pressed'),
-			style: 'cancel',
-		},
-		{
-			text: 'Decode',
-			onPress: async (invoice = '') => {
-				const res = await lnd.decodeInvoice(invoice);
-				if (res.isErr()) {
-					onDebugError(res.error, onComplete);
-					return;
-				}
-
-				const { numSatoshis, description } = res.value;
-				confirmPay(invoice, `Pay ${numSatoshis} sats for '${description}'`);
-			},
-		},
-	]);
 };
 
 export const debugLightningStatusMessage = (lightning: ILightning): string => {

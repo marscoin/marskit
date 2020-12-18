@@ -35,7 +35,7 @@ const AssetCard = ({
 }: {
 	asset: string;
 	title: string;
-	description: string;
+	description?: string;
 	assetBalanceLabel: string;
 	fiatBalanceLabel: string;
 	children: ReactElement;

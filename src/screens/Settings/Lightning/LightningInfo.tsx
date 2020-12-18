@@ -7,7 +7,11 @@ import {
 	TouchableOpacity,
 } from '../../../styles/components';
 import List from '../../../components/List';
-import { debugGetBalance, debugListPeers } from '../../../utils/lightning';
+import {
+	connectToDefaultPeer,
+	debugGetBalance,
+	debugListPeers,
+} from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
@@ -58,6 +62,18 @@ const LightningInfo = ({ navigation }) => {
 					title: 'List peers',
 					type: 'button',
 					onPress: () => debugListPeers(setContent),
+				},
+				{
+					title: 'Connect to default peer',
+					type: 'button',
+					onPress: async () => {
+						const res = await connectToDefaultPeer();
+						if (res.isErr()) {
+							return setContent(res.error.message);
+						}
+
+						setContent(JSON.stringify(res.value));
+					},
 				},
 			],
 		},

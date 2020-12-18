@@ -3,18 +3,18 @@
  * @flow strict-local
  */
 
-import React, { memo, useState } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import React, { memo, useEffect, useState } from 'react';
+import { LayoutAnimation, StyleSheet, TextInput } from 'react-native';
 import { View, Text } from '../../../styles/components';
 import Receive from './../Receive';
 import Button from '../../../components/Button';
 import AssetCard from '../../../components/AssetCard';
-import { useNavigation } from '@react-navigation/native';
 import Store from '../../../store/types';
 import { useSelector } from 'react-redux';
 import {
 	connectToDefaultPeer,
-	debugLightningStatusMessage, openMaxChannel,
+	debugLightningStatusMessage,
+	openMaxChannel,
 } from '../../../utils/lightning';
 import lnd from 'react-native-lightning';
 
@@ -22,9 +22,43 @@ const LightningCard = () => {
 	const lightning = useSelector((state: Store) => state.lightning);
 	const [message, setMessage] = useState('');
 	const [receiveAddress, setReceiveAddress] = useState('');
-	const navigation = useNavigation();
+	const [showInvoiceInput, setShowInvoiceInput] = useState(false);
+	const [sendPaymentRequest, setSendPaymentRequest] = useState('');
 
 	LayoutAnimation.easeInEaseOut();
+
+	useEffect(() => {
+		if (lightning.channelBalance.pendingOpenBalance > 0) {
+			setMessage('Opening channel...');
+		}
+	}, [lightning]);
+
+	useEffect(() => {
+		if (!sendPaymentRequest) {
+			return;
+		}
+
+		(async () => {
+			const res = await lnd.decodeInvoice(sendPaymentRequest);
+			if (res.isOk()) {
+				setSendPaymentRequest('');
+				setShowInvoiceInput(false);
+				setMessage(`Paying ${res.value.numSatoshis} sats...`);
+
+				const payRes = await lnd.payInvoice(sendPaymentRequest);
+				if (payRes.isErr()) {
+					setMessage(payRes.error.message);
+					return;
+				}
+
+				setMessage('Paid!');
+			}
+		})();
+	}, [sendPaymentRequest]);
+
+	if (!lightning.onChainBalance || !lightning.channelBalance) {
+		return null;
+	}
 
 	const showFundingButton = lightning.onChainBalance.totalBalance === 0;
 	const showSendReceive = lightning.channelBalance.balance > 0;
@@ -51,19 +85,24 @@ const LightningCard = () => {
 						<>
 							<Button
 								color="onSurface"
+								style={styles.sendButton}
+								onPress={() => {
+									setShowInvoiceInput(!showInvoiceInput);
+									setReceiveAddress('');
+								}}
+								text="Send"
+							/>
+							<Button
+								color="onSurface"
 								style={styles.receiveButton}
 								onPress={async () => {
 									const res = await lnd.createInvoice(1, 'Spectrum test');
 									if (res.isOk()) {
 										setReceiveAddress(res.value.paymentRequest);
+										setShowInvoiceInput(false);
 										console.log(res.value.paymentRequest);
 									}
 								}}
-								onLongPress={() =>
-									navigation.navigate('ReceiveAsset', {
-										id: 'bitcoin',
-									})
-								}
 								text="Receive"
 							/>
 						</>
@@ -72,12 +111,12 @@ const LightningCard = () => {
 					{!!showFundingButton && (
 						<Button
 							color="onSurface"
-							style={styles.receiveButton}
+							style={styles.fundButton}
 							onPress={async () => {
 								const res = await lnd.getAddress();
 								if (res.isOk()) {
 									setReceiveAddress(res.value.address);
-									console.warn(res.value.address);
+									console.log(res.value.address);
 								}
 							}}
 							text="Fund"
@@ -87,7 +126,7 @@ const LightningCard = () => {
 					{!!showOpenChannelButton && (
 						<Button
 							color="onSurface"
-							style={styles.receiveButton}
+							style={styles.fundButton}
 							onPress={async () => {
 								setMessage('Connecting...');
 								const connectRes = await connectToDefaultPeer();
@@ -114,6 +153,14 @@ const LightningCard = () => {
 
 				{!!message && <Text style={styles.message}>{message}</Text>}
 
+				{!!showInvoiceInput && (
+					<View>
+						<TextInput
+							onChangeText={(invoice) => setSendPaymentRequest(invoice)}
+						/>
+					</View>
+				)}
+
 				{!!receiveAddress && (
 					<Receive address={receiveAddress} header={false} />
 				)}
@@ -132,6 +179,10 @@ const styles = StyleSheet.create({
 		marginRight: 5,
 	},
 	receiveButton: {
+		flex: 1,
+		marginLeft: 5,
+	},
+	fundButton: {
 		flex: 1,
 		marginLeft: 5,
 	},
