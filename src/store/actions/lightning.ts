@@ -37,7 +37,7 @@ export const startLnd = (network: LndNetworks) => {
 			return failure(res.error.message);
 		}
 
-		await dispatch(refreshLightningState());
+		await refreshLightningState();
 		lnd.subscribeToCurrentState((state) => {
 			dispatch({
 				type: actions.UPDATE_LIGHTNING_STATE,
@@ -140,7 +140,7 @@ export const unlockLightningWallet = ({
  * Updates the lightning store with the latest state of LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningState = () => (dispatch) => {
+export const refreshLightningState = () => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.currentState();
 		if (res.isErr()) {
@@ -159,7 +159,7 @@ export const refreshLightningState = () => (dispatch) => {
  * Updates the lightning store with the latest GetInfo response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningInfo = () => (dispatch) => {
+export const refreshLightningInfo = () => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getInfo();
 		if (res.isErr()) {
@@ -179,7 +179,7 @@ export const refreshLightningInfo = () => (dispatch) => {
  * TODO: Should be removed when on chain wallet is ready to replace the built in LND wallet
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningOnChainBalance = () => (dispatch) => {
+export const refreshLightningOnChainBalance = () => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getWalletBalance();
 		if (res.isErr()) {
@@ -198,7 +198,7 @@ export const refreshLightningOnChainBalance = () => (dispatch) => {
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningChannelBalance = () => (dispatch) => {
+export const refreshLightningChannelBalance = () => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getChannelBalance();
 		if (res.isErr()) {
@@ -229,9 +229,11 @@ const pollLndGetInfo = async (): Promise<void> => {
 		return;
 	}
 
-	await dispatch(refreshLightningInfo());
-	await dispatch(refreshLightningOnChainBalance());
-	await dispatch(refreshLightningChannelBalance());
+	await Promise.all([
+		refreshLightningInfo(),
+		refreshLightningOnChainBalance(),
+		refreshLightningChannelBalance(),
+	]);
 
 	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
 };
@@ -252,7 +254,7 @@ export const payLightningInvoice = (
 			return failure(res.error);
 		}
 
-		await dispatch(refreshLightningChannelBalance());
+		await refreshLightningChannelBalance();
 
 		resolve({ error: false, data: 'Paid.' });
 	});
