@@ -3,21 +3,16 @@
  */
 
 import lnd from 'react-native-lightning';
-import LndConf from 'react-native-lightning/dist/lnd.conf';
 import {
 	ENetworks as LndNetworks,
-	TCurrentLndState,
+	TLndConf,
 } from 'react-native-lightning/dist/types';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { ILightning } from '../../store/types/lightning';
-import { updateLightning } from '../../store/actions/lightning';
-import { getDispatch, getStore } from '../../store/helpers';
-import { lnrpc } from 'react-native-lightning/dist/rpc';
+import { getStore } from '../../store/helpers';
 
 const packageJson = require('../../../package.json');
-
-const tempPassword = 'shhhhhhhh123';
 
 const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
@@ -27,174 +22,42 @@ const defaultNodeHost = '0.tcp.ngrok.io:17949'; //'35.240.72.95:9735'; //Our tes
 // 	'024684a0ed0cf7075b9e56d7825e44eb30ac7de7b93dea1b72dab05d23b90c8dbd'; //Local regtest node
 // const defaultNodeHost = '127.0.0.1:9737'; //Local regtest node
 
-const regtestPolarConf = {
-	Bitcoind: {
-		'bitcoind.rpchost': '10.0.0.100',
-		'bitcoind.rpcuser': 'polaruser',
-		'bitcoind.rpcpass': 'polarpass',
-		'bitcoind.zmqpubrawblock': 'tcp://10.0.0.100:28334',
-		'bitcoind.zmqpubrawtx': 'tcp://10.0.0.100:29335',
-	},
-};
-
-//Lightning alias to help identify users on our node
-let alias = `Spectrum v${packageJson.version}`;
-if (__DEV__) {
-	alias = `${alias} (${Platform.OS} ${Platform.Version})`;
-}
-
-const testNetconf = {
-	'Application Options': {
-		alias,
-	},
-	Neutrino: {
-		'neutrino.connect': '35.240.72.95:18333',
-	},
-};
-
-//TODO use /utils/networks.ts to determine the network
-
-const lndConf = new LndConf(LndNetworks.testnet, testNetconf);
-
-let pollLndGetInfoTimeout;
-
-/**
- * Start LND and unlock a wallet if one exists
- * @returns {Promise<void>}
- */
-export const startLnd = async () => {
-	//Set initial LND state
-	const stateRes = await lnd.currentState();
-	if (stateRes.isOk()) {
-		await updateLightningState(stateRes.value);
+export const getCustomLndConf = (network: LndNetworks): TLndConf => {
+	//Lightning alias to help identify users on our node
+	let alias = `Spectrum v${packageJson.version}`;
+	if (__DEV__) {
+		alias = `${alias} (${Platform.OS} ${Platform.Version})`;
 	}
 
-	//Any future updates to LND state
-	lnd.subscribeToCurrentState(updateLightningState);
-	pollLndGetInfo().then();
-
-	if (stateRes.isOk() && stateRes.value.grpcReady) {
-		return; //LND already running and unlocked
-	}
-
-	const res = await lnd.start(lndConf);
-	if (res.isErr()) {
-		console.error('LND failed to start', res.error.message);
-		return;
-	}
-};
-
-/**
- * //TODO remove when not needed anymore
- * Temp function until on boarding has been developed
- */
-export const createOrUnlockLndWallet = async () => {
-	const stateRes = await lnd.currentState();
-	if (stateRes.isOk() && stateRes.value.grpcReady) {
-		return; //Wallet already unlocked
-	}
-
-	const existsRes = await lnd.walletExists(lndConf.network);
-	if (existsRes.isErr()) {
-		console.error(
-			'LND failed to check if wallet exists',
-			existsRes.error.message,
-		);
-		return;
-	}
-
-	if (existsRes.value === true) {
-		await unlockWallet();
-	} else {
-		await createWallet();
-	}
-};
-
-//TODO try subscribe to all this instead of polling
-let previousLndPayloadString = '';
-const pollLndGetInfo = async (): Promise<void> => {
-	clearTimeout(pollLndGetInfoTimeout); //If previously subscribed make sure we don't keep have more than 1
-
-	//If grpc hasn't even started yet rather assume lnd is not synced
-	const stateRes = await lnd.currentState();
-	if (stateRes.isOk() && !stateRes.value.grpcReady) {
-		getDispatch()(
-			updateLightning({
-				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }),
-			}),
-		);
-		pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
-		return;
-	}
-
-	let payload = {};
-	const infoRes = await lnd.getInfo();
-	if (infoRes.isOk()) {
-		payload = { info: infoRes.value };
-	}
-
-	const walletBalanceRes = await lnd.getWalletBalance();
-	if (walletBalanceRes.isOk()) {
-		payload = { ...payload, onChainBalance: walletBalanceRes.value };
-	}
-
-	const channelBalanceRes = await lnd.getChannelBalance();
-	if (channelBalanceRes.isOk()) {
-		payload = { ...payload, channelBalance: channelBalanceRes.value };
-	}
-
-	//If nothing has changed don't spam the logs with updates
-	if (previousLndPayloadString !== JSON.stringify(payload)) {
-		getDispatch()(updateLightning(payload));
-	}
-	previousLndPayloadString = JSON.stringify(payload);
-
-	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
-};
-
-export const updateLightningState = async (state?: TCurrentLndState) => {
-	//If the state to set is not passed in then get it
-	if (!state) {
-		const stateRes = await lnd.currentState();
-		if (stateRes.isOk()) {
-			state = stateRes.value;
+	switch (network) {
+		case LndNetworks.regtest: {
+			return {
+				'Application Options': {
+					alias,
+				},
+				Bitcoind: {
+					'bitcoind.rpchost': '10.0.0.100',
+					'bitcoind.rpcuser': 'polaruser',
+					'bitcoind.rpcpass': 'polarpass',
+					'bitcoind.zmqpubrawblock': 'tcp://10.0.0.100:28334',
+					'bitcoind.zmqpubrawtx': 'tcp://10.0.0.100:29335',
+				},
+			};
+		}
+		case LndNetworks.testnet: {
+			return {
+				'Application Options': {
+					alias,
+				},
+				Neutrino: {
+					'neutrino.connect': '35.240.72.95:18333',
+				},
+			};
+		}
+		case LndNetworks.mainnet: {
+			return {};
 		}
 	}
-
-	if (state) {
-		getDispatch()(updateLightning({ state }));
-	}
-};
-
-const onDebugError = (e: Error, setMessage) => setMessage(`❌ ${e.message}`);
-const onDebugSuccess = (msg: string, setMessage) => setMessage(`✅ ${msg}`);
-
-const createWallet = async () => {
-	const res = await lnd.genSeed();
-	if (res.isErr()) {
-		Alert.alert('Generate seed error', res.error.message);
-		return;
-	}
-
-	const seed = res.value;
-
-	const createRes = await lnd.createWallet(tempPassword, seed);
-	if (createRes.isErr()) {
-		Alert.alert('Create wallet error', createRes.error.message);
-		return;
-	}
-
-	console.log('Wallet created');
-};
-
-const unlockWallet = async () => {
-	const res = await lnd.unlockWallet(tempPassword);
-	if (res.isErr()) {
-		Alert.alert('Unlock wallet error', res.error.message);
-		return;
-	}
-
-	console.log('Wallet unlocked.');
 };
 
 export const copyNewAddressToClipboard = async (): Promise<string> => {
@@ -228,6 +91,14 @@ export const openMaxChannel = async () => {
 
 //Debug functions to help with development
 
+const onDebugError = (e: Error, setMessage) => setMessage(`❌ ${e.message}`);
+const onDebugSuccess = (msg: string, setMessage) => setMessage(`✅ ${msg}`);
+
+/**
+ * Debug use only
+ * @param onComplete
+ * @returns {Promise<void>}
+ */
 export const debugGetBalance = async (onComplete: (msg: string) => void) => {
 	const walletRes = await lnd.getWalletBalance();
 	if (walletRes.isErr()) {
@@ -263,6 +134,11 @@ export const debugGetBalance = async (onComplete: (msg: string) => void) => {
 	onDebugSuccess(output, onComplete);
 };
 
+/**
+ * Debug use only
+ * @param onComplete
+ * @returns {Promise<void>}
+ */
 export const debugListPeers = async (onComplete: (msg: string) => void) => {
 	const res = await lnd.listPeers();
 	if (res.isErr()) {
@@ -280,6 +156,11 @@ export const debugListPeers = async (onComplete: (msg: string) => void) => {
 	onDebugSuccess(output, onComplete);
 };
 
+/**
+ * Debug use only
+ * @param lightning
+ * @returns {string}
+ */
 export const debugLightningStatusMessage = (lightning: ILightning): string => {
 	if (!lightning.state.lndRunning) {
 		return 'Starting ⌛';
@@ -294,7 +175,7 @@ export const debugLightningStatusMessage = (lightning: ILightning): string => {
 	}
 
 	if (!lightning.info.syncedToChain) {
-		return `Syncing ⌛ ${lightning.info.blockHeight}`;
+		return `Syncing ⌛ (${lightning.info.blockHeight})`;
 	}
 
 	return `Ready ✅${__DEV__ ? ` (${lightning.info.blockHeight})` : ''}`;
