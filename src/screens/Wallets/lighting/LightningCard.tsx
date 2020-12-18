@@ -17,6 +17,7 @@ import {
 	openMaxChannel,
 } from '../../../utils/lightning';
 import lnd from 'react-native-lightning';
+import { payLightningInvoice } from '../../../store/actions/lightning';
 
 const LightningCard = () => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -45,9 +46,9 @@ const LightningCard = () => {
 				setShowInvoiceInput(false);
 				setMessage(`Paying ${res.value.numSatoshis} sats...`);
 
-				const payRes = await lnd.payInvoice(sendPaymentRequest);
-				if (payRes.isErr()) {
-					setMessage(payRes.error.message);
+				const payRes = await payLightningInvoice(sendPaymentRequest);
+				if (payRes.error) {
+					setMessage(payRes.data);
 					return;
 				}
 
