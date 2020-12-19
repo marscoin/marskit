@@ -8,12 +8,10 @@ import {
 } from '../../../styles/components';
 import List from '../../../components/List';
 import {
-	connectToPeer,
-	copyNewAddressToClipboard,
-	getBalance,
-	openMaxChannel,
-	payInvoice,
-} from '../../../utils/lightning-debug';
+	connectToDefaultPeer,
+	debugGetBalance,
+	debugListPeers,
+} from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
@@ -40,13 +38,13 @@ const LightningInfo = ({ navigation }) => {
 							syncedToChain,
 							version,
 							alias,
-							syncedToGraph,
 						} = lightning.info;
 
 						let output = `Version: ${version}`;
 						output += `\n\nSynced: ${syncedToChain ? '✅' : '❌'}`;
 						output += `\n\nBlock Height: ${blockHeight}`;
 						output += `\n\nIdentity Pubkey: ${identityPubkey}`;
+						output += `\n\nAlias: ${alias}`;
 						output += `\n\nActive Channels: ${numActiveChannels}`;
 						output += `\n\nInactive Channels: ${numInactiveChannels}`;
 						output += `\n\nPeers: ${numPeers}`;
@@ -58,27 +56,24 @@ const LightningInfo = ({ navigation }) => {
 				{
 					title: 'Show all balances',
 					type: 'button',
-					onPress: () => getBalance(setContent),
+					onPress: () => debugGetBalance(setContent),
 				},
 				{
-					title: 'Copy receive address',
+					title: 'List peers',
 					type: 'button',
-					onPress: () => copyNewAddressToClipboard(setContent),
+					onPress: () => debugListPeers(setContent),
 				},
 				{
-					title: 'Connect to peer',
+					title: 'Connect to default peer',
 					type: 'button',
-					onPress: () => connectToPeer(setContent),
-				},
-				{
-					title: 'Open channel',
-					type: 'button',
-					onPress: () => openMaxChannel(setContent),
-				},
-				{
-					title: 'Pay invoice',
-					type: 'button',
-					onPress: () => payInvoice(setContent),
+					onPress: async () => {
+						const res = await connectToDefaultPeer();
+						if (res.isErr()) {
+							return setContent(res.error.message);
+						}
+
+						setContent(JSON.stringify(res.value));
+					},
 				},
 			],
 		},

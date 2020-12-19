@@ -39,6 +39,7 @@ const updateOpacity = ({
 interface IReceive {
 	animate?: boolean;
 	header?: boolean;
+	address?: string;
 	text?: string;
 	shareMessage?: string;
 	shareUrl?: string;
@@ -50,6 +51,7 @@ interface IReceive {
 const Receive = ({
 	animate = true,
 	header = true,
+	address = '',
 	text = '',
 	shareMessage = '',
 	shareUrl = '',
@@ -62,10 +64,12 @@ const Receive = ({
 	const [opacity] = useState(new Animated.Value(0));
 	const [textOpacity] = useState(new Animated.Value(0));
 
-	const { selectedWallet, selectedNetwork } = wallet;
-	const addresses = wallet.wallets[selectedWallet].addresses[selectedNetwork];
-	const key = Object.keys(addresses)[0];
-	const address = addresses[key].address;
+	if (!address) {
+		const { selectedWallet, selectedNetwork } = wallet;
+		const addresses = wallet.wallets[selectedWallet].addresses[selectedNetwork];
+		const key = Object.keys(addresses)[0];
+		address = addresses[key].address;
+	}
 
 	useEffect(() => {
 		if (animate) {

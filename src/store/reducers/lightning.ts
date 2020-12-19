@@ -1,24 +1,45 @@
 import actions from '../actions/actions';
 import { ILightning } from '../types/lightning';
+import { defaultLightningShape } from '../shapes/lightning';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 
-const lightning = (
-	state: ILightning = {
-		syncProgress: 0,
-		info: lnrpc.GetInfoResponse.create(),
-		state: { grpcReady: false, walletUnlocked: false, lndRunning: false },
-	},
-	action,
-) => {
+const lightning = (state: ILightning, action) => {
 	switch (action.type) {
-		case actions.UPDATE_LIGHTNING:
+		case actions.UPDATE_LIGHTNING_STATE:
 			return {
 				...state,
-				...action.payload,
+				state: action.payload,
 			};
-
+		case actions.UPDATE_LIGHTNING_INFO:
+			return {
+				...state,
+				info: action.payload,
+			};
+		case actions.UPDATE_LIGHTNING_ON_CHAIN_BALANCE:
+			return {
+				...state,
+				onChainBalance: action.payload,
+			};
+		case actions.UPDATE_LIGHTNING_CHANNEL_BALANCE:
+			return {
+				...state,
+				channelBalance: action.payload,
+			};
+		case actions.CREATE_LIGHTNING_WALLET:
+			return {
+				...state,
+				...defaultLightningShape,
+			};
+		case actions.UNLOCK_LIGHTNING_WALLET:
+			return {
+				...state,
+				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }), //As they just unlocked rather assume they're not in sync //lnrpc.GetInfoResponse.create({ syncedToChain: false })
+			};
 		default:
-			return state;
+			return {
+				...defaultLightningShape,
+				...state,
+			};
 	}
 };
 

@@ -11,11 +11,17 @@ import { ThemeProvider } from 'styled-components/native';
 import { StatusBar, SafeAreaView } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
-import useLightning from './utils/hooks/lightning';
 import themes from './styles/themes';
 import { getStore } from './store/helpers';
 import { createWallet } from './store/actions/wallet';
+import {
+	startLnd,
+	createLightningWallet,
+	unlockLightningWallet,
+} from './store/actions/lightning';
 import { start as startElectrum } from 'rn-electrum-client/helpers';
+import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
+import lnd from 'react-native-lightning';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -23,9 +29,15 @@ if (Platform.OS === 'android') {
 	}
 }
 
+const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
+const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
+
 const startApp = async (): Promise<void> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
+			//Start LND service first as neutrino sync times can take time
+			await startLnd(lndNetwork);
+
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork } = getStore().wallet;
 			if (Object.keys(wallets).length < 1) {
@@ -37,14 +49,30 @@ const startApp = async (): Promise<void> => {
 			if (startResponse.error) {
 				return;
 			}
+
+			//Create or unlock LND wallet
+			const existsRes = await lnd.walletExists(lndNetwork);
+			if (existsRes.isOk() && existsRes.value) {
+				await unlockLightningWallet({
+					password: tempPassword,
+					network: lndNetwork,
+				});
+			} else {
+				//TODO try use same seed as on chain wallet
+				await createLightningWallet({
+					password: tempPassword,
+					mnemonic: '',
+					network: lndNetwork,
+				});
+			}
 		});
 	} catch {}
 };
 const App = () => {
-	useLightning();
-
 	useEffect(() => {
-		startApp();
+		(async () => {
+			await startApp();
+		})();
 	}, []);
 
 	const settings = useSelector((state: Store) => state.settings);

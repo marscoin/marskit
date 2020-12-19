@@ -28,12 +28,14 @@ const HeaderIcon = ({ id = 'bitcoin' }): ReactElement => {
 const AssetCard = ({
 	asset = 'bitcoin',
 	title = 'Bitcoin Wallet',
+	description = '',
 	assetBalanceLabel = '0 BTC',
 	fiatBalanceLabel = '$0',
 	children = <View />,
 }: {
 	asset: string;
 	title: string;
+	description?: string;
 	assetBalanceLabel: string;
 	fiatBalanceLabel: string;
 	children: ReactElement;
@@ -50,7 +52,11 @@ const AssetCard = ({
 					<View color="transparent" style={styles.col2}>
 						<>
 							<Text style={styles.title}>{title}</Text>
+							{description ? (
+								<Text style={styles.description}>{description}</Text>
+							) : null}
 						</>
+
 						<View color="transparent" style={styles.assetBalanceContainer}>
 							<Text style={styles.balanceLabels}>{assetBalanceLabel}</Text>
 						</View>
@@ -69,6 +75,9 @@ const styles = StyleSheet.create({
 	title: {
 		fontWeight: 'bold',
 		fontSize: 16,
+	},
+	description: {
+		fontSize: 12,
 	},
 	balanceLabels: {
 		marginBottom: 5,
