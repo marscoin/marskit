@@ -1,7 +1,7 @@
-import { INetwork } from '../networks';
+import { INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import { defaultWalletShape } from '../../store/shapes/wallet';
-import { IAddress } from '../../store/types/wallet';
+import { EWallet, IAddress } from '../../store/types/wallet';
 import {
 	IResponse,
 	IGetAddress,
@@ -13,6 +13,7 @@ import { getKeychainValue } from '../helpers';
 import { getStore } from '../../store/helpers';
 
 const bitcoin = require('bitcoinjs-lib');
+const { CipherSeed } = require('aezeed');
 const bip39 = require('bip39');
 const bip32 = require('bip32');
 
@@ -29,14 +30,14 @@ const bip32 = require('bip32');
  * @param {string} addressType - Determines what type of address to generate (legacy, segwit, bech32).
  */
 export const generateAddresses = async ({
-	wallet = 'wallet0',
+	wallet = EWallet.defaultWallet,
 	addressAmount = 1,
 	changeAddressAmount = 1,
 	addressIndex = 0,
 	changeAddressIndex = 0,
-	selectedNetwork = 'bitcoin',
-	keyDerivationPath = '84',
-	addressType = 'bech32',
+	selectedNetwork = EWallet.selectedNetwork,
+	keyDerivationPath = EWallet.keyDerivationPath,
+	addressType = EWallet.addressType,
 }: IGenerateAddresses): Promise<IGenerateAddressesResponse> => {
 	return new Promise(async (resolve) => {
 		const failure = (data) => resolve({ error: true, data });
@@ -107,13 +108,13 @@ export const generateAddresses = async ({
 };
 
 /**
- * Get menmonic phrase for a given wallet.
+ * Get mnemonic phrase for a given wallet.
  * @async
  * @param {string} wallet - Wallet ID
  * @return {{error: boolean, data: string}}
  */
 export const getMnemonicPhrase = async (
-	wallet = '',
+	wallet: string = EWallet.defaultWallet,
 ): Promise<IResponse<string>> => {
 	try {
 		//Get wallet from the store if none was provided
@@ -124,6 +125,40 @@ export const getMnemonicPhrase = async (
 		return await getKeychainValue({ key: wallet });
 	} catch (e) {
 		return { error: true, data: e };
+	}
+};
+
+/**
+ *.Returns any previously stored aezeed passphrase.
+ * @async
+ * @return {{error: boolean, data: string}}
+ */
+export const getAezeedPassphrase = async (): Promise<IResponse<string>> => {
+	try {
+		return await getKeychainValue({
+			key: 'aezeedPassphrase',
+		});
+	} catch (e) {
+		return { error: true, data: e };
+	}
+};
+
+/**
+ * Generate an aezeed cipher mnemonic phrase.
+ * @async
+ * @param passphrase
+ * @return {Promise<string>}
+ */
+export const generateAezeedMnemonic = async ({
+	aezeedPassphrase = EWallet.aezeedPassphrase,
+}: {
+	aezeedPassphrase?: string;
+}): Promise<string> => {
+	try {
+		const cipherSeedVersion = 0;
+		return CipherSeed.random().toMnemonic(aezeedPassphrase, cipherSeedVersion);
+	} catch (e) {
+		return e;
 	}
 };
 
@@ -196,7 +231,7 @@ export const getScriptHash = (
 export const getAddress = ({
 	keyPair = undefined,
 	network = undefined,
-	type = 'bech32',
+	type = EWallet.addressType,
 }: IGetAddress): string => {
 	if (!keyPair || !network) {
 		return '';
@@ -255,12 +290,107 @@ export const getInfoFromAddressPath = (path = ''): IGetInfoFromAddressPath => {
 /**
  * Determine if a given mnemonic is valid.
  * @param {string} mnemonic - The mnemonic to validate.
+ * @param password
  * @return {boolean}
  */
-export const validateMnemonic = (mnemonic = ''): boolean => {
+export const validateMnemonic = (mnemonic = '', password = ''): boolean => {
 	try {
-		return bip39.validateMnemonic(mnemonic);
+		const bip39Response = bip39.validateMnemonic(mnemonic);
+		if (bip39Response) {
+			return true;
+		}
+		return !!CipherSeed.fromMnemonic(mnemonic, password);
 	} catch {
 		return false;
 	}
+};
+
+/**
+ * Get the current Bitcoin balance in sats. (Confirmed+Unconfirmed)
+ * @param {string} selectedWallet
+ * @param {string} selectedNetwork
+ * @return {{ error: boolean, data: number }} - Will always return balance in sats.
+ */
+export const getBitcoinBalance = ({
+	selectedWallet = EWallet.defaultWallet,
+	selectedNetwork = EWallet.selectedNetwork,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+}): IResponse<number> => {
+	const wallet = getStore().wallet;
+	try {
+		const _wallet = wallet.wallets[selectedWallet];
+		const balance =
+			_wallet.confirmedBalance[selectedNetwork] +
+			_wallet.unconfirmedBalance[selectedNetwork];
+		return { error: false, data: balance };
+	} catch {
+		return { error: true, data: 0 };
+	}
+};
+
+export const getExchangeRate = async ({
+	selectedCurrency = 'USD',
+	asset = 'bitcoin',
+	exchangeRateService = 'bitfinex',
+}: {
+	selectedCurrency?: string;
+	asset?: string;
+	exchangeRateService?: string;
+}): Promise<IResponse<number | object>> => {
+	try {
+		const assetTicker = getAssetTicker(asset);
+		selectedCurrency = selectedCurrency.toUpperCase();
+		return await exchangeRateHelpers[exchangeRateService]({
+			assetTicker,
+			selectedCurrency,
+		});
+	} catch (e) {
+		return { error: true, data: e };
+	}
+};
+
+/**
+ *
+ * @param {string} asset
+ * @return {string}
+ */
+export const getAssetTicker = (asset = 'bitcoin'): string => {
+	try {
+		switch (asset) {
+			case 'bitcoin':
+				return 'BTC';
+			case 'bitcoinTestnet':
+				return 'BTC';
+			default:
+				return '';
+		}
+	} catch {
+		return '';
+	}
+};
+
+const exchangeRateHelpers = {
+	/**
+	 * Get Bitfinexs' exchange rate for specified asset/currency.
+	 * @param assetTicker
+	 * @param selectedCurrency
+	 * @return {{ error: boolean, data: number }}
+	 */
+	bitfinex: async ({
+		assetTicker = 'BTC',
+		selectedCurrency = 'USD',
+	}): Promise<IResponse<number>> => {
+		try {
+			const response = await fetch(
+				`https://api-pub.bitfinex.com/v2/ticker/t${assetTicker}${selectedCurrency}`,
+			);
+			const jsonResponse = await response.json();
+			const price = jsonResponse[6];
+			return { error: false, data: price };
+		} catch {
+			return { error: true, data: 0 };
+		}
+	},
 };
