@@ -10,6 +10,9 @@ const settings = (
 		pinAttemptsRemaining: 5,
 		theme: 'dark',
 		bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
+		selectedCurrency: 'USD',
+		exchangeRateService: 'bitfinex',
+		selectedLanguage: 'english',
 	},
 	action,
 ) => {

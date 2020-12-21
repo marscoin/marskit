@@ -1,6 +1,15 @@
 import Keychain from 'react-native-keychain';
 import NetInfo from '@react-native-community/netinfo';
 import { IGetKeychainValue, IResponse, ISetKeychainValue } from './types';
+import {
+	TBitcoinAbbreviation,
+	TBitcoinLabel,
+	TBitcoinUnit,
+	TTicker,
+} from '../store/types/wallet';
+import { TAvailableNetworks } from './networks';
+import Clipboard from '@react-native-community/clipboard';
+import { Alert } from 'react-native';
 
 export const promiseTimeout = (
 	ms: number,
@@ -60,4 +69,55 @@ export const getKeychainValue = async ({
 			resolve({ error: true, data: e });
 		}
 	});
+};
+
+interface IGetNetworkData {
+	selectedNetwork: TAvailableNetworks;
+	bitcoinUnit: TBitcoinUnit;
+}
+interface IGetNetworkDataResponse {
+	abbreviation: TBitcoinAbbreviation;
+	label: TBitcoinLabel;
+	ticker: TTicker;
+}
+/**
+ *
+ * @param selectedNetwork {string}
+ * @param bitcoinUnit {string}
+ * @return {{ abbreviation: string, label: string, ticker: string }}
+ */
+export const getNetworkData = ({
+	selectedNetwork = 'bitcoin',
+	bitcoinUnit = 'satoshi',
+}: IGetNetworkData): IGetNetworkDataResponse => {
+	const abbreviation = bitcoinUnit === 'satoshi' ? 'sats' : 'BTC';
+	try {
+		switch (selectedNetwork) {
+			case 'bitcoin':
+				return { abbreviation, label: 'Bitcoin', ticker: 'BTC' };
+			case 'bitcoinTestnet':
+				return { abbreviation, label: 'Bitcoin Testnet', ticker: 'tBTC' };
+			default:
+				return { abbreviation, label: 'Bitcoin', ticker: 'BTC' };
+		}
+	} catch {
+		return { abbreviation, label: 'Bitcoin', ticker: 'BTC' };
+	}
+};
+
+export const displayAlert = (msg = '', title = '') => {
+	try {
+		Alert.alert(
+			title,
+			msg,
+			[
+				{
+					text: 'Okay',
+					onPress: () => null,
+				},
+				{ text: 'Copy', onPress: () => Clipboard.setString(msg) },
+			],
+			{ cancelable: false },
+		);
+	} catch {}
 };

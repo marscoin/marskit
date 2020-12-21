@@ -1,6 +1,5 @@
 export type TAvailableNetworks = 'bitcoin' | 'bitcoinTestnet';
 
-// eslint-disable-next-line no-shadow
 export enum EAvailableNetworks {
 	bitcoin = 'bitcoin',
 	bitcoinTestnet = 'bitcoinTestnet',

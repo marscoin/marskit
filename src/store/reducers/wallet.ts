@@ -1,12 +1,13 @@
 import actions from '../actions/actions';
-import { IWallet } from '../types/wallet';
+import { EWallet, IWallet } from '../types/wallet';
 
 const wallet = (
 	state: IWallet = {
 		loading: false,
 		error: false,
-		selectedNetwork: __DEV__ ? 'bitcoinTestnet' : 'bitcoin',
-		selectedWallet: 'wallet0',
+		selectedNetwork: 'bitcoinTestnet',
+		selectedWallet: EWallet.defaultWallet,
+		exchangeRate: 0,
 		wallets: {},
 	},
 	action,
