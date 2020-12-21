@@ -23,6 +23,7 @@
     "@react-navigation/drawer": "^5.11.2",
     "@react-navigation/native": "^5.8.9",
     "@react-navigation/stack": "^5.12.6",
+    "aezeed": "^0.0.4",
     "assert": "^2.0.0",
     "bip21": "^2.0.3",
     "bip32": "^2.0.6",
