@@ -10,7 +10,7 @@ import Header from './Header';
 import BitcoinCard from './BitcoinCard';
 import LightningCard from './lighting/LightningCard';
 
-const Wallets = ({ navigation }) => {
+const Wallets = () => {
 	LayoutAnimation.easeInEaseOut();
 
 	//TODO this will probably fetch all available wallets and list them
