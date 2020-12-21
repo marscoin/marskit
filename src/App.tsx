@@ -22,6 +22,7 @@ import {
 import { start as startElectrum } from 'rn-electrum-client/helpers';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
 import lnd from 'react-native-lightning';
+import Toast from 'react-native-toast-message';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -82,6 +83,7 @@ const App = () => {
 			<SafeAreaView style={styles.container}>
 				<RootNavigator />
 			</SafeAreaView>
+			<Toast ref={(ref) => Toast.setRef(ref)} />
 		</ThemeProvider>
 	);
 };

@@ -3764,6 +3764,13 @@ eslint-plugin-prettier@3.1.2:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
+eslint-plugin-prettier@^3.2.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-prettier/-/eslint-plugin-prettier-3.3.0.tgz#61e295349a65688ffac0b7808ef0a8244bdd8d40"
+  integrity sha512-tMTwO8iUWlSRZIwS9k7/E4vrTsfvsrcM5p1eftyuqWH25nKsz/o6/54I7jwQ/3zobISyC7wMy9ZsFwgTxOcOpQ==
+  dependencies:
+    prettier-linter-helpers "^1.0.0"
+
 eslint-plugin-react-hooks@^4.0.4, eslint-plugin-react-hooks@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.2.0.tgz#8c229c268d468956334c943bb45fc860280f5556"
@@ -7503,7 +7510,7 @@ react-native-keychain@^6.2.0:
   integrity sha512-U6fnOQRJPq+c0Abl+FoYy9v0H3kQU587tMamU/o+MoBSUScFLE3DQpkyT1PW4NF5IObgiGuqQdmjC2KgtBpjGA==
 
 react-native-lightning@../react-native-lightning:
-  version "0.0.4"
+  version "0.0.3"
   dependencies:
     "@types/jest" "^26.0.17"
     "@types/node" "^14.14.10"
@@ -7578,6 +7585,14 @@ react-native-svg@^12.1.0:
   dependencies:
     css-select "^2.1.0"
     css-tree "^1.0.0-alpha.39"
+
+react-native-toast-message@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/react-native-toast-message/-/react-native-toast-message-1.4.2.tgz#bda453dd7259587f2c5b3a1684ee5461569fe191"
+  integrity sha512-Hp/APBQu/TCLlnMhwhqaosWiC/HgpVYXG2WGF2Zd2GF93nOcH516BUoDC0rvbncGx11IBUrUtt14RRm6LrcL6g==
+  dependencies:
+    eslint-plugin-prettier "^3.2.0"
+    prop-types "^15.7.2"
 
 react-native-touch-id@^4.4.1:
   version "4.4.1"

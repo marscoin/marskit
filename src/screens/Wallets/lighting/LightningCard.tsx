@@ -18,6 +18,11 @@ import {
 } from '../../../utils/lightning';
 import lnd from 'react-native-lightning';
 import { payLightningInvoice } from '../../../store/actions/lightning';
+import {
+	showErrorNotification,
+	showInfoNotification,
+	showSuccessNotification,
+} from '../../../utils/notifications';
 
 const LightningCard = () => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -32,7 +37,7 @@ const LightningCard = () => {
 		if (lightning.channelBalance.pendingOpenBalance > 0) {
 			setMessage('Opening channel...');
 		}
-	}, [lightning]);
+	}, [lightning.channelBalance]);
 
 	useEffect(() => {
 		if (!sendPaymentRequest) {
@@ -44,7 +49,10 @@ const LightningCard = () => {
 			if (res.isOk()) {
 				setSendPaymentRequest('');
 				setShowInvoiceInput(false);
-				setMessage(`Paying ${res.value.numSatoshis} sats...`);
+				showInfoNotification({
+					title: 'Paying invoice',
+					message: `${res.value.numSatoshis} sats...`,
+				});
 
 				const payRes = await payLightningInvoice(sendPaymentRequest);
 				if (payRes.isErr()) {
@@ -52,7 +60,10 @@ const LightningCard = () => {
 					return;
 				}
 
-				setMessage('Paid!');
+				showSuccessNotification({
+					title: 'Paid!',
+					message: `${res.value.numSatoshis} sats`,
+				});
 			}
 		})();
 	}, [sendPaymentRequest]);
@@ -61,7 +72,8 @@ const LightningCard = () => {
 		return null;
 	}
 
-	const showFundingButton = lightning.onChainBalance.totalBalance === 0;
+	const showFundingButton =
+		lightning.info.syncedToChain && lightning.onChainBalance.totalBalance === 0;
 	const showSendReceive = lightning.channelBalance.balance > 0;
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
@@ -98,11 +110,17 @@ const LightningCard = () => {
 								style={styles.receiveButton}
 								onPress={async () => {
 									const res = await lnd.createInvoice(1, 'Spectrum test');
-									if (res.isOk()) {
-										setReceiveAddress(res.value.paymentRequest);
-										setShowInvoiceInput(false);
-										console.log(res.value.paymentRequest);
+
+									if (res.isErr()) {
+										return showErrorNotification({
+											title: 'Failed to create invoice.',
+											message: res.error.message,
+										});
 									}
+
+									setReceiveAddress(res.value.paymentRequest);
+									setShowInvoiceInput(false);
+									console.log(res.value.paymentRequest);
 								}}
 								text="Receive"
 							/>
@@ -130,22 +148,29 @@ const LightningCard = () => {
 							style={styles.fundButton}
 							onPress={async () => {
 								setMessage('Connecting...');
+								setReceiveAddress('');
 								const connectRes = await connectToDefaultPeer();
 								if (
 									connectRes.isErr() &&
 									connectRes.error.message.indexOf('already connected') === -1
 								) {
-									return setMessage(connectRes.error.message);
+									return showErrorNotification({
+										title: 'Failed to move funds to lightning.',
+										message: connectRes.error.message,
+									});
 								}
 
-								setMessage('Connected to peer.');
+								showInfoNotification({ message: 'Connected to peer' });
 
 								const openRes = await openMaxChannel();
 								if (openRes.isErr()) {
 									return setMessage(openRes.error.message);
 								}
 
-								setMessage('On the way.');
+								showInfoNotification({
+									title: 'Channel opened',
+									message: 'Waiting for confirmations',
+								});
 							}}
 							text="Move funds to lighting"
 						/>
