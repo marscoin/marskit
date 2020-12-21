@@ -8,11 +8,26 @@ export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
 export type TBitcoinUnit = 'satoshi' | 'BTC' | 'mBTC' | 'μBTC';
 
+export type TBitcoinAbbreviation = 'sats' | 'BTC';
+
+export type TBitcoinLabel = 'Bitcoin' | 'Bitcoin Testnet';
+
+export type TTicker = 'BTC' | 'tBTC';
+
+export enum EWallet {
+	selectedNetwork = 'bitcoin',
+	defaultWallet = 'wallet0',
+	aezeedPassphrase = 'shhhhhhhh123',
+	keyDerivationPath = '84',
+	addressType = 'bech32',
+}
+
 export interface IWallet {
 	loading: boolean;
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
+	exchangeRate: number;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;
 }

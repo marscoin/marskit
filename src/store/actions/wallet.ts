@@ -3,6 +3,7 @@ import { ICreateWallet } from '../types/wallet';
 import {
 	generateAddresses,
 	generateMnemonic,
+	getExchangeRate,
 	getMnemonicPhrase,
 	validateMnemonic,
 } from '../../utils/wallet';
@@ -84,6 +85,26 @@ export const createWallet = ({
 			resolve({ error: false, data: '' });
 		} catch (e) {
 			failure(e);
+		}
+	});
+};
+
+export const updateExchangeRate = () => {
+	return new Promise(async (resolve) => {
+		const settings = getStore().settings;
+		const { selectedCurrency, exchangeRateService } = settings;
+		const response = await getExchangeRate({
+			selectedCurrency,
+			exchangeRateService,
+		});
+		if (!response.error) {
+			await dispatch({
+				type: actions.UPDATE_WALLET,
+				payload: { exchangeRate: response.data },
+			});
+			resolve({ error: false, data: '' });
+		} else {
+			resolve({ error: true, data: 'Unable to acquire exchange rate data.' });
 		}
 	});
 };

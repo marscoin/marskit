@@ -9,6 +9,8 @@ module.exports = {
 	rules: {
 		semi: 'off',
 		'@typescript-eslint/semi': ['error'],
+		'no-shadow': 'off',
+		'@typescript-eslint/no-shadow': 'error',
 		'@typescript-eslint/no-unused-vars': 'error',
 		'react-hooks/rules-of-hooks': 'error',
 		'react-hooks/exhaustive-deps': 'warn',
