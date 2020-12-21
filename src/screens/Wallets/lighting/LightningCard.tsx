@@ -47,8 +47,8 @@ const LightningCard = () => {
 				setMessage(`Paying ${res.value.numSatoshis} sats...`);
 
 				const payRes = await payLightningInvoice(sendPaymentRequest);
-				if (payRes.error) {
-					setMessage(payRes.data);
+				if (payRes.isErr()) {
+					setMessage(payRes.error.message);
 					return;
 				}
 

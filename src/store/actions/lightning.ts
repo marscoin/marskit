@@ -8,6 +8,7 @@ import lnd from 'react-native-lightning';
 import LndConf from 'react-native-lightning/dist/lnd.conf';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
 import { getCustomLndConf } from '../../utils/lightning';
+import { err, ok, Result } from '../../utils/result';
 
 const dispatch = getDispatch();
 
@@ -16,10 +17,10 @@ const dispatch = getDispatch();
  * @param network
  * @returns {Promise<unknown>}
  */
-export const startLnd = (network: LndNetworks) => {
+export const startLnd = (
+	network: LndNetworks,
+): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
-		const failure = (data) => resolve({ error: true, data });
-
 		const stateRes = await lnd.currentState();
 		if (stateRes.isOk() && stateRes.value.lndRunning) {
 			await dispatch({
@@ -27,14 +28,14 @@ export const startLnd = (network: LndNetworks) => {
 				payload: stateRes.value,
 			});
 
-			return resolve({ error: false, data: '' }); //Already running
+			return resolve(ok('LND already started')); //Already running
 		}
 
 		const lndConf = new LndConf(network, getCustomLndConf(network));
 
 		const res = await lnd.start(lndConf);
 		if (res.isErr()) {
-			return failure(res.error.message);
+			return resolve(err(res.error));
 		}
 
 		await refreshLightningState();
@@ -45,7 +46,7 @@ export const startLnd = (network: LndNetworks) => {
 			});
 		});
 
-		resolve({ error: false, data: '' });
+		resolve(ok('LND started'));
 	});
 };
 
@@ -60,13 +61,11 @@ export const createLightningWallet = ({
 	password,
 	mnemonic,
 	network,
-}: ICreateLightningWallet) => {
+}: ICreateLightningWallet): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
-		const failure = (data) => resolve({ error: true, data });
-
 		const existsRes = await lnd.walletExists(network);
 		if (existsRes.isOk() && existsRes.value) {
-			return failure(new Error('LND wallet already exists'));
+			return resolve(err(new Error('LND wallet already exists')));
 		}
 
 		let lndSeed: string[] = [];
@@ -75,9 +74,7 @@ export const createLightningWallet = ({
 		} else {
 			const seedRes = await lnd.genSeed();
 			if (seedRes.isErr()) {
-				return failure(
-					new Error('Unable to generate mnemonic for LND wallet.'),
-				);
+				return resolve(err(seedRes.error));
 			}
 
 			lndSeed = seedRes.value;
@@ -85,7 +82,7 @@ export const createLightningWallet = ({
 
 		const createRes = await lnd.createWallet(password, lndSeed);
 		if (createRes.isErr()) {
-			return failure(createRes.error);
+			return resolve(err(createRes.error));
 		}
 		await dispatch({
 			type: actions.CREATE_LIGHTNING_WALLET,
@@ -93,7 +90,7 @@ export const createLightningWallet = ({
 
 		pollLndGetInfo().then();
 
-		resolve({ error: false, data: '' });
+		resolve(ok('LND wallet created'));
 	});
 };
 
@@ -106,24 +103,22 @@ export const createLightningWallet = ({
 export const unlockLightningWallet = ({
 	password,
 	network,
-}: IUnlockLightningWallet) => {
+}: IUnlockLightningWallet): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
-		const failure = (data) => resolve({ error: true, data });
-
 		const stateRes = await lnd.currentState();
 		if (stateRes.isOk() && stateRes.value.grpcReady) {
 			pollLndGetInfo().then();
-			return resolve({ error: false, data: '' }); //Wallet already unlocked
+			return resolve(ok('Wallet already unlocked')); //Wallet already unlocked
 		}
 
 		const existsRes = await lnd.walletExists(network);
 		if (existsRes.isOk() && !existsRes.value) {
-			return failure(new Error('LND wallet does not exist'));
+			return resolve(err(new Error('LND wallet does not exist')));
 		}
 
 		const unlockRes = await lnd.unlockWallet(password);
 		if (unlockRes.isErr()) {
-			return failure(unlockRes.error);
+			return resolve(err(unlockRes.error));
 		}
 
 		await dispatch({
@@ -132,7 +127,7 @@ export const unlockLightningWallet = ({
 
 		pollLndGetInfo().then();
 
-		resolve({ error: false, data: '' });
+		resolve(ok('Wallet unlocked'));
 	});
 };
 
@@ -140,18 +135,18 @@ export const unlockLightningWallet = ({
  * Updates the lightning store with the latest state of LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningState = () => {
+export const refreshLightningState = (): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.currentState();
 		if (res.isErr()) {
-			return { error: true, data: res.error };
+			return resolve(err(res.error));
 		}
 
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_STATE,
 			payload: res.value,
 		});
-		resolve({ error: false, data: '' });
+		resolve(ok('LND state refreshed'));
 	});
 };
 
@@ -159,18 +154,18 @@ export const refreshLightningState = () => {
  * Updates the lightning store with the latest GetInfo response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningInfo = () => {
+export const refreshLightningInfo = (): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getInfo();
 		if (res.isErr()) {
-			return { error: true, data: res.error };
+			return resolve(err(res.error));
 		}
 
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_INFO,
 			payload: res.value,
 		});
-		resolve({ error: false, data: '' });
+		resolve(ok('LND info refreshed'));
 	});
 };
 
@@ -179,18 +174,20 @@ export const refreshLightningInfo = () => {
  * TODO: Should be removed when on chain wallet is ready to replace the built in LND wallet
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningOnChainBalance = () => {
+export const refreshLightningOnChainBalance = (): Promise<
+	Result<string, Error>
+> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getWalletBalance();
 		if (res.isErr()) {
-			return { error: true, data: res.error };
+			return resolve(err(res.error));
 		}
 
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_ON_CHAIN_BALANCE,
 			payload: res.value,
 		});
-		resolve({ error: false, data: '' });
+		resolve(ok('LND on chain balance refreshed'));
 	});
 };
 
@@ -198,18 +195,20 @@ export const refreshLightningOnChainBalance = () => {
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningChannelBalance = () => {
+export const refreshLightningChannelBalance = (): Promise<
+	Result<string, Error>
+> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getChannelBalance();
 		if (res.isErr()) {
-			return { error: true, data: res.error };
+			return resolve(err(res.error));
 		}
 
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_CHANNEL_BALANCE,
 			payload: res.value,
 		});
-		resolve({ error: false, data: '' });
+		resolve(ok('LND channel balance refreshed'));
 	});
 };
 
@@ -245,17 +244,15 @@ const pollLndGetInfo = async (): Promise<void> => {
  */
 export const payLightningInvoice = (
 	invoice: string,
-): Promise<{ error: boolean; data: string }> => {
+): Promise<Result<string, Error>> => {
 	return new Promise(async (resolve) => {
-		const failure = (data) => resolve({ error: true, data });
-
 		const res = await lnd.payInvoice(invoice);
 		if (res.isErr()) {
-			return failure(res.error);
+			return resolve(err(res.error));
 		}
 
 		await refreshLightningChannelBalance();
 
-		resolve({ error: false, data: 'Paid.' });
+		resolve(ok('Paid'));
 	});
 };
