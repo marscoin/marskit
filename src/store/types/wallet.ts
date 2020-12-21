@@ -27,6 +27,7 @@ export interface IWallet {
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
+	exchangeRate: number;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;
 }

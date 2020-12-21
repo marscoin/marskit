@@ -7,6 +7,7 @@ const wallet = (
 		error: false,
 		selectedNetwork: 'bitcoinTestnet',
 		selectedWallet: EWallet.defaultWallet,
+		exchangeRate: 0,
 		wallets: {},
 	},
 	action,
