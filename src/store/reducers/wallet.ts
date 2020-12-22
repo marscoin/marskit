@@ -11,7 +11,7 @@ const wallet = (
 		wallets: {},
 	},
 	action,
-) => {
+): IWallet => {
 	switch (action.type) {
 		case actions.UPDATE_WALLET:
 			return {

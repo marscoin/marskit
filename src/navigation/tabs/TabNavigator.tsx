@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
 	createStackNavigator,
@@ -26,7 +26,7 @@ const navOptionHandler = {
 	detachPreviousScreen: false,
 };
 
-const WalletsStack = () => {
+const WalletsStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Wallets">
 			<Stack.Screen
@@ -51,7 +51,7 @@ const WalletsStack = () => {
 	);
 };
 
-const ProfileStack = () => {
+const ProfileStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Profile">
 			<Stack.Screen
@@ -68,7 +68,7 @@ const ProfileStack = () => {
 	);
 };
 
-const HistoryStack = () => {
+const HistoryStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="History">
 			<Stack.Screen
@@ -85,15 +85,27 @@ const HistoryStack = () => {
 	);
 };
 
-const TabNavigator = () => {
+const TabNavigator = (): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = themes[settings.theme];
 	const activeTintColor = theme.colors.text;
 	const backgroundColor = theme.colors.background;
 	return (
 		<Tab.Navigator
-			screenOptions={({ route }) => ({
-				tabBarIcon: ({ focused, color, size }) => {
+			screenOptions={({
+				route,
+			}): {
+				tabBarIcon: ({
+					focused,
+					color,
+					size,
+				}: {
+					focused: boolean;
+					color: string;
+					size: number;
+				}) => ReactElement;
+			} => ({
+				tabBarIcon: ({ focused, color, size }): ReactElement => {
 					let iconName;
 					switch (route.name) {
 						case 'Wallets':

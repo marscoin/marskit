@@ -2,7 +2,7 @@
  * @format
  * @flow strict-local
  */
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 import { Pressable, Text, View } from '../styles/components';
 
@@ -18,12 +18,12 @@ interface IButton {
 const Button = ({
 	text = '',
 	color = 'background',
-	onPress = () => null,
-	onLongPress = () => null,
+	onPress = (): null => null,
+	onLongPress = (): null => null,
 	disabled = false,
 	loading = false,
 	style = {},
-}: IButton) => {
+}: IButton): ReactElement => {
 	return (
 		<Pressable
 			color={color}

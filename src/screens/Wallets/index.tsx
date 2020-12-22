@@ -3,14 +3,14 @@
  * @flow strict-local
  */
 
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { LayoutAnimation, ScrollView, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import Header from './Header';
 import BitcoinCard from './BitcoinCard';
 import LightningCard from './lighting/LightningCard';
 
-const Wallets = () => {
+const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
 	//TODO this will probably fetch all available wallets and list them

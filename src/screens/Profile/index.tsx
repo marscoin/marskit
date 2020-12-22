@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Text, TouchableOpacity, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation }): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Profile" isHome={true} />
 			<View style={styles.content}>
 				<Text>Profile!</Text>
 				<TouchableOpacity
-					onPress={() => navigation.navigate('ProfileDetail')}
+					onPress={(): void => navigation.navigate('ProfileDetail')}
 					style={styles.button}>
 					<Text>Go To Nested Profile Screen</Text>
 				</TouchableOpacity>

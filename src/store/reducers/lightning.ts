@@ -3,7 +3,7 @@ import { ILightning } from '../types/lightning';
 import { defaultLightningShape } from '../shapes/lightning';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 
-const lightning = (state: ILightning, action) => {
+const lightning = (state: ILightning, action): ILightning => {
 	switch (action.type) {
 		case actions.UPDATE_LIGHTNING_STATE:
 			return {

@@ -1,16 +1,16 @@
-import React, { memo, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { EvilIcon, Text, View } from '../styles/components';
 import { RNCamera } from 'react-native-camera';
 import { systemWeights } from 'react-native-typography';
 
 const _Camera = ({
-	onBarCodeRead = () => null,
-	onClose = () => null,
+	onBarCodeRead = (): null => null,
+	onClose = (): null => null,
 }: {
 	onBarCodeRead: Function;
 	onClose: Function;
-}) => {
+}): ReactElement => {
 	const [_data, setData] = useState('');
 	const notAuthorizedView = (
 		<View style={styles.notAuthorizedView}>
@@ -30,13 +30,13 @@ const _Camera = ({
 			<RNCamera
 				captureAudio={false}
 				style={styles.container}
-				onBarCodeRead={({ data }) => {
+				onBarCodeRead={({ data }): void => {
 					if (_data !== data) {
 						setData(data);
 						onBarCodeRead(data);
 					}
 				}}
-				onMountError={() => {
+				onMountError={(): void => {
 					console.log(
 						'An error was encountered when loading the camera. Please ensure Spectrum has permission to use this feature in your phone settings.',
 					);

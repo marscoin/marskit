@@ -9,7 +9,7 @@ const user = (
 		isOnline: true,
 	},
 	action,
-) => {
+): IUser => {
 	switch (action.type) {
 		case actions.UPDATE_USER:
 			return {

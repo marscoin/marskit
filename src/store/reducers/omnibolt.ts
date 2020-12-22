@@ -11,7 +11,7 @@ const omnibolt = (
 		wallets: {},
 	},
 	action,
-) => {
+): IOmniBolt => {
 	switch (action.type) {
 		case actions.UPDATE_OMNIBOLT:
 			return {

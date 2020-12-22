@@ -39,7 +39,7 @@ const AssetCard = ({
 	assetBalanceLabel: string;
 	fiatBalanceLabel: string;
 	children: ReactElement;
-}) => {
+}): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
 	return (

@@ -3,7 +3,7 @@
  * @flow strict-local
  */
 
-import React, { memo, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import Receive from './Receive';
@@ -11,7 +11,7 @@ import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard';
 import { useNavigation } from '@react-navigation/native';
 
-const BitcoinCard = () => {
+const BitcoinCard = (): ReactElement => {
 	const [displayReceive, setDisplayReceive] = useState(false);
 	const navigation = useNavigation();
 
@@ -29,8 +29,8 @@ const BitcoinCard = () => {
 					<Button
 						color="onSurface"
 						style={styles.receiveButton}
-						onPress={() => setDisplayReceive(!displayReceive)}
-						onLongPress={() =>
+						onPress={(): void => setDisplayReceive(!displayReceive)}
+						onLongPress={(): void =>
 							navigation.navigate('ReceiveAsset', {
 								id: 'bitcoin',
 							})

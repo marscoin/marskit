@@ -2,7 +2,7 @@
  * @format
  * @flow strict-local
  */
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { StyleSheet, ScrollView, Share } from 'react-native';
 import { View, Text } from '../styles/components';
 import Button from './Button';
@@ -30,15 +30,15 @@ interface ILogBox {
 	data: string[];
 }
 
-const LogBox = ({ data = [] }: ILogBox) => {
+const LogBox = ({ data = [] }: ILogBox): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = themes[settings.theme];
 
 	return (
 		<View type="transparent" style={styles.logBoxContainer}>
 			<ScrollView
-				ref={(ref) => (scrollView = ref)}
-				onContentSizeChange={() => {
+				ref={(ref): ScrollView | null => (scrollView = ref)}
+				onContentSizeChange={(): void => {
 					try {
 						scrollView.scrollToEnd({ animated: true });
 					} catch {}
@@ -56,7 +56,7 @@ const LogBox = ({ data = [] }: ILogBox) => {
 			<Button
 				style={styles.shareButton}
 				text="Share"
-				onPress={() => onSharePress({ message: data.join('\n') })}
+				onPress={(): void => onSharePress({ message: data.join('\n') })}
 			/>
 		</View>
 	);

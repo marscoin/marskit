@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
 import { StyleSheet } from 'react-native';
 import NavigationHeader from '../../components/NavigationHeader';
 
-const WalletsDetail = () => {
+const WalletsDetail = (): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Wallets Detail" />

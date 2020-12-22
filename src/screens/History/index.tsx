@@ -1,16 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { Text, TouchableOpacity, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
 
-const HistoryScreen = ({ navigation }) => {
+const HistoryScreen = ({ navigation }): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="History" isHome={true} />
 			<View style={styles.content}>
 				<Text>History!</Text>
 				<TouchableOpacity
-					onPress={() => navigation.navigate('HistoryDetail')}
+					onPress={(): void => navigation.navigate('HistoryDetail')}
 					style={styles.button}>
 					<Text>Go To Nested History Screen</Text>
 				</TouchableOpacity>

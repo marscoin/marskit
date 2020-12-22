@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import {
@@ -10,7 +10,11 @@ import {
 } from '../styles/components';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
-const BackButton = ({ onPress = () => null }: { onPress: Function }) => {
+const BackButton = ({
+	onPress = (): null => null,
+}: {
+	onPress: Function;
+}): ReactElement => {
 	try {
 		return (
 			<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
@@ -33,7 +37,7 @@ const NavigationHeader = ({
 }: {
 	title: string;
 	isHome?: boolean;
-}) => {
+}): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 	return (
 		<View style={styles.container}>
