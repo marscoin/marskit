@@ -7,8 +7,12 @@ import { getDispatch } from '../helpers';
 import lnd from 'react-native-lightning';
 import LndConf from 'react-native-lightning/dist/lnd.conf';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
-import { getCustomLndConf } from '../../utils/lightning';
+import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../../utils/notifications';
 
 const dispatch = getDispatch();
 
@@ -88,7 +92,10 @@ export const createLightningWallet = ({
 			type: actions.CREATE_LIGHTNING_WALLET,
 		});
 
-		pollLndGetInfo().then();
+		//Attempt to connect to default peer from the start so it's ready when the channel needs to be opened
+		await connectToDefaultPeer();
+
+		subscribeToLndUpdates().then();
 
 		resolve(ok('LND wallet created'));
 	});
@@ -107,7 +114,7 @@ export const unlockLightningWallet = ({
 	return new Promise(async (resolve) => {
 		const stateRes = await lnd.currentState();
 		if (stateRes.isOk() && stateRes.value.grpcReady) {
-			pollLndGetInfo().then();
+			subscribeToLndUpdates().then();
 			return resolve(ok('Wallet already unlocked')); //Wallet already unlocked
 		}
 
@@ -125,7 +132,7 @@ export const unlockLightningWallet = ({
 			type: actions.UNLOCK_LIGHTNING_WALLET,
 		});
 
-		pollLndGetInfo().then();
+		subscribeToLndUpdates().then();
 
 		resolve(ok('Wallet unlocked'));
 	});
@@ -191,6 +198,22 @@ export const refreshLightningOnChainBalance = (): Promise<
 	});
 };
 
+export const refreshLightningInvoices = (): Promise<Result<string, Error>> => {
+	return new Promise(async (resolve) => {
+		//TODO we might need to optimise with pagination later using indexOffset and numMaxInvoices
+		const res = await lnd.listInvoices();
+		if (res.isErr()) {
+			return resolve(err(res.error));
+		}
+
+		await dispatch({
+			type: actions.UPDATE_LIGHTNING_INVOICES,
+			payload: res.value,
+		});
+		resolve(ok('LND invoices refreshed'));
+	});
+};
+
 /**
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
@@ -208,8 +231,73 @@ export const refreshLightningChannelBalance = (): Promise<
 			type: actions.UPDATE_LIGHTNING_CHANNEL_BALANCE,
 			payload: res.value,
 		});
+
 		resolve(ok('LND channel balance refreshed'));
 	});
+};
+
+const subscribeToLndUpdates = async (): Promise<void> => {
+	//If grpc hasn't even started yet wait and try again
+	const stateRes = await lnd.currentState();
+	if (stateRes.isOk() && !stateRes.value.grpcReady) {
+		setTimeout(subscribeToLndUpdates, 1000);
+		return;
+	}
+
+	//Poll for the calls we can't subscribe to
+	await Promise.all([pollLndGetInfo(), refreshLightningInvoices()]);
+
+	lnd.subscribeToInvoices(
+		async (res) => {
+			if (res.isOk()) {
+				const { value, memo, settled } = res.value;
+				if (!settled) {
+					//Not interested in newly created invoices
+					return;
+				}
+
+				showSuccessNotification({
+					title: `Received ${value} sats`,
+					message: `Invoice for "${memo}" was paid`,
+				});
+
+				await Promise.all([
+					refreshLightningChannelBalance(),
+					refreshLightningInvoices(),
+				]);
+			}
+		},
+		(res) => {
+			//If this fails ever then we probably need to subscribe again
+			showErrorNotification({
+				title: 'Failed to subscribe to invoices',
+				message: JSON.stringify(res),
+			});
+		},
+	);
+
+	//TODO when LND's on-chain transactions are not needed then remove this
+	lnd.subscribeToOnChainTransactions(
+		(res) => {
+			if (res.isOk()) {
+				const { amount } = res.value;
+
+				refreshLightningOnChainBalance();
+
+				showSuccessNotification({
+					title: `Received ${amount} sats`,
+					message: 'Paid on-chain',
+				});
+			}
+		},
+		(res) => {
+			//If this fails ever then we probably need to subscribe again
+			showErrorNotification({
+				title: 'Failed to subscribe to on chain transactions',
+				message: JSON.stringify(res),
+			});
+		},
+	);
 };
 
 let pollLndGetInfoTimeout;
@@ -221,20 +309,13 @@ let pollLndGetInfoTimeout;
 const pollLndGetInfo = async (): Promise<void> => {
 	clearTimeout(pollLndGetInfoTimeout); //If previously subscribed make sure we don't keep have more than 1
 
-	//If grpc hasn't even started yet rather assume lnd is not synced
-	const stateRes = await lnd.currentState();
-	if (stateRes.isOk() && !stateRes.value.grpcReady) {
-		pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 1000);
-		return;
-	}
-
 	await Promise.all([
 		refreshLightningInfo(),
 		refreshLightningOnChainBalance(),
 		refreshLightningChannelBalance(),
 	]);
 
-	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
+	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 15000);
 };
 
 /**

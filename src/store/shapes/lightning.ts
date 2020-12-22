@@ -7,4 +7,5 @@ export const defaultLightningShape: ILightning = {
 	state: { grpcReady: false, walletUnlocked: false, lndRunning: false },
 	onChainBalance: lnrpc.WalletBalanceResponse.create(),
 	channelBalance: lnrpc.ChannelBalanceResponse.create(),
+	invoiceList: lnrpc.ListInvoiceResponse.create(),
 };

@@ -30,14 +30,27 @@ const LightningCard = () => {
 	const [receiveAddress, setReceiveAddress] = useState('');
 	const [showInvoiceInput, setShowInvoiceInput] = useState(false);
 	const [sendPaymentRequest, setSendPaymentRequest] = useState('');
+	const [receivePaymentRequest, setReceivePaymentRequest] = useState('');
 
 	LayoutAnimation.easeInEaseOut();
 
+	//If user needs to wait for channel to be opened
 	useEffect(() => {
 		if (lightning.channelBalance.pendingOpenBalance > 0) {
 			setMessage('Opening channel...');
 		}
 	}, [lightning.channelBalance]);
+
+	//If the current invoice in view was just paid
+	useEffect(() => {
+		const currentInvoice = lightning.invoiceList.invoices.find(
+			(inv) => inv.paymentRequest === receivePaymentRequest,
+		);
+		if (currentInvoice && currentInvoice.settled) {
+			setMessage(`Invoice settled. Received ${currentInvoice.value} sats.`);
+			setReceivePaymentRequest('');
+		}
+	}, [lightning.invoiceList, receivePaymentRequest]);
 
 	useEffect(() => {
 		if (!sendPaymentRequest) {
@@ -118,7 +131,7 @@ const LightningCard = () => {
 										});
 									}
 
-									setReceiveAddress(res.value.paymentRequest);
+									setReceivePaymentRequest(res.value.paymentRequest);
 									setShowInvoiceInput(false);
 									console.log(res.value.paymentRequest);
 								}}
@@ -189,6 +202,10 @@ const LightningCard = () => {
 
 				{!!receiveAddress && (
 					<Receive address={receiveAddress} header={false} />
+				)}
+
+				{!!receivePaymentRequest && (
+					<Receive address={receivePaymentRequest} header={false} />
 				)}
 			</>
 		</AssetCard>
