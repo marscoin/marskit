@@ -13,6 +13,7 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
+import { lnrpc } from 'react-native-lightning/dist/rpc';
 
 const dispatch = getDispatch();
 
@@ -325,15 +326,20 @@ const pollLndGetInfo = async (): Promise<void> => {
  */
 export const payLightningInvoice = (
 	invoice: string,
-): Promise<Result<string, Error>> => {
+): Promise<Result<lnrpc.IRoute, Error>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.payInvoice(invoice);
 		if (res.isErr()) {
 			return resolve(err(res.error));
 		}
 
+		if (res.value.paymentError) {
+			return resolve(err(new Error(res.value.paymentError)));
+		}
+
 		await refreshLightningChannelBalance();
 
-		resolve(ok('Paid'));
+		//paymentRoute exists when there is no paymentError
+		resolve(ok(res.value.paymentRoute!));
 	});
 };

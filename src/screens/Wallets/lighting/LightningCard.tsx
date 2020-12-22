@@ -69,7 +69,10 @@ const LightningCard = () => {
 
 				const payRes = await payLightningInvoice(sendPaymentRequest);
 				if (payRes.isErr()) {
-					setMessage(payRes.error.message);
+					showErrorNotification({
+						title: 'Payment failed',
+						message: payRes.error.message,
+					});
 					return;
 				}
 
@@ -124,8 +127,7 @@ const LightningCard = () => {
 								color="onSurface"
 								style={styles.receiveButton}
 								onPress={async () => {
-									const res = await lnd.createInvoice(1, 'Spectrum test');
-
+									const res = await lnd.createInvoice(25, 'Spectrum test');
 									if (res.isErr()) {
 										return showErrorNotification({
 											title: 'Failed to create invoice.',
