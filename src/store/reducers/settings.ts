@@ -15,7 +15,7 @@ const settings = (
 		selectedLanguage: 'english',
 	},
 	action,
-) => {
+): ISettings => {
 	switch (action.type) {
 		case actions.UPDATE_SETTINGS:
 			return {

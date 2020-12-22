@@ -6,7 +6,7 @@ interface ICard {
 	style?: {};
 	children?: ReactElement;
 }
-const Card = ({ style = {}, children = <View /> }: ICard) => (
+const Card = ({ style = {}, children = <View /> }: ICard): ReactElement => (
 	<View color="surface" style={[styles.container, { style }]}>
 		{children}
 	</View>

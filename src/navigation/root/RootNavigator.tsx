@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
@@ -16,7 +16,7 @@ const navOptionHandler = {
 	detachPreviousScreen: false,
 };
 
-const RootNavigator = () => {
+const RootNavigator = (): ReactElement => {
 	return (
 		<NavigationContainer>
 			<Stack.Navigator initialRouteName="Drawer">

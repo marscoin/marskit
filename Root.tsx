@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { View, StyleSheet } from 'react-native';
 import App from './src/App';
 import store from './src/store';
@@ -11,7 +11,7 @@ const Provider = require('react-redux').Provider;
 const { persistStore } = require('redux-persist');
 const persistor = persistStore(store);
 
-const Root = () => {
+const Root = (): ReactElement => {
 	return (
 		<Provider store={store}>
 			<PersistGate

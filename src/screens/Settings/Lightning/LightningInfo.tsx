@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import {
 	View,
@@ -15,7 +15,7 @@ import {
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
-const LightningInfo = ({ navigation }) => {
+const LightningInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 
 	const [content, setContent] = useState<string>('');
@@ -27,7 +27,7 @@ const LightningInfo = ({ navigation }) => {
 				{
 					title: 'Show Info',
 					type: 'button',
-					onPress: async () => {
+					onPress: async (): Promise<void> => {
 						const {
 							blockHeight,
 							chains,
@@ -56,17 +56,17 @@ const LightningInfo = ({ navigation }) => {
 				{
 					title: 'Show all balances',
 					type: 'button',
-					onPress: () => debugGetBalance(setContent),
+					onPress: async (): Promise<void> => await debugGetBalance(setContent),
 				},
 				{
 					title: 'List peers',
 					type: 'button',
-					onPress: () => debugListPeers(setContent),
+					onPress: async (): Promise<void> => await debugListPeers(setContent),
 				},
 				{
 					title: 'Connect to default peer',
 					type: 'button',
-					onPress: async () => {
+					onPress: async (): Promise<void> => {
 						const res = await connectToDefaultPeer();
 						if (res.isErr()) {
 							return setContent(res.error.message);

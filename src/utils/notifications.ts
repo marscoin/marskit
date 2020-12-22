@@ -10,7 +10,7 @@ const topOffset = 40;
 export const showErrorNotification = ({
 	title = 'Something went wrong',
 	message,
-}: AppNotification) => {
+}: AppNotification): void => {
 	Toast.show({
 		type: 'error',
 		text1: title,
@@ -24,7 +24,7 @@ export const showErrorNotification = ({
 export const showSuccessNotification = ({
 	title = 'Success!',
 	message,
-}: AppNotification) => {
+}: AppNotification): void => {
 	Toast.show({
 		type: 'success',
 		text1: title,
@@ -38,7 +38,7 @@ export const showSuccessNotification = ({
 export const showInfoNotification = ({
 	title = '',
 	message,
-}: AppNotification) => {
+}: AppNotification): void => {
 	Toast.show({
 		type: 'info',
 		text1: title,
