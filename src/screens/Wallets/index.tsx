@@ -4,7 +4,7 @@
  */
 
 import React, { memo } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { LayoutAnimation, ScrollView, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import Header from './Header';
 import BitcoinCard from './BitcoinCard';
@@ -19,8 +19,10 @@ const Wallets = () => {
 		<View style={styles.container}>
 			<Header />
 
-			<BitcoinCard />
-			<LightningCard />
+			<ScrollView showsVerticalScrollIndicator={false}>
+				<BitcoinCard />
+				<LightningCard />
+			</ScrollView>
 		</View>
 	);
 };

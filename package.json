@@ -52,6 +52,7 @@
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.14.0",
     "react-native-svg": "^12.1.0",
+    "react-native-toast-message": "^1.4.2",
     "react-native-touch-id": "^4.4.1",
     "react-native-typography": "^1.4.1",
     "react-native-v8": "^0.63.3-patch.0",

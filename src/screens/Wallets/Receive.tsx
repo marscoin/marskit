@@ -102,7 +102,7 @@ const Receive = ({
 	const onCopyPress = () => {
 		let duration = 1500;
 		try {
-			Clipboard.setString(text);
+			Clipboard.setString(address);
 			Animated.timing(textOpacity, {
 				toValue: 1,
 				duration: 500,
