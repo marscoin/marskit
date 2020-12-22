@@ -315,7 +315,7 @@ const pollLndGetInfo = async (): Promise<void> => {
 		refreshLightningChannelBalance(),
 	]);
 
-	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 15000);
+	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
 };
 
 /**
