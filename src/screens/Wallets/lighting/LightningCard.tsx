@@ -115,6 +115,8 @@ const LightningCard = () => {
 								onPress={() => {
 									setShowInvoiceInput(!showInvoiceInput);
 									setReceiveAddress('');
+									setReceivePaymentRequest('');
+									setMessage('');
 								}}
 								text="Send"
 							/>
@@ -133,6 +135,7 @@ const LightningCard = () => {
 
 									setReceivePaymentRequest(res.value.paymentRequest);
 									setShowInvoiceInput(false);
+									setMessage('');
 									console.log(res.value.paymentRequest);
 								}}
 								text="Receive"
