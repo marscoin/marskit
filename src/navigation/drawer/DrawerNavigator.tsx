@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import TabNavigator from '../tabs/TabNavigator';
 import Settings from '../../screens/Settings';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -11,12 +11,12 @@ const screenOptions = {
 	gestureEnabled: true,
 };
 
-const DrawerNavigator = () => {
+const DrawerNavigator = (): ReactElement => {
 	return (
 		<Drawer.Navigator
 			screenOptions={screenOptions}
 			initialRouteName="Wallets"
-			drawerContent={(props) => <Settings {...props} />}
+			drawerContent={(props): ReactElement => <Settings {...props} />}
 			drawerPosition="right"
 			drawerStyle={styles.drawer}>
 			<Drawer.Screen name="Wallets" component={TabNavigator} />

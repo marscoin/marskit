@@ -30,7 +30,7 @@ const Item = ({
 	navigation,
 	enabled = true,
 }: IItem): ReactElement => {
-	const _onPress = () => onPress(navigation);
+	const _onPress = (): void => onPress(navigation);
 	if (type === 'switch') {
 		return (
 			<TouchableOpacity
@@ -71,17 +71,21 @@ interface IListData {
 	data: ItemData[];
 }
 
-const List = ({ data }: { data: IListData[] }) => {
+const List = ({ data }: { data: IListData[] }): ReactElement => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
 			sections={data}
-			keyExtractor={(item, index) => `${item}${index}`}
-			renderSectionHeader={({ section: { title } }) => (
+			keyExtractor={(item, index): string => `${item}${index}`}
+			renderSectionHeader={({ section: { title } }): ReactElement => (
 				<ItemHeader title={title} />
 			)}
-			renderItem={({ item }) => <Item {...item} navigation={navigation} />}
-			ItemSeparatorComponent={() => <View style={styles.separator} />}
+			renderItem={({ item }): ReactElement => (
+				<Item {...item} navigation={navigation} />
+			)}
+			ItemSeparatorComponent={(): ReactElement => (
+				<View style={styles.separator} />
+			)}
 			stickySectionHeadersEnabled={true}
 		/>
 	);

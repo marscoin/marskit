@@ -99,7 +99,9 @@ const onDebugSuccess = (msg: string, setMessage) => setMessage(`✅ ${msg}`);
  * @param onComplete
  * @returns {Promise<void>}
  */
-export const debugGetBalance = async (onComplete: (msg: string) => void) => {
+export const debugGetBalance = async (
+	onComplete: (msg: string) => void,
+): Promise<void> => {
 	const walletRes = await lnd.getWalletBalance();
 	if (walletRes.isErr()) {
 		onDebugError(walletRes.error, onComplete);
@@ -139,7 +141,9 @@ export const debugGetBalance = async (onComplete: (msg: string) => void) => {
  * @param onComplete
  * @returns {Promise<void>}
  */
-export const debugListPeers = async (onComplete: (msg: string) => void) => {
+export const debugListPeers = async (
+	onComplete: (msg: string) => void,
+): Promise<void> => {
 	const res = await lnd.listPeers();
 	if (res.isErr()) {
 		onDebugError(res.error, onComplete);
@@ -148,9 +152,9 @@ export const debugListPeers = async (onComplete: (msg: string) => void) => {
 
 	let output = '';
 	res.value.peers.forEach((peer) => {
-		output += `\n${peer.pubKey == defaultNodePubKey ? '*Default node - ' : ''}${
-			peer.address
-		}\n${peer.pubKey?.substring(0, 20)}...\n`;
+		output += `\n${
+			peer.pubKey === defaultNodePubKey ? '*Default node - ' : ''
+		}${peer.address}\n${peer.pubKey?.substring(0, 20)}...\n`;
 	});
 
 	onDebugSuccess(output, onComplete);

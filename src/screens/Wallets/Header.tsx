@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { Feather, View } from '../../styles/components';
@@ -7,12 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import Store from '../../store/types';
 
-const Header = () => {
+const Header = (): ReactElement => {
 	const dispatch = useDispatch();
 	const settings = useSelector((state: Store) => state.settings);
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
-	const updateTheme = () => {
+	const updateTheme = (): void => {
 		try {
 			const theme = settings.theme === 'dark' ? 'light' : 'dark';
 			dispatch(updateSettings({ theme }));

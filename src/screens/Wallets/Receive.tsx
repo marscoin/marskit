@@ -5,7 +5,7 @@
 
 //TODO: Temporary component for testing and demonstration purposes. Remove or change after use.
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { LayoutAnimation, Share, StyleSheet } from 'react-native';
 import {
 	View,
@@ -26,7 +26,7 @@ const updateOpacity = ({
 	opacity = new Animated.Value(0),
 	toValue = 0,
 	duration = 1000,
-}) => {
+}): void => {
 	try {
 		Animated.timing(opacity, {
 			toValue,
@@ -40,7 +40,6 @@ interface IReceive {
 	animate?: boolean;
 	header?: boolean;
 	address?: string;
-	text?: string;
 	shareMessage?: string;
 	shareUrl?: string;
 	shareTitle?: string;
@@ -52,14 +51,13 @@ const Receive = ({
 	animate = true,
 	header = true,
 	address = '',
-	text = '',
 	shareMessage = '',
 	shareUrl = '',
 	shareTitle = '',
 	shareDialogTitle = '',
 	onCopySuccessText = 'Copied!',
 	disabled = false,
-}: IReceive) => {
+}: IReceive): ReactElement => {
 	const wallet = useSelector((state: Store) => state.wallet);
 	const [opacity] = useState(new Animated.Value(0));
 	const [textOpacity] = useState(new Animated.Value(0));
@@ -76,13 +74,13 @@ const Receive = ({
 			setTimeout(() => {
 				updateOpacity({ opacity, toValue: 1 });
 			}, 100);
-			return () => updateOpacity({ opacity, toValue: 0, duration: 0 });
+			return (): void => updateOpacity({ opacity, toValue: 0, duration: 0 });
 		}
-	}, []);
+	}, [animate, opacity]);
 
 	LayoutAnimation.easeInEaseOut();
 
-	const onSharePress = () => {
+	const onSharePress = (): void => {
 		try {
 			Share.share(
 				{
@@ -99,7 +97,7 @@ const Receive = ({
 		}
 	};
 
-	const onCopyPress = () => {
+	const onCopyPress = (): void => {
 		let duration = 1500;
 		try {
 			Clipboard.setString(address);
@@ -127,6 +125,7 @@ const Receive = ({
 	return (
 		<View
 			color={header ? 'background' : 'surface'}
+			//eslint-disable-next-line react-native/no-inline-styles
 			style={{ flex: header ? 1 : 0 }}>
 			{header && <NavigationHeader title="Receive" />}
 			<AnimatedView style={[styles.container, { opacity }]}>

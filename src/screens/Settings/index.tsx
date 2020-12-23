@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
@@ -6,11 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateSettings } from '../../store/actions/settings';
 import List from '../../components/List';
 
-const Settings = ({ navigation }) => {
+const Settings = ({ navigation }): ReactElement => {
 	const dispatch = useDispatch();
 	const settings = useSelector((state: Store) => state.settings);
 
-	const updateTheme = () => {
+	const updateTheme = (): void => {
 		try {
 			const theme = settings.theme === 'dark' ? 'light' : 'dark';
 			dispatch(updateSettings({ theme }));
@@ -30,27 +30,27 @@ const Settings = ({ navigation }) => {
 				{
 					title: 'Fiat Currency Selection',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Security',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Biometrics',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Pin',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Two-Factor Authentication',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 			],
 		},
@@ -60,12 +60,12 @@ const Settings = ({ navigation }) => {
 				{
 					title: 'LND Logs',
 					type: 'button',
-					onPress: () => navigation.navigate('LndLogs'),
+					onPress: (): void => navigation.navigate('LndLogs'),
 				},
 				{
 					title: 'Test commands',
 					type: 'button',
-					onPress: () => navigation.navigate('TempLightningOptions'),
+					onPress: (): void => navigation.navigate('TempLightningOptions'),
 				},
 			],
 		},
@@ -75,37 +75,37 @@ const Settings = ({ navigation }) => {
 				{
 					title: 'Twitter: @synonym_to',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Telegram',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Website: synonym.to',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Leave A Review',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Report A Bug',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Contribute',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Legal',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 			],
 		},
@@ -115,12 +115,12 @@ const Settings = ({ navigation }) => {
 				{
 					title: 'Help Centre',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 				{
 					title: 'Email: support@synonym.to',
 					type: 'button',
-					onPress: () => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('TempSettings'),
 				},
 			],
 		},

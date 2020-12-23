@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
 
-const TempSettings = () => {
+const TempSettings = (): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Nested Settings" />

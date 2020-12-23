@@ -105,7 +105,7 @@ export const getNetworkData = ({
 	}
 };
 
-export const displayAlert = (msg = '', title = '') => {
+export const displayAlert = (msg = '', title = ''): void => {
 	try {
 		Alert.alert(
 			title,
@@ -113,9 +113,9 @@ export const displayAlert = (msg = '', title = '') => {
 			[
 				{
 					text: 'Okay',
-					onPress: () => null,
+					onPress: (): null => null,
 				},
-				{ text: 'Copy', onPress: () => Clipboard.setString(msg) },
+				{ text: 'Copy', onPress: (): void => Clipboard.setString(msg) },
 			],
 			{ cancelable: false },
 		);

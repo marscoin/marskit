@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import {
 	View,
@@ -9,12 +9,12 @@ import {
 import LogBox from '../../../components/LogBox';
 import lnd from 'react-native-lightning';
 
-const LndLogs = ({ navigation }) => {
+const LndLogs = ({ navigation }): ReactElement => {
 	const [content, setContent] = useState<string[]>([]);
 
 	useEffect(() => {
 		//Load contents of existing log file
-		(async () => {
+		(async (): Promise<void> => {
 			if (content.length > 1) {
 				return;
 			}
@@ -36,10 +36,10 @@ const LndLogs = ({ navigation }) => {
 			setContent((prevContent) => [...prevContent, log]);
 		});
 
-		return () => {
+		return (): void => {
 			lnd.removeLogListener(listener);
 		};
-	}, []);
+	}, [content.length]);
 
 	return (
 		<View style={styles.container}>

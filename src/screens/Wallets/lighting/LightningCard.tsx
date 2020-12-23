@@ -57,7 +57,7 @@ const LightningCard = () => {
 			return;
 		}
 
-		(async () => {
+		(async (): Promise<void> => {
 			const res = await lnd.decodeInvoice(sendPaymentRequest);
 			if (res.isOk()) {
 				setSendPaymentRequest('');
@@ -164,7 +164,7 @@ const LightningCard = () => {
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
-							onPress={async () => {
+							onPress={async (): Promise<void> => {
 								setMessage('Connecting...');
 								setReceiveAddress('');
 								const connectRes = await connectToDefaultPeer();
@@ -200,7 +200,7 @@ const LightningCard = () => {
 				{!!showInvoiceInput && (
 					<View>
 						<TextInput
-							onChangeText={(invoice) => setSendPaymentRequest(invoice)}
+							onChangeText={(invoice): void => setSendPaymentRequest(invoice)}
 						/>
 					</View>
 				)}

@@ -1,5 +1,5 @@
 import '../shim';
-import React, { memo, useEffect } from 'react';
+import React, { memo, ReactElement, useEffect } from 'react';
 import {
 	InteractionManager,
 	Platform,
@@ -69,9 +69,9 @@ const startApp = async (): Promise<void> => {
 		});
 	} catch {}
 };
-const App = () => {
+const App = (): ReactElement => {
 	useEffect(() => {
-		(async () => {
+		(async (): Promise<void> => {
 			await startApp();
 		})();
 	}, []);
@@ -83,7 +83,7 @@ const App = () => {
 			<SafeAreaView style={styles.container}>
 				<RootNavigator />
 			</SafeAreaView>
-			<Toast ref={(ref) => Toast.setRef(ref)} />
+			<Toast ref={(ref): Toast | null => Toast.setRef(ref)} />
 		</ThemeProvider>
 	);
 };

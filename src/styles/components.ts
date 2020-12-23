@@ -8,45 +8,45 @@ import Animated from 'react-native-reanimated';
 
 export const SafeAreaView = styled.SafeAreaView`
 	flex: 1;
-	background-color: ${(props) => props.theme.colors.background};
+	background-color: ${(props): string => props.theme.colors.background};
 `;
 
 export const Container = styled.View`
 	flex: 1;
-	background-color: ${(props) => props.theme.colors.background};
+	background-color: ${(props): string => props.theme.colors.background};
 `;
 
 export const View = styled.View`
-	background-color: ${(props) =>
+	background-color: ${(props): string =>
 		props.color
 			? props.theme.colors[props.color]
 			: props.theme.colors.background};
 `;
 
 export const AnimatedView = styled(Animated.View)`
-	background-color: ${(props) =>
+	background-color: ${(props): string =>
 		props.color
 			? props.theme.colors[props.color]
 			: props.theme.colors.background};
 `;
 
 export const TouchableOpacity = styled.TouchableOpacity`
-	background-color: ${(props) =>
+	background-color: ${(props): string =>
 		props.color
 			? props.theme.colors[props.color]
 			: props.theme.colors.background};
 `;
 
 export const Pressable = styled.Pressable`
-	background-color: ${(props) =>
+	background-color: ${(props): string =>
 		props.color
 			? props.theme.colors[props.color]
 			: props.theme.colors.background};
-	opacity: ${(props) => (props.disabled ? 0.4 : 1)};
+	opacity: ${(props): number => (props.disabled ? 0.4 : 1)};
 `;
 
 export const ScrollView = styled.ScrollView`
-	background-color: ${(props) => props.theme.colors.background};
+	background-color: ${(props): string => props.theme.colors.background};
 `;
 
 export const StatusBar = styled.StatusBar.attrs((props) => ({
@@ -60,13 +60,13 @@ export const StatusBar = styled.StatusBar.attrs((props) => ({
 }))``;
 
 export const Text = styled.Text`
-	color: ${(props) =>
+	color: ${(props): string =>
 		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
-	font-family: ${(props) =>
+	font-family: ${(props): string =>
 		props.font
 			? props.theme.fonts[props.font].fontFamily
 			: props.theme.fonts.medium.fontFamily};
-	font-weight: ${(props) =>
+	font-weight: ${(props): string =>
 		props.font
 			? props.theme.fonts[props.font].fontWeight
 			: props.theme.fonts.medium.fontWeight};
