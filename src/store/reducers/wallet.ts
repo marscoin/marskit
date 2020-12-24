@@ -28,6 +28,58 @@ const wallet = (
 				},
 			};
 
+		case actions.UPDATE_ADDRESS_INDEX:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[state.selectedWallet]: {
+						...state.wallets[state.selectedWallet],
+						addressIndex: {
+							...state.wallets[state.selectedWallet].addressIndex,
+							[state.selectedNetwork]: {
+								...action.payload.addressIndex,
+							},
+						},
+						changeAddressIndex: {
+							...state.wallets[state.selectedWallet].changeAddressIndex,
+							[state.selectedNetwork]: {
+								...action.payload.changeAddressIndex,
+							},
+						},
+					},
+				},
+			};
+
+		case actions.ADD_ADDRESSES:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[state.selectedWallet]: {
+						...state.wallets[state.selectedWallet],
+						addresses: {
+							...state.wallets[state.selectedWallet].addresses,
+							[state.selectedNetwork]: {
+								...state.wallets[state.selectedWallet].addresses[
+									state.selectedNetwork
+								],
+								...action.payload.addresses,
+							},
+						},
+						changeAddresses: {
+							...state.wallets[state.selectedWallet].changeAddresses,
+							[state.selectedNetwork]: {
+								...state.wallets[state.selectedWallet].changeAddresses[
+									state.selectedNetwork
+								],
+								...action.payload.changeAddresses,
+							},
+						},
+					},
+				},
+			};
+
 		default:
 			return state;
 	}
