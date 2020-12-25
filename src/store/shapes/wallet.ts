@@ -1,4 +1,4 @@
-import { IWalletItem, IDefaultWalletShape } from '../types/wallet';
+import { IWalletItem, IDefaultWalletShape, IAddresses } from '../types/wallet';
 
 export const numberTypeItems: IWalletItem<number> = {
 	bitcoin: 0,
@@ -18,14 +18,30 @@ export const objectTypeItems: IWalletItem<object> = {
 	timestamp: null,
 };
 
+export const addressIndex: IAddresses = {
+	bitcoin: {
+		index: 0,
+		path: '',
+		address: '',
+		scriptHash: '',
+	},
+	bitcoinTestnet: {
+		index: 0,
+		path: '',
+		address: '',
+		scriptHash: '',
+	},
+	timestamp: null,
+};
+
 export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
 	type: 'default',
 	addresses: arrayTypeItems,
-	addressIndex: numberTypeItems,
+	addressIndex: addressIndex,
 	changeAddresses: arrayTypeItems,
-	changeAddressIndex: numberTypeItems,
+	changeAddressIndex: addressIndex,
 	utxos: arrayTypeItems,
 	transactions: arrayTypeItems,
 	blacklistedUtxos: arrayTypeItems,

@@ -38,17 +38,20 @@ export interface IWalletItem<T> {
 	timestamp?: number | null;
 }
 
+export interface IAddressContent {
+	index: number;
+	path: string;
+	address: string;
+	scriptHash: string;
+}
+
 export interface IAddress {
-	[key: string]: {
-		path: string;
-		address: string;
-		scriptHash: string;
-	};
+	[key: string]: IAddressContent;
 }
 
 export interface IAddresses {
-	bitcoin: IAddress | {};
-	bitcoinTestnet: IAddress | {};
+	bitcoin: IAddressContent;
+	bitcoinTestnet: IAddressContent;
 	timestamp: null;
 }
 
@@ -65,9 +68,9 @@ export interface IDefaultWalletShape {
 	name: string;
 	type: string;
 	addresses: IAddresses | IWalletItem<object>;
-	addressIndex: IWalletItem<number>;
+	addressIndex: IAddresses;
 	changeAddresses: IAddresses | IWalletItem<object>;
-	changeAddressIndex: IWalletItem<number>;
+	changeAddressIndex: IAddresses;
 	utxos: IWalletItem<[]>;
 	transactions: IWalletItem<[]>;
 	blacklistedUtxos: IWalletItem<[]>;
