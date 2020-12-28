@@ -9,7 +9,7 @@ import {
 	TAddressType,
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '../result';
 import {
 	IResponse,
 	IGetAddress,
@@ -51,7 +51,7 @@ export const generateAddresses = async ({
 	selectedNetwork = EWallet.selectedNetwork,
 	keyDerivationPath = EWallet.keyDerivationPath,
 	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse, string>> => {
+}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse, Error>> => {
 	return new Promise(async (resolve) => {
 		try {
 			const networkTypePath =
@@ -59,7 +59,7 @@ export const generateAddresses = async ({
 			const network = networks[selectedNetwork];
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			if (getMnemonicPhraseResponse.error) {
-				return resolve(err(getMnemonicPhraseResponse.data));
+				return resolve(err(Error(getMnemonicPhraseResponse.data)));
 			}
 
 			//Attempt to acquire the bip39Passphrase if available
@@ -118,7 +118,7 @@ export const generateAddresses = async ({
 			return resolve(ok({ addresses, changeAddresses }));
 		} catch (e) {
 			console.log(e);
-			return resolve(err(e));
+			return resolve(err(Error(e)));
 		}
 	});
 };
