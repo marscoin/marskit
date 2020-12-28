@@ -59,7 +59,7 @@ export const generateAddresses = async ({
 			const network = networks[selectedNetwork];
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			if (getMnemonicPhraseResponse.error) {
-				return resolve(err(Error(getMnemonicPhraseResponse.data)));
+				return resolve(err(new Error(getMnemonicPhraseResponse.data)));
 			}
 
 			//Attempt to acquire the bip39Passphrase if available
@@ -118,7 +118,7 @@ export const generateAddresses = async ({
 			return resolve(ok({ addresses, changeAddresses }));
 		} catch (e) {
 			console.log(e);
-			return resolve(err(Error(e)));
+			return resolve(err(new Error(e)));
 		}
 	});
 };
