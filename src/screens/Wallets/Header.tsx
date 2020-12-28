@@ -1,32 +1,20 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { Feather, View } from '../../styles/components';
-import { updateSettings } from '../../store/actions/settings';
+import { Feather, Ionicons, View } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import Store from '../../store/types';
 
 const Header = (): ReactElement => {
-	const dispatch = useDispatch();
-	const settings = useSelector((state: Store) => state.settings);
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
-	const updateTheme = (): void => {
-		try {
-			const theme = settings.theme === 'dark' ? 'light' : 'dark';
-			dispatch(updateSettings({ theme }));
-		} catch {}
+	const openScanner = (): void => {
+		navigation.navigate('Scanner');
 	};
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				<Feather
-					onPress={updateTheme}
-					name={settings.theme === 'light' ? 'moon' : 'sun'}
-					size={30}
-				/>
+				<Ionicons name={'qr-code'} size={30} onPress={openScanner} />
 			</View>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
