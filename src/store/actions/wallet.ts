@@ -21,7 +21,7 @@ import {
 
 const dispatch = getDispatch();
 
-export const updateWallet = (payload): Promise<Result<string, Error>> => {
+export const updateWallet = (payload): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		await dispatch({
 			type: actions.UPDATE_WALLET,
@@ -37,16 +37,14 @@ export const createWallet = ({
 	changeAddressAmount = 2,
 	mnemonic = '',
 	keyDerivationPath = '84',
-}: ICreateWallet): Promise<Result<string, Error>> => {
+}: ICreateWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		try {
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			const { error, data } = getMnemonicPhraseResponse;
 			const { wallets } = getStore().wallet;
 			if (!error && data && wallet in wallets) {
-				return resolve(
-					err(new Error(`Wallet ID, "${wallet}" already exists.`)),
-				);
+				return resolve(err(`Wallet ID, "${wallet}" already exists.`));
 			}
 
 			//Generate Mnemonic if none was provided
@@ -54,7 +52,7 @@ export const createWallet = ({
 				mnemonic = validateMnemonic(data) ? data : await generateMnemonic();
 			}
 			if (!validateMnemonic(mnemonic)) {
-				return resolve(err(new Error('Invalid Mnemonic')));
+				return resolve(err('Invalid Mnemonic'));
 			}
 			await setKeychainValue({ key: wallet, value: mnemonic });
 
@@ -100,12 +98,12 @@ export const createWallet = ({
 
 			return resolve(ok(''));
 		} catch (e) {
-			return resolve(err(new Error(e)));
+			return resolve(err(e));
 		}
 	});
 };
 
-export const updateExchangeRate = (): Promise<Result<string, Error>> => {
+export const updateExchangeRate = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const settings = getStore().settings;
 		const { selectedCurrency, exchangeRateService } = settings;
@@ -120,12 +118,12 @@ export const updateExchangeRate = (): Promise<Result<string, Error>> => {
 			});
 			resolve(ok('Successfully updated the exchange rate.'));
 		} else {
-			resolve(err(new Error('Unable to acquire exchange rate data.')));
+			resolve(err('Unable to acquire exchange rate data.'));
 		}
 	});
 };
 
-export const updateAddressIndexes = (): Promise<Result<string, string>> => {
+export const updateAddressIndexes = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const response = await getNextAvailableAddress({});
 		if (response.isErr()) {
@@ -160,7 +158,7 @@ export const addAddresses = ({
 	selectedNetwork = EWallet.selectedNetwork,
 	keyDerivationPath = EWallet.keyDerivationPath,
 	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse, Error>> => {
+}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	return new Promise(async (resolve) => {
 		const generatedAddresses = await generateAddresses({
 			addressAmount,

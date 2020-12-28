@@ -51,7 +51,7 @@ export const generateAddresses = async ({
 	selectedNetwork = EWallet.selectedNetwork,
 	keyDerivationPath = EWallet.keyDerivationPath,
 	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse, Error>> => {
+}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	return new Promise(async (resolve) => {
 		try {
 			const networkTypePath =
@@ -59,7 +59,7 @@ export const generateAddresses = async ({
 			const network = networks[selectedNetwork];
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			if (getMnemonicPhraseResponse.error) {
-				return resolve(err(new Error(getMnemonicPhraseResponse.data)));
+				return resolve(err(getMnemonicPhraseResponse.data));
 			}
 
 			//Attempt to acquire the bip39Passphrase if available
@@ -118,7 +118,7 @@ export const generateAddresses = async ({
 			return resolve(ok({ addresses, changeAddresses }));
 		} catch (e) {
 			console.log(e);
-			return resolve(err(new Error(e)));
+			return resolve(err(e));
 		}
 	});
 };
@@ -441,7 +441,7 @@ export const getNextAvailableAddress = async ({
 	keyDerivationPath = '84',
 	addressType = 'bech32',
 }: IGetNextAvailableAddress): Promise<
-	Result<IGetNextAvailableAddressResponse, string>
+	Result<IGetNextAvailableAddressResponse>
 > => {
 	return new Promise(async (resolve) => {
 		const isConnected = await isOnline();
@@ -732,7 +732,7 @@ export const getHighestUsedIndexFromTxHashes = async ({
 	changeAddresses: IAddress | {};
 	addressIndex: IAddressContent;
 	changeAddressIndex: IAddressContent;
-}): Promise<Result<IIndexes, string>> => {
+}): Promise<Result<IIndexes>> => {
 	try {
 		let foundAddressIndex = false;
 		let foundChangeAddressIndex = false;
@@ -775,13 +775,10 @@ export const getHighestStoredAddressIndex = ({
 }: {
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
-}): Result<
-	{
-		addressIndex: IAddressContent;
-		changeAddressIndex: IAddressContent;
-	},
-	string
-> => {
+}): Result<{
+	addressIndex: IAddressContent;
+	changeAddressIndex: IAddressContent;
+}> => {
 	try {
 		const wallet = getStore().wallet;
 		const addresses: IAddress =

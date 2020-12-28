@@ -22,9 +22,7 @@ const dispatch = getDispatch();
  * @param network
  * @returns {Promise<unknown>}
  */
-export const startLnd = (
-	network: LndNetworks,
-): Promise<Result<string, Error>> => {
+export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const stateRes = await lnd.currentState();
 		if (stateRes.isOk() && stateRes.value.lndRunning) {
@@ -66,11 +64,11 @@ export const createLightningWallet = ({
 	password,
 	mnemonic,
 	network,
-}: ICreateLightningWallet): Promise<Result<string, Error>> => {
+}: ICreateLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const existsRes = await lnd.walletExists(network);
 		if (existsRes.isOk() && existsRes.value) {
-			return resolve(err(new Error('LND wallet already exists')));
+			return resolve(err('LND wallet already exists'));
 		}
 
 		let lndSeed: string[] = [];
@@ -111,7 +109,7 @@ export const createLightningWallet = ({
 export const unlockLightningWallet = ({
 	password,
 	network,
-}: IUnlockLightningWallet): Promise<Result<string, Error>> => {
+}: IUnlockLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const stateRes = await lnd.currentState();
 		if (stateRes.isOk() && stateRes.value.grpcReady) {
@@ -121,7 +119,7 @@ export const unlockLightningWallet = ({
 
 		const existsRes = await lnd.walletExists(network);
 		if (existsRes.isOk() && !existsRes.value) {
-			return resolve(err(new Error('LND wallet does not exist')));
+			return resolve(err('LND wallet does not exist'));
 		}
 
 		const unlockRes = await lnd.unlockWallet(password);
@@ -143,7 +141,7 @@ export const unlockLightningWallet = ({
  * Updates the lightning store with the latest state of LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningState = (): Promise<Result<string, Error>> => {
+export const refreshLightningState = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.currentState();
 		if (res.isErr()) {
@@ -162,7 +160,7 @@ export const refreshLightningState = (): Promise<Result<string, Error>> => {
  * Updates the lightning store with the latest GetInfo response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningInfo = (): Promise<Result<string, Error>> => {
+export const refreshLightningInfo = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getInfo();
 		if (res.isErr()) {
@@ -182,9 +180,7 @@ export const refreshLightningInfo = (): Promise<Result<string, Error>> => {
  * TODO: Should be removed when on chain wallet is ready to replace the built in LND wallet
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningOnChainBalance = (): Promise<
-	Result<string, Error>
-> => {
+export const refreshLightningOnChainBalance = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getWalletBalance();
 		if (res.isErr()) {
@@ -199,7 +195,7 @@ export const refreshLightningOnChainBalance = (): Promise<
 	});
 };
 
-export const refreshLightningInvoices = (): Promise<Result<string, Error>> => {
+export const refreshLightningInvoices = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		//TODO we might need to optimise with pagination later using indexOffset and numMaxInvoices
 		const res = await lnd.listInvoices();
@@ -219,9 +215,7 @@ export const refreshLightningInvoices = (): Promise<Result<string, Error>> => {
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningChannelBalance = (): Promise<
-	Result<string, Error>
-> => {
+export const refreshLightningChannelBalance = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.getChannelBalance();
 		if (res.isErr()) {
@@ -326,7 +320,7 @@ const pollLndGetInfo = async (): Promise<void> => {
  */
 export const payLightningInvoice = (
 	invoice: string,
-): Promise<Result<lnrpc.IRoute, Error>> => {
+): Promise<Result<lnrpc.IRoute>> => {
 	return new Promise(async (resolve) => {
 		const res = await lnd.payInvoice(invoice);
 		if (res.isErr()) {
