@@ -13,7 +13,7 @@ import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
 import themes from './styles/themes';
 import { getStore } from './store/helpers';
-import { createWallet } from './store/actions/wallet';
+import { createWallet, updateAddressIndexes } from './store/actions/wallet';
 import {
 	startLnd,
 	createLightningWallet,
@@ -50,6 +50,7 @@ const startApp = async (): Promise<void> => {
 			if (startResponse.error) {
 				return;
 			}
+			await updateAddressIndexes();
 
 			//Create or unlock LND wallet
 			const existsRes = await lnd.walletExists(lndNetwork);

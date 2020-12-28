@@ -1,7 +1,15 @@
 import { INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import { defaultWalletShape } from '../../store/shapes/wallet';
-import { EWallet, IAddress } from '../../store/types/wallet';
+import {
+	EWallet,
+	IAddress,
+	IAddressContent,
+	IDefaultWalletShape,
+	TAddressType,
+	TKeyDerivationPath,
+} from '../../store/types/wallet';
+import { err, ok, Result } from '../result';
 import {
 	IResponse,
 	IGetAddress,
@@ -9,8 +17,13 @@ import {
 	IGetInfoFromAddressPath,
 	IGenerateAddressesResponse,
 } from '../types';
-import { getKeychainValue } from '../helpers';
+import { getKeychainValue, isOnline } from '../helpers';
 import { getStore } from '../../store/helpers';
+import {
+	getAddressScriptHashesHistory,
+	getAddressScriptHashesMempool,
+} from 'rn-electrum-client/helpers';
+import { addAddresses } from '../../store/actions/wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -38,16 +51,15 @@ export const generateAddresses = async ({
 	selectedNetwork = EWallet.selectedNetwork,
 	keyDerivationPath = EWallet.keyDerivationPath,
 	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<IGenerateAddressesResponse> => {
+}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse, Error>> => {
 	return new Promise(async (resolve) => {
-		const failure = (data) => resolve({ error: true, data });
 		try {
 			const networkTypePath =
 				defaultWalletShape.networkTypePath[selectedNetwork];
 			const network = networks[selectedNetwork];
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			if (getMnemonicPhraseResponse.error) {
-				return failure(getMnemonicPhraseResponse.data);
+				return resolve(err(new Error(getMnemonicPhraseResponse.data)));
 			}
 
 			//Attempt to acquire the bip39Passphrase if available
@@ -65,9 +77,8 @@ export const generateAddresses = async ({
 			await Promise.all([
 				addressArray.map(async (item, i) => {
 					try {
-						const addressPath = `m/${keyDerivationPath}'/${networkTypePath}'/0'/0/${
-							i + addressIndex
-						}`;
+						const index = i + addressIndex;
+						const addressPath = `m/${keyDerivationPath}'/${networkTypePath}'/0'/0/${index}`;
 						const addressKeypair = root.derivePath(addressPath);
 						const address = await getAddress({
 							keyPair: addressKeypair,
@@ -75,14 +86,18 @@ export const generateAddresses = async ({
 							type: addressType,
 						});
 						const scriptHash = getScriptHash(address, network);
-						addresses[scriptHash] = { address, scriptHash, path: addressPath };
+						addresses[scriptHash] = {
+							index,
+							path: addressPath,
+							address,
+							scriptHash,
+						};
 					} catch {}
 				}),
 				changeAddressArray.map(async (item, i) => {
 					try {
-						const changeAddressPath = `m/${keyDerivationPath}'/${networkTypePath}'/0'/1/${
-							i + changeAddressIndex
-						}`;
+						const index = i + changeAddressIndex;
+						const changeAddressPath = `m/${keyDerivationPath}'/${networkTypePath}'/0'/1/${index}`;
 						const changeAddressKeypair = root.derivePath(changeAddressPath);
 						const address = await getAddress({
 							keyPair: changeAddressKeypair,
@@ -91,18 +106,19 @@ export const generateAddresses = async ({
 						});
 						const scriptHash = getScriptHash(address, network);
 						changeAddresses[scriptHash] = {
+							index,
+							path: changeAddressPath,
 							address,
 							scriptHash,
-							path: changeAddressPath,
 						};
 					} catch {}
 				}),
 			]);
 
-			resolve({ error: false, data: { addresses, changeAddresses } });
+			return resolve(ok({ addresses, changeAddresses }));
 		} catch (e) {
 			console.log(e);
-			failure(e);
+			return resolve(err(new Error(e)));
 		}
 	});
 };
@@ -393,4 +409,411 @@ const exchangeRateHelpers = {
 			return { error: true, data: 0 };
 		}
 	},
+};
+
+interface TTxResult {
+	tx_hash: string;
+	height: number;
+}
+interface ITxHashes extends TTxResult {
+	scriptHash: string;
+}
+interface TTxResponse {
+	data: object;
+	id: number;
+	jsonrpc: string;
+	param: string;
+	result: TTxResult[] | [] | any;
+}
+interface IGetNextAvailableAddressResponse {
+	addressIndex: IAddressContent;
+	changeAddressIndex: IAddressContent;
+}
+interface IGetNextAvailableAddress {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	keyDerivationPath?: TKeyDerivationPath;
+	addressType?: TAddressType;
+}
+export const getNextAvailableAddress = async ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	keyDerivationPath = '84',
+	addressType = 'bech32',
+}: IGetNextAvailableAddress): Promise<
+	Result<IGetNextAvailableAddressResponse, string>
+> => {
+	return new Promise(async (resolve) => {
+		const isConnected = await isOnline();
+		if (!isConnected) {
+			return resolve(err('Offline'));
+		}
+
+		try {
+			const wallet = getStore().wallet;
+			if (!selectedNetwork) {
+				selectedNetwork = wallet.selectedNetwork;
+			}
+			if (!selectedWallet) {
+				selectedWallet = wallet.selectedWallet;
+			}
+			const wallets = wallet.wallets;
+			let currentWallet = wallets[selectedWallet];
+
+			let addresses: IAddress = currentWallet.addresses[selectedNetwork];
+			let changeAddresses: IAddress =
+				currentWallet.changeAddresses[selectedNetwork];
+
+			//How many addresses/changeAddresses are currently stored
+			const addressCount = Object.values(addresses).length;
+			const changeAddressCount = Object.values(changeAddresses).length;
+
+			//The currently known/stored address index.
+			let addressIndex = currentWallet.addressIndex[selectedNetwork];
+			let changeAddressIndex =
+				currentWallet.changeAddressIndex[selectedNetwork];
+
+			/*
+			 *	Create more addresses if none exist or the highest address index matches the current address count
+			 */
+			if (addressCount <= 0 || addressIndex.index === addressCount) {
+				const newAddresses = await addAddresses({
+					addressAmount: 5,
+					changeAddressAmount: 0,
+					addressIndex: addressIndex.index,
+					changeAddressIndex: 0,
+					selectedNetwork,
+					wallet: selectedWallet,
+					keyDerivationPath,
+					addressType,
+				});
+				if (!newAddresses.isErr()) {
+					addresses = newAddresses.value.addresses;
+				}
+			}
+
+			/*
+			 *	Create more change addresses if none exist or the highest change address index matches the current
+			 *	change address count
+			 */
+			if (
+				changeAddressCount <= 0 ||
+				changeAddressIndex.index === changeAddressCount
+			) {
+				const newChangeAddresses = await addAddresses({
+					addressAmount: 0,
+					changeAddressAmount: 5,
+					addressIndex: 0,
+					changeAddressIndex: changeAddressIndex.index,
+					selectedNetwork,
+					wallet: selectedWallet,
+					keyDerivationPath,
+					addressType,
+				});
+				if (!newChangeAddresses.isErr()) {
+					changeAddresses = newChangeAddresses.value.changeAddresses;
+				}
+			}
+
+			//Store all addresses that are to be searched and used in this method.
+			let allAddresses: IAddressContent[] = Object.values(addresses).slice(
+				addressIndex.index,
+				addressCount,
+			);
+			let addressesToScan = allAddresses;
+
+			//Store all change addresses that are to be searched and used in this method.
+			let allChangeAddresses: IAddressContent[] = Object.values(
+				changeAddresses,
+			).slice(changeAddressIndex.index, changeAddressCount);
+			let changeAddressesToScan = allChangeAddresses;
+
+			//Prep for batch request
+			let combinedAddressesToScan = [
+				...addressesToScan,
+				...changeAddressesToScan,
+			];
+
+			let foundLastUsedAddress = false;
+			let foundLastUsedChangeAddress = false;
+			let addressHasBeenUsed = false;
+			let changeAddressHasBeenUsed = false;
+
+			while (!foundLastUsedAddress || !foundLastUsedChangeAddress) {
+				let scriptHashesHistory = await getAddressScriptHashesHistory({
+					scriptHashes: {
+						key: 'scriptHash',
+						data: combinedAddressesToScan,
+					},
+					network: selectedNetwork,
+				});
+
+				//Check if transactions are pending in the mempool.
+				let scriptHashesMempool = await getAddressScriptHashesMempool({
+					scriptHashes: {
+						key: 'scriptHash',
+						data: combinedAddressesToScan,
+					},
+					network: selectedNetwork,
+				});
+
+				if (scriptHashesHistory.error === true) {
+					scriptHashesHistory = { error: scriptHashesHistory.error, data: [] };
+				}
+				if (scriptHashesMempool.error === true) {
+					scriptHashesMempool = {
+						error: scriptHashesMempool.error,
+						data: [],
+					};
+				}
+				if (
+					scriptHashesHistory.error === true ||
+					scriptHashesMempool.error === true
+				) {
+					return resolve(err('Unable to acquire tx history.'));
+				}
+
+				const allTransactions: TTxResponse[] = [
+					...scriptHashesHistory.data,
+					...scriptHashesMempool.data,
+				];
+				let txHashes: ITxHashes[] = [];
+				txHashes = await Promise.all(
+					allTransactions.map((txs) =>
+						txs.result.map((tx) => ({ ...tx, scriptHash: txs.param })),
+					),
+				);
+
+				const highestUsedIndex = await getHighestUsedIndexFromTxHashes({
+					txHashes,
+					addresses,
+					changeAddresses,
+					addressIndex,
+					changeAddressIndex,
+				});
+				if (highestUsedIndex.isErr()) {
+					return resolve(err(highestUsedIndex.error));
+				}
+
+				addressIndex = highestUsedIndex.value.addressIndex;
+				changeAddressIndex = highestUsedIndex.value.changeAddressIndex;
+				if (highestUsedIndex.value.foundAddressIndex) {
+					addressHasBeenUsed = true;
+				}
+				if (highestUsedIndex.value.foundChangeAddressIndex) {
+					changeAddressHasBeenUsed = true;
+				}
+
+				const highestStoredIndex = getHighestStoredAddressIndex({
+					selectedNetwork,
+					selectedWallet,
+				});
+
+				if (highestStoredIndex.isErr()) {
+					return resolve(err(highestStoredIndex.error));
+				}
+
+				if (
+					highestUsedIndex.value.addressIndex.index <
+					highestStoredIndex.value.addressIndex.index
+				) {
+					foundLastUsedAddress = true;
+				}
+
+				if (
+					highestUsedIndex.value.changeAddressIndex.index <
+					highestStoredIndex.value.changeAddressIndex.index
+				) {
+					foundLastUsedChangeAddress = true;
+				}
+
+				if (foundLastUsedAddress && foundLastUsedChangeAddress) {
+					//Increase index by one if the current index was found in a txHash or is greater than the previous index.
+					let newAddressIndex = addressIndex.index;
+					if (
+						highestUsedIndex.value.addressIndex.index > addressIndex.index ||
+						addressHasBeenUsed
+					) {
+						newAddressIndex = highestUsedIndex.value.addressIndex.index + 1;
+					}
+
+					let newChangeAddressIndex = changeAddressIndex.index;
+					if (
+						highestUsedIndex.value.changeAddressIndex.index >
+							changeAddressIndex.index ||
+						changeAddressHasBeenUsed
+					) {
+						newChangeAddressIndex =
+							highestUsedIndex.value.changeAddressIndex.index + 1;
+					}
+
+					//Filter for and return the new index.
+					const nextAvailableAddress = Object.values(allAddresses).filter(
+						({ index }) => index === newAddressIndex,
+					);
+					const nextAvailableChangeAddress = Object.values(
+						allChangeAddresses,
+					).filter(({ index }) => index === newChangeAddressIndex);
+
+					return resolve(
+						ok({
+							addressIndex: nextAvailableAddress[0],
+							changeAddressIndex: nextAvailableChangeAddress[0],
+						}),
+					);
+				}
+				//Create receiving addresses for the next round
+				if (!foundLastUsedAddress) {
+					const newAddresses = await addAddresses({
+						addressAmount: 5,
+						changeAddressAmount: 0,
+						addressIndex: highestStoredIndex.value.addressIndex.index,
+						changeAddressIndex: 0,
+						selectedNetwork,
+						wallet: selectedWallet,
+						keyDerivationPath,
+						addressType,
+					});
+					if (!newAddresses.isErr()) {
+						addresses = newAddresses.value.addresses;
+					}
+				}
+				//Create change addresses for the next round
+				if (!foundLastUsedChangeAddress) {
+					const newChangeAddresses = await addAddresses({
+						addressAmount: 0,
+						changeAddressAmount: 5,
+						addressIndex: 0,
+						changeAddressIndex:
+							highestStoredIndex.value.changeAddressIndex.index,
+						selectedNetwork,
+						wallet: selectedWallet,
+						keyDerivationPath,
+						addressType,
+					});
+					if (!newChangeAddresses.isErr()) {
+						changeAddresses = newChangeAddresses.value.changeAddresses;
+					}
+				}
+
+				//Store newly created addresses to scan in the next round.
+				addressesToScan = Object.values(addresses);
+				changeAddressesToScan = Object.values(changeAddresses);
+				combinedAddressesToScan = [
+					...addressesToScan,
+					...changeAddressesToScan,
+				];
+				//Store the newly created addresses used for this method.
+				allAddresses = [...allAddresses, ...addressesToScan];
+				allChangeAddresses = [...allChangeAddresses, ...changeAddressesToScan];
+			}
+		} catch (e) {
+			console.log(e);
+			return resolve(err(e));
+		}
+	});
+};
+
+interface IIndexes {
+	addressIndex: IAddressContent;
+	changeAddressIndex: IAddressContent;
+	foundAddressIndex: boolean;
+	foundChangeAddressIndex: boolean;
+}
+export const getHighestUsedIndexFromTxHashes = async ({
+	txHashes = [],
+	addresses = {},
+	changeAddresses = {},
+	addressIndex,
+	changeAddressIndex,
+}: {
+	txHashes: ITxHashes[];
+	addresses: IAddress | {};
+	changeAddresses: IAddress | {};
+	addressIndex: IAddressContent;
+	changeAddressIndex: IAddressContent;
+}): Promise<Result<IIndexes, string>> => {
+	try {
+		let foundAddressIndex = false;
+		let foundChangeAddressIndex = false;
+		txHashes = txHashes.flat();
+		await Promise.all(
+			txHashes.map(({ scriptHash }) => {
+				if (
+					scriptHash in addresses &&
+					addresses[scriptHash].index >= addressIndex.index
+				) {
+					foundAddressIndex = true;
+					addressIndex = addresses[scriptHash];
+				} else if (
+					scriptHash in changeAddresses &&
+					changeAddresses[scriptHash].index >= changeAddressIndex.index
+				) {
+					foundChangeAddressIndex = true;
+					changeAddressIndex = changeAddresses[scriptHash];
+				}
+			}),
+		);
+		const data = {
+			addressIndex,
+			changeAddressIndex,
+			foundAddressIndex,
+			foundChangeAddressIndex,
+		};
+		return ok(data);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns the highest address and change address index stored in the app for the specified wallet and network.
+ */
+export const getHighestStoredAddressIndex = ({
+	selectedWallet = EWallet.defaultWallet,
+	selectedNetwork = EWallet.selectedNetwork,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+}): Result<
+	{
+		addressIndex: IAddressContent;
+		changeAddressIndex: IAddressContent;
+	},
+	string
+> => {
+	try {
+		const wallet = getStore().wallet;
+		const addresses: IAddress =
+			wallet.wallets[selectedWallet].addresses[selectedNetwork];
+		const changeAddresses: IAddress =
+			wallet.wallets[selectedWallet].changeAddresses[selectedNetwork];
+
+		const addressIndex = Object.values(addresses).reduce((prev, current) =>
+			prev.index > current.index ? prev : current,
+		);
+
+		const changeAddressIndex = Object.values(
+			changeAddresses,
+		).reduce((prev, current) => (prev.index > current.index ? prev : current));
+
+		return ok({ addressIndex, changeAddressIndex });
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const getCurrentWallet = (): {
+	currentWallet: IDefaultWalletShape;
+	selectedNetwork: TAvailableNetworks;
+	selectedWallet: string;
+} => {
+	const wallet = getStore().wallet;
+	const { selectedWallet, selectedNetwork } = wallet;
+	const wallets = wallet.wallets;
+	return {
+		currentWallet: wallets[selectedWallet],
+		selectedNetwork,
+		selectedWallet,
+	};
 };
