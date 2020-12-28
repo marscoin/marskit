@@ -11,6 +11,8 @@ import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
+import { err, ok, Result } from '../result';
+import { lnrpc } from 'react-native-lightning/dist/rpc';
 
 const packageJson = require('../../../package.json');
 
@@ -70,11 +72,19 @@ export const copyNewAddressToClipboard = async (): Promise<string> => {
 	return res.value.address;
 };
 
-export const connectToDefaultPeer = async () => {
-	return await lnd.connectPeer(defaultNodePubKey, defaultNodeHost);
+export const connectToDefaultPeer = async (): Promise<
+	Result<lnrpc.ConnectPeerResponse>
+> => {
+	const res = await lnd.connectPeer(defaultNodePubKey, defaultNodeHost);
+
+	if (res.isOk()) {
+		return ok(res.value);
+	}
+
+	return err(res.error);
 };
 
-export const openMaxChannel = async () => {
+export const openMaxChannel = async (): Promise<Result<lnrpc.ChannelPoint>> => {
 	let value = getStore().lightning.onChainBalance.confirmedBalance;
 
 	const maxChannel = 0.16 * 100000000;
@@ -86,13 +96,21 @@ export const openMaxChannel = async () => {
 	value = Number(value) - 50000;
 	// const feeEstimateRes = lnd.feeEstimate()
 
-	return await lnd.openChannel(value, defaultNodePubKey);
+	const res = await lnd.openChannel(value, defaultNodePubKey);
+
+	if (res.isOk()) {
+		return ok(res.value);
+	}
+
+	return err(res.error);
 };
 
 //Debug functions to help with development
 
-const onDebugError = (e: Error, setMessage) => setMessage(`❌ ${e.message}`);
-const onDebugSuccess = (msg: string, setMessage) => setMessage(`✅ ${msg}`);
+const onDebugError = (e: Error, setMessage): void =>
+	setMessage(`❌ ${e.message}`);
+const onDebugSuccess = (msg: string, setMessage): void =>
+	setMessage(`✅ ${msg}`);
 
 /**
  * Debug use only

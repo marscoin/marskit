@@ -3,7 +3,7 @@
  * @flow strict-local
  */
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { LayoutAnimation, StyleSheet, TextInput } from 'react-native';
 import { View, Text } from '../../../styles/components';
 import Receive from './../Receive';
@@ -24,7 +24,7 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 
-const LightningCard = () => {
+const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 	const [message, setMessage] = useState('');
 	const [receiveAddress, setReceiveAddress] = useState('');
@@ -82,7 +82,7 @@ const LightningCard = () => {
 	}, [sendPaymentRequest]);
 
 	if (!lightning.onChainBalance || !lightning.channelBalance) {
-		return null;
+		return <View />;
 	}
 
 	const showFundingButton =
@@ -112,7 +112,7 @@ const LightningCard = () => {
 							<Button
 								color="onSurface"
 								style={styles.sendButton}
-								onPress={() => {
+								onPress={(): void => {
 									setShowInvoiceInput(!showInvoiceInput);
 									setReceiveAddress('');
 									setReceivePaymentRequest('');
@@ -123,7 +123,7 @@ const LightningCard = () => {
 							<Button
 								color="onSurface"
 								style={styles.receiveButton}
-								onPress={async () => {
+								onPress={async (): Promise<void> => {
 									const res = await lnd.createInvoice(1, 'Spectrum test');
 
 									if (res.isErr()) {
@@ -147,7 +147,7 @@ const LightningCard = () => {
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
-							onPress={async () => {
+							onPress={async (): Promise<void> => {
 								const res = await lnd.getAddress();
 								if (res.isOk()) {
 									setReceiveAddress(res.value.address);
