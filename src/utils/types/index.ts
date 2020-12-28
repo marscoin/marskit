@@ -45,9 +45,6 @@ export interface IGenerateAddresses {
 }
 
 export interface IGenerateAddressesResponse {
-	error: boolean;
-	data: {
-		addresses: IAddress;
-		changeAddresses: IAddress;
-	};
+	addresses: IAddress;
+	changeAddresses: IAddress;
 }

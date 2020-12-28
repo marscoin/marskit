@@ -63,10 +63,11 @@ const Receive = ({
 	const [textOpacity] = useState(new Animated.Value(0));
 
 	if (!address) {
-		const { selectedWallet, selectedNetwork } = wallet;
-		const addresses = wallet.wallets[selectedWallet].addresses[selectedNetwork];
-		const key = Object.keys(addresses)[0];
-		address = addresses[key].address;
+		try {
+			const { selectedNetwork, selectedWallet } = wallet;
+			address =
+				wallet.wallets[selectedWallet].addressIndex[selectedNetwork].address;
+		} catch {}
 	}
 
 	useEffect(() => {

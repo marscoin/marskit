@@ -10,6 +10,7 @@
     "lib": [
       "es6",
       "es2017",
+      "esnext",
       "dom"
     ],
     "moduleResolution": "node",
