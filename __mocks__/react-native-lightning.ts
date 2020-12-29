@@ -12,7 +12,12 @@ class LND {
 		try {
 			const message = lnrpc.PayReqString.create();
 			message.payReq = invoice;
-			return ok(lnrpc.PayReq.create());
+			return ok(
+				lnrpc.PayReq.create({
+					description: 'Dummy description',
+					numSatoshis: 123,
+				}),
+			);
 		} catch (e) {
 			return err(e);
 		}
