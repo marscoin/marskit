@@ -68,7 +68,7 @@ describe('QR codes', () => {
 		}
 	});
 
-	it('decodes a plain bitcoin native segwit address', async () => {
+	it('decodes a bitcoin native segwit address URI', async () => {
 		const res = await decodeQRData(
 			'bitcoin:bc1qkk0vs43wzsundw37f8xslw69eddwfe24w9pyrg',
 		);

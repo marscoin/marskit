@@ -89,7 +89,7 @@ const LightningCard = (): ReactElement => {
 							<Button
 								color="onSurface"
 								style={styles.receiveButton}
-								onPress={async () => {
+								onPress={async (): Promise<void> => {
 									const res = await lnd.createInvoice(25, 'Spectrum test');
 
 									if (res.isErr()) {
@@ -108,7 +108,7 @@ const LightningCard = (): ReactElement => {
 						</>
 					)}
 
-					{!!showFundingButton && (
+					{showFundingButton && (
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
@@ -123,7 +123,7 @@ const LightningCard = (): ReactElement => {
 						/>
 					)}
 
-					{!!showOpenChannelButton && (
+					{showOpenChannelButton && (
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
