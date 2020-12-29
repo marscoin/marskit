@@ -33,10 +33,13 @@ const BitcoinCard = (): ReactElement => {
 	);
 
 	const networkData = getNetworkData({ bitcoinUnit, selectedNetwork });
-	let balance = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].balance[selectedNetwork],
-	);
+	let balance = useSelector((state: Store) => {
+		try {
+			return state.wallet.wallets[selectedWallet].balance[selectedNetwork];
+		} catch {
+			return 0;
+		}
+	});
 	const fiatBalance = getFiatBalance({
 		balance,
 		exchangeRate,
