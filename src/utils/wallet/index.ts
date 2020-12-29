@@ -16,19 +16,108 @@ import {
 	IGenerateAddresses,
 	IGetInfoFromAddressPath,
 	IGenerateAddressesResponse,
+	IUtxos,
 } from '../types';
 import { getKeychainValue, isOnline } from '../helpers';
 import { getStore } from '../../store/helpers';
 import {
 	getAddressScriptHashesHistory,
 	getAddressScriptHashesMempool,
+	subscribeAddress,
+	subscribeHeader,
+	listUnspentAddressScriptHashes,
 } from 'rn-electrum-client/helpers';
-import { addAddresses } from '../../store/actions/wallet';
+import {
+	addAddresses,
+	updateAddressIndexes,
+	updateExchangeRate,
+	updateUtxos,
+} from '../../store/actions/wallet';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../notifications';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
 const bip39 = require('bip39');
 const bip32 = require('bip32');
+
+export const refreshWallet = async (): Promise<Result<string>> => {
+	try {
+		await updateAddressIndexes();
+		await Promise.all([
+			subscribeToHeader(),
+			subscribeToAddresses(),
+			updateExchangeRate(),
+		]);
+		const updateUtxoResponse = await updateUtxos({});
+		if (updateUtxoResponse.isErr()) {
+			showErrorNotification({
+				title: 'Unable to update utxos.',
+				message: updateUtxoResponse.error.message,
+			});
+		}
+		return ok('');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+interface ISubscribeToAddresses {
+	data: {
+		id: number;
+		jsonrpc: string;
+		result: null;
+	};
+	error: boolean;
+	id: number;
+	method: string;
+}
+export const subscribeToAddresses = async (): Promise<
+	ISubscribeToAddresses[]
+> => {
+	const { currentWallet, selectedNetwork } = getCurrentWallet();
+	const address = currentWallet.addressIndex[selectedNetwork];
+	const changeAddress = currentWallet.changeAddressIndex[selectedNetwork];
+
+	return await Promise.all([
+		subscribeAddress({
+			scriptHash: address.scriptHash,
+			network: selectedNetwork,
+			onReceive: (data): void => {
+				console.log(data);
+				showSuccessNotification({
+					title: 'Received BTC',
+					message: data[1], //TODO: Include amount received as the message.
+				});
+				refreshWallet();
+			},
+		}),
+		subscribeAddress({
+			scriptHash: changeAddress.scriptHash,
+			network: selectedNetwork,
+			onReceive: refreshWallet,
+		}),
+	]);
+};
+
+interface ISubscribeToHeader {
+	data: {
+		height: number;
+		hex: string;
+	};
+	error: boolean;
+	id: string;
+	method: string;
+}
+export const subscribeToHeader = async (): Promise<ISubscribeToHeader> => {
+	const selectedNetwork = getStore().wallet.selectedNetwork;
+	return await subscribeHeader({
+		network: selectedNetwork,
+		onReceive: refreshWallet,
+	});
+};
 
 /**
  * Generates a series of addresses based on the specified params.
@@ -813,4 +902,51 @@ export const getCurrentWallet = (): {
 		selectedNetwork,
 		selectedWallet,
 	};
+};
+
+/**
+ * Returns utxos for a given wallet and network along with the available balance.
+ */
+export const getUtxos = async ({
+	selectedWallet = EWallet.defaultWallet,
+	selectedNetwork = EWallet.selectedNetwork,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+}): Promise<Result<{ utxos: IUtxos[]; balance: number }>> => {
+	try {
+		const wallets = getStore().wallet.wallets;
+		const currentWallet = wallets[selectedWallet];
+		const unspentAddressResult = await listUnspentAddressScriptHashes({
+			scriptHashes: {
+				key: 'scriptHash',
+				data: {
+					...currentWallet.addresses[selectedNetwork],
+					...currentWallet.changeAddresses[selectedNetwork],
+				},
+			},
+			network: selectedNetwork,
+		});
+		if (unspentAddressResult.error) {
+			return err(unspentAddressResult.data);
+		}
+		let utxos: IUtxos[] = [];
+		let balance = 0;
+		await Promise.all(
+			unspentAddressResult.data.map(({ data, result }) => {
+				if (result.length > 0) {
+					return result.map((unspentAddress: IUtxos) => {
+						balance = balance + unspentAddress.value;
+						utxos.push({
+							...data,
+							...unspentAddress,
+						});
+					});
+				}
+			}),
+		);
+		return ok({ utxos, balance });
+	} catch (e) {
+		return err(e);
+	}
 };
