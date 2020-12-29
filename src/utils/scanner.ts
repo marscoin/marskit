@@ -11,7 +11,7 @@ import {
 	networks,
 	TAvailableNetworks,
 } from './networks';
-import { address as bitcoinAddress } from 'bitcoinjs-lib';
+import { address as bitcoinJSAddress } from 'bitcoinjs-lib';
 import { default as bitcoinUnits } from 'bitcoin-units';
 
 const availableNetworksList = availableNetworks();
@@ -29,7 +29,7 @@ const validateAddress = ({
 	try {
 		//Validate address for a specific network
 		if (selectedNetwork !== undefined) {
-			bitcoinAddress.toOutputScript(address, networks[selectedNetwork]);
+			bitcoinJSAddress.toOutputScript(address, networks[selectedNetwork]);
 		} else {
 			//Validate address for all available networks
 			let isValid = false;
@@ -58,15 +58,15 @@ const validateAddress = ({
 export enum EQRDataType {
 	bitcoinAddress = 'bitcoinAddress',
 	lightningPaymentRequest = 'lightningPaymentRequest',
-	//TODO add omni, rgb, xpub, lightning node peer etc
+	//TODO add omni, rgb, lnurl, xpub, lightning node peer etc
 }
 
-interface QRData {
+export interface QRData {
 	network: TAvailableNetworks;
 	qrDataType: EQRDataType;
 	sats?: number | Long;
 	address?: string;
-	invoice?: string;
+	lightningPaymentRequest?: string;
 	label?: string;
 	message?: string;
 }
@@ -87,7 +87,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 		data.startsWith('lnbc')
 	) {
 		//If it's a lightning URI
-		let invoice = data.replace('lightning:', '');
+		let invoice = data.replace('lightning:', '').toLowerCase();
 
 		//Ignore params if there are any, all details can be derived from invoice
 		if (invoice.indexOf('?') > -1) {
@@ -131,17 +131,27 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	if (lightningInvoice) {
 		const lightningRes = await lnd.decodeInvoice(lightningInvoice);
 
+		let lightningData: QRData = {
+			lightningPaymentRequest: lightningInvoice,
+			network: lightningInvoice.startsWith('lntb')
+				? EAvailableNetworks.bitcoinTestnet
+				: EAvailableNetworks.bitcoin,
+			qrDataType: EQRDataType.lightningPaymentRequest,
+		};
+
 		if (lightningRes.isOk()) {
 			const { numSatoshis, description } = lightningRes.value;
-			foundNetworksInQR.push({
-				invoice: lightningInvoice,
-				network: lightningInvoice.startsWith('lntb')
-					? EAvailableNetworks.bitcoinTestnet
-					: EAvailableNetworks.bitcoin,
-				sats: Number(numSatoshis),
-				qrDataType: EQRDataType.lightningPaymentRequest,
-				message: description,
-			});
+
+			lightningData.sats = Number(numSatoshis);
+			lightningData.message = description;
+			foundNetworksInQR.push(lightningData);
+		} else if (
+			lightningRes.error.message.indexOf(
+				'invoice not for current active network',
+			) > -1
+		) {
+			//Still add the data even if it's not for this network. So the error can be handled in the UI for the user.
+			foundNetworksInQR.push(lightningData);
 		}
 	}
 

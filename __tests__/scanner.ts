@@ -94,7 +94,7 @@ describe('QR codes', () => {
 
 	it('decodes a bitcoin URI with lightning invoice param', async () => {
 		const res = await decodeQRData(
-			'bitcoin:bc1qkk0vs43wzsundw37f8xslw69eddwfe24w9pyrg?lightning=lnbc50u1p07needpp5z5r6gy8e9ycchknr2zugn5wny5cgwdfgpuh8kgurrlt56h4c5eeqdzc235x2gzzd9azcgznv4shxmmwyqcjcgz9wp5hxmmyv5sryzj8v938y6t9dss9x6rpwp5hymc2yq34gv6nxqc52vpjcqzpgfppqkk0vs43wzsundw37f8xslw69eddwfe24sp5szfhqg07tk0mscdtv3ganxtfpr8un0w6zqwmpma9cjlp42a5xr5s9qy9qsqf053mzk3jmygprrnphshscxvxhmwsrgcjk9z0tghc9ttfcls6ywksrqlcgq83rkldu2kyg74xq2d6u6d3w03hupgqta2lgze9naza4cpy7m6nq',
+			'bitcoin:bc1qtmcxrter6q2y684l57tsl99nt2hy3p2ldhv4ef?lightning=lnbc50u1p07kst3pp5skxdnhks6gq0k6qnfuxq2rfe02ccw4xsamrvm5t29lxxv0kcda8qdzj235x2gzzd9azcgznv4shxmmwyqcjcgz9wp5hxmmyv5srzzjpw4ehg6twypyxjmrvpgszx4pn2vcrz3fsxycqzpgfppqtmcxrter6q2y684l57tsl99nt2hy3p2lsp5h6hpvmunnavh2tycm45nuzj4t0fsmjk5letzeeg443nkqljuh2tq9qy9qsqlrpm7k6ec87npcz4kx67xs5apv7f9kq4jd63nwumxr90kttvgt08pzpsqw0h8548k7p6xt0ekk54f896jjn688fnult3syjm5yy9uscpg3ve5y',
 		);
 		expect(res.isOk()).toEqual(true);
 		if (res.isOk()) {
