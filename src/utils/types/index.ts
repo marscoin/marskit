@@ -48,3 +48,16 @@ export interface IGenerateAddressesResponse {
 	addresses: IAddress;
 	changeAddresses: IAddress;
 }
+
+export interface IUtxo {
+	height: number;
+	tx_hash: string;
+	tx_pos: number;
+	value: number;
+}
+export interface IUtxos extends IUtxo {
+	address: string;
+	index: number;
+	path: string;
+	scriptHash: string;
+}

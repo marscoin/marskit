@@ -80,6 +80,28 @@ const wallet = (
 				},
 			};
 
+		case actions.UPDATE_UTXOS:
+			const selectedWallet = action.payload.selectedWallet;
+			const selectedNetwork = action.payload.selectedNetwork;
+			const { utxos, balance } = action.payload;
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						balance: {
+							...state.wallets[selectedWallet].balance,
+							[selectedNetwork]: balance,
+						},
+						utxos: {
+							...state.wallets[selectedWallet].utxos,
+							[selectedNetwork]: utxos,
+						},
+					},
+				},
+			};
+
 		default:
 			return state;
 	}
