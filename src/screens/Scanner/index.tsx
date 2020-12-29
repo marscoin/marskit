@@ -10,7 +10,7 @@ import {
 import { decodeQRData, EQRDataType, QRData } from '../../utils/scanner';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { payLightningInvoice } from '../../store/actions/lightning';
+import { payLightningRequest } from '../../store/actions/lightning';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -47,7 +47,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 						{
 							text: 'Pay',
 							onPress: async (): Promise<void> => {
-								const payRes = await payLightningInvoice(
+								const payRes = await payLightningRequest(
 									data.lightningPaymentRequest ?? '',
 								);
 								if (payRes.isErr()) {

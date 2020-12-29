@@ -8,7 +8,7 @@ import { LayoutAnimation, ScrollView, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import Header from './Header';
 import BitcoinCard from './BitcoinCard';
-import LightningCard from './lighting/LightningCard';
+import LightningCard from './LightningCard';
 
 const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();

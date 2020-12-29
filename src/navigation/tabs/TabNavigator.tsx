@@ -51,7 +51,10 @@ const WalletsStack = (): ReactElement => {
 			<Stack.Screen
 				name="Scanner"
 				component={ScannerScreen}
-				options={navOptionHandler}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
 			/>
 		</Stack.Navigator>
 	);

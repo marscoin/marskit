@@ -318,7 +318,7 @@ const pollLndGetInfo = async (): Promise<void> => {
  * @param invoice
  * @returns {Promise<{error: boolean, data: string}>}
  */
-export const payLightningInvoice = (
+export const payLightningRequest = (
 	invoice: string,
 ): Promise<Result<lnrpc.IRoute>> => {
 	return new Promise(async (resolve) => {
