@@ -74,8 +74,7 @@ export interface IDefaultWalletShape {
 	utxos: IWalletItem<[]>;
 	transactions: IWalletItem<[]>;
 	blacklistedUtxos: IWalletItem<[]>;
-	confirmedBalance: IWalletItem<number>;
-	unconfirmedBalance: IWalletItem<number>;
+	balance: IWalletItem<number>;
 	lastUpdated: IWalletItem<number>;
 	hasBackedUpWallet: boolean;
 	walletBackupTimestamp: string;

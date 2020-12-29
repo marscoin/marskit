@@ -7,16 +7,18 @@ import {
 	getExchangeRate,
 	getMnemonicPhrase,
 	getNextAvailableAddress,
+	getUtxos,
 	validateMnemonic,
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
 import { setKeychainValue } from '../../utils/helpers';
-import { availableNetworks } from '../../utils/networks';
+import { availableNetworks, TAvailableNetworks } from '../../utils/networks';
 import { defaultWalletShape } from '../shapes/wallet';
 import { err, ok, Result } from '../../utils/result';
 import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
+	IUtxos,
 } from '../../utils/types';
 
 const dispatch = getDispatch();
@@ -211,5 +213,42 @@ export const addAddresses = ({
 				changeAddresses: generatedAddresses.value.changeAddresses,
 			}),
 		);
+	});
+};
+
+/**
+ * This method serves two functions.
+ * 1. Update UTXO data for all addresses and change addresses for a given wallet and network.
+ * 2. Update the available balance for a given wallet and network.
+ */
+export const updateUtxos = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<{ utxos: IUtxos[]; balance: number }>> => {
+	return new Promise(async (resolve) => {
+		if (!selectedWallet || !selectedNetwork) {
+			const currentWallet = getCurrentWallet();
+			selectedWallet = currentWallet.selectedWallet;
+			selectedNetwork = currentWallet.selectedNetwork;
+		}
+		const utxoResponse = await getUtxos({ selectedWallet, selectedNetwork });
+		if (utxoResponse.isErr()) {
+			return resolve(err(utxoResponse.error));
+		}
+		const { utxos, balance } = utxoResponse.value;
+		const payload = {
+			selectedWallet,
+			selectedNetwork,
+			utxos,
+			balance,
+		};
+		await dispatch({
+			type: actions.UPDATE_UTXOS,
+			payload,
+		});
+		return resolve(ok(payload));
 	});
 };

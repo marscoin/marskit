@@ -13,7 +13,7 @@ import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
 import themes from './styles/themes';
 import { getStore } from './store/helpers';
-import { createWallet, updateAddressIndexes } from './store/actions/wallet';
+import { createWallet } from './store/actions/wallet';
 import {
 	startLnd,
 	createLightningWallet,
@@ -23,6 +23,7 @@ import { start as startElectrum } from 'rn-electrum-client/helpers';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
 import lnd from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
+import { refreshWallet } from './utils/wallet';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -50,7 +51,8 @@ const startApp = async (): Promise<void> => {
 			if (startResponse.error) {
 				return;
 			}
-			await updateAddressIndexes();
+
+			refreshWallet().then();
 
 			//Create or unlock LND wallet
 			const existsRes = await lnd.walletExists(lndNetwork);
