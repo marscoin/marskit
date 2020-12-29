@@ -10,6 +10,7 @@ import {
 import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-community/clipboard';
 import { Alert } from 'react-native';
+import { default as bitcoinUnits } from 'bitcoin-units';
 
 export const promiseTimeout = (
 	ms: number,
@@ -120,4 +121,28 @@ export const displayAlert = (msg = '', title = ''): void => {
 			{ cancelable: false },
 		);
 	} catch {}
+};
+
+export const getFiatBalance = ({
+	balance = 0,
+	exchangeRate = 0,
+	selectedCurrency = 'usd',
+}: {
+	balance: number;
+	exchangeRate: number;
+	selectedCurrency?: string;
+}): string => {
+	try {
+		bitcoinUnits.setFiat(selectedCurrency.toLowerCase(), exchangeRate);
+		const fiatBalance = bitcoinUnits(balance, 'satoshi')
+			.to('usd')
+			.value()
+			.toFixed(2);
+		if (isNaN(fiatBalance)) {
+			return '0';
+		}
+		return fiatBalance;
+	} catch (e) {
+		return '0';
+	}
 };
