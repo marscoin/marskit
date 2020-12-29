@@ -4,33 +4,31 @@
  */
 
 import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { LayoutAnimation, StyleSheet, TextInput } from 'react-native';
-import { View, Text } from '../../../styles/components';
-import Receive from './../Receive';
-import Button from '../../../components/Button';
-import AssetCard from '../../../components/AssetCard';
-import Store from '../../../store/types';
+import { LayoutAnimation, StyleSheet } from 'react-native';
+import { View, Text } from '../../styles/components';
+import Receive from './Receive';
+import Button from '../../components/Button';
+import AssetCard from '../../components/AssetCard';
+import Store from '../../store/types';
 import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import {
 	connectToDefaultPeer,
 	debugLightningStatusMessage,
 	openMaxChannel,
-} from '../../../utils/lightning';
+} from '../../utils/lightning';
 import lnd from 'react-native-lightning';
-import { payLightningInvoice } from '../../../store/actions/lightning';
 import {
 	showErrorNotification,
 	showInfoNotification,
-	showSuccessNotification,
-} from '../../../utils/notifications';
+} from '../../utils/notifications';
 
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 	const [message, setMessage] = useState('');
 	const [receiveAddress, setReceiveAddress] = useState('');
-	const [showInvoiceInput, setShowInvoiceInput] = useState(false);
-	const [sendPaymentRequest, setSendPaymentRequest] = useState('');
 	const [receivePaymentRequest, setReceivePaymentRequest] = useState('');
+	const navigation = useNavigation();
 
 	LayoutAnimation.easeInEaseOut();
 
@@ -51,35 +49,6 @@ const LightningCard = (): ReactElement => {
 			setReceivePaymentRequest('');
 		}
 	}, [lightning.invoiceList, receivePaymentRequest]);
-
-	useEffect(() => {
-		if (!sendPaymentRequest) {
-			return;
-		}
-
-		(async (): Promise<void> => {
-			const res = await lnd.decodeInvoice(sendPaymentRequest);
-			if (res.isOk()) {
-				setSendPaymentRequest('');
-				setShowInvoiceInput(false);
-				showInfoNotification({
-					title: 'Paying invoice',
-					message: `${res.value.numSatoshis} sats...`,
-				});
-
-				const payRes = await payLightningInvoice(sendPaymentRequest);
-				if (payRes.isErr()) {
-					setMessage(payRes.error.message);
-					return;
-				}
-
-				showSuccessNotification({
-					title: 'Paid!',
-					message: `${res.value.numSatoshis} sats`,
-				});
-			}
-		})();
-	}, [sendPaymentRequest]);
 
 	if (!lightning.onChainBalance || !lightning.channelBalance) {
 		return <View />;
@@ -113,10 +82,7 @@ const LightningCard = (): ReactElement => {
 								color="onSurface"
 								style={styles.sendButton}
 								onPress={(): void => {
-									setShowInvoiceInput(!showInvoiceInput);
-									setReceiveAddress('');
-									setReceivePaymentRequest('');
-									setMessage('');
+									navigation.navigate('Scanner');
 								}}
 								text="Send"
 							/>
@@ -124,7 +90,7 @@ const LightningCard = (): ReactElement => {
 								color="onSurface"
 								style={styles.receiveButton}
 								onPress={async (): Promise<void> => {
-									const res = await lnd.createInvoice(1, 'Spectrum test');
+									const res = await lnd.createInvoice(25, 'Spectrum test');
 
 									if (res.isErr()) {
 										return showErrorNotification({
@@ -134,7 +100,6 @@ const LightningCard = (): ReactElement => {
 									}
 
 									setReceivePaymentRequest(res.value.paymentRequest);
-									setShowInvoiceInput(false);
 									setMessage('');
 									console.log(res.value.paymentRequest);
 								}}
@@ -143,7 +108,7 @@ const LightningCard = (): ReactElement => {
 						</>
 					)}
 
-					{!!showFundingButton && (
+					{showFundingButton && (
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
@@ -158,7 +123,7 @@ const LightningCard = (): ReactElement => {
 						/>
 					)}
 
-					{!!showOpenChannelButton && (
+					{showOpenChannelButton && (
 						<Button
 							color="onSurface"
 							style={styles.fundButton}
@@ -194,14 +159,6 @@ const LightningCard = (): ReactElement => {
 				</View>
 
 				{!!message && <Text style={styles.message}>{message}</Text>}
-
-				{!!showInvoiceInput && (
-					<View>
-						<TextInput
-							onChangeText={(invoice): void => setSendPaymentRequest(invoice)}
-						/>
-					</View>
-				)}
 
 				{!!receiveAddress && (
 					<Receive address={receiveAddress} header={false} />

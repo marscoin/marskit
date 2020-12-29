@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
 import Receive from '../../screens/Wallets/Receive';
+import ScannerScreen from '../../screens/Scanner';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -42,6 +43,14 @@ const WalletsStack = (): ReactElement => {
 			<Stack.Screen
 				name="ReceiveAsset"
 				component={Receive}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
+			/>
+			<Stack.Screen
+				name="Scanner"
+				component={ScannerScreen}
 				options={{
 					...navOptionHandler,
 					...TransitionPresets.ModalSlideFromBottomIOS,
