@@ -73,6 +73,7 @@ export interface QRData {
 
 /**
  * Return all networks and their payment request details if found in QR data.
+ * Can also be used to read clipboard data for any addresses or payment requests.
  * @param data
  * @returns {string}
  */
