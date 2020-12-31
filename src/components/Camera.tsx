@@ -7,9 +7,11 @@ import { systemWeights } from 'react-native-typography';
 const _Camera = ({
 	onBarCodeRead = (): null => null,
 	onClose = (): null => null,
+	children = undefined,
 }: {
 	onBarCodeRead: Function;
 	onClose: Function;
+	children?: ReactElement;
 }): ReactElement => {
 	const [_data, setData] = useState('');
 	const notAuthorizedView = (
@@ -50,8 +52,9 @@ const _Camera = ({
 					message: 'Spectrum needs permission to use your camera',
 					buttonPositive: 'Okay',
 					buttonNegative: 'Cancel',
-				}}
-			/>
+				}}>
+				<View style={styles.content}>{children}</View>
+			</RNCamera>
 		</View>
 	);
 };
@@ -64,6 +67,9 @@ const styles = StyleSheet.create({
 		height: '100%',
 		width: '100%',
 		zIndex: 1000,
+	},
+	content: {
+		flex: 1,
 	},
 	notAuthorizedView: {
 		flex: 1,
