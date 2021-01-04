@@ -11,10 +11,14 @@ import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
 import {
 	showErrorNotification,
-	showInfoNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
+import {
+	refreshLightningInvoices,
+	refreshLightningPayments,
+	updateLightningInvoice,
+} from './activity';
 
 const dispatch = getDispatch();
 
@@ -196,37 +200,6 @@ export const refreshLightningOnChainBalance = (): Promise<Result<string>> => {
 	});
 };
 
-export const refreshLightningInvoices = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		//TODO we might need to optimise with pagination later using indexOffset and numMaxInvoices
-		const res = await lnd.listInvoices();
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		await dispatch({
-			type: actions.UPDATE_LIGHTNING_INVOICES,
-			payload: res.value,
-		});
-		resolve(ok('LND invoices refreshed'));
-	});
-};
-
-export const refreshLightningPayments = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		const res = await lnd.listPayments();
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		await dispatch({
-			type: actions.UPDATE_LIGHTNING_PAYMENTS,
-			payload: res.value,
-		});
-		resolve(ok('LND payments refreshed'));
-	});
-};
-
 /**
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
@@ -256,30 +229,22 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 	}
 
 	//Poll for the calls we can't subscribe to
-	await Promise.all([
-		pollLndGetInfo(),
-		refreshLightningInvoices(),
-		refreshLightningPayments(),
-	]);
+	await Promise.all([pollLndGetInfo(), refreshLightningPayments()]);
 
 	lnd.subscribeToInvoices(
 		async (res) => {
 			if (res.isOk()) {
 				const { value, memo, settled } = res.value;
-				if (!settled) {
-					//Not interested in newly created invoices
-					return;
+
+				await updateLightningInvoice(res.value);
+				await Promise.all([refreshLightningChannelBalance()]);
+
+				if (settled) {
+					showSuccessNotification({
+						title: `Received ${value} sats`,
+						message: `Invoice for "${memo}" was paid`,
+					});
 				}
-
-				showSuccessNotification({
-					title: `Received ${value} sats`,
-					message: `Invoice for "${memo}" was paid`,
-				});
-
-				await Promise.all([
-					refreshLightningChannelBalance(),
-					refreshLightningInvoices(),
-				]);
 			}
 		},
 		(res) => {
@@ -328,6 +293,8 @@ const pollLndGetInfo = async (): Promise<void> => {
 		refreshLightningInfo(),
 		refreshLightningOnChainBalance(),
 		refreshLightningChannelBalance(),
+		refreshLightningPayments(), //TODO remove this it's overkill
+		refreshLightningInvoices(), //TODO remove this it's overkill
 	]);
 
 	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);

@@ -1,14 +1,28 @@
-import React, { ReactElement } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
+import { IActivityItem } from '../../store/types/activity';
 
-const HistoryDetail = (): ReactElement => {
+interface Props extends PropsWithChildren<any> {
+	route: { params: { activityItem: IActivityItem } };
+}
+
+const HistoryDetail = (props: Props): ReactElement => {
+	const {
+		activityItem: { id, description, type, value, confirmed, fee },
+	} = props.route.params;
+
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="History Detail" />
+			<NavigationHeader title={'Transaction Info'} />
 			<View style={styles.content}>
-				<Text>History Detail</Text>
+				<Text>{id}</Text>
+				<Text>Type: {type}</Text>
+				<Text>Description: {description}</Text>
+				<Text>Value: {value}</Text>
+				<Text>Confirmed: {confirmed ? '✅' : '⌛'}</Text>
+				{fee ? <Text>Fee: {fee}</Text> : null}
 			</View>
 		</View>
 	);

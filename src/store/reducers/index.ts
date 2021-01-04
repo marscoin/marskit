@@ -4,6 +4,7 @@ import wallet from './wallet';
 import omnibolt from './omnibolt';
 import settings from './settings';
 import lightning from './lightning';
+import activity from './activity';
 
 const appReducers = combineReducers({
 	user,
@@ -11,6 +12,7 @@ const appReducers = combineReducers({
 	omnibolt,
 	settings,
 	lightning,
+	activity,
 });
 
 export default appReducers;
