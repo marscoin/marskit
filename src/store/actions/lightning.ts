@@ -11,6 +11,7 @@ import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
 import {
 	showErrorNotification,
+	showInfoNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
@@ -211,6 +212,21 @@ export const refreshLightningInvoices = (): Promise<Result<string>> => {
 	});
 };
 
+export const refreshLightningPayments = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		const res = await lnd.listPayments();
+		if (res.isErr()) {
+			return resolve(err(res.error));
+		}
+
+		await dispatch({
+			type: actions.UPDATE_LIGHTNING_PAYMENTS,
+			payload: res.value,
+		});
+		resolve(ok('LND payments refreshed'));
+	});
+};
+
 /**
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
@@ -240,7 +256,11 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 	}
 
 	//Poll for the calls we can't subscribe to
-	await Promise.all([pollLndGetInfo(), refreshLightningInvoices()]);
+	await Promise.all([
+		pollLndGetInfo(),
+		refreshLightningInvoices(),
+		refreshLightningPayments(),
+	]);
 
 	lnd.subscribeToInvoices(
 		async (res) => {
@@ -331,7 +351,10 @@ export const payLightningRequest = (
 			return resolve(err(new Error(res.value.paymentError)));
 		}
 
-		await refreshLightningChannelBalance();
+		await Promise.all([
+			refreshLightningChannelBalance(),
+			refreshLightningPayments(),
+		]);
 
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));

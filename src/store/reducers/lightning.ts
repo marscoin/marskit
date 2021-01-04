@@ -30,6 +30,11 @@ const lightning = (state: ILightning, action): ILightning => {
 				...state,
 				invoiceList: action.payload,
 			};
+		case actions.UPDATE_LIGHTNING_PAYMENTS:
+			return {
+				...state,
+				paymentsList: action.payload,
+			};
 		case actions.CREATE_LIGHTNING_WALLET:
 			return {
 				...state,

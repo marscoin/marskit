@@ -8,4 +8,5 @@ export const defaultLightningShape: ILightning = {
 	onChainBalance: lnrpc.WalletBalanceResponse.create(),
 	channelBalance: lnrpc.ChannelBalanceResponse.create(),
 	invoiceList: lnrpc.ListInvoiceResponse.create(),
+	paymentsList: lnrpc.ListPaymentsResponse.create(),
 };
