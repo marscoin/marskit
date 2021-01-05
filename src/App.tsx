@@ -24,6 +24,7 @@ import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
 import lnd from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
 import { refreshWallet } from './utils/wallet';
+import { showErrorNotification } from './utils/notifications';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -47,12 +48,18 @@ const startApp = async (): Promise<void> => {
 			}
 
 			//Connect To A Random Electrum Server
-			const startResponse = await startElectrum({ network: selectedNetwork });
-			if (startResponse.error) {
-				return;
-			}
-
-			refreshWallet().then();
+			startElectrum({
+				network: selectedNetwork,
+			}).then(({ error, data: message }) => {
+				if (error) {
+					showErrorNotification({
+						title: 'Unable to connect to Electrum Server.',
+						message,
+					});
+					return;
+				}
+				refreshWallet().then();
+			});
 
 			//Create or unlock LND wallet
 			const existsRes = await lnd.walletExists(lndNetwork);

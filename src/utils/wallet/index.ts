@@ -6,6 +6,8 @@ import {
 	IAddress,
 	IAddressContent,
 	IDefaultWalletShape,
+	IFormattedTransaction,
+	IUtxo,
 	TAddressType,
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
@@ -16,27 +18,18 @@ import {
 	IGenerateAddresses,
 	IGetInfoFromAddressPath,
 	IGenerateAddressesResponse,
-	IUtxos,
 } from '../types';
 import { getKeychainValue, isOnline } from '../helpers';
 import { getStore } from '../../store/helpers';
-import {
-	getAddressScriptHashesHistory,
-	getAddressScriptHashesMempool,
-	subscribeAddress,
-	subscribeHeader,
-	listUnspentAddressScriptHashes,
-} from 'rn-electrum-client/helpers';
+import * as electrum from 'rn-electrum-client/helpers';
 import {
 	addAddresses,
 	updateAddressIndexes,
 	updateExchangeRate,
+	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../notifications';
+import { showSuccessNotification } from '../notifications';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -45,26 +38,26 @@ const bip32 = require('bip32');
 
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
+		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		await updateAddressIndexes();
 		await Promise.all([
-			subscribeToHeader(),
-			subscribeToAddresses(),
+			subscribeToHeader({}),
+			subscribeToAddresses({}),
 			updateExchangeRate(),
+			updateUtxos({}),
+			updateTransactions({
+				selectedWallet,
+				selectedNetwork,
+			}),
 		]);
-		const updateUtxoResponse = await updateUtxos({});
-		if (updateUtxoResponse.isErr()) {
-			showErrorNotification({
-				title: 'Unable to update utxos.',
-				message: updateUtxoResponse.error.message,
-			});
-		}
+
 		return ok('');
 	} catch (e) {
 		return err(e);
 	}
 };
 
-interface ISubscribeToAddresses {
+interface ISubscribeToAddress {
 	data: {
 		id: number;
 		jsonrpc: string;
@@ -74,32 +67,61 @@ interface ISubscribeToAddresses {
 	id: number;
 	method: string;
 }
-export const subscribeToAddresses = async (): Promise<
-	ISubscribeToAddresses[]
-> => {
-	const { currentWallet, selectedNetwork } = getCurrentWallet();
-	const address = currentWallet.addressIndex[selectedNetwork];
-	const changeAddress = currentWallet.changeAddressIndex[selectedNetwork];
-
-	return await Promise.all([
-		subscribeAddress({
-			scriptHash: address.scriptHash,
+export const subscribeToAddresses = async ({
+	addressScriptHash = '',
+	changeAddressScriptHash = '',
+	selectedNetwork = undefined,
+	selectedWallet = undefined,
+}: {
+	selectedNetwork?: undefined | TAvailableNetworks;
+	selectedWallet?: undefined | string;
+	addressScriptHash?: string;
+	changeAddressScriptHash?: string;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const { currentWallet } = getCurrentWallet({
+		selectedNetwork,
+		selectedWallet,
+	});
+	if (!addressScriptHash) {
+		addressScriptHash = currentWallet.addressIndex[selectedNetwork].scriptHash;
+	}
+	if (!changeAddressScriptHash) {
+		changeAddressScriptHash =
+			currentWallet.changeAddressIndex[selectedNetwork].scriptHash;
+	}
+	const subscribeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
+		{
+			scriptHash: addressScriptHash,
 			network: selectedNetwork,
 			onReceive: (data): void => {
-				console.log(data);
 				showSuccessNotification({
 					title: 'Received BTC',
 					message: data[1], //TODO: Include amount received as the message.
 				});
 				refreshWallet();
 			},
-		}),
-		subscribeAddress({
-			scriptHash: changeAddress.scriptHash,
+		},
+	);
+	const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
+		{
+			scriptHash: changeAddressScriptHash,
 			network: selectedNetwork,
 			onReceive: refreshWallet,
-		}),
-	]);
+		},
+	);
+	if (subscribeAddressResponse.error) {
+		return err('Unable to subscribe to receiving addresses.');
+	}
+	if (subscribeChangeAddressResponse.error) {
+		return err('Unable to subscribe to change addresses.');
+	}
+	return ok('Successfully subscribed to addresses.');
 };
 
 interface ISubscribeToHeader {
@@ -111,12 +133,22 @@ interface ISubscribeToHeader {
 	id: string;
 	method: string;
 }
-export const subscribeToHeader = async (): Promise<ISubscribeToHeader> => {
-	const selectedNetwork = getStore().wallet.selectedNetwork;
-	return await subscribeHeader({
+export const subscribeToHeader = async ({
+	selectedNetwork = undefined,
+}: {
+	selectedNetwork?: undefined | TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const subscribeResponse: ISubscribeToHeader = await electrum.subscribeHeader({
 		network: selectedNetwork,
 		onReceive: refreshWallet,
 	});
+	if (subscribeResponse.error) {
+		return err('Unable to subscribe to headers.');
+	}
+	return ok('Successfully subscribed to headers.');
 };
 
 /**
@@ -508,11 +540,11 @@ interface ITxHashes extends TTxResult {
 	scriptHash: string;
 }
 interface TTxResponse {
-	data: object;
+	data: IAddressContent;
 	id: number;
 	jsonrpc: string;
 	param: string;
-	result: TTxResult[] | [] | any;
+	result: TTxResult[];
 }
 interface IGetNextAvailableAddressResponse {
 	addressIndex: IAddressContent;
@@ -629,49 +661,18 @@ export const getNextAvailableAddress = async ({
 			let changeAddressHasBeenUsed = false;
 
 			while (!foundLastUsedAddress || !foundLastUsedChangeAddress) {
-				let scriptHashesHistory = await getAddressScriptHashesHistory({
-					scriptHashes: {
-						key: 'scriptHash',
-						data: combinedAddressesToScan,
-					},
-					network: selectedNetwork,
-				});
-
 				//Check if transactions are pending in the mempool.
-				let scriptHashesMempool = await getAddressScriptHashesMempool({
-					scriptHashes: {
-						key: 'scriptHash',
-						data: combinedAddressesToScan,
-					},
-					network: selectedNetwork,
+				const addressHistory = await getAddressHistory({
+					scriptHashes: combinedAddressesToScan,
+					selectedNetwork,
+					selectedWallet,
 				});
 
-				if (scriptHashesHistory.error === true) {
-					scriptHashesHistory = { error: scriptHashesHistory.error, data: [] };
-				}
-				if (scriptHashesMempool.error === true) {
-					scriptHashesMempool = {
-						error: scriptHashesMempool.error,
-						data: [],
-					};
-				}
-				if (
-					scriptHashesHistory.error === true ||
-					scriptHashesMempool.error === true
-				) {
+				if (addressHistory.isErr()) {
 					return resolve(err('Unable to acquire tx history.'));
 				}
 
-				const allTransactions: TTxResponse[] = [
-					...scriptHashesHistory.data,
-					...scriptHashesMempool.data,
-				];
-				let txHashes: ITxHashes[] = [];
-				txHashes = await Promise.all(
-					allTransactions.map((txs) =>
-						txs.result.map((tx) => ({ ...tx, scriptHash: txs.param })),
-					),
-				);
+				const txHashes: IGetAddressHistoryResponse[] = addressHistory.value;
 
 				const highestUsedIndex = await getHighestUsedIndexFromTxHashes({
 					txHashes,
@@ -889,13 +890,32 @@ export const getHighestStoredAddressIndex = ({
 	}
 };
 
-export const getCurrentWallet = (): {
+export const getSelectedNetwork = (): TAvailableNetworks => {
+	return getStore().wallet.selectedNetwork;
+};
+
+export const getSelectedWallet = (): string => {
+	return getStore().wallet.selectedWallet;
+};
+
+export const getCurrentWallet = ({
+	selectedNetwork = undefined,
+	selectedWallet = '',
+}: {
+	selectedNetwork?: undefined | TAvailableNetworks;
+	selectedWallet?: string;
+}): {
 	currentWallet: IDefaultWalletShape;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
 } => {
 	const wallet = getStore().wallet;
-	const { selectedWallet, selectedNetwork } = wallet;
+	if (!selectedNetwork) {
+		selectedNetwork = wallet.selectedNetwork;
+	}
+	if (!selectedWallet) {
+		selectedWallet = wallet.selectedWallet;
+	}
 	const wallets = wallet.wallets;
 	return {
 		currentWallet: wallets[selectedWallet],
@@ -908,16 +928,24 @@ export const getCurrentWallet = (): {
  * Returns utxos for a given wallet and network along with the available balance.
  */
 export const getUtxos = async ({
-	selectedWallet = EWallet.defaultWallet,
-	selectedNetwork = EWallet.selectedNetwork,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
 }: {
-	selectedWallet: string;
-	selectedNetwork: TAvailableNetworks;
-}): Promise<Result<{ utxos: IUtxos[]; balance: number }>> => {
+	selectedWallet: undefined | string;
+	selectedNetwork: undefined | TAvailableNetworks;
+}): Promise<Result<{ utxos: IUtxo[]; balance: number }>> => {
 	try {
-		const wallets = getStore().wallet.wallets;
-		const currentWallet = wallets[selectedWallet];
-		const unspentAddressResult = await listUnspentAddressScriptHashes({
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const { currentWallet } = getCurrentWallet({
+			selectedNetwork,
+			selectedWallet,
+		});
+		const unspentAddressResult = await electrum.listUnspentAddressScriptHashes({
 			scriptHashes: {
 				key: 'scriptHash',
 				data: {
@@ -930,12 +958,12 @@ export const getUtxos = async ({
 		if (unspentAddressResult.error) {
 			return err(unspentAddressResult.data);
 		}
-		let utxos: IUtxos[] = [];
+		let utxos: IUtxo[] = [];
 		let balance = 0;
 		await Promise.all(
 			unspentAddressResult.data.map(({ data, result }) => {
 				if (result.length > 0) {
-					return result.map((unspentAddress: IUtxos) => {
+					return result.map((unspentAddress: IUtxo) => {
 						balance = balance + unspentAddress.value;
 						utxos.push({
 							...data,
@@ -946,6 +974,393 @@ export const getUtxos = async ({
 			}),
 		);
 		return ok({ utxos, balance });
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export interface ITransaction<T> {
+	id: number;
+	jsonrpc: string;
+	param: string;
+	data: T;
+	result: {
+		blockhash: string;
+		blocktime: number;
+		confirmations: number;
+		hash: string;
+		hex: string;
+		locktime: number;
+		size: number;
+		time: number;
+		txid: string;
+		version: number;
+		vin: {
+			scriptSig: {
+				asm: string;
+				hex: string;
+			};
+			sequence: number;
+			txid: string;
+			txinwitness: string[];
+			vout: number;
+		}[];
+		vout: {
+			n: 0;
+			scriptPubKey: {
+				addresses: string[];
+				asm: string;
+				hex: string;
+				reqSigs: number;
+				type: string;
+			};
+			value: number;
+		}[];
+		vsize: number;
+		weight: number;
+	};
+}
+
+interface IGetTransactions {
+	error: boolean;
+	id: number;
+	method: string;
+	network: string;
+	data: ITransaction<IUtxo>[];
+}
+interface ITxHash {
+	tx_hash: string;
+}
+export const getTransactions = async ({
+	txHashes = [],
+	selectedNetwork = EWallet.selectedNetwork,
+}: {
+	txHashes: ITxHash[];
+	selectedNetwork: TAvailableNetworks;
+}): Promise<Result<IGetTransactions>> => {
+	try {
+		if (txHashes.length < 1) {
+			return ok({
+				error: false,
+				id: 0,
+				method: 'getTransactions',
+				network: selectedNetwork,
+				data: [],
+			});
+		}
+		const data = {
+			key: 'tx_hash',
+			data: txHashes,
+		};
+		const response = await electrum.getTransactions({
+			txHashes: data,
+			network: selectedNetwork,
+		});
+		if (response.error) {
+			return err(response);
+		}
+		return ok(response);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+interface IGetTransactionsFromInputs {
+	error: boolean;
+	id: number;
+	method: string;
+	network: string;
+	data: ITransaction<{
+		tx_hash: string;
+		vout: number;
+	}>[];
+}
+export const getTransactionsFromInputs = async ({
+	txHashes = [],
+	selectedNetwork = undefined,
+}: {
+	txHashes: ITxHash[];
+	selectedNetwork: undefined | TAvailableNetworks;
+}): Promise<Result<IGetTransactionsFromInputs>> => {
+	try {
+		const data = {
+			key: 'tx_hash',
+			data: txHashes,
+		};
+		const response = await electrum.getTransactions({
+			txHashes: data,
+			network: selectedNetwork,
+		});
+		if (!response.error) {
+			return ok(response);
+		} else {
+			return err(response);
+		}
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const getInputData = async ({
+	selectedNetwork = undefined,
+	inputs = [],
+}: {
+	inputs: { tx_hash: string; vout: number }[];
+	selectedNetwork?: undefined | TAvailableNetworks;
+}): Promise<Result<{ [key: string]: { addresses: []; value: number } }>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const getTransactionsResponse = await getTransactionsFromInputs({
+			txHashes: inputs,
+			selectedNetwork,
+		});
+		const inputData = {};
+		if (getTransactionsResponse.isErr()) {
+			return err(getTransactionsResponse.error.message);
+		}
+		getTransactionsResponse.value.data.map(({ data, result }) => {
+			const vout = result.vout[data.vout];
+			const addresses = vout.scriptPubKey.addresses;
+			const value = vout.value;
+			const key = data.tx_hash;
+			inputData[key] = { addresses, value };
+		});
+		return ok(inputData);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const formatTransactions = async ({
+	selectedNetwork = undefined,
+	selectedWallet = EWallet.defaultWallet,
+	transactions = [],
+}: {
+	selectedNetwork: undefined | TAvailableNetworks;
+	selectedWallet: string;
+	transactions: ITransaction<IUtxo>[];
+}): Promise<Result<IFormattedTransaction>> => {
+	if (transactions.length < 1) {
+		return ok({});
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const { currentWallet } = getCurrentWallet({
+		selectedNetwork,
+		selectedWallet,
+	});
+
+	// Batch and pre-fetch input data.
+	let inputs: { tx_hash: string; vout: number }[] = [];
+	transactions.map(({ result: { vin } }) => {
+		vin.map(({ txid, vout }) => {
+			inputs.push({ tx_hash: txid, vout });
+		});
+	});
+	const inputDataResponse = await getInputData({
+		selectedNetwork,
+		inputs,
+	});
+	if (inputDataResponse.isErr()) {
+		return err(inputDataResponse.error.message);
+	}
+	const inputData = inputDataResponse.value;
+
+	const addresses = currentWallet.addresses[selectedNetwork];
+	const changeAddresses = currentWallet.changeAddresses[selectedNetwork];
+	const addressScriptHashes = Object.keys(addresses);
+	const changeAddressScriptHashes = Object.keys(changeAddresses);
+	const [addressArray, changeAddressArray] = await Promise.all([
+		addressScriptHashes.map((key) => {
+			return addresses[key].address;
+		}),
+		changeAddressScriptHashes.map((key) => {
+			return changeAddresses[key].address;
+		}),
+	]);
+
+	let formattedTransactions: IFormattedTransaction = {};
+
+	transactions.map(({ data, result }) => {
+		let totalInputValue = 0; // Total value of all inputs.
+		let matchedInputValue = 0; // Total value of all inputs with addresses that belong to this wallet.
+		let totalOutputValue = 0; // Total value of all outputs.
+		let matchedOutputValue = 0; // Total value of all outputs with addresses that belong to this wallet.
+		let messages: string[] = []; // Array of OP_RETURN messages.
+
+		//Iterate over each input
+		const vin = result.vin;
+		vin.map(({ txid, scriptSig }) => {
+			//Push any OP_RETURN messages to messages array
+			try {
+				const asm = scriptSig.asm;
+				if (asm !== '' && asm.includes('OP_RETURN')) {
+					const OpReturnMessages = decodeOpReturnMessage(asm);
+					messages = messages.concat(OpReturnMessages);
+				}
+			} catch {}
+
+			const { addresses: _addresses, value } = inputData[txid];
+			totalInputValue = totalInputValue + value;
+			_addresses.map((address) => {
+				if (
+					addressArray.includes(address) ||
+					changeAddressArray.includes(address)
+				) {
+					matchedInputValue = matchedInputValue + value;
+				}
+			});
+		});
+
+		//Iterate over each output
+		const vout = result.vout;
+		vout.map(({ scriptPubKey, value }) => {
+			const _addresses = scriptPubKey.addresses;
+			totalOutputValue = totalOutputValue + value;
+			_addresses.map((address) => {
+				if (
+					addressArray.includes(address) ||
+					changeAddressArray.includes(address)
+				) {
+					matchedOutputValue = matchedOutputValue + value;
+				}
+			});
+		});
+
+		const txid = result.txid;
+		const type = matchedInputValue > matchedOutputValue ? 'sent' : 'received';
+		const totalMatchedValue = matchedOutputValue - matchedInputValue;
+		const value = Number(totalMatchedValue.toFixed(8));
+		const totalValue = totalInputValue - totalOutputValue;
+		const fee = Number(Math.abs(totalValue).toFixed(8));
+		const { address, height, scriptHash } = data;
+		formattedTransactions[txid] = {
+			address,
+			height,
+			scriptHash,
+			totalInputValue,
+			matchedInputValue,
+			totalOutputValue,
+			matchedOutputValue,
+			fee,
+			type,
+			value,
+			txid,
+			messages,
+		};
+	});
+	return ok(formattedTransactions);
+};
+
+//Returns an array of messages from an OP_RETURN message
+export const decodeOpReturnMessage = (opReturn = ''): string[] => {
+	let messages: string[] = [];
+	try {
+		//Remove OP_RETURN from the string & trim the string.
+		if (opReturn.includes('OP_RETURN')) {
+			opReturn = opReturn.replace('OP_RETURN', '');
+			opReturn = opReturn.trim();
+		}
+
+		const regex = /[0-9A-Fa-f]{6}/g;
+		//Separate the string into an array based upon a space and insert each message into an array to be returned
+		const data = opReturn.split(' ');
+		data.forEach((msg) => {
+			try {
+				//Ensure the message is in fact a hex
+				if (regex.test(msg)) {
+					const message = new Buffer(msg, 'hex').toString();
+					messages.push(message);
+				}
+			} catch {}
+		});
+		return messages;
+	} catch (e) {
+		console.log(e);
+		return messages;
+	}
+};
+
+interface IGetAddressScriptHashesHistoryResponse {
+	data: TTxResponse[];
+	error: boolean;
+	id: number;
+	method: string;
+	network: string;
+}
+
+export interface IGetAddressHistoryResponse
+	extends TTxResult,
+		IAddressContent {}
+export const getAddressHistory = async ({
+	scriptHashes = undefined,
+	selectedNetwork = EWallet.selectedNetwork,
+	selectedWallet = EWallet.defaultWallet,
+}: {
+	scriptHashes?: undefined | IAddressContent[];
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<IGetAddressHistoryResponse[]>> => {
+	try {
+		if (!scriptHashes) {
+			const { currentWallet } = getCurrentWallet({
+				selectedNetwork,
+				selectedWallet,
+			});
+			const addresses = currentWallet.addresses[selectedNetwork];
+			const changeAddresses = currentWallet.changeAddresses[selectedNetwork];
+			const addressValues = Object.values(addresses);
+			const changeAddressValues = Object.values(changeAddresses);
+			scriptHashes = [...addressValues, ...changeAddressValues];
+		}
+		const payload = {
+			key: 'scriptHash',
+			data: scriptHashes,
+		};
+		const response: IGetAddressScriptHashesHistoryResponse = await electrum.getAddressScriptHashesHistory(
+			{
+				scriptHashes: payload,
+				network: selectedNetwork,
+			},
+		);
+
+		const mempoolResponse: IGetAddressScriptHashesHistoryResponse = await electrum.getAddressScriptHashesMempool(
+			{
+				scriptHashes: payload,
+				network: selectedNetwork,
+			},
+		);
+
+		if (response.error || mempoolResponse.error) {
+			return err('Unable to get address history.');
+		}
+
+		const combinedResponse = [...response.data, ...mempoolResponse.data];
+
+		let history: IGetAddressHistoryResponse[] = [];
+		combinedResponse.map(
+			({
+				data,
+				result,
+			}: {
+				data: IAddressContent;
+				result: TTxResult[];
+			}): void => {
+				if (result.length > 0) {
+					result.map((item) => {
+						history.push({ ...data, ...item });
+					});
+				}
+			},
+		);
+
+		return ok(history);
 	} catch (e) {
 		return err(e);
 	}
