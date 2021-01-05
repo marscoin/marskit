@@ -1,13 +1,24 @@
 import actions from './actions';
-import { EWallet, ICreateWallet } from '../types/wallet';
 import {
+	EWallet,
+	ICreateWallet,
+	IFormattedTransaction,
+	IUtxo,
+} from '../types/wallet';
+import {
+	formatTransactions,
 	generateAddresses,
 	generateMnemonic,
+	getAddressHistory,
 	getCurrentWallet,
 	getExchangeRate,
 	getMnemonicPhrase,
 	getNextAvailableAddress,
+	getSelectedNetwork,
+	getSelectedWallet,
+	getTransactions,
 	getUtxos,
+	ITransaction,
 	validateMnemonic,
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
@@ -18,7 +29,6 @@ import { err, ok, Result } from '../../utils/result';
 import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
-	IUtxos,
 } from '../../utils/types';
 
 const dispatch = getDispatch();
@@ -131,7 +141,7 @@ export const updateAddressIndexes = (): Promise<Result<string>> => {
 		if (response.isErr()) {
 			return resolve(err(response.error));
 		}
-		const { currentWallet, selectedNetwork } = getCurrentWallet();
+		const { currentWallet, selectedNetwork } = getCurrentWallet({});
 		if (
 			response.value.addressIndex.index !==
 				currentWallet.addressIndex[selectedNetwork].index ||
@@ -227,13 +237,15 @@ export const updateUtxos = ({
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-}): Promise<Result<{ utxos: IUtxos[]; balance: number }>> => {
+}): Promise<Result<{ utxos: IUtxo[]; balance: number }>> => {
 	return new Promise(async (resolve) => {
-		if (!selectedWallet || !selectedNetwork) {
-			const currentWallet = getCurrentWallet();
-			selectedWallet = currentWallet.selectedWallet;
-			selectedNetwork = currentWallet.selectedNetwork;
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
 		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
 		const utxoResponse = await getUtxos({ selectedWallet, selectedNetwork });
 		if (utxoResponse.isErr()) {
 			return resolve(err(utxoResponse.error));
@@ -250,5 +262,96 @@ export const updateUtxos = ({
 			payload,
 		});
 		return resolve(ok(payload));
+	});
+};
+
+export interface ITransactionData {
+	address: string;
+	height: number;
+	index: number;
+	path: string;
+	scriptHash: string;
+	tx_hash: string;
+	tx_pos: number;
+	value: number;
+}
+
+export const updateTransactions = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IFormattedTransaction>> => {
+	return new Promise(async (resolve) => {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		const history = await getAddressHistory({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (history.isErr()) {
+			return resolve(err(history.error.message));
+		}
+		if (history.value.length < 1) {
+			return resolve(ok({}));
+		}
+
+		const getTransactionsResponse = await getTransactions({
+			txHashes: history.value || [],
+			selectedNetwork,
+		});
+		if (getTransactionsResponse.isErr()) {
+			return resolve(err(getTransactionsResponse.error.message));
+		}
+		let transactions: ITransaction<ITransactionData>[] =
+			getTransactionsResponse.value.data;
+
+		if (!Array.isArray(transactions)) {
+			return resolve(ok({}));
+		}
+
+		const formatTransactionsResponse = await formatTransactions({
+			selectedNetwork,
+			selectedWallet,
+			transactions,
+		});
+		if (formatTransactionsResponse.isErr()) {
+			return resolve(err(formatTransactionsResponse.error.message));
+		}
+
+		const formattedTransactions: IFormattedTransaction = {};
+
+		const storedTransactions =
+			Object.keys(currentWallet.transactions[selectedNetwork]) || [];
+
+		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
+			if (!storedTransactions.includes(txid)) {
+				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
+			}
+		});
+		if (Object.keys(formattedTransactions).length < 1) {
+			return resolve(ok(currentWallet.transactions[selectedNetwork]));
+		}
+
+		const payload = {
+			transactions: formattedTransactions,
+			selectedNetwork,
+			selectedWallet,
+		};
+		await dispatch({
+			type: actions.UPDATE_TRANSACTIONS,
+			payload,
+		});
+		return resolve(ok(formattedTransactions));
 	});
 };
