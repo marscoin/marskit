@@ -1,5 +1,5 @@
 import actions from '../actions/actions';
-import { IActivity, IActivityItem } from '../types/activity';
+import { IActivity } from '../types/activity';
 import { defaultActivityShape } from '../shapes/activity';
 import { filterActivityItems, mergeActivityItems } from '../../utils/activity';
 

@@ -105,7 +105,7 @@ describe('activity redux store', () => {
 		expect(getStore().activity.itemsFiltered.length).toEqual(2);
 	});
 
-	it('should have return a filtered list when a search string is set', async () => {
+	it('should have return a filtered list with 2 types', async () => {
 		await updateTypesFilter([
 			EActivityTypes.lightningInvoice,
 			EActivityTypes.lightningPayment,

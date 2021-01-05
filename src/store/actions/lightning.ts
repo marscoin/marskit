@@ -56,7 +56,6 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 		});
 
 		refreshAllLightningTransactions().then();
-
 		resolve(ok('LND started'));
 	});
 };
@@ -319,10 +318,7 @@ export const payLightningRequest = (
 			return resolve(err(new Error(res.value.paymentError)));
 		}
 
-		await Promise.all([
-			refreshLightningChannelBalance(),
-			// refreshLightningPayments(), //TODO use updateLightningPayment() and get the description from decode
-		]);
+		await refreshLightningChannelBalance();
 
 		//After making the payment, get the single payment out of the payment list and refresh the activity item
 		const paymentsRes = await lnd.listPayments();

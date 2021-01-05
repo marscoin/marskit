@@ -5,8 +5,6 @@ import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
-import { updateLightningInvoice } from '../../store/actions/activity';
-import { lnrpc } from 'react-native-lightning/dist/rpc';
 
 const ListItem = ({
 	item,
@@ -55,23 +53,6 @@ const HistoryScreen = ({ navigation }): ReactElement => {
 				renderItem={renderItem}
 				keyExtractor={(item): string => '123' + item.id}
 			/>
-
-			<View>
-				<TouchableOpacity
-					onPress={async (): Promise<void> => {
-						const creationDate = Math.round(new Date().getTime() / 1000);
-						const inv: lnrpc.IInvoice = {
-							memo: 'Made up invoice',
-							rHash: new Uint8Array([1, 2, 3, 4]),
-							value: 999,
-							settled: creationDate % 2 === 0,
-							creationDate,
-						};
-						await updateLightningInvoice(inv);
-					}}>
-					<Text>Total: {activity.items.length}</Text>
-				</TouchableOpacity>
-			</View>
 		</View>
 	);
 };
