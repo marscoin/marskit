@@ -1,6 +1,6 @@
 import actions from './actions';
 import { err, ok, Result } from '../../utils/result';
-import { IActivityItem } from '../types/activity';
+import { EActivityTypes, IActivityItem } from '../types/activity';
 import { getDispatch } from '../helpers';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 import lnd from 'react-native-lightning';
@@ -10,6 +10,40 @@ import {
 } from '../../utils/activity';
 
 const dispatch = getDispatch();
+
+/**
+ * Filter activity items with a search string
+ * @param search
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const updateSearchFilter = (search: string): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		await dispatch({
+			type: actions.UPDATE_ACTIVITY_SEARCH_FILTER,
+			payload: search,
+		});
+
+		resolve(ok('Search filter updated'));
+	});
+};
+
+/**
+ * Filter activity items by returning only certain types
+ * @param types
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const updateTypesFilter = (
+	types: EActivityTypes[],
+): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		await dispatch({
+			type: actions.UPDATE_ACTIVITY_TYPES_FILTER,
+			payload: types,
+		});
+
+		resolve(ok('Search filter updated'));
+	});
+};
 
 /**
  * Updates a single lightning payment. Requires the description because that isn't stored with the payment.

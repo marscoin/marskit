@@ -17,6 +17,7 @@ export interface IActivityItem {
 
 export interface IActivity {
 	items: IActivityItem[];
+	itemsFiltered: IActivityItem[];
 	searchFilter: string;
 	typesFilter: EActivityTypes[];
 }

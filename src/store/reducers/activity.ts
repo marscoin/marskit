@@ -1,17 +1,42 @@
 import actions from '../actions/actions';
 import { IActivity, IActivityItem } from '../types/activity';
 import { defaultActivityShape } from '../shapes/activity';
-import { mergeActivityItems } from '../../utils/activity';
+import { filterActivityItems, mergeActivityItems } from '../../utils/activity';
 
 const activity = (state: IActivity, action): IActivity => {
 	switch (action.type) {
 		case actions.UPDATE_ACTIVITY_ENTRIES:
-			const oldItems = state.items;
-			const newItems: IActivityItem[] = action.payload;
-
+			const items = mergeActivityItems(state.items, action.payload);
 			return {
 				...state,
-				items: mergeActivityItems(oldItems, newItems),
+				items,
+				itemsFiltered: filterActivityItems(
+					items,
+					state.searchFilter,
+					state.typesFilter,
+				),
+			};
+		case actions.UPDATE_ACTIVITY_SEARCH_FILTER:
+			const searchFilter = action.payload;
+			return {
+				...state,
+				searchFilter,
+				itemsFiltered: filterActivityItems(
+					state.items,
+					searchFilter,
+					state.typesFilter,
+				),
+			};
+		case actions.UPDATE_ACTIVITY_TYPES_FILTER:
+			const typesFilter = action.payload;
+			return {
+				...state,
+				typesFilter,
+				itemsFiltered: filterActivityItems(
+					state.items,
+					state.searchFilter,
+					typesFilter,
+				),
 			};
 		default:
 			return {

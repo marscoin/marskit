@@ -76,3 +76,43 @@ export const mergeActivityItems = (
 		(a, b) => b.timestampUtc - a.timestampUtc,
 	);
 };
+
+/**
+ * Filters activity items based on search string or type list
+ * @param items
+ * @param search
+ * @param types
+ */
+export const filterActivityItems = (
+	items: IActivityItem[],
+	search: string,
+	types: EActivityTypes[],
+): IActivityItem[] => {
+	let filteredItems: IActivityItem[] = [];
+
+	items.forEach((item) => {
+		//If there is a search set and it's not found in the description then don't bother continuing
+		if (search && item.description.indexOf(search) === -1) {
+			return;
+		}
+
+		//Filter not set, assume all
+		if (types.length === 0) {
+			filteredItems.push(item);
+			return;
+		}
+
+		let existsInFilter = false;
+		types.forEach((type) => {
+			if (item.type === type) {
+				existsInFilter = true;
+			}
+		});
+
+		if (existsInFilter) {
+			filteredItems.push(item);
+		}
+	});
+
+	return filteredItems;
+};
