@@ -12,6 +12,8 @@ const wallet = (
 	},
 	action,
 ): IWallet => {
+	let selectedWallet = state.selectedWallet;
+	let selectedNetwork = state.selectedNetwork;
 	switch (action.type) {
 		case actions.UPDATE_WALLET:
 			return {
@@ -81,8 +83,8 @@ const wallet = (
 			};
 
 		case actions.UPDATE_UTXOS:
-			const selectedWallet = action.payload.selectedWallet;
-			const selectedNetwork = action.payload.selectedNetwork;
+			selectedWallet = action.payload.selectedWallet;
+			selectedNetwork = action.payload.selectedNetwork;
 			const { utxos, balance } = action.payload;
 			return {
 				...state,
@@ -97,6 +99,27 @@ const wallet = (
 						utxos: {
 							...state.wallets[selectedWallet].utxos,
 							[selectedNetwork]: utxos,
+						},
+					},
+				},
+			};
+
+		case actions.UPDATE_TRANSACTIONS:
+			selectedWallet = action.payload.selectedWallet;
+			selectedNetwork = action.payload.selectedNetwork;
+			const transactions = action.payload.transactions;
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transactions: {
+							...state.wallets[selectedWallet].transactions,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].transactions[selectedNetwork],
+								...transactions,
+							},
 						},
 					},
 				},
