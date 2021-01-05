@@ -22,7 +22,7 @@ const ListItem = ({
 			<View>
 				<Text>{type}</Text>
 				<Text>{description}</Text>
-				<Text>Date: {new Date(timestampUtc).toLocaleTimeString()}</Text>
+				<Text>Date: {new Date(timestampUtc).toString()}</Text>
 			</View>
 			<View>
 				<Text>{value}</Text>

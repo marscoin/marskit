@@ -1,82 +1,33 @@
 import actions from './actions';
 import { err, ok, Result } from '../../utils/result';
-import { EActivityTypes, IActivityItem } from '../types/activity';
+import { IActivityItem } from '../types/activity';
 import { getDispatch } from '../helpers';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 import lnd from 'react-native-lightning';
+import {
+	lightningInvoiceToActivityItem,
+	lightningPaymentToActivityItem,
+} from '../../utils/activity';
 
 const dispatch = getDispatch();
 
 /**
- * Converts lightning invoice to activity item
- * @param rHash
- * @param settled
- * @param value
- * @param memo
- * @returns {{fee: number, description: string, id: string, type: EActivityTypes, confirmed: boolean, value: number}}
- */
-const lightningInvoiceToActivityItem = ({
-	rHash,
-	settled,
-	value,
-	memo,
-	creationDate,
-}: lnrpc.IInvoice): IActivityItem => ({
-	id: Buffer.from(rHash ?? [0]).toString('hex'),
-	type: EActivityTypes.lightningInvoice,
-	confirmed: settled ?? false,
-	value: Number(value),
-	fee: 0,
-	description: memo ?? '',
-	timestampUtc: Number(creationDate) * 1000,
-});
-
-/**
- * Updates or adds activity entries. If ID and type exists already then only the content will be updated.
+ * Updates a single lightning payment. Requires the description because that isn't stored with the payment.
+ * @param payment
+ * @param description
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-// export const refreshAllActivityEntries = (): Promise<Result<string>> => {
-// 	return new Promise(async (resolve) => {
-// 		await refreshLightningInvoices();
-//
-// 		resolve(ok('Activity entries updated'));
-// 	});
-// };
-
-/**
- * Adds/Updates all activity entries for lightning payments.
- * @param payments
- * @returns {Promise<Ok<string> | Err<string>>}
- */
-export const refreshLightningPayments = (): Promise<Result<string>> => {
+export const updateLightningPayment = (
+	payment: lnrpc.IPayment,
+	description: string,
+): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const res = await lnd.listPayments();
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		let entries: IActivityItem[] = [];
-		res.value.payments.forEach(({ paymentHash, value, creationDate, fee }) => {
-			if (!paymentHash) {
-				return;
-			}
-
-			entries.push({
-				id: paymentHash,
-				type: EActivityTypes.lightningPayment,
-				confirmed: true,
-				value: Number(value),
-				fee: Number(fee),
-				description: 'todo todo',
-				timestampUtc: Number(creationDate),
-			});
+		await dispatch({
+			type: actions.UPDATE_ACTIVITY_ENTRIES,
+			payload: [lightningPaymentToActivityItem(payment, description)],
 		});
 
-		// await dispatch({
-		// 	type: actions.UPDATE_ACTIVITY_ENTRIES,
-		// 	payload: entries,
-		// });
-		resolve(ok('Activity lightning payment entries updated'));
+		resolve(ok('Activity payment updated'));
 	});
 };
 
@@ -93,25 +44,47 @@ export const updateLightningInvoice = (
 			type: actions.UPDATE_ACTIVITY_ENTRIES,
 			payload: [lightningInvoiceToActivityItem(invoice)],
 		});
-		resolve(ok('Activity entries updated'));
+		resolve(ok('Activity invoice updated'));
 	});
 };
 
 /**
- * Adds all activity entries for lightning payments.
+ * Adds all activity entries for lightning payments and invoice.
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-export const refreshLightningInvoices = (): Promise<Result<string>> => {
+export const refreshAllLightningTransactions = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const res = await lnd.listInvoices();
-		if (res.isErr()) {
-			return resolve(err(res.error));
+		const invoicesRes = await lnd.listInvoices();
+		if (invoicesRes.isErr()) {
+			return resolve(err(invoicesRes.error));
 		}
 
+		//Add all invoices
 		let entries: IActivityItem[] = [];
-		res.value.invoices.forEach((invoice) => {
-			entries.push(lightningInvoiceToActivityItem(invoice));
-		});
+		invoicesRes.value.invoices.forEach((invoice) =>
+			entries.push(lightningInvoiceToActivityItem(invoice)),
+		);
+
+		//Add all payments
+		const paymentsRes = await lnd.listPayments();
+		if (paymentsRes.isErr()) {
+			return resolve(err(paymentsRes.error));
+		}
+
+		for (let index = 0; index < paymentsRes.value.payments.length; index++) {
+			//Payment description isn't returned in the response so we need to decode the original payment request
+			const payment = paymentsRes.value.payments[index];
+			const decodedPayment = await lnd.decodeInvoice(
+				payment.paymentRequest ?? '',
+			);
+
+			entries.push(
+				lightningPaymentToActivityItem(
+					payment,
+					decodedPayment.isOk() ? decodedPayment.value.description : '',
+				),
+			);
+		}
 
 		await dispatch({
 			type: actions.UPDATE_ACTIVITY_ENTRIES,

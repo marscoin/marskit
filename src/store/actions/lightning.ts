@@ -15,9 +15,9 @@ import {
 } from '../../utils/notifications';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 import {
-	refreshLightningInvoices,
-	refreshLightningPayments,
+	refreshAllLightningTransactions,
 	updateLightningInvoice,
+	updateLightningPayment,
 } from './activity';
 
 const dispatch = getDispatch();
@@ -36,6 +36,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: stateRes.value,
 			});
 
+			refreshAllLightningTransactions().then();
 			return resolve(ok('LND already started')); //Already running
 		}
 
@@ -53,6 +54,8 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: state,
 			});
 		});
+
+		refreshAllLightningTransactions().then();
 
 		resolve(ok('LND started'));
 	});
@@ -229,7 +232,7 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 	}
 
 	//Poll for the calls we can't subscribe to
-	await Promise.all([pollLndGetInfo(), refreshLightningPayments()]);
+	await pollLndGetInfo();
 
 	lnd.subscribeToInvoices(
 		async (res) => {
@@ -293,8 +296,6 @@ const pollLndGetInfo = async (): Promise<void> => {
 		refreshLightningInfo(),
 		refreshLightningOnChainBalance(),
 		refreshLightningChannelBalance(),
-		refreshLightningPayments(), //TODO remove this it's overkill
-		refreshLightningInvoices(), //TODO remove this it's overkill
 	]);
 
 	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
@@ -306,10 +307,10 @@ const pollLndGetInfo = async (): Promise<void> => {
  * @returns {Promise<{error: boolean, data: string}>}
  */
 export const payLightningRequest = (
-	invoice: string,
+	paymentRequest: string,
 ): Promise<Result<lnrpc.IRoute>> => {
 	return new Promise(async (resolve) => {
-		const res = await lnd.payInvoice(invoice);
+		const res = await lnd.payInvoice(paymentRequest);
 		if (res.isErr()) {
 			return resolve(err(res.error));
 		}
@@ -320,8 +321,26 @@ export const payLightningRequest = (
 
 		await Promise.all([
 			refreshLightningChannelBalance(),
-			refreshLightningPayments(),
+			// refreshLightningPayments(), //TODO use updateLightningPayment() and get the description from decode
 		]);
+
+		//After making the payment, get the single payment out of the payment list and refresh the activity item
+		const paymentsRes = await lnd.listPayments();
+		if (paymentsRes.isErr()) {
+			return resolve(err(paymentsRes.error));
+		}
+
+		const payment = paymentsRes.value.payments.find(
+			(p) => p.paymentRequest === paymentRequest,
+		);
+
+		const invoiceRes = await lnd.decodeInvoice(paymentRequest);
+		if (payment && invoiceRes.isOk()) {
+			await updateLightningPayment(payment, invoiceRes.value.description);
+		} else {
+			//If we can't find the right payment to update then just refresh the whole list as a backup
+			refreshAllLightningTransactions().then();
+		}
 
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));
