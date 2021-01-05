@@ -14,6 +14,8 @@ export type TBitcoinLabel = 'Bitcoin' | 'Bitcoin Testnet';
 
 export type TTicker = 'BTC' | 'tBTC';
 
+export type TTransactionType = 'sent' | 'received';
+
 export enum EWallet {
 	selectedNetwork = 'bitcoin',
 	defaultWallet = 'wallet0',
@@ -52,7 +54,13 @@ export interface IAddress {
 export interface IAddresses {
 	bitcoin: IAddressContent;
 	bitcoinTestnet: IAddressContent;
-	timestamp: null;
+	timestamp?: number | null;
+}
+
+export interface ITransactions {
+	bitcoin: IFormattedTransaction;
+	bitcoinTestnet: IFormattedTransaction;
+	timestamp?: number | null;
 }
 
 export interface ICreateWallet {
@@ -63,16 +71,49 @@ export interface ICreateWallet {
 	keyDerivationPath?: TKeyDerivationPath;
 }
 
+export interface IUtxo {
+	address: string;
+	index: number;
+	path: string;
+	scriptHash: string;
+	height: number;
+	tx_hash: string;
+	tx_pos: number;
+	value: number;
+}
+export interface IUtxos {
+	bitcoin: IUtxo;
+	bitcoinTestnet: IUtxo;
+	timestamp?: number | null;
+}
+
+export interface IFormattedTransaction {
+	[key: string]: {
+		address: string;
+		height: number;
+		scriptHash: string;
+		totalInputValue: number;
+		matchedInputValue: number;
+		totalOutputValue: number;
+		matchedOutputValue: number;
+		fee: number;
+		type: TTransactionType;
+		value: number;
+		txid: string;
+		messages: string[];
+	};
+}
+
 export interface IDefaultWalletShape {
 	id: string;
 	name: string;
 	type: string;
-	addresses: IAddresses | IWalletItem<object>;
+	addresses: IAddresses | IWalletItem<{}>;
 	addressIndex: IAddresses;
-	changeAddresses: IAddresses | IWalletItem<object>;
+	changeAddresses: IAddresses | IWalletItem<{}>;
 	changeAddressIndex: IAddresses;
-	utxos: IWalletItem<[]>;
-	transactions: IWalletItem<[]>;
+	utxos: IUtxos | IWalletItem<[]>;
+	transactions: ITransactions | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;
 	lastUpdated: IWalletItem<number>;
