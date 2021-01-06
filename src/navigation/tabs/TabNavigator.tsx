@@ -5,6 +5,7 @@ import {
 	TransitionPresets,
 } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTranslation } from 'react-i18next';
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
@@ -99,6 +100,7 @@ const TabNavigator = (): ReactElement => {
 	const theme = themes[settings.theme];
 	const activeTintColor = theme.colors.text;
 	const backgroundColor = theme.colors.background;
+	const { t } = useTranslation();
 	return (
 		<Tab.Navigator
 			screenOptions={({
@@ -117,13 +119,13 @@ const TabNavigator = (): ReactElement => {
 				tabBarIcon: ({ focused, color, size }): ReactElement => {
 					let iconName;
 					switch (route.name) {
-						case 'Wallets':
+						case t('wallets'):
 							iconName = focused ? 'wallet' : 'wallet-outline';
 							break;
-						case 'Profile':
+						case t('profile'):
 							iconName = focused ? 'person-circle' : 'person-circle-outline';
 							break;
-						case 'History':
+						case t('activity'):
 							iconName = focused ? 'notifications-circle' : 'notifications';
 							break;
 					}
@@ -142,9 +144,9 @@ const TabNavigator = (): ReactElement => {
 				style: { height: '8%' },
 				keyboardHidesTabBar: true,
 			}}>
-			<Tab.Screen name="Wallets" component={WalletsStack} />
-			<Tab.Screen name="Profile" component={ProfileStack} />
-			<Tab.Screen name="History" component={HistoryStack} />
+			<Tab.Screen name={t('wallets')} component={WalletsStack} />
+			<Tab.Screen name={t('profile')} component={ProfileStack} />
+			<Tab.Screen name={t('activity')} component={HistoryStack} />
 		</Tab.Navigator>
 	);
 };

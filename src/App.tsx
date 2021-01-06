@@ -25,6 +25,7 @@ import lnd from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
 import { refreshWallet } from './utils/wallet';
 import { showErrorNotification } from './utils/notifications';
+import './utils/translations';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
