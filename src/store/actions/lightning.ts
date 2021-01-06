@@ -14,6 +14,11 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
+import {
+	refreshAllLightningTransactions,
+	updateLightningInvoice,
+	updateLightningPayment,
+} from './activity';
 
 const dispatch = getDispatch();
 
@@ -31,6 +36,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: stateRes.value,
 			});
 
+			refreshAllLightningTransactions().then();
 			return resolve(ok('LND already started')); //Already running
 		}
 
@@ -49,6 +55,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			});
 		});
 
+		refreshAllLightningTransactions().then();
 		resolve(ok('LND started'));
 	});
 };
@@ -195,22 +202,6 @@ export const refreshLightningOnChainBalance = (): Promise<Result<string>> => {
 	});
 };
 
-export const refreshLightningInvoices = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		//TODO we might need to optimise with pagination later using indexOffset and numMaxInvoices
-		const res = await lnd.listInvoices();
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		await dispatch({
-			type: actions.UPDATE_LIGHTNING_INVOICES,
-			payload: res.value,
-		});
-		resolve(ok('LND invoices refreshed'));
-	});
-};
-
 /**
  * Updates the lightning store with the latest ChannelBalance response from LND
  * @returns {(dispatch) => Promise<unknown>}
@@ -240,26 +231,22 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 	}
 
 	//Poll for the calls we can't subscribe to
-	await Promise.all([pollLndGetInfo(), refreshLightningInvoices()]);
+	await pollLndGetInfo();
 
 	lnd.subscribeToInvoices(
 		async (res) => {
 			if (res.isOk()) {
 				const { value, memo, settled } = res.value;
-				if (!settled) {
-					//Not interested in newly created invoices
-					return;
+
+				await updateLightningInvoice(res.value);
+				await Promise.all([refreshLightningChannelBalance()]);
+
+				if (settled) {
+					showSuccessNotification({
+						title: `Received ${value} sats`,
+						message: `Invoice for "${memo}" was paid`,
+					});
 				}
-
-				showSuccessNotification({
-					title: `Received ${value} sats`,
-					message: `Invoice for "${memo}" was paid`,
-				});
-
-				await Promise.all([
-					refreshLightningChannelBalance(),
-					refreshLightningInvoices(),
-				]);
 			}
 		},
 		(res) => {
@@ -319,10 +306,10 @@ const pollLndGetInfo = async (): Promise<void> => {
  * @returns {Promise<{error: boolean, data: string}>}
  */
 export const payLightningRequest = (
-	invoice: string,
+	paymentRequest: string,
 ): Promise<Result<lnrpc.IRoute>> => {
 	return new Promise(async (resolve) => {
-		const res = await lnd.payInvoice(invoice);
+		const res = await lnd.payInvoice(paymentRequest);
 		if (res.isErr()) {
 			return resolve(err(res.error));
 		}
@@ -332,6 +319,24 @@ export const payLightningRequest = (
 		}
 
 		await refreshLightningChannelBalance();
+
+		//After making the payment, get the single payment out of the payment list and refresh the activity item
+		const paymentsRes = await lnd.listPayments();
+		if (paymentsRes.isErr()) {
+			return resolve(err(paymentsRes.error));
+		}
+
+		const payment = paymentsRes.value.payments.find(
+			(p) => p.paymentRequest === paymentRequest,
+		);
+
+		const invoiceRes = await lnd.decodeInvoice(paymentRequest);
+		if (payment && invoiceRes.isOk()) {
+			await updateLightningPayment(payment, invoiceRes.value.description);
+		} else {
+			//If we can't find the right payment to update then just refresh the whole list as a backup
+			refreshAllLightningTransactions().then();
+		}
 
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));

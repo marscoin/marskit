@@ -39,17 +39,6 @@ const LightningCard = (): ReactElement => {
 		}
 	}, [lightning.channelBalance]);
 
-	//If the current invoice in view was just paid
-	useEffect(() => {
-		const currentInvoice = lightning.invoiceList.invoices.find(
-			(inv) => inv.paymentRequest === receivePaymentRequest,
-		);
-		if (currentInvoice && currentInvoice.settled) {
-			setMessage(`Invoice settled. Received ${currentInvoice.value} sats.`);
-			setReceivePaymentRequest('');
-		}
-	}, [lightning.invoiceList, receivePaymentRequest]);
-
 	if (!lightning.onChainBalance || !lightning.channelBalance) {
 		return <View />;
 	}
@@ -90,7 +79,10 @@ const LightningCard = (): ReactElement => {
 								color="onSurface"
 								style={styles.receiveButton}
 								onPress={async (): Promise<void> => {
-									const res = await lnd.createInvoice(25, 'Spectrum test');
+									const res = await lnd.createInvoice(
+										25,
+										`Spectrum test ${new Date().getTime()}`,
+									);
 
 									if (res.isErr()) {
 										return showErrorNotification({
@@ -101,7 +93,6 @@ const LightningCard = (): ReactElement => {
 
 									setReceivePaymentRequest(res.value.paymentRequest);
 									setMessage('');
-									console.log(res.value.paymentRequest);
 								}}
 								text="Receive"
 							/>

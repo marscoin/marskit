@@ -5,3 +5,4 @@ android/*
 !.eslintrc.js
 metro.config.js
 postinstall.js
+__mocks__/**
