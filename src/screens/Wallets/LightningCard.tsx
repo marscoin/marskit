@@ -22,6 +22,7 @@ import {
 	showErrorNotification,
 	showInfoNotification,
 } from '../../utils/notifications';
+import { useTranslation } from 'react-i18next';
 
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -29,6 +30,7 @@ const LightningCard = (): ReactElement => {
 	const [receiveAddress, setReceiveAddress] = useState('');
 	const [receivePaymentRequest, setReceivePaymentRequest] = useState('');
 	const navigation = useNavigation();
+	const { t } = useTranslation(['wallets']);
 
 	LayoutAnimation.easeInEaseOut();
 
@@ -69,7 +71,7 @@ const LightningCard = (): ReactElement => {
 
 	return (
 		<AssetCard
-			title="Lightning Wallet"
+			title={t('lightning')}
 			description={`${debugLightningStatusMessage(lightning)}`}
 			assetBalanceLabel={showSendReceive ? channelBalance : onChainBalance}
 			fiatBalanceLabel="$0"
@@ -84,7 +86,7 @@ const LightningCard = (): ReactElement => {
 								onPress={(): void => {
 									navigation.navigate('Scanner');
 								}}
-								text="Send"
+								text={t('common:send')}
 							/>
 							<Button
 								color="onSurface"
@@ -103,7 +105,7 @@ const LightningCard = (): ReactElement => {
 									setMessage('');
 									console.log(res.value.paymentRequest);
 								}}
-								text="Receive"
+								text={t('common:receive')}
 							/>
 						</>
 					)}
