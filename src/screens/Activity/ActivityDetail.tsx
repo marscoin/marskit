@@ -8,7 +8,7 @@ interface Props extends PropsWithChildren<any> {
 	route: { params: { activityItem: IActivityItem } };
 }
 
-const HistoryDetail = (props: Props): ReactElement => {
+const ActivityDetail = (props: Props): ReactElement => {
 	const {
 		activityItem: { id, description, type, value, confirmed, fee },
 	} = props.route.params;
@@ -39,4 +39,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default HistoryDetail;
+export default ActivityDetail;

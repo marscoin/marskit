@@ -10,8 +10,8 @@ import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
-import HistoryScreen from '../../screens/History';
-import HistoryDetail from '../../screens/History/HistoryDetail';
+import ActivityScreen from '../../screens/Activity';
+import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
@@ -78,17 +78,17 @@ const ProfileStack = (): ReactElement => {
 	);
 };
 
-const HistoryStack = (): ReactElement => {
+const ActivityStack = (): ReactElement => {
 	return (
-		<Stack.Navigator initialRouteName="History">
+		<Stack.Navigator initialRouteName="Activity">
 			<Stack.Screen
-				name="History"
-				component={HistoryScreen}
+				name="Activity"
+				component={ActivityScreen}
 				options={navOptionHandler}
 			/>
 			<Stack.Screen
-				name="HistoryDetail"
-				component={HistoryDetail}
+				name="ActivityDetail"
+				component={ActivityDetail}
 				options={navOptionHandler}
 			/>
 		</Stack.Navigator>
@@ -146,7 +146,7 @@ const TabNavigator = (): ReactElement => {
 			}}>
 			<Tab.Screen name={t('wallets')} component={WalletsStack} />
 			<Tab.Screen name={t('profile')} component={ProfileStack} />
-			<Tab.Screen name={t('activity')} component={HistoryStack} />
+			<Tab.Screen name={t('activity')} component={ActivityStack} />
 		</Tab.Navigator>
 	);
 };

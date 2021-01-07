@@ -30,7 +30,7 @@ const ListItem = ({
 	);
 };
 
-const HistoryScreen = ({ navigation }): ReactElement => {
+const ActivityScreen = ({ navigation }): ReactElement => {
 	const activity = useSelector((state: Store) => state.activity);
 
 	const renderItem = ({ item }): ReactElement => {
@@ -71,4 +71,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(HistoryScreen);
+export default memo(ActivityScreen);
