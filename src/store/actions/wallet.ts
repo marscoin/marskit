@@ -277,10 +277,6 @@ export interface ITransactionData {
 	value: number;
 }
 
-const debug = (str: string) => {
-	console.log(`\n\n********${str}*******\n\n`);
-};
-
 export const updateTransactions = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
@@ -304,32 +300,20 @@ export const updateTransactions = ({
 			selectedNetwork,
 			selectedWallet,
 		});
-
-		debug('1');
 		if (history.isErr()) {
 			return resolve(err(history.error.message));
 		}
-		debug('2');
-
 		if (history.value.length < 1) {
 			return resolve(ok({}));
 		}
-
-		debug('3');
 
 		const getTransactionsResponse = await getTransactions({
 			txHashes: history.value || [],
 			selectedNetwork,
 		});
-
-		debug('4');
-
 		if (getTransactionsResponse.isErr()) {
 			return resolve(err(getTransactionsResponse.error.message));
 		}
-
-		debug('5');
-
 		let transactions: ITransaction<ITransactionData>[] =
 			getTransactionsResponse.value.data;
 
@@ -337,16 +321,11 @@ export const updateTransactions = ({
 			return resolve(ok({}));
 		}
 
-		debug('6');
-
 		const formatTransactionsResponse = await formatTransactions({
 			selectedNetwork,
 			selectedWallet,
 			transactions,
 		});
-
-		debug('7');
-
 		if (formatTransactionsResponse.isErr()) {
 			return resolve(err(formatTransactionsResponse.error.message));
 		}
@@ -363,44 +342,24 @@ export const updateTransactions = ({
 		const storedTransactions =
 			Object.keys(currentWallet.transactions[selectedNetwork]) || [];
 
-		debug(JSON.stringify(formatTransactionsResponse.value));
-
 		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
 			if (!storedTransactions.includes(txid)) {
 				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
 			}
 		});
-
-		debug('8');
-
-		// //TODO is this the best place for this
-		// await refreshAllOnChainTransactions({
-		// 	transactions: formattedTransactions,
-		// 	selectedWallet,
-		// 	selectedNetwork,
-		// }); //Updates the activity list store
-
 		if (Object.keys(formattedTransactions).length < 1) {
 			return resolve(ok(currentWallet.transactions[selectedNetwork]));
 		}
-
-		debug('9');
 
 		const payload = {
 			transactions: formattedTransactions,
 			selectedNetwork,
 			selectedWallet,
 		};
-
 		await dispatch({
 			type: actions.UPDATE_TRANSACTIONS,
 			payload,
 		});
-
-		debug(JSON.stringify(formattedTransactions));
-
-		console.error(formattedTransactions);
-
 		return resolve(ok(formattedTransactions));
 	});
 };

@@ -29,10 +29,7 @@ import {
 	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../notifications';
+import { showSuccessNotification } from '../notifications';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -56,7 +53,6 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 
 		return ok('');
 	} catch (e) {
-		showErrorNotification({ title: 'refreshWallet', message: e.message });
 		return err(e);
 	}
 };

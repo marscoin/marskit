@@ -6,12 +6,7 @@ import {
 	RefreshControl,
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import {
-	FlatList,
-	// RefreshControl,
-	// RefreshControlComponent,
-	StyleSheet,
-} from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';

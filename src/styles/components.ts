@@ -50,7 +50,7 @@ export const ScrollView = styled.ScrollView`
 `;
 
 export const RefreshControl = styled.RefreshControl.attrs((props) => ({
-	tintColor: props.theme.colors.logText,
+	tintColor: props.theme.colors.refreshControl,
 }))``;
 
 export const StatusBar = styled.StatusBar.attrs((props) => ({
