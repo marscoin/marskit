@@ -13,12 +13,21 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const { description, value, type, confirmed, timestampUtc } = item;
+	const {
+		description,
+		value,
+		activityType,
+		txType,
+		confirmed,
+		timestampUtc,
+	} = item;
 
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
 			<View>
-				<Text>{type}</Text>
+				<Text>
+					{activityType} - {txType}
+				</Text>
 				<Text>{description}</Text>
 				<Text>Date: {new Date(timestampUtc).toString()}</Text>
 			</View>
@@ -39,7 +48,7 @@ const ActivityScreen = ({ navigation }): ReactElement => {
 				key={item.id}
 				item={item}
 				onPress={(): void =>
-					navigation.navigate('HistoryDetail', { activityItem: item })
+					navigation.navigate('ActivityDetail', { activityItem: item })
 				}
 			/>
 		);
@@ -47,7 +56,7 @@ const ActivityScreen = ({ navigation }): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="History" isHome={true} />
+			<NavigationHeader title="Activity" isHome={true} />
 			<FlatList
 				data={activity.items}
 				renderItem={renderItem}

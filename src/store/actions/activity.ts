@@ -7,7 +7,12 @@ import lnd from 'react-native-lightning';
 import {
 	lightningInvoiceToActivityItem,
 	lightningPaymentToActivityItem,
+	onChainTransactionsToActivityItems,
 } from '../../utils/activity';
+import { updateTransactions } from './wallet';
+import { getCurrentWallet } from '../../utils/wallet';
+import { IFormattedTransaction } from '../types/wallet';
+import { TAvailableNetworks } from '../../utils/networks';
 
 const dispatch = getDispatch();
 
@@ -83,6 +88,21 @@ export const updateLightningInvoice = (
 };
 
 /**
+ * Refreshes all wallet activity
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const refreshAllActivity = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		await Promise.all([
+			refreshAllLightningTransactions(),
+			refreshAllOnChainTransactions({}),
+			//TODO other wallets as we go
+		]);
+		resolve(ok('Activity lightning invoice entries updated'));
+	});
+};
+
+/**
  * Adds all activity entries for lightning payments and invoice.
  * @returns {Promise<Ok<string> | Err<string>>}
  */
@@ -125,5 +145,46 @@ export const refreshAllLightningTransactions = (): Promise<Result<string>> => {
 			payload: entries,
 		});
 		resolve(ok('Activity lightning invoice entries updated'));
+	});
+};
+
+/**
+ * Adds all activity entries for on-chain transactions
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const refreshAllOnChainTransactions = ({
+	transactions = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	transactions?: IFormattedTransaction | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		let formattedTransactions = transactions;
+
+		if (!formattedTransactions || !selectedWallet || !selectedNetwork) {
+			const {
+				selectedWallet: wallet,
+				selectedNetwork: network,
+			} = getCurrentWallet({});
+			const res = await updateTransactions({
+				selectedWallet: wallet,
+				selectedNetwork: network,
+			});
+
+			if (res.isErr()) {
+				return resolve(err(res.error));
+			}
+
+			formattedTransactions = res.value;
+		}
+
+		await dispatch({
+			type: actions.UPDATE_ACTIVITY_ENTRIES,
+			payload: onChainTransactionsToActivityItems(formattedTransactions!),
+		});
+		resolve(ok('Activity on chain transactions updated'));
 	});
 };

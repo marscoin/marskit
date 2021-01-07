@@ -1,4 +1,5 @@
 import {
+	refreshAllOnChainTransactions,
 	updateLightningInvoice,
 	updateLightningPayment,
 	updateSearchFilter,
@@ -7,6 +8,7 @@ import {
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 import { getStore } from '../src/store/helpers';
 import { EActivityTypes } from '../src/store/types/activity';
+import { IFormattedTransaction } from '../src/store/types/wallet';
 
 const getCreationDate = (): number => Math.round(new Date().getTime() / 1000);
 
@@ -97,23 +99,44 @@ describe('activity redux store', () => {
 	});
 
 	it('should have return a filtered list with just lightning invoices', async () => {
-		await updateTypesFilter([EActivityTypes.lightningPayment]);
-		expect(getStore().activity.itemsFiltered.length).toEqual(0);
+		await updateTypesFilter([EActivityTypes.lightning]);
+		expect(getStore().activity.itemsFiltered.length).toEqual(3);
 
-		//Reset search field
+		//Clear filters
 		await updateSearchFilter('');
-		expect(getStore().activity.itemsFiltered.length).toEqual(2);
+		await updateTypesFilter([]);
+		expect(getStore().activity.itemsFiltered.length).toEqual(5);
 	});
 
 	it('should have return a filtered list with 2 types', async () => {
-		await updateTypesFilter([
-			EActivityTypes.lightningInvoice,
-			EActivityTypes.lightningPayment,
-		]);
-		expect(getStore().activity.itemsFiltered.length).toEqual(5);
+		let onChainTxs: IFormattedTransaction = {
+			test123: {
+				address: 'string',
+				height: 1,
+				scriptHash: 'string',
+				totalInputValue: 1,
+				matchedInputValue: 1,
+				totalOutputValue: 1,
+				matchedOutputValue: 1,
+				fee: 1,
+				type: 'sent',
+				value: 123,
+				txid: 'string',
+				messages: [],
+			},
+		};
 
-		await updateTypesFilter([EActivityTypes.onChainReceive]);
-		expect(getStore().activity.itemsFiltered.length).toEqual(0);
+		await refreshAllOnChainTransactions({
+			transactions: onChainTxs,
+			selectedNetwork: 'bitcoinTestnet',
+			selectedWallet: 'one',
+		});
+
+		await updateTypesFilter([EActivityTypes.lightning, EActivityTypes.onChain]);
+		expect(getStore().activity.itemsFiltered.length).toEqual(6);
+
+		await updateTypesFilter([EActivityTypes.onChain]);
+		expect(getStore().activity.itemsFiltered.length).toEqual(1);
 
 		await updateSearchFilter('');
 	});

@@ -1,7 +1,8 @@
+import { TTransactionType } from './wallet';
+
 export enum EActivityTypes {
-	lightningPayment = 'lightningPayment',
-	lightningInvoice = 'lightningInvoice',
-	onChainReceive = 'onChainReceive',
+	lightning = 'lightning',
+	onChain = 'onChain',
 	//TODO add all other activity types as we support them
 }
 
@@ -10,7 +11,8 @@ export interface IActivityItem {
 	value: number;
 	fee?: number; //If receiving we might not know the fee
 	description: string;
-	type: EActivityTypes;
+	activityType: EActivityTypes;
+	txType: TTransactionType;
 	confirmed: boolean;
 	timestampUtc: number;
 }
@@ -20,4 +22,5 @@ export interface IActivity {
 	itemsFiltered: IActivityItem[];
 	searchFilter: string;
 	typesFilter: EActivityTypes[];
+	//TODO set TAvailableNetworks
 }
