@@ -1,10 +1,21 @@
-import React, { memo, ReactElement } from 'react';
-import { Text, TouchableOpacity, View } from '../../styles/components';
+import React, { memo, ReactElement, useState } from 'react';
+import {
+	Text,
+	TouchableOpacity,
+	View,
+	RefreshControl,
+} from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import { FlatList, StyleSheet } from 'react-native';
+import {
+	FlatList,
+	// RefreshControl,
+	// RefreshControlComponent,
+	StyleSheet,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
+import { refreshAllActivity } from '../../store/actions/activity';
 
 const ListItem = ({
 	item,
@@ -41,6 +52,7 @@ const ListItem = ({
 
 const ActivityScreen = ({ navigation }): ReactElement => {
 	const activity = useSelector((state: Store) => state.activity);
+	const [refreshing, setRefreshing] = useState(false);
 
 	const renderItem = ({ item }): ReactElement => {
 		return (
@@ -54,13 +66,22 @@ const ActivityScreen = ({ navigation }): ReactElement => {
 		);
 	};
 
+	const onRefresh = async (): Promise<void> => {
+		setRefreshing(true);
+		await refreshAllActivity();
+		setRefreshing(false);
+	};
+
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Activity" isHome={true} />
 			<FlatList
 				data={activity.items}
 				renderItem={renderItem}
-				keyExtractor={(item): string => '123' + item.id}
+				keyExtractor={(item): string => item.id}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
 			/>
 		</View>
 	);

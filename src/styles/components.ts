@@ -49,6 +49,10 @@ export const ScrollView = styled.ScrollView`
 	background-color: ${(props): string => props.theme.colors.background};
 `;
 
+export const RefreshControl = styled.RefreshControl.attrs((props) => ({
+	tintColor: props.theme.colors.logText,
+}))``;
+
 export const StatusBar = styled.StatusBar.attrs((props) => ({
 	animated: true,
 	barStyle:

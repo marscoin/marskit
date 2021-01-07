@@ -345,6 +345,7 @@ export const updateTransactions = ({
 			transactions,
 		});
 
+		debug('7');
 
 		if (formatTransactionsResponse.isErr()) {
 			return resolve(err(formatTransactionsResponse.error.message));

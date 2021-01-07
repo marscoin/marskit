@@ -61,24 +61,21 @@ export const onChainTransactionsToActivityItems = (
 	transactions: IFormattedTransaction,
 ): IActivityItem[] => {
 	let items: IActivityItem[] = [];
-
-	console.log('\n\n**********');
+	const now = new Date();
 	Object.keys(transactions).forEach((txid) => {
-		const { value, fee, type: txType, address } = transactions[txid];
+		const { value, fee, type: txType, address, height } = transactions[txid];
 		items.push({
 			id: txid,
 			activityType: EActivityTypes.onChain,
 			txType,
-			confirmed: false, //TODO
+			confirmed: height !== 0, //TODO is this the best indicator of confirmed?
 			value,
 			fee,
-			description: 'TODO', //TODO
-			timestampUtc: new Date().getTime(),
+			description: address, //TODO, we might need to have some sort of address labeling
+			timestampUtc:
+				height === 0 ? now.getTime() : new Date().setDate(now.getDate() - 1), //TODO find real tx time
 		});
-
-		console.log(address);
 	});
-	console.log('**********\n\n');
 
 	return items;
 };
