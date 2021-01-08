@@ -1240,6 +1240,10 @@ export const formatTransactions = async ({
 		const totalValue = totalInputValue - totalOutputValue;
 		const fee = Number(Math.abs(totalValue).toFixed(8));
 		const { address, height, scriptHash } = data;
+		let timestamp = Date.now();
+		if (height > 0 && result?.blocktime) {
+			timestamp = result.blocktime;
+		}
 		formattedTransactions[txid] = {
 			address,
 			height,
@@ -1253,6 +1257,7 @@ export const formatTransactions = async ({
 			value,
 			txid,
 			messages,
+			timestamp,
 		};
 	});
 	return ok(formattedTransactions);
