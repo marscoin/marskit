@@ -24,7 +24,7 @@ export const lightningInvoiceToActivityItem = ({
 	value: Number(value),
 	fee: 0,
 	description: memo ?? '',
-	timestampUtc: Number(creationDate) * 1000,
+	timestamp: Number(creationDate) * 1000,
 });
 
 /**
@@ -35,7 +35,7 @@ export const lightningInvoiceToActivityItem = ({
  * @param fee
  * @param creationDate
  * @param description
- * @returns {{fee: number, description: string, id: string, timestampUtc: number, type: EActivityTypes, confirmed: boolean, value: number}}
+ * @returns {{fee: number, description: string, id: string, txType: "sent", activityType: EActivityTypes, confirmed: boolean, value: number, timestamp: number}}
  */
 export const lightningPaymentToActivityItem = (
 	{ paymentHash, status, value, fee, creationDate }: lnrpc.IPayment,
@@ -49,7 +49,7 @@ export const lightningPaymentToActivityItem = (
 		value: Number(value),
 		fee: Number(fee),
 		description,
-		timestampUtc: Number(creationDate) * 1000,
+		timestamp: Number(creationDate) * 1000,
 	};
 };
 
@@ -68,17 +68,18 @@ export const onChainTransactionsToActivityItems = (
 			type: txType,
 			address,
 			height,
-			timestampUtc,
+			timestamp,
 		} = transactions[txid];
+
 		items.push({
 			id: txid,
 			activityType: EActivityTypes.onChain,
 			txType,
-			confirmed: height !== 0,
+			confirmed: height > 0,
 			value,
 			fee,
 			description: address, //TODO, we might need to have some sort of address labeling
-			timestampUtc,
+			timestamp,
 		});
 	});
 
@@ -109,9 +110,7 @@ export const mergeActivityItems = (
 		}
 	});
 
-	return [...oldItems, ...newItems].sort(
-		(a, b) => b.timestampUtc - a.timestampUtc,
-	);
+	return [...oldItems, ...newItems].sort((a, b) => b.timestamp - a.timestamp);
 };
 
 /**

@@ -14,7 +14,7 @@ export interface IActivityItem {
 	activityType: EActivityTypes;
 	txType: TTransactionType;
 	confirmed: boolean;
-	timestampUtc: number;
+	timestamp: number;
 }
 
 export interface IActivity {

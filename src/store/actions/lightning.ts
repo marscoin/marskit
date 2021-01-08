@@ -3,7 +3,7 @@ import {
 	ICreateLightningWallet,
 	IUnlockLightningWallet,
 } from '../types/lightning';
-import { getDispatch } from '../helpers';
+import { getDispatch, getStore } from '../helpers';
 import lnd from 'react-native-lightning';
 import LndConf from 'react-native-lightning/dist/lnd.conf';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
@@ -14,11 +14,7 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { lnrpc } from 'react-native-lightning/dist/rpc';
-import {
-	refreshAllLightningTransactions,
-	updateLightningInvoice,
-	updateLightningPayment,
-} from './activity';
+import { updateLightingActivityList } from './activity';
 
 const dispatch = getDispatch();
 
@@ -36,7 +32,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: stateRes.value,
 			});
 
-			refreshAllLightningTransactions().then();
+			refreshLightningTransactions().then();
 			return resolve(ok('LND already started')); //Already running
 		}
 
@@ -55,7 +51,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			});
 		});
 
-		refreshAllLightningTransactions().then();
+		refreshLightningTransactions().then();
 		resolve(ok('LND started'));
 	});
 };
@@ -222,6 +218,62 @@ export const refreshLightningChannelBalance = (): Promise<Result<string>> => {
 	});
 };
 
+/**
+ * Updates the lightning store with latest invoices and payments and then updates the activity list.
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const refreshLightningTransactions = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		await Promise.all([refreshLightningPayments(), refreshLightningInvoices()]);
+		await updateLightingActivityList();
+		resolve(ok('LND transactions refreshed'));
+	});
+};
+
+/**
+ * Updates the lightning store with complete invoice list
+ * @return {Promise<Ok<string> | Err<string>>}
+ */
+const refreshLightningInvoices = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		const res = await lnd.listInvoices();
+		if (res.isErr()) {
+			return resolve(err(res.error));
+		}
+
+		await dispatch({
+			type: actions.UPDATE_LIGHTNING_INVOICES,
+			payload: res.value,
+		});
+
+		resolve(ok('LND invoices refreshed'));
+	});
+};
+
+/**
+ * Updates the lightning store with complete payments list
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+const refreshLightningPayments = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		const res = await lnd.listPayments();
+		if (res.isErr()) {
+			return resolve(err(res.error));
+		}
+
+		await dispatch({
+			type: actions.UPDATE_LIGHTNING_PAYMENTS,
+			payload: res.value,
+		});
+
+		resolve(ok('LND payments refreshed'));
+	});
+};
+
+/**
+ * Listens and polls for LND updates
+ * @returns {Promise<void>}
+ */
 const subscribeToLndUpdates = async (): Promise<void> => {
 	//If grpc hasn't even started yet wait and try again
 	const stateRes = await lnd.currentState();
@@ -238,8 +290,12 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 			if (res.isOk()) {
 				const { value, memo, settled } = res.value;
 
-				await updateLightningInvoice(res.value);
-				await Promise.all([refreshLightningChannelBalance()]);
+				await Promise.all([
+					refreshLightningChannelBalance(),
+					refreshLightningInvoices(),
+				]);
+
+				await updateLightingActivityList();
 
 				if (settled) {
 					showSuccessNotification({
@@ -318,25 +374,13 @@ export const payLightningRequest = (
 			return resolve(err(new Error(res.value.paymentError)));
 		}
 
-		await refreshLightningChannelBalance();
+		await Promise.all([
+			refreshLightningChannelBalance(),
+			refreshLightningPayments(),
+		]);
 
-		//After making the payment, get the single payment out of the payment list and refresh the activity item
-		const paymentsRes = await lnd.listPayments();
-		if (paymentsRes.isErr()) {
-			return resolve(err(paymentsRes.error));
-		}
-
-		const payment = paymentsRes.value.payments.find(
-			(p) => p.paymentRequest === paymentRequest,
-		);
-
-		const invoiceRes = await lnd.decodeInvoice(paymentRequest);
-		if (payment && invoiceRes.isOk()) {
-			await updateLightningPayment(payment, invoiceRes.value.description);
-		} else {
-			//If we can't find the right payment to update then just refresh the whole list as a backup
-			refreshAllLightningTransactions().then();
-		}
+		//Keep the activity list store up to date as well
+		await updateLightingActivityList();
 
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));

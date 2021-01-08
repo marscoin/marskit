@@ -10,7 +10,8 @@ import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
-import { refreshAllActivity } from '../../store/actions/activity';
+import { refreshWallet } from '../../utils/wallet';
+import { refreshLightningTransactions } from '../../store/actions/lightning';
 
 const ListItem = ({
 	item,
@@ -25,7 +26,7 @@ const ListItem = ({
 		activityType,
 		txType,
 		confirmed,
-		timestampUtc,
+		timestamp,
 	} = item;
 
 	return (
@@ -35,7 +36,7 @@ const ListItem = ({
 					{activityType} - {txType}
 				</Text>
 				<Text>{description}</Text>
-				<Text>Date: {new Date(timestampUtc).toString()}</Text>
+				<Text>Date: {new Date(timestamp).toString()}</Text>
 			</View>
 			<View>
 				<Text>{value}</Text>
@@ -63,7 +64,8 @@ const ActivityScreen = ({ navigation }): ReactElement => {
 
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
-		await refreshAllActivity();
+		//Refresh wallet and lightning transactions
+		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
 		setRefreshing(false);
 	};
 

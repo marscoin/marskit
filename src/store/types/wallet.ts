@@ -101,7 +101,7 @@ export interface IFormattedTransaction {
 		value: number;
 		txid: string;
 		messages: string[];
-		timestampUtc: number;
+		timestamp: number;
 	};
 }
 

@@ -41,6 +41,17 @@ const LightningCard = (): ReactElement => {
 		}
 	}, [lightning.channelBalance]);
 
+	//If the current invoice in view was just paid
+	useEffect(() => {
+		const currentInvoice = lightning.invoiceList.invoices.find(
+			(inv) => inv.paymentRequest === receivePaymentRequest,
+		);
+		if (currentInvoice && currentInvoice.settled) {
+			setMessage(`Invoice settled. Received ${currentInvoice.value} sats.`);
+			setReceivePaymentRequest('');
+		}
+	}, [lightning.invoiceList, receivePaymentRequest]);
+
 	if (!lightning.onChainBalance || !lightning.channelBalance) {
 		return <View />;
 	}
@@ -109,7 +120,6 @@ const LightningCard = (): ReactElement => {
 								const res = await lnd.getAddress();
 								if (res.isOk()) {
 									setReceiveAddress(res.value.address);
-									console.log(res.value.address);
 								}
 							}}
 							text="Fund"

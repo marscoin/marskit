@@ -30,7 +30,6 @@ import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
-import { refreshAllOnChainTransactions } from './activity';
 
 const dispatch = getDispatch();
 
@@ -330,13 +329,6 @@ export const updateTransactions = ({
 			return resolve(err(formatTransactionsResponse.error.message));
 		}
 
-		//TODO is this the best place for this
-		await refreshAllOnChainTransactions({
-			transactions: formatTransactionsResponse.value,
-			selectedWallet,
-			selectedNetwork,
-		}); //Updates the activity list store
-
 		const formattedTransactions: IFormattedTransaction = {};
 
 		const storedTransactions =
@@ -360,6 +352,7 @@ export const updateTransactions = ({
 			type: actions.UPDATE_TRANSACTIONS,
 			payload,
 		});
+
 		return resolve(ok(formattedTransactions));
 	});
 };

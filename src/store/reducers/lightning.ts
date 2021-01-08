@@ -25,6 +25,16 @@ const lightning = (state: ILightning, action): ILightning => {
 				...state,
 				channelBalance: action.payload,
 			};
+		case actions.UPDATE_LIGHTNING_INVOICES:
+			return {
+				...state,
+				invoiceList: action.payload,
+			};
+		case actions.UPDATE_LIGHTNING_PAYMENTS:
+			return {
+				...state,
+				paymentList: action.payload,
+			};
 		case actions.CREATE_LIGHTNING_WALLET:
 			return {
 				...state,
