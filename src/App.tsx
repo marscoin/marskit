@@ -38,7 +38,7 @@ if (Platform.OS === 'android') {
 const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
 const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
 const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
-	bitcoin: [{ host: 'electrum.aantonop.com', port: 50002, protocol: 'ssl' }],
+	bitcoin: [{ host: 'bitcoin.lukechilds.co', port: 50002, protocol: 'ssl' }],
 	bitcoinTestnet: [
 		{
 			host: 'testnet.aranguren.org',
