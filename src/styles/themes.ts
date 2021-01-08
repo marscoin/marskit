@@ -24,6 +24,7 @@ const light = {
 		onBackground: '#121212',
 		onSurface: '#D6D6D6',
 		logText: '#121212',
+		refreshControl: '#121212',
 	},
 };
 
@@ -39,6 +40,7 @@ const dark = {
 		onBackground: '#FFFFFF',
 		onSurface: '#5C5C5C',
 		logText: '#16ff00',
+		refreshControl: '#FFFFFF',
 	},
 };
 

@@ -8,6 +8,8 @@ export interface ILightning {
 	info: lnrpc.GetInfoResponse;
 	onChainBalance: lnrpc.WalletBalanceResponse; //TODO remove this once our on-chain wallet is able to fund channel opening
 	channelBalance: lnrpc.ChannelBalanceResponse;
+	invoiceList: lnrpc.ListInvoiceResponse;
+	paymentList: lnrpc.ListPaymentsResponse;
 }
 
 export interface ICreateLightningWallet {

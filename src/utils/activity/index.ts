@@ -1,5 +1,6 @@
 import { lnrpc } from 'react-native-lightning/dist/rpc';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
+import { IFormattedTransaction } from '../../store/types/wallet';
 
 /**
  * Converts lightning invoice to activity item
@@ -17,12 +18,13 @@ export const lightningInvoiceToActivityItem = ({
 	creationDate,
 }: lnrpc.IInvoice): IActivityItem => ({
 	id: Buffer.from(rHash ?? [0]).toString('hex'),
-	type: EActivityTypes.lightningInvoice,
+	activityType: EActivityTypes.lightning,
+	txType: 'received',
 	confirmed: settled ?? false,
 	value: Number(value),
 	fee: 0,
 	description: memo ?? '',
-	timestampUtc: Number(creationDate) * 1000,
+	timestamp: Number(creationDate) * 1000,
 });
 
 /**
@@ -33,7 +35,7 @@ export const lightningInvoiceToActivityItem = ({
  * @param fee
  * @param creationDate
  * @param description
- * @returns {{fee: number, description: string, id: string, timestampUtc: number, type: EActivityTypes, confirmed: boolean, value: number}}
+ * @returns {{fee: number, description: string, id: string, txType: "sent", activityType: EActivityTypes, confirmed: boolean, value: number, timestamp: number}}
  */
 export const lightningPaymentToActivityItem = (
 	{ paymentHash, status, value, fee, creationDate }: lnrpc.IPayment,
@@ -41,13 +43,47 @@ export const lightningPaymentToActivityItem = (
 ): IActivityItem => {
 	return {
 		id: paymentHash ?? '',
-		type: EActivityTypes.lightningPayment,
+		activityType: EActivityTypes.lightning,
+		txType: 'sent',
 		confirmed: status === 2,
 		value: Number(value),
 		fee: Number(fee),
 		description,
-		timestampUtc: Number(creationDate) * 1000,
+		timestamp: Number(creationDate) * 1000,
 	};
+};
+
+/**
+ * Converts list of formatted transactions to array of activity items
+ * @param transactions
+ */
+export const onChainTransactionsToActivityItems = (
+	transactions: IFormattedTransaction,
+): IActivityItem[] => {
+	let items: IActivityItem[] = [];
+	Object.keys(transactions).forEach((txid) => {
+		const {
+			value,
+			fee,
+			type: txType,
+			address,
+			height,
+			timestamp,
+		} = transactions[txid];
+
+		items.push({
+			id: txid,
+			activityType: EActivityTypes.onChain,
+			txType,
+			confirmed: height > 0,
+			value,
+			fee,
+			description: address, //TODO, we might need to have some sort of address labeling
+			timestamp,
+		});
+	});
+
+	return items;
 };
 
 /**
@@ -62,7 +98,9 @@ export const mergeActivityItems = (
 ): IActivityItem[] => {
 	oldItems.forEach((oldItem, index) => {
 		const updatedItemIndex = newItems.findIndex(
-			(newItem) => newItem.type === oldItem.type && newItem.id === oldItem.id,
+			(newItem) =>
+				newItem.activityType === oldItem.activityType &&
+				newItem.id === oldItem.id,
 		);
 
 		//Found an updated item so replace it
@@ -72,9 +110,7 @@ export const mergeActivityItems = (
 		}
 	});
 
-	return [...oldItems, ...newItems].sort(
-		(a, b) => b.timestampUtc - a.timestampUtc,
-	);
+	return [...oldItems, ...newItems].sort((a, b) => b.timestamp - a.timestamp);
 };
 
 /**
@@ -104,7 +140,7 @@ export const filterActivityItems = (
 
 		let existsInFilter = false;
 		types.forEach((type) => {
-			if (item.type === type) {
+			if (item.activityType === type) {
 				existsInFilter = true;
 			}
 		});

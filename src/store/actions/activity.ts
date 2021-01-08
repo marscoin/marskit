@@ -1,13 +1,14 @@
 import actions from './actions';
-import { err, ok, Result } from '../../utils/result';
+import { ok, Result } from '../../utils/result';
 import { EActivityTypes, IActivityItem } from '../types/activity';
-import { getDispatch } from '../helpers';
-import { lnrpc } from 'react-native-lightning/dist/rpc';
+import { getDispatch, getStore } from '../helpers';
 import lnd from 'react-native-lightning';
 import {
 	lightningInvoiceToActivityItem,
 	lightningPaymentToActivityItem,
+	onChainTransactionsToActivityItems,
 } from '../../utils/activity';
+import { getCurrentWallet } from '../../utils/wallet';
 
 const dispatch = getDispatch();
 
@@ -46,68 +47,37 @@ export const updateTypesFilter = (
 };
 
 /**
- * Updates a single lightning payment. Requires the description because that isn't stored with the payment.
- * @param payment
- * @param description
+ * Updates activity list with all wallet stores
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-export const updateLightningPayment = (
-	payment: lnrpc.IPayment,
-	description: string,
-): Promise<Result<string>> => {
+export const updateActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_ACTIVITY_ENTRIES,
-			payload: [lightningPaymentToActivityItem(payment, description)],
-		});
+		await Promise.all([
+			updateLightingActivityList(),
+			updateOnChainActivityList(),
+		]);
 
-		resolve(ok('Activity payment updated'));
+		resolve(ok('Activity items updated'));
 	});
 };
 
 /**
- * Updates or appends the details for a single lightning invoice
- * @param invoice
- * @return {Promise<Ok<string> | Err<string>>}
- */
-export const updateLightningInvoice = (
-	invoice: lnrpc.IInvoice,
-): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_ACTIVITY_ENTRIES,
-			payload: [lightningInvoiceToActivityItem(invoice)],
-		});
-		resolve(ok('Activity invoice updated'));
-	});
-};
-
-/**
- * Adds all activity entries for lightning payments and invoice.
+ * Updates activity list store with just lightning invoices and payments stores
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-export const refreshAllLightningTransactions = (): Promise<Result<string>> => {
+export const updateLightingActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const invoicesRes = await lnd.listInvoices();
-		if (invoicesRes.isErr()) {
-			return resolve(err(invoicesRes.error));
-		}
-
 		//Add all invoices
 		let entries: IActivityItem[] = [];
-		invoicesRes.value.invoices.forEach((invoice) =>
+		getStore().lightning.invoiceList.invoices.forEach((invoice) =>
 			entries.push(lightningInvoiceToActivityItem(invoice)),
 		);
 
-		//Add all payments
-		const paymentsRes = await lnd.listPayments();
-		if (paymentsRes.isErr()) {
-			return resolve(err(paymentsRes.error));
-		}
-
-		for (let index = 0; index < paymentsRes.value.payments.length; index++) {
+		const paymentsList = getStore().lightning.paymentList;
+		for (let index = 0; index < paymentsList.payments.length; index++) {
 			//Payment description isn't returned in the response so we need to decode the original payment request
-			const payment = paymentsRes.value.payments[index];
+			//If this becomes slow we should consider caching these in another store
+			const payment = paymentsList.payments[index];
 			const decodedPayment = await lnd.decodeInvoice(
 				payment.paymentRequest ?? '',
 			);
@@ -124,6 +94,32 @@ export const refreshAllLightningTransactions = (): Promise<Result<string>> => {
 			type: actions.UPDATE_ACTIVITY_ENTRIES,
 			payload: entries,
 		});
-		resolve(ok('Activity lightning invoice entries updated'));
+
+		resolve(ok('Lightning transactions activity items updated'));
+	});
+};
+
+/**
+ * Updates activity list store with just on chain wallet transactions store
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
+export const updateOnChainActivityList = (): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
+		if (!getStore().wallet.wallets[selectedWallet]) {
+			console.warn(
+				'No wallet found. Cannot update activity list with transactions.',
+			);
+			return resolve(ok(''));
+		}
+
+		await dispatch({
+			type: actions.UPDATE_ACTIVITY_ENTRIES,
+			payload: onChainTransactionsToActivityItems(
+				getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork],
+			),
+		});
+
+		resolve(ok('On chain transaction activity items updated'));
 	});
 };

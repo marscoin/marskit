@@ -30,6 +30,7 @@ import {
 	updateUtxos,
 } from '../../store/actions/wallet';
 import { showSuccessNotification } from '../notifications';
+import { updateOnChainActivityList } from '../../store/actions/activity';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -54,6 +55,9 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 		return ok('');
 	} catch (e) {
 		return err(e);
+	} finally {
+		//Keep the activity store up to date
+		await updateOnChainActivityList();
 	}
 };
 
@@ -1240,6 +1244,12 @@ export const formatTransactions = async ({
 		const totalValue = totalInputValue - totalOutputValue;
 		const fee = Number(Math.abs(totalValue).toFixed(8));
 		const { address, height, scriptHash } = data;
+		let timestamp = Date.now();
+
+		if (height > 0 && result?.blocktime) {
+			timestamp = result.blocktime * 1000;
+		}
+
 		formattedTransactions[txid] = {
 			address,
 			height,
@@ -1253,6 +1263,7 @@ export const formatTransactions = async ({
 			value,
 			txid,
 			messages,
+			timestamp,
 		};
 	});
 	return ok(formattedTransactions);

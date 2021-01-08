@@ -1,10 +1,17 @@
-import React, { memo, ReactElement } from 'react';
-import { Text, TouchableOpacity, View } from '../../styles/components';
+import React, { memo, ReactElement, useState } from 'react';
+import {
+	Text,
+	TouchableOpacity,
+	View,
+	RefreshControl,
+} from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
+import { refreshWallet } from '../../utils/wallet';
+import { refreshLightningTransactions } from '../../store/actions/lightning';
 
 const ListItem = ({
 	item,
@@ -13,14 +20,23 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const { description, value, type, confirmed, timestampUtc } = item;
+	const {
+		description,
+		value,
+		activityType,
+		txType,
+		confirmed,
+		timestamp,
+	} = item;
 
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
 			<View>
-				<Text>{type}</Text>
+				<Text>
+					{activityType} - {txType}
+				</Text>
 				<Text>{description}</Text>
-				<Text>Date: {new Date(timestampUtc).toString()}</Text>
+				<Text>Date: {new Date(timestamp).toString()}</Text>
 			</View>
 			<View>
 				<Text>{value}</Text>
@@ -30,8 +46,9 @@ const ListItem = ({
 	);
 };
 
-const HistoryScreen = ({ navigation }): ReactElement => {
+const ActivityScreen = ({ navigation }): ReactElement => {
 	const activity = useSelector((state: Store) => state.activity);
+	const [refreshing, setRefreshing] = useState(false);
 
 	const renderItem = ({ item }): ReactElement => {
 		return (
@@ -39,19 +56,29 @@ const HistoryScreen = ({ navigation }): ReactElement => {
 				key={item.id}
 				item={item}
 				onPress={(): void =>
-					navigation.navigate('HistoryDetail', { activityItem: item })
+					navigation.navigate('ActivityDetail', { activityItem: item })
 				}
 			/>
 		);
 	};
 
+	const onRefresh = async (): Promise<void> => {
+		setRefreshing(true);
+		//Refresh wallet and lightning transactions
+		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
+		setRefreshing(false);
+	};
+
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="History" isHome={true} />
+			<NavigationHeader title="Activity" isHome={true} />
 			<FlatList
 				data={activity.items}
 				renderItem={renderItem}
-				keyExtractor={(item): string => '123' + item.id}
+				keyExtractor={(item): string => item.id}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
 			/>
 		</View>
 	);
@@ -71,4 +98,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(HistoryScreen);
+export default memo(ActivityScreen);

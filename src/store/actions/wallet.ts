@@ -352,6 +352,7 @@ export const updateTransactions = ({
 			type: actions.UPDATE_TRANSACTIONS,
 			payload,
 		});
+
 		return resolve(ok(formattedTransactions));
 	});
 };

@@ -8,9 +8,17 @@ interface Props extends PropsWithChildren<any> {
 	route: { params: { activityItem: IActivityItem } };
 }
 
-const HistoryDetail = (props: Props): ReactElement => {
+const ActivityDetail = (props: Props): ReactElement => {
 	const {
-		activityItem: { id, description, type, value, confirmed, fee },
+		activityItem: {
+			id,
+			description,
+			activityType,
+			txType,
+			value,
+			confirmed,
+			fee,
+		},
 	} = props.route.params;
 
 	return (
@@ -18,7 +26,9 @@ const HistoryDetail = (props: Props): ReactElement => {
 			<NavigationHeader title={'Transaction Info'} />
 			<View style={styles.content}>
 				<Text>{id}</Text>
-				<Text>Type: {type}</Text>
+				<Text>
+					Type: {activityType} {txType}
+				</Text>
 				<Text>Description: {description}</Text>
 				<Text>Value: {value}</Text>
 				<Text>Confirmed: {confirmed ? '✅' : '⌛'}</Text>
@@ -39,4 +49,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default HistoryDetail;
+export default ActivityDetail;
