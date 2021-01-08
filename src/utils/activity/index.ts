@@ -74,7 +74,7 @@ export const onChainTransactionsToActivityItems = (
 			id: txid,
 			activityType: EActivityTypes.onChain,
 			txType,
-			confirmed: height !== 0,
+			confirmed: height > 0,
 			value,
 			fee,
 			description: address, //TODO, we might need to have some sort of address labeling
