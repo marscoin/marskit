@@ -5,10 +5,6 @@ class LND {
 	constructor() {}
 
 	async decodeInvoice(invoice: string): Promise<Result<lnrpc.PayReq, Error>> {
-		if (!invoice.startsWith('lntb') && !invoice.startsWith('lnbc')) {
-			return err(new Error('Invalid invoice format'));
-		}
-
 		try {
 			const message = lnrpc.PayReqString.create();
 			message.payReq = invoice;

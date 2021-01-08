@@ -3,7 +3,7 @@ import {
 	ICreateLightningWallet,
 	IUnlockLightningWallet,
 } from '../types/lightning';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch } from '../helpers';
 import lnd from 'react-native-lightning';
 import LndConf from 'react-native-lightning/dist/lnd.conf';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';

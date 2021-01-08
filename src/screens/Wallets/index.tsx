@@ -13,8 +13,6 @@ import LightningCard from './LightningCard';
 const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
-	//TODO this will probably fetch all available wallets and list them
-
 	return (
 		<View style={styles.container}>
 			<Header />

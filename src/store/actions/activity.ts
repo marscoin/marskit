@@ -67,9 +67,6 @@ export const updateActivityList = (): Promise<Result<string>> => {
  */
 export const updateLightingActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		resolve(ok('Lightning transactions activity items updated'));
-		//TODO remove
-
 		//Add all invoices
 		let entries: IActivityItem[] = [];
 		getStore().lightning.invoiceList.invoices.forEach((invoice) =>
@@ -108,18 +105,13 @@ export const updateLightingActivityList = (): Promise<Result<string>> => {
  */
 export const updateOnChainActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		// return resolve(ok('')); //TODO remove
-
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		if (!getStore().wallet.wallets[selectedWallet]) {
-			//TODO figure out why this may be happening
-			console.warn('No wallet found. Cannot update activity list.');
+			console.warn(
+				'No wallet found. Cannot update activity list with transactions.',
+			);
 			return resolve(ok(''));
 		}
-
-		console.log(
-			getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork],
-		);
 
 		await dispatch({
 			type: actions.UPDATE_ACTIVITY_ENTRIES,
