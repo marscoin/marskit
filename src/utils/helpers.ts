@@ -73,8 +73,8 @@ export const getKeychainValue = async ({
 };
 
 interface IGetNetworkData {
-	selectedNetwork: TAvailableNetworks;
-	bitcoinUnit: TBitcoinUnit;
+	selectedNetwork?: TAvailableNetworks;
+	bitcoinUnit?: TBitcoinUnit;
 }
 interface IGetNetworkDataResponse {
 	abbreviation: TBitcoinAbbreviation;
