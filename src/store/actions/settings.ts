@@ -6,7 +6,7 @@ const dispatch = getDispatch();
 
 export const updateSettings = (payload): Result<string> => {
 	dispatch({
-		type: actions.UPDATE_WALLET,
+		type: actions.UPDATE_SETTINGS,
 		payload,
 	});
 	return ok('');
