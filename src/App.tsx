@@ -23,9 +23,11 @@ import { start as startElectrum } from 'rn-electrum-client/helpers';
 import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
 import lnd from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
-import { refreshWallet } from './utils/wallet';
+import { getCustomElectrumPeers, refreshWallet } from './utils/wallet';
 import { showErrorNotification } from './utils/notifications';
 import './utils/translations';
+import { IWalletItem } from './store/types/wallet';
+import { ICustomElectrumPeer } from './store/types/settings';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -35,6 +37,16 @@ if (Platform.OS === 'android') {
 
 const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
 const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
+const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
+	bitcoin: [{ host: 'bitcoin.lukechilds.co', port: 50002, protocol: 'ssl' }],
+	bitcoinTestnet: [
+		{
+			host: 'testnet.aranguren.org',
+			port: 51002,
+			protocol: 'ssl',
+		},
+	],
+};
 
 const startApp = async (): Promise<void> => {
 	try {
@@ -48,9 +60,15 @@ const startApp = async (): Promise<void> => {
 				await createWallet({});
 			}
 
+			let customPeers = getCustomElectrumPeers({ selectedNetwork });
+			if (customPeers.length < 1) {
+				customPeers = tempElectrumServers[selectedNetwork];
+			}
+
 			//Connect To A Random Electrum Server
 			startElectrum({
 				network: selectedNetwork,
+				customPeers,
 			}).then(({ error, data: message }) => {
 				if (error) {
 					showErrorNotification({

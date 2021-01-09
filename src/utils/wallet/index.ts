@@ -30,6 +30,7 @@ import {
 	updateUtxos,
 } from '../../store/actions/wallet';
 import { showSuccessNotification } from '../notifications';
+import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateOnChainActivityList } from '../../store/actions/activity';
 
 const bitcoin = require('bitcoinjs-lib');
@@ -1374,5 +1375,21 @@ export const getAddressHistory = async ({
 		return ok(history);
 	} catch (e) {
 		return err(e);
+	}
+};
+
+export const getCustomElectrumPeers = ({
+	selectedNetwork = undefined,
+}: {
+	selectedNetwork: undefined | TAvailableNetworks;
+}): ICustomElectrumPeer[] | [] => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const settings = getStore().settings;
+		return settings.customElectrumPeers[selectedNetwork] || [];
+	} catch {
+		return [];
 	}
 };

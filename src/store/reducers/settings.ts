@@ -1,5 +1,6 @@
 import actions from '../actions/actions';
 import { ISettings } from '../types/settings';
+import { arrayTypeItems } from '../shapes/wallet';
 
 const settings = (
 	state: ISettings = {
@@ -13,6 +14,7 @@ const settings = (
 		selectedCurrency: 'USD',
 		exchangeRateService: 'bitfinex',
 		selectedLanguage: 'english',
+		customElectrumPeers: arrayTypeItems,
 	},
 	action,
 ): ISettings => {
