@@ -58,15 +58,19 @@ const Receive = ({
 	onCopySuccessText = 'Copied!',
 	disabled = false,
 }: IReceive): ReactElement => {
-	const wallet = useSelector((state: Store) => state.wallet);
+	const wallets = useSelector((state: Store) => state.wallet.wallets);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
 	const [opacity] = useState(new Animated.Value(0));
 	const [textOpacity] = useState(new Animated.Value(0));
 
 	if (!address) {
 		try {
-			const { selectedNetwork, selectedWallet } = wallet;
-			address =
-				wallet.wallets[selectedWallet].addressIndex[selectedNetwork].address;
+			address = wallets[selectedWallet].addressIndex[selectedNetwork].address;
 		} catch {}
 	}
 

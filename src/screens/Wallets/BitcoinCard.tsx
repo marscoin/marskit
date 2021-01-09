@@ -51,7 +51,7 @@ const BitcoinCard = (): ReactElement => {
 
 	return (
 		<AssetCard
-			title="Bitcoin Wallet"
+			title={`${networkData.label} Wallet`}
 			assetBalanceLabel={`${balance} ${networkData.abbreviation}`}
 			fiatBalanceLabel={`$${fiatBalance}`}
 			asset="bitcoin">
