@@ -19,6 +19,7 @@ import {
 	getTransactions,
 	getUtxos,
 	ITransaction,
+	refreshWallet,
 	validateMnemonic,
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
@@ -135,13 +136,32 @@ export const updateExchangeRate = (): Promise<Result<string>> => {
 	});
 };
 
-export const updateAddressIndexes = (): Promise<Result<string>> => {
+export const updateAddressIndexes = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const response = await getNextAvailableAddress({});
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const response = await getNextAvailableAddress({
+			selectedWallet,
+			selectedNetwork,
+		});
 		if (response.isErr()) {
 			return resolve(err(response.error));
 		}
-		const { currentWallet, selectedNetwork } = getCurrentWallet({});
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
 		if (
 			response.value.addressIndex.index !==
 				currentWallet.addressIndex[selectedNetwork].index ||
@@ -355,4 +375,39 @@ export const updateTransactions = ({
 
 		return resolve(ok(formattedTransactions));
 	});
+};
+
+/**
+ * This does not delete the stored mnemonic phrase for a given wallet.
+ * This resets a given wallet to defaultWalletShape
+ */
+export const resetSelectedWallet = async ({
+	selectedWallet = undefined,
+}: {
+	selectedWallet?: string;
+}): Promise<void> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	await dispatch({
+		type: actions.RESET_SELECTED_WALLET,
+		payload: {
+			selectedWallet,
+		},
+	});
+	await createWallet({ wallet: selectedWallet });
+	await refreshWallet();
+};
+
+/**
+ * This does not delete the stored mnemonic phrases on the device.
+ * This resets the wallet store to defaultWalletStoreShape
+ */
+export const resetWalletStore = async (): Promise<Result<string>> => {
+	dispatch({
+		type: actions.RESET_WALLET_STORE,
+	});
+	await createWallet({ wallet: EWallet.defaultWallet });
+	await refreshWallet();
+	return ok('');
 };

@@ -123,3 +123,13 @@ export const updateOnChainActivityList = (): Promise<Result<string>> => {
 		resolve(ok('On chain transaction activity items updated'));
 	});
 };
+
+/*
+ * This resets the activity store to defaultActivityShape
+ */
+export const resetActivityStore = (): Result<string> => {
+	dispatch({
+		type: actions.RESET_ACTIVITY_STORE,
+	});
+	return ok('');
+};

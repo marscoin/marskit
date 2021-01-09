@@ -1,5 +1,4 @@
 import {
-	updateActivityList,
 	updateLightingActivityList,
 	updateOnChainActivityList,
 	updateSearchFilter,
