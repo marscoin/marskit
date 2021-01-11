@@ -3,6 +3,7 @@ import {
 	EWallet,
 	ICreateWallet,
 	IFormattedTransaction,
+	IOnChainTransactionData,
 	IUtxo,
 } from '../types/wallet';
 import {
@@ -410,4 +411,59 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 	await createWallet({ wallet: EWallet.defaultWallet });
 	await refreshWallet();
 	return ok('');
+};
+
+export const updateOnChainTransaction = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	transaction,
+}: {
+	transaction: IOnChainTransactionData;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): void => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const payload = {
+			selectedNetwork,
+			selectedWallet,
+			transaction,
+		};
+		dispatch({
+			type: actions.UPDATE_ON_CHAIN_TRANSACTION,
+			payload,
+		});
+	} catch {}
+};
+
+export const resetOnChainTransaction = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): void => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const payload = {
+			selectedNetwork,
+			selectedWallet,
+		};
+		dispatch({
+			type: actions.RESET_ON_CHAIN_TRANSACTION,
+			payload,
+		});
+	} catch {}
 };

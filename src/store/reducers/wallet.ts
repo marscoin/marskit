@@ -1,6 +1,7 @@
 import actions from '../actions/actions';
 import { IWallet } from '../types/wallet';
 import { defaultWalletStoreShape } from '../shapes/wallet';
+import { onChainTransaction } from '../shapes/wallet';
 
 const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 	let selectedWallet = state.selectedWallet;
@@ -127,6 +128,46 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				...state,
 				wallets: {
 					...wallets,
+				},
+			};
+
+		case actions.UPDATE_ON_CHAIN_TRANSACTION:
+			selectedWallet = action.payload.selectedWallet;
+			selectedNetwork = action.payload.selectedNetwork;
+			const transaction = action.payload.transaction;
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transaction: {
+							...state.wallets[selectedWallet].transaction,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].transaction[selectedNetwork],
+								...transaction,
+							},
+						},
+					},
+				},
+			};
+
+		case actions.RESET_ON_CHAIN_TRANSACTION:
+			selectedWallet = action.payload.selectedWallet;
+			selectedNetwork = action.payload.selectedNetwork;
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transaction: {
+							...state.wallets[selectedWallet].transaction,
+							[selectedNetwork]: {
+								...onChainTransaction[selectedNetwork],
+							},
+						},
+					},
 				},
 			};
 
