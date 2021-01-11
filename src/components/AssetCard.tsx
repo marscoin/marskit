@@ -55,14 +55,15 @@ const AssetCard = ({
 							{description ? (
 								<Text style={styles.description}>{description}</Text>
 							) : null}
+							<View color="transparent" style={styles.labelsContainer}>
+								<View color="transparent" style={styles.balanceLabelContainer}>
+									<Text style={styles.balanceLabels}>{assetBalanceLabel}</Text>
+								</View>
+								<View color="transparent" style={styles.fiatLabelContainer}>
+									<Text style={styles.balanceLabels}>{fiatBalanceLabel}</Text>
+								</View>
+							</View>
 						</>
-
-						<View color="transparent" style={styles.assetBalanceContainer}>
-							<Text style={styles.balanceLabels}>{assetBalanceLabel}</Text>
-						</View>
-					</View>
-					<View color="transparent" style={styles.col3}>
-						<Text style={styles.balanceLabels}>{fiatBalanceLabel}</Text>
 					</View>
 				</View>
 				{children}
@@ -79,12 +80,16 @@ const styles = StyleSheet.create({
 	description: {
 		fontSize: 12,
 	},
+	labelsContainer: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+	},
+	balanceLabelContainer: {
+		flex: 1,
+	},
 	balanceLabels: {
 		marginBottom: 5,
-	},
-	assetBalanceContainer: {
-		flex: 1,
-		justifyContent: 'flex-end',
 	},
 	col1: {
 		flex: 0.6,
@@ -92,12 +97,12 @@ const styles = StyleSheet.create({
 		alignItems: 'flex-start',
 	},
 	col2: {
-		flex: 1.2,
+		flex: 2,
 	},
-	col3: {
+	fiatLabelContainer: {
 		flex: 1,
-		justifyContent: 'flex-end',
 		alignItems: 'flex-end',
+		justifyContent: 'flex-end',
 	},
 	row: {
 		flexDirection: 'row',

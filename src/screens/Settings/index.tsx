@@ -2,18 +2,36 @@ import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateSettings } from '../../store/actions/settings';
+import { useSelector } from 'react-redux';
+import {
+	resetSettingsStore,
+	updateSettings,
+} from '../../store/actions/settings';
 import List from '../../components/List';
+import {
+	resetSelectedWallet,
+	resetWalletStore,
+	updateWallet,
+} from '../../store/actions/wallet';
+import { refreshWallet } from '../../utils/wallet';
+import { resetUserStore } from '../../store/actions/user';
+import { resetActivityStore } from '../../store/actions/activity';
+import { resetLightningStore } from '../../store/actions/lightning';
+import { resetOmniBoltStore } from '../../store/actions/omnibolt';
 
 const Settings = ({ navigation }): ReactElement => {
-	const dispatch = useDispatch();
-	const settings = useSelector((state: Store) => state.settings);
+	const settingsTheme = useSelector((state: Store) => state.settings.theme);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
 
 	const updateTheme = (): void => {
 		try {
-			const theme = settings.theme === 'dark' ? 'light' : 'dark';
-			dispatch(updateSettings({ theme }));
+			const theme = settingsTheme === 'dark' ? 'light' : 'dark';
+			updateSettings({ theme });
 		} catch {}
 	};
 
@@ -24,7 +42,7 @@ const Settings = ({ navigation }): ReactElement => {
 				{
 					title: 'Dark Mode',
 					type: 'switch',
-					enabled: settings.theme === 'dark',
+					enabled: settingsTheme === 'dark',
 					onPress: updateTheme,
 				},
 				{
@@ -66,6 +84,84 @@ const Settings = ({ navigation }): ReactElement => {
 					title: 'Test commands',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempLightningOptions'),
+				},
+			],
+		},
+		{
+			title: 'On-Chain Settings',
+			data: [
+				{
+					title: 'Enable On-Chain Testnet',
+					type: 'switch',
+					enabled: selectedNetwork === 'bitcoinTestnet',
+					onPress: async (): Promise<void> => {
+						const network =
+							selectedNetwork === 'bitcoin' ? 'bitcoinTestnet' : 'bitcoin';
+						updateWallet({ selectedNetwork: network }).then(() => {
+							refreshWallet().then();
+						});
+					},
+				},
+			],
+		},
+		{
+			title: 'Dev Settings',
+			data: [
+				{
+					title: 'Reset Current Wallet Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetSelectedWallet({ selectedWallet });
+					},
+				},
+				{
+					title: 'Reset Entire Wallet Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetWalletStore();
+					},
+				},
+				{
+					title: 'Reset Lightning Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetLightningStore();
+					},
+				},
+				{
+					title: 'Reset Settings Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetSettingsStore();
+					},
+				},
+				{
+					title: 'Reset Activity Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetActivityStore();
+					},
+				},
+				{
+					title: 'Reset User Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetUserStore();
+					},
+				},
+				{
+					title: 'Reset All Stores',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await Promise.all([
+							resetWalletStore(),
+							resetLightningStore(),
+							resetSettingsStore(),
+							resetActivityStore(),
+							resetUserStore(),
+							resetOmniBoltStore(),
+						]);
+					},
 				},
 			],
 		},

@@ -1,17 +1,8 @@
 import actions from '../actions/actions';
-import { EWallet, IWallet } from '../types/wallet';
+import { IWallet } from '../types/wallet';
+import { defaultWalletStoreShape } from '../shapes/wallet';
 
-const wallet = (
-	state: IWallet = {
-		loading: false,
-		error: false,
-		selectedNetwork: 'bitcoinTestnet',
-		selectedWallet: EWallet.defaultWallet,
-		exchangeRate: 0,
-		wallets: {},
-	},
-	action,
-): IWallet => {
+const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 	let selectedWallet = state.selectedWallet;
 	let selectedNetwork = state.selectedNetwork;
 	switch (action.type) {
@@ -122,6 +113,20 @@ const wallet = (
 							},
 						},
 					},
+				},
+			};
+
+		case actions.RESET_WALLET_STORE:
+			return defaultWalletStoreShape;
+
+		case actions.RESET_SELECTED_WALLET:
+			selectedWallet = action.payload.selectedWallet;
+			const wallets = state.wallets;
+			delete wallets[selectedWallet];
+			return {
+				...state,
+				wallets: {
+					...wallets,
 				},
 			};
 

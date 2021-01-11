@@ -7,7 +7,7 @@ type TProtocol = 'ssl' | 'tcp';
 export interface ICustomElectrumPeer {
 	host: string;
 	port: number;
-	protocol: TProtocol;
+	protocol?: TProtocol;
 }
 
 export interface ISettings {

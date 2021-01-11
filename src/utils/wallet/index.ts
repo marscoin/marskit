@@ -8,6 +8,7 @@ import {
 	IDefaultWalletShape,
 	IFormattedTransaction,
 	IUtxo,
+	IWalletItem,
 	TAddressType,
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
@@ -29,7 +30,10 @@ import {
 	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
-import { showSuccessNotification } from '../notifications';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../notifications';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateOnChainActivityList } from '../../store/actions/activity';
 
@@ -41,12 +45,18 @@ const bip32 = require('bip32');
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
-		await updateAddressIndexes();
+		await updateAddressIndexes({ selectedWallet, selectedNetwork });
 		await Promise.all([
-			subscribeToHeader({}),
-			subscribeToAddresses({}),
+			subscribeToHeader({ selectedNetwork }),
+			subscribeToAddresses({
+				selectedWallet,
+				selectedNetwork,
+			}),
 			updateExchangeRate(),
-			updateUtxos({}),
+			updateUtxos({
+				selectedWallet,
+				selectedNetwork,
+			}),
 			updateTransactions({
 				selectedWallet,
 				selectedNetwork,
@@ -1392,4 +1402,63 @@ export const getCustomElectrumPeers = ({
 	} catch {
 		return [];
 	}
+};
+
+const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
+	bitcoin: [{ host: 'bitcoin.lukechilds.co', port: 50002 }],
+	bitcoinTestnet: [
+		{
+			host: 'testnet.aranguren.org',
+			port: 51002,
+		},
+	],
+};
+export const connectToElectrum = async ({
+	selectedNetwork = undefined,
+	retryAttempts = 2,
+}: {
+	selectedNetwork?: TAvailableNetworks | undefined;
+	retryAttempts?: number;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	//Attempt to disconnect from any old/lingering connections
+	await electrum.stop({ network: selectedNetwork });
+
+	// Fetch any stored custom peers.
+	let customPeers = getCustomElectrumPeers({ selectedNetwork });
+	if (customPeers.length < 1) {
+		customPeers = tempElectrumServers[selectedNetwork];
+	}
+
+	let i = 0;
+	let startResponse = { error: true, data: '' };
+	while (i < retryAttempts) {
+		startResponse = await electrum.start({
+			network: selectedNetwork,
+			customPeers,
+		});
+		if (!startResponse.error) {
+			break;
+		}
+		i++;
+	}
+
+	if (startResponse.error) {
+		//Attempt one more time
+		const { error, data } = await electrum.start({
+			network: selectedNetwork,
+			customPeers,
+		});
+		if (error) {
+			showErrorNotification({
+				title: 'Unable to connect to Electrum Server.',
+				message: data,
+			});
+			return err(data);
+		}
+	}
+	return ok('Successfully connected.');
 };

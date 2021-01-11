@@ -358,7 +358,7 @@ const pollLndGetInfo = async (): Promise<void> => {
 
 /**
  * Pay lightning invoice and refresh channel balances after successful payment
- * @param invoice
+ * @param paymentRequest
  * @returns {Promise<{error: boolean, data: string}>}
  */
 export const payLightningRequest = (
@@ -385,4 +385,14 @@ export const payLightningRequest = (
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));
 	});
+};
+
+/*
+ * This resets the lightning store to defaultLightningShape
+ */
+export const resetLightningStore = (): Result<string> => {
+	dispatch({
+		type: actions.RESET_LIGHTNING_STORE,
+	});
+	return ok('');
 };

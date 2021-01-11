@@ -1,11 +1,23 @@
 import actions from './actions';
+import { getDispatch } from '../helpers';
+import { ok, Result } from '../../utils/result';
 
-export const updateSettings = (payload) => (dispatch) => {
-	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_SETTINGS,
-			payload,
-		});
-		resolve({ error: false, data: '' });
+const dispatch = getDispatch();
+
+export const updateSettings = (payload): Result<string> => {
+	dispatch({
+		type: actions.UPDATE_SETTINGS,
+		payload,
 	});
+	return ok('');
+};
+
+/*
+ * This resets the settings store to defaultSettingsShape
+ */
+export const resetSettingsStore = (): Result<string> => {
+	dispatch({
+		type: actions.RESET_SETTINGS_STORE,
+	});
+	return ok('');
 };

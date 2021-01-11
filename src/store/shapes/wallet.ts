@@ -1,4 +1,19 @@
-import { IWalletItem, IDefaultWalletShape, IAddresses } from '../types/wallet';
+import {
+	IWalletItem,
+	IDefaultWalletShape,
+	IAddresses,
+	EWallet,
+	IWallet,
+} from '../types/wallet';
+
+export const defaultWalletStoreShape: IWallet = {
+	loading: false,
+	error: false,
+	selectedNetwork: 'bitcoinTestnet',
+	selectedWallet: EWallet.defaultWallet,
+	exchangeRate: 0,
+	wallets: {},
+};
 
 export const numberTypeItems: IWalletItem<number> = {
 	bitcoin: 0,

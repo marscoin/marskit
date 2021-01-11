@@ -3,13 +3,16 @@ import { SectionList, StyleSheet, Switch } from 'react-native';
 import { Text, TouchableOpacity, View } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 
-const ItemHeader = ({ title }: { title: string }): ReactElement => (
+const _ItemHeader = ({ title }: { title: string }): ReactElement => (
 	<View style={styles.itemHeader}>
 		<Text color="white" style={styles.header}>
 			{title}
 		</Text>
 	</View>
 );
+const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
+	return prevProps.title === nextProps.title;
+});
 
 type ItemData = {
 	title: string;
@@ -23,7 +26,7 @@ interface IItem extends ItemData {
 	type: string;
 }
 
-const Item = ({
+const _Item = ({
 	type,
 	title,
 	onPress,
@@ -65,6 +68,13 @@ const Item = ({
 		</TouchableOpacity>
 	);
 };
+const Item = memo(_Item, (prevProps, nextProps) => {
+	return (
+		prevProps.title === nextProps.title &&
+		prevProps.type === nextProps.type &&
+		prevProps.enabled === nextProps.enabled
+	);
+});
 
 interface IListData {
 	title: string;
@@ -76,7 +86,8 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 	return (
 		<SectionList
 			sections={data}
-			keyExtractor={(item, index): string => `${item}${index}`}
+			extraData={data}
+			keyExtractor={(item): string => item.title}
 			renderSectionHeader={({ section: { title } }): ReactElement => (
 				<ItemHeader title={title} />
 			)}
