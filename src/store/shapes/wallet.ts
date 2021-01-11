@@ -4,7 +4,14 @@ import {
 	IAddresses,
 	EWallet,
 	IWallet,
+	IOnChainTransaction,
+	EOnChainTransactionData,
 } from '../types/wallet';
+
+export const onChainTransaction: IOnChainTransaction = {
+	bitcoin: EOnChainTransactionData,
+	bitcoinTestnet: EOnChainTransactionData,
+};
 
 export const defaultWalletStoreShape: IWallet = {
 	loading: false,
@@ -77,4 +84,5 @@ export const defaultWalletShape: IDefaultWalletShape = {
 		bitcoinTestnet: 'bech32',
 	},
 	rbfData: objectTypeItems,
+	transaction: onChainTransaction,
 };

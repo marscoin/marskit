@@ -105,6 +105,33 @@ export interface IFormattedTransaction {
 	};
 }
 
+export interface IOnChainTransactionData {
+	address: string;
+	amount: number; //In sats
+	fiatAmount: number;
+	fee: number; //In sats
+	recommendedFee: number; //In sats
+	transactionSize: number; //In bytes (250 is about normal)
+	message: string; // OP_RETURN data for a given transaction.
+	label: string; // User set label for a given transaction.
+}
+
+export enum EOnChainTransactionData {
+	address = '',
+	amount = 0, //In sats
+	fiatAmount = 0,
+	fee = 1, //In sats
+	recommendedFee = 1, //In sats
+	transactionSize = 250, //In bytes (250 is about normal)
+	message = '', // OP_RETURN data for a given transaction.
+	label = '', // User set label for a given transaction.
+}
+
+export interface IOnChainTransaction {
+	bitcoin: IOnChainTransactionData;
+	bitcoinTestnet: IOnChainTransactionData;
+}
+
 export interface IDefaultWalletShape {
 	id: string;
 	name: string;
@@ -127,4 +154,5 @@ export interface IDefaultWalletShape {
 		bitcoinTestnet: TAddressType;
 	};
 	rbfData: IWalletItem<object>;
+	transaction: IOnChainTransaction;
 }
