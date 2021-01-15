@@ -287,6 +287,38 @@ export const updateUtxos = ({
 	});
 };
 
+export const updateWalletBalance = ({
+	balance = 0,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	balance: number;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Result<string> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const payload = {
+			balance,
+			selectedNetwork,
+			selectedWallet,
+		};
+		dispatch({
+			type: actions.UPDATE_WALLET_BALANCE,
+			payload,
+		});
+
+		return ok('Successfully updated balance.');
+	} catch (e) {
+		return err(e);
+	}
+};
+
 export interface ITransactionData {
 	address: string;
 	height: number;
