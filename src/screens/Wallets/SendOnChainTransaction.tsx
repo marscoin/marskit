@@ -19,7 +19,10 @@ import {
 	getTotalFee,
 } from '../../utils/wallet/transactions';
 import { validateAddress } from '../../utils/scanner';
-import { updateOnChainTransaction } from '../../store/actions/wallet';
+import {
+	resetOnChainTransaction,
+	updateOnChainTransaction,
+} from '../../store/actions/wallet';
 
 const Summary = ({
 	leftText = '',
@@ -88,29 +91,43 @@ const SendOnChainTransaction = ({
 				.address,
 	);
 
+	const balance = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet].balance[selectedNetwork],
+	);
+
 	const transaction = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet].transaction[selectedNetwork],
 	);
-	const { address, amount, fee, message } = transaction;
 
 	useEffect(() => {
 		if (animate) {
 			setTimeout(() => {
 				updateOpacity({ opacity, toValue: 1 });
 			}, 100);
-			return (): void => {
-				updateOpacity({ opacity, toValue: 0, duration: 0 });
-			};
 		}
+		return (): void => {
+			if (animate) {
+				updateOpacity({ opacity, toValue: 0, duration: 0 });
+			}
+			resetOnChainTransaction({ selectedNetwork, selectedWallet });
+		};
 	}, []);
+
+	const { address, amount, fee, message } = transaction;
+	const totalFee = getTotalFee({ fee, message });
 
 	const increaseFee = (): void => {
 		try {
 			//Check that the user has enough funds
-
-			//Increase the fee
-			updateTransaction({ fee: fee + 1 });
+			const newFee = fee + 1;
+			const newTotalFee = getTotalFee({ fee: newFee, message });
+			const newTotalAmount = amount + newTotalFee;
+			if (newTotalAmount <= balance) {
+				//Increase the fee
+				updateTransaction({ fee: newFee });
+			}
 		} catch {}
 	};
 
@@ -131,13 +148,11 @@ const SendOnChainTransaction = ({
 		}
 	};
 
-	const totalFee = getTotalFee({ fee, message });
-
 	const getTransactionTotal = (): number => {
 		try {
 			return Number(amount) + Number(totalFee);
 		} catch {
-			return Number(fee);
+			return Number(totalFee);
 		}
 	};
 
@@ -255,9 +270,13 @@ const SendOnChainTransaction = ({
 					autoCompleteType="off"
 					autoCorrect={false}
 					selectionColor="gray"
-					onChangeText={(txt): void =>
-						updateTransaction({ amount: Number(txt) })
-					}
+					onChangeText={(txt): void => {
+						const newAmount = Number(txt);
+						const totalNewAmount = newAmount + totalFee;
+						if (totalNewAmount <= balance) {
+							updateTransaction({ amount: newAmount });
+						}
+					}}
 					value={amount ? amount.toString() : ''}
 					onSubmitEditing={(): void => {}}
 				/>
@@ -270,7 +289,13 @@ const SendOnChainTransaction = ({
 					autoCompleteType="off"
 					autoCorrect={false}
 					selectionColor="gray"
-					onChangeText={(txt): void => updateTransaction({ message: txt })}
+					onChangeText={(txt): void => {
+						const newFee = getTotalFee({ fee, message: txt });
+						const totalNewAmount = amount + newFee;
+						if (totalNewAmount <= balance) {
+							updateTransaction({ message: txt });
+						}
+					}}
 					value={message}
 					onSubmitEditing={(): void => {}}
 				/>
@@ -295,7 +320,12 @@ const SendOnChainTransaction = ({
 						rightText={`${getTransactionTotal()} sats`}
 					/>
 				</View>
-				<Button color="onSurface" text="Create" onPress={_createTransaction} />
+				<Button
+					disabled={balance < getTransactionTotal()}
+					color="onSurface"
+					text="Create"
+					onPress={_createTransaction}
+				/>
 			</AnimatedView>
 		</View>
 	);
