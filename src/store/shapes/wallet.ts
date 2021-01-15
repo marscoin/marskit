@@ -13,15 +13,6 @@ export const onChainTransaction: IOnChainTransaction = {
 	bitcoinTestnet: EOnChainTransactionData,
 };
 
-export const defaultWalletStoreShape: IWallet = {
-	loading: false,
-	error: false,
-	selectedNetwork: 'bitcoinTestnet',
-	selectedWallet: EWallet.defaultWallet,
-	exchangeRate: 0,
-	wallets: {},
-};
-
 export const numberTypeItems: IWalletItem<number> = {
 	bitcoin: 0,
 	bitcoinTestnet: 0,
@@ -85,4 +76,15 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	},
 	rbfData: objectTypeItems,
 	transaction: onChainTransaction,
+};
+
+export const defaultWalletStoreShape: IWallet = {
+	loading: false,
+	error: false,
+	selectedNetwork: 'bitcoinTestnet',
+	selectedWallet: EWallet.defaultWallet,
+	exchangeRate: 0,
+	wallets: {
+		wallet0: defaultWalletShape,
+	},
 };
