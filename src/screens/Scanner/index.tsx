@@ -13,10 +13,18 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { payLightningRequest } from '../../store/actions/lightning';
 import Button from '../../components/Button';
+import {
+	updateOnChainTransaction,
+	updateWallet,
+} from '../../store/actions/wallet';
+import { refreshWallet } from '../../utils/wallet';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
 	);
 
 	const handleData = async (data: QRData): Promise<void> => {
@@ -32,14 +40,22 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 
 		switch (data.qrDataType) {
 			case EQRDataType.bitcoinAddress: {
-				//TODO
-				showInfoNotification(
-					{
-						title: 'TODO: Implement me',
-						message: 'Address payments not yet working.',
+				const { address, sats: amount, message, label, network } = data;
+				updateOnChainTransaction({
+					selectedNetwork,
+					selectedWallet,
+					transaction: {
+						address,
+						amount,
+						message,
+						label,
 					},
-					'bottom',
-				);
+				});
+				//Switch networks if necessary.
+				if (network !== selectedNetwork) {
+					await updateWallet({ selectedNetwork: network });
+				}
+				refreshWallet().then();
 				break;
 			}
 			case EQRDataType.lightningPaymentRequest: {
@@ -134,7 +150,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<Camera onBarCodeRead={onRead} onClose={(): void => {}}>
-				<View style={styles.scannerView}>
+				<View color={'transparent'} style={styles.scannerView}>
 					<Button
 						style={styles.pasteButton}
 						text={'Paste from clipboard'}

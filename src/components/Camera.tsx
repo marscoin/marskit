@@ -53,7 +53,9 @@ const _Camera = ({
 					buttonPositive: 'Okay',
 					buttonNegative: 'Cancel',
 				}}>
-				<View style={styles.content}>{children}</View>
+				<View color={'transparent'} style={styles.content}>
+					{children}
+				</View>
 			</RNCamera>
 		</View>
 	);

@@ -12,19 +12,19 @@ import {
 	TAvailableNetworks,
 } from './networks';
 import { address as bitcoinJSAddress } from 'bitcoinjs-lib';
-import { default as bitcoinUnits } from 'bitcoin-units';
+import { parseOnChainPaymentRequest } from './wallet/transactions';
 
 const availableNetworksList = availableNetworks();
 
-const validateAddress = ({
+export const validateAddress = ({
 	address = '',
 	selectedNetwork = undefined,
 }: {
 	address: string;
-	selectedNetwork: TAvailableNetworks | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 }): {
 	isValid: boolean;
-	network: TAvailableNetworks | undefined;
+	network: TAvailableNetworks;
 } => {
 	try {
 		//Validate address for a specific network
@@ -46,12 +46,15 @@ const validateAddress = ({
 					break;
 				}
 			}
+			if (!network) {
+				network = 'bitcoin';
+			}
 			return { isValid, network };
 		}
 
 		return { isValid: true, network: selectedNetwork };
 	} catch (e) {
-		return { isValid: false, network: selectedNetwork };
+		return { isValid: false, network: 'bitcoin' };
 	}
 };
 
@@ -98,36 +101,34 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 		lightningInvoice = invoice;
 	}
 
-	//Bitcoin address URI
+	//Plain bitcoin address or Bitcoin address URI
 	try {
-		const { address, options } = bip21.decode(data);
-		const res = validateAddress({ address, selectedNetwork: undefined });
-		if (res.isValid) {
+		const onChainParseResponse = parseOnChainPaymentRequest(data);
+		if (onChainParseResponse.isOk()) {
+			const {
+				address,
+				amount,
+				message,
+				label,
+				network,
+			} = onChainParseResponse.value;
 			foundNetworksInQR.push({
 				qrDataType: EQRDataType.bitcoinAddress,
-				network: res.network ?? 'bitcoin',
-				sats: options.amount
-					? bitcoinUnits(options.amount, 'bitcoin').to('sats').value()
-					: undefined,
-				label: options.label,
-				message: options.message,
+				address,
+				network,
+				sats: amount,
+				label,
+				message,
 			});
 		}
+
+		const { options } = bip21.decode(data);
 
 		//If a lightning invoice was passed as a param
 		if (options.lightning) {
 			lightningInvoice = options.lightning;
 		}
 	} catch (e) {}
-
-	//Plain bitcoin address
-	const res = validateAddress({ address: data, selectedNetwork: undefined });
-	if (res.isValid) {
-		foundNetworksInQR.push({
-			qrDataType: EQRDataType.bitcoinAddress,
-			network: res.network ?? 'bitcoin', //Should never be undefined if isValid
-		});
-	}
 
 	if (lightningInvoice) {
 		const lightningRes = await lnd.decodeInvoice(lightningInvoice);

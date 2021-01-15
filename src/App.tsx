@@ -42,7 +42,8 @@ const startApp = async (): Promise<void> => {
 
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork } = getStore().wallet;
-			if (Object.keys(wallets).length < 1) {
+			const walletKeys = Object.keys(wallets);
+			if (!wallets[walletKeys[0]] || !wallets[walletKeys[0]]?.id) {
 				await createWallet({});
 			}
 

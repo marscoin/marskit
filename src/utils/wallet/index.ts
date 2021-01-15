@@ -106,10 +106,10 @@ export const subscribeToAddresses = async ({
 	if (!addressScriptHash) {
 		addressScriptHash = currentWallet.addressIndex[selectedNetwork].scriptHash;
 	}
-	if (!changeAddressScriptHash) {
+	/*if (!changeAddressScriptHash) {
 		changeAddressScriptHash =
 			currentWallet.changeAddressIndex[selectedNetwork].scriptHash;
-	}
+	}*/
 	const subscribeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
 		{
 			scriptHash: addressScriptHash,
@@ -123,19 +123,19 @@ export const subscribeToAddresses = async ({
 			},
 		},
 	);
-	const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
+	/*const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
 		{
 			scriptHash: changeAddressScriptHash,
 			network: selectedNetwork,
 			onReceive: refreshWallet,
 		},
-	);
+	);*/
 	if (subscribeAddressResponse.error) {
 		return err('Unable to subscribe to receiving addresses.');
 	}
-	if (subscribeChangeAddressResponse.error) {
+	/*if (subscribeChangeAddressResponse.error) {
 		return err('Unable to subscribe to change addresses.');
-	}
+	}*/
 	return ok('Successfully subscribed to addresses.');
 };
 
@@ -608,6 +608,35 @@ export const getNextAvailableAddress = async ({
 			let addressIndex = currentWallet.addressIndex[selectedNetwork];
 			let changeAddressIndex =
 				currentWallet.changeAddressIndex[selectedNetwork];
+			if (!addressIndex?.address) {
+				const generatedAddresses = await generateAddresses({
+					wallet: selectedWallet,
+					selectedNetwork,
+					addressAmount: 1,
+					changeAddressAmount: 0,
+					keyDerivationPath,
+				});
+				if (generatedAddresses.isErr()) {
+					return resolve(err(generatedAddresses.error));
+				}
+				const key = Object.keys(generatedAddresses.value.addresses)[0];
+				addressIndex = generatedAddresses.value.addresses[key];
+			}
+
+			if (!changeAddressIndex?.address) {
+				const generatedChangeAddresses = await generateAddresses({
+					wallet: selectedWallet,
+					selectedNetwork,
+					addressAmount: 0,
+					changeAddressAmount: 1,
+					keyDerivationPath,
+				});
+				if (generatedChangeAddresses.isErr()) {
+					return resolve(err(generatedChangeAddresses.error));
+				}
+				const key = Object.keys(generatedChangeAddresses.value.addresses)[0];
+				addressIndex = generatedChangeAddresses.value.addresses[key];
+			}
 
 			/*
 			 *	Create more addresses if none exist or the highest address index matches the current address count
@@ -915,14 +944,14 @@ export const getSelectedWallet = (): string => {
 
 export const getCurrentWallet = ({
 	selectedNetwork = undefined,
-	selectedWallet = '',
+	selectedWallet = undefined,
 }: {
 	selectedNetwork?: undefined | TAvailableNetworks;
 	selectedWallet?: string;
 }): {
 	currentWallet: IDefaultWalletShape;
-	selectedNetwork: TAvailableNetworks;
-	selectedWallet: string;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string | undefined;
 } => {
 	const wallet = getStore().wallet;
 	if (!selectedNetwork) {

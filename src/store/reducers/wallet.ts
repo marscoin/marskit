@@ -45,6 +45,23 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				},
 			};
 
+		case actions.UPDATE_WALLET_BALANCE:
+			selectedWallet = action.payload.selectedWallet;
+			selectedNetwork = action.payload.selectedNetwork;
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						balance: {
+							...state.wallets[selectedWallet].balance,
+							[selectedNetwork]: action.payload.balance,
+						},
+					},
+				},
+			};
+
 		case actions.ADD_ADDRESSES:
 			return {
 				...state,

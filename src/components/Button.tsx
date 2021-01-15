@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
 		shadowOffset: { width: 1, height: 13 },
 		minWidth: 110,
 		marginVertical: 5,
+		paddingHorizontal: 10,
 	},
 	text: {
 		fontSize: 14,
