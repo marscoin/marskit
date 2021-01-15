@@ -5,7 +5,7 @@
 
 import React, { memo, ReactElement } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
-import { View, Text } from '../styles/components';
+import { View, Text, Pressable } from '../styles/components';
 import Card from './Card';
 import BitcoinLogo from '../assets/bitcoin-logo.svg';
 import LightningLogo from '../assets/lightning-logo.svg';
@@ -31,6 +31,7 @@ const AssetCard = ({
 	description = '',
 	assetBalanceLabel = '0 BTC',
 	fiatBalanceLabel = '$0',
+	onPress = (): null => null,
 	children = <View />,
 }: {
 	asset: string;
@@ -38,6 +39,7 @@ const AssetCard = ({
 	description?: string;
 	assetBalanceLabel: string;
 	fiatBalanceLabel: string;
+	onPress?: Function;
 	children?: ReactElement | false;
 }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -45,7 +47,7 @@ const AssetCard = ({
 	return (
 		<Card>
 			<>
-				<View color="transparent" style={styles.row}>
+				<Pressable onPress={onPress} color="transparent" style={styles.row}>
 					<View color="transparent" style={styles.col1}>
 						<HeaderIcon id={asset} />
 					</View>
@@ -65,7 +67,7 @@ const AssetCard = ({
 							</View>
 						</>
 					</View>
-				</View>
+				</Pressable>
 				{children}
 			</>
 		</Card>

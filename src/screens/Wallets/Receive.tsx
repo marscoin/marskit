@@ -129,7 +129,7 @@ const Receive = ({
 
 	return (
 		<View
-			color={header ? 'background' : 'surface'}
+			color={header ? 'background' : 'transparent'}
 			//eslint-disable-next-line react-native/no-inline-styles
 			style={{ flex: header ? 1 : 0 }}>
 			{header && <NavigationHeader title="Receive" />}
@@ -140,7 +140,7 @@ const Receive = ({
 						onPress={onCopyPress}
 						color="onSurface"
 						style={styles.qrCode}>
-						<QRCode value={address} size={200} />
+						{address && <QRCode value={address} size={200} />}
 					</TouchableOpacity>
 
 					<View color="transparent" style={styles.textContainer}>
@@ -181,9 +181,11 @@ const Receive = ({
 const styles = StyleSheet.create({
 	container: {
 		marginVertical: 20,
+		backgroundColor: 'transparent',
 	},
 	content: {
 		alignItems: 'center',
+		backgroundColor: 'transparent',
 	},
 	qrCode: {
 		padding: 12,

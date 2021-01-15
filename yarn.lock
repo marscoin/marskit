@@ -8081,7 +8081,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
 
 "rn-electrum-client@git+ssh://git@github.com/synonymdev/rn-electrum-client":
   version "0.0.7"
-  resolved "git+ssh://git@github.com/synonymdev/rn-electrum-client#8f5903b3bb443a857bdce1f5f78d6089213f289b"
+  resolved "git+ssh://git@github.com/synonymdev/rn-electrum-client#b56823fb0ebe337b4a4e0abfda9a9bece4284233"
 
 rn-nodeify@^10.2.0:
   version "10.2.0"
