@@ -16,6 +16,7 @@ import { getFiatBalance, getNetworkData } from '../../utils/helpers';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
+import { refreshWallet } from '../../utils/wallet';
 
 const BitcoinCard = (): ReactElement => {
 	const [displaySend, setDisplaySend] = useState(false);
@@ -141,7 +142,16 @@ const BitcoinCard = (): ReactElement => {
 					{shouldDisplaySendButton() && (
 						<SendOnChainTransaction
 							header={false}
-							onComplete={toggleSendTransaction}
+							onComplete={(): void => {
+								toggleSendTransaction().then();
+								resetOnChainTransaction({
+									selectedWallet,
+									selectedNetwork,
+								});
+								setTimeout(() => {
+									refreshWallet().then();
+								}, 4000);
+							}}
 						/>
 					)}
 					{displayReceive && <Receive header={false} />}

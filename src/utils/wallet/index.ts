@@ -106,10 +106,10 @@ export const subscribeToAddresses = async ({
 	if (!addressScriptHash) {
 		addressScriptHash = currentWallet.addressIndex[selectedNetwork].scriptHash;
 	}
-	if (!changeAddressScriptHash) {
+	/*if (!changeAddressScriptHash) {
 		changeAddressScriptHash =
 			currentWallet.changeAddressIndex[selectedNetwork].scriptHash;
-	}
+	}*/
 	const subscribeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
 		{
 			scriptHash: addressScriptHash,
@@ -123,19 +123,19 @@ export const subscribeToAddresses = async ({
 			},
 		},
 	);
-	const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
+	/*const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
 		{
 			scriptHash: changeAddressScriptHash,
 			network: selectedNetwork,
 			onReceive: refreshWallet,
 		},
-	);
+	);*/
 	if (subscribeAddressResponse.error) {
 		return err('Unable to subscribe to receiving addresses.');
 	}
-	if (subscribeChangeAddressResponse.error) {
+	/*if (subscribeChangeAddressResponse.error) {
 		return err('Unable to subscribe to change addresses.');
-	}
+	}*/
 	return ok('Successfully subscribed to addresses.');
 };
 

@@ -22,7 +22,12 @@ import { validateAddress } from '../../utils/scanner';
 import {
 	resetOnChainTransaction,
 	updateOnChainTransaction,
+	updateWalletBalance,
 } from '../../store/actions/wallet';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../../utils/notifications';
 
 const Summary = ({
 	leftText = '',
@@ -229,9 +234,27 @@ const SendOnChainTransaction = ({
 								rawTx,
 								selectedNetwork,
 							});
+							//Successful Broadcast
 							if (response.isOk()) {
+								const total = getTransactionTotal();
+								showSuccessNotification({
+									title: `Sent ${total} sats`,
+									message,
+								});
+								//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
+								updateWalletBalance({
+									balance: balance - total,
+									selectedWallet,
+									selectedNetwork,
+								});
 								onComplete(response.value);
+								return;
 							}
+
+							showErrorNotification({
+								title: 'Error: Unable to Broadcast Transaction',
+								message: 'Please check your connection and try again.',
+							});
 						}}>
 						<Text style={styles.title}>Broadcast</Text>
 					</TouchableOpacity>
