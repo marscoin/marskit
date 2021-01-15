@@ -57,7 +57,7 @@ export const createWallet = ({
 			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
 			const { error, data } = getMnemonicPhraseResponse;
 			const { wallets } = getStore().wallet;
-			if (!error && data && wallet in wallets) {
+			if (!error && data && wallet in wallets && wallets[wallet]?.id) {
 				return resolve(err(`Wallet ID, "${wallet}" already exists.`));
 			}
 
@@ -102,6 +102,7 @@ export const createWallet = ({
 					changeAddressIndex,
 					addresses: addressesObj,
 					changeAddresses: changeAddressesObj,
+					id: wallet,
 				},
 			};
 
