@@ -84,14 +84,14 @@ interface ISubscribeToAddress {
 }
 export const subscribeToAddresses = async ({
 	addressScriptHash = '',
-	changeAddressScriptHash = '',
+	//changeAddressScriptHash = '',
 	selectedNetwork = undefined,
 	selectedWallet = undefined,
 }: {
 	selectedNetwork?: undefined | TAvailableNetworks;
 	selectedWallet?: undefined | string;
 	addressScriptHash?: string;
-	changeAddressScriptHash?: string;
+	//changeAddressScriptHash?: string;
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
@@ -1239,7 +1239,7 @@ export const formatTransactions = async ({
 		let messages: string[] = []; // Array of OP_RETURN messages.
 
 		//Iterate over each input
-		const vin = result.vin;
+		const vin = result?.vin || [];
 		vin.map(({ txid, scriptSig }) => {
 			//Push any OP_RETURN messages to messages array
 			try {
@@ -1252,29 +1252,31 @@ export const formatTransactions = async ({
 
 			const { addresses: _addresses, value } = inputData[txid];
 			totalInputValue = totalInputValue + value;
-			_addresses.map((address) => {
-				if (
-					addressArray.includes(address) ||
-					changeAddressArray.includes(address)
-				) {
-					matchedInputValue = matchedInputValue + value;
-				}
-			});
+			Array.isArray(_addresses) &&
+				_addresses.map((address) => {
+					if (
+						addressArray.includes(address) ||
+						changeAddressArray.includes(address)
+					) {
+						matchedInputValue = matchedInputValue + value;
+					}
+				});
 		});
 
 		//Iterate over each output
-		const vout = result.vout;
+		const vout = result?.vout || [];
 		vout.map(({ scriptPubKey, value }) => {
 			const _addresses = scriptPubKey.addresses;
 			totalOutputValue = totalOutputValue + value;
-			_addresses.map((address) => {
-				if (
-					addressArray.includes(address) ||
-					changeAddressArray.includes(address)
-				) {
-					matchedOutputValue = matchedOutputValue + value;
-				}
-			});
+			Array.isArray(_addresses) &&
+				_addresses.map((address) => {
+					if (
+						addressArray.includes(address) ||
+						changeAddressArray.includes(address)
+					) {
+						matchedOutputValue = matchedOutputValue + value;
+					}
+				});
 		});
 
 		const txid = result.txid;
