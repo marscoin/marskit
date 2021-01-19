@@ -17,6 +17,7 @@ import { default as bitcoinUnits } from 'bitcoin-units';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
+import { EOnChainTransactionData } from '../../store/types/wallet';
 
 const BitcoinCard = (): ReactElement => {
 	const [displaySend, setDisplaySend] = useState(false);
@@ -33,7 +34,8 @@ const BitcoinCard = (): ReactElement => {
 	);
 	const transactionAddress = useSelector(
 		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork].address,
+			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
+				?.address || EOnChainTransactionData.address,
 	);
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);

@@ -28,6 +28,7 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
+import { EOnChainTransactionData } from '../../store/types/wallet';
 
 const Summary = ({
 	leftText = '',
@@ -103,7 +104,8 @@ const SendOnChainTransaction = ({
 
 	const transaction = useSelector(
 		(store: Store) =>
-			store.wallet.wallets[selectedWallet].transaction[selectedNetwork],
+			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
+			EOnChainTransactionData,
 	);
 
 	useEffect(() => {
