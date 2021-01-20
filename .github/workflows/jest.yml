@@ -1,0 +1,32 @@
+name: Tests
+
+on: pull_request
+
+jobs:
+  eslint:
+    name: Run lint and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.TEST_USER_SSH_KEY }}
+          known_hosts: ${{ secrets.TEST_USER_KNOWN_HOSTS }}
+
+      - name: Install Node.js dependencies
+        run: yarn install
+
+      - name: Build react-native-lightning
+        run: sh build-rn-lightning.sh
+
+      - name: Run Tests
+        run: yarn test
