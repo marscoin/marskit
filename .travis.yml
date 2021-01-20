@@ -22,9 +22,10 @@ matrix:
         - brew install applesimutils
       script:
         - yarn install
+        - sh build-rn-lightning.sh"
         - yarn test
-        - cd ios
-        - pod install
-        - cd ..
-        - detox build --configuration ios.sim.release
-        - detox test --configuration ios.sim.release --cleanup
+        - #cd ios
+        - #pod install
+        - #cd ..
+        - #detox build --configuration ios.sim.release
+        - #detox test --configuration ios.sim.release --cleanup
