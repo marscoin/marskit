@@ -22,7 +22,8 @@ matrix:
         - brew install applesimutils
       script:
         - yarn install
-        - sh build-rn-lightning.sh"
+        - sh build-rn-lightning.sh
+        - yarn lint:check
         - yarn test
         - #cd ios
         - #pod install
