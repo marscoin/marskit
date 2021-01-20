@@ -1,4 +1,4 @@
-import { lnrpc } from 'react-native-lightning/dist/rpc';
+import { lnrpc } from 'react-native-lightning';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { IFormattedTransaction } from '../../store/types/wallet';
 

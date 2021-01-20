@@ -2,18 +2,16 @@
  * Test functions for lightning development to be used until UX is finalized.
  */
 
-import lnd from 'react-native-lightning';
-import {
+import lnd, {
 	ENetworks as LndNetworks,
 	TLndConf,
-} from 'react-native-lightning/dist/types';
+	lnrpc,
+} from 'react-native-lightning';
 import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
-import { lnrpc } from 'react-native-lightning/dist/rpc';
-
 const packageJson = require('../../../package.json');
 
 const defaultNodePubKey =
