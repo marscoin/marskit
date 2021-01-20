@@ -20,4 +20,11 @@ class LND {
 	}
 }
 
+import LndConf from 'react-native-lightning/dist/lnd.conf';
+
+export { LndConf };
+export * from 'react-native-lightning/dist/types';
+export * from 'react-native-lightning/dist/rpc';
+
 export default new LND();
+
