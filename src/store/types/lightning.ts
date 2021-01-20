@@ -1,6 +1,8 @@
-import { lnrpc } from 'react-native-lightning/dist/rpc';
-import { TCurrentLndState } from 'react-native-lightning/src/lightning/types';
-import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
+import {
+	lnrpc,
+	TCurrentLndState,
+	ENetworks as LndNetworks,
+} from 'react-native-lightning';
 
 export interface ILightning {
 	syncProgress: number;

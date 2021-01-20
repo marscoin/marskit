@@ -19,8 +19,7 @@ import {
 	createLightningWallet,
 	unlockLightningWallet,
 } from './store/actions/lightning';
-import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
-import lnd from 'react-native-lightning';
+import lnd, { ENetworks as LndNetworks } from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
 import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';

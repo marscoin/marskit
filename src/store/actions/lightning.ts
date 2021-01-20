@@ -4,16 +4,17 @@ import {
 	IUnlockLightningWallet,
 } from '../types/lightning';
 import { getDispatch } from '../helpers';
-import lnd from 'react-native-lightning';
-import LndConf from 'react-native-lightning/dist/lnd.conf';
-import { ENetworks as LndNetworks } from 'react-native-lightning/dist/types';
+import lnd, {
+	lnrpc,
+	LndConf,
+	ENetworks as LndNetworks,
+} from 'react-native-lightning';
 import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
-import { lnrpc } from 'react-native-lightning/dist/rpc';
 import { updateLightingActivityList } from './activity';
 
 const dispatch = getDispatch();
