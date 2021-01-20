@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#Used for Travis CI
+#Used for CI until react-nat-ve-lightning is published to npm
 
 echo "***Start of temporary hack for building react-native-lightning. TODO: remove this once published to npm.***"
 cd node_modules/react-native-lightning/

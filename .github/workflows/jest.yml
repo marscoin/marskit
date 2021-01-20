@@ -3,8 +3,8 @@ name: Tests
 on: pull_request
 
 jobs:
-  eslint:
-    name: Run lint and test
+  tests:
+    name: Run jest unit tests
     runs-on: ubuntu-latest
 
     steps:

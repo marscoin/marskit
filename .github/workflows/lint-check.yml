@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   eslint:
-    name: Run lint and test
+    name: Run lint check
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +27,9 @@ jobs:
 
       - name: Build react-native-lightning
         run: sh build-rn-lightning.sh
+
+      - name: Lint check
+        run: yarn lint:check
 
       - name: Run linters
         uses: tinovyatkin/action-eslint@a62d4ab
