@@ -49,6 +49,15 @@ export const ScrollView = styled.ScrollView`
 	background-color: ${(props): string => props.theme.colors.background};
 `;
 
+export const TextInput = styled.TextInput`
+	background-color: ${(props): string =>
+		props.backgroundColor
+			? props.theme.colors[props.color]
+			: props.theme.colors.onSurface};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+`;
+
 export const RefreshControl = styled.RefreshControl.attrs((props) => ({
 	tintColor: props.theme.colors.refreshControl,
 }))``;

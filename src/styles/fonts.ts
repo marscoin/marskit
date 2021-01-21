@@ -1,6 +1,31 @@
 import { Platform } from 'react-native';
 
-const fontConfig = {
+export interface IFont {
+	regular: {
+		fontFamily: string;
+		fontWeight: string;
+	};
+	medium: {
+		fontFamily: string;
+		fontWeight: string;
+	};
+	light: {
+		fontFamily: string;
+		fontWeight: string;
+	};
+	thin: {
+		fontFamily: string;
+		fontWeight: string;
+	};
+}
+
+interface IFontConfig {
+	web: IFont;
+	ios: IFont;
+	default: IFont;
+}
+
+const fontConfig: IFontConfig = {
 	web: {
 		regular: {
 			fontFamily: 'Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -57,6 +82,6 @@ const fontConfig = {
 	},
 };
 
-const configureFonts = (config = {}): {} =>
+const configureFonts = (config = {}): IFont =>
 	Platform.select({ ...fontConfig, ...config });
 export default configureFonts;
