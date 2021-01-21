@@ -3,7 +3,6 @@ import { LayoutAnimation, Platform, StyleSheet, TextInput } from 'react-native';
 import {
 	View,
 	AnimatedView,
-	EvilIcon,
 	Text,
 	TouchableOpacity,
 } from '../../styles/components';
@@ -29,6 +28,7 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { EOnChainTransactionData } from '../../store/types/wallet';
+import AdjustFee from '../../components/AdjustFee';
 
 const Summary = ({
 	leftText = '',
@@ -88,7 +88,7 @@ const SendOnChainTransaction = ({
 
 	const addressType = useSelector(
 		(store: Store) =>
-			store.wallet.wallets[selectedWallet].addressType[selectedNetwork],
+			store.wallet.wallets[selectedWallet]?.addressType[selectedNetwork],
 	);
 
 	const changeAddress = useSelector(
@@ -120,6 +120,7 @@ const SendOnChainTransaction = ({
 			}
 			resetOnChainTransaction({ selectedNetwork, selectedWallet });
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const { address, amount, fee, message } = transaction;
@@ -171,10 +172,12 @@ const SendOnChainTransaction = ({
 				return;
 			}
 			if (!validateAddress({ address, selectedNetwork }).isValid) {
+				// eslint-disable-next-line no-alert
 				alert('Please add a valid address');
 				return;
 			}
 			if (!amount) {
+				// eslint-disable-next-line no-alert
 				alert('Please add an amount to send.');
 				return;
 			}
@@ -270,7 +273,7 @@ const SendOnChainTransaction = ({
 			color={header ? 'background' : 'transparent'}
 			//eslint-disable-next-line react-native/no-inline-styles
 			style={{ flex: header ? 1 : 0 }}>
-			{header && <NavigationHeader title="SendOnChainTransaction" />}
+			{header && <NavigationHeader title="Send Transaction" />}
 			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
 				<TextInput
 					multiline={true}
@@ -325,17 +328,11 @@ const SendOnChainTransaction = ({
 					onSubmitEditing={(): void => {}}
 				/>
 
-				<View color="transparent" style={styles.feeRow}>
-					<TouchableOpacity onPress={decreaseFee} style={styles.icon}>
-						<EvilIcon type="text2" name={'minus'} size={42} />
-					</TouchableOpacity>
-					<View color="transparent" style={styles.fee}>
-						<Text style={styles.title}>{transaction.fee} sats/byte</Text>
-					</View>
-					<TouchableOpacity onPress={increaseFee} style={styles.icon}>
-						<EvilIcon name={'plus'} size={42} />
-					</TouchableOpacity>
-				</View>
+				<AdjustFee
+					fee={transaction.fee}
+					decreaseFee={decreaseFee}
+					increaseFee={increaseFee}
+				/>
 
 				<View color="transparent" style={styles.summary}>
 					<Summary leftText={'Amount:'} rightText={`${getAmount()} sats`} />
@@ -389,13 +386,6 @@ const styles = StyleSheet.create({
 		marginVertical: 5,
 		paddingTop: Platform.OS === 'ios' ? 15 : 10,
 	},
-	icon: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-		padding: 5,
-		backgroundColor: 'transparent',
-	},
 	title: {
 		...systemWeights.bold,
 		fontSize: 16,
@@ -408,15 +398,6 @@ const styles = StyleSheet.create({
 	row: {
 		flexDirection: 'row',
 		justifyContent: 'space-evenly',
-	},
-	feeRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginVertical: 5,
-	},
-	fee: {
-		flex: 1.5,
 	},
 	summary: {
 		marginVertical: 20,
