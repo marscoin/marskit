@@ -6,6 +6,7 @@ import DrawerNavigator from '../drawer/DrawerNavigator';
 import TempSettings from '../../screens/Settings/TempSettings';
 import LightningInfo from '../../screens/Settings/Lightning/LightningInfo';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
+import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="LndLogs"
 					component={LndLogs}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ManageSeedPhrase"
+					component={ManageSeedPhrase}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>
