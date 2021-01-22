@@ -1,11 +1,17 @@
-name: Tests
+name: tests
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - 'master'
+  push:
+    branches:
+      - 'master'
 
 jobs:
   tests:
     name: Run jest unit tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Check out Git repository

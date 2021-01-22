@@ -39,7 +39,6 @@ describe('QR codes', () => {
 			expect(qrData.network).toEqual('bitcoin');
 			expect(qrData.qrDataType).toEqual('bitcoinAddress');
 			expect(qrData.sats).toEqual(50000);
-			expect(qrData.label).toEqual('Nakamoto');
 			expect(qrData.message).toEqual('Donation for project xyz');
 		}
 	});

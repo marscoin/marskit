@@ -10,15 +10,7 @@ interface Props extends PropsWithChildren<any> {
 
 const ActivityDetail = (props: Props): ReactElement => {
 	const {
-		activityItem: {
-			id,
-			description,
-			activityType,
-			txType,
-			value,
-			confirmed,
-			fee,
-		},
+		activityItem: { id, message, activityType, txType, value, confirmed, fee },
 	} = props.route.params;
 
 	return (
@@ -29,7 +21,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 				<Text>
 					Type: {activityType} {txType}
 				</Text>
-				<Text>Description: {description}</Text>
+				<Text>Message: {message}</Text>
 				<Text>Value: {value}</Text>
 				<Text>Confirmed: {confirmed ? '✅' : '⌛'}</Text>
 				{fee ? <Text>Fee: {fee}</Text> : null}

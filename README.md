@@ -1,5 +1,7 @@
 # Spectrum
 
+[![Test status](https://github.com/synonymdev/spectrum/workflows/tests/badge.svg)](https://github.com/synonymdev/spectrum/actions)
+
 ### Installation
 1. Clone Spectrum & Install Dependencies:
     - `git clone git@github.com:synonymdev/spectrum.git`

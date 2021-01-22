@@ -10,7 +10,7 @@ export interface IActivityItem {
 	id: string;
 	value: number;
 	fee?: number; //If receiving we might not know the fee
-	description: string;
+	message: string;
 	activityType: EActivityTypes;
 	txType: TTransactionType;
 	confirmed: boolean;

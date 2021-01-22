@@ -8,7 +8,8 @@ import { IFormattedTransaction } from '../../store/types/wallet';
  * @param settled
  * @param value
  * @param memo
- * @returns {{fee: number, description: string, id: string, type: EActivityTypes, confirmed: boolean, value: number}}
+ * @returns {{fee: number, id: string, txType: "received", activityType: EActivityTypes, message: string, confirmed: boolean, value: number, timestamp: number}}
+ * @param creationDate
  */
 export const lightningInvoiceToActivityItem = ({
 	rHash,
@@ -23,23 +24,23 @@ export const lightningInvoiceToActivityItem = ({
 	confirmed: settled ?? false,
 	value: Number(value),
 	fee: 0,
-	description: memo ?? '',
+	message: memo ?? '',
 	timestamp: Number(creationDate) * 1000,
 });
 
 /**
  * Converts lightning payment to activity item
+ * @returns {{fee: number, id: string, txType: "sent", activityType: EActivityTypes, message: string, confirmed: boolean, value: number, timestamp: number}}
+ * @param memo
  * @param paymentHash
  * @param status
  * @param value
  * @param fee
  * @param creationDate
- * @param description
- * @returns {{fee: number, description: string, id: string, txType: "sent", activityType: EActivityTypes, confirmed: boolean, value: number, timestamp: number}}
  */
 export const lightningPaymentToActivityItem = (
 	{ paymentHash, status, value, fee, creationDate }: lnrpc.IPayment,
-	description: string,
+	memo: string,
 ): IActivityItem => {
 	return {
 		id: paymentHash ?? '',
@@ -48,7 +49,7 @@ export const lightningPaymentToActivityItem = (
 		confirmed: status === 2,
 		value: Number(value),
 		fee: Number(fee),
-		description,
+		message: memo,
 		timestamp: Number(creationDate) * 1000,
 	};
 };
@@ -78,7 +79,7 @@ export const onChainTransactionsToActivityItems = (
 			confirmed: height > 0,
 			value,
 			fee,
-			description: address, //TODO, we might need to have some sort of address labeling
+			message: address, //TODO, we might need to have some sort of address labeling
 			timestamp,
 		});
 	});
@@ -127,8 +128,8 @@ export const filterActivityItems = (
 	let filteredItems: IActivityItem[] = [];
 
 	items.forEach((item) => {
-		//If there is a search set and it's not found in the description then don't bother continuing
-		if (search && item.description.indexOf(search) === -1) {
+		//If there is a search set and it's not found in the message then don't bother continuing
+		if (search && item.message.indexOf(search) === -1) {
 			return;
 		}
 

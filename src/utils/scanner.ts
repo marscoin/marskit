@@ -70,7 +70,6 @@ export interface QRData {
 	sats?: number | Long;
 	address?: string;
 	lightningPaymentRequest?: string;
-	label?: string;
 	message?: string;
 }
 
@@ -105,19 +104,12 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	try {
 		const onChainParseResponse = parseOnChainPaymentRequest(data);
 		if (onChainParseResponse.isOk()) {
-			const {
-				address,
-				amount,
-				message,
-				label,
-				network,
-			} = onChainParseResponse.value;
+			const { address, sats, message, network } = onChainParseResponse.value;
 			foundNetworksInQR.push({
 				qrDataType: EQRDataType.bitcoinAddress,
 				address,
 				network,
-				sats: amount,
-				label,
+				sats,
 				message,
 			});
 		}

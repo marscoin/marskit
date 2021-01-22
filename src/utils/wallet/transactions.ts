@@ -27,9 +27,8 @@ export const parseOnChainPaymentRequest = (
 ): Result<{
 	address: string;
 	network: TAvailableNetworks;
-	amount: number;
+	sats: number;
 	message: string;
-	label: string;
 }> => {
 	try {
 		if (!data) {
@@ -44,9 +43,8 @@ export const parseOnChainPaymentRequest = (
 			return ok({
 				address: data,
 				network: validateAddressResult.network,
-				amount: 0,
+				sats: 0,
 				message: '',
-				label: '',
 			});
 		}
 
@@ -81,9 +79,8 @@ export const parseOnChainPaymentRequest = (
 				return ok({
 					address,
 					network: validateAddressResult.network,
-					amount,
+					sats: Number((amount * 100000000).toFixed(0)),
 					message,
-					label: message,
 				});
 			} catch {
 				return err(data);
