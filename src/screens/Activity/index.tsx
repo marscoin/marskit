@@ -20,14 +20,7 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const {
-		message,
-		value,
-		activityType,
-		txType,
-		confirmed,
-		timestamp,
-	} = item;
+	const { message, value, activityType, txType, confirmed, timestamp } = item;
 
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>

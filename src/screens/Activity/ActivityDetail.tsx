@@ -10,15 +10,7 @@ interface Props extends PropsWithChildren<any> {
 
 const ActivityDetail = (props: Props): ReactElement => {
 	const {
-		activityItem: {
-			id,
-			message,
-			activityType,
-			txType,
-			value,
-			confirmed,
-			fee,
-		},
+		activityItem: { id, message, activityType, txType, value, confirmed, fee },
 	} = props.route.params;
 
 	return (
