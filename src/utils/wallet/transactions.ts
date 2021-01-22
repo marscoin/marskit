@@ -27,7 +27,7 @@ export const parseOnChainPaymentRequest = (
 ): Result<{
 	address: string;
 	network: TAvailableNetworks;
-	amount: number;
+	sats: number;
 	message: string;
 	label: string;
 }> => {
@@ -44,7 +44,7 @@ export const parseOnChainPaymentRequest = (
 			return ok({
 				address: data,
 				network: validateAddressResult.network,
-				amount: 0,
+				sats: 0,
 				message: '',
 				label: '',
 			});
@@ -81,7 +81,7 @@ export const parseOnChainPaymentRequest = (
 				return ok({
 					address,
 					network: validateAddressResult.network,
-					amount,
+					sats: amount * 100000000,
 					message,
 					label: message,
 				});

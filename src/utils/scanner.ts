@@ -107,7 +107,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 		if (onChainParseResponse.isOk()) {
 			const {
 				address,
-				amount,
+				sats,
 				message,
 				label,
 				network,
@@ -116,7 +116,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 				qrDataType: EQRDataType.bitcoinAddress,
 				address,
 				network,
-				sats: amount,
+				sats,
 				label,
 				message,
 			});
