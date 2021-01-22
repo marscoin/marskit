@@ -12,7 +12,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 	const {
 		activityItem: {
 			id,
-			description,
+			message,
 			activityType,
 			txType,
 			value,
@@ -29,7 +29,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 				<Text>
 					Type: {activityType} {txType}
 				</Text>
-				<Text>Description: {description}</Text>
+				<Text>Message: {message}</Text>
 				<Text>Value: {value}</Text>
 				<Text>Confirmed: {confirmed ? '✅' : '⌛'}</Text>
 				{fee ? <Text>Fee: {fee}</Text> : null}

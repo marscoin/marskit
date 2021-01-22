@@ -21,7 +21,7 @@ const ListItem = ({
 	onPress: () => void;
 }): ReactElement => {
 	const {
-		description,
+		message,
 		value,
 		activityType,
 		txType,
@@ -35,7 +35,7 @@ const ListItem = ({
 				<Text>
 					{activityType} - {txType}
 				</Text>
-				<Text>{description}</Text>
+				<Text>{message}</Text>
 				<Text>Date: {new Date(timestamp).toString()}</Text>
 			</View>
 			<View>
