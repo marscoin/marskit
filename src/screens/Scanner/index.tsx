@@ -40,15 +40,14 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 
 		switch (data.qrDataType) {
 			case EQRDataType.bitcoinAddress: {
-				const { address, sats: amount, message, label, network } = data;
+				const { address, sats: amount, message, network } = data;
 				updateOnChainTransaction({
 					selectedNetwork,
 					selectedWallet,
 					transaction: {
 						address,
 						amount,
-						message,
-						label,
+						label: message,
 					},
 				});
 				//Switch networks if necessary.

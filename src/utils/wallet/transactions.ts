@@ -79,7 +79,7 @@ export const parseOnChainPaymentRequest = (
 				return ok({
 					address,
 					network: validateAddressResult.network,
-					sats: amount * 100000000,
+					sats: Number((amount * 100000000).toFixed(0)),
 					message,
 				});
 			} catch {
