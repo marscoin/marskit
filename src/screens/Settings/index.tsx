@@ -102,6 +102,13 @@ const Settings = ({ navigation }): ReactElement => {
 						});
 					},
 				},
+				{
+					title: 'Manage Seed Phrase',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						navigation.navigate('ManageSeedPhrase');
+					},
+				},
 			],
 		},
 		{

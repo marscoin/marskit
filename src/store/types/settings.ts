@@ -19,5 +19,7 @@ export interface ISettings {
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
+	selectedCurrency: string;
+	selectedLanguage: string;
 	[key: string]: any;
 }

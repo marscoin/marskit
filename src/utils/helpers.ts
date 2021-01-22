@@ -146,3 +146,12 @@ export const getFiatBalance = ({
 		return '0';
 	}
 };
+
+export const getLastWordInString = (phrase = ''): string => {
+	try {
+		const n = phrase.split(' ');
+		return n[n.length - 1];
+	} catch (e) {
+		return phrase;
+	}
+};

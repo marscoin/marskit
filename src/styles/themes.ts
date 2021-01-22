@@ -1,7 +1,36 @@
-import configureFonts from './fonts';
-import colors from './colors';
+import configureFonts, { IFont } from './fonts';
+import colors, { IColors } from './colors';
 
-const defaultThemeValues = {
+export interface IDefaultColors extends IColors {
+	accent: string;
+	success: string;
+	error: string;
+	transparent: string;
+}
+
+export interface IThemeColors extends IDefaultColors {
+	text: string;
+	primary: string;
+	background: string;
+	surface: string;
+	onBackground: string;
+	onSurface: string;
+	logText: string;
+	refreshControl: string;
+}
+
+export interface ITheme {
+	id: string;
+	colors: IThemeColors;
+	fonts: IFont;
+}
+
+interface IDefaultThemeValues {
+	colors: IDefaultColors;
+	fonts: IFont;
+}
+
+const defaultThemeValues: IDefaultThemeValues = {
 	colors: {
 		...colors,
 		accent: '#0000007F',
@@ -12,7 +41,7 @@ const defaultThemeValues = {
 	fonts: configureFonts(),
 };
 
-const light = {
+const light: ITheme = {
 	...defaultThemeValues,
 	id: 'light',
 	colors: {
@@ -28,7 +57,7 @@ const light = {
 	},
 };
 
-const dark = {
+const dark: ITheme = {
 	...defaultThemeValues,
 	id: 'dark',
 	colors: {
