@@ -5,7 +5,7 @@ on: pull_request
 jobs:
   tests:
     name: Run jest unit tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Check out Git repository
