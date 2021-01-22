@@ -17,6 +17,7 @@ import Store from '../../store/types';
 import themes from '../../styles/themes';
 import Receive from '../../screens/Wallets/Receive';
 import ScannerScreen from '../../screens/Scanner';
+import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -40,6 +41,14 @@ const WalletsStack = (): ReactElement => {
 				name="WalletsDetail"
 				component={WalletsDetail}
 				options={navOptionHandler}
+			/>
+			<Stack.Screen
+				name="SendOnChainTransaction"
+				component={SendOnChainTransaction}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
 			/>
 			<Stack.Screen
 				name="ReceiveAsset"

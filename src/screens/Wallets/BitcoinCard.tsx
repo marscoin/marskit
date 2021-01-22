@@ -123,7 +123,7 @@ const BitcoinCard = (): ReactElement => {
 							style={styles.sendButton}
 							onPress={toggleSendTransaction}
 							onLongPress={(): void =>
-								navigation.navigate('SendOnChainAsset', {
+								navigation.navigate('SendOnChainTransaction', {
 									id: selectedNetwork,
 								})
 							}

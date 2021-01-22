@@ -5,6 +5,7 @@ import _EvilIcon from 'react-native-vector-icons/EvilIcons';
 import _Ionicons from 'react-native-vector-icons/Ionicons';
 import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated from 'react-native-reanimated';
+import colors from './colors';
 
 export const SafeAreaView = styled.SafeAreaView`
 	flex: 1;
@@ -49,7 +50,9 @@ export const ScrollView = styled.ScrollView`
 	background-color: ${(props): string => props.theme.colors.background};
 `;
 
-export const TextInput = styled.TextInput`
+export const TextInput = styled.TextInput.attrs(() => ({
+	selectionColor: colors.orange,
+}))`
 	background-color: ${(props): string =>
 		props.backgroundColor
 			? props.theme.colors[props.color]

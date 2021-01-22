@@ -1,10 +1,11 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { LayoutAnimation, Platform, StyleSheet, TextInput } from 'react-native';
+import { LayoutAnimation, Platform, StyleSheet } from 'react-native';
 import {
 	View,
 	AnimatedView,
 	Text,
 	TouchableOpacity,
+	TextInput,
 } from '../../styles/components';
 import Animated, { Easing } from 'react-native-reanimated';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -284,7 +285,6 @@ const SendOnChainTransaction = ({
 					autoCapitalize="none"
 					autoCompleteType="off"
 					autoCorrect={false}
-					selectionColor="gray"
 					onChangeText={(txt): void => updateTransaction({ address: txt })}
 					value={address}
 					onSubmitEditing={(): void => {}}
@@ -297,7 +297,6 @@ const SendOnChainTransaction = ({
 					autoCapitalize="none"
 					autoCompleteType="off"
 					autoCorrect={false}
-					selectionColor="gray"
 					onChangeText={(txt): void => {
 						const newAmount = Number(txt);
 						const totalNewAmount = newAmount + totalFee;
@@ -316,7 +315,6 @@ const SendOnChainTransaction = ({
 					autoCapitalize="none"
 					autoCompleteType="off"
 					autoCorrect={false}
-					selectionColor="gray"
 					onChangeText={(txt): void => {
 						const newFee = getTotalFee({ fee, message: txt });
 						const totalNewAmount = amount + newFee;
