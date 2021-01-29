@@ -10,6 +10,15 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 				...action.payload,
 			};
 
+		case actions.UPDATE_OMNIBOLT_USERDATA:
+			return {
+				...state,
+				userData: {
+					...state.userData,
+					...action.payload,
+				},
+			};
+
 		case actions.RESET_OMNIBOLT_STORE:
 			return defaultOmniBoltShape;
 
