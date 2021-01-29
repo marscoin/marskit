@@ -23,6 +23,7 @@ import lnd, { ENetworks as LndNetworks } from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
 import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';
+import { startOmnibolt } from './utils/omnibolt';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -40,7 +41,7 @@ const startApp = async (): Promise<void> => {
 			await startLnd(lndNetwork);
 
 			//Create wallet if none exists.
-			let { wallets, selectedNetwork } = getStore().wallet;
+			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
 			const walletKeys = Object.keys(wallets);
 			if (!wallets[walletKeys[0]] || !wallets[walletKeys[0]]?.id) {
 				await createWallet({});
@@ -50,6 +51,9 @@ const startApp = async (): Promise<void> => {
 			if (electrumResponse.isOk()) {
 				refreshWallet().then();
 			}
+
+			//Create and start omnibolt.
+			startOmnibolt({ selectedWallet }).then();
 
 			//Create or unlock LND wallet
 			const existsRes = await lnd.walletExists(lndNetwork);
