@@ -1,4 +1,4 @@
-import { IOmniBolt } from '../types/omnibolt';
+import { EOmniBoltUserData, IOmniBolt } from '../types/omnibolt';
 import { EWallet } from '../types/wallet';
 
 export const defaultOmniBoltShape: IOmniBolt = {
@@ -6,5 +6,5 @@ export const defaultOmniBoltShape: IOmniBolt = {
 	error: false,
 	selectedNetwork: EWallet.selectedNetwork,
 	selectedWallet: EWallet.defaultWallet,
-	wallets: {},
+	userData: EOmniBoltUserData,
 };
