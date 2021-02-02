@@ -4,7 +4,7 @@
  */
 
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { LayoutAnimation, StyleSheet, Image } from 'react-native';
 import { View, Text, Pressable } from '../styles/components';
 import Card from './Card';
 import BitcoinLogo from '../assets/bitcoin-logo.svg';
@@ -17,6 +17,13 @@ const HeaderIcon = ({ id = 'bitcoin' }): ReactElement => {
 				return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
 			case 'lightning':
 				return <LightningLogo viewBox="0 0 300 300" height={55} width={55} />;
+			case 'omnibolt':
+				return (
+					<Image
+						style={styles.image}
+						source={require('../assets/omnibolt.png')}
+					/>
+				);
 			default:
 				return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
 		}
@@ -108,6 +115,11 @@ const styles = StyleSheet.create({
 	},
 	row: {
 		flexDirection: 'row',
+	},
+	image: {
+		width: 50,
+		height: 50,
+		borderRadius: 50,
 	},
 });
 

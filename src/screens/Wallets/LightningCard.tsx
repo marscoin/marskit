@@ -6,7 +6,7 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View, Text } from '../../styles/components';
-import Receive from './Receive';
+import QR from '../../components/QR';
 import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard';
 import Store from '../../store/types';
@@ -163,12 +163,10 @@ const LightningCard = (): ReactElement => {
 
 				{!!message && <Text style={styles.message}>{message}</Text>}
 
-				{!!receiveAddress && (
-					<Receive address={receiveAddress} header={false} />
-				)}
+				{!!receiveAddress && <QR data={receiveAddress} header={false} />}
 
 				{!!receivePaymentRequest && (
-					<Receive address={receivePaymentRequest} header={false} />
+					<QR data={receivePaymentRequest} header={false} />
 				)}
 			</>
 		</AssetCard>
