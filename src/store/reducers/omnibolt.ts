@@ -19,6 +19,12 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 				},
 			};
 
+		case actions.UPDATE_OMNIBOLT_CONNECTDATA:
+			return {
+				...state,
+				connectData: action.payload,
+			};
+
 		case actions.RESET_OMNIBOLT_STORE:
 			return defaultOmniBoltShape;
 
