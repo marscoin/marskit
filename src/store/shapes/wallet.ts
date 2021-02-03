@@ -1,14 +1,14 @@
 import {
 	IWalletItem,
 	IDefaultWalletShape,
-	IAddresses,
 	EWallet,
 	IWallet,
-	IOnChainTransaction,
 	EOnChainTransactionData,
+	IAddressContent,
+	IOnChainTransactionData,
 } from '../types/wallet';
 
-export const onChainTransaction: IOnChainTransaction = {
+export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
 	bitcoin: EOnChainTransactionData,
 	bitcoinTestnet: EOnChainTransactionData,
 };
@@ -31,7 +31,7 @@ export const objectTypeItems: IWalletItem<object> = {
 	timestamp: null,
 };
 
-export const addressIndex: IAddresses = {
+export const addressIndex: IWalletItem<IAddressContent> = {
 	bitcoin: {
 		index: 0,
 		path: '',
