@@ -8,6 +8,7 @@ import {
 	connectToOmnibolt,
 	loginToOmnibolt,
 } from '../../store/actions/omnibolt';
+import { IOmniboltConnectData } from '../../store/types/omnibolt';
 const obdapi = new ObdApi();
 
 /**
@@ -150,4 +151,59 @@ export const startOmnibolt = async ({
 			await loginToOmnibolt({ selectedWallet });
 		}
 	} catch {}
+};
+
+export const connectToPeer = ({ nodeAddress = '' }): Promise<string> => {
+	return new Promise((resolve) => {
+		try {
+			obdapi.connectPeer(
+				{
+					remote_node_address: nodeAddress,
+				},
+				(data) => {
+					//onConnectPeer(data);
+					return resolve(data);
+				},
+			);
+		} catch {}
+	});
+};
+
+export const parseOmniboltConnectData = async (
+	data = '',
+): Promise<Result<IOmniboltConnectData>> => {
+	try {
+		data = data.trim();
+		const parsedData = JSON.parse(data);
+		if (
+			!parsedData?.nodeAddress ||
+			!parsedData?.nodePeerId ||
+			!parsedData?.userPeerId
+		) {
+			return err('Invalid Data');
+		}
+		return ok(parsedData);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns the id used to connect to other peers.
+ */
+export const getConnectPeerInfo = (): string => {
+	try {
+		const {
+			nodeAddress,
+			nodePeerId,
+			userPeerId,
+		} = getStore().omnibolt.userData;
+		return JSON.stringify({
+			nodeAddress,
+			nodePeerId,
+			userPeerId,
+		});
+	} catch {
+		return '';
+	}
 };

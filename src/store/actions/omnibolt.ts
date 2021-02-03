@@ -4,6 +4,7 @@ import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
 import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
+import { IOmniboltConnectData } from '../types/omnibolt';
 
 const dispatch = getDispatch();
 
@@ -37,49 +38,77 @@ export const connectToOmnibolt = async ({
 	const connectResponse = await omnibolt.connect({
 		url,
 	});
-	if (connectResponse.isOk()) {
-		dispatch({
-			type: actions.UPDATE_OMNIBOLT_USERDATA,
-			payload: connectResponse.value,
-		});
-		return ok(connectResponse.value);
+	if (connectResponse.isErr()) {
+		return err(connectResponse.error.message);
 	}
-	return err(connectResponse.error.message);
+	// Ensure we're getting the necessary data.
+	if (!connectResponse.value?.recipient_node_peer_id) {
+		return err(connectResponse.value.toString());
+	}
+	dispatch({
+		type: actions.UPDATE_OMNIBOLT_USERDATA,
+		payload: connectResponse.value,
+	});
+	return ok(connectResponse.value);
 };
 
-/**
- * Logs in to
- */
 export const loginToOmnibolt = async ({
 	selectedWallet = undefined,
 }: {
 	selectedWallet: string | undefined;
-}): Promise<Result<IConnect>> => {
-	if (!selectedWallet) {
-		selectedWallet = getStore().wallet.selectedWallet;
-	}
-	const connectResponse = await omnibolt.login({ onLogin, selectedWallet });
-	if (connectResponse.isErr()) {
-		return err(connectResponse.error.message);
-	}
-	if (connectResponse.value) {
-		dispatch({
-			type: actions.UPDATE_OMNIBOLT_USERDATA,
-			payload: connectResponse.value,
+}): Promise<Result<ILogin>> => {
+	return new Promise(async (resolve) => {
+		if (!selectedWallet) {
+			selectedWallet = getStore().wallet.selectedWallet;
+		}
+		await omnibolt.login({
+			selectedWallet,
+			onLogin: (data) => {
+				onLogin(data);
+				return resolve(data);
+			},
 		});
-	}
-	return ok(connectResponse.value);
+	});
 };
 
+/**
+ * Passed as a callback to omnibolt-js, this method is used to store and save returned login data.
+ * @param data
+ */
 export const onLogin = async (
 	data: Result<ILogin>,
 ): Promise<Result<ILogin>> => {
-	if (data.isOk()) {
-		dispatch({
-			type: actions.UPDATE_OMNIBOLT_USERDATA,
-			payload: data.value,
-		});
-		return ok(data.value);
+	if (data.isErr()) {
+		return err(data.error);
 	}
-	return err(data.error.message);
+	if (!data.value?.nodeAddress) {
+		return err(data.value.toString());
+	}
+	dispatch({
+		type: actions.UPDATE_OMNIBOLT_USERDATA,
+		payload: data.value,
+	});
+	return ok(data.value);
 };
+
+/**
+ * connectData is used to temporarily store info when attempting to connect with a peer.
+ * @param data
+ */
+export const updateOmniboltConnectData = (
+	data: IOmniboltConnectData,
+): Result<string> => {
+	if (!data?.nodeAddress || !data?.nodePeerId || !data?.userPeerId) {
+		return err('Invalid Data');
+	}
+	dispatch({
+		type: actions.UPDATE_OMNIBOLT_CONNECTDATA,
+		payload: data,
+	});
+	return ok('Connect Data Updated.');
+};
+
+/*
+export const onConnectPeer = (data: any): void => {
+	//TODO: Add peer to omnibolt peer list.
+};*/
