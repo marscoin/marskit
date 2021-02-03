@@ -4,7 +4,7 @@
  */
 import React, { ReactElement } from 'react';
 import { StyleSheet, ActivityIndicator } from 'react-native';
-import { Pressable, Text, View } from '../styles/components';
+import { Text, TouchableOpacity, View } from '../styles/components';
 
 interface IButton {
 	text: string;
@@ -25,7 +25,8 @@ const Button = ({
 	style = {},
 }: IButton): ReactElement => {
 	return (
-		<Pressable
+		<TouchableOpacity
+			activeOpacity={0.6}
 			color={color}
 			style={[styles.button, style]}
 			//@ts-ignore
@@ -39,7 +40,7 @@ const Button = ({
 					<ActivityIndicator size="small" />
 				</View>
 			)}
-		</Pressable>
+		</TouchableOpacity>
 	);
 };
 

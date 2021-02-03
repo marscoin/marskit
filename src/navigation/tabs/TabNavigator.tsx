@@ -15,7 +15,7 @@ import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
-import Receive from '../../screens/Wallets/Receive';
+import QR from '../../components/QR';
 import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
 
@@ -51,8 +51,8 @@ const WalletsStack = (): ReactElement => {
 				}}
 			/>
 			<Stack.Screen
-				name="ReceiveAsset"
-				component={Receive}
+				name="QR"
+				component={QR}
 				options={{
 					...navOptionHandler,
 					...TransitionPresets.ModalSlideFromBottomIOS,

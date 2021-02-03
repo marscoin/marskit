@@ -1,12 +1,7 @@
-/**
- * @format
- * @flow strict-local
- */
-
 import React, { memo, ReactElement, useState } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
-import Receive from './Receive';
+import QR from '../../components/QR';
 import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard';
 import { useNavigation } from '@react-navigation/native';
@@ -36,6 +31,11 @@ const BitcoinCard = (): ReactElement => {
 		(state: Store) =>
 			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
 				?.address || EOnChainTransactionData.address,
+	);
+	const receiveAddress = useSelector(
+		(state: Store) =>
+			state.wallet.wallets[selectedWallet].addressIndex[selectedNetwork]
+				.address,
 	);
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
@@ -134,8 +134,9 @@ const BitcoinCard = (): ReactElement => {
 							style={styles.receiveButton}
 							onPress={toggleReceiveTransaction}
 							onLongPress={(): void =>
-								navigation.navigate('ReceiveAsset', {
-									id: 'bitcoin',
+								navigation.navigate('QR', {
+									data: receiveAddress,
+									headerTitle: 'Receive',
 								})
 							}
 							text={'Receive'}
@@ -156,7 +157,7 @@ const BitcoinCard = (): ReactElement => {
 							}}
 						/>
 					)}
-					{displayReceive && <Receive header={false} />}
+					{displayReceive && <QR data={receiveAddress} header={false} />}
 				</>
 			)}
 		</AssetCard>

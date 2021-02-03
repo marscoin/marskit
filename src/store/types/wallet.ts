@@ -51,18 +51,6 @@ export interface IAddress {
 	[key: string]: IAddressContent;
 }
 
-export interface IAddresses {
-	bitcoin: IAddressContent;
-	bitcoinTestnet: IAddressContent;
-	timestamp?: number | null;
-}
-
-export interface ITransactions {
-	bitcoin: IFormattedTransaction;
-	bitcoinTestnet: IFormattedTransaction;
-	timestamp?: number | null;
-}
-
 export interface ICreateWallet {
 	wallet?: string;
 	mnemonic?: string;
@@ -80,11 +68,6 @@ export interface IUtxo {
 	tx_hash: string;
 	tx_pos: number;
 	value: number;
-}
-export interface IUtxos {
-	bitcoin: IUtxo;
-	bitcoinTestnet: IUtxo;
-	timestamp?: number | null;
 }
 
 export interface IFormattedTransaction {
@@ -127,21 +110,16 @@ export enum EOnChainTransactionData {
 	label = '', // User set label for a given transaction.
 }
 
-export interface IOnChainTransaction {
-	bitcoin: IOnChainTransactionData;
-	bitcoinTestnet: IOnChainTransactionData;
-}
-
 export interface IDefaultWalletShape {
 	id: string;
 	name: string;
 	type: string;
-	addresses: IAddresses | IWalletItem<{}>;
-	addressIndex: IAddresses;
-	changeAddresses: IAddresses | IWalletItem<{}>;
-	changeAddressIndex: IAddresses;
-	utxos: IUtxos | IWalletItem<[]>;
-	transactions: ITransactions | IWalletItem<{}>;
+	addresses: IWalletItem<IAddressContent> | IWalletItem<{}>;
+	addressIndex: IWalletItem<IAddressContent>;
+	changeAddresses: IWalletItem<IAddressContent> | IWalletItem<{}>;
+	changeAddressIndex: IWalletItem<IAddressContent>;
+	utxos: IWalletItem<IUtxo> | IWalletItem<[]>;
+	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;
 	lastUpdated: IWalletItem<number>;
@@ -154,5 +132,5 @@ export interface IDefaultWalletShape {
 		bitcoinTestnet: TAddressType;
 	};
 	rbfData: IWalletItem<object>;
-	transaction: IOnChainTransaction;
+	transaction: IWalletItem<IOnChainTransactionData>;
 }

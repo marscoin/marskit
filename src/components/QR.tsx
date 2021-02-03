@@ -1,10 +1,3 @@
-/**
- * @format
- * @flow strict-local
- */
-
-//TODO: Temporary component for testing and demonstration purposes. Remove or change after use.
-
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { LayoutAnimation, Share, StyleSheet } from 'react-native';
 import {
@@ -12,15 +5,14 @@ import {
 	Text,
 	AnimatedView,
 	TouchableOpacity,
-} from '../../styles/components';
+} from '../styles/components';
 import QRCode from 'react-native-qrcode-svg';
 import Animated, { Easing } from 'react-native-reanimated';
-import { useSelector } from 'react-redux';
-import Store from '../../store/types';
-import NavigationHeader from '../../components/NavigationHeader';
-import Button from '../../components/Button';
+import NavigationHeader from './NavigationHeader';
+import Button from './Button';
 import { systemWeights } from 'react-native-typography';
 import Clipboard from '@react-native-community/clipboard';
+import { RouteProp } from '@react-navigation/native';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -39,38 +31,45 @@ const updateOpacity = ({
 interface IReceive {
 	animate?: boolean;
 	header?: boolean;
-	address?: string;
+	headerTitle?: string;
+	data: string;
+	displayText?: boolean;
 	shareMessage?: string;
 	shareUrl?: string;
 	shareTitle?: string;
 	shareDialogTitle?: string;
 	onCopySuccessText?: string;
 	disabled?: boolean;
+	route?: RouteProp<
+		{ params: { data: string; headerTitle: string } },
+		'params'
+	>;
 }
-const Receive = ({
+const QR = ({
 	animate = true,
 	header = true,
-	address = '',
+	headerTitle = 'Receive',
+	data = '',
+	displayText = true,
 	shareMessage = '',
 	shareUrl = '',
 	shareTitle = '',
 	shareDialogTitle = '',
 	onCopySuccessText = 'Copied!',
 	disabled = false,
+	route,
 }: IReceive): ReactElement => {
-	const wallets = useSelector((state: Store) => state.wallet.wallets);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
 	const [opacity] = useState(new Animated.Value(0));
 	const [textOpacity] = useState(new Animated.Value(0));
 
-	if (!address) {
+	if (!data) {
 		try {
-			address = wallets[selectedWallet].addressIndex[selectedNetwork].address;
+			if (route?.params?.data) {
+				data = route.params.data;
+			}
+			if (route?.params.headerTitle) {
+				headerTitle = route.params.headerTitle;
+			}
 		} catch {}
 	}
 
@@ -105,7 +104,7 @@ const Receive = ({
 	const onCopyPress = (): void => {
 		let duration = 1500;
 		try {
-			Clipboard.setString(address);
+			Clipboard.setString(data);
 			Animated.timing(textOpacity, {
 				toValue: 1,
 				duration: 500,
@@ -132,7 +131,7 @@ const Receive = ({
 			color={header ? 'background' : 'transparent'}
 			//eslint-disable-next-line react-native/no-inline-styles
 			style={{ flex: header ? 1 : 0 }}>
-			{header && <NavigationHeader title="Receive" />}
+			{header && <NavigationHeader title={headerTitle} />}
 			<AnimatedView style={[styles.container, { opacity }]}>
 				<View color={header ? 'background' : 'surface'} style={styles.content}>
 					<TouchableOpacity
@@ -140,36 +139,38 @@ const Receive = ({
 						onPress={onCopyPress}
 						color="onSurface"
 						style={styles.qrCode}>
-						{address && <QRCode value={address} size={200} />}
+						{data && <QRCode value={data} size={200} />}
 					</TouchableOpacity>
 
-					<View color="transparent" style={styles.textContainer}>
-						<Text style={styles.text}>{address}</Text>
-						<AnimatedView
-							color="transparent"
-							style={[styles.copiedContainer, { opacity: textOpacity }]}>
-							<View
-								color={header ? 'background' : 'surface'}
-								style={styles.copySuccessContainer}>
-								<View color="transparent" style={styles.copied}>
-									<Text style={styles.copiedText}>{onCopySuccessText}</Text>
+					{displayText && (
+						<View color="transparent" style={styles.textContainer}>
+							<Text style={styles.text}>{data}</Text>
+							<AnimatedView
+								color="transparent"
+								style={[styles.copiedContainer, { opacity: textOpacity }]}>
+								<View
+									color={header ? 'background' : 'surface'}
+									style={styles.copySuccessContainer}>
+									<View color="transparent" style={styles.copied}>
+										<Text style={styles.copiedText}>{onCopySuccessText}</Text>
+									</View>
 								</View>
-							</View>
-						</AnimatedView>
-					</View>
+							</AnimatedView>
+						</View>
+					)}
 					<View style={styles.row}>
 						<Button
 							color={header ? 'onSurface' : 'background'}
 							text="Share"
 							onPress={onSharePress}
-							disabled={!address || disabled}
+							disabled={!data || disabled}
 						/>
 						<View style={styles.buttonSpacer} />
 						<Button
 							color={header ? 'onSurface' : 'background'}
 							text="Copy"
 							onPress={onCopyPress}
-							disabled={!address || disabled}
+							disabled={!data || disabled}
 						/>
 					</View>
 				</View>
@@ -237,4 +238,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(Receive);
+export default memo(QR);

@@ -18,6 +18,7 @@ import {
 	updateWallet,
 } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
+import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -55,6 +56,15 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					await updateWallet({ selectedNetwork: network });
 				}
 				refreshWallet().then();
+				break;
+			}
+			case EQRDataType.omniboltConnect: {
+				const { nodeAddress, nodePeerId, userPeerId } = data;
+				updateOmniboltConnectData({
+					nodeAddress,
+					nodePeerId,
+					userPeerId,
+				});
 				break;
 			}
 			case EQRDataType.lightningPaymentRequest: {
