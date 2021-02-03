@@ -9,6 +9,7 @@ import { View } from '../../styles/components';
 import Header from './Header';
 import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
+import OmniboltCard from './OmniboltCard';
 
 const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -20,6 +21,7 @@ const Wallets = (): ReactElement => {
 			<ScrollView showsVerticalScrollIndicator={false}>
 				<BitcoinCard />
 				<LightningCard />
+				<OmniboltCard />
 			</ScrollView>
 		</View>
 	);
