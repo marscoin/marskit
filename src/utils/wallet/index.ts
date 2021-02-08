@@ -1072,7 +1072,7 @@ interface IGetTransactions {
 	network: string;
 	data: ITransaction<IUtxo>[];
 }
-interface ITxHash {
+export interface ITxHash {
 	tx_hash: string;
 }
 export const getTransactions = async ({

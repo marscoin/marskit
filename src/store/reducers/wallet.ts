@@ -6,6 +6,12 @@ import { onChainTransaction } from '../shapes/wallet';
 const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 	let selectedWallet = state.selectedWallet;
 	let selectedNetwork = state.selectedNetwork;
+	if (action.payload?.selectedWallet) {
+		selectedWallet = action.payload.selectedWallet;
+	}
+	if (action.payload?.selectedNetwork) {
+		selectedNetwork = action.payload.selectedNetwork;
+	}
 	switch (action.type) {
 		case actions.UPDATE_WALLET:
 			return {
@@ -27,17 +33,17 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				...state,
 				wallets: {
 					...state.wallets,
-					[state.selectedWallet]: {
-						...state.wallets[state.selectedWallet],
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
 						addressIndex: {
-							...state.wallets[state.selectedWallet].addressIndex,
-							[state.selectedNetwork]: {
+							...state.wallets[selectedWallet].addressIndex,
+							[selectedNetwork]: {
 								...action.payload.addressIndex,
 							},
 						},
 						changeAddressIndex: {
-							...state.wallets[state.selectedWallet].changeAddressIndex,
-							[state.selectedNetwork]: {
+							...state.wallets[selectedWallet].changeAddressIndex,
+							[selectedNetwork]: {
 								...action.payload.changeAddressIndex,
 							},
 						},
@@ -46,8 +52,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			};
 
 		case actions.UPDATE_WALLET_BALANCE:
-			selectedWallet = action.payload.selectedWallet;
-			selectedNetwork = action.payload.selectedNetwork;
 			return {
 				...state,
 				wallets: {
@@ -67,22 +71,20 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				...state,
 				wallets: {
 					...state.wallets,
-					[state.selectedWallet]: {
-						...state.wallets[state.selectedWallet],
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
 						addresses: {
-							...state.wallets[state.selectedWallet].addresses,
-							[state.selectedNetwork]: {
-								...state.wallets[state.selectedWallet].addresses[
-									state.selectedNetwork
-								],
+							...state.wallets[selectedWallet].addresses,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].addresses[selectedNetwork],
 								...action.payload.addresses,
 							},
 						},
 						changeAddresses: {
-							...state.wallets[state.selectedWallet].changeAddresses,
-							[state.selectedNetwork]: {
-								...state.wallets[state.selectedWallet].changeAddresses[
-									state.selectedNetwork
+							...state.wallets[selectedWallet].changeAddresses,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].changeAddresses[
+									selectedNetwork
 								],
 								...action.payload.changeAddresses,
 							},
@@ -92,8 +94,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			};
 
 		case actions.UPDATE_UTXOS:
-			selectedWallet = action.payload.selectedWallet;
-			selectedNetwork = action.payload.selectedNetwork;
 			const { utxos, balance } = action.payload;
 			return {
 				...state,
@@ -114,8 +114,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			};
 
 		case actions.UPDATE_TRANSACTIONS:
-			selectedWallet = action.payload.selectedWallet;
-			selectedNetwork = action.payload.selectedNetwork;
 			const transactions = action.payload.transactions;
 			return {
 				...state,
@@ -138,7 +136,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			return defaultWalletStoreShape;
 
 		case actions.RESET_SELECTED_WALLET:
-			selectedWallet = action.payload.selectedWallet;
 			const wallets = state.wallets;
 			delete wallets[selectedWallet];
 			return {
@@ -149,8 +146,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			};
 
 		case actions.UPDATE_ON_CHAIN_TRANSACTION:
-			selectedWallet = action.payload.selectedWallet;
-			selectedNetwork = action.payload.selectedNetwork;
 			const transaction = action.payload.transaction;
 			return {
 				...state,
@@ -170,8 +165,6 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 			};
 
 		case actions.RESET_ON_CHAIN_TRANSACTION:
-			selectedWallet = action.payload.selectedWallet;
-			selectedNetwork = action.payload.selectedNetwork;
 			return {
 				...state,
 				wallets: {

@@ -6,16 +6,22 @@ import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard';
 import { useNavigation } from '@react-navigation/native';
 import { getConnectPeerInfo } from '../../utils/omnibolt';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
 
 const OmniboltCard = (): ReactElement => {
 	const [displayReceive, setDisplayReceive] = useState(false);
 	const [displayButtonRow, setDisplayButtonRow] = useState(false);
 
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+
 	const navigation = useNavigation();
 
 	LayoutAnimation.easeInEaseOut();
 
-	const connectId = getConnectPeerInfo();
+	const connectId = getConnectPeerInfo({ selectedWallet });
 
 	const toggleReceiveTransaction = async (): Promise<void> => {
 		setDisplayReceive(!displayReceive);

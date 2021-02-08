@@ -2,12 +2,16 @@ import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
 import { IWalletItem } from './wallet';
 
 export interface IOmniBolt {
-	loading: boolean;
-	error: boolean;
-	selectedWallet: string;
-	userData: IOmniBoltUserData;
-	connectData: IOmniboltConnectData;
+	wallets: {
+		[key: string]: IOmniBoltWallet;
+	};
+}
+
+export interface IOmniBoltWallet {
+	userData: IWalletItem<IOmniBoltUserData>;
+	connectData: IWalletItem<IOmniboltConnectData>;
 	channels: IWalletItem<IChannelData> | IWalletItem<{}>;
+	peers: IWalletItem<string[]>;
 	[key: string]: any;
 }
 

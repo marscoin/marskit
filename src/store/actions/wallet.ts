@@ -32,6 +32,7 @@ import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
+import { createOmniboltWallet } from './omnibolt';
 
 const dispatch = getDispatch();
 
@@ -58,7 +59,7 @@ export const createWallet = ({
 			const { error, data } = getMnemonicPhraseResponse;
 			const { wallets } = getStore().wallet;
 			if (!error && data && wallet in wallets && wallets[wallet]?.id) {
-				return resolve(err(`Wallet ID, "${wallet}" already exists.`));
+				return resolve(ok(`Wallet ID, "${wallet}" already exists.`));
 			}
 
 			//Generate Mnemonic if none was provided
@@ -111,6 +112,7 @@ export const createWallet = ({
 				payload,
 			});
 
+			await createOmniboltWallet({ selectedWallet: wallet });
 			return resolve(ok(''));
 		} catch (e) {
 			return resolve(err(e));
