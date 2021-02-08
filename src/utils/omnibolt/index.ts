@@ -3,12 +3,18 @@ import { getKeychainValue, setKeychainValue } from '../helpers';
 import { getStore } from '../../store/helpers';
 import { ObdApi } from 'omnibolt-js';
 import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
-import { generateMnemonic } from '../wallet';
+import {
+	generateMnemonic,
+	getSelectedNetwork,
+	getSelectedWallet,
+} from '../wallet';
 import {
 	connectToOmnibolt,
 	loginToOmnibolt,
+	onConnectPeer,
 } from '../../store/actions/omnibolt';
 import { IOmniboltConnectData } from '../../store/types/omnibolt';
+import { TAvailableNetworks } from '../networks';
 const obdapi = new ObdApi();
 
 /**
@@ -97,6 +103,11 @@ export const createOmniboltId = async ({
 		const omniboltIdResponse = await getOmniboltId({ selectedWallet });
 		if (omniboltIdResponse.isErr()) {
 			const key = getOmniboltKey({ selectedWallet });
+			//Check if key already exists.
+			const response = await getKeychainValue({ key });
+			if (!response.error) {
+				return ok(response.data);
+			}
 			const id = await generateMnemonic();
 			const keychainResponse = await setKeychainValue({ key, value: id });
 			if (keychainResponse.error) {
@@ -145,7 +156,8 @@ export const startOmnibolt = async ({
 		//Create omnibolt user if necessary.
 		await createOmniboltId({ selectedWallet });
 		//Connect to an omnibolt server.
-		const connectResponse = await connectToOmnibolt({});
+		const url = ''; // TODO: Run selectedNetwork check here to toggle between testnet and mainnet url.
+		const connectResponse = await connectToOmnibolt({ url });
 		if (connectResponse.isOk()) {
 			//Login using the stored omnibolt user id.
 			await loginToOmnibolt({ selectedWallet });
@@ -153,15 +165,29 @@ export const startOmnibolt = async ({
 	} catch {}
 };
 
-export const connectToPeer = ({ nodeAddress = '' }): Promise<string> => {
+export const connectToPeer = ({
+	nodeAddress = '',
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	nodeAddress: string;
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+}): Promise<string> => {
 	return new Promise((resolve) => {
 		try {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
 			obdapi.connectPeer(
 				{
 					remote_node_address: nodeAddress,
 				},
 				(data) => {
-					//onConnectPeer(data);
+					onConnectPeer({ data, selectedWallet, selectedNetwork });
 					return resolve(data);
 				},
 			);
@@ -191,13 +217,27 @@ export const parseOmniboltConnectData = async (
 /**
  * Returns the id used to connect to other peers.
  */
-export const getConnectPeerInfo = (): string => {
+export const getConnectPeerInfo = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): string => {
 	try {
-		const {
-			nodeAddress,
-			nodePeerId,
-			userPeerId,
-		} = getStore().omnibolt.userData;
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const omniboltStore = getStore().omnibolt.wallets;
+		if (!omniboltStore[selectedWallet]?.userData[selectedNetwork]) {
+			return '';
+		}
+		const { nodeAddress, nodePeerId, userPeerId } = omniboltStore[
+			selectedWallet
+		]?.userData[selectedNetwork];
 		return JSON.stringify({
 			nodeAddress,
 			nodePeerId,

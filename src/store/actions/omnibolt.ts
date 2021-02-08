@@ -5,6 +5,9 @@ import { TAvailableNetworks } from '../../utils/networks';
 import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
 import { IOmniboltConnectData } from '../types/omnibolt';
+import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
+import { createOmniboltId } from '../../utils/omnibolt';
+import { defaultOmniboltWalletShape } from '../shapes/omnibolt';
 
 const dispatch = getDispatch();
 
@@ -33,7 +36,7 @@ export const resetOmniBoltStore = (): Result<string> => {
 export const connectToOmnibolt = async ({
 	url = '',
 }: {
-	url?: TAvailableNetworks | '';
+	url?: string;
 }): Promise<Result<IConnect>> => {
 	const connectResponse = await omnibolt.connect({
 		url,
@@ -94,21 +97,80 @@ export const onLogin = async (
 /**
  * connectData is used to temporarily store info when attempting to connect with a peer.
  * @param data
+ * @param selectedWallet
+ * @param selectedNetwork
  */
-export const updateOmniboltConnectData = (
-	data: IOmniboltConnectData,
-): Result<string> => {
+export const updateOmniboltConnectData = ({
+	data,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	data: IOmniboltConnectData;
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+}): Result<string> => {
 	if (!data?.nodeAddress || !data?.nodePeerId || !data?.userPeerId) {
 		return err('Invalid Data');
 	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
 	dispatch({
 		type: actions.UPDATE_OMNIBOLT_CONNECTDATA,
-		payload: data,
+		payload: { data, selectedWallet, selectedNetwork },
 	});
 	return ok('Connect Data Updated.');
 };
 
-/*
-export const onConnectPeer = (data: any): void => {
-	//TODO: Add peer to omnibolt peer list.
-};*/
+export const onConnectPeer = ({
+	data = {},
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	data: any;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Result<string> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	dispatch({
+		type: actions.UPDATE_OMNIBOLT_PEERS,
+		payload: { data, selectedNetwork, selectedWallet },
+	});
+	return ok('Connect Data Updated.');
+};
+
+export const createOmniboltWallet = async ({
+	selectedWallet = undefined,
+}: {
+	selectedWallet?: string | undefined;
+}): Promise<Result<string>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	// Check that this wallet doesn't already exist.
+	if (getStore().omnibolt?.wallets[selectedWallet]) {
+		return ok('Wallet already exists.');
+	}
+	// Create login id for the new wallet.
+	const idResponse = await createOmniboltId({ selectedWallet });
+	if (idResponse.isErr()) {
+		return err(idResponse.error.message);
+	}
+	const payload = {
+		[selectedWallet]: defaultOmniboltWalletShape,
+	};
+
+	await dispatch({
+		type: actions.CREATE_OMNIBOLT_WALLET,
+		payload,
+	});
+	return ok('Connect Data Updated.');
+};
