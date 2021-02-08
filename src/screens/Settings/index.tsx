@@ -136,6 +136,13 @@ const Settings = ({ navigation }): ReactElement => {
 					},
 				},
 				{
+					title: 'Reset Omnibolt Store',
+					type: 'button',
+					onPress: async (): Promise<void> => {
+						await resetOmniBoltStore();
+					},
+				},
+				{
 					title: 'Reset Settings Store',
 					type: 'button',
 					onPress: async (): Promise<void> => {
