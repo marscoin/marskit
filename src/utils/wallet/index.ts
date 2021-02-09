@@ -7,6 +7,7 @@ import {
 	IAddressContent,
 	IDefaultWalletShape,
 	IFormattedTransaction,
+	IOutput,
 	IUtxo,
 	IWalletItem,
 	TAddressType,
@@ -20,7 +21,7 @@ import {
 	IGetInfoFromAddressPath,
 	IGenerateAddressesResponse,
 } from '../types';
-import { getKeychainValue, isOnline } from '../helpers';
+import { getKeychainValue, btcToSats, isOnline } from '../helpers';
 import { getStore } from '../../store/helpers';
 import * as electrum from 'rn-electrum-client/helpers';
 import {
@@ -1039,27 +1040,8 @@ export interface ITransaction<T> {
 		time: number;
 		txid: string;
 		version: number;
-		vin: {
-			scriptSig: {
-				asm: string;
-				hex: string;
-			};
-			sequence: number;
-			txid: string;
-			txinwitness: string[];
-			vout: number;
-		}[];
-		vout: {
-			n: 0;
-			scriptPubKey: {
-				addresses: string[];
-				asm: string;
-				hex: string;
-				reqSigs: number;
-				type: string;
-			};
-			value: number;
-		}[];
+		vin: IVin[];
+		vout: IVout[];
 		vsize: number;
 		weight: number;
 	};
@@ -1080,9 +1062,12 @@ export const getTransactions = async ({
 	selectedNetwork = EWallet.selectedNetwork,
 }: {
 	txHashes: ITxHash[];
-	selectedNetwork: TAvailableNetworks;
+	selectedNetwork: TAvailableNetworks | undefined;
 }): Promise<Result<IGetTransactions>> => {
 	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		if (txHashes.length < 1) {
 			return ok({
 				error: false,
@@ -1492,4 +1477,166 @@ export const connectToElectrum = async ({
 		}
 	}
 	return ok('Successfully connected.');
+};
+
+export interface IVin {
+	scriptSig: {
+		asm: string;
+		hex: string;
+	};
+	sequence: number;
+	txid: string;
+	txinwitness: string[];
+	vout: number;
+}
+
+export interface IVout {
+	n: 0;
+	scriptPubKey: {
+		addresses: string[];
+		asm: string;
+		hex: string;
+		reqSigs: number;
+		type: string;
+	};
+	value: number;
+}
+
+// TODO: Update ICreateTransaction to match this pattern.
+export interface IRbfData {
+	outputs: IOutput[];
+	wallet: string;
+	balance: number;
+	selectedNetwork: TAvailableNetworks;
+	addressType: TAddressType;
+	fee: number; // Total fee in sats.
+	utxos: IUtxo[];
+	message: string;
+}
+
+/**
+ * Using a tx_hash this method will return the necessary data to create a
+ * replace-by-fee transaction for any 0-conf, RBF-enabled tx.
+ * @param txHash
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+
+export const getRbfData = async ({
+	txHash = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	txHash: ITxHash | undefined;
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+}): Promise<Result<IRbfData>> => {
+	if (!txHash) {
+		return err('No txid provided.');
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const txResponse = await getTransactions({
+		txHashes: [txHash],
+		selectedNetwork,
+	});
+	if (txResponse.isErr()) {
+		return err(txResponse.error.message);
+	}
+	const txData: ITransaction<ITxHash>[] = txResponse.value.data;
+
+	const addresses = getStore().wallet.wallets[selectedWallet].addresses[
+		selectedNetwork
+	];
+	const changeAddresses = getStore().wallet.wallets[selectedWallet]
+		.changeAddresses[selectedNetwork];
+
+	const allAddress = { ...addresses, ...changeAddresses };
+
+	let wallet = selectedWallet;
+	let utxos: IUtxo[] = [];
+	let address: string = '';
+	let scriptHash = '';
+	let path = '';
+	let value: number = 0;
+	let addressType: TAddressType = 'bech32';
+	let outputs: IOutput[] = [];
+	let message: string = '';
+	let inputTotal = 0;
+	let outputTotal = 0;
+	let fee = 0;
+
+	const insAndOuts = await Promise.all(
+		txData.map(({ result: { vin, vout } }) => {
+			return { vins: vin, vouts: vout };
+		}),
+	);
+	const { vins, vouts } = insAndOuts[0];
+	for (let i = 0; i < vins.length; i++) {
+		try {
+			const input = vins[i];
+			const txId = input.txid;
+			const tx = await getTransactions({
+				txHashes: [{ tx_hash: txId }],
+				selectedNetwork,
+			});
+			if (tx.isErr()) {
+				return err(tx.error.message);
+			}
+			const txVout = tx.value.data[0].result.vout[input.vout];
+			address = txVout.scriptPubKey.addresses[0];
+			scriptHash = getScriptHash(address, selectedNetwork);
+			path = allAddress[scriptHash].path;
+			value = btcToSats(txVout.value);
+			utxos.push({
+				tx_hash: input.txid,
+				index: input.vout,
+				tx_pos: input.vout,
+				height: 0,
+				address,
+				scriptHash,
+				path,
+				value,
+			});
+			if (value) {
+				inputTotal = inputTotal + value;
+			}
+		} catch {}
+	}
+	for (let i = 0; i < vouts.length; i++) {
+		const vout = vouts[i];
+		const voutValue = btcToSats(vout.value);
+		if (!vout.scriptPubKey?.addresses) {
+			try {
+				if (vout.scriptPubKey.asm.includes('OP_RETURN')) {
+					message = decodeOpReturnMessage(vout.scriptPubKey.asm)[0] || '';
+				}
+			} catch {}
+		} else {
+			address = vout.scriptPubKey.addresses[0];
+		}
+		outputs.push({
+			address,
+			value: voutValue,
+		});
+		outputTotal = outputTotal + voutValue;
+	}
+	if (outputTotal > inputTotal) {
+		return err('Outputs should not be greater than the inputs.');
+	}
+	fee = Number((inputTotal - outputTotal).toFixed(8));
+	return ok({
+		wallet,
+		utxos,
+		balance: inputTotal,
+		outputs,
+		fee,
+		selectedNetwork,
+		message,
+		addressType,
+	});
 };
