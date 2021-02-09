@@ -147,6 +147,14 @@ export const getFiatBalance = ({
 	}
 };
 
+export const btcToSats = (balance = 0): number => {
+	try {
+		return bitcoinUnits(balance, 'BTC').to('satoshi').value();
+	} catch (e) {
+		return 0;
+	}
+};
+
 export const getLastWordInString = (phrase = ''): string => {
 	try {
 		const n = phrase.split(' ');
