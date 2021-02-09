@@ -197,7 +197,7 @@ const SendOnChainTransaction = ({
 				if (__DEV__) {
 					console.log(response.value);
 				}
-				setRawTx(response.value.rawTx);
+				setRawTx(response.value);
 			}
 		} catch {}
 	};
