@@ -309,12 +309,7 @@ export const createTransaction = ({
 	selectedNetwork = 'bitcoin',
 	message = '', //OP_RETURN message.
 	addressType = 'bech32',
-}: ICreateTransaction): Promise<
-	Result<{
-		rawTx: string;
-		rbfData: ICreateTransaction;
-	}>
-> => {
+}: ICreateTransaction): Promise<Result<string>> => {
 	const { currentWallet, selectedWallet } = getCurrentWallet({
 		selectedNetwork,
 		selectedWallet: wallet,
@@ -374,23 +369,6 @@ export const createTransaction = ({
 				});
 				targets.push({ script: embed.output!, value: 0 });
 			}
-
-			//Setup rbfData (Replace-By-Fee Data) for later use.
-			/*
-			 * TODO: Remove the need to save rbf data here. Create an independent function that will fetch rbf data if possible for any tx.
-			 */
-			let rbfData: ICreateTransaction = {
-				address,
-				fee,
-				amount,
-				balance,
-				utxos,
-				changeAddress,
-				wallet: selectedWallet,
-				selectedNetwork,
-				message,
-				addressType,
-			};
 
 			const getMnemonicPhraseResult = await getMnemonicPhrase(selectedWallet);
 			if (getMnemonicPhraseResult.error) {
@@ -475,7 +453,7 @@ export const createTransaction = ({
 			});
 			psbt.finalizeAllInputs();
 			const rawTx = psbt.extractTransaction().toHex();
-			return resolve(ok({ rawTx, rbfData }));
+			return resolve(ok(rawTx));
 		} catch (e) {
 			return resolve(err(e));
 		}

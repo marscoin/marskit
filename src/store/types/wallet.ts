@@ -70,6 +70,11 @@ export interface IUtxo {
 	value: number;
 }
 
+export interface IOutput {
+	address?: string; //Address to send to.
+	value?: number | Long; //Amount denominated in sats.
+}
+
 export interface IFormattedTransaction {
 	[key: string]: {
 		address: string;

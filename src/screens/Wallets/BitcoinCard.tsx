@@ -34,8 +34,8 @@ const BitcoinCard = (): ReactElement => {
 	);
 	const receiveAddress = useSelector(
 		(state: Store) =>
-			state.wallet.wallets[selectedWallet].addressIndex[selectedNetwork]
-				.address,
+			state.wallet.wallets[selectedWallet]?.addressIndex[selectedNetwork]
+				?.address || '',
 	);
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
