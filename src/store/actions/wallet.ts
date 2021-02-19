@@ -4,6 +4,7 @@ import {
 	ICreateWallet,
 	IFormattedTransaction,
 	IOnChainTransactionData,
+	IOutput,
 	IUtxo,
 } from '../types/wallet';
 import {
@@ -33,6 +34,7 @@ import {
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { createOmniboltWallet } from './omnibolt';
+import { getTotalFee } from '../../utils/wallet/transactions';
 
 const dispatch = getDispatch();
 
@@ -358,7 +360,7 @@ export const updateTransactions = ({
 		if (history.isErr()) {
 			return resolve(err(history.error.message));
 		}
-		if (history.value.length < 1) {
+		if (!history?.value?.length) {
 			return resolve(ok({}));
 		}
 
@@ -395,7 +397,7 @@ export const updateTransactions = ({
 				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
 			}
 		});
-		if (Object.keys(formattedTransactions).length < 1) {
+		if (!Object.keys(formattedTransactions)?.length) {
 			return resolve(ok(currentWallet.transactions[selectedNetwork]));
 		}
 
@@ -448,6 +450,59 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 	return ok('');
 };
 
+export const setupOnChainTransaction = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): void => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+		const utxos = currentWallet.utxos[selectedNetwork];
+		const outputs = currentWallet.transaction[selectedNetwork].outputs || [];
+		let changeAddresses = currentWallet.changeAddresses[selectedNetwork];
+		const changeAddressesArr = Object.values(changeAddresses).map(
+			({ address }) => address,
+		);
+		const changeAddress =
+			currentWallet.changeAddressIndex[selectedNetwork].address;
+		const fee = getTotalFee({
+			satsPerByte: 1,
+			message: '',
+		});
+		//Remove any potential change address that may have been included from a previous tx attempt.
+		const newOutputs = outputs.filter((output) => {
+			if (!changeAddressesArr.includes(output.address)) {
+				return output;
+			}
+		});
+
+		const payload = {
+			selectedNetwork,
+			selectedWallet,
+			utxos,
+			changeAddress,
+			fee,
+			outputs: newOutputs,
+		};
+		dispatch({
+			type: actions.SETUP_ON_CHAIN_TRANSACTION,
+			payload,
+		});
+	} catch {}
+};
+
 export const updateOnChainTransaction = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
@@ -475,6 +530,49 @@ export const updateOnChainTransaction = ({
 			payload,
 		});
 	} catch {}
+};
+
+export const updateOnchainTransactionOutput = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	output = { address: '', value: 0 },
+	index = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	output: IOutput;
+	index: number | undefined; //Index of output in the outputs array. Undefined assumes you're pushing a new output to the array.
+}): void => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		let outputs =
+			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+				.outputs || [];
+		if (index === undefined || isNaN(index)) {
+			outputs.push(output);
+		} else {
+			outputs[index] = output;
+		}
+
+		const payload = {
+			selectedNetwork,
+			selectedWallet,
+			outputs,
+			index,
+		};
+		dispatch({
+			type: actions.UPDATE_TRANSACTION_OUTPUT,
+			payload,
+		});
+	} catch (e) {
+		console.log(e);
+	}
 };
 
 export const resetOnChainTransaction = ({
