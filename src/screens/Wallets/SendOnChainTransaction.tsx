@@ -1,11 +1,16 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { LayoutAnimation, Platform, StyleSheet } from 'react-native';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
+import { LayoutAnimation, StyleSheet } from 'react-native';
 import {
 	View,
 	AnimatedView,
 	Text,
 	TouchableOpacity,
-	TextInput,
 } from '../../styles/components';
 import Animated, { Easing } from 'react-native-reanimated';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -16,20 +21,22 @@ import { systemWeights } from 'react-native-typography';
 import {
 	broadcastTransaction,
 	createTransaction,
-	getTotalFee,
+	getTransactionOutputValue,
 } from '../../utils/wallet/transactions';
-import { validateAddress } from '../../utils/scanner';
 import {
 	resetOnChainTransaction,
-	updateOnChainTransaction,
+	setupOnChainTransaction,
 	updateWalletBalance,
 } from '../../store/actions/wallet';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
-import { EOnChainTransactionData } from '../../store/types/wallet';
-import AdjustFee from '../../components/AdjustFee';
+import {
+	defaultOnChainTransactionData,
+	IOutput,
+} from '../../store/types/wallet';
+import SendForm from '../../components/SendForm';
 
 const Summary = ({
 	leftText = '',
@@ -49,6 +56,44 @@ const Summary = ({
 				</View>
 			</View>
 		</View>
+	);
+};
+
+const OutputSummary = ({
+	outputs = [],
+	changeAddress = '',
+	sendAmount = 0,
+	fee = 0,
+}: {
+	outputs: IOutput[];
+	changeAddress: string;
+	sendAmount: number;
+	fee: number;
+}): ReactElement => {
+	return (
+		<>
+			{outputs &&
+				outputs.map(({ address, value }, index) => {
+					if (changeAddress !== address) {
+						return (
+							<View
+								key={`${index}${value}`}
+								color="transparent"
+								style={styles.summaryContainer}>
+								<View color="transparent" style={styles.summary}>
+									<Text style={styles.addressText}>Address:</Text>
+									<Text style={styles.addressText}>{address}</Text>
+									<Summary
+										leftText={'Send:'}
+										rightText={`${sendAmount} sats`}
+									/>
+									<Summary leftText={'Fee:'} rightText={`${fee} sats`} />
+								</View>
+							</View>
+						);
+					}
+				})}
+		</>
 	);
 };
 
@@ -87,26 +132,21 @@ const SendOnChainTransaction = ({
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 
-	const addressType = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.addressType[selectedNetwork],
-	);
-
-	const changeAddress = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet].changeAddressIndex[selectedNetwork]
-				.address,
-	);
-
 	const balance = useSelector(
 		(store: Store) =>
-			store.wallet.wallets[selectedWallet].balance[selectedNetwork],
+			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork],
 	);
 
 	const transaction = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			EOnChainTransactionData,
+			defaultOnChainTransactionData,
+	);
+
+	const changeAddress = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet]?.changeAddressIndex[selectedNetwork]
+				?.address || ' ',
 	);
 
 	useEffect(() => {
@@ -115,6 +155,10 @@ const SendOnChainTransaction = ({
 				updateOpacity({ opacity, toValue: 1 });
 			}, 100);
 		}
+		setupOnChainTransaction({
+			selectedWallet,
+			selectedNetwork,
+		});
 		return (): void => {
 			if (animate) {
 				updateOpacity({ opacity, toValue: 0, duration: 0 });
@@ -124,38 +168,24 @@ const SendOnChainTransaction = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const { address, amount, fee, message } = transaction;
-	const totalFee = getTotalFee({ fee, message });
+	const { outputs, message } = transaction;
+	const totalFee = transaction.fee;
 
-	const increaseFee = (): void => {
+	/*
+	 * Retreives total value of all outputs. Excludes change address.
+	 */
+	const getAmountToSend = useCallback((): number => {
 		try {
-			//Check that the user has enough funds
-			const newFee = fee + 1;
-			const newTotalFee = getTotalFee({ fee: newFee, message });
-			const newTotalAmount = amount + newTotalFee;
-			if (newTotalAmount <= balance) {
-				//Increase the fee
-				updateTransaction({ fee: newFee });
-			}
-		} catch {}
-	};
-
-	const decreaseFee = (): void => {
-		try {
-			if (fee > 1) {
-				//Decrease the fee
-				updateTransaction({ fee: fee - 1 });
-			}
-		} catch {}
-	};
-
-	const getAmount = (): string => {
-		try {
-			return amount ? amount : '0';
+			return getTransactionOutputValue({
+				selectedWallet,
+				selectedNetwork,
+			});
 		} catch {
-			return '0';
+			return 0;
 		}
-	};
+	}, [transaction.outputs, selectedNetwork, selectedWallet]);
+
+	const amount = getAmountToSend();
 
 	const getTransactionTotal = (): number => {
 		try {
@@ -167,31 +197,9 @@ const SendOnChainTransaction = ({
 
 	const _createTransaction = async (): Promise<void> => {
 		try {
-			if (!address) {
-				// eslint-disable-next-line no-alert
-				alert('Please add an address');
-				return;
-			}
-			if (!validateAddress({ address, selectedNetwork }).isValid) {
-				// eslint-disable-next-line no-alert
-				alert('Please add a valid address');
-				return;
-			}
-			if (!amount) {
-				// eslint-disable-next-line no-alert
-				alert('Please add an amount to send.');
-				return;
-			}
-
 			const response = await createTransaction({
-				address,
-				amount: Number(amount),
-				message,
-				changeAddress,
 				selectedNetwork,
-				fee,
-				wallet: selectedWallet,
-				addressType,
+				selectedWallet,
 			});
 			if (response.isOk()) {
 				if (__DEV__) {
@@ -202,34 +210,32 @@ const SendOnChainTransaction = ({
 		} catch {}
 	};
 
-	const updateTransaction = (data): void => {
-		updateOnChainTransaction({
-			selectedNetwork,
-			selectedWallet,
-			transaction: data,
-		});
-	};
-
 	LayoutAnimation.easeInEaseOut();
 
 	if (rawTx) {
 		return (
-			<View color="transparent" style={styles.summaryContainer}>
-				<View color="transparent" style={styles.summary}>
-					<Text style={styles.addressText}>Address:</Text>
-					<Text style={styles.addressText}>{address}</Text>
-					<Summary leftText={'Send:'} rightText={`${getAmount()} sats`} />
-					<Summary leftText={'Fee:'} rightText={`${totalFee} sats`} />
+			<>
+				<OutputSummary
+					outputs={outputs}
+					changeAddress={changeAddress}
+					sendAmount={getTransactionOutputValue({})}
+					fee={totalFee}
+				/>
+				<View color={'transparent'} style={styles.row}>
 					<Summary
 						leftText={'Total:'}
 						rightText={`${getTransactionTotal()} sats`}
 					/>
-				</View>
-				<View color={'transparent'} style={styles.row}>
 					<TouchableOpacity
 						style={styles.broadcastButton}
 						color={'onSurface'}
-						onPress={async (): Promise<void> => setRawTx('')}>
+						onPress={async (): Promise<void> => {
+							setupOnChainTransaction({
+								selectedWallet,
+								selectedNetwork,
+							});
+							setRawTx('');
+						}}>
 						<Text style={styles.title}>Cancel</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
@@ -265,7 +271,7 @@ const SendOnChainTransaction = ({
 						<Text style={styles.title}>Broadcast</Text>
 					</TouchableOpacity>
 				</View>
-			</View>
+			</>
 		);
 	}
 
@@ -276,64 +282,12 @@ const SendOnChainTransaction = ({
 			style={{ flex: header ? 1 : 0 }}>
 			{header && <NavigationHeader title="Send Transaction" />}
 			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
-				<TextInput
-					multiline={true}
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					style={styles.multilineTextInput}
-					placeholder="Address"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => updateTransaction({ address: txt })}
-					value={address}
-					onSubmitEditing={(): void => {}}
-				/>
-				<TextInput
-					underlineColorAndroid="transparent"
-					style={styles.textInput}
-					placeholder="Amount (sats)"
-					keyboardType="number-pad"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						const newAmount = Number(txt);
-						const totalNewAmount = newAmount + totalFee;
-						if (totalNewAmount <= balance) {
-							updateTransaction({ amount: newAmount });
-						}
-					}}
-					value={amount ? amount.toString() : ''}
-					onSubmitEditing={(): void => {}}
-				/>
-				<TextInput
-					multiline
-					underlineColorAndroid="transparent"
-					style={styles.multilineTextInput}
-					placeholder="Message (OP_RETURN)"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						const newFee = getTotalFee({ fee, message: txt });
-						const totalNewAmount = amount + newFee;
-						if (totalNewAmount <= balance) {
-							updateTransaction({ message: txt });
-						}
-					}}
-					value={message}
-					onSubmitEditing={(): void => {}}
-				/>
-
-				<AdjustFee
-					fee={transaction.fee}
-					decreaseFee={decreaseFee}
-					increaseFee={increaseFee}
-				/>
-
+				<SendForm />
 				<View color="transparent" style={styles.summary}>
-					<Summary leftText={'Amount:'} rightText={`${getAmount()} sats`} />
+					<Summary
+						leftText={'Amount:'}
+						rightText={`${getAmountToSend()} sats`}
+					/>
 					<Summary leftText={'Fee:'} rightText={`${totalFee} sats`} />
 					<Summary
 						leftText={'Total:'}
@@ -356,33 +310,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		marginVertical: 20,
 		justifyContent: 'space-between',
-	},
-	textInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-	},
-	multilineTextInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-		paddingTop: Platform.OS === 'ios' ? 15 : 10,
 	},
 	title: {
 		...systemWeights.bold,
