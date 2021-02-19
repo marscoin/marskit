@@ -139,7 +139,7 @@ const QR = ({
 						onPress={onCopyPress}
 						color="onSurface"
 						style={styles.qrCode}>
-						{data && <QRCode value={data} size={200} />}
+						{!!data && <QRCode value={data} size={200} />}
 					</TouchableOpacity>
 
 					{displayText && (

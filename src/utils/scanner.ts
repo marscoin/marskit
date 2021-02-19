@@ -16,6 +16,7 @@ import { parseOnChainPaymentRequest } from './wallet/transactions';
 import { IOmniboltConnectData } from '../store/types/omnibolt';
 import { parseOmniboltConnectData } from './omnibolt';
 import { getStore } from '../store/helpers';
+import { getSelectedNetwork, getSelectedWallet } from './wallet';
 
 const availableNetworksList = availableNetworks();
 
@@ -71,7 +72,7 @@ export enum EQRDataType {
 export interface QRData extends IOmniboltConnectData {
 	network: TAvailableNetworks;
 	qrDataType: EQRDataType;
-	sats?: number | Long;
+	sats?: number;
 	address?: string;
 	lightningPaymentRequest?: string;
 	message?: string;
@@ -157,8 +158,11 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	try {
 		const omniboltConnectResponse = await parseOmniboltConnectData(data);
 		if (omniboltConnectResponse.isOk()) {
+			const selectedWallet = getSelectedWallet();
+			const selectedNetwork = getSelectedNetwork();
 			const omniboltNetwork =
-				getStore().omnibolt.userData.chainNodeType === 'test'
+				getStore().omnibolt.wallets[selectedWallet].userData[selectedNetwork]
+					.chainNodeType === 'test'
 					? EAvailableNetworks.bitcoinTestnet
 					: EAvailableNetworks.bitcoin;
 			foundNetworksInQR.push({
