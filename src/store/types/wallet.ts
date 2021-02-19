@@ -72,7 +72,7 @@ export interface IUtxo {
 
 export interface IOutput {
 	address?: string; //Address to send to.
-	value?: number | Long; //Amount denominated in sats.
+	value?: number; //Amount denominated in sats.
 }
 
 export interface IFormattedTransaction {
@@ -94,26 +94,30 @@ export interface IFormattedTransaction {
 }
 
 export interface IOnChainTransactionData {
-	address?: string;
-	amount?: number | Long; //In sats
+	outputs?: IOutput[];
+	utxos?: IUtxo[];
+	changeAddress?: string;
 	fiatAmount?: number;
-	fee?: number; //In sats
-	recommendedFee?: number; //In sats
+	fee?: number; //Total fee in sats
+	satsPerByte?: number;
+	recommendedFee?: number; //Total recommended fee in sats
 	transactionSize?: number; //In bytes (250 is about normal)
 	message?: string; // OP_RETURN data for a given transaction.
 	label?: string; // User set label for a given transaction.
 }
 
-export enum EOnChainTransactionData {
-	address = '',
-	amount = 0, //Amount to send, in sats.
-	fiatAmount = 0, //Amount to send, in fiat.
-	fee = 1, // sats/byte.
-	recommendedFee = 1, // sats/byte
-	transactionSize = 250, // In bytes (250 is about normal)
-	message = '', // OP_RETURN data for a given transaction.
-	label = '', // User set label for a given transaction.
-}
+export const defaultOnChainTransactionData: IOnChainTransactionData = {
+	outputs: [],
+	utxos: [],
+	changeAddress: '',
+	fiatAmount: 0,
+	fee: 250,
+	satsPerByte: 1,
+	recommendedFee: 1,
+	transactionSize: 250,
+	message: '',
+	label: '',
+};
 
 export interface IDefaultWalletShape {
 	id: string;

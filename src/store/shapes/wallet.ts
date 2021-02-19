@@ -3,14 +3,14 @@ import {
 	IDefaultWalletShape,
 	EWallet,
 	IWallet,
-	EOnChainTransactionData,
 	IAddressContent,
 	IOnChainTransactionData,
+	defaultOnChainTransactionData,
 } from '../types/wallet';
 
 export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
-	bitcoin: EOnChainTransactionData,
-	bitcoinTestnet: EOnChainTransactionData,
+	bitcoin: defaultOnChainTransactionData,
+	bitcoinTestnet: defaultOnChainTransactionData,
 };
 
 export const numberTypeItems: IWalletItem<number> = {
@@ -31,19 +31,16 @@ export const objectTypeItems: IWalletItem<object> = {
 	timestamp: null,
 };
 
+export const addressContent = {
+	index: 0,
+	path: '',
+	address: '',
+	scriptHash: '',
+};
+
 export const addressIndex: IWalletItem<IAddressContent> = {
-	bitcoin: {
-		index: 0,
-		path: '',
-		address: '',
-		scriptHash: '',
-	},
-	bitcoinTestnet: {
-		index: 0,
-		path: '',
-		address: '',
-		scriptHash: '',
-	},
+	bitcoin: addressContent,
+	bitcoinTestnet: addressContent,
 	timestamp: null,
 };
 
