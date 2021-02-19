@@ -183,6 +183,7 @@ const SendOnChainTransaction = ({
 		} catch {
 			return 0;
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [transaction.outputs, selectedNetwork, selectedWallet]);
 
 	const amount = getAmountToSend();

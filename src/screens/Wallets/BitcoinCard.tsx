@@ -60,7 +60,7 @@ const BitcoinCard = (): ReactElement => {
 		} catch {
 			return ' ';
 		}
-	}, [addressIndex]);
+	}, [addressIndex, selectedNetwork]);
 	const receiveAddress = getReceiveAddress();
 	balance = bitcoinUnits(balance, 'satoshi').to(bitcoinUnit).value();
 

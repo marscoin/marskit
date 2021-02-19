@@ -52,6 +52,7 @@ const SendForm = ({
 				index: 0,
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	/**
@@ -111,6 +112,7 @@ const SendForm = ({
 		} catch {
 			return 0;
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [transaction.outputs, selectedNetwork, selectedWallet]);
 
 	/**
