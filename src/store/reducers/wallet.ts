@@ -1,7 +1,6 @@
 import actions from '../actions/actions';
-import { IWallet } from '../types/wallet';
+import { defaultOnChainTransactionData, IWallet } from '../types/wallet';
 import { defaultWalletStoreShape } from '../shapes/wallet';
-import { onChainTransaction } from '../shapes/wallet';
 
 const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 	let selectedWallet = state.selectedWallet;
@@ -164,6 +163,60 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				},
 			};
 
+		case actions.SETUP_ON_CHAIN_TRANSACTION:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transaction: {
+							...state.wallets[selectedWallet].transaction,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].transaction[selectedNetwork],
+								changeAddress: action.payload.changeAddress,
+								utxos: action.payload.utxos,
+								outputs: action.payload.outputs,
+								fee: action.payload.fee,
+							},
+						},
+					},
+				},
+			};
+
+		case actions.UPDATE_TRANSACTION_OUTPUT:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transaction: {
+							...state.wallets[selectedWallet].transaction,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].transaction[selectedNetwork],
+								outputs: action.payload.outputs,
+							},
+						},
+					},
+				},
+			};
+
+		case actions.RESET_OUTPUTS:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						outputs: {
+							...state.wallets[selectedWallet].outputs,
+							[selectedNetwork]: [],
+						},
+					},
+				},
+			};
+
 		case actions.RESET_ON_CHAIN_TRANSACTION:
 			return {
 				...state,
@@ -174,7 +227,8 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 						transaction: {
 							...state.wallets[selectedWallet].transaction,
 							[selectedNetwork]: {
-								...onChainTransaction[selectedNetwork],
+								...defaultOnChainTransactionData,
+								outputs: [],
 							},
 						},
 					},
