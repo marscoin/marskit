@@ -7,6 +7,7 @@ import {
 	IAddressContent,
 	IDefaultWalletShape,
 	IFormattedTransaction,
+	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
 	IWalletItem,
@@ -37,6 +38,7 @@ import {
 } from '../notifications';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateOnChainActivityList } from '../../store/actions/activity';
+import { getTotalFee, getTransactionOutputValue } from './transactions';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -1639,4 +1641,67 @@ export const getRbfData = async ({
 		message,
 		addressType,
 	});
+};
+
+/**
+ * Converts IRbfData to IOnChainTransactionData.
+ * @param data
+ */
+export const formatRbfData = async (
+	data: IRbfData,
+): Promise<IOnChainTransactionData> => {
+	const { wallet, utxos, outputs, fee, selectedNetwork, message } = data;
+
+	let changeAddress: undefined | string;
+	let satsPerByte = 1;
+	let recommendedFee = 250; //Total recommended fee in sats
+	let transactionSize = 250; //In bytes (250 is about normal)
+	let label = ''; // User set label for a given transaction.
+
+	const { currentWallet, selectedWallet } = getCurrentWallet({
+		selectedWallet: wallet,
+		selectedNetwork,
+	});
+	const changeAddressesObj = currentWallet.changeAddresses[selectedNetwork];
+	const changeAddresses = Object.values(changeAddressesObj).map(
+		({ address }) => address,
+	);
+	let newOutputs = outputs;
+	await Promise.all(
+		outputs.map(({ address }, index) => {
+			if (changeAddresses.includes(address)) {
+				if (address) {
+					changeAddress = address;
+					newOutputs.splice(index, 1);
+				}
+			}
+		}),
+	);
+
+	let newFee = 0;
+	let newSatsPerByte = satsPerByte;
+	while (fee > newFee) {
+		newFee = getTotalFee({
+			selectedWallet,
+			satsPerByte: newSatsPerByte,
+			selectedNetwork,
+			message,
+		});
+		newSatsPerByte = newSatsPerByte + 1;
+	}
+
+	const newFiatAmount = getTransactionOutputValue({ outputs });
+
+	return {
+		changeAddress: changeAddress || '',
+		message,
+		label,
+		outputs: newOutputs,
+		utxos,
+		fee: newFee,
+		satsPerByte: newSatsPerByte,
+		fiatAmount: newFiatAmount,
+		recommendedFee,
+		transactionSize,
+	};
 };

@@ -2,8 +2,13 @@ import { err, ok, Result } from '../result';
 import * as electrum from 'rn-electrum-client/helpers';
 import { validateAddress } from '../scanner';
 import { networks, TAvailableNetworks } from '../networks';
-import { getKeychainValue } from '../helpers';
-import { IUtxo, TAddressType } from '../../store/types/wallet';
+import { getKeychainValue, reduceValue } from '../helpers';
+import {
+	IOnChainTransactionData,
+	IOutput,
+	IUtxo,
+	TAddressType,
+} from '../../store/types/wallet';
 import {
 	getCurrentWallet,
 	getMnemonicPhrase,
@@ -12,6 +17,7 @@ import {
 	getTransactions,
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
+import { getStore } from '../../store/helpers';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -242,16 +248,14 @@ export const getByteCount = (inputs, outputs, message = ''): number => {
  * Attempt to estimate the current fee for a given wallet and its UTXO's
  */
 export const getTotalFee = ({
-	fee = 1,
+	satsPerByte = 1,
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
-	spendMaxAmount = false,
 	message = '',
 }: {
-	fee: number;
+	satsPerByte: number;
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
-	spendMaxAmount?: boolean;
 	message?: string;
 }): number => {
 	const fallBackFee = 250;
@@ -272,90 +276,100 @@ export const getTotalFee = ({
 			const utxos = currentWallet.utxos[selectedNetwork];
 			utxoLength = Object.keys(utxos).length;
 		} catch {}
+		let outputLength = 1;
+		try {
+			const changeAddress =
+				currentWallet?.transaction[selectedNetwork]?.changeAddress;
+			const outputs = currentWallet?.transaction[selectedNetwork]?.outputs;
+			if (outputs) {
+				outputLength = changeAddress ? outputs.length + 1 : outputs.length;
+			}
+		} catch {}
 
 		const addressType = currentWallet.addressType[selectedNetwork];
 		const transactionByteCount =
 			getByteCount(
 				{ [addressType]: utxoLength },
-				{ [addressType]: spendMaxAmount ? 1 : 2 },
+				{ [addressType]: outputLength },
 				message,
 			) || fallBackFee;
-		return transactionByteCount * Number(fee) || fallBackFee;
+		return transactionByteCount * Number(satsPerByte) || fallBackFee;
 	} catch {
-		return Number(fee) * fallBackFee || fallBackFee;
+		return Number(satsPerByte) * fallBackFee || fallBackFee;
 	}
 };
 
 export interface ICreateTransaction {
-	wallet?: string;
-	utxos?: IUtxo[];
-	balance?: number;
-	address: string;
-	fee: number;
-	amount: number;
-	changeAddress?: string | undefined;
-	selectedNetwork: TAvailableNetworks;
-	message: string;
-	addressType: TAddressType;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}
+interface ITargets extends IOutput {
+	script?: Buffer | undefined;
 }
 export const createTransaction = ({
-	wallet = undefined,
-	utxos = [], //Current utxos.
-	balance = 0, //Current balance in sats.
-	address = '', //Address to send to.
-	fee = 2, //sats per byte.
-	amount = 0, //Amount to send to recipient.
-	changeAddress = undefined, //Where to send change. No change address need for "maxSend" transactions.
-	selectedNetwork = 'bitcoin',
-	message = '', //OP_RETURN message.
-	addressType = 'bech32',
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
 }: ICreateTransaction): Promise<Result<string>> => {
-	const { currentWallet, selectedWallet } = getCurrentWallet({
-		selectedNetwork,
-		selectedWallet: wallet,
-	});
-	//Get UTXO's if none were provided.
-	if (typeof utxos === 'object') {
-		if (Object.values(utxos).length <= 0) {
-			//Grab utxos from store.
-			utxos = Object.values(currentWallet.utxos[selectedNetwork]);
-		} else {
-			//Grab utxo values.
-			utxos = Object.values(utxos);
-		}
-	}
-
-	//Get balance of current wallet if none was provided.
-	if (!balance) {
-		balance = currentWallet.balance[selectedNetwork];
-	}
-
 	return new Promise(async (resolve) => {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const { currentWallet } = getCurrentWallet({
+			selectedNetwork,
+			selectedWallet,
+		});
+		const transactionData = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		if (transactionData.isErr()) {
+			return err(transactionData.error.message);
+		}
+		const {
+			utxos = [],
+			outputs = [],
+			changeAddress,
+			fee = 250,
+		} = transactionData.value;
+		let message = transactionData.value.message;
+
+		//Get balance of current utxos.
+		const balance = await getTransactionUtxoValue({
+			selectedWallet,
+			selectedNetwork,
+			utxos,
+		});
+		//Get value of current outputs.
+		const outputValue = getTransactionOutputValue({
+			selectedNetwork,
+			selectedWallet,
+			outputs,
+		});
+
 		try {
 			const network = networks[selectedNetwork];
-			const totalFee =
-				getByteCount(
-					{ [addressType]: utxos.length },
-					{ [addressType]: changeAddress ? 2 : 1 },
-					message,
-				) * fee;
+			//TODO: Get address type by inspecting the address or path.
+			const addressType = currentWallet.addressType[selectedNetwork];
 
-			let targets: {
-				address?: string;
-				value: number;
-				script?: Buffer | undefined;
-			}[] = [{ address, value: amount }];
+			//Collect all outputs.
+			let targets: ITargets[] = await Promise.all(
+				outputs.map((output) => output),
+			);
 
 			//Change address and amount to send back to wallet.
-			if (changeAddress) {
+			if (changeAddress !== '') {
 				targets.push({
 					address: changeAddress,
-					value: balance - (amount + totalFee),
+					value: balance - (outputValue + fee),
 				});
 			}
 
 			//Embed any OP_RETURN messages.
-			if (message !== '') {
+			if (message && message.trim() !== '') {
 				const messageLength = message.length;
 				const lengthMin = 5;
 				//This is a patch for the following: https://github.com/coreyphillips/moonshine/issues/52
@@ -390,24 +404,24 @@ export const createTransaction = ({
 			const root = bip32.fromSeed(seed, network);
 			const psbt = new bitcoin.Psbt({ network });
 
-			//Add Inputs
-			const utxosLength = utxos.length;
-			for (let i = 0; i < utxosLength; i++) {
-				try {
-					const utxo: IUtxo = utxos[i];
-					const path = utxo.path;
-					const keyPair: BIP32Interface = root.derivePath(path);
-					await addInput({
-						psbt,
-						addressType,
-						keyPair,
-						utxo,
-						selectedNetwork,
-					});
-				} catch (e) {
-					console.log(e);
-				}
-			}
+			//Add Inputs from utxos array
+			await Promise.all(
+				utxos.map(async (utxo) => {
+					try {
+						const path = utxo.path;
+						const keyPair: BIP32Interface = root.derivePath(path);
+						await addInput({
+							psbt,
+							addressType,
+							keyPair,
+							utxo,
+							selectedNetwork,
+						});
+					} catch (e) {
+						return resolve(err(e));
+					}
+				}),
+			);
 
 			//Set RBF if supported and prompted via rbf in Settings.
 			setReplaceByFee({ psbt, setRbf: true });
@@ -439,18 +453,18 @@ export const createTransaction = ({
 				}),
 			);
 
-			//Loop through and sign
-			let index = 0;
-			utxos.forEach((utxo) => {
-				try {
-					const path = utxo.path;
-					const keyPair = root.derivePath(path);
-					psbt.signInput(index, keyPair);
-					index++;
-				} catch (e) {
-					console.log(e);
-				}
-			});
+			//Loop through and sign our inputs
+			await Promise.all(
+				utxos.map((utxo, i) => {
+					try {
+						const path = utxo.path;
+						const keyPair = root.derivePath(path);
+						psbt.signInput(i, keyPair);
+					} catch (e) {
+						return resolve(err(e));
+					}
+				}),
+			);
 			psbt.finalizeAllInputs();
 			const rawTx = psbt.extractTransaction().toHex();
 			return resolve(ok(rawTx));
@@ -460,12 +474,42 @@ export const createTransaction = ({
 	});
 };
 
+/**
+ * Returns onchain transaction data related to the specified network and wallet.
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const getOnchainTransactionData = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+}): Result<IOnChainTransactionData> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const transaction = getStore().wallet.wallets[selectedWallet].transaction[
+			selectedNetwork
+		];
+		if (transaction) {
+			return ok(transaction);
+		}
+		return err('Unable to get transaction data.');
+	} catch (e) {
+		return err(e);
+	}
+};
 export interface IAddInput {
 	psbt: Psbt;
 	addressType: TAddressType;
 	keyPair: BIP32Interface;
 	utxo: IUtxo;
-	selectedNetwork: TAvailableNetworks;
+	selectedNetwork?: TAvailableNetworks;
 }
 export const addInput = async ({
 	psbt,
@@ -475,6 +519,9 @@ export const addInput = async ({
 	selectedNetwork,
 }: IAddInput): Promise<Result<string>> => {
 	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		const network = networks[selectedNetwork];
 		if (addressType === 'bech32') {
 			const p2wpkh = bitcoin.payments.p2wpkh({
@@ -550,4 +597,93 @@ export const broadcastTransaction = async ({
 		return err(broadcastResponse.data);
 	}
 	return ok(broadcastResponse.data);
+};
+
+/**
+ * Returns total value of all outputs. Excludes any value that would be sent to the change address.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param outputs
+ * @param includeChangeAddress
+ */
+export const getTransactionOutputValue = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	outputs = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	outputs?: undefined | IOutput[];
+}): number => {
+	try {
+		if (!outputs) {
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			const transaction = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transaction.isErr()) {
+				return 0;
+			}
+			outputs = transaction.value.outputs || [];
+		}
+		if (outputs) {
+			const response = reduceValue({ arr: outputs, value: 'value' });
+			if (response.isOk()) {
+				return response.value;
+			}
+		}
+		return 0;
+	} catch (e) {
+		return 0;
+	}
+};
+
+/**
+ * Returns total value of all utxos.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param utxos
+ */
+export const getTransactionUtxoValue = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	utxos = undefined,
+}: {
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+	utxos?: IUtxo[] | undefined;
+}): number => {
+	try {
+		if (!utxos) {
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			const transaction = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transaction.isErr()) {
+				return 0;
+			}
+			utxos = transaction.value.utxos;
+		}
+		if (utxos) {
+			const response = reduceValue({ arr: utxos, value: 'value' });
+			if (response.isOk()) {
+				return response.value;
+			}
+		}
+		return 0;
+	} catch (e) {
+		return 0;
+	}
 };
