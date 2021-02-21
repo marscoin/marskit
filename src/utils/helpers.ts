@@ -11,6 +11,7 @@ import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-community/clipboard';
 import { Alert } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
+import { err, ok, Result } from './result';
 
 export const promiseTimeout = (
 	ms: number,
@@ -161,5 +162,31 @@ export const getLastWordInString = (phrase = ''): string => {
 		return n[n.length - 1];
 	} catch (e) {
 		return phrase;
+	}
+};
+
+/**
+ * Sum a specific value in an array of objects.
+ * @param arr
+ * @param value
+ */
+export const reduceValue = ({
+	arr = [],
+	value = '',
+}: {
+	arr: any[];
+	value: string;
+}): Result<number> => {
+	try {
+		if (!value) {
+			return err('No value specified.');
+		}
+		return ok(
+			arr.reduce((acc, cur) => {
+				return acc + Number(cur[value]);
+			}, 0) || 0,
+		);
+	} catch (e) {
+		return err(e);
 	}
 };

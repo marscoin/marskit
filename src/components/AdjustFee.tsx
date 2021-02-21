@@ -4,12 +4,12 @@ import { EvilIcon, Text, TouchableOpacity, View } from '../styles/components';
 import { systemWeights } from 'react-native-typography';
 
 interface IButton {
-	fee: number;
+	satsPerByte: number;
 	decreaseFee: Function;
 	increaseFee: Function;
 }
 const AdjustFee = ({
-	fee = 1,
+	satsPerByte = 1,
 	decreaseFee = (): null => null,
 	increaseFee = (): null => null,
 }: IButton): ReactElement => {
@@ -19,7 +19,7 @@ const AdjustFee = ({
 				<EvilIcon type="text2" name={'minus'} size={42} />
 			</TouchableOpacity>
 			<View color="transparent" style={styles.fee}>
-				<Text style={styles.title}>{fee} sats/byte</Text>
+				<Text style={styles.title}>{satsPerByte} sats/byte</Text>
 			</View>
 			<TouchableOpacity onPress={increaseFee} style={styles.icon}>
 				<EvilIcon name={'plus'} size={42} />

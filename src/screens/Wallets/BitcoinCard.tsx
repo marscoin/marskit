@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement, useCallback, useState } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import QR from '../../components/QR';
@@ -12,7 +12,6 @@ import { default as bitcoinUnits } from 'bitcoin-units';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
-import { EOnChainTransactionData } from '../../store/types/wallet';
 
 const BitcoinCard = (): ReactElement => {
 	const [displaySend, setDisplaySend] = useState(false);
@@ -27,15 +26,14 @@ const BitcoinCard = (): ReactElement => {
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
-	const transactionAddress = useSelector(
+
+	const outputs = useSelector(
 		(state: Store) =>
-			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
-				?.address || EOnChainTransactionData.address,
+			state.wallet?.wallets[selectedWallet]?.transaction[selectedNetwork]
+				?.outputs || [],
 	);
-	const receiveAddress = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet]?.addressIndex[selectedNetwork]
-				?.address || '',
+	const addressIndex = useSelector(
+		(state: Store) => state.wallet?.wallets[selectedWallet]?.addressIndex,
 	);
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
@@ -56,12 +54,28 @@ const BitcoinCard = (): ReactElement => {
 		exchangeRate,
 		selectedCurrency,
 	});
+	const getReceiveAddress = useCallback((): string => {
+		try {
+			return addressIndex[selectedNetwork].address || ' ';
+		} catch {
+			return ' ';
+		}
+	}, [addressIndex, selectedNetwork]);
+	const receiveAddress = getReceiveAddress();
 	balance = bitcoinUnits(balance, 'satoshi').to(bitcoinUnit).value();
 
 	LayoutAnimation.easeInEaseOut();
 
+	const hasOutputs = useCallback((): boolean => {
+		try {
+			return outputs.length > 0 && outputs[0]?.address;
+		} catch {
+			return false;
+		}
+	}, [outputs]);
+
 	const toggleSendTransaction = async (): Promise<void> => {
-		if (transactionAddress && displaySend) {
+		if (hasOutputs() && displaySend) {
 			resetOnChainTransaction({
 				selectedWallet,
 				selectedNetwork,
@@ -74,15 +88,15 @@ const BitcoinCard = (): ReactElement => {
 	};
 
 	const toggleReceiveTransaction = async (): Promise<void> => {
-		setDisplayReceive(!displayReceive);
 		if (displaySend) {
 			setDisplaySend(false);
 		}
+		setDisplayReceive(!displayReceive);
 	};
 
 	const shouldDisplayButtons = (): boolean => {
 		try {
-			return displayButtonRow || transactionAddress !== '';
+			return displayButtonRow || hasOutputs();
 		} catch {
 			return false;
 		}
@@ -90,7 +104,7 @@ const BitcoinCard = (): ReactElement => {
 
 	const shouldDisplaySendButton = (): boolean => {
 		try {
-			return displaySend || transactionAddress !== '';
+			return displaySend || hasOutputs();
 		} catch {
 			return false;
 		}
@@ -115,7 +129,7 @@ const BitcoinCard = (): ReactElement => {
 			fiatBalanceLabel={`$${fiatBalance}`}
 			asset="bitcoin"
 			onPress={toggleCard}>
-			{shouldDisplayButtons() && (
+			{!!shouldDisplayButtons() && (
 				<>
 					<View color="transparent" style={styles.buttonRow}>
 						<Button
@@ -142,7 +156,7 @@ const BitcoinCard = (): ReactElement => {
 							text={'Receive'}
 						/>
 					</View>
-					{shouldDisplaySendButton() && (
+					{!!shouldDisplaySendButton() && (
 						<SendOnChainTransaction
 							header={false}
 							onComplete={(): void => {
@@ -157,7 +171,7 @@ const BitcoinCard = (): ReactElement => {
 							}}
 						/>
 					)}
-					{displayReceive && <QR data={receiveAddress} header={false} />}
+					{!!displayReceive && <QR data={receiveAddress} header={false} />}
 				</>
 			)}
 		</AssetCard>
