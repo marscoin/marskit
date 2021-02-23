@@ -19,11 +19,6 @@
 		4F7B5685AD230BF18C3D1B1D /* libPods-spectrum.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 522DC029272D601D933EEAB9 /* libPods-spectrum.a */; };
 		79FFB632EC0B9CD8A6B37E90 /* libPods-spectrum-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A344265E01AA37E3A1124A07 /* libPods-spectrum-tvOSTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		96DAB2BA257E3C7D00DB42F0 /* LndReactModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96DAB2B4257E3C7D00DB42F0 /* LndReactModule.swift */; };
-		96DAB2BB257E3C7D00DB42F0 /* LndReactModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 96DAB2B5257E3C7D00DB42F0 /* LndReactModule.m */; };
-		96DAB2BC257E3C7D00DB42F0 /* rpc.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96DAB2B7257E3C7D00DB42F0 /* rpc.pb.swift */; };
-		96DAB2BD257E3C7D00DB42F0 /* walletunlocker.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96DAB2B8257E3C7D00DB42F0 /* walletunlocker.pb.swift */; };
-		96DAB2CC257E3DBD00DB42F0 /* Lndmobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96DAB2CB257E3DBD00DB42F0 /* Lndmobile.framework */; };
 		CC28B1333C18260CEFD362B6 /* libPods-spectrum-spectrumTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CFB41A5EDEEBE911C91D13C1 /* libPods-spectrum-spectrumTests.a */; };
 /* End PBXBuildFile section */
 
@@ -78,13 +73,6 @@
 		522DC029272D601D933EEAB9 /* libPods-spectrum.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spectrum.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = spectrum/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8690714A0058642313A5AAF4 /* Pods-spectrum-spectrumTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spectrum-spectrumTests.debug.xcconfig"; path = "Target Support Files/Pods-spectrum-spectrumTests/Pods-spectrum-spectrumTests.debug.xcconfig"; sourceTree = "<group>"; };
-		96DAB2B4257E3C7D00DB42F0 /* LndReactModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LndReactModule.swift; path = spectrum/lightning/LndReactModule.swift; sourceTree = SOURCE_ROOT; };
-		96DAB2B5257E3C7D00DB42F0 /* LndReactModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LndReactModule.m; path = spectrum/lightning/LndReactModule.m; sourceTree = SOURCE_ROOT; };
-		96DAB2B7257E3C7D00DB42F0 /* rpc.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpc.pb.swift; sourceTree = "<group>"; };
-		96DAB2B8257E3C7D00DB42F0 /* walletunlocker.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = walletunlocker.pb.swift; sourceTree = "<group>"; };
-		96DAB2B9257E3C7D00DB42F0 /* LndReactModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LndReactModule.h; path = spectrum/lightning/LndReactModule.h; sourceTree = SOURCE_ROOT; };
-		96DAB2C6257E3CA300DB42F0 /* spectrum-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "spectrum-Bridging-Header.h"; sourceTree = "<group>"; };
-		96DAB2CB257E3DBD00DB42F0 /* Lndmobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Lndmobile.framework; path = spectrum/lightning/Lndmobile.framework; sourceTree = SOURCE_ROOT; };
 		A344265E01AA37E3A1124A07 /* libPods-spectrum-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spectrum-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3D241B6AB96C601BAFB2AE6 /* libPods-spectrum-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spectrum-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9EC272B408D67D719C897BC /* Pods-spectrum-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spectrum-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-spectrum-tvOSTests/Pods-spectrum-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -111,7 +99,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F7B5685AD230BF18C3D1B1D /* libPods-spectrum.a in Frameworks */,
-				96DAB2CC257E3DBD00DB42F0 /* Lndmobile.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,8 +164,6 @@
 		13B07FAE1A68108700A75B9A /* spectrum */ = {
 			isa = PBXGroup;
 			children = (
-				96DAB2C6257E3CA300DB42F0 /* spectrum-Bridging-Header.h */,
-				96DAB2B3257E3C4800DB42F0 /* lightning */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -251,28 +236,6 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
-		96DAB2B3257E3C4800DB42F0 /* lightning */ = {
-			isa = PBXGroup;
-			children = (
-				96DAB2CB257E3DBD00DB42F0 /* Lndmobile.framework */,
-				96DAB2B9257E3C7D00DB42F0 /* LndReactModule.h */,
-				96DAB2B5257E3C7D00DB42F0 /* LndReactModule.m */,
-				96DAB2B4257E3C7D00DB42F0 /* LndReactModule.swift */,
-				96DAB2B6257E3C7D00DB42F0 /* rpc */,
-			);
-			path = lightning;
-			sourceTree = "<group>";
-		};
-		96DAB2B6257E3C7D00DB42F0 /* rpc */ = {
-			isa = PBXGroup;
-			children = (
-				96DAB2B7257E3C7D00DB42F0 /* rpc.pb.swift */,
-				96DAB2B8257E3C7D00DB42F0 /* walletunlocker.pb.swift */,
-			);
-			name = rpc;
-			path = spectrum/lightning/rpc;
-			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -710,10 +673,6 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				96DAB2BB257E3C7D00DB42F0 /* LndReactModule.m in Sources */,
-				96DAB2BA257E3C7D00DB42F0 /* LndReactModule.swift in Sources */,
-				96DAB2BD257E3C7D00DB42F0 /* walletunlocker.pb.swift in Sources */,
-				96DAB2BC257E3C7D00DB42F0 /* rpc.pb.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -754,7 +713,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8690714A0058642313A5AAF4 /* Pods-spectrum-spectrumTests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -778,7 +736,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DAC9AB624E4C3729513677E4 /* Pods-spectrum-spectrumTests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = spectrumTests/Info.plist;
@@ -816,7 +773,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Spectrum;
-				SWIFT_OBJC_BRIDGING_HEADER = "spectrum-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -844,7 +800,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Spectrum;
-				SWIFT_OBJC_BRIDGING_HEADER = "spectrum-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

@@ -1,5 +1,5 @@
-import { err, ok, Result } from 'react-native-lightning/src/lightning/result';
-import { lnrpc } from 'react-native-lightning/src/lightning/rpc';
+import { err, ok, Result } from 'react-native-lightning/src/result';
+import { lnrpc } from 'react-native-lightning/src/rpc';
 
 class LND {
 	constructor() {}
@@ -20,11 +20,12 @@ class LND {
 	}
 }
 
-import LndConf from 'react-native-lightning/src/lightning/lnd.conf';
+import LndConf from 'react-native-lightning/src/lnd.conf';
 
 export { LndConf };
-export * from 'react-native-lightning/src/lightning/types';
-export * from 'react-native-lightning/src/lightning/rpc';
+export * from 'react-native-lightning/src/types';
+export * from 'react-native-lightning/src/rpc';
+export * from 'react-native-lightning/src/result';
 
 export default new LND();
 
