@@ -3,7 +3,7 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { HMAC as sha256HMAC } from 'fast-sha256';
 import secp256k1 from 'secp256k1';
-import { networks } from '../networks';
+import { INetwork, networks } from '../networks';
 
 const stringToUint8Array = (str: string) => {
 	return Uint8Array.from(str, (x) => x.charCodeAt(0));
@@ -32,13 +32,23 @@ interface DerivedLinkingKeys {
 	publicKey: string;
 }
 
+/**
+ * Derive linking keys from BIP-32 based wallet that can be used to sign LNURL challenge requests.
+ * https://github.com/fiatjaf/lnurl-rfc/blob/master/lnurl-auth.md#linkingkey-derivation-for-bip-32-based-wallets
+ * @param domain
+ * @param network
+ * @param mnemonic
+ * @param bip39Passphrase
+ * @returns {Err<unknown> | Ok<{privateKey: string, publicKey: string}>}
+ */
 export const deriveLinkingKeys = (
-	mnemonic: string,
-	bip39Passphrase: string,
 	domain,
+	network: INetwork,
+	mnemonic: string,
+	bip39Passphrase?: string,
 ): Result<DerivedLinkingKeys> => {
 	const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
-	const root = bip32.fromSeed(seed, networks.bitcoinTestnet);
+	const root = bip32.fromSeed(seed, network);
 
 	//STEP 1 - Get hashing key
 	const hashingKey = root.derivePath("m/138'/0").privateKey?.toString('hex');
@@ -65,6 +75,13 @@ export const deriveLinkingKeys = (
 	return ok({ privateKey, publicKey });
 };
 
+/**
+ * Sign k1 challenge request from a LNURL
+ * https://github.com/fiatjaf/lnurl-rfc/blob/master/lnurl-auth.md#wallet-to-service-interaction-flow
+ * @param k1
+ * @param linkingPrivateKey
+ * @returns {Ok<string>}
+ */
 export const signK1 = (
 	k1: string,
 	linkingPrivateKey: string,
@@ -79,12 +96,4 @@ export const signK1 = (
 	const encodedSignature = toHexString(signature);
 
 	return ok(encodedSignature);
-};
-
-export const createCallbackUrl = (
-	callback: string,
-	signature: string,
-	linkingPublicKey: string,
-): Result<string> => {
-	return ok(`${callback}&sig=${signature}&key=${linkingPublicKey}`);
 };

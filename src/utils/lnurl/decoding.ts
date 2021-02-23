@@ -1,15 +1,14 @@
-import { getParams, LNURLAuthParams } from 'js-lnurl';
+import { getParams, LNURLAuthParams, LNURLWithdrawParams } from 'js-lnurl';
 import { err, ok, Result } from '../result';
 
-const lnAuth = async (
-	callback: string,
-	signature: string,
-	linkingKey: string,
-): Promise<Result<string>> => {
-	return ok('TODO');
-};
-
-export const getLNURLParams = async (url: string): Promise<Result<string>> => {
+/**
+ * Parses LNURL
+ * @param url
+ * @returns {Promise<Ok<LNURLWithdrawParams> | Err<unknown> | Ok<LNURLAuthParams>>}
+ */
+export const getLNURLParams = async (
+	url: string,
+): Promise<Result<LNURLAuthParams>> => {
 	try {
 		const params = await getParams(url);
 
@@ -17,23 +16,11 @@ export const getLNURLParams = async (url: string): Promise<Result<string>> => {
 
 		switch (tag) {
 			case 'withdrawRequest': {
-				// tag: string
-				// k1: string
-				// callback: string
-				// domain: string
-				// minWithdrawable: number
-				// maxWithdrawable: number
-				// defaultDescription: string
-				break;
+				return ok(params as LNURLWithdrawParams);
 			}
 
 			case 'login': {
-				// domain: string // callback: string // k1: string // tag: string
-				const p = params as LNURLAuthParams;
-
-				return ok(JSON.stringify(p));
-
-				// return authRes;
+				return ok(params as LNURLAuthParams);
 			}
 		}
 
@@ -41,4 +28,19 @@ export const getLNURLParams = async (url: string): Promise<Result<string>> => {
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Creates a authorization callback URL
+ * @param callback
+ * @param signature
+ * @param linkingPublicKey
+ * @returns {Ok<string>}
+ */
+export const createCallbackUrl = (
+	callback: string,
+	signature: string,
+	linkingPublicKey: string,
+): Result<string> => {
+	return ok(`${callback}&sig=${signature}&key=${linkingPublicKey}`);
 };

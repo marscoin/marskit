@@ -19,6 +19,7 @@ import {
 } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
+import { lnAuth } from '../../utils/lnurl';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -100,6 +101,23 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					],
 					{ cancelable: true },
 				);
+
+				break;
+			}
+			case EQRDataType.lnurlAuth: {
+				const authRes = await lnAuth(data.rawData || '');
+				if (authRes.isErr()) {
+					showErrorNotification({
+						title: 'LNURL-Auth failed',
+						message: authRes.error.message,
+					});
+					return;
+				}
+
+				showSuccessNotification({
+					title: 'Authenticated!',
+					message: '',
+				});
 
 				break;
 			}
