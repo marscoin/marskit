@@ -6,7 +6,7 @@ import {
 } from '../src/utils/lnurl';
 import { createWallet } from '../src/store/actions/wallet';
 import { getKeychainValue } from '../src/utils/helpers';
-import { networks } from "../src/utils/networks";
+import { networks } from '../src/utils/networks';
 
 const lnurl =
 	'lnurl1dp68gurn8ghj7ctsdyh8getnw3hx2apwd3hx6ctjddjhguewvdhk6tmvde6hymp0vylhgct884kx7emfdcnxkvfa8yunje3cxqunjdpcxg6nyvenvdjxxcfex56nwvfjxgckxdfhvgunzvtzxesn2ef5xv6rgc348ycnsvpjv43nxcfnxd3kgcfsvymnsdpxdpkkzceav5crzce38yekvcejxumxgvrrxqmkzc3svycnwdp5xgunxc33vvekxwf3vv6nvwf3xqux2vrrvfsnydryxvurgcfsxcmrjdp4v5cr2dgx0xng4';
@@ -29,7 +29,11 @@ describe('LN URL', () => {
 
 		const { data: walletSeed } = await getKeychainValue({ key: 'wallet0' });
 
-		const keysRes = await deriveLinkingKeys(lnurlRes.value.domain, networks.bitcoinTestnet, walletSeed);
+		const keysRes = await deriveLinkingKeys(
+			lnurlRes.value.domain,
+			networks.bitcoinTestnet,
+			walletSeed,
+		);
 
 		expect(keysRes.isOk()).toEqual(true);
 		if (keysRes.isErr()) {

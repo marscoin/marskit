@@ -1,7 +1,8 @@
 import { err, ok, Result } from '../result';
 import { getLNURLParams } from './decoding';
 import { getKeychainValue } from '../helpers';
-import { createCallbackUrl, deriveLinkingKeys, signK1 } from './signing';
+import { deriveLinkingKeys, signK1 } from './signing';
+import { createCallbackUrl } from './decoding';
 import { networks } from '../networks';
 import { getStore } from '../../store/helpers';
 
@@ -59,7 +60,7 @@ export const lnAuth = async (url: string): Promise<Result<string>> => {
 };
 
 export const lnWithdraw = (url: string): Result<string> => {
-	return ok('TODO withdraw');
+	return ok(`TODO withdraw ${url}`);
 };
 
 export * from './signing';

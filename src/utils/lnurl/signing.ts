@@ -3,22 +3,22 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { HMAC as sha256HMAC } from 'fast-sha256';
 import secp256k1 from 'secp256k1';
-import { INetwork, networks } from '../networks';
+import { INetwork } from '../networks';
 
-const stringToUint8Array = (str: string) => {
+const stringToBytes = (str: string): Uint8Array => {
 	return Uint8Array.from(str, (x) => x.charCodeAt(0));
 };
 
-const hexToUint8Array = (hexString: string) => {
+const hexToBytes = (hexString: string): Uint8Array => {
 	return new Uint8Array(
 		hexString.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
 	);
 };
 
-const toHexString = (bytes: Uint8Array) =>
+const bytesToHexString = (bytes: Uint8Array): string =>
 	bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-const byteArrayToLong = (byteArray: Uint8Array) => {
+const byteArrayToLong = (byteArray: Uint8Array): number => {
 	let value = 0;
 	for (let i = byteArray.length - 1; i >= 0; i--) {
 		value = value * 256 + byteArray[i];
@@ -57,8 +57,8 @@ export const deriveLinkingKeys = (
 	}
 
 	//STEP 2 - hmacSha256 domain
-	const hmac = new sha256HMAC(stringToUint8Array(hashingKey));
-	const derivationMaterial = hmac.update(stringToUint8Array(domain)).digest();
+	const hmac = new sha256HMAC(stringToBytes(hashingKey));
+	const derivationMaterial = hmac.update(stringToBytes(domain)).digest();
 
 	//STEP 3 - First 16 bytes are taken from resulting hash and then turned into a sequence of 4 Long values which are in turn used to derive a service-specific linkingKey using m/138'/<long1>/<long2>/<long3>/<long4> path
 	let path = "m/138'";
@@ -87,13 +87,13 @@ export const signK1 = (
 	linkingPrivateKey: string,
 ): Result<string> => {
 	const sigObj = secp256k1.ecdsaSign(
-		hexToUint8Array(k1),
-		hexToUint8Array(linkingPrivateKey),
+		hexToBytes(k1),
+		hexToBytes(linkingPrivateKey),
 	);
 
 	// Get signature
 	const signature = secp256k1.signatureExport(sigObj.signature);
-	const encodedSignature = toHexString(signature);
+	const encodedSignature = bytesToHexString(signature);
 
 	return ok(encodedSignature);
 };

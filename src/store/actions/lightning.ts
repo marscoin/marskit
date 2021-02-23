@@ -319,7 +319,7 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 	lnd.subscribeToOnChainTransactions(
 		(res) => {
 			if (res.isOk()) {
-				const { amount, blockHeight, numConfirmations } = res.value;
+				const { amount } = res.value;
 
 				refreshLightningOnChainBalance();
 
