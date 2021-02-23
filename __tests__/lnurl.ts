@@ -3,11 +3,12 @@ import {
 	deriveLinkingKeys,
 	signK1,
 } from '../src/utils/lnurl';
-// import { createWallet } from '../src/store/actions/wallet';
+import { createWallet } from '../src/store/actions/wallet';
+import { getStore } from '../src/store/helpers';
 
 describe('LN URL', () => {
 	beforeAll(async () => {
-		// await createWallet({});
+		await createWallet({});
 	});
 
 	it('derives linking keys and signs k1', async () => {
@@ -18,6 +19,9 @@ describe('LN URL', () => {
 				'https://api.testnet.lnmarkets.com/lnurl/a?tag=login&k1=287921948779c297cce0435b60d5c40e3d009c9fd569c44ed2bb7f75710c4730&hmac=380917c1d5d549df923d209e9ec9313b2ebb545a82a80ba2fd40c3b020186e04',
 			domain: 'api.testnet.lnmarkets.com',
 		};
+
+		// const w = getStore().wallet.selectedWallet.wallet0;
+		// console.log(w);
 
 		const seed = 'test test test';
 		const passphrase = 'test123';
