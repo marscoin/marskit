@@ -4,7 +4,7 @@
 
 import lnd from 'react-native-lightning';
 import bip21 from 'bip21';
-import { ok, Result } from './result';
+import { err, ok, Result } from './result';
 import {
 	availableNetworks,
 	EAvailableNetworks,
@@ -17,6 +17,7 @@ import { IOmniboltConnectData } from '../store/types/omnibolt';
 import { parseOmniboltConnectData } from './omnibolt';
 import { getStore } from '../store/helpers';
 import { getSelectedNetwork, getSelectedWallet } from './wallet';
+import { getLNURLParams } from './lnurl';
 
 const availableNetworksList = availableNetworks();
 
@@ -66,7 +67,9 @@ export enum EQRDataType {
 	bitcoinAddress = 'bitcoinAddress',
 	lightningPaymentRequest = 'lightningPaymentRequest',
 	omniboltConnect = 'omniboltConnect',
-	//TODO add rgb, lnurl, xpub, lightning node peer etc
+	lnurlAuth = 'lnurlAuth',
+	lnurlWithdraw = 'lnurlWithdraw',
+	//TODO add rgb, xpub, lightning node peer etc
 }
 
 export interface QRData extends IOmniboltConnectData {
@@ -76,6 +79,7 @@ export interface QRData extends IOmniboltConnectData {
 	address?: string;
 	lightningPaymentRequest?: string;
 	message?: string;
+	rawData?: string;
 }
 
 /**
@@ -90,19 +94,39 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 
 	//Lightning URI or plain lightning payment request
 	if (
-		data.indexOf('lightning:') > -1 ||
-		data.startsWith('lntb') ||
-		data.startsWith('lnbc')
+		data.toLowerCase().indexOf('lightning:') > -1 ||
+		data.toLowerCase().startsWith('lntb') ||
+		data.toLowerCase().startsWith('lnbc') ||
+		data.toLowerCase().startsWith('lnurl')
 	) {
 		//If it's a lightning URI
 		let invoice = data.replace('lightning:', '').toLowerCase();
 
-		//Ignore params if there are any, all details can be derived from invoice
-		if (invoice.indexOf('?') > -1) {
-			invoice = invoice.split('?')[0];
-		}
+		if (data.startsWith('lnurl')) {
+			//LNURL-auth
+			const res = await getLNURLParams(data);
+			if (res.isErr()) {
+				if (res.error.message.indexOf('not yet implemented') > -1) {
+					//Only alerting the user if they're using a LNURL tag we don't yet support
+					return err(res.error);
+				}
+			}
 
-		lightningInvoice = invoice;
+			foundNetworksInQR.push({
+				qrDataType: EQRDataType.lnurlAuth,
+				//No real difference between networks for lnauth, all keys are derived the same way so assuming current network
+				network: getStore().wallet.selectedNetwork,
+				rawData: data,
+			});
+		} else {
+			//Assume invoice
+			//Ignore params if there are any, all details can be derived from invoice
+			if (invoice.indexOf('?') > -1) {
+				invoice = invoice.split('?')[0];
+			}
+
+			lightningInvoice = invoice;
+		}
 	}
 
 	//Plain bitcoin address or Bitcoin address URI
@@ -152,6 +176,11 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 			//Still add the data even if it's not for this network. So the error can be handled in the UI for the user.
 			foundNetworksInQR.push(lightningData);
 		}
+	}
+
+	// If we've found any of the above bitcoin QR data don't decode for other networks
+	if (foundNetworksInQR.length > 0) {
+		return ok(foundNetworksInQR);
 	}
 
 	//Omnibolt connect request
