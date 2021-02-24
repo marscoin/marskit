@@ -18,6 +18,7 @@ import { parseOmniboltConnectData } from './omnibolt';
 import { getStore } from '../store/helpers';
 import { getSelectedNetwork, getSelectedWallet } from './wallet';
 import { getLNURLParams } from './lnurl';
+import { LNURLAuthParams, LNURLWithdrawParams } from 'js-lnurl';
 
 const availableNetworksList = availableNetworks();
 
@@ -79,7 +80,7 @@ export interface QRData extends IOmniboltConnectData {
 	address?: string;
 	lightningPaymentRequest?: string;
 	message?: string;
-	rawData?: string;
+	lnUrlParams?: LNURLWithdrawParams | LNURLAuthParams;
 }
 
 /**
@@ -106,18 +107,24 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 			//LNURL-auth
 			const res = await getLNURLParams(data);
 			if (res.isErr()) {
-				if (res.error.message.indexOf('not yet implemented') > -1) {
-					//Only alerting the user if they're using a LNURL tag we don't yet support
-					return err(res.error);
-				}
+				return err(res.error);
 			}
 
-			foundNetworksInQR.push({
-				qrDataType: EQRDataType.lnurlAuth,
-				//No real difference between networks for lnauth, all keys are derived the same way so assuming current network
-				network: getStore().wallet.selectedNetwork,
-				rawData: data,
-			});
+			const qrDataType =
+				res.value.tag === 'login'
+					? EQRDataType.lnurlAuth
+					: res.value.tag === 'withdrawRequest'
+					? EQRDataType.lnurlWithdraw
+					: null;
+
+			if (qrDataType) {
+				foundNetworksInQR.push({
+					qrDataType,
+					//No real difference between networks for lnurl, all keys are derived the same way so assuming current network
+					network: getStore().wallet.selectedNetwork,
+					lnUrlParams: res.value,
+				});
+			}
 		} else {
 			//Assume invoice
 			//Ignore params if there are any, all details can be derived from invoice
