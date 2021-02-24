@@ -20,10 +20,8 @@ import {
 import { refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
 import { lnAuth, lnWithdraw } from '../../utils/lnurl';
-import { getStore } from '../../store/helpers';
 import lnd from 'react-native-lightning/src/index';
 import { LNURLWithdrawParams } from 'js-lnurl';
-import { err } from '../../utils/result';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(

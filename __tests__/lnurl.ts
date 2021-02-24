@@ -2,7 +2,6 @@ import {
 	createAuthCallbackUrl,
 	deriveLinkingKeys,
 	getLNURLParams,
-	lnWithdraw,
 	signK1,
 } from '../src/utils/lnurl';
 import { createWallet } from '../src/store/actions/wallet';
