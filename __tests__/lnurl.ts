@@ -1,5 +1,5 @@
 import {
-	createCallbackUrl,
+	createAuthCallbackUrl,
 	deriveLinkingKeys,
 	getLNURLParams,
 	signK1,
@@ -7,9 +7,6 @@ import {
 import { createWallet } from '../src/store/actions/wallet';
 import { getKeychainValue } from '../src/utils/helpers';
 import { networks } from '../src/utils/networks';
-
-const lnurl =
-	'lnurl1dp68gurn8ghj7ctsdyh8getnw3hx2apwd3hx6ctjddjhguewvdhk6tmvde6hymp0vylhgct884kx7emfdcnxkvfa8yunje3cxqunjdpcxg6nyvenvdjxxcfex56nwvfjxgckxdfhvgunzvtzxesn2ef5xv6rgc348ycnsvpjv43nxcfnxd3kgcfsvymnsdpxdpkkzceav5crzce38yekvcejxumxgvrrxqmkzc3svycnwdp5xgunxc33vvekxwf3vv6nvwf3xqux2vrrvfsnydryxvurgcfsxcmrjdp4v5cr2dgx0xng4';
 
 describe('LN URL', () => {
 	beforeAll(async () => {
@@ -20,7 +17,10 @@ describe('LN URL', () => {
 	});
 
 	it('Decodes LNURL-auth, derives linking keys, signs k1 and created callback URL', async () => {
-		const lnurlRes = await getLNURLParams(lnurl);
+		const lnurlAuth =
+			'lnurl1dp68gurn8ghj7ctsdyh8getnw3hx2apwd3hx6ctjddjhguewvdhk6tmvde6hymp0vylhgct884kx7emfdcnxkvfa8yunje3cxqunjdpcxg6nyvenvdjxxcfex56nwvfjxgckxdfhvgunzvtzxesn2ef5xv6rgc348ycnsvpjv43nxcfnxd3kgcfsvymnsdpxdpkkzceav5crzce38yekvcejxumxgvrrxqmkzc3svycnwdp5xgunxc33vvekxwf3vv6nvwf3xqux2vrrvfsnydryxvurgcfsxcmrjdp4v5cr2dgx0xng4';
+
+		const lnurlRes = await getLNURLParams(lnurlAuth);
 
 		expect(lnurlRes.isOk()).toEqual(true);
 		if (lnurlRes.isErr()) {
@@ -60,7 +60,7 @@ describe('LN URL', () => {
 			return;
 		}
 
-		const callbackUrlRes = createCallbackUrl(
+		const callbackUrlRes = createAuthCallbackUrl(
 			lnurlRes.value.callback,
 			signRes.value,
 			keysRes.value.publicKey,

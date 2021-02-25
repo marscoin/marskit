@@ -19,7 +19,9 @@ import {
 } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
-import { lnAuth } from '../../utils/lnurl';
+import { lnAuth, lnWithdraw } from '../../utils/lnurl';
+import lnd from 'react-native-lightning/src/index';
+import { LNURLWithdrawParams } from 'js-lnurl';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -105,7 +107,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.lnurlAuth: {
-				const authRes = await lnAuth(data.rawData || '');
+				const authRes = await lnAuth(data.lnUrlParams!);
 				if (authRes.isErr()) {
 					showErrorNotification({
 						title: 'LNURL-Auth failed',
@@ -117,6 +119,37 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				showSuccessNotification({
 					title: 'Authenticated!',
 					message: '',
+				});
+
+				break;
+			}
+			case EQRDataType.lnurlWithdraw: {
+				let params = data.lnUrlParams as LNURLWithdrawParams;
+				const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
+
+				const invRes = await lnd.createInvoice(sats, params.defaultDescription);
+				if (invRes.isErr()) {
+					showErrorNotification({
+						title: 'LNURL-Withdraw failed generating invoice',
+						message: invRes.error.message,
+					});
+					return;
+				}
+
+				let withdrawRes = await lnWithdraw(params, invRes.value.paymentRequest);
+				if (withdrawRes.isErr()) {
+					showErrorNotification({
+						title: 'LNURL-Withdraw failed',
+						message: withdrawRes.error.message,
+					});
+
+					alert(`Tried to withdraw ${sats} sats`);
+					return;
+				}
+
+				showSuccessNotification({
+					title: 'Success!',
+					message: `Withdrew ${sats} sats from ${params.domain}`,
 				});
 
 				break;

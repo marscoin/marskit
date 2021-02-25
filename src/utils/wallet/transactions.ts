@@ -72,7 +72,7 @@ export const parseOnChainPaymentRequest = (
 				validateAddressResult = validateAddress({ address });
 				//Ensure address is valid
 				if (!validateAddressResult.isValid) {
-					return err(data);
+					return err(`Invalid address: ${data}`);
 				}
 				let amount = 0;
 				let message = '';
