@@ -1716,7 +1716,7 @@ export const formatRbfData = async (
 };
 
 /**
- * Creates and stores a newly specified wallet.
+ * Generates a newly specified wallet.
  * @param {string} [wallet]
  * @param {number} [addressAmount]
  * @param {number} [changeAddressAmount]
