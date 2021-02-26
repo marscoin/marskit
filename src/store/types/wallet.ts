@@ -24,6 +24,12 @@ export enum EWallet {
 	addressType = 'bech32',
 }
 
+export enum EOutput {
+	address = '',
+	value = 0,
+	index = 0,
+}
+
 export interface IWallet {
 	loading: boolean;
 	error: boolean;
@@ -45,6 +51,7 @@ export interface IAddressContent {
 	path: string;
 	address: string;
 	scriptHash: string;
+	publicKey: string;
 }
 
 export interface IAddress {
@@ -57,6 +64,7 @@ export interface ICreateWallet {
 	addressAmount?: number;
 	changeAddressAmount?: number;
 	keyDerivationPath?: TKeyDerivationPath;
+	addressType?: TAddressType;
 }
 
 export interface IUtxo {
@@ -73,24 +81,26 @@ export interface IUtxo {
 export interface IOutput {
 	address?: string; //Address to send to.
 	value?: number; //Amount denominated in sats.
+	index?: number;
 }
 
+export interface IFormattedTransactionContent {
+	address: string;
+	height: number;
+	scriptHash: string;
+	totalInputValue: number;
+	matchedInputValue: number;
+	totalOutputValue: number;
+	matchedOutputValue: number;
+	fee: number;
+	type: TTransactionType;
+	value: number;
+	txid: string;
+	messages: string[];
+	timestamp: number;
+}
 export interface IFormattedTransaction {
-	[key: string]: {
-		address: string;
-		height: number;
-		scriptHash: string;
-		totalInputValue: number;
-		matchedInputValue: number;
-		totalOutputValue: number;
-		matchedOutputValue: number;
-		fee: number;
-		type: TTransactionType;
-		value: number;
-		txid: string;
-		messages: string[];
-		timestamp: number;
-	};
+	[key: string]: IFormattedTransactionContent;
 }
 
 export interface IOnChainTransactionData {
@@ -107,7 +117,7 @@ export interface IOnChainTransactionData {
 }
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
-	outputs: [],
+	outputs: [EOutput],
 	utxos: [],
 	changeAddress: '',
 	fiatAmount: 0,
@@ -142,4 +152,8 @@ export interface IDefaultWalletShape {
 	};
 	rbfData: IWalletItem<object>;
 	transaction: IWalletItem<IOnChainTransactionData>;
+}
+
+export interface IDefaultWallet {
+	[key: string]: IDefaultWalletShape;
 }

@@ -36,6 +36,7 @@ export const addressContent = {
 	path: '',
 	address: '',
 	scriptHash: '',
+	publicKey: '',
 };
 
 export const addressIndex: IWalletItem<IAddressContent> = {
