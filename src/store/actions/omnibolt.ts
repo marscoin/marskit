@@ -2,11 +2,15 @@ import actions from './actions';
 import { err, ok, Result } from '../../utils/result';
 import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
-import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
+import {
+	IConnect,
+	IGetMyChannelsData,
+	ILogin,
+} from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
 import { IOmniboltConnectData } from '../types/omnibolt';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
-import { createOmniboltId } from '../../utils/omnibolt';
+import { createOmniboltId, getOmniboltChannels } from '../../utils/omnibolt';
 import { defaultOmniboltWalletShape } from '../shapes/omnibolt';
 
 const dispatch = getDispatch();
@@ -64,34 +68,36 @@ export const loginToOmnibolt = async ({
 		if (!selectedWallet) {
 			selectedWallet = getStore().wallet.selectedWallet;
 		}
-		await omnibolt.login({
+		const loginResponse: Result<ILogin> = await omnibolt.login({
 			selectedWallet,
-			onLogin: (data) => {
-				onLogin(data);
-				return resolve(data);
-			},
 		});
+
+		if (loginResponse.isOk()) {
+			onLogin(loginResponse.value).then();
+			return resolve(loginResponse);
+		} else {
+			return err(loginResponse.error.message);
+		}
 	});
 };
 
 /**
  * Passed as a callback to omnibolt-js, this method is used to store and save returned login data.
  * @param data
+ * @return {Promise<Result<ILogin>>}
  */
-export const onLogin = async (
-	data: Result<ILogin>,
-): Promise<Result<ILogin>> => {
-	if (data.isErr()) {
-		return err(data.error);
+export const onLogin = async (data: ILogin): Promise<Result<ILogin>> => {
+	if (!data) {
+		return err('No data provided.');
 	}
-	if (!data.value?.nodeAddress) {
-		return err(data.value.toString());
+	if (!data?.nodeAddress) {
+		return err(data.toString());
 	}
 	dispatch({
 		type: actions.UPDATE_OMNIBOLT_USERDATA,
-		payload: data.value,
+		payload: data,
 	});
-	return ok(data.value);
+	return ok(data);
 };
 
 /**
@@ -173,4 +179,42 @@ export const createOmniboltWallet = async ({
 		payload,
 	});
 	return ok('Connect Data Updated.');
+};
+
+/**
+ * This will query omnibolt for current channels and update the store accordingly.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @return {Promise<Result<IGetMyChannelsData[]>>}
+ */
+export const updateOmniboltChannels = async ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: string | undefined;
+}): Promise<Result<IGetMyChannelsData[]>> => {
+	//Get and store address, channel and asset information
+	const response = await getOmniboltChannels();
+	if (response.isErr()) {
+		return err(response.error.message);
+	}
+
+	//Get and store channel info
+	let channels: IGetMyChannelsData[] = [];
+	if (response?.value?.data) {
+		channels = response.value.data;
+	}
+
+	const payload = {
+		selectedNetwork,
+		selectedWallet,
+		channels,
+	};
+
+	await dispatch({
+		type: actions.UPDATE_OMNIBOLT_CHANNELS,
+		payload,
+	});
+	return ok(channels);
 };
