@@ -1,10 +1,12 @@
-import { INetwork, TAvailableNetworks } from '../networks';
+import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import { defaultWalletShape } from '../../store/shapes/wallet';
 import {
 	EWallet,
 	IAddress,
 	IAddressContent,
+	ICreateWallet,
+	IDefaultWallet,
 	IDefaultWalletShape,
 	IFormattedTransaction,
 	IOnChainTransactionData,
@@ -22,7 +24,12 @@ import {
 	IGetInfoFromAddressPath,
 	IGenerateAddressesResponse,
 } from '../types';
-import { getKeychainValue, btcToSats, isOnline } from '../helpers';
+import {
+	getKeychainValue,
+	btcToSats,
+	isOnline,
+	setKeychainValue,
+} from '../helpers';
 import { getStore } from '../../store/helpers';
 import * as electrum from 'rn-electrum-client/helpers';
 import {
@@ -230,6 +237,7 @@ export const generateAddresses = async ({
 							path: addressPath,
 							address,
 							scriptHash,
+							publicKey: addressKeypair.publicKey.toString('hex'),
 						};
 					} catch {}
 				}),
@@ -249,6 +257,7 @@ export const generateAddresses = async ({
 							path: changeAddressPath,
 							address,
 							scriptHash,
+							publicKey: changeAddressKeypair.publicKey.toString('hex'),
 						};
 					} catch {}
 				}),
@@ -953,8 +962,8 @@ export const getCurrentWallet = ({
 	selectedWallet?: string;
 }): {
 	currentWallet: IDefaultWalletShape;
-	selectedNetwork?: TAvailableNetworks;
-	selectedWallet?: string | undefined;
+	selectedNetwork: TAvailableNetworks;
+	selectedWallet: string;
 } => {
 	const wallet = getStore().wallet;
 	if (!selectedNetwork) {
@@ -1704,4 +1713,84 @@ export const formatRbfData = async (
 		recommendedFee,
 		transactionSize,
 	};
+};
+
+/**
+ * Creates and stores a newly specified wallet.
+ * @param {string} [wallet]
+ * @param {number} [addressAmount]
+ * @param {number} [changeAddressAmount]
+ * @param {string} [mnemonic]
+ * @param {string} [keyDerivationPath]
+ * @param {string} [addressType]
+ * @return {Promise<Result<IDefaultWallet>>}
+ */
+export const createDefaultWallet = async ({
+	wallet = 'wallet0',
+	addressAmount = 2,
+	changeAddressAmount = 2,
+	mnemonic = '',
+	keyDerivationPath = '84',
+	addressType = 'bech32',
+}: ICreateWallet): Promise<Result<IDefaultWallet>> => {
+	try {
+		const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
+		const { error, data } = getMnemonicPhraseResponse;
+		const { wallets } = getStore().wallet;
+		if (!error && data && wallet in wallets && wallets[wallet]?.id) {
+			return err(`Wallet ID, "${wallet}" already exists.`);
+		}
+
+		//Generate Mnemonic if none was provided
+		if (mnemonic === '') {
+			mnemonic = validateMnemonic(data) ? data : await generateMnemonic();
+		}
+		if (!validateMnemonic(mnemonic)) {
+			return err('Invalid Mnemonic');
+		}
+		await setKeychainValue({ key: wallet, value: mnemonic });
+
+		//Generate a set of addresses & changeAddresses for each network.
+		const addressesObj = defaultWalletShape.addresses;
+		const changeAddressesObj = defaultWalletShape.changeAddresses;
+		const addressIndex = defaultWalletShape.addressIndex;
+		const changeAddressIndex = defaultWalletShape.changeAddressIndex;
+		await Promise.all(
+			availableNetworks().map(async (network) => {
+				const generatedAddresses = await generateAddresses({
+					wallet,
+					selectedNetwork: network,
+					addressAmount,
+					changeAddressAmount,
+					keyDerivationPath,
+					addressType,
+				});
+				if (generatedAddresses.isErr()) {
+					return err(generatedAddresses.error);
+				}
+				const { addresses, changeAddresses } = generatedAddresses.value;
+				addressIndex[network] = Object.values(addresses)[0];
+				changeAddressIndex[network] = Object.values(changeAddresses)[0];
+				addressesObj[network] = addresses;
+				changeAddressesObj[network] = changeAddresses;
+			}),
+		);
+		const payload: IDefaultWallet = {
+			[wallet]: {
+				...defaultWalletShape,
+				addressType: {
+					bitcoin: addressType,
+					bitcoinTestnet: addressType,
+				},
+				addressIndex,
+				changeAddressIndex,
+				addresses: addressesObj,
+				changeAddresses: changeAddressesObj,
+				id: wallet,
+			},
+		};
+		return ok(payload);
+	} catch (e) {
+		return err(e);
+	}
 };
