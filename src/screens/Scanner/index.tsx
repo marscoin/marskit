@@ -46,14 +46,13 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 			case EQRDataType.bitcoinAddress: {
 				const { address, sats: amount, message, network } = data;
 				updateOnChainTransaction({
-					selectedNetwork,
 					selectedWallet,
+					selectedNetwork,
 					transaction: {
-						address,
-						amount,
 						label: message,
+						outputs: [{ address, value: amount }],
 					},
-				});
+				}).then();
 				//Switch networks if necessary.
 				if (network !== selectedNetwork) {
 					await updateWallet({ selectedNetwork: network });
@@ -62,11 +61,10 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.omniboltConnect: {
-				const { nodeAddress, nodePeerId, userPeerId } = data;
 				updateOmniboltConnectData({
-					nodeAddress,
-					nodePeerId,
-					userPeerId,
+					data,
+					selectedNetwork,
+					selectedWallet,
 				});
 				break;
 			}
