@@ -67,6 +67,24 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 				},
 			};
 
+		case actions.UPDATE_OMNIBOLT_CHANNELS:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						channels: {
+							...state.wallets[selectedWallet].channels[selectedNetwork],
+							[selectedNetwork]: action.payload.channels,
+						},
+					},
+				},
+			};
+
 		case actions.UPDATE_OMNIBOLT_PEERS:
 			if (!selectedWallet || !selectedNetwork) {
 				return state;
