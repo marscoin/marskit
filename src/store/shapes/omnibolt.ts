@@ -5,6 +5,7 @@ import {
 	IOmniBoltWallet,
 } from '../types/omnibolt';
 import { arrayTypeItems, objectTypeItems } from './wallet';
+import { IWalletItem } from '../types/wallet';
 
 const connectData = {
 	bitcoin: EOmniBoltConnectData,
@@ -16,11 +17,21 @@ const userData = {
 	bitcoinTestnet: EOmniBoltUserData,
 };
 
+interface ICheckpoint {
+	[key: string]: string; //key === channelId; value === checkpointId;
+}
+const checkpoints: IWalletItem<ICheckpoint> = {
+	bitcoin: {},
+	bitcoinTestnet: {},
+};
+
 export const defaultOmniboltWalletShape: IOmniBoltWallet = {
 	userData,
 	connectData,
 	channels: objectTypeItems,
 	peers: arrayTypeItems,
+	addresses: arrayTypeItems,
+	checkpoints,
 };
 
 export const defaultOmniBoltShape: IOmniBolt = {

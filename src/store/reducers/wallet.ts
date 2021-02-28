@@ -1,5 +1,9 @@
 import actions from '../actions/actions';
-import { defaultOnChainTransactionData, IWallet } from '../types/wallet';
+import {
+	defaultOnChainTransactionData,
+	EOutput,
+	IWallet,
+} from '../types/wallet';
 import { defaultWalletStoreShape } from '../shapes/wallet';
 
 const wallet = (state = defaultWalletStoreShape, action): IWallet => {
@@ -184,7 +188,7 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 				},
 			};
 
-		case actions.UPDATE_TRANSACTION_OUTPUT:
+		case actions.RESET_OUTPUTS:
 			return {
 				...state,
 				wallets: {
@@ -195,23 +199,8 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 							...state.wallets[selectedWallet].transaction,
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet].transaction[selectedNetwork],
-								outputs: action.payload.outputs,
+								outputs: [EOutput],
 							},
-						},
-					},
-				},
-			};
-
-		case actions.RESET_OUTPUTS:
-			return {
-				...state,
-				wallets: {
-					...state.wallets,
-					[selectedWallet]: {
-						...state.wallets[selectedWallet],
-						outputs: {
-							...state.wallets[selectedWallet].outputs,
-							[selectedNetwork]: [],
 						},
 					},
 				},
@@ -228,7 +217,7 @@ const wallet = (state = defaultWalletStoreShape, action): IWallet => {
 							...state.wallets[selectedWallet].transaction,
 							[selectedNetwork]: {
 								...defaultOnChainTransactionData,
-								outputs: [],
+								outputs: [EOutput],
 							},
 						},
 					},

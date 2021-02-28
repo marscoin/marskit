@@ -1,14 +1,15 @@
 import React, { memo, ReactElement, useCallback, useEffect } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { AnimatedView, TextInput, View } from '../styles/components';
-import {
-	updateOnChainTransaction,
-	updateOnchainTransactionOutput,
-} from '../store/actions/wallet';
+import { updateOnChainTransaction } from '../store/actions/wallet';
 import AdjustFee from './AdjustFee';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
-import { defaultOnChainTransactionData, IOutput } from '../store/types/wallet';
+import {
+	defaultOnChainTransactionData,
+	EOutput,
+	IOutput,
+} from '../store/types/wallet';
 import {
 	getTotalFee,
 	getTransactionOutputValue,
@@ -45,11 +46,12 @@ const SendForm = ({
 
 	useEffect(() => {
 		if (!transaction?.outputs?.length) {
-			updateOnchainTransactionOutput({
+			updateOnChainTransaction({
 				selectedWallet,
 				selectedNetwork,
-				output: { address: '', value: 0 },
-				index: 0,
+				transaction: {
+					outputs: [EOutput],
+				},
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -194,11 +196,12 @@ const SendForm = ({
 					autoCompleteType="off"
 					autoCorrect={false}
 					onChangeText={(txt): void => {
-						updateOnchainTransactionOutput({
-							selectedNetwork,
+						updateOnChainTransaction({
 							selectedWallet,
-							output: { address: txt, value },
-							index,
+							selectedNetwork,
+							transaction: {
+								outputs: [{ address: txt, value, index }],
+							},
 						});
 					}}
 					value={address}
@@ -216,11 +219,12 @@ const SendForm = ({
 						const newAmount = Number(txt);
 						const totalNewAmount = newAmount + getFee();
 						if (totalNewAmount <= balance) {
-							updateOnchainTransactionOutput({
-								selectedNetwork,
+							updateOnChainTransaction({
 								selectedWallet,
-								output: { address, value: newAmount },
-								index,
+								selectedNetwork,
+								transaction: {
+									outputs: [{ address, value: newAmount, index }],
+								},
 							});
 						}
 					}}

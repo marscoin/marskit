@@ -8,13 +8,12 @@ import {
 	IUtxo,
 } from '../types/wallet';
 import {
+	createDefaultWallet,
 	formatTransactions,
 	generateAddresses,
-	generateMnemonic,
 	getAddressHistory,
 	getCurrentWallet,
 	getExchangeRate,
-	getMnemonicPhrase,
 	getNextAvailableAddress,
 	getSelectedNetwork,
 	getSelectedWallet,
@@ -22,19 +21,19 @@ import {
 	getUtxos,
 	ITransaction,
 	refreshWallet,
-	validateMnemonic,
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
-import { setKeychainValue } from '../../utils/helpers';
-import { availableNetworks, TAvailableNetworks } from '../../utils/networks';
-import { defaultWalletShape } from '../shapes/wallet';
+import { TAvailableNetworks } from '../../utils/networks';
 import { err, ok, Result } from '../../utils/result';
 import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { createOmniboltWallet } from './omnibolt';
-import { getTotalFee } from '../../utils/wallet/transactions';
+import {
+	getTotalFee,
+	getTransactionUtxoValue,
+} from '../../utils/wallet/transactions';
 
 const dispatch = getDispatch();
 
@@ -48,78 +47,46 @@ export const updateWallet = (payload): Promise<Result<string>> => {
 	});
 };
 
-export const createWallet = ({
+/**
+ * Creates and stores a newly specified wallet.
+ * @param {string} [wallet]
+ * @param {number} [addressAmount]
+ * @param {number} [changeAddressAmount]
+ * @param {string} [mnemonic]
+ * @param {string} [keyDerivationPath]
+ * @param {string} [addressType]
+ * @return {Promise<Result<string>>}
+ */
+export const createWallet = async ({
 	wallet = 'wallet0',
 	addressAmount = 2,
 	changeAddressAmount = 2,
 	mnemonic = '',
 	keyDerivationPath = '84',
+	addressType = 'bech32',
 }: ICreateWallet): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		try {
-			const getMnemonicPhraseResponse = await getMnemonicPhrase(wallet);
-			const { error, data } = getMnemonicPhraseResponse;
-			const { wallets } = getStore().wallet;
-			if (!error && data && wallet in wallets && wallets[wallet]?.id) {
-				return resolve(ok(`Wallet ID, "${wallet}" already exists.`));
-			}
-
-			//Generate Mnemonic if none was provided
-			if (mnemonic === '') {
-				mnemonic = validateMnemonic(data) ? data : await generateMnemonic();
-			}
-			if (!validateMnemonic(mnemonic)) {
-				return resolve(err('Invalid Mnemonic'));
-			}
-			await setKeychainValue({ key: wallet, value: mnemonic });
-
-			//Generate a set of addresses & changeAddresses for each network.
-			const addressesObj = {};
-			const changeAddressesObj = {};
-			const addressIndex = {};
-			const changeAddressIndex = {};
-			const networks = availableNetworks();
-			await Promise.all(
-				networks.map(async (network) => {
-					const generatedAddresses = await generateAddresses({
-						wallet,
-						selectedNetwork: network,
-						addressAmount,
-						changeAddressAmount,
-						keyDerivationPath,
-					});
-					if (generatedAddresses.isErr()) {
-						return resolve(err(generatedAddresses.error));
-					}
-					const { addresses, changeAddresses } = generatedAddresses.value;
-					addressIndex[network] = Object.values(addresses)[0];
-					changeAddressIndex[network] = Object.values(changeAddresses)[0];
-					addressesObj[network] = addresses;
-					changeAddressesObj[network] = changeAddresses;
-				}),
-			);
-			const payload = {
-				[wallet]: {
-					...defaultWalletShape,
-					addressIndex,
-					changeAddressIndex,
-					addresses: addressesObj,
-					changeAddresses: changeAddressesObj,
-					id: wallet,
-				},
-			};
-
-			await dispatch({
-				type: actions.CREATE_WALLET,
-				payload,
-			});
-
-			await createOmniboltWallet({ selectedWallet: wallet });
-			return resolve(ok(''));
-		} catch (e) {
-			return resolve(err(e));
+	try {
+		const response = await createDefaultWallet({
+			wallet,
+			addressAmount,
+			changeAddressAmount,
+			mnemonic,
+			keyDerivationPath,
+			addressType,
+		});
+		if (response.isErr()) {
+			return err(response.error.message);
 		}
-	});
+		await dispatch({
+			type: actions.CREATE_WALLET,
+			payload: response.value,
+		});
+
+		await createOmniboltWallet({ selectedWallet: wallet });
+		return ok('');
+	} catch (e) {
+		return err(e);
+	}
 };
 
 export const updateExchangeRate = (): Promise<Result<string>> => {
@@ -503,7 +470,18 @@ export const setupOnChainTransaction = ({
 	} catch {}
 };
 
-export const updateOnChainTransaction = ({
+export interface IUpdateOutput extends IOutput {
+	index: number | undefined;
+}
+
+/**
+ * This updates the specified on-chain transaction.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param transaction
+ * @return {Promise<void>}
+ */
+export const updateOnChainTransaction = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 	transaction,
@@ -511,13 +489,47 @@ export const updateOnChainTransaction = ({
 	transaction: IOnChainTransactionData;
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-}): void => {
+}): Promise<void> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
+		}
+
+		const utxoValue = getTransactionUtxoValue({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (!utxoValue) {
+			await setupOnChainTransaction({ selectedWallet, selectedNetwork });
+		}
+
+		//Add output if specified
+		if (transaction?.outputs) {
+			let outputs =
+				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+					.outputs || [];
+			await Promise.all(
+				transaction?.outputs.map((output) => {
+					const outputIndex = output?.index;
+					if (outputIndex === undefined || isNaN(outputIndex)) {
+						//Ensure we're not pushing a duplicate address.
+						const foundOutput = outputs.filter(
+							(o) => o.address === output.address,
+						);
+						if (foundOutput?.length) {
+							outputs[foundOutput.index] = output;
+						} else {
+							outputs.push(output);
+						}
+					} else {
+						outputs[outputIndex] = output;
+					}
+				}),
+			);
+			transaction.outputs = outputs;
 		}
 
 		const payload = {
@@ -530,49 +542,6 @@ export const updateOnChainTransaction = ({
 			payload,
 		});
 	} catch {}
-};
-
-export const updateOnchainTransactionOutput = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
-	output = { address: '', value: 0 },
-	index = undefined,
-}: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-	output: IOutput;
-	index: number | undefined; //Index of output in the outputs array. Undefined assumes you're pushing a new output to the array.
-}): void => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-
-		let outputs =
-			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-				.outputs || [];
-		if (index === undefined || isNaN(index)) {
-			outputs.push(output);
-		} else {
-			outputs[index] = output;
-		}
-
-		const payload = {
-			selectedNetwork,
-			selectedWallet,
-			outputs,
-			index,
-		};
-		dispatch({
-			type: actions.UPDATE_TRANSACTION_OUTPUT,
-			payload,
-		});
-	} catch (e) {
-		console.log(e);
-	}
 };
 
 export const resetOnChainTransaction = ({
