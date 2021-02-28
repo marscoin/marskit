@@ -141,7 +141,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 						message: withdrawRes.error.message,
 					});
 
-					alert(`Tried to withdraw ${sats} sats`);
+					console.log(`Tried to withdraw ${sats} sats`);
 					return;
 				}
 
