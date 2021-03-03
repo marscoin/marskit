@@ -6,23 +6,30 @@ import {
 import RNFS from 'react-native-fs';
 import { err, ok, Result } from '../result';
 
-const begin = (res: DownloadBeginCallbackResult): void => {
-	console.log(`START: ${res.statusCode}`);
-};
-
-const progress = (res: DownloadProgressCallbackResult): void => {
-	const percentage = Math.floor((res.bytesWritten / res.contentLength) * 100);
-	console.log(`PROGRESS: ${percentage}`);
-};
-
 export const downloadNeutrinoCache = async (
 	network: LndNetworks,
 ): Promise<Result<boolean>> => {
 	const url = 'https://github.com/Jasonvdb/lnd-ios/releases/download/1/';
 	const zipFile = `lnd-neutrino-${network}.zip`;
-	const newFile = `${new Date().getTime()}-${zipFile}`;
+	const newFile = 'lnd-neutrino-cache.zip';
 	const unzipTo = `${RNFS.DocumentDirectoryPath}/${newFile}`;
 	const existingLndDir = `${RNFS.DocumentDirectoryPath}/lnd`;
+
+	let progressPercent = 0;
+
+	const begin = (res: DownloadBeginCallbackResult): void => {
+		console.log(`START DOWNLOAD: ${res.statusCode}`);
+	};
+
+	const progress = (res: DownloadProgressCallbackResult): void => {
+		const percentage = Math.floor((res.bytesWritten / res.contentLength) * 100);
+
+		//No need to update after each byte
+		if (percentage !== progressPercent) {
+			console.log(`PROGRESS: ${percentage}`);
+			progressPercent = percentage;
+		}
+	};
 
 	try {
 		//If directory exists don't mess with it to be safe
@@ -38,7 +45,7 @@ export const downloadNeutrinoCache = async (
 			progress,
 		}).promise;
 
-		alert('DONEZO ' + res.statusCode);
+		await cleanupCache(unzipTo);
 
 		if (res.statusCode === 200) {
 			return ok(true);
@@ -50,15 +57,11 @@ export const downloadNeutrinoCache = async (
 	}
 };
 
-const cleanupCaches = (filePath: string): Promise<void> => {
-	return (
-		RNFS.unlink(filePath)
-			.then(() => {
-				console.log('FILE DELETED');
-			})
-			// `unlink` will throw an error, if the item to unlink does not exist
-			.catch((err) => {
-				console.log(err.message);
-			})
-	);
+const cleanupCache = async (filePath: string): Promise<Result<boolean>> => {
+	try {
+		await RNFS.unlink(filePath);
+		return ok(true);
+	} catch (e) {
+		return err(e);
+	}
 };
