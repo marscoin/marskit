@@ -9,6 +9,8 @@ target 'spectrum' do
   use_react_native!(:path => config["reactNativePath"])
   pod 'SwiftProtobuf', '~> 1.0'
   
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'spectrumTests' do
     inherit! :complete
     # Pods for testing

@@ -24,6 +24,7 @@ import Toast from 'react-native-toast-message';
 import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';
 import { startOmnibolt } from './utils/omnibolt';
+import { downloadNeutrinoCache } from './utils/lightning/cachedHeaders';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -37,9 +38,6 @@ const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
 const startApp = async (): Promise<void> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
-			//Start LND service first as neutrino sync times can take time
-			await startLnd(lndNetwork);
-
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
 			const walletKeys = Object.keys(wallets);
@@ -55,21 +53,27 @@ const startApp = async (): Promise<void> => {
 			//Create and start omnibolt.
 			startOmnibolt({ selectedWallet }).then();
 
-			//Create or unlock LND wallet
-			const existsRes = await lnd.walletExists(lndNetwork);
-			if (existsRes.isOk() && existsRes.value) {
-				await unlockLightningWallet({
-					password: tempPassword,
-					network: lndNetwork,
+			downloadNeutrinoCache(lndNetwork)
+				//Start LND no matter the outcome of the download
+				.finally(async () => {
+					await startLnd(lndNetwork);
+
+					// Create or unlock LND wallet
+					const existsRes = await lnd.walletExists(lndNetwork);
+					if (existsRes.isOk() && existsRes.value) {
+						await unlockLightningWallet({
+							password: tempPassword,
+							network: lndNetwork,
+						});
+					} else {
+						//TODO try use same seed as on chain wallet
+						await createLightningWallet({
+							password: tempPassword,
+							mnemonic: '',
+							network: lndNetwork,
+						});
+					}
 				});
-			} else {
-				//TODO try use same seed as on chain wallet
-				await createLightningWallet({
-					password: tempPassword,
-					mnemonic: '',
-					network: lndNetwork,
-				});
-			}
 		});
 	} catch {}
 };
