@@ -12,6 +12,13 @@ export interface ILightning {
 	channelBalance: lnrpc.ChannelBalanceResponse;
 	invoiceList: lnrpc.ListInvoiceResponse;
 	paymentList: lnrpc.ListPaymentsResponse;
+	cachedNeutrinoDBDownloadState: ICachedNeutrinoDBDownloadState;
+}
+
+export interface ICachedNeutrinoDBDownloadState {
+	task?: undefined | 'downloading' | 'unzipping' | 'complete' | 'failed';
+	downloadProgress?: number;
+	unzipProgress?: number;
 }
 
 export interface ICreateLightningWallet {
