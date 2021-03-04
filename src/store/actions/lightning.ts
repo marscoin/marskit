@@ -1,5 +1,6 @@
 import actions from './actions';
 import {
+	ICachedNeutrinoDBDownloadState,
 	ICreateLightningWallet,
 	IUnlockLightningWallet,
 } from '../types/lightning';
@@ -386,6 +387,22 @@ export const payLightningRequest = (
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));
 	});
+};
+
+/**
+ * Updates the progress state for downloading/unzipping the cached neutrino files
+ *
+ * @param state
+ */
+export const updateCachedNeutrinoDownloadState = async (
+	state: ICachedNeutrinoDBDownloadState,
+): Promise<Result<string>> => {
+	await dispatch({
+		type: actions.UPDATE_LIGHTNING_CACHED_NEUTRINO,
+		payload: state,
+	});
+
+	return ok('LND payments refreshed');
 };
 
 /*

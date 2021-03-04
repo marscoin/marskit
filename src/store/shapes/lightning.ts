@@ -9,4 +9,9 @@ export const defaultLightningShape: ILightning = {
 	channelBalance: lnrpc.ChannelBalanceResponse.create(),
 	invoiceList: lnrpc.ListInvoiceResponse.create(),
 	paymentList: lnrpc.ListPaymentsResponse.create(),
+	cachedNeutrinoDBDownloadState: {
+		task: undefined,
+		downloadProgress: 0,
+		unzipProgress: 0,
+	},
 };

@@ -47,6 +47,14 @@ const lightning = (state: ILightning, action): ILightning => {
 			};
 		case actions.RESET_LIGHTNING_STORE:
 			return defaultLightningShape;
+		case actions.UPDATE_LIGHTNING_CACHED_NEUTRINO:
+			return {
+				...state,
+				cachedNeutrinoDBDownloadState: {
+					...state.cachedNeutrinoDBDownloadState,
+					...action.payload,
+				},
+			};
 		default:
 			return {
 				...defaultLightningShape,

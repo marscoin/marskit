@@ -182,6 +182,19 @@ export const debugListPeers = async (
  * @returns {string}
  */
 export const debugLightningStatusMessage = (lightning: ILightning): string => {
+	const {
+		task,
+		unzipProgress,
+		downloadProgress,
+	} = lightning.cachedNeutrinoDBDownloadState;
+	if (task === 'downloading') {
+		return `Cache ⬇ ${downloadProgress}%`;
+	}
+
+	if (task === 'unzipping') {
+		return `Unzipping cache 🤐 ${unzipProgress}%`;
+	}
+
 	if (!lightning.state.lndRunning) {
 		return 'Starting ⌛';
 	}
