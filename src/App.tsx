@@ -25,6 +25,11 @@ import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';
 import { startOmnibolt } from './utils/omnibolt';
 import { downloadNeutrinoCache } from './utils/lightning/cachedHeaders';
+import Button from './components/Button';
+import { register, retrieve, store } from './utils/backup';
+import backpack from 'backpack-host';
+
+console.log(backpack);
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
