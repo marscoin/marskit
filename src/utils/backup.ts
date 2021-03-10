@@ -2,6 +2,7 @@ import { Client } from 'backpack-host';
 import bint from 'bint8array';
 import { Readable, Duplex } from 'streamx';
 import WSStream from 'webnet/websocket';
+import { bytesToString, stringToBytes } from './converters';
 
 const username = bint.fromString('anon');
 const password = bint.fromString('password');
@@ -33,14 +34,6 @@ export const register = (): void => {
 	});
 };
 
-const stringToBytes = (str: string): Uint8Array => {
-	return Uint8Array.from(str, (x) => x.charCodeAt(0));
-};
-
-const bin2String = (array): string => {
-	return String.fromCharCode.apply(String, array);
-};
-
 export const store = (backup: string): void => {
 	client.store(serverInfo, (storeErr, str) => {
 		if (storeErr) {
@@ -66,7 +59,7 @@ export const retrieve = (): void => {
 		channel.pipe(
 			new Duplex({
 				write(data, cb) {
-					const str = bin2String(data);
+					const str = bytesToString(data);
 
 					console.log(data);
 
