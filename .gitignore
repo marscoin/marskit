@@ -60,3 +60,7 @@ buck-out/
 ios/spectrum/lightning/Lndmobile.framework/
 android/Lndmobile/Lndmobile.aar
 coverage
+
+# Generated backup scheme
+src/utils/backup/protos/scheme.d.ts
+src/utils/backup/protos/scheme.js

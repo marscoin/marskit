@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+/*
+ * Spectrum wallet backup schema
+ */
+
+message Backup {
+  repeated Wallet wallets = 1;
+
+  LND lnd = 2;
+}
+
+message Wallet {
+  string key = 1; //e.g. wallet0, wallet1
+  string seed = 2; //24 word seed phrase
+}
+
+message LND {
+  repeated string channel_state = 1; //TODO
+}
+

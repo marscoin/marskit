@@ -2,10 +2,10 @@ import { Client } from 'backpack-host';
 import bint from 'bint8array';
 import { Readable, Duplex } from 'streamx';
 import WSStream from 'webnet/websocket';
-import { bytesToString, stringToBytes } from '../converters';
 import { err, ok, Result } from '../result';
 import { getKeychainValue, setKeychainValue } from '../helpers';
 
+//TODO move to config or .env
 const serverInfo = {
 	id: bint.fromString('test123'),
 	url: 'wss://backpack.synonym.to',
@@ -16,7 +16,7 @@ enum BackpackKeychainKeys {
 	password = 'backpackPassword',
 }
 
-interface IBackpackAuth {
+export interface IBackpackAuth {
 	username: string;
 	password: string;
 }
@@ -37,7 +37,7 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 	} else {
 		username = (await getKeychainValue({ key: BackpackKeychainKeys.username }))
 			.data;
-		password = (await getKeychainValue({ key: BackpackKeychainKeys.username }))
+		password = (await getKeychainValue({ key: BackpackKeychainKeys.password }))
 			.data;
 	}
 
@@ -112,7 +112,7 @@ export const backpackRegister = async (
  * @returns {Promise<Ok<string> | Err<string>>}
  */
 export const backpackStore = async (
-	backup: string,
+	backup: Uint8Array,
 ): Promise<Result<string>> => {
 	try {
 		const client = await clientFactory();
@@ -123,7 +123,7 @@ export const backpackStore = async (
 					resolve(err(storeErr));
 				}
 
-				Readable.from(stringToBytes(backup)).pipe(str);
+				Readable.from(backup).pipe(str);
 
 				resolve(ok('Stored successfully'));
 			});
@@ -137,7 +137,7 @@ export const backpackStore = async (
  * Retrieves a string from the backpack server
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-export const backpackRetrieve = async (): Promise<Result<string>> => {
+export const backpackRetrieve = async (): Promise<Result<Uint8Array>> => {
 	try {
 		const client = await clientFactory();
 
@@ -149,8 +149,8 @@ export const backpackRetrieve = async (): Promise<Result<string>> => {
 
 				channel.pipe(
 					new Duplex({
-						write(data, cb) {
-							resolve(ok(bytesToString(data)));
+						write(data, cb): void {
+							resolve(ok(data));
 							cb();
 						},
 					}),

@@ -9,11 +9,13 @@ export const stringToBytes = (str: string): Uint8Array => {
 
 /**
  * Converts bytes to readable string
- * @param array
- * @returns {any}
+ * @returns {string}
+ * @param bytes
  */
-export const bytesToString = (array: number[]): string => {
-	return String.fromCharCode.apply(String, array);
+export const bytesToString = (bytes: Uint8Array): string => {
+	const arr: number[] = [];
+	bytes.forEach((n) => arr.push(n));
+	return String.fromCharCode.apply(String, arr);
 };
 
 /**
