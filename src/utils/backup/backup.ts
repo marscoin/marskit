@@ -1,59 +1,120 @@
 import Scheme from './protos/scheme';
 import { err, ok, Result } from '../result';
+import { getStore } from '../../store/helpers';
+import { getKeychainValue } from '../helpers';
+import { createDefaultWallet } from '../wallet';
 import {
-	backpackRegister,
-	backpackRetrieve,
-	backpackStore,
-	IBackpackAuth,
-} from './backpack';
+	IDefaultWalletShape,
+	TAddressType,
+	TKeyDerivationPath,
+} from '../../store/types/wallet';
 
-const serialisedBackup = (): Uint8Array => {
-	//Wallets
-	const wallets: Scheme.Wallet[] = [];
-	wallets.push(new Scheme.Wallet({ key: 'wallet0', seed: 'todo todo' }));
-	wallets.push(new Scheme.Wallet({ key: 'wallet1', seed: 'todo2 todo2' }));
+export const createBackup = async (): Promise<Result<Uint8Array>> => {
+	try {
+		//TODO get wallet backup details from state
 
-	//TODO LND channels
-	const lnd = new Scheme.LND();
-	lnd.channelState.push('my first channel state');
-	lnd.channelState.push('my second channel state');
+		//Wallets
+		const wallets: Scheme.Wallet[] = [];
 
-	//TODO omni
+		//Iterate through all wallets in state and add their mnumonic to the backup.
+		//Derivation paths and address types depend on the currently selected network
+		const walletKeys = Object.keys(getStore().wallet.wallets);
+		for (let index = 0; index < walletKeys.length; index++) {
+			const wallet: IDefaultWalletShape = getStore().wallet.wallets[
+				walletKeys[index]
+			];
 
-	const backup = new Scheme.Backup({ wallets, lnd });
+			const { data: mnemonic } = await getKeychainValue({
+				key: wallet.id,
+			});
 
-	return Scheme.Backup.encode(backup).finish();
-};
+			const { selectedNetwork } = getStore().wallet;
 
-export const performBackup = async (): Promise<Result<string>> => {
-	const backup = serialisedBackup();
+			let addressType = Scheme.Wallet.AddressType.bech32;
+			switch (wallet.addressType[selectedNetwork]) {
+				case 'bech32':
+					addressType = Scheme.Wallet.AddressType.bech32;
+					break;
+				case 'segwit':
+					addressType = Scheme.Wallet.AddressType.segwit;
+					break;
+				case 'legacy':
+					addressType = Scheme.Wallet.AddressType.legacy;
+					break;
+			}
 
-	const storeRes = await backpackStore(backup);
+			wallets.push(
+				new Scheme.Wallet({
+					key: wallet.id,
+					mnemonic,
+					passphrase: '',
+					addressType,
+					keyDerivationPath: wallet.keyDerivationPath[selectedNetwork],
+				}),
+			);
+		}
 
-	return storeRes;
+		//TODO LND channels
+		const lnd = new Scheme.LND();
+		lnd.channelState.push('my first channel state');
+		lnd.channelState.push('my second channel state');
+
+		//TODO omni
+
+		const backup = new Scheme.Backup({ wallets, lnd });
+
+		return ok(Scheme.Backup.encode(backup).finish());
+	} catch (e) {
+		return err(e);
+	}
 };
 
 export const restoreFromBackup = async (
-	auth: IBackpackAuth,
+	bytes: Uint8Array,
 ): Promise<Result<string>> => {
-	//Caches the auth details again
-	const registerRes = await backpackRegister(auth);
-	if (registerRes.isErr()) {
-		return err(registerRes.error);
+	try {
+		const backup = Scheme.Backup.decode(bytes);
+
+		//TODO we should probably validate a backup here
+
+		//Wallets
+		for (let index = 0; index < backup.wallets.length; index++) {
+			const backedUpWallet = backup.wallets[index];
+			const { key, mnemonic, passphrase, keyDerivationPath } = backedUpWallet;
+
+			let addressType: TAddressType = 'bech32';
+			switch (backedUpWallet.addressType) {
+				case Scheme.Wallet.AddressType.bech32:
+					addressType = 'bech32';
+					break;
+				case Scheme.Wallet.AddressType.segwit:
+					addressType = 'segwit';
+					break;
+				case Scheme.Wallet.AddressType.legacy:
+					addressType = 'legacy';
+					break;
+			}
+
+			await createDefaultWallet({
+				wallet: key!,
+				addressAmount: 2,
+				changeAddressAmount: 2,
+				mnemonic: mnemonic!,
+				keyDerivationPath: keyDerivationPath as TKeyDerivationPath,
+				addressType,
+			});
+		}
+
+		//TODO restore LND channels
+
+		//TODO restore Omni
+
+		return ok(
+			`Restored ${backup.wallets.length} on chain wallets and ${
+				backup.lnd?.channelState?.length ?? 0
+			} lightning channels`,
+		);
+	} catch (e) {
+		return err(e);
 	}
-
-	const retrieveRes = await backpackRetrieve();
-	if (retrieveRes.isErr()) {
-		return err(retrieveRes.error);
-	}
-
-	const backup = Scheme.Backup.decode(retrieveRes.value);
-
-	//TODO set state from backup
-
-	return ok(
-		`Restored ${backup.wallets.length} on chain wallets and ${
-			backup.lnd?.channelState?.length ?? 0
-		} lightning channels`,
-	);
 };
