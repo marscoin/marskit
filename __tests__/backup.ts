@@ -13,6 +13,23 @@ import { getKeychainValue, setKeychainValue } from '../src/utils/helpers';
 
 global.WebSocket = WebSocket;
 
+/**
+ * Gets first bitcoin address for a wallet
+ * @param walletKey
+ */
+const getFirstAddress = (
+	walletKey: string,
+	type: 'addresses' | 'changeAddresses',
+): string => {
+	const addresses = getStore().wallet.wallets[walletKey][type].bitcoin;
+
+	console.log(`*******${type}*********`);
+	console.log(JSON.stringify(getStore().wallet.wallets[walletKey]));
+	console.log('****************');
+
+	return addresses[Object.keys(addresses)[0]].address;
+};
+
 describe('Backup', () => {
 	beforeAll(async () => {
 		jest.setTimeout(15000);
@@ -61,6 +78,23 @@ describe('Backup', () => {
 			key: walletKey,
 		});
 
+		const firstAddressBeforeBackup = getFirstAddress(walletKey, 'addresses');
+		const firstChangeAddressBeforeBackup = getFirstAddress(
+			walletKey,
+			'changeAddresses',
+		);
+
+		console.log('firstAddressBeforeBackup: ', firstAddressBeforeBackup);
+
+		console.log(
+			'firstChangeAddressBeforeBackup: ',
+			firstChangeAddressBeforeBackup,
+		);
+
+		expect(firstAddressBeforeBackup !== firstChangeAddressBeforeBackup).toEqual(
+			true,
+		);
+
 		const backupRes = await createBackup();
 		expect(backupRes.isOk()).toEqual(true);
 		if (backupRes.isErr()) {
@@ -73,7 +107,6 @@ describe('Backup', () => {
 		await setKeychainValue({ key: walletKey, value: '' });
 
 		//TODO maybe also test wallets in store before and after are the same
-		//TODO Test first receive and change address before and after restore to confirm we'll restore the funds as they were
 
 		const restoreRes = await restoreFromBackup(stringToBytes(backupContent));
 		expect(restoreRes.isOk()).toEqual(true);
@@ -81,10 +114,18 @@ describe('Backup', () => {
 			return;
 		}
 
+		//All wallet details need to match the state it was before the backup
 		const { data: restoredMnemonic } = await getKeychainValue({
 			key: walletKey,
 		});
 
 		expect(restoredMnemonic).toEqual(originalMnemonic);
+		expect(getFirstAddress(walletKey, 'addresses')).toEqual(
+			firstAddressBeforeBackup,
+		);
+
+		expect(getFirstAddress(walletKey, 'changeAddresses')).toEqual(
+			firstChangeAddressBeforeBackup,
+		);
 	});
 });
