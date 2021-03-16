@@ -8,6 +8,7 @@ import {
 	TAddressType,
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
+import { backpackStore } from './backpack';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -117,4 +118,22 @@ export const restoreFromBackup = async (
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Creates a full backup and uploads to Backpack server
+ * @returns {Promise<Err<unknown> | Ok<string>>}
+ */
+export const backupToBackpackServer = async (): Promise<Result<string>> => {
+	const createRes = await createBackup();
+	if (createRes.isErr()) {
+		return err(createRes.error);
+	}
+
+	const backupRes = await backpackStore(createRes.value);
+	if (backupRes.isErr()) {
+		return err(backupRes.error);
+	}
+
+	return ok('Backup success');
 };

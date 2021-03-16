@@ -25,6 +25,7 @@ import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';
 import { startOmnibolt } from './utils/omnibolt';
 import { downloadNeutrinoCache } from './utils/lightning/cachedHeaders';
+import { backupSetup } from './store/actions/backup';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -74,6 +75,8 @@ const startApp = async (): Promise<void> => {
 						});
 					}
 				});
+
+			backupSetup().then();
 		});
 	} catch {}
 };

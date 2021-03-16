@@ -22,11 +22,6 @@ const getFirstAddress = (
 	type: 'addresses' | 'changeAddresses',
 ): string => {
 	const addresses = getStore().wallet.wallets[walletKey][type].bitcoin;
-
-	console.log(`*******${type}*********`);
-	console.log(JSON.stringify(getStore().wallet.wallets[walletKey]));
-	console.log('****************');
-
 	return addresses[Object.keys(addresses)[0]].address;
 };
 
@@ -84,17 +79,6 @@ describe('Backup', () => {
 			'changeAddresses',
 		);
 
-		console.log('firstAddressBeforeBackup: ', firstAddressBeforeBackup);
-
-		console.log(
-			'firstChangeAddressBeforeBackup: ',
-			firstChangeAddressBeforeBackup,
-		);
-
-		expect(firstAddressBeforeBackup !== firstChangeAddressBeforeBackup).toEqual(
-			true,
-		);
-
 		const backupRes = await createBackup();
 		expect(backupRes.isOk()).toEqual(true);
 		if (backupRes.isErr()) {
@@ -105,6 +89,9 @@ describe('Backup', () => {
 
 		//Nuke all stored seeds before restoring
 		await setKeychainValue({ key: walletKey, value: '' });
+		await getDispatch()({
+			type: actions.RESET_WALLET_STORE,
+		});
 
 		//TODO maybe also test wallets in store before and after are the same
 

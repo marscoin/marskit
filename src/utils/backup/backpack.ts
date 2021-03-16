@@ -76,6 +76,19 @@ const saveAuthDetails = async (auth: IBackpackAuth): Promise<void> => {
 };
 
 /**
+ * Gets backpack username. Returns empty string if not registered.
+ * @return {Promise<string>}
+ */
+export const backpackUsername = async (): Promise<string> => {
+	try {
+		return (await getKeychainValue({ key: BackpackKeychainKeys.username }))
+			.data;
+	} catch (e) {
+		return '';
+	}
+};
+
+/**
  * Registers a new user on the Backpack server
  * @param auth
  * @returns {Promise<Ok<string> | Err<string>>}
