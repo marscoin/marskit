@@ -1751,22 +1751,10 @@ export const createDefaultWallet = async ({
 		await setKeychainValue({ key: wallet, value: mnemonic });
 
 		//Generate a set of addresses & changeAddresses for each network.
-		const addressesObj: IWalletItem<IAddressContent> | IWalletItem<{}> = {
-			bitcoin: {},
-			bitcoinTestnet: {},
-		};
-		const changeAddressesObj: IWalletItem<IAddressContent> | IWalletItem<{}> = {
-			bitcoin: {},
-			bitcoinTestnet: {},
-		};
-		const addressIndex: IWalletItem<IAddressContent> = {
-			bitcoin: addressContent,
-			bitcoinTestnet: addressContent,
-		};
-		const changeAddressIndex: IWalletItem<IAddressContent> = {
-			bitcoin: addressContent,
-			bitcoinTestnet: addressContent,
-		};
+		const addressesObj = defaultWalletShape.addresses;
+		const changeAddressesObj = defaultWalletShape.changeAddresses;
+		const addressIndex = defaultWalletShape.addressIndex;
+		const changeAddressIndex = defaultWalletShape.changeAddressIndex;
 		await Promise.all(
 			availableNetworks().map(async (network) => {
 				const generatedAddresses = await generateAddresses({
