@@ -7,7 +7,11 @@ import {
 	backpackUsername,
 } from '../../utils/backup/backpack';
 import { IBackup } from '../types/backup';
-import { backupToBackpackServer } from '../../utils/backup/backup';
+import {
+	backupToBackpackServer,
+	verifyFromBackpackServer,
+} from '../../utils/backup/backup';
+import { showInfoNotification } from '../../utils/notifications';
 
 const dispatch = getDispatch();
 
@@ -37,18 +41,19 @@ export const registerBackpack = async (
  * @returns {Promise<Ok<string> | Err<string>>}
  */
 export const backupSetup = async (): Promise<Result<string>> => {
-	let state: IBackup = {
-		username: await backpackUsername(),
-		backpackSynced: false,
-	};
-
-	//TODO check if has been backed up, schedule only if required
-	performFullBackup().then();
-
+	//If they've registered we'll have the username
 	await dispatch({
 		type: actions.BACKUP_UPDATE,
-		payload: state,
+		payload: { username: await backpackUsername() },
 	});
+
+	const verifyBackupRes = await verifyFromBackpackServer();
+	if (verifyBackupRes.isErr()) {
+		//Schedule backup if we receive any sort of error
+		performFullBackup().then();
+	} else {
+		showInfoNotification({ title: 'Backup verified', message: 'Nice' });
+	}
 
 	return ok('Backup setup');
 };

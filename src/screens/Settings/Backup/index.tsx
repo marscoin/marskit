@@ -15,10 +15,12 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import Store from '../../../store/types';
+import { verifyFromBackpackServer } from '../../../utils/backup/backup';
 
 const BackupSettings = ({ navigation }): ReactElement => {
 	const backupState = useSelector((state: Store) => state.backup);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+	const [isVerifying, setIsVerifying] = useState<boolean>(false);
 	const [username, setUsername] = useState<string>(backupState.username);
 	const [password, setPassword] = useState<string>('');
 
@@ -42,53 +44,81 @@ const BackupSettings = ({ navigation }): ReactElement => {
 			</TouchableOpacity>
 			<ScrollView>
 				<Text style={styles.status}>{status}</Text>
-				<TextInput
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					style={styles.textInput}
-					placeholder="Username"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={setUsername}
-					value={username}
-				/>
-				<TextInput
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					style={styles.textInput}
-					placeholder="Password"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={setPassword}
-					value={password}
-					textContentType={'newPassword'}
-					secureTextEntry
-				/>
+
+				{!backupState.username ? (
+					<>
+						<TextInput
+							textAlignVertical={'center'}
+							underlineColorAndroid="transparent"
+							style={styles.textInput}
+							placeholder="Username"
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							onChangeText={setUsername}
+							value={username}
+						/>
+						<TextInput
+							textAlignVertical={'center'}
+							underlineColorAndroid="transparent"
+							style={styles.textInput}
+							placeholder="Password"
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							onChangeText={setPassword}
+							value={password}
+							textContentType={'newPassword'}
+							secureTextEntry
+						/>
+
+						<Button
+							text={isSubmitting ? 'Updating...' : 'Update'}
+							disabled={isSubmitting}
+							onPress={async (): Promise<void> => {
+								setIsSubmitting(true);
+								const registrationResult = await registerBackpack({
+									username,
+									password,
+								});
+
+								if (registrationResult.isErr()) {
+									showErrorNotification({
+										title: 'Failed to register',
+										message: registrationResult.error.message,
+									});
+								} else {
+									showSuccessNotification({
+										title: 'Success',
+										message: 'Backup registered',
+									});
+								}
+
+								setIsSubmitting(false);
+							}}
+						/>
+					</>
+				) : null}
 
 				<Button
-					text={isSubmitting ? 'Updating...' : 'Update'}
-					disabled={isSubmitting}
+					text={isVerifying ? 'Verifying...' : 'Verify backup'}
+					disabled={isVerifying}
 					onPress={async (): Promise<void> => {
-						setIsSubmitting(true);
-						const registrationResult = await registerBackpack({
-							username,
-							password,
-						});
-						if (registrationResult.isErr()) {
-							return showErrorNotification({
-								title: 'Failed to register',
-								message: registrationResult.error.message,
+						setIsVerifying(true);
+						const verifyResult = await verifyFromBackpackServer();
+						if (verifyResult.isErr()) {
+							showErrorNotification({
+								title: 'Failed to verify backup',
+								message: verifyResult.error.message,
+							});
+						} else {
+							showSuccessNotification({
+								title: 'Success',
+								message: 'Backup verified',
 							});
 						}
 
-						showSuccessNotification({
-							title: 'Success',
-							message: 'Backup registered',
-						});
-
-						setIsSubmitting(false);
+						setIsVerifying(false);
 					}}
 				/>
 			</ScrollView>

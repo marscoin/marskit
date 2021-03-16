@@ -8,7 +8,8 @@ import {
 	TAddressType,
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
-import { backpackStore } from './backpack';
+import { backpackRetrieve, backpackStore } from './backpack';
+import { bytesToHexString, bytesToString } from '../converters';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -136,4 +137,33 @@ export const backupToBackpackServer = async (): Promise<Result<string>> => {
 	}
 
 	return ok('Backup success');
+};
+
+/**
+ * Verifies backup stored on backpack server is same as locally created one.
+ * @returns {Promise<Err<unknown>>}
+ */
+export const verifyFromBackpackServer = async (): Promise<Result<string>> => {
+	try {
+		const remoteBackup = await backpackRetrieve();
+		if (remoteBackup.isErr()) {
+			return err(remoteBackup.error);
+		}
+
+		const localBackup = await createBackup();
+		if (localBackup.isErr()) {
+			return err(localBackup.error);
+		}
+
+		if (
+			bytesToHexString(remoteBackup.value) ===
+			bytesToHexString(localBackup.value)
+		) {
+			return ok('Verified');
+		}
+
+		return err('Remote backup out of sync with local backup');
+	} catch (e) {
+		return err(e);
+	}
 };
