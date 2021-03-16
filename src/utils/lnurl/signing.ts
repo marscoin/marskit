@@ -4,28 +4,12 @@ import * as bip32 from 'bip32';
 import { HMAC as sha256HMAC } from 'fast-sha256';
 import secp256k1 from 'secp256k1';
 import { INetwork } from '../networks';
-
-const stringToBytes = (str: string): Uint8Array => {
-	return Uint8Array.from(str, (x) => x.charCodeAt(0));
-};
-
-const hexToBytes = (hexString: string): Uint8Array => {
-	return new Uint8Array(
-		hexString.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-	);
-};
-
-const bytesToHexString = (bytes: Uint8Array): string =>
-	bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-
-const byteArrayToLong = (byteArray: Uint8Array): number => {
-	let value = 0;
-	for (let i = byteArray.length - 1; i >= 0; i--) {
-		value = value * 256 + byteArray[i];
-	}
-
-	return value;
-};
+import {
+	bytesToHexString,
+	hexStringToBytes,
+	stringToBytes,
+	bytesToLong,
+} from '../converters';
 
 interface DerivedLinkingKeys {
 	privateKey: string;
@@ -63,7 +47,7 @@ export const deriveLinkingKeys = (
 	//STEP 3 - First 16 bytes are taken from resulting hash and then turned into a sequence of 4 Long values which are in turn used to derive a service-specific linkingKey using m/138'/<long1>/<long2>/<long3>/<long4> path
 	let path = "m/138'";
 	for (let index = 0; index < 4; index++) {
-		path = `${path}/${byteArrayToLong(
+		path = `${path}/${bytesToLong(
 			derivationMaterial.slice(index * 4, index * 4 + 4),
 		)}`;
 	}
@@ -87,8 +71,8 @@ export const signK1 = (
 	linkingPrivateKey: string,
 ): Result<string> => {
 	const sigObj = secp256k1.ecdsaSign(
-		hexToBytes(k1),
-		hexToBytes(linkingPrivateKey),
+		hexStringToBytes(k1),
+		hexStringToBytes(linkingPrivateKey),
 	);
 
 	// Get signature

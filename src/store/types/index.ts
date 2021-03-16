@@ -4,6 +4,7 @@ import { ISettings } from './settings';
 import { IOmniBolt } from './omnibolt';
 import { ILightning } from './lightning';
 import { IActivity } from './activity';
+import { IBackup } from './backup';
 
 export default interface Store {
 	user: IUser;
@@ -12,4 +13,5 @@ export default interface Store {
 	settings: ISettings;
 	lightning: ILightning;
 	activity: IActivity;
+	backup: IBackup;
 }

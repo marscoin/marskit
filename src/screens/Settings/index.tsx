@@ -27,6 +27,9 @@ const Settings = ({ navigation }): ReactElement => {
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
+	const remoteBackupSynced = useSelector(
+		(state: Store) => state.backup.backpackSynced,
+	);
 
 	const updateTheme = (): void => {
 		try {
@@ -69,6 +72,17 @@ const Settings = ({ navigation }): ReactElement => {
 					title: 'Two-Factor Authentication',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+				},
+			],
+		},
+		{
+			title: 'Backup',
+			data: [
+				{
+					title: `${remoteBackupSynced ? 'Synced ✅' : 'Requires backup ❌'}`,
+					type: 'icon',
+					onPress: (): void => navigation.navigate('BackupSettings'),
+					enabled: true,
 				},
 			],
 		},

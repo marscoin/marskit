@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+/*
+ * Spectrum wallet backup schema
+ */
+
+message Backup {
+  repeated Wallet wallets = 1;
+
+  LND lnd = 2;
+}
+
+message Wallet {
+  string key = 1; //e.g. wallet0, wallet1
+  string mnemonic = 2; //24 word seed phrase
+  string passphrase = 3; //seed passphrase
+  string keyDerivationPath = 4; //Usually 84
+
+  enum AddressType {
+    bech32 = 0;
+    segwit = 1;
+    legacy = 2;
+  }
+
+  AddressType addressType = 5;
+
+  //TODO labels/contact linking
+}
+
+message LND {
+  repeated string channel_state = 1; //TODO
+}
+

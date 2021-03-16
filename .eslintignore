@@ -7,3 +7,5 @@ metro.config.js
 postinstall.js
 __mocks__/**
 coverage
+
+src/utils/backup/protos
