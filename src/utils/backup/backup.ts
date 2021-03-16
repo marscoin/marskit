@@ -9,7 +9,7 @@ import {
 	TKeyDerivationPath,
 } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
-import { bytesToHexString, bytesToString } from '../converters';
+import { bytesToHexString } from '../converters';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -82,7 +82,7 @@ export const restoreFromBackup = async (
 		//Wallets
 		for (let index = 0; index < backup.wallets.length; index++) {
 			const backedUpWallet = backup.wallets[index];
-			const { key, mnemonic, passphrase, keyDerivationPath } = backedUpWallet;
+			const { key, mnemonic, keyDerivationPath } = backedUpWallet; //TODO get passphrase as well when we support that
 
 			let addressType: TAddressType = 'bech32';
 			switch (backedUpWallet.addressType) {

@@ -6,17 +6,15 @@ import {
 	backpackRegister,
 	backpackUsername,
 } from '../../utils/backup/backpack';
-import { IBackup } from '../types/backup';
 import {
 	backupToBackpackServer,
 	verifyFromBackpackServer,
 } from '../../utils/backup/backup';
-import { showInfoNotification } from '../../utils/notifications';
 
 const dispatch = getDispatch();
 
 /**
- * Schedules a full backup to backpack server
+ * Registers and schedules a full backup to backpack server
  * @returns {Promise<Ok<string> | Err<string>>}
  */
 export const registerBackpack = async (
@@ -32,6 +30,8 @@ export const registerBackpack = async (
 		type: actions.BACKUP_UPDATE,
 		payload: { username: await backpackUsername() },
 	});
+
+	performFullBackup().then();
 
 	return ok('Backup registered');
 };
@@ -51,8 +51,6 @@ export const backupSetup = async (): Promise<Result<string>> => {
 	if (verifyBackupRes.isErr()) {
 		//Schedule backup if we receive any sort of error
 		performFullBackup().then();
-	} else {
-		showInfoNotification({ title: 'Backup verified', message: 'Nice' });
 	}
 
 	return ok('Backup setup');

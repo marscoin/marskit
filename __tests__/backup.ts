@@ -1,4 +1,4 @@
-import { createWallet, resetWalletStore } from '../src/store/actions/wallet';
+import { createWallet } from '../src/store/actions/wallet';
 import {
 	backpackRegister,
 	backpackRetrieve,
