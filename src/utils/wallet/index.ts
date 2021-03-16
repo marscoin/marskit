@@ -1,6 +1,6 @@
 import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
-import { addressContent, defaultWalletShape } from '../../store/shapes/wallet';
+import { defaultWalletShape } from '../../store/shapes/wallet';
 import {
 	EWallet,
 	IAddress,
