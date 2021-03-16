@@ -1,6 +1,6 @@
 import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
-import { defaultWalletShape } from '../../store/shapes/wallet';
+import { addressContent, defaultWalletShape } from '../../store/shapes/wallet';
 import {
 	EWallet,
 	IAddress,
@@ -647,7 +647,7 @@ export const getNextAvailableAddress = async ({
 					return resolve(err(generatedChangeAddresses.error));
 				}
 				const key = Object.keys(generatedChangeAddresses.value.addresses)[0];
-				addressIndex = generatedChangeAddresses.value.addresses[key];
+				changeAddressIndex = generatedChangeAddresses.value.addresses[key];
 			}
 
 			/*
@@ -664,7 +664,7 @@ export const getNextAvailableAddress = async ({
 					keyDerivationPath,
 					addressType,
 				});
-				if (!newAddresses.isErr()) {
+				if (newAddresses.isOk()) {
 					addresses = newAddresses.value.addresses;
 				}
 			}
@@ -687,7 +687,7 @@ export const getNextAvailableAddress = async ({
 					keyDerivationPath,
 					addressType,
 				});
-				if (!newChangeAddresses.isErr()) {
+				if (newChangeAddresses.isOk()) {
 					changeAddresses = newChangeAddresses.value.changeAddresses;
 				}
 			}
@@ -1751,10 +1751,22 @@ export const createDefaultWallet = async ({
 		await setKeychainValue({ key: wallet, value: mnemonic });
 
 		//Generate a set of addresses & changeAddresses for each network.
-		const addressesObj = defaultWalletShape.addresses;
-		const changeAddressesObj = defaultWalletShape.changeAddresses;
-		const addressIndex = defaultWalletShape.addressIndex;
-		const changeAddressIndex = defaultWalletShape.changeAddressIndex;
+		const addressesObj: IWalletItem<IAddressContent> | IWalletItem<{}> = {
+			bitcoin: {},
+			bitcoinTestnet: {},
+		};
+		const changeAddressesObj: IWalletItem<IAddressContent> | IWalletItem<{}> = {
+			bitcoin: {},
+			bitcoinTestnet: {},
+		};
+		const addressIndex: IWalletItem<IAddressContent> = {
+			bitcoin: addressContent,
+			bitcoinTestnet: addressContent,
+		};
+		const changeAddressIndex: IWalletItem<IAddressContent> = {
+			bitcoin: addressContent,
+			bitcoinTestnet: addressContent,
+		};
 		await Promise.all(
 			availableNetworks().map(async (network) => {
 				const generatedAddresses = await generateAddresses({

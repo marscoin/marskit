@@ -135,17 +135,27 @@ export const updateAddressIndexes = ({
 			selectedWallet,
 			selectedNetwork,
 		});
+		let addressIndex = currentWallet.addressIndex[selectedNetwork];
+		let changeAddressIndex = currentWallet.changeAddressIndex[selectedNetwork];
 		if (
 			response.value.addressIndex.index !==
 				currentWallet.addressIndex[selectedNetwork].index ||
 			response.value.changeAddressIndex.index !==
 				currentWallet.changeAddressIndex[selectedNetwork].index
 		) {
+			if (response.value?.addressIndex) {
+				addressIndex = response.value.addressIndex;
+			}
+
+			if (response.value?.changeAddressIndex) {
+				changeAddressIndex = response.value?.changeAddressIndex;
+			}
+
 			await dispatch({
 				type: actions.UPDATE_ADDRESS_INDEX,
 				payload: {
-					addressIndex: response.value.addressIndex,
-					changeAddressIndex: response.value.changeAddressIndex,
+					addressIndex,
+					changeAddressIndex,
 				},
 			});
 			return resolve(ok('Successfully updated indexes.'));
