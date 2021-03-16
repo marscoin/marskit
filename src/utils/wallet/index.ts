@@ -664,7 +664,7 @@ export const getNextAvailableAddress = async ({
 					keyDerivationPath,
 					addressType,
 				});
-				if (newAddresses.isOk()) {
+				if (!newAddresses.isErr()) {
 					addresses = newAddresses.value.addresses;
 				}
 			}
@@ -687,7 +687,7 @@ export const getNextAvailableAddress = async ({
 					keyDerivationPath,
 					addressType,
 				});
-				if (newChangeAddresses.isOk()) {
+				if (!newChangeAddresses.isErr()) {
 					changeAddresses = newChangeAddresses.value.changeAddresses;
 				}
 			}
