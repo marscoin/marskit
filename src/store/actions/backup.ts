@@ -10,6 +10,7 @@ import {
 	backupToBackpackServer,
 	verifyFromBackpackServer,
 } from '../../utils/backup/backup';
+import { IBackup } from '../types/backup';
 
 const dispatch = getDispatch();
 
@@ -41,17 +42,25 @@ export const registerBackpack = async (
  * @returns {Promise<Ok<string> | Err<string>>}
  */
 export const backupSetup = async (): Promise<Result<string>> => {
-	//If they've registered we'll have the username
-	await dispatch({
-		type: actions.BACKUP_UPDATE,
-		payload: { username: await backpackUsername() },
-	});
+	let state: IBackup = {
+		username: await backpackUsername(),
+		backpackSynced: false,
+	};
 
 	const verifyBackupRes = await verifyFromBackpackServer();
 	if (verifyBackupRes.isErr()) {
 		//Schedule backup if we receive any sort of error
 		performFullBackup().then();
+	} else {
+		state.backpackSynced = true;
+		//TODO get timestamp from server backup
 	}
+
+	//If they've registered we'll have the username
+	await dispatch({
+		type: actions.BACKUP_UPDATE,
+		payload: state,
+	});
 
 	return ok('Backup setup');
 };

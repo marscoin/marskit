@@ -159,6 +159,7 @@ export const verifyFromBackpackServer = async (): Promise<Result<string>> => {
 			bytesToHexString(remoteBackup.value) ===
 			bytesToHexString(localBackup.value)
 		) {
+			//TODO return timestamp from remote backup
 			return ok('Verified');
 		}
 
