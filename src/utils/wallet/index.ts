@@ -647,7 +647,7 @@ export const getNextAvailableAddress = async ({
 					return resolve(err(generatedChangeAddresses.error));
 				}
 				const key = Object.keys(generatedChangeAddresses.value.addresses)[0];
-				addressIndex = generatedChangeAddresses.value.addresses[key];
+				changeAddressIndex = generatedChangeAddresses.value.addresses[key];
 			}
 
 			/*

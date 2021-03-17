@@ -69,15 +69,19 @@ export const updateLightingActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		//Add all invoices
 		let entries: IActivityItem[] = [];
-		getStore().lightning.invoiceList.invoices.forEach((invoice) =>
-			entries.push(lightningInvoiceToActivityItem(invoice)),
-		);
+		const invoices = getStore().lightning.invoiceList?.invoices;
+		if (invoices) {
+			invoices.forEach((invoice) =>
+				entries.push(lightningInvoiceToActivityItem(invoice)),
+			);
+		}
 
-		const paymentsList = getStore().lightning.paymentList;
-		for (let index = 0; index < paymentsList.payments.length; index++) {
+		const payments = getStore().lightning?.paymentList?.payments || [];
+		const paymentsLength = payments.length;
+		for (let index = 0; index < paymentsLength; index++) {
 			//Payment description isn't returned in the response so we need to decode the original payment request
 			//If this becomes slow we should consider caching these in another store
-			const payment = paymentsList.payments[index];
+			const payment = payments[index];
 			const decodedPayment = await lnd.decodeInvoice(
 				payment.paymentRequest ?? '',
 			);

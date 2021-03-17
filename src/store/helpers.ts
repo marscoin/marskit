@@ -5,7 +5,8 @@ import { Dispatch } from 'redux';
 /*
 Used to retrieve the store outside of a component.
  */
-export const getStore = (): Store => store.getState();
+export const getStore = (): Store =>
+	JSON.parse(JSON.stringify(store.getState()));
 
 /*
 Used to get dispatch outside of a component.
