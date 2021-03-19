@@ -3,11 +3,7 @@ import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { getKeychainValue } from '../helpers';
 import { createDefaultWallet } from '../wallet';
-import {
-	IDefaultWalletShape,
-	TAddressType,
-	TKeyDerivationPath,
-} from '../../store/types/wallet';
+import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
 import { bytesToHexString } from '../converters';
 
@@ -98,11 +94,12 @@ export const restoreFromBackup = async (
 			}
 
 			await createDefaultWallet({
-				wallet: key!,
+				walletName: key!,
 				addressAmount: 2,
 				changeAddressAmount: 2,
 				mnemonic: mnemonic!,
-				keyDerivationPath: keyDerivationPath as TKeyDerivationPath,
+				// @ts-ignore
+				keyDerivationPath,
 				addressType,
 			});
 		}
