@@ -35,13 +35,13 @@ export interface IGetInfoFromAddressPath {
 }
 
 export interface IGenerateAddresses {
-	selectedWallet: string;
+	selectedWallet?: string | undefined;
 	addressAmount?: number;
 	changeAddressAmount?: number;
 	addressIndex?: number;
 	changeAddressIndex?: number;
-	selectedNetwork?: TAvailableNetworks;
-	keyDerivationPath?: IKeyDerivationPath;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	keyDerivationPath?: IKeyDerivationPath | undefined;
 	accountType?: TKeyDerivationAccountType;
 	addressType?: TAddressType;
 }

@@ -1,6 +1,5 @@
 import actions from './actions';
 import {
-	EWallet,
 	ICreateWallet,
 	IFormattedTransaction,
 	IOnChainTransactionData,
@@ -10,7 +9,6 @@ import {
 import {
 	createDefaultWallet,
 	formatTransactions,
-	generateAddresses,
 	getAddressHistory,
 	getCurrentWallet,
 	getExchangeRate,
@@ -25,15 +23,12 @@ import {
 import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
 import { err, ok, Result } from '../../utils/result';
-import {
-	IGenerateAddresses,
-	IGenerateAddressesResponse,
-} from '../../utils/types';
 import { createOmniboltWallet } from './omnibolt';
 import {
 	getTotalFee,
 	getTransactionUtxoValue,
 } from '../../utils/wallet/transactions';
+import { defaultKeyDerivationPath } from '../shapes/wallet';
 
 const dispatch = getDispatch();
 
@@ -58,16 +53,16 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  * @return {Promise<Result<string>>}
  */
 export const createWallet = async ({
-	wallet = 'wallet0',
+	walletName = 'wallet0',
 	addressAmount = 2,
 	changeAddressAmount = 2,
 	mnemonic = '',
-	keyDerivationPath = '84',
+	keyDerivationPath = defaultKeyDerivationPath,
 	addressType = 'bech32',
 }: ICreateWallet): Promise<Result<string>> => {
 	try {
 		const response = await createDefaultWallet({
-			wallet,
+			walletName,
 			addressAmount,
 			changeAddressAmount,
 			mnemonic,
@@ -82,7 +77,7 @@ export const createWallet = async ({
 			payload: response.value,
 		});
 
-		await createOmniboltWallet({ selectedWallet: wallet });
+		await createOmniboltWallet({ selectedWallet: walletName });
 		return ok('');
 	} catch (e) {
 		return err(e);
@@ -109,124 +104,64 @@ export const updateExchangeRate = (): Promise<Result<string>> => {
 	});
 };
 
-export const updateAddressIndexes = ({
+/**
+ * This method updates the next available (zero-balance) address & changeAddress index.
+ * @async
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {string}
+ */
+export const updateAddressIndexes = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
 }): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
 
-		const response = await getNextAvailableAddress({
-			selectedWallet,
-			selectedNetwork,
-		});
-		if (response.isErr()) {
-			return resolve(err(response.error));
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedWallet,
-			selectedNetwork,
-		});
-		let addressIndex = currentWallet.addressIndex[selectedNetwork];
-		let changeAddressIndex = currentWallet.changeAddressIndex[selectedNetwork];
-		if (
-			response.value.addressIndex.index !==
-				currentWallet.addressIndex[selectedNetwork].index ||
-			response.value.changeAddressIndex.index !==
-				currentWallet.changeAddressIndex[selectedNetwork].index
-		) {
-			if (response.value?.addressIndex) {
-				addressIndex = response.value.addressIndex;
-			}
-
-			if (response.value?.changeAddressIndex) {
-				changeAddressIndex = response.value?.changeAddressIndex;
-			}
-
-			await dispatch({
-				type: actions.UPDATE_ADDRESS_INDEX,
-				payload: {
-					addressIndex,
-					changeAddressIndex,
-				},
-			});
-			return resolve(ok('Successfully updated indexes.'));
-		}
-		return resolve(ok('No update needed.'));
+	const response = await getNextAvailableAddress({
+		selectedWallet,
+		selectedNetwork,
 	});
-};
-
-export const addAddresses = ({
-	wallet = EWallet.defaultWallet,
-	addressAmount = 5,
-	changeAddressAmount = 5,
-	addressIndex = 0,
-	changeAddressIndex = 0,
-	selectedNetwork = EWallet.selectedNetwork,
-	keyDerivationPath = EWallet.keyDerivationPath,
-	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
-	return new Promise(async (resolve) => {
-		const generatedAddresses = await generateAddresses({
-			addressAmount,
-			changeAddressAmount,
-			addressIndex,
-			changeAddressIndex,
-			selectedNetwork,
-			wallet,
-			keyDerivationPath,
-			addressType,
-		});
-		if (generatedAddresses.isErr()) {
-			return resolve(err(generatedAddresses.error));
+	if (response.isErr()) {
+		return err(response.error);
+	}
+	const { currentWallet } = getCurrentWallet({
+		selectedWallet,
+		selectedNetwork,
+	});
+	let addressIndex = currentWallet.addressIndex[selectedNetwork];
+	let changeAddressIndex = currentWallet.changeAddressIndex[selectedNetwork];
+	if (
+		response.value.addressIndex.path !==
+			currentWallet.addressIndex[selectedNetwork].path ||
+		response.value.changeAddressIndex.path !==
+			currentWallet.changeAddressIndex[selectedNetwork].path
+	) {
+		if (response.value?.addressIndex) {
+			addressIndex = response.value.addressIndex;
 		}
 
-		let addresses = generatedAddresses.value.addresses;
-		let changeAddresses = generatedAddresses.value.changeAddresses;
+		if (response.value?.changeAddressIndex) {
+			changeAddressIndex = response.value?.changeAddressIndex;
+		}
 
-		const { wallets } = getStore().wallet;
-		const currentWallet = wallets[wallet];
-		const currentAddresses = currentWallet.addresses[selectedNetwork];
-		const currentChangeAddresses =
-			currentWallet.changeAddresses[selectedNetwork];
-
-		//Remove any duplicate addresses.
-		await Promise.all([
-			Object.keys(addresses).map((scriptHash) => {
-				if (scriptHash in currentAddresses) {
-					delete addresses[scriptHash];
-				}
-			}),
-			Object.keys(changeAddresses).map((scriptHash) => {
-				if (scriptHash in currentChangeAddresses) {
-					delete changeAddresses[scriptHash];
-				}
-			}),
-		]);
-
-		const payload = {
-			addresses,
-			changeAddresses,
-		};
 		await dispatch({
-			type: actions.ADD_ADDRESSES,
-			payload,
+			type: actions.UPDATE_ADDRESS_INDEX,
+			payload: {
+				addressIndex,
+				changeAddressIndex,
+			},
 		});
-		return resolve(
-			ok({
-				addresses: generatedAddresses.value.addresses,
-				changeAddresses: generatedAddresses.value.changeAddresses,
-			}),
-		);
-	});
+		return ok('Successfully updated indexes.');
+	}
+	return ok('No update needed.');
 };
 
 /**
@@ -410,7 +345,7 @@ export const resetSelectedWallet = async ({
 			selectedWallet,
 		},
 	});
-	await createWallet({ wallet: selectedWallet });
+	await createWallet({ walletName: selectedWallet });
 	await refreshWallet();
 };
 
@@ -422,7 +357,7 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 	dispatch({
 		type: actions.RESET_WALLET_STORE,
 	});
-	await createWallet({ wallet: EWallet.defaultWallet });
+	await createWallet({});
 	await refreshWallet();
 	return ok('');
 };
@@ -460,7 +395,7 @@ export const setupOnChainTransaction = ({
 		});
 		//Remove any potential change address that may have been included from a previous tx attempt.
 		const newOutputs = outputs.filter((output) => {
-			if (!changeAddressesArr.includes(output.address)) {
+			if (output?.address && !changeAddressesArr.includes(output?.address)) {
 				return output;
 			}
 		});
