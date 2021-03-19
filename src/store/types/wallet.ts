@@ -6,7 +6,7 @@ export type TKeyDerivationPurpose = '84' | '49' | '44'; //"bech32" | "segwit" | 
 export type TKeyDerivationCoinType = '0' | '1'; //"mainnet" | "testnet";
 export type TKeyDerivationAccount = '0' | '2' | '3'; //"On-Chain Wallet" | "RGB" | "Omnibolt";
 export type TKeyDerivationChange = '0' | '1'; //"Receiving Address" | "Change Address";
-export type TKeyDerivationAddressIndex = string; //"bech32" | "segwit" | "legacy";
+export type TKeyDerivationAddressIndex = string;
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
