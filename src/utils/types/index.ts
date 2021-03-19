@@ -3,7 +3,8 @@ import { TAvailableNetworks, INetwork } from '../networks';
 import {
 	TAddressType,
 	IAddress,
-	TKeyDerivationPath,
+	IKeyDerivationPath,
+	TKeyDerivationAccountType,
 } from '../../store/types/wallet';
 
 export interface IResponse<T> {
@@ -34,13 +35,14 @@ export interface IGetInfoFromAddressPath {
 }
 
 export interface IGenerateAddresses {
-	wallet: string;
+	selectedWallet: string;
 	addressAmount?: number;
 	changeAddressAmount?: number;
 	addressIndex?: number;
 	changeAddressIndex?: number;
 	selectedNetwork?: TAvailableNetworks;
-	keyDerivationPath?: TKeyDerivationPath;
+	keyDerivationPath?: IKeyDerivationPath;
+	accountType?: TKeyDerivationAccountType;
 	addressType?: TAddressType;
 }
 

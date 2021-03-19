@@ -1,8 +1,12 @@
 import { TAvailableNetworks } from '../../utils/networks';
 
 export type TAddressType = 'bech32' | 'segwit' | 'legacy'; //"84" | "49" | "44";
-
-export type TKeyDerivationPath = '84' | '49' | '44'; //"bech32" | "segwit" | "legacy";
+export type TKeyDerivationAccountType = 'onchain' | 'rgb' | 'omnibolt';
+export type TKeyDerivationPurpose = '84' | '49' | '44'; //"bech32" | "segwit" | "legacy";
+export type TKeyDerivationCoinType = '0' | '1'; //"mainnet" | "testnet";
+export type TKeyDerivationAccount = '0' | '2' | '3'; //"On-Chain Wallet" | "RGB" | "Omnibolt";
+export type TKeyDerivationChange = '0' | '1'; //"Receiving Address" | "Change Address";
+export type TKeyDerivationAddressIndex = string; //"bech32" | "segwit" | "legacy";
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
@@ -20,7 +24,6 @@ export enum EWallet {
 	selectedNetwork = 'bitcoin',
 	defaultWallet = 'wallet0',
 	aezeedPassphrase = 'shhhhhhhh123',
-	keyDerivationPath = '84',
 	addressType = 'bech32',
 }
 
@@ -28,6 +31,21 @@ export enum EOutput {
 	address = '',
 	value = 0,
 	index = 0,
+}
+
+export enum EKeyDerivationAccount {
+	onchain = 0,
+	rgb = 2,
+	omnibolt = 3,
+}
+
+// m / purpose' / coin_type' / account' / change / address_index
+export interface IKeyDerivationPath {
+	purpose: TKeyDerivationPurpose;
+	coinType: TKeyDerivationCoinType;
+	account: TKeyDerivationAccount;
+	change: TKeyDerivationChange;
+	addressIndex: TKeyDerivationAddressIndex;
 }
 
 export interface IWallet {
@@ -59,11 +77,11 @@ export interface IAddress {
 }
 
 export interface ICreateWallet {
-	wallet?: string;
+	walletName?: string;
 	mnemonic?: string;
 	addressAmount?: number;
 	changeAddressAmount?: number;
-	keyDerivationPath?: TKeyDerivationPath;
+	keyDerivationPath?: IKeyDerivationPath;
 	addressType?: TAddressType;
 }
 
@@ -133,9 +151,9 @@ export interface IDefaultWalletShape {
 	id: string;
 	name: string;
 	type: string;
-	addresses: IWalletItem<IAddressContent> | IWalletItem<{}>;
+	addresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	addressIndex: IWalletItem<IAddressContent>;
-	changeAddresses: IWalletItem<IAddressContent> | IWalletItem<{}>;
+	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	changeAddressIndex: IWalletItem<IAddressContent>;
 	utxos: IWalletItem<IUtxo> | IWalletItem<[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
@@ -144,7 +162,7 @@ export interface IDefaultWalletShape {
 	lastUpdated: IWalletItem<number>;
 	hasBackedUpWallet: boolean;
 	walletBackupTimestamp: string;
-	keyDerivationPath: IWalletItem<TKeyDerivationPath>;
+	keyDerivationPath: IWalletItem<IKeyDerivationPath>;
 	networkTypePath: IWalletItem<string>;
 	addressType: {
 		bitcoin: TAddressType;
