@@ -14,7 +14,17 @@ message Wallet {
   string key = 1; //e.g. wallet0, wallet1
   string mnemonic = 2; //24 word seed phrase
   string passphrase = 3; //seed passphrase
-  string keyDerivationPath = 4; //Usually 84
+
+  message KeyDerivationPath {
+    string purpose = 1;
+    string coinType = 2;
+    string account = 3;
+    string change = 4;
+    string addressIndex = 5;
+  }
+
+  KeyDerivationPath keyDerivationPath = 4;
+
 
   enum AddressType {
     bech32 = 0;

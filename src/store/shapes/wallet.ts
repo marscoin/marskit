@@ -6,6 +6,7 @@ import {
 	IAddressContent,
 	IOnChainTransactionData,
 	defaultOnChainTransactionData,
+	IKeyDerivationPath,
 } from '../types/wallet';
 
 export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
@@ -45,6 +46,14 @@ export const addressIndex: IWalletItem<IAddressContent> = {
 	timestamp: null,
 };
 
+export const defaultKeyDerivationPath: IKeyDerivationPath = {
+	purpose: '84',
+	coinType: '0',
+	account: '0',
+	change: '0',
+	addressIndex: '0',
+};
+
 export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
@@ -61,8 +70,11 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	hasBackedUpWallet: false,
 	walletBackupTimestamp: '',
 	keyDerivationPath: {
-		bitcoin: '84',
-		bitcoinTestnet: '84',
+		bitcoin: defaultKeyDerivationPath,
+		bitcoinTestnet: {
+			...defaultKeyDerivationPath,
+			coinType: '0',
+		},
 	},
 	networkTypePath: {
 		bitcoin: '0',
