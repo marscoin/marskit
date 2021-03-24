@@ -11,7 +11,7 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 			};
 
 		case actions.RESET_USER_STORE:
-			return defaultUserShape;
+			return { ...defaultUserShape };
 
 		default:
 			return state;

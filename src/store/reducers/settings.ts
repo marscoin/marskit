@@ -11,7 +11,7 @@ const settings = (state = defaultSettingsShape, action): ISettings => {
 			};
 
 		case actions.RESET_SETTINGS_STORE:
-			return defaultSettingsShape;
+			return { ...defaultSettingsShape };
 
 		default:
 			return state;
