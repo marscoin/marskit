@@ -16,7 +16,6 @@
     "backpack:protobuff": "pbjs -t static-module -w commonjs -o src/utils/backup/protos/scheme.js src/utils/backup/protos/scheme.proto && pbjs -t static-module src/utils/backup/protos/scheme.proto | pbts -o src/utils/backup/protos/scheme.d.ts -"
   },
   "dependencies": {
-    "@photon-sdk/react-native-tcp": "https://github.com/coreyphillips/react-native-tcp",
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/clipboard": "^1.5.1",
@@ -61,6 +60,7 @@
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.14.0",
     "react-native-svg": "^12.1.0",
+    "react-native-tcp-socket": "3.7.1",
     "react-native-toast-message": "^1.4.2",
     "react-native-touch-id": "^4.4.1",
     "react-native-typography": "^1.4.1",
