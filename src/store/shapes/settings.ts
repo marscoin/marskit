@@ -12,5 +12,5 @@ export const defaultSettingsShape: ISettings = {
 	selectedCurrency: 'USD',
 	exchangeRateService: 'bitfinex',
 	selectedLanguage: 'english',
-	customElectrumPeers: arrayTypeItems,
+	customElectrumPeers: { ...arrayTypeItems },
 };
