@@ -20,6 +20,9 @@ if (typeof Buffer === 'undefined') {
 	global.Buffer = require('buffer').Buffer;
 }
 
+global.net = require('./src/utils/electrum/net');
+global.tls = require('./src/utils/electrum/tls');
+
 // global.location = global.location || { port: 80 }
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;
 process.env.NODE_ENV = isDev ? 'development' : 'production';
