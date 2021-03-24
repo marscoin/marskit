@@ -104,7 +104,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 			};
 
 		case actions.RESET_OMNIBOLT_STORE:
-			return defaultOmniBoltShape;
+			return { ...defaultOmniBoltShape };
 
 		default:
 			return state;

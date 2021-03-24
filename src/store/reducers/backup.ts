@@ -10,7 +10,7 @@ const backup = (state: IBackup, action): IBackup => {
 				...action.payload,
 			};
 		case actions.RESET_BACKUP_STORE:
-			return defaultBackupShape;
+			return { ...defaultBackupShape };
 		default:
 			return {
 				...defaultBackupShape,

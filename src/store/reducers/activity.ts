@@ -39,7 +39,7 @@ const activity = (state: IActivity, action): IActivity => {
 				),
 			};
 		case actions.RESET_ACTIVITY_STORE:
-			return defaultActivityShape;
+			return { ...defaultActivityShape };
 		default:
 			return {
 				...defaultActivityShape,
