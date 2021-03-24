@@ -50,6 +50,9 @@ import {
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateOnChainActivityList } from '../../store/actions/activity';
 import { getTotalFee, getTransactionOutputValue } from './transactions';
+import * as tls from '../electrum/tls';
+import * as net from '../electrum/net';
+import * as peers from 'rn-electrum-client/helpers/peers.json';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -327,7 +330,7 @@ export const formatKeyDerivationPath = ({
 			return err('No path specified.');
 		}
 		const { purpose, coinType, addressIndex } = path;
-		const change = changeAddress ? 1 : 0;
+		const change = changeAddress ? '1' : '0';
 		let account: TKeyDerivationAccount = '0';
 		if (!accountType) {
 			account = path.account;
@@ -1656,13 +1659,8 @@ export const getCustomElectrumPeers = ({
 };
 
 const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
-	bitcoin: [{ host: 'bitcoin.lukechilds.co', port: 50002 }],
-	bitcoinTestnet: [
-		{
-			host: 'testnet.aranguren.org',
-			port: 51002,
-		},
-	],
+	bitcoin: peers.bitcoin,
+	bitcoinTestnet: peers.bitcoinTestnet,
 };
 export const connectToElectrum = async ({
 	selectedNetwork = undefined,
@@ -1690,6 +1688,9 @@ export const connectToElectrum = async ({
 		startResponse = await electrum.start({
 			network: selectedNetwork,
 			customPeers,
+			protocol: 'ssl',
+			net,
+			tls,
 		});
 		if (!startResponse.error) {
 			break;
@@ -1702,6 +1703,8 @@ export const connectToElectrum = async ({
 		const { error, data } = await electrum.start({
 			network: selectedNetwork,
 			customPeers,
+			net,
+			tls,
 		});
 		if (error) {
 			showErrorNotification({
