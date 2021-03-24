@@ -192,28 +192,28 @@ PODS:
   - React-jsinspector (0.63.4)
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.43.0):
+  - react-native-camera (3.42.2):
     - React-Core
-    - react-native-camera/RCT (= 3.43.0)
-    - react-native-camera/RN (= 3.43.0)
-  - react-native-camera/RCT (3.43.0):
+    - react-native-camera/RCT (= 3.42.2)
+    - react-native-camera/RN (= 3.42.2)
+  - react-native-camera/RCT (3.42.2):
     - React-Core
-  - react-native-camera/RN (3.43.0):
+  - react-native-camera/RN (3.42.2):
     - React-Core
   - react-native-libsodium (0.0.1):
     - React-Core
-  - react-native-lightning (0.0.17):
+  - react-native-lightning (0.0.4):
     - React
     - SwiftProtobuf (~> 1.0)
   - react-native-netinfo (5.9.10):
     - React-Core
   - react-native-randombytes (3.6.0):
     - React-Core
-  - react-native-safe-area-context (3.2.0):
+  - react-native-safe-area-context (3.1.9):
     - React-Core
-  - react-native-tcp-socket (3.7.1):
+  - react-native-tcp-socket (5.2.0):
     - CocoaAsyncSocket
-    - React
+    - React-Core
   - React-RCTActionSheet (0.63.4):
     - React-Core/RCTActionSheetHeaders (= 0.63.4)
   - React-RCTAnimation (0.63.4):
@@ -274,7 +274,7 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - RNCAsyncStorage (1.14.1):
+  - RNCAsyncStorage (1.13.4):
     - React-Core
   - RNCClipboard (1.5.1):
     - React-Core
@@ -282,15 +282,15 @@ PODS:
     - React
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.10.3):
+  - RNGestureHandler (1.10.1):
     - React-Core
   - RNKeychain (6.2.0):
     - React
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
-  - RNReanimated (1.13.3):
+  - RNReanimated (1.13.2):
     - React-Core
-  - RNScreens (2.18.1):
+  - RNScreens (2.17.1):
     - React-Core
   - RNSVG (12.1.0):
     - React
@@ -304,7 +304,7 @@ PODS:
     - React-Core
     - SSZipArchive (= 2.2.3)
   - SSZipArchive (2.2.3)
-  - SwiftProtobuf (1.15.0)
+  - SwiftProtobuf (1.13.0)
   - TouchID (4.4.1):
     - React
   - Yoga (1.14.0)
@@ -491,13 +491,13 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: f432fcf1b32b528bbf7c3543d3e3b1deb0c5b72a
-  react-native-libsodium: 8414061e88fc9d3bfdaeff831af4fcf7470a0e40
-  react-native-lightning: 9f766421e12d593c28fe7b53767c7263fe514d37
+  react-native-camera: eb89d59d50a3fc124b067134b688bccbff0ee841
+  react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
+  react-native-lightning: f05486703137556202ceef152829dd5500ff3c64
   react-native-netinfo: 30fb89fa913c342be82a887b56e96be6d71201dd
   react-native-randombytes: b6677f7d495c27e9ee0dbd77ebc97b3c59173729
-  react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
-  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
+  react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
+  react-native-tcp-socket: c752d16fd5300dc96fc4a749c4db7c2a3886cd52
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -508,20 +508,20 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  RNCAsyncStorage: fe58eec522885718d6b297b7b658bf87d7ca557b
+  RNCAsyncStorage: 44539979e1f234262d64d3ce86ec21cceb1b2c5e
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
+  RNGestureHandler: 5e58135436aacc1c5d29b75547d3d2b9430d052c
   RNKeychain: b8e0711b959a19c5b057d1e970d3c83d159b6da5
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
-  RNReanimated: 514a11da3a2bcc6c3dfd9de32b38e2b9bf101926
-  RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
+  RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad
+  RNScreens: b6c9607e6fe47c1b6e2f1910d2acd46dd7ecea3a
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   RNZipArchive: 3dd2de5b7f590d79e83270508b78870bf5a54f36
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
-  SwiftProtobuf: 3320217e9d8fb75f36b40282e78c482640fd75dd
+  SwiftProtobuf: fd4693388a96c8c2df35d3b063272b0e7c499d00
   TouchID: ba4c656d849cceabc2e4eef722dea5e55959ecf4
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
