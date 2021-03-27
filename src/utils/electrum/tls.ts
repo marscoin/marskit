@@ -5,19 +5,16 @@
  */
 
 import TcpSocket from 'react-native-tcp-socket';
-import TcpSockets from 'react-native-tcp-socket/lib/types/TcpSocket';
+import TcpSockets from 'react-native-tcp-socket/lib/types/Socket';
 
 /**
  * Constructor function. Mimicking nodejs/tls api
  *
  * @constructor
  */
-interface IClient extends TcpSockets {
-	setEncoding?: Function | undefined;
-	setKeepAlive?: Function | undefined;
-}
-function connect(this: { _noDelay: boolean }, config, callback): IClient {
-	const client: IClient = TcpSocket.createConnection(
+
+function connect(this: { _noDelay: boolean }, config, callback): TcpSockets {
+	const client: TcpSockets = TcpSocket.createConnection(
 		{
 			port: config.port,
 			host: config.host,
@@ -31,11 +28,12 @@ function connect(this: { _noDelay: boolean }, config, callback): IClient {
 	this._noDelay = true;
 
 	//client.setTimeout = () => {};
-	client.setEncoding = (): void => {};
-	client.setKeepAlive = (): void => {};
+	//client.setEncoding = (): void => {};
+	//client.setKeepAlive = (): void => {};
 
 	// we will save `noDelay` and proxy it to socket object when its actually created and connected:
 	const realSetNoDelay = client.setNoDelay; // reference to real setter
+	// @ts-ignore
 	client.setNoDelay = (noDelay: boolean): void => {
 		this._noDelay = noDelay;
 	};
