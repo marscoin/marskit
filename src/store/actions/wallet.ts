@@ -1,5 +1,6 @@
 import actions from './actions';
 import {
+	EWallet,
 	ICreateWallet,
 	IFormattedTransaction,
 	IOnChainTransactionData,
@@ -9,9 +10,11 @@ import {
 import {
 	createDefaultWallet,
 	formatTransactions,
+	generateAddresses,
 	getAddressHistory,
 	getCurrentWallet,
 	getExchangeRate,
+	getKeyDerivationPath,
 	getNextAvailableAddress,
 	getSelectedNetwork,
 	getSelectedWallet,
@@ -19,6 +22,7 @@ import {
 	getUtxos,
 	ITransaction,
 	refreshWallet,
+	removeDuplicateAddresses,
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
@@ -29,6 +33,10 @@ import {
 	getTransactionUtxoValue,
 } from '../../utils/wallet/transactions';
 import { defaultKeyDerivationPath } from '../shapes/wallet';
+import {
+	IGenerateAddresses,
+	IGenerateAddressesResponse,
+} from '../../utils/types';
 
 const dispatch = getDispatch();
 
@@ -139,9 +147,9 @@ export const updateAddressIndexes = async ({
 	let addressIndex = currentWallet.addressIndex[selectedNetwork];
 	let changeAddressIndex = currentWallet.changeAddressIndex[selectedNetwork];
 	if (
-		response.value.addressIndex.path !==
+		response.value?.addressIndex?.path !==
 			currentWallet.addressIndex[selectedNetwork].path ||
-		response.value.changeAddressIndex.path !==
+		response.value?.changeAddressIndex?.path !==
 			currentWallet.changeAddressIndex[selectedNetwork].path
 	) {
 		if (response.value?.addressIndex) {
@@ -162,6 +170,81 @@ export const updateAddressIndexes = async ({
 		return ok('Successfully updated indexes.');
 	}
 	return ok('No update needed.');
+};
+
+/**
+ * This method will generate addresses as specified and return an object of filtered addresses to ensure no duplicates are returned.
+ * @async
+ * @param {string} [selectedWallet]
+ * @param {number} [addressAmount]
+ * @param {number} [changeAddressAmount]
+ * @param {number} [addressIndex]
+ * @param {number} [changeAddressIndex]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {IKeyDerivationPath} [keyDerivationPath]
+ * @param {TAddressType} [addressType]
+ * @return {Promise<Result<IGenerateAddressesResponse>>}
+ */
+export const addAddresses = async ({
+	selectedWallet = undefined,
+	addressAmount = 5,
+	changeAddressAmount = 5,
+	addressIndex = 0,
+	changeAddressIndex = 0,
+	selectedNetwork = undefined,
+	keyDerivationPath = undefined,
+	addressType = EWallet.addressType,
+}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!keyDerivationPath) {
+		keyDerivationPath = getKeyDerivationPath({
+			selectedWallet,
+			selectedNetwork,
+		});
+	}
+	const generatedAddresses = await generateAddresses({
+		addressAmount,
+		changeAddressAmount,
+		addressIndex,
+		changeAddressIndex,
+		selectedNetwork,
+		selectedWallet,
+		keyDerivationPath,
+		addressType,
+	});
+	if (generatedAddresses.isErr()) {
+		return err(generatedAddresses.error);
+	}
+
+	const removeDuplicateResponse = await removeDuplicateAddresses({
+		addresses: generatedAddresses.value.addresses,
+		changeAddresses: generatedAddresses.value.changeAddresses,
+		selectedWallet,
+		selectedNetwork,
+	});
+
+	if (removeDuplicateResponse.isErr()) {
+		return err(removeDuplicateResponse.error.message);
+	}
+
+	const { addresses, changeAddresses } = removeDuplicateResponse.value;
+	const payload = {
+		addresses,
+		changeAddresses,
+	};
+	await dispatch({
+		type: actions.ADD_ADDRESSES,
+		payload,
+	});
+	return ok({
+		addresses: generatedAddresses.value.addresses,
+		changeAddresses: generatedAddresses.value.changeAddresses,
+	});
 };
 
 /**
