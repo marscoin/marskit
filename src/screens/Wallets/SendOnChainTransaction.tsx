@@ -37,6 +37,7 @@ import {
 	IOutput,
 } from '../../store/types/wallet';
 import SendForm from '../../components/SendForm';
+import { getFiatBalance } from '../../utils/helpers';
 
 const Summary = ({
 	leftText = '',
@@ -149,6 +150,12 @@ const SendOnChainTransaction = ({
 				?.address || ' ',
 	);
 
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+
+	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
+
 	useEffect(() => {
 		if (animate) {
 			setTimeout(() => {
@@ -188,13 +195,43 @@ const SendOnChainTransaction = ({
 
 	const amount = getAmountToSend();
 
-	const getTransactionTotal = (): number => {
+	const getFiatAmount = useCallback((): string => {
+		return getFiatBalance({
+			balance: amount,
+			exchangeRate,
+			selectedCurrency,
+		});
+	}, [amount, exchangeRate, selectedCurrency]);
+	const fiatAmount = getFiatAmount();
+
+	const getFiatTotalFee = useCallback((): string => {
+		return getFiatBalance({
+			balance: totalFee,
+			exchangeRate,
+			selectedCurrency,
+		});
+	}, [totalFee, exchangeRate, selectedCurrency]);
+	const fiatTotalFee = getFiatTotalFee();
+
+	const getTransactionTotal = useCallback((): number => {
 		try {
 			return Number(amount) + Number(totalFee);
 		} catch {
 			return Number(totalFee);
 		}
-	};
+	}, [amount, totalFee]);
+
+	const transactionTotal = getTransactionTotal();
+
+	const getFiatTransactionTotal = useCallback((): string => {
+		return getFiatBalance({
+			balance: transactionTotal,
+			exchangeRate,
+			selectedCurrency,
+		});
+	}, [transactionTotal, exchangeRate, selectedCurrency]);
+
+	const fiatTransactionTotal = getFiatTransactionTotal();
 
 	const _createTransaction = async (): Promise<void> => {
 		try {
@@ -223,10 +260,7 @@ const SendOnChainTransaction = ({
 					fee={totalFee}
 				/>
 				<View color={'transparent'} style={styles.row}>
-					<Summary
-						leftText={'Total:'}
-						rightText={`${getTransactionTotal()} sats`}
-					/>
+					<Summary leftText={'Total:'} rightText={`${transactionTotal} sats`} />
 					<TouchableOpacity
 						style={styles.broadcastButton}
 						color={'onSurface'}
@@ -249,14 +283,13 @@ const SendOnChainTransaction = ({
 							});
 							//Successful Broadcast
 							if (response.isOk()) {
-								const total = getTransactionTotal();
 								showSuccessNotification({
-									title: `Sent ${total} sats`,
+									title: `Sent ${transactionTotal} sats`,
 									message,
 								});
 								//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
 								updateWalletBalance({
-									balance: balance - total,
+									balance: balance - transactionTotal,
 									selectedWallet,
 									selectedNetwork,
 								});
@@ -287,16 +320,19 @@ const SendOnChainTransaction = ({
 				<View color="transparent" style={styles.summary}>
 					<Summary
 						leftText={'Amount:'}
-						rightText={`${getAmountToSend()} sats`}
+						rightText={`${amount} sats\n$${fiatAmount}`}
 					/>
-					<Summary leftText={'Fee:'} rightText={`${totalFee} sats`} />
+					<Summary
+						leftText={'Fee:'}
+						rightText={`${totalFee} sats\n$${fiatTotalFee}`}
+					/>
 					<Summary
 						leftText={'Total:'}
-						rightText={`${getTransactionTotal()} sats`}
+						rightText={`${transactionTotal} sats\n$${fiatTransactionTotal}`}
 					/>
 				</View>
 				<Button
-					disabled={balance < getTransactionTotal()}
+					disabled={balance < transactionTotal}
 					color="onSurface"
 					text="Create"
 					onPress={_createTransaction}
