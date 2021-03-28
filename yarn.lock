@@ -2412,10 +2412,10 @@ babel@^6.23.0:
 
 "backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#ced8cb93473abd7e5a54dca50c2b4105dfeed035"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446"
   dependencies:
-    bint8array "^1.1.1"
-    handshake-peer "0.0.1"
+    bint8array "^1.1.2"
+    handshake-peer "^0.1.0"
     spake2-ee "^0.1.0"
 
 balanced-match@^1.0.0:
@@ -2486,6 +2486,11 @@ bint8array@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/bint8array/-/bint8array-1.1.1.tgz#5eccb3518727484c36446db806b62a840db02e37"
   integrity sha512-MFgYYhEU92shS6rCCpXQ802uMqZb3lQnVPFsjg2QnrDIuwYPC2IwIhK9PpXh12mZv1tT0sPG4efQBHmTOL/iHQ==
+
+bint8array@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/bint8array/-/bint8array-1.1.2.tgz#68b263caa6988aa85c6ac878926a2234583a570a"
+  integrity sha512-w88GqsD0VUtYQrc/YGCjY5UnTz57MXBvED4cQyz84P2gpbtP3lZoiz1xl6xEDU9TNrgBZSX3VfkdUlEdByOIag==
 
 bip174@^2.0.1:
   version "2.0.1"
@@ -4652,12 +4657,12 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-handshake-peer@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/handshake-peer/-/handshake-peer-0.0.1.tgz#f4eb4782cc80065333c0d4a0e5ae2ce84e232270"
-  integrity sha512-nRq0DQfkwNQJ07GWM1ZkNbL+AebyyxUXjqlyWqK7yGv8/u6yNFPYNTUGCi1jpPzjh2vTxv9qn0Rhk1nLtvt42Q==
+handshake-peer@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/handshake-peer/-/handshake-peer-0.1.0.tgz#40f34d410c754ab99f122e2c131fd138a9a8e514"
+  integrity sha512-mHcad9mmw44a8GQiZNkZzk9Eo+2zU46hmjp5KGc1z/F/F2tdVxnlzzG7zeIKREhUKAYCG22k7++qOenCfApQ4A==
   dependencies:
-    bint8array "^1.1.1"
+    bint8array "^1.1.2"
     nanoassert "^2.0.0"
     pump "^3.0.0"
     secretstream-stream "git+ssh://git@github.com/emilbayes/secretstream-stream.git"
