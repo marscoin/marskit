@@ -95,6 +95,6 @@ export const defaultWalletStoreShape: IWallet = {
 	selectedWallet: EWallet.defaultWallet,
 	exchangeRate: 0,
 	wallets: {
-		wallet0: defaultWalletShape,
+		wallet0: { ...defaultWalletShape },
 	},
 };

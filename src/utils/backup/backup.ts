@@ -2,10 +2,10 @@ import Scheme from './protos/scheme';
 import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { getKeychainValue } from '../helpers';
-import { createDefaultWallet } from '../wallet';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
 import { bytesToHexString } from '../converters';
+import { createWallet } from '../../store/actions/wallet';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -93,7 +93,7 @@ export const restoreFromBackup = async (
 					break;
 			}
 
-			await createDefaultWallet({
+			await createWallet({
 				walletName: key!,
 				addressAmount: 2,
 				changeAddressAmount: 2,

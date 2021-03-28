@@ -20,6 +20,7 @@ import {
 	TAddressType,
 	TKeyDerivationAccount,
 	TKeyDerivationAccountType,
+	TKeyDerivationPurpose,
 } from '../../store/types/wallet';
 import { err, ok, Result } from '../result';
 import {
@@ -38,6 +39,7 @@ import {
 import { getStore } from '../../store/helpers';
 import * as electrum from 'rn-electrum-client/helpers';
 import {
+	addAddresses,
 	updateAddressIndexes,
 	updateExchangeRate,
 	updateTransactions,
@@ -197,17 +199,23 @@ export const subscribeToHeader = async ({
  * @param {string} [addressType] - Determines what type of address to generate (legacy, segwit, bech32).
  */
 export const generateAddresses = async ({
-	selectedWallet = EWallet.defaultWallet,
+	selectedWallet = undefined,
 	addressAmount = 1,
 	changeAddressAmount = 1,
 	addressIndex = 0,
 	changeAddressIndex = 0,
-	selectedNetwork = EWallet.selectedNetwork,
-	keyDerivationPath = defaultKeyDerivationPath,
+	selectedNetwork = undefined,
+	keyDerivationPath = { ...defaultKeyDerivationPath },
 	accountType = 'onchain',
 	addressType = EWallet.addressType,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		const network = networks[selectedNetwork];
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
 		if (getMnemonicPhraseResponse.error) {
@@ -230,10 +238,14 @@ export const generateAddresses = async ({
 			addressArray.map(async (item, i) => {
 				try {
 					const index = i + addressIndex;
+					let path = { ...keyDerivationPath };
+					path.addressIndex = `${index}`;
 					const addressPath = formatKeyDerivationPath({
 						path: keyDerivationPath,
+						selectedNetwork,
 						accountType,
 						changeAddress: false,
+						addressIndex: `${index}`,
 					});
 					if (addressPath.isErr()) {
 						return err(addressPath.error.message);
@@ -259,8 +271,10 @@ export const generateAddresses = async ({
 					const index = i + changeAddressIndex;
 					const changeAddressPath = formatKeyDerivationPath({
 						path: keyDerivationPath,
+						selectedNetwork,
 						accountType,
 						changeAddress: true,
+						addressIndex: `${index}`,
 					});
 					if (changeAddressPath.isErr()) {
 						return err(changeAddressPath.error.message);
@@ -312,31 +326,53 @@ export const getKeyDerivationAccount = (
 /**
  * Formats and returns the provided derivation path.
  * @param {IKeyDerivationPath} path
+ * @param {TKeyDerivationPurpose | undefined} purpose
  * @param {boolean} [changeAddress]
  * @param {TKeyDerivationAccountType} [accountType]
- * @return {string} Derivation Path
+ * @param {string} [addressIndex]
+ * @param {TAvailableNetworks} selectedNetwork
+ * @return {Result<string>} Derivation Path
  */
 export const formatKeyDerivationPath = ({
 	path,
+	purpose = undefined,
+	selectedNetwork = undefined,
 	accountType = 'onchain',
 	changeAddress = false,
+	addressIndex = undefined,
 }: {
 	path: IKeyDerivationPath;
+	purpose?: TKeyDerivationPurpose | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 	accountType?: TKeyDerivationAccountType; //Account type modifier.
 	changeAddress?: boolean;
+	addressIndex: string | undefined;
 }): Result<string> => {
 	try {
+		if (!addressIndex) {
+			return err('No addressIndex specified.');
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		if (!path) {
 			return err('No path specified.');
 		}
-		const { purpose, coinType, addressIndex } = path;
-		const change = changeAddress ? '1' : '0';
+		if (!purpose) {
+			purpose = path.purpose;
+		}
+		// coinType of 0 === mainnet && coinType of 1 === testnet
+		let coinType = 0;
+		if (selectedNetwork.toLocaleLowerCase().includes('testnet')) {
+			coinType = 1;
+		}
 		let account: TKeyDerivationAccount = '0';
 		if (!accountType) {
 			account = path.account;
 		} else {
 			account = getKeyDerivationAccount(accountType);
 		}
+		const change = changeAddress ? '1' : '0';
 		return ok(
 			`m/${purpose}'/${coinType}'/${account}'/${change}/${addressIndex}`,
 		);
@@ -660,74 +696,6 @@ const exchangeRateHelpers = {
 };
 
 /**
- * This method will generate addresses as specified and return an object of filtered addresses to ensure no duplicates are returned.
- * @async
- * @param {string} [selectedWallet]
- * @param {number} [addressAmount]
- * @param {number} [changeAddressAmount]
- * @param {number} [addressIndex]
- * @param {number} [changeAddressIndex]
- * @param {TAvailableNetworks} [selectedNetwork]
- * @param {IKeyDerivationPath} [keyDerivationPath]
- * @param {TAddressType} [addressType]
- * @return {Promise<Result<IGenerateAddressesResponse>>}
- */
-export const addAddresses = async ({
-	selectedWallet = undefined,
-	addressAmount = 5,
-	changeAddressAmount = 5,
-	addressIndex = 0,
-	changeAddressIndex = 0,
-	selectedNetwork = undefined,
-	keyDerivationPath = undefined,
-	addressType = EWallet.addressType,
-}: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
-	if (!selectedWallet) {
-		selectedWallet = getSelectedWallet();
-	}
-	if (!selectedNetwork) {
-		selectedNetwork = getSelectedNetwork();
-	}
-	if (!keyDerivationPath) {
-		keyDerivationPath = getKeyDerivationPath({
-			selectedWallet,
-			selectedNetwork,
-		});
-	}
-	const generatedAddresses = await generateAddresses({
-		addressAmount,
-		changeAddressAmount,
-		addressIndex,
-		changeAddressIndex,
-		selectedNetwork,
-		selectedWallet,
-		keyDerivationPath,
-		addressType,
-	});
-	if (generatedAddresses.isErr()) {
-		return err(generatedAddresses.error);
-	}
-
-	const removeDuplicateResponse = await removeDuplicateAddresses({
-		addresses: generatedAddresses.value.addresses,
-		changeAddresses: generatedAddresses.value.changeAddresses,
-		selectedWallet,
-		selectedNetwork,
-	});
-
-	if (removeDuplicateResponse.isErr()) {
-		return err(removeDuplicateResponse.error.message);
-	}
-
-	const { addresses, changeAddresses } = removeDuplicateResponse.value;
-	const data = {
-		addresses,
-		changeAddresses,
-	};
-	return ok(data);
-};
-
-/**
  * This method will compare a set of specified addresses to the currently stored addresses and remove any duplicates.
  * @param addresses
  * @param changeAddresses
@@ -1048,7 +1016,7 @@ export const getNextAvailableAddress = async ({
 						addressType,
 					});
 					if (!newAddresses.isErr()) {
-						addresses = newAddresses.value.addresses;
+						addresses = newAddresses.value.addresses || {};
 					}
 				}
 				//Create change addresses for the next round
@@ -1065,7 +1033,7 @@ export const getNextAvailableAddress = async ({
 						addressType,
 					});
 					if (!newChangeAddresses.isErr()) {
-						changeAddresses = newChangeAddresses.value.changeAddresses;
+						changeAddresses = newChangeAddresses.value.changeAddresses || {};
 					}
 				}
 
@@ -1576,24 +1544,33 @@ export interface IGetAddressHistoryResponse
 		IAddressContent {}
 export const getAddressHistory = async ({
 	scriptHashes = undefined,
-	selectedNetwork = EWallet.selectedNetwork,
-	selectedWallet = EWallet.defaultWallet,
+	selectedNetwork = undefined,
+	selectedWallet = undefined,
 }: {
 	scriptHashes?: undefined | IAddressContent[];
-	selectedNetwork?: TAvailableNetworks;
-	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string | undefined;
 }): Promise<Result<IGetAddressHistoryResponse[]>> => {
 	try {
-		if (!scriptHashes) {
-			const { currentWallet } = getCurrentWallet({
-				selectedNetwork,
-				selectedWallet,
-			});
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const { currentWallet } = getCurrentWallet({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (!scriptHashes || scriptHashes?.length < 1) {
 			const addresses = currentWallet.addresses[selectedNetwork];
 			const changeAddresses = currentWallet.changeAddresses[selectedNetwork];
 			const addressValues = Object.values(addresses);
 			const changeAddressValues = Object.values(changeAddresses);
 			scriptHashes = [...addressValues, ...changeAddressValues];
+		}
+		if (scriptHashes?.length < 1) {
+			return err('No scriptHashes available to check.');
 		}
 		const payload = {
 			key: 'scriptHash',
@@ -1984,10 +1961,10 @@ export const createDefaultWallet = async ({
 		await setKeychainValue({ key: walletName, value: mnemonic });
 
 		//Generate a set of addresses & changeAddresses for each network.
-		const addressesObj = defaultWalletShape.addresses;
-		const changeAddressesObj = defaultWalletShape.changeAddresses;
-		const addressIndex = defaultWalletShape.addressIndex;
-		const changeAddressIndex = defaultWalletShape.changeAddressIndex;
+		const addressesObj = { ...defaultWalletShape.addresses };
+		const changeAddressesObj = { ...defaultWalletShape.changeAddresses };
+		const addressIndex = { ...defaultWalletShape.addressIndex };
+		const changeAddressIndex = { ...defaultWalletShape.changeAddressIndex };
 		await Promise.all(
 			availableNetworks().map(async (network) => {
 				const generatedAddresses = await generateAddresses({

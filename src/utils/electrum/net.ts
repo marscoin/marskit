@@ -5,7 +5,7 @@
  */
 
 import TcpSocket from 'react-native-tcp-socket';
-import TcpSockets from 'react-native-tcp-socket/lib/types/TcpSocket';
+import TcpSockets from 'react-native-tcp-socket/lib/types/Socket';
 /**
  * Constructor function. Resulting object has to act as it was a real socket (basically
  * conform to nodejs/net api)
@@ -67,6 +67,7 @@ export default function Socket(this: ISocket): void {
 				this._socket.setNoDelay(this._noDelay);
 			}
 		});
+		// @ts-ignore
 		this._socket.on('connection', (data): void => {
 			this._passOnEvent('connection', data);
 		});
