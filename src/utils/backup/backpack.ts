@@ -4,6 +4,13 @@ import { Readable, Duplex } from 'streamx';
 import WSStream from 'webnet/websocket';
 import { err, ok, Result } from '../result';
 import { getKeychainValue, setKeychainValue } from '../helpers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+	bytesToHexString,
+	bytesToString,
+	hexStringToBytes,
+	stringToBytes,
+} from '../converters';
 
 //TODO move to config or .env
 const serverInfo = {
@@ -138,7 +145,18 @@ export const backpackStore = async (
 
 				Readable.from(backup).pipe(str);
 
-				resolve(ok('Stored successfully'));
+				//TODO remove this temp hack when the server starts responding again
+
+				AsyncStorage.setItem('temp-backpack-backup', bytesToHexString(backup))
+					.then(() => {
+						resolve(ok('Stored successfully'));
+					})
+					.catch(() => {
+						resolve(err('Failed to store locally'));
+					})
+					.finally(() => {});
+
+				// resolve(ok('Stored successfully'));
 			});
 		});
 	} catch (e) {
@@ -159,6 +177,35 @@ export const backpackRetrieve = async (): Promise<Result<Uint8Array>> => {
 				if (retrieveErr) {
 					resolve(err(retrieveErr));
 				}
+
+				//TODO remove this temp hack when the server starts responding again
+
+				return setTimeout(() => {
+					AsyncStorage.getItem('temp-backpack-backup').then((res) => {
+						if (res) {
+							return resolve(ok(hexStringToBytes(res)));
+						}
+
+						return resolve(err('Not found locally'));
+					});
+				}, 1000);
+
+				// const chunks = [];
+				// pump(
+				// 	channel,
+				// 	new Duplex({
+				// 		write(data, cb): void {//
+				// 			chunks.push(data);
+				// 			cb();
+				// 		},
+				// 	}),
+				// 	function (pipeErr) {
+				// 		if (pipeErr) {
+				// 			resolve(err(retrieveErr));
+				// 		}
+				// 		resolve(ok(bint.concat(chunks)));
+				// 	},
+				// );
 
 				channel.pipe(
 					new Duplex({
