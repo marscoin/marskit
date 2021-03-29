@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useCallback, useEffect } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { AnimatedView, TextInput, View } from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
@@ -8,18 +14,22 @@ import Store from '../store/types';
 import {
 	defaultOnChainTransactionData,
 	EOutput,
+	IOnChainTransactionData,
 	IOutput,
 } from '../store/types/wallet';
 import {
 	getTotalFee,
 	getTransactionOutputValue,
 } from '../utils/wallet/transactions';
+import Button from './Button';
 
 const SendForm = ({
 	index = 0,
 	displayMessage = true,
 	displayFee = true,
 }): ReactElement => {
+	const [max, setMax] = useState(false); //Determines whether the user is sending the max amount.
+
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -142,6 +152,9 @@ const SendForm = ({
 		return totalFee || 250;
 	}, [message, satsPerByte, selectedWallet, selectedNetwork]);
 
+	/**
+	 * Increases the fee by 1 sat per byte.
+	 */
 	const increaseFee = (): void => {
 		try {
 			//Check that the user has enough funds
@@ -149,15 +162,29 @@ const SendForm = ({
 			const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
 			const totalTransactionValue = getOutputsValue();
 			const newTotalAmount = Number(totalTransactionValue) + Number(newFee);
-			if (newTotalAmount <= balance) {
-				//Increase the fee
+			//Return if the new fee exceeds half of the user's balance
+			if (Number(newFee) >= balance / 2) {
+				return;
+			}
+			const _transaction: IOnChainTransactionData = {
+				satsPerByte: newSatsPerByte,
+				fee: newFee,
+			};
+			if (max) {
+				//Update the tx value with the new fee to continue sending the max amount.
+				_transaction.outputs = [{ address, value: balance - newFee, index }];
 				updateOnChainTransaction({
 					selectedNetwork,
 					selectedWallet,
-					transaction: {
-						satsPerByte: newSatsPerByte,
-						fee: newFee,
-					},
+					transaction: _transaction,
+				});
+				return;
+			}
+			if (newTotalAmount <= balance) {
+				updateOnChainTransaction({
+					selectedNetwork,
+					selectedWallet,
+					transaction: _transaction,
 				});
 			}
 		} catch (e) {
@@ -165,6 +192,9 @@ const SendForm = ({
 		}
 	};
 
+	/**
+	 * Decreases the fee by 1 sat per byte.
+	 */
 	const decreaseFee = (): void => {
 		try {
 			if (satsPerByte <= 1) {
@@ -172,14 +202,83 @@ const SendForm = ({
 			}
 			const newSatsPerByte = Number(satsPerByte) - 1;
 			const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
+			const _transaction: IOnChainTransactionData = {
+				satsPerByte: newSatsPerByte,
+				fee: newFee,
+			};
+			if (max) {
+				//Update the tx value with the new fee to continue sending the max amount.
+				_transaction.outputs = [{ address, value: balance - newFee, index }];
+			}
 			updateOnChainTransaction({
 				selectedNetwork,
 				selectedWallet,
+				transaction: _transaction,
+			});
+		} catch {}
+	};
+
+	/**
+	 * Updates the amount to send for the currently selected output.
+	 * @param {string} txt
+	 */
+	const updateAmount = (txt = ''): void => {
+		const newAmount = Number(txt);
+		const totalNewAmount = newAmount + getFee();
+		if (totalNewAmount <= balance) {
+			updateOnChainTransaction({
+				selectedWallet,
+				selectedNetwork,
 				transaction: {
-					satsPerByte: newSatsPerByte,
-					fee: newFee,
+					outputs: [{ address, value: newAmount, index }],
 				},
 			});
+		}
+	};
+
+	const updateMessage = (txt = ''): void => {
+		const newFee = getTotalFee({ satsPerByte, message: txt });
+		const totalTransactionValue = getOutputsValue();
+		const totalNewAmount = totalTransactionValue + newFee;
+
+		const _transaction: IOnChainTransactionData = {
+			message: txt,
+			fee: newFee,
+		};
+		if (max) {
+			_transaction.outputs = [{ address, value: balance - newFee, index }];
+			//Update the tx value with the new fee to continue sending the max amount.
+			updateOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				transaction: _transaction,
+			});
+			return;
+		}
+		if (totalNewAmount <= balance) {
+			updateOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				transaction: _transaction,
+			});
+		}
+	};
+
+	/**
+	 * Toggles whether to send the max balance.
+	 */
+	const sendMax = (): void => {
+		try {
+			if (!max) {
+				updateOnChainTransaction({
+					selectedWallet,
+					selectedNetwork,
+					transaction: {
+						outputs: [{ address, value: balance - transaction.fee, index }],
+					},
+				});
+			}
+			setMax(!max);
 		} catch {}
 	};
 
@@ -207,30 +306,34 @@ const SendForm = ({
 					value={address}
 					onSubmitEditing={(): void => {}}
 				/>
-				<TextInput
-					underlineColorAndroid="transparent"
-					style={styles.textInput}
-					placeholder="Amount (sats)"
-					keyboardType="number-pad"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						const newAmount = Number(txt);
-						const totalNewAmount = newAmount + getFee();
-						if (totalNewAmount <= balance) {
-							updateOnChainTransaction({
-								selectedWallet,
-								selectedNetwork,
-								transaction: {
-									outputs: [{ address, value: newAmount, index }],
-								},
-							});
-						}
-					}}
-					value={Number(value) ? value.toString() : ''}
-					onSubmitEditing={(): void => {}}
-				/>
+				<View color={'transparent'} style={styles.row}>
+					<View style={styles.amountContainer}>
+						<TextInput
+							editable={!max}
+							underlineColorAndroid="transparent"
+							style={[
+								styles.textInput,
+								// eslint-disable-next-line react-native/no-inline-styles
+								{ backgroundColor: max ? '#E1E1E4' : 'white' },
+							]}
+							placeholder="Amount (sats)"
+							keyboardType="number-pad"
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							onChangeText={(txt): void => {
+								updateAmount(txt);
+							}}
+							value={Number(value) ? value.toString() : ''}
+							onSubmitEditing={(): void => {}}
+						/>
+					</View>
+					<Button
+						color={max ? 'surface' : 'onSurface'}
+						text="Max"
+						onPress={sendMax}
+					/>
+				</View>
 				{!!displayMessage && (
 					<TextInput
 						multiline
@@ -241,19 +344,7 @@ const SendForm = ({
 						autoCompleteType="off"
 						autoCorrect={false}
 						onChangeText={(txt): void => {
-							const newFee = getTotalFee({ satsPerByte, message: txt });
-							const totalTransactionValue = getOutputsValue();
-							const totalNewAmount = totalTransactionValue + newFee;
-							if (totalNewAmount <= balance) {
-								updateOnChainTransaction({
-									selectedNetwork,
-									selectedWallet,
-									transaction: {
-										message: txt,
-										fee: newFee,
-									},
-								});
-							}
+							updateMessage(txt);
 						}}
 						value={message}
 						onSubmitEditing={(): void => {}}
@@ -302,6 +393,12 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 		marginVertical: 5,
 		paddingTop: Platform.OS === 'ios' ? 15 : 10,
+	},
+	row: {
+		flexDirection: 'row',
+	},
+	amountContainer: {
+		flex: 1,
 	},
 });
 
