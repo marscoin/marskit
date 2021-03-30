@@ -8,10 +8,10 @@ import {
 	ILogin,
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
-import { IOmniboltConnectData } from '../types/omnibolt';
+import { IOmniboltConnectData, TOmniboltCheckpoints } from '../types/omnibolt';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
-import { createOmniboltId, getOmniboltChannels } from '../../utils/omnibolt';
-import { defaultOmniboltWalletShape } from '../shapes/omnibolt';
+import { createOmniboltId, getOmniboltChannels, getOmniboltUserData } from '../../utils/omnibolt';
+import { defaultOmniboltWalletShape, ICheckpoint, IMyChannelsData } from '../shapes/omnibolt';
 
 const dispatch = getDispatch();
 
@@ -181,6 +181,11 @@ export const createOmniboltWallet = async ({
 	return ok('Connect Data Updated.');
 };
 
+export interface IUpdateOmniboltChannels {
+	channels: { [key: string]: IGetMyChannelsData };
+	tempChannels: { [key: string]: IGetMyChannelsData };
+	checkpoints: ICheckpoint;
+}
 /**
  * This will query omnibolt for current channels and update the store accordingly.
  * @param selectedWallet
@@ -192,29 +197,64 @@ export const updateOmniboltChannels = async ({
 	selectedNetwork = undefined,
 }: {
 	selectedWallet?: string | undefined;
-	selectedNetwork?: string | undefined;
-}): Promise<Result<IGetMyChannelsData[]>> => {
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IUpdateOmniboltChannels>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
 	//Get and store address, channel and asset information
 	const response = await getOmniboltChannels();
 	if (response.isErr()) {
 		return err(response.error.message);
 	}
-
 	//Get and store channel info
-	let channels: IGetMyChannelsData[] = [];
-	if (response?.value?.data) {
-		channels = response.value.data;
+	let channels: { [key: string]: IMyChannelsData } = {};
+	let tempChannels: { [key: string]: IMyChannelsData } = {};
+	let checkpoints: { [key: string]: TOmniboltCheckpoints } = {};
+	const currentCheckponts = getStore().omnibolt.wallets[selectedWallet]
+		.checkpoints;
+	if (response?.value?.data && selectedNetwork) {
+		const userData = getOmniboltUserData({ selectedNetwork, selectedWallet });
+		if (userData.isErr()) {
+			return err(userData.error.message);
+		}
+		const userPeerId = userData.value.userPeerId;
+		//Sort temp and established channels
+		await Promise.all(
+			response.value.data.map((channel) => {
+				try {
+					const initiator = userPeerId === channel.peer_ida;
+					const data = { ...channel, initiator };
+					if (channel.channel_id === '') {
+						tempChannels[channel.temporary_channel_id] = data;
+					} else {
+						channels[channel.channel_id] = data;
+					}
+				} catch {}
+			}),
+		);
 	}
-
+	//Create a checkpoint for new temp channels.
+	await Promise.all(
+		Object.keys(tempChannels).map((id) => {
+			if (!(id in currentCheckponts)) {
+				checkpoints[id] = 'fundBitcoin';
+			}
+		}),
+	);
 	const payload = {
 		selectedNetwork,
 		selectedWallet,
 		channels,
+		tempChannels,
+		checkpoints,
 	};
-
 	await dispatch({
 		type: actions.UPDATE_OMNIBOLT_CHANNELS,
 		payload,
 	});
-	return ok(channels);
+	return ok({ channels, tempChannels, checkpoints });
 };
