@@ -10,8 +10,16 @@ import {
 import * as omnibolt from '../../utils/omnibolt';
 import { IOmniboltConnectData, TOmniboltCheckpoints } from '../types/omnibolt';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
-import { createOmniboltId, getOmniboltChannels, getOmniboltUserData } from '../../utils/omnibolt';
-import { defaultOmniboltWalletShape, ICheckpoint, IMyChannelsData } from '../shapes/omnibolt';
+import {
+	createOmniboltId,
+	getOmniboltChannels,
+	getOmniboltUserData,
+} from '../../utils/omnibolt';
+import {
+	defaultOmniboltWalletShape,
+	ICheckpoint,
+	IMyChannelsData,
+} from '../shapes/omnibolt';
 
 const dispatch = getDispatch();
 
