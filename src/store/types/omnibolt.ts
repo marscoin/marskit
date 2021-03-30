@@ -1,5 +1,6 @@
 import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
 import { IWalletItem } from './wallet';
+import { ICheckpoint, IMyChannels } from '../shapes/omnibolt';
 
 export interface IOmniBolt {
 	wallets: {
@@ -10,8 +11,10 @@ export interface IOmniBolt {
 export interface IOmniBoltWallet {
 	userData: IWalletItem<IOmniBoltUserData>;
 	connectData: IWalletItem<IOmniboltConnectData>;
-	channels: IWalletItem<IChannelData> | IWalletItem<{}>;
+	channels: IWalletItem<IChannelData>;
+	tempChannels: IWalletItem<IMyChannels>;
 	peers: IWalletItem<string[]>;
+	checkpoints: IWalletItem<ICheckpoint>;
 	[key: string]: any;
 }
 
@@ -36,12 +39,16 @@ export enum EOmniBoltConnectData {
 	userPeerId = '',
 }
 
-export interface IChannelData {
+export interface IChannelContent {
 	invoiceCheckpoint: string;
 	last_temp_address: IAddressIndex;
 	rsmc_temp_address: IAddressIndex;
 	htlc_temp_address: IAddressIndex;
 	htlc_temp_address_for_he1b: IAddressIndex;
+}
+
+export interface IChannelData {
+	[key: string]: IChannelContent;
 }
 
 export interface IAddressIndex {
@@ -56,3 +63,23 @@ export interface IOmniboltConnectData {
 	nodePeerId?: string;
 	userPeerId?: string;
 }
+
+export type TOmniboltCheckpoints =
+	| 'channelAccept'
+	| 'onChannelAccept'
+	| 'fundBitcoin'
+	| 'onFundBitcoin'
+	| 'htlcFindPath'
+	| 'onHtlcFindPath'
+	| 'addHtlc'
+	| 'onAddHtlc'
+	| 'htlcSIgned'
+	| 'onHtlcSigned'
+	| 'forwardR'
+	| 'onForwardR'
+	| 'signR'
+	| 'onSignR'
+	| 'closeHtlc'
+	| 'onCloseHtlc'
+	| 'closeHtlcSigned'
+	| 'onCloseHtlcSigned';
