@@ -160,15 +160,15 @@ export const startOmnibolt = async ({
 	selectedNetwork = undefined,
 }: {
 	selectedWallet?: string | undefined;
-	selectedNetwork?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 }): Promise<Result<ILogin>> => {
 	try {
 		if (!selectedWallet) {
-			selectedWallet = getStore().wallet.selectedWallet;
+			selectedWallet = getSelectedWallet();
 		}
 
 		if (!selectedNetwork) {
-			selectedNetwork = getStore().wallet.selectedNetwork;
+			selectedNetwork = getSelectedNetwork();
 		}
 
 		//Create omnibolt user if necessary.
