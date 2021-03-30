@@ -81,6 +81,14 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 							...state.wallets[selectedWallet].channels[selectedNetwork],
 							[selectedNetwork]: action.payload.channels,
 						},
+						tempChannels: {
+							...state.wallets[selectedWallet]?.tempChannels[selectedNetwork],
+							[selectedNetwork]: action.payload.tempChannels,
+						},
+						checkpoints: {
+							...state.wallets[selectedWallet]?.checkpoints[selectedNetwork],
+							[selectedNetwork]: action.payload.checkpoints,
+						},
 					},
 				},
 			};
