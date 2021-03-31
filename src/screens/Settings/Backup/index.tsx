@@ -6,23 +6,19 @@ import {
 	Feather,
 	Text,
 	TouchableOpacity,
-	TextInput,
 } from '../../../styles/components';
 import Button from '../../../components/Button';
-import { registerBackpack } from '../../../store/actions/backup';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import Store from '../../../store/types';
 import { verifyFromBackpackServer } from '../../../utils/backup/backup';
+import BackupRegisterForm from './RegisterForm';
 
 const BackupSettings = ({ navigation }): ReactElement => {
 	const backupState = useSelector((state: Store) => state.backup);
-	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const [isVerifying, setIsVerifying] = useState<boolean>(false);
-	const [username, setUsername] = useState<string>(backupState.username);
-	const [password, setPassword] = useState<string>('');
 
 	const lastBackup = backupState.lastBackedUp
 		? backupState.lastBackedUp.toLocaleString()
@@ -45,60 +41,7 @@ const BackupSettings = ({ navigation }): ReactElement => {
 			<ScrollView>
 				<Text style={styles.status}>{status}</Text>
 
-				{!backupState.username ? (
-					<>
-						<TextInput
-							textAlignVertical={'center'}
-							underlineColorAndroid="transparent"
-							style={styles.textInput}
-							placeholder="Username"
-							autoCapitalize="none"
-							autoCompleteType="off"
-							autoCorrect={false}
-							onChangeText={setUsername}
-							value={username}
-						/>
-						<TextInput
-							textAlignVertical={'center'}
-							underlineColorAndroid="transparent"
-							style={styles.textInput}
-							placeholder="Password"
-							autoCapitalize="none"
-							autoCompleteType="off"
-							autoCorrect={false}
-							onChangeText={setPassword}
-							value={password}
-							textContentType={'newPassword'}
-							secureTextEntry
-						/>
-
-						<Button
-							text={isSubmitting ? 'Updating...' : 'Update'}
-							disabled={isSubmitting}
-							onPress={async (): Promise<void> => {
-								setIsSubmitting(true);
-								const registrationResult = await registerBackpack({
-									username,
-									password,
-								});
-
-								if (registrationResult.isErr()) {
-									showErrorNotification({
-										title: 'Failed to register',
-										message: registrationResult.error.message,
-									});
-								} else {
-									showSuccessNotification({
-										title: 'Success',
-										message: 'Backup registered',
-									});
-								}
-
-								setIsSubmitting(false);
-							}}
-						/>
-					</>
-				) : null}
+				{!backupState.username ? <BackupRegisterForm /> : null}
 
 				<Button
 					text={isVerifying ? 'Verifying...' : 'Verify backup'}

@@ -89,7 +89,8 @@ export const defaultWalletShape: IDefaultWalletShape = {
 };
 
 export const defaultWalletStoreShape: IWallet = {
-	loading: false,
+	loading: true,
+	walletExists: false,
 	error: false,
 	selectedNetwork: 'bitcoinTestnet',
 	selectedWallet: EWallet.defaultWallet,

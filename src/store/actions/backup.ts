@@ -11,6 +11,7 @@ import {
 	verifyFromBackpackServer,
 } from '../../utils/backup/backup';
 import { IBackup } from '../types/backup';
+import { showSuccessNotification } from '../../utils/notifications';
 
 const dispatch = getDispatch();
 
@@ -32,8 +33,6 @@ export const registerBackpack = async (
 		payload: { username: await backpackUsername() },
 	});
 
-	performFullBackup().then();
-
 	return ok('Backup registered');
 };
 
@@ -47,8 +46,19 @@ export const backupSetup = async (): Promise<Result<string>> => {
 		backpackSynced: false,
 	};
 
+	//If they've registered update that so long while we verify the backup
+	await dispatch({
+		type: actions.BACKUP_UPDATE,
+		payload: state,
+	});
+
 	const verifyBackupRes = await verifyFromBackpackServer();
 	if (verifyBackupRes.isErr()) {
+		await dispatch({
+			type: actions.BACKUP_UPDATE,
+			payload: state,
+		});
+
 		//Schedule backup if we receive any sort of error
 		performFullBackup().then();
 	} else {
@@ -81,6 +91,11 @@ export const performFullBackup = async (): Promise<Result<string>> => {
 			backpackSynced: true,
 			lastBackedUp: new Date(),
 		},
+	});
+
+	showSuccessNotification({
+		title: 'Backed up to server',
+		message: 'Full Backpack upload completed',
 	});
 
 	return ok('Backup success');
