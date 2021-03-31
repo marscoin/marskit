@@ -73,6 +73,21 @@ export const getKeychainValue = async ({
 	});
 };
 
+//WARNING: This will wipe the specified key's value from storage
+export const resetKeychainValue = async ({
+	key = '',
+}: {
+	key: string;
+}): Promise<Result<boolean>> => {
+	try {
+		const result = await Keychain.resetGenericPassword({ service: key });
+		return ok(result);
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
 interface IGetNetworkData {
 	selectedNetwork?: TAvailableNetworks;
 	bitcoinUnit?: TBitcoinUnit;
