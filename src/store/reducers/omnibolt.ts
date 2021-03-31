@@ -112,6 +112,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 			};
 
 		case actions.RESET_OMNIBOLT_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultOmniBoltShape };
 
 		default:

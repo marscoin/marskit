@@ -11,6 +11,7 @@ const settings = (state = defaultSettingsShape, action): ISettings => {
 			};
 
 		case actions.RESET_SETTINGS_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultSettingsShape };
 
 		default:

@@ -136,6 +136,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 			};
 
 		case actions.RESET_WALLET_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultWalletStoreShape };
 
 		case actions.RESET_SELECTED_WALLET:
