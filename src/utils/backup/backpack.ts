@@ -150,21 +150,37 @@ export const backpackStore = async (
  * Retrieves a string from the backpack server
  * @returns {Promise<Ok<string> | Err<string>>}
  */
-export const backpackRetrieve = async (): Promise<Result<Uint8Array>> => {
+export const backpackRetrieve = async (
+	auth?: IBackpackAuth,
+): Promise<Result<Uint8Array>> => {
 	try {
-		const client = await clientFactory();
+		const client = await clientFactory(auth);
 
 		return new Promise((resolve) => {
 			client.retrieve(serverInfo, (retrieveErr, channel) => {
 				if (retrieveErr) {
-					resolve(err(retrieveErr));
+					return resolve(err(retrieveErr));
+				}
+
+				if (!channel) {
+					return resolve(err('No channel found'));
 				}
 
 				channel.pipe(
 					new Duplex({
 						write(data, cb): void {
-							resolve(ok(data));
-							cb();
+							const onDone = (): void => {
+								resolve(ok(data));
+								cb();
+							};
+
+							if (!auth) {
+								return onDone();
+							}
+
+							saveAuthDetails(auth).finally(() => {
+								onDone();
+							});
 						},
 					}),
 				);

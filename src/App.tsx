@@ -1,31 +1,17 @@
 import '../shim';
 import React, { memo, ReactElement, useEffect } from 'react';
-import {
-	InteractionManager,
-	Platform,
-	StyleSheet,
-	UIManager,
-} from 'react-native';
+import { Platform, StyleSheet, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { StatusBar, SafeAreaView } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
 import themes from './styles/themes';
-import { getStore } from './store/helpers';
-import { createWallet } from './store/actions/wallet';
-import {
-	startLnd,
-	createLightningWallet,
-	unlockLightningWallet,
-} from './store/actions/lightning';
-import lnd, { ENetworks as LndNetworks } from 'react-native-lightning';
 import Toast from 'react-native-toast-message';
-import { connectToElectrum, refreshWallet } from './utils/wallet';
 import './utils/translations';
-import { startOmnibolt } from './utils/omnibolt';
-import { downloadNeutrinoCache } from './utils/lightning/cachedHeaders';
-import { backupSetup } from './store/actions/backup';
+import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
+import { checkWalletExists, startWalletServices } from './utils/startup';
+import { getStore } from './store/helpers';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -33,57 +19,16 @@ if (Platform.OS === 'android') {
 	}
 }
 
-const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
-const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
-
-const startApp = async (): Promise<void> => {
-	try {
-		InteractionManager.runAfterInteractions(async () => {
-			//Create wallet if none exists.
-			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
-			const walletKeys = Object.keys(wallets);
-			if (!wallets[walletKeys[0]] || !wallets[walletKeys[0]]?.id) {
-				await createWallet({});
-			}
-
-			const electrumResponse = await connectToElectrum({ selectedNetwork });
-			if (electrumResponse.isOk()) {
-				refreshWallet().then();
-			}
-
-			//Create and start omnibolt.
-			startOmnibolt({ selectedWallet }).then();
-
-			downloadNeutrinoCache(lndNetwork)
-				//Start LND no matter the outcome of the download
-				.finally(async () => {
-					await startLnd(lndNetwork);
-
-					// Create or unlock LND wallet
-					const existsRes = await lnd.walletExists(lndNetwork);
-					if (existsRes.isOk() && existsRes.value) {
-						await unlockLightningWallet({
-							password: tempPassword,
-							network: lndNetwork,
-						});
-					} else {
-						//TODO try use same seed as on chain wallet
-						await createLightningWallet({
-							password: tempPassword,
-							mnemonic: '',
-							network: lndNetwork,
-						});
-					}
-				});
-
-			backupSetup().then();
-		});
-	} catch {}
-};
 const App = (): ReactElement => {
+	const { walletExists } = useSelector((state: Store) => state.wallet);
+
 	useEffect(() => {
 		(async (): Promise<void> => {
-			await startApp();
+			await checkWalletExists();
+
+			if (getStore().wallet.walletExists) {
+				await startWalletServices();
+			}
 		})();
 	}, []);
 
@@ -92,7 +37,7 @@ const App = (): ReactElement => {
 		<ThemeProvider theme={themes[settings.theme]}>
 			<StatusBar />
 			<SafeAreaView style={styles.container}>
-				<RootNavigator />
+				{walletExists ? <RootNavigator /> : <OnboardingNavigator />}
 			</SafeAreaView>
 			<Toast ref={(ref): Toast | null => Toast.setRef(ref)} />
 		</ThemeProvider>

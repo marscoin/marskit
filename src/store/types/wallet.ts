@@ -50,6 +50,7 @@ export interface IKeyDerivationPath {
 
 export interface IWallet {
 	loading: boolean;
+	walletExists: boolean;
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
