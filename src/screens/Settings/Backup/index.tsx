@@ -87,19 +87,6 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		marginBottom: 20,
 	},
-	textInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-	},
 });
 
 export default memo(BackupSettings);

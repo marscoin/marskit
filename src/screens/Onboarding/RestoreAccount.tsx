@@ -18,7 +18,7 @@ const OnboardingRestoreAccountScreen = (): ReactElement => {
 
 				{isRestoring ? <ActivityIndicator /> : null}
 
-				<View style={{ display: isRestoring ? 'none' : 'flex' }}>
+				<View style={isRestoring ? styles.hiddenForm : null}>
 					<RegisterForm
 						onAuthDetails={async (auth): Promise<void> => {
 							setIsRestoring(true);
@@ -59,6 +59,9 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		marginBottom: 50,
 		textAlign: 'center',
+	},
+	hiddenForm: {
+		display: 'none',
 	},
 });
 
