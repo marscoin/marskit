@@ -1,6 +1,10 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { ok, Result } from '../../utils/result';
+import { err, ok, Result } from '../../utils/result';
+import { getSelectedWallet } from '../../utils/wallet';
+import { resetKeychainValue } from '../../utils/helpers';
+import { deleteOmniboltId } from '../../utils/omnibolt';
+import { wipeAuthDetails } from '../../utils/backup/backpack';
 
 const dispatch = getDispatch();
 
@@ -20,4 +24,36 @@ export const resetSettingsStore = (): Result<string> => {
 		type: actions.RESET_SETTINGS_STORE,
 	});
 	return ok('');
+};
+
+/**
+ * This method will wipe all data for the specified wallet.
+ * @async
+ * @param {string} [selectedWallet]
+ * @return {Promise<Result<string>>}
+ */
+export const wipeWallet = async ({
+	selectedWallet = undefined,
+}: {
+	selectedWallet?: string | undefined;
+}): Promise<Result<string>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		await Promise.all([
+			resetKeychainValue({ key: selectedWallet }),
+			resetKeychainValue({ key: `${selectedWallet}passphrase` }),
+			deleteOmniboltId({ selectedWallet }),
+			wipeAuthDetails(),
+		]);
+		dispatch({
+			type: actions.WIPE_WALLET,
+		});
+
+		return ok('');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
