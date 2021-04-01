@@ -10,6 +10,7 @@ const backup = (state: IBackup, action): IBackup => {
 				...action.payload,
 			};
 		case actions.RESET_BACKUP_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultBackupShape };
 		default:
 			return {

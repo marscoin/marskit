@@ -11,6 +11,7 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 			};
 
 		case actions.RESET_USER_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultUserShape };
 
 		default:

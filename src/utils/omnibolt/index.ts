@@ -1,5 +1,9 @@
 import { err, ok, Result } from '../result';
-import { getKeychainValue, setKeychainValue } from '../helpers';
+import {
+	getKeychainValue,
+	resetKeychainValue,
+	setKeychainValue,
+} from '../helpers';
 import { getStore } from '../../store/helpers';
 import { ObdApi } from 'omnibolt-js';
 import {
@@ -92,7 +96,7 @@ export const getOmniboltLoginId = async ({
 };
 
 /**
- * Attmepts to create an omnibolt user id if none exists for a given wallet.
+ * Attempts to create an omnibolt user id if none exists for a given wallet.
  * @async
  * @param {string} [selectedWallet]
  * @return {Promise<Result<string>>}
@@ -104,7 +108,7 @@ export const createOmniboltId = async ({
 }): Promise<Result<string>> => {
 	try {
 		if (!selectedWallet) {
-			selectedWallet = getStore().wallet.selectedWallet;
+			selectedWallet = getSelectedWallet();
 		}
 		const omniboltIdResponse = await getOmniboltLoginId({ selectedWallet });
 		if (omniboltIdResponse.isErr()) {
@@ -124,6 +128,38 @@ export const createOmniboltId = async ({
 		return ok(omniboltIdResponse.value);
 	} catch (e) {
 		return err(e);
+	}
+};
+
+/**
+ * Attempts to delete an omnibolt user id for the specified wallet.
+ * @async
+ * @param {string} [selectedWallet]
+ * @return {Promise<Result<boolean>>}
+ */
+export const deleteOmniboltId = async ({
+	selectedWallet = undefined,
+}: {
+	selectedWallet?: string | undefined;
+}): Promise<Result<boolean>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const omniboltKey = getOmniboltKey({ selectedWallet });
+		const keyChainResponse = await getKeychainValue({ key: omniboltKey });
+		if (keyChainResponse.error) {
+			return ok(false);
+		}
+		const response = await resetKeychainValue({
+			key: keyChainResponse.data,
+		});
+		if (response.isErr()) {
+			return ok(false);
+		}
+		return ok(true);
+	} catch (e) {
+		return ok(e);
 	}
 };
 

@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import {
 	resetSettingsStore,
 	updateSettings,
+	wipeWallet,
 } from '../../store/actions/settings';
 import List from '../../components/List';
 import {
@@ -190,6 +191,11 @@ const Settings = ({ navigation }): ReactElement => {
 							resetOmniBoltStore(),
 						]);
 					},
+				},
+				{
+					title: 'Wipe Wallet Data',
+					type: 'button',
+					onPress: wipeWallet,
 				},
 			],
 		},

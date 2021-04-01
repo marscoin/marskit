@@ -46,6 +46,7 @@ const lightning = (state: ILightning, action): ILightning => {
 				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }), //As they just unlocked rather assume they're not in sync //lnrpc.GetInfoResponse.create({ syncedToChain: false })
 			};
 		case actions.RESET_LIGHTNING_STORE:
+		case actions.WIPE_WALLET:
 			return { ...defaultLightningShape };
 		case actions.UPDATE_LIGHTNING_CACHED_NEUTRINO:
 			return {

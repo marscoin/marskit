@@ -3,7 +3,11 @@ import bint from 'bint8array';
 import { Readable, Duplex } from 'streamx';
 import WSStream from 'webnet/websocket';
 import { err, ok, Result } from '../result';
-import { getKeychainValue, setKeychainValue } from '../helpers';
+import {
+	getKeychainValue,
+	resetKeychainValue,
+	setKeychainValue,
+} from '../helpers';
 
 //TODO move to config or .env
 const serverInfo = {
@@ -73,6 +77,21 @@ const saveAuthDetails = async (auth: IBackpackAuth): Promise<void> => {
 		key: BackpackKeychainKeys.password,
 		value: auth.password,
 	});
+};
+
+/**
+ * Wipes backpack auth details from keychain
+ * @returns {Promise<void>}
+ */
+export const wipeAuthDetails = async (): Promise<void> => {
+	await Promise.all([
+		resetKeychainValue({
+			key: BackpackKeychainKeys.username,
+		}),
+		resetKeychainValue({
+			key: BackpackKeychainKeys.password,
+		}),
+	]);
 };
 
 /**
