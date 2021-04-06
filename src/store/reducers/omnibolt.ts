@@ -42,7 +42,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 							...state.wallets[selectedWallet].userData,
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet].userData[selectedNetwork],
-								...action.payload,
+								...action.payload.userData,
 							},
 						},
 					},
@@ -85,9 +85,70 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 							...state.wallets[selectedWallet]?.tempChannels[selectedNetwork],
 							[selectedNetwork]: action.payload.tempChannels,
 						},
+					},
+				},
+			};
+
+		case actions.UPDATE_OMNIBOLT_CHECKPOINT:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
 						checkpoints: {
-							...state.wallets[selectedWallet]?.checkpoints[selectedNetwork],
-							[selectedNetwork]: action.payload.checkpoints,
+							...state.wallets[selectedWallet]?.checkpoints,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet]?.checkpoints[selectedNetwork],
+								[action.payload.channelId]: {
+									checkpoint: action.payload.checkpoint,
+									data: action.payload.data,
+								},
+							},
+						},
+					},
+				},
+			};
+
+		case actions.CLEAR_OMNIBOLT_CHECKPOINT:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						checkpoints: {
+							...state.wallets[selectedWallet]?.checkpoints,
+							[selectedNetwork]: {
+								...action.payload.checkpoints,
+							},
+						},
+					},
+				},
+			};
+
+		case actions.ADD_OMNIBOLT_ADDRESS:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						addressIndex: {
+							...state.wallets[selectedWallet].addressIndex,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].addressIndex[selectedNetwork],
+								...action.payload,
+							},
 						},
 					},
 				},
