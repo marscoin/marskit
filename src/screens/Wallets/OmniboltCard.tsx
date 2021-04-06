@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement, useCallback, useState } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import QR from '../../components/QR';
@@ -15,6 +15,20 @@ const OmniboltCard = (): ReactElement => {
 
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
+	);
+
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+
+	const channels = useSelector(
+		(state: Store) =>
+			state.omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+	);
+
+	const tempChannels = useSelector(
+		(state: Store) =>
+			state.omnibolt.wallets[selectedWallet].tempChannels[selectedNetwork],
 	);
 
 	const navigation = useNavigation();
@@ -43,10 +57,25 @@ const OmniboltCard = (): ReactElement => {
 		setDisplayButtonRow(!displayButtonRow);
 	};
 
+	const channelCount = useCallback((): number => {
+		try {
+			return Object.keys(channels)?.length || 0;
+		} catch (e) {
+			return 0;
+		}
+	}, [channels]);
+	const tempChannelCount = useCallback((): number => {
+		try {
+			return Object.keys(tempChannels)?.length || 0;
+		} catch (e) {
+			return 0;
+		}
+	}, [tempChannels]);
+
 	return (
 		<AssetCard
 			title="Omnibolt"
-			assetBalanceLabel={'Channels: 0'}
+			assetBalanceLabel={`Channels: ${channelCount()}\nTemp Channels ${tempChannelCount()}`}
 			fiatBalanceLabel={'Peers: 0'}
 			asset="omnibolt"
 			onPress={toggleCard}>
