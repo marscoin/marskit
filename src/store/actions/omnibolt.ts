@@ -8,10 +8,15 @@ import {
 	ILogin,
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
-import { IOmniboltConnectData, TOmniboltCheckpoints } from '../types/omnibolt';
+import {
+	IOmniboltConnectData,
+	TOmniboltCheckpoints,
+	TOmniboltCheckpontData,
+} from '../types/omnibolt';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import {
 	createOmniboltId,
+	getNextOmniboltAddress,
 	getOmniboltChannels,
 	getOmniboltUserData,
 } from '../../utils/omnibolt';
@@ -20,6 +25,7 @@ import {
 	ICheckpoint,
 	IMyChannelsData,
 } from '../shapes/omnibolt';
+import { IAddressContent } from '../types/wallet';
 
 const dispatch = getDispatch();
 
@@ -67,45 +73,54 @@ export const connectToOmnibolt = async ({
 	return ok(connectResponse.value);
 };
 
+/**
+ * This method attempts to login to an omnibolt server for a given wallet.
+ * Once logged in, it will save the user data with UPDATE_OMNIBOLT_USERDATA accordingly.
+ * @async
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<Result<ILogin>>}
+ */
 export const loginToOmnibolt = async ({
 	selectedWallet = undefined,
+	selectedNetwork = undefined,
 }: {
-	selectedWallet: string | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 }): Promise<Result<ILogin>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedWallet) {
-			selectedWallet = getStore().wallet.selectedWallet;
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
 		}
 		const loginResponse: Result<ILogin> = await omnibolt.login({
 			selectedWallet,
 		});
 
 		if (loginResponse.isOk()) {
-			onLogin(loginResponse.value).then();
+			const data = loginResponse.value;
+			if (!data) {
+				return err('No data provided.');
+			}
+			if (!data?.nodeAddress) {
+				return err(data.toString());
+			}
+			const payload = {
+				selectedWallet,
+				selectedNetwork,
+				userData: loginResponse.value,
+			};
+			dispatch({
+				type: actions.UPDATE_OMNIBOLT_USERDATA,
+				payload,
+			});
 			return resolve(loginResponse);
 		} else {
 			return err(loginResponse.error.message);
 		}
 	});
-};
-
-/**
- * Passed as a callback to omnibolt-js, this method is used to store and save returned login data.
- * @param data
- * @return {Promise<Result<ILogin>>}
- */
-export const onLogin = async (data: ILogin): Promise<Result<ILogin>> => {
-	if (!data) {
-		return err('No data provided.');
-	}
-	if (!data?.nodeAddress) {
-		return err(data.toString());
-	}
-	dispatch({
-		type: actions.UPDATE_OMNIBOLT_USERDATA,
-		payload: data,
-	});
-	return ok(data);
 };
 
 /**
@@ -192,7 +207,6 @@ export const createOmniboltWallet = async ({
 export interface IUpdateOmniboltChannels {
 	channels: { [key: string]: IGetMyChannelsData };
 	tempChannels: { [key: string]: IGetMyChannelsData };
-	checkpoints: ICheckpoint;
 }
 /**
  * This will query omnibolt for current channels and update the store accordingly.
@@ -221,9 +235,6 @@ export const updateOmniboltChannels = async ({
 	//Get and store channel info
 	let channels: { [key: string]: IMyChannelsData } = {};
 	let tempChannels: { [key: string]: IMyChannelsData } = {};
-	let checkpoints: { [key: string]: TOmniboltCheckpoints } = {};
-	const currentCheckponts = getStore().omnibolt.wallets[selectedWallet]
-		.checkpoints;
 	if (response?.value?.data && selectedNetwork) {
 		const userData = getOmniboltUserData({ selectedNetwork, selectedWallet });
 		if (userData.isErr()) {
@@ -245,24 +256,152 @@ export const updateOmniboltChannels = async ({
 			}),
 		);
 	}
-	//Create a checkpoint for new temp channels.
-	await Promise.all(
-		Object.keys(tempChannels).map((id) => {
-			if (!(id in currentCheckponts)) {
-				checkpoints[id] = 'fundBitcoin';
-			}
-		}),
-	);
 	const payload = {
 		selectedNetwork,
 		selectedWallet,
 		channels,
 		tempChannels,
-		checkpoints,
 	};
 	await dispatch({
 		type: actions.UPDATE_OMNIBOLT_CHANNELS,
 		payload,
 	});
-	return ok({ channels, tempChannels, checkpoints });
+	return ok({ channels, tempChannels });
+};
+
+interface IUpdateOmniboltCheckpoint {
+	data?: TOmniboltCheckpontData;
+	channelId: string | undefined;
+	checkpoint: TOmniboltCheckpoints | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}
+
+/**
+ * This method updates a checkpoint's data and checkpoint id based on the channelId.
+ * @param {TOmniboltCheckpontData} data
+ * @param {string} channelId
+ * @param {TOmniboltCheckpoints} checkpoint
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<Result<IUpdateOmniboltCheckpoint>>}
+ */
+export const updateOmniboltCheckpoint = async ({
+	data = {},
+	channelId = undefined,
+	checkpoint = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: IUpdateOmniboltCheckpoint): Promise<Result<IUpdateOmniboltCheckpoint>> => {
+	if (!channelId) {
+		return err('No channelId specified.');
+	}
+	if (!checkpoint) {
+		return err('No checkpoint specified.');
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+
+	const payload = {
+		selectedWallet,
+		selectedNetwork,
+		channelId,
+		checkpoint,
+		data,
+	};
+
+	await dispatch({
+		type: actions.UPDATE_OMNIBOLT_CHECKPOINT,
+		payload,
+	});
+
+	return ok(payload);
+};
+
+interface IClearOmniboltCheckpoint {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	channelId: string | undefined;
+}
+
+/**
+ * This method removes any previously stored checkpoints for a specified channel id.
+ * @param channelId
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<Result<ICheckpoint>>}
+ */
+export const clearOmniboltCheckpoint = async ({
+	channelId = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: IClearOmniboltCheckpoint): Promise<Result<ICheckpoint>> => {
+	if (!channelId) {
+		return err('No channelId specified.');
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+
+	const checkpoints = getStore().omnibolt.wallets[selectedWallet].checkpoints[
+		selectedNetwork
+	];
+
+	if (channelId in checkpoints) {
+		delete checkpoints[channelId];
+	}
+
+	const payload = {
+		selectedWallet,
+		selectedNetwork,
+		checkpoints,
+	};
+
+	await dispatch({
+		type: actions.CLEAR_OMNIBOLT_CHECKPOINT,
+		payload,
+	});
+
+	return ok(checkpoints);
+};
+
+/**
+ * This method adds a new omnibolt address based on the previous address index.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const addOmniboltAddress = async ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IAddressContent>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const response = await getNextOmniboltAddress({
+		selectedWallet,
+		selectedNetwork,
+	});
+	if (response.isOk()) {
+		const payload = response.value;
+		await dispatch({
+			type: actions.ADD_OMNIBOLT_ADDRESS,
+			payload,
+		});
+		return ok(response.value);
+	} else {
+		return err(response.error);
+	}
 };
