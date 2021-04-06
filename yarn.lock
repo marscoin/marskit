@@ -7970,8 +7970,8 @@ react-native-keychain@^6.2.0:
     bint8array "^1.1.1"
 
 "react-native-lightning@git+ssh://git@github.com/synonymdev/react-native-lightning":
-  version "0.0.17"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-lightning#630f7f9a76654229c424ac76f06ca957277fa9a5"
+  version "0.0.18"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-lightning#9f517c036b67adf290c9ee820306e62fa5ec51c9"
 
 react-native-modal@^11.5.6:
   version "11.6.1"

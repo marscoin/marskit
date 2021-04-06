@@ -9,6 +9,7 @@ import lnd, {
 } from 'react-native-lightning';
 import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
+import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
@@ -101,6 +102,31 @@ export const openMaxChannel = async (): Promise<Result<lnrpc.ChannelPoint>> => {
 	}
 
 	return err(res.error);
+};
+
+/**
+ * Wipes the testnet directory for LND
+ * @returns {Promise<Ok<string>>}
+ */
+export const wipeLndDir = async (): Promise<Result<string>> => {
+	const stateRes = await lnd.currentState();
+
+	if (stateRes.isOk() && stateRes.value.lndRunning) {
+		await lnd.stop();
+
+		//Takes a few seconds to stop the daemon
+		await new Promise((resolve) => setTimeout(resolve, 5000));
+	}
+
+	const existingLndDir = `${RNFS.DocumentDirectoryPath}/lnd`;
+
+	try {
+		await RNFS.unlink(existingLndDir);
+	} catch (e) {
+		return err(e);
+	}
+
+	return ok('LND directory wiped');
 };
 
 //Debug functions to help with development
