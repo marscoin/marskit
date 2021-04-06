@@ -7244,7 +7244,7 @@ object.values@^1.1.0, object.values@^1.1.1:
 
 "omnibolt-js@git+ssh://git@github.com/synonymdev/omnibolt-js":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#a180bdc732c682b9691855a344b0e63fbecd7fcb"
+  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#c5f930700b1a425ab3979ae762565e301d076165"
   dependencies:
     babel "^6.23.0"
 
