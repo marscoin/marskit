@@ -505,8 +505,8 @@ export const connectAndOpenChannel = async ({
 /**
  * Responds to and accepts any channel open attempt.
  * @async
- * @param {IOnChannelOpenAttempt} data
- * @return {Promise<Result<IOnChannelOpenAttempt>>}
+ * @param {TOnChannelOpenAttempt} data
+ * @return {Promise<Result<TOnChannelOpenAttempt>>}
  */
 export const onChannelOpenAttempt = async (
 	data: TOnChannelOpenAttempt,
@@ -515,8 +515,11 @@ export const onChannelOpenAttempt = async (
 		funder_node_address,
 		funder_peer_id,
 		temporary_channel_id,
-		funding_pubkey,
 	} = data.result;
+	const selectedWallet = getSelectedWallet();
+	const selectedNetwork = getSelectedNetwork();
+	const funding_pubkey = getStore().omnibolt.wallets[selectedWallet]
+		.addressIndex[selectedNetwork].publicKey;
 	const response = await obdapi.acceptChannel(
 		funder_node_address,
 		funder_peer_id,
@@ -535,7 +538,10 @@ export const onChannelOpenAttempt = async (
 		}).then();
 		return err(response.error.message);
 	}
-	await updateOmniboltChannels({});
+	await Promise.all([
+		updateOmniboltChannels({}),
+		addOmniboltAddress({ selectedWallet, selectedNetwork }),
+	]);
 	return ok(data);
 };
 
