@@ -7,21 +7,27 @@ import {
 import { getStore } from '../../store/helpers';
 import { ObdApi } from 'omnibolt-js';
 import {
+	IAcceptChannel,
 	IConnect,
+	IFundingBitcoin,
 	IGetMyChannels,
 	ILogin,
-	IOnChannelOpenAttempt,
+	TOnChannelOpenAttempt,
 } from 'omnibolt-js/lib/types/types';
 import {
+	generateAddresses,
 	generateMnemonic,
 	getCurrentWallet,
+	getKeyDerivationPath,
 	getSelectedNetwork,
 	getSelectedWallet,
 } from '../wallet';
 import {
+	addOmniboltAddress,
 	connectToOmnibolt,
 	loginToOmnibolt,
 	updateOmniboltChannels,
+	updateOmniboltCheckpoint,
 } from '../../store/actions/omnibolt';
 import {
 	IOmniboltConnectData,
@@ -32,6 +38,9 @@ import {
 	IssueFixedAmountInfo,
 	OpenChannelInfo,
 } from 'omnibolt-js/lib/types/pojo';
+import { IAddressContent } from '../../store/types/wallet';
+import { resumeFromCheckponts } from './checkpoints';
+
 const obdapi = new ObdApi();
 
 /**
@@ -44,7 +53,11 @@ export const connect = async ({
 }: {
 	url?: string;
 }): Promise<Result<IConnect>> => {
-	return await obdapi.connect({ url });
+	return await obdapi.connect({
+		url,
+		onChannelOpenAttempt,
+		onAcceptChannel,
+	});
 };
 
 /**
@@ -112,6 +125,9 @@ export const createOmniboltId = async ({
 		}
 		const omniboltIdResponse = await getOmniboltLoginId({ selectedWallet });
 		if (omniboltIdResponse.isErr()) {
+			//Create and add initial omnibolt address.
+			await addOmniboltAddress({ selectedWallet });
+
 			const key = getOmniboltKey({ selectedWallet });
 			//Check if key already exists.
 			const response = await getKeychainValue({ key });
@@ -147,14 +163,10 @@ export const deleteOmniboltId = async ({
 			selectedWallet = getSelectedWallet();
 		}
 		const omniboltKey = getOmniboltKey({ selectedWallet });
-		const keyChainResponse = await getKeychainValue({ key: omniboltKey });
-		if (keyChainResponse.error) {
-			return ok(false);
-		}
-		const response = await resetKeychainValue({
-			key: keyChainResponse.data,
+		const resetResponse = await resetKeychainValue({
+			key: omniboltKey,
 		});
-		if (response.isErr()) {
+		if (resetResponse.isErr()) {
 			return ok(false);
 		}
 		return ok(true);
@@ -218,12 +230,19 @@ export const startOmnibolt = async ({
 		}
 
 		//Login using the stored omnibolt user id.
-		const loginResponse = await loginToOmnibolt({ selectedWallet });
+		const loginResponse = await loginToOmnibolt({
+			selectedWallet,
+			selectedNetwork,
+		});
+
 		if (loginResponse.isErr()) {
 			return err(loginResponse.error.message);
 		}
 		//Update available/pending channels
 		await updateOmniboltChannels({ selectedWallet, selectedNetwork });
+
+		await resumeFromCheckponts();
+
 		return ok(loginResponse.value);
 	} catch (e) {
 		console.log(e);
@@ -490,8 +509,8 @@ export const connectAndOpenChannel = async ({
  * @return {Promise<Result<IOnChannelOpenAttempt>>}
  */
 export const onChannelOpenAttempt = async (
-	data: IOnChannelOpenAttempt,
-): Promise<Result<IOnChannelOpenAttempt>> => {
+	data: TOnChannelOpenAttempt,
+): Promise<Result<TOnChannelOpenAttempt>> => {
 	const {
 		funder_node_address,
 		funder_peer_id,
@@ -508,10 +527,81 @@ export const onChannelOpenAttempt = async (
 		},
 	);
 	if (response.isErr()) {
+		//Save data at checkpoint and attempt to accept the channel later.
+		updateOmniboltCheckpoint({
+			channelId: data.result.temporary_channel_id,
+			checkpoint: 'onChannelOpenAttempt',
+			data,
+		}).then();
 		return err(response.error.message);
 	}
 	await updateOmniboltChannels({});
 	return ok(data);
+};
+
+/**
+ * This method returns a new omnibolt address based on the previous address index.
+ * @async
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {<Promise<Result<IAddressContent>>>}
+ */
+export const getNextOmniboltAddress = async ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: undefined | string;
+	selectedNetwork?: undefined | TAvailableNetworks;
+}): Promise<Result<IAddressContent>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	let index = 0;
+	let addressIndex;
+	try {
+		addressIndex = getStore().omnibolt?.wallets[selectedWallet]?.addressIndex[
+			selectedNetwork
+		];
+	} catch {}
+	if (addressIndex && addressIndex?.index >= 0) {
+		index = addressIndex.index + 1;
+	}
+	const keyDerivationPath = getKeyDerivationPath({
+		selectedWallet,
+		selectedNetwork,
+	});
+	const generatedAddress = await generateAddresses({
+		selectedNetwork,
+		selectedWallet,
+		accountType: 'omnibolt',
+		addressType: 'legacy', //TODO: Change this to the user's selected addressType once bech32 is supported by omnibolt.
+		addressAmount: 1,
+		addressIndex: index,
+		changeAddressAmount: 0,
+		keyDerivationPath,
+	});
+	if (generatedAddress.isOk()) {
+		return ok(Object.values(generatedAddress.value.addresses)[0]);
+	} else {
+		return err(generatedAddress.error);
+	}
+};
+
+/**
+ * This method is called when a channel has successfully been accepted.
+ * @param {IAcceptChannel} data
+ */
+export const onAcceptChannel = (data: IAcceptChannel): void => {
+	//TODO: This checkpoint is probably not needed, but being included anyway for the time being.
+	updateOmniboltCheckpoint({
+		channelId: data?.temporary_channel_id,
+		checkpoint: 'onAcceptChannel',
+		data,
+	}).then();
+	updateOmniboltChannels({}).then();
 };
 
 /**
@@ -528,4 +618,44 @@ export const getOmniboltChannels = async (
 		return await obdInstance.getMyChannels();
 	}
 	return await obdapi.getMyChannels();
+};
+
+export const fundingBitcoin = async ({
+	from_address = '',
+	to_address = '',
+	amount = 0, //0.0004
+	miner_fee = 0, //0.0001
+}): Promise<Result<IFundingBitcoin>> => {
+	return await obdapi.fundingBitcoin({
+		from_address,
+		to_address,
+		amount,
+		miner_fee,
+	});
+};
+
+export const onFundingBitcoin = (data): void => {
+	console.log('onFundingBitcoin', data);
+};
+
+export const bitcoinFundingCreated = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	temporary_channel_id = '',
+	funding_tx_hex = '',
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	temporary_channel_id: string;
+	funding_tx_hex: string;
+}): Promise<unknown> => {
+	const info = {
+		temporary_channel_id,
+		funding_tx_hex,
+	};
+	return await obdapi.bitcoinFundingCreated(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
 };
