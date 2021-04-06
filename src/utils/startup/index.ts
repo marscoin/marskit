@@ -56,8 +56,6 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 				await createWallet({});
 			}
 
-			await updateWallet({ walletExists: true });
-
 			const electrumResponse = await connectToElectrum({ selectedNetwork });
 			if (electrumResponse.isOk()) {
 				refreshWallet().then();
