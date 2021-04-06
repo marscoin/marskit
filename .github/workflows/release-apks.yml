@@ -54,3 +54,7 @@ jobs:
           name: Signed App Bundle
           path: android/app/build/outputs/apk/release
           if-no-files-found: error
+
+      - name: curl
+        run: |
+          curl -X POST -H "Content-Type:\ application/json" --data '{"text":"Latest APK builds available here: https://github.com/${{ github.event.repository.owner.name }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"}' ${{ secrets.SLACK_WEBHOOK }}
