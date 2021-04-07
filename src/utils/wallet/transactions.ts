@@ -293,7 +293,10 @@ export const getTotalFee = ({
 				{ [addressType]: outputLength },
 				message,
 			) || fallBackFee;
-		return transactionByteCount * Number(satsPerByte) || fallBackFee;
+		const totalFee = transactionByteCount * Number(satsPerByte);
+		return totalFee > fallBackFee
+			? totalFee
+			: fallBackFee * Number(satsPerByte);
 	} catch {
 		return Number(satsPerByte) * fallBackFee || fallBackFee;
 	}
