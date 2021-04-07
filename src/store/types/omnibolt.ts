@@ -1,5 +1,14 @@
-import { IConnect, ILogin } from 'omnibolt-js/lib/types/types';
-import { IWalletItem } from './wallet';
+import {
+	IAcceptChannel,
+	IBitcoinFundingCreated,
+	IConnect,
+	IFundingBitcoin,
+	ILogin,
+	IOnBitcoinFundingCreated,
+	IOnChannelOpenAttempt,
+	ISendSignedHex100341,
+} from 'omnibolt-js/lib/types/types';
+import { IAddressContent, IWalletItem } from './wallet';
 import { ICheckpoint, IMyChannels } from '../shapes/omnibolt';
 
 export interface IOmniBolt {
@@ -11,10 +20,12 @@ export interface IOmniBolt {
 export interface IOmniBoltWallet {
 	userData: IWalletItem<IOmniBoltUserData>;
 	connectData: IWalletItem<IOmniboltConnectData>;
-	channels: IWalletItem<IChannelData>;
+	channels: IWalletItem<IMyChannels>;
 	tempChannels: IWalletItem<IMyChannels>;
 	peers: IWalletItem<string[]>;
 	checkpoints: IWalletItem<ICheckpoint>;
+	addressIndex: IWalletItem<IAddressContent>; //The next available address index for signing.
+	channelAddresses: IWalletItem<IChannelData> | IWalletItem<{}>; //A key-value index of the most recently used signing address per channel.
 	[key: string]: any;
 }
 
@@ -40,11 +51,12 @@ export enum EOmniBoltConnectData {
 }
 
 export interface IChannelContent {
-	invoiceCheckpoint: string;
-	last_temp_address: IAddressIndex;
-	rsmc_temp_address: IAddressIndex;
-	htlc_temp_address: IAddressIndex;
-	htlc_temp_address_for_he1b: IAddressIndex;
+	fundingAddress: IAddressContent;
+	addressIndex: IAddressContent;
+	last_temp_address: IAddressContent;
+	rsmc_temp_address: IAddressContent;
+	htlc_temp_address: IAddressContent;
+	htlc_temp_address_for_he1b: IAddressContent;
 }
 
 export interface IChannelData {
@@ -65,10 +77,12 @@ export interface IOmniboltConnectData {
 }
 
 export type TOmniboltCheckpoints =
+	| 'onChannelOpenAttempt'
 	| 'channelAccept'
-	| 'onChannelAccept'
+	| 'onAcceptChannel'
 	| 'fundBitcoin'
 	| 'onFundBitcoin'
+	| 'onBitcoinFundingCreated'
 	| 'htlcFindPath'
 	| 'onHtlcFindPath'
 	| 'addHtlc'
@@ -83,3 +97,11 @@ export type TOmniboltCheckpoints =
 	| 'onCloseHtlc'
 	| 'closeHtlcSigned'
 	| 'onCloseHtlcSigned';
+
+export type TOmniboltCheckpontData =
+	| IOnBitcoinFundingCreated
+	| IAcceptChannel
+	| IOnChannelOpenAttempt
+	| IFundingBitcoin
+	| IBitcoinFundingCreated
+	| ISendSignedHex100341;

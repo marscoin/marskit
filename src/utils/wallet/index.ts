@@ -303,6 +303,53 @@ export const generateAddresses = async ({
 	}
 };
 
+/**
+ * Returns private key for the provided address data.
+ * @param {IAddressContent} addressData
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<Result<string>>}
+ */
+export const getPrivateKey = async ({
+	addressData = undefined,
+	selectedWallet = EWallet.defaultWallet,
+	selectedNetwork = EWallet.selectedNetwork,
+}: {
+	addressData: IAddressContent | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<string>> => {
+	try {
+		if (!addressData) {
+			return err('No addressContent specified.');
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const network = networks[selectedNetwork];
+		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
+		if (getMnemonicPhraseResponse.error) {
+			return err(getMnemonicPhraseResponse.data);
+		}
+
+		//Attempt to acquire the bip39Passphrase if available
+		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
+
+		const mnemonic = getMnemonicPhraseResponse.data;
+		const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
+		const root = bip32.fromSeed(seed, network);
+
+		const addressPath = addressData.path;
+		const addressKeypair = root.derivePath(addressPath);
+		return ok(addressKeypair.toWIF());
+	} catch (e) {
+		return err(e);
+	}
+};
+
 export const keyDerivationAccounTypes: {
 	onchain: TKeyDerivationAccount;
 	rgb: TKeyDerivationAccount;
@@ -360,6 +407,9 @@ export const formatKeyDerivationPath = ({
 		}
 		if (!purpose) {
 			purpose = path.purpose;
+		}
+		if (accountType === 'omnibolt') {
+			purpose = '44'; //TODO: Remove once omnibolt supports native segwit.
 		}
 		// coinType of 0 === mainnet && coinType of 1 === testnet
 		let coinType = 0;

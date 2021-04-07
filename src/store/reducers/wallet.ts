@@ -25,6 +25,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 		case actions.CREATE_WALLET:
 			return {
 				...state,
+				walletExists: true,
 				wallets: {
 					...state.wallets,
 					...action.payload,
