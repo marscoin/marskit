@@ -9,7 +9,9 @@ import {
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
 import {
+	IChannelAddresses,
 	IOmniboltConnectData,
+	TChannelAddresses,
 	TOmniboltCheckpoints,
 	TOmniboltCheckpontData,
 } from '../types/omnibolt';
@@ -404,4 +406,110 @@ export const addOmniboltAddress = async ({
 	} else {
 		return err(response.error);
 	}
+};
+
+export interface IUpdateOmniboltChannelAddress {
+	channelId: string;
+	channelAddress: IAddressContent;
+}
+/**
+ * This method updates an associated omnibolt channel address.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TChannelAddresses} channelAddressId
+ * @param {IAddressContent} [channelAddress]
+ * @param {string} channelId
+ */
+export const updateOmniboltChannelAddress = async ({
+	channelId,
+	channelAddressId = 'fundingAddress',
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	channelAddress = undefined,
+}: {
+	channelId: string;
+	channelAddressId: TChannelAddresses;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+	channelAddress?: IAddressContent | undefined;
+}): Promise<Result<IUpdateOmniboltChannelAddress>> => {
+	if (!channelAddress) {
+		return err('No channelAddress specified.');
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!channelAddress) {
+		const response = await addOmniboltAddress({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (response.isErr()) {
+			return err(response.error.message);
+		}
+		channelAddress = response.value;
+	}
+	const payload = {
+		channelId,
+		channelAddressId,
+		channelAddress,
+	};
+	await dispatch({
+		type: actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESS,
+		payload,
+	});
+	return ok(payload);
+};
+
+/**
+ * This method is used to rename a pending channel's temporary channel id to the new channel id.
+ * @param {string} oldChannelId
+ * @param {string} newChannelId
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const renameOmniboltChannelId = async ({
+	oldChannelId,
+	newChannelId,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	oldChannelId: string;
+	newChannelId: string;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IChannelAddresses>> => {
+	if (!oldChannelId) {
+		return err('No oldChannelId specified.');
+	}
+	if (!newChannelId) {
+		return err('No newChannelId specified.');
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	let channelAddresses = getStore().omnibolt.wallets[selectedWallet]
+		.channelAddresses[selectedNetwork];
+	if (!(oldChannelId in channelAddresses)) {
+		return err('Channel ID does not exist.');
+	}
+	channelAddresses[newChannelId] = channelAddresses[oldChannelId];
+	delete channelAddresses[oldChannelId];
+
+	const payload = {
+		selectedWallet,
+		selectedNetwork,
+		channelAddresses,
+	};
+	await dispatch({
+		type: actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESSES_KEY,
+		payload,
+	});
+	return ok(channelAddresses);
 };

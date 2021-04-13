@@ -1,10 +1,21 @@
 import { ICheckpoint } from '../../store/shapes/omnibolt';
-import { onChannelOpenAttempt } from './index';
-import { TOnChannelOpenAttempt } from 'omnibolt-js/lib/types/types';
+import {
+	onChannelOpenAttempt,
+	onBitcoinFundingCreated,
+	onAssetFundingCreated,
+	sendSignedHex101035,
+	onCommitmentTransactionCreated,
+} from './index';
+import {
+	TOnChannelOpenAttempt,
+	TOnBitcoinFundingCreated,
+	TOnAssetFundingCreated,
+	IAssetFundingSigned,
+} from 'omnibolt-js/lib/types/types';
 import { getStore } from '../../store/helpers';
 import { getSelectedNetwork, getSelectedWallet } from '../wallet';
 
-export const resumeFromCheckponts = async (): Promise<void> => {
+export const resumeFromCheckpoints = async (): Promise<void> => {
 	const selectedWallet = getSelectedWallet();
 	const selectedNetwork = getSelectedNetwork();
 	const checkpoints: ICheckpoint = getStore().omnibolt.wallets[selectedWallet]
@@ -14,8 +25,42 @@ export const resumeFromCheckponts = async (): Promise<void> => {
 			const id = checkpoints[channelId].checkpoint;
 			switch (id) {
 				case 'onChannelOpenAttempt':
-					const data: TOnChannelOpenAttempt = checkpoints[channelId].data;
-					onChannelOpenAttempt(data).then();
+					const onChannelOpenAttemptData: TOnChannelOpenAttempt =
+						checkpoints[channelId].data;
+					onChannelOpenAttempt(onChannelOpenAttemptData).then();
+					break;
+				case 'onBitcoinFundingCreated':
+					const onBitcoinFundingCreatedData: TOnBitcoinFundingCreated =
+						checkpoints[channelId].data;
+					onBitcoinFundingCreated({
+						data: onBitcoinFundingCreatedData,
+					}).then();
+					break;
+				case 'onAssetFundingCreated':
+					const onAssetFundingCreatedData: TOnAssetFundingCreated =
+						checkpoints[channelId].data;
+					onAssetFundingCreated({
+						data: onAssetFundingCreatedData,
+					}).then();
+					break;
+				case 'sendSignedHex101035':
+					const sendSignedHex101035Data: {
+						funder_node_address: string;
+						funder_peer_id: string;
+						result: IAssetFundingSigned;
+					} = checkpoints[channelId].data;
+					sendSignedHex101035({
+						funder_node_address: sendSignedHex101035Data.funder_node_address,
+						funder_peer_id: sendSignedHex101035Data.funder_peer_id,
+						data: sendSignedHex101035Data.result,
+						channelId,
+					});
+					break;
+				case 'onCommitmentTransactionCreated':
+					onCommitmentTransactionCreated({
+						data: checkpoints[channelId].data,
+						channelId,
+					});
 					break;
 			}
 		}),

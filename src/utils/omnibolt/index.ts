@@ -8,39 +8,52 @@ import { getStore } from '../../store/helpers';
 import { ObdApi } from 'omnibolt-js';
 import {
 	IAcceptChannel,
+	IAssetFundingSigned,
+	IBitcoinFundingSigned,
 	IConnect,
 	IFundingBitcoin,
 	IGetMyChannels,
 	ILogin,
+	TOnAssetFundingCreated,
+	TOnBitcoinFundingCreated,
 	TOnChannelOpenAttempt,
+	TOnCommitmentTransactionCreated,
+	TSendSignedHex101035,
 } from 'omnibolt-js/lib/types/types';
 import {
 	generateAddresses,
 	generateMnemonic,
 	getCurrentWallet,
 	getKeyDerivationPath,
+	getPrivateKey,
 	getSelectedNetwork,
 	getSelectedWallet,
 } from '../wallet';
 import {
 	addOmniboltAddress,
+	clearOmniboltCheckpoint,
 	connectToOmnibolt,
 	loginToOmnibolt,
+	renameOmniboltChannelId,
+	updateOmniboltChannelAddress,
 	updateOmniboltChannels,
 	updateOmniboltCheckpoint,
 } from '../../store/actions/omnibolt';
 import {
+	IChannelAddress,
 	IOmniboltConnectData,
 	IOmniBoltUserData,
 } from '../../store/types/omnibolt';
-import { TAvailableNetworks } from '../networks';
+import { networks, TAvailableNetworks } from '../networks';
 import {
 	IssueFixedAmountInfo,
 	OpenChannelInfo,
+	SignedInfo101035,
 } from 'omnibolt-js/lib/types/pojo';
 import { IAddressContent } from '../../store/types/wallet';
-import { resumeFromCheckponts } from './checkpoints';
+import { resumeFromCheckpoints } from './checkpoints';
 
+const bitcoin = require('bitcoinjs-lib');
 const obdapi = new ObdApi();
 
 /**
@@ -57,7 +70,433 @@ export const connect = async ({
 		url,
 		onChannelOpenAttempt,
 		onAcceptChannel,
+		onMessage: console.log,
+		onBitcoinFundingCreated: (data: TOnBitcoinFundingCreated) => {
+			updateOmniboltCheckpoint({
+				channelId: data.result.sign_data.temporary_channel_id,
+				checkpoint: 'onBitcoinFundingCreated',
+				data,
+			}).then();
+			onBitcoinFundingCreated({ data });
+		},
+		onAssetFundingCreated: (data: TOnAssetFundingCreated): void => {
+			updateOmniboltCheckpoint({
+				channelId: data.result.sign_data.temporary_channel_id,
+				checkpoint: 'onAssetFundingCreated',
+				data,
+			}).then();
+			onAssetFundingCreated({ data });
+		},
+		onCommitmentTransactionCreated: (
+			data: TOnCommitmentTransactionCreated,
+		): void => {
+			updateOmniboltCheckpoint({
+				channelId: data.result.channel_id,
+				checkpoint: 'onCommitmentTransactionCreated',
+				data,
+			}).then();
+			onCommitmentTransactionCreated({
+				data,
+				channelId: data.result.channel_id,
+			});
+		},
+		onAddHTLC: (data: TOnCommitmentTransactionCreated): any => {
+			console.log('onAddHTLC', data);
+		},
+		onChannelClose: (data) => console.log('onChannelClose', data),
+		onClose: (data) => console.log('onClose', data),
+		onCloseHTLC: (data) => console.log('onCloseHTLC', data),
+		onError: (data) => console.log('onError', data),
+		onForwardR: (data) => console.log('onForwardR', data),
+		onOpen: (data) => console.log('onOpen', data),
+		onSignR: (data) => console.log('onSignR', data),
 	});
+};
+
+/**accMul
+ * This function is used to get accurate multiplication result.
+ *
+ * Explanation: There will be errors in the multiplication result of javascript,
+ * which is more obvious when multiplying two floating-point numbers.
+ * This function returns a more accurate multiplication result.
+ *
+ * @param arg1
+ * @param arg2
+ */
+export const accMul = (arg1, arg2): number => {
+	let m = 0,
+		s1 = arg1.toString(),
+		s2 = arg2.toString();
+
+	try {
+		m += s1.split('.')[1].length;
+	} catch (e) {}
+
+	try {
+		m += s2.split('.')[1].length;
+	} catch (e) {}
+
+	return (
+		(Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) /
+		Math.pow(10, m)
+	);
+};
+
+interface ISignP2SH {
+	is_first_sign: boolean;
+	txhex: string;
+	pubkey_1: string;
+	pubkey_2: string;
+	privkey: string;
+	inputs: any;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}
+
+/**
+ * Sign P2SH address with TransactionBuilder way for 2-2 multi-sig address
+ * @param is_first_sign  Is the first person to sign this transaction?
+ * @param txhex
+ * @param pubkey_1
+ * @param pubkey_2
+ * @param privkey
+ * @param inputs    all of inputs
+ * @param selectedNetwork
+ */
+//TODO: Remove TransactionBuilder and work into existing signing logic.
+export const signP2SH = async ({
+	is_first_sign,
+	txhex,
+	pubkey_1,
+	pubkey_2,
+	privkey,
+	inputs,
+	selectedNetwork,
+}: ISignP2SH): Promise<string> => {
+	if (txhex === '') {
+		return '';
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const network = networks[selectedNetwork];
+	const tx = bitcoin.Transaction.fromHex(txhex);
+	const txb = bitcoin.TransactionBuilder.fromTransaction(tx, network);
+	const pubkeys = [pubkey_1, pubkey_2].map((hex) => Buffer.from(hex, 'hex'));
+	const p2ms = bitcoin.payments.p2ms({ m: 2, pubkeys, network });
+	const p2sh = bitcoin.payments.p2sh({ redeem: p2ms, network });
+	// private key
+	const key = bitcoin.ECPair.fromWIF(privkey, network);
+
+	// Sign all inputs
+	for (let i = 0; i < inputs.length; i++) {
+		let amount = accMul(inputs[i].amount, 100000000);
+		txb.sign(i, key, p2sh.redeem.output, undefined, amount, undefined);
+	}
+
+	if (is_first_sign === true) {
+		// The first person to sign this transaction
+		let firstHex = txb.buildIncomplete().toHex();
+		console.info('First signed - Hex => ' + firstHex);
+		return firstHex;
+	} else {
+		// The second person to sign this transaction
+		let finalHex = txb.build().toHex();
+		console.info('signP2SH - Second signed - Hex = ' + finalHex);
+		return finalHex;
+	}
+};
+
+/**
+ * Another party has successfully funded the channel with Bitcoin. Respond in turn.
+ * @param data
+ * @param [selectedNetwork]
+ * @param [selectedWallet]
+ */
+export const onBitcoinFundingCreated = async ({
+	data,
+	selectedNetwork = undefined,
+	selectedWallet = undefined,
+}: {
+	data: TOnBitcoinFundingCreated;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IBitcoinFundingSigned>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const tempChannelId = data.result.sign_data.temporary_channel_id;
+	const channelContent: IChannelAddress = getStore().omnibolt.wallets[
+		selectedWallet
+	].channelAddresses[selectedNetwork][tempChannelId];
+	const fundingAddress = channelContent.fundingAddress;
+	const privkey = await getPrivateKey({
+		addressData: fundingAddress,
+		selectedNetwork,
+		selectedWallet,
+	});
+	if (privkey.isErr()) {
+		return err(privkey.error.message);
+	}
+	const { funder_node_address, funder_peer_id, sign_data } = data.result;
+	const signed_hex = await signP2SH({
+		is_first_sign: false,
+		txhex: sign_data.hex,
+		pubkey_1: sign_data.pub_key_a,
+		pubkey_2: fundingAddress.publicKey,
+		privkey: privkey.value,
+		inputs: sign_data.inputs,
+		selectedNetwork,
+	});
+	const txid = sign_data.inputs[0].txid;
+	const response = await obdapi.bitcoinFundingSigned(
+		funder_node_address,
+		funder_peer_id,
+		{
+			temporary_channel_id: tempChannelId,
+			funding_txid: txid,
+			approval: true,
+			signed_miner_redeem_transaction_hex: signed_hex,
+		},
+	);
+	if (response.isErr()) {
+		return err(response.error.message);
+	}
+	//Clear checkpoint
+	await clearOmniboltCheckpoint({
+		selectedWallet,
+		selectedNetwork,
+		channelId: tempChannelId,
+	});
+	return ok(response.value);
+};
+
+export const onAssetFundingCreated = async ({
+	data,
+	selectedNetwork = undefined,
+	selectedWallet = undefined,
+}: {
+	data: TOnAssetFundingCreated;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<any>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const tempChannelId = data.result.sign_data.temporary_channel_id;
+		const channelContent: IChannelAddress = getStore().omnibolt.wallets[
+			selectedWallet
+		].channelAddresses[selectedNetwork][tempChannelId];
+		const fundingAddress = channelContent.fundingAddress;
+		const privkey = await getPrivateKey({
+			addressData: fundingAddress,
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (privkey.isErr()) {
+			return err(privkey.error.message);
+		}
+		const { funder_node_address, funder_peer_id, sign_data } = data.result;
+		const signed_hex = await signP2SH({
+			is_first_sign: false,
+			txhex: sign_data.hex,
+			pubkey_1: sign_data.pub_key_a,
+			pubkey_2: sign_data.pub_key_b,
+			privkey: privkey.value,
+			inputs: sign_data.inputs,
+			selectedNetwork,
+		});
+		const response = await obdapi.assetFundingSigned(
+			funder_node_address,
+			funder_peer_id,
+			{
+				temporary_channel_id: tempChannelId,
+				signed_alice_rsmc_hex: signed_hex,
+			},
+		);
+		if (response.isErr()) {
+			return err(response.error.message);
+		}
+		await updateOmniboltCheckpoint({
+			selectedWallet,
+			selectedNetwork,
+			checkpoint: 'sendSignedHex101035',
+			channelId: tempChannelId,
+			data: {
+				funder_node_address,
+				funder_peer_id,
+				result: response.value,
+			},
+		});
+		const sendSignedResponse = await sendSignedHex101035({
+			data: response.value,
+			channelId: tempChannelId,
+			funder_node_address,
+			funder_peer_id,
+		});
+		if (sendSignedResponse.isErr()) {
+			return err(sendSignedResponse.error.message);
+		}
+		//Clear checkpoints and update all temp channel id's to the newly provided channel id.
+		await Promise.all([
+			clearOmniboltCheckpoint({
+				channelId: tempChannelId,
+				selectedWallet,
+				selectedNetwork,
+			}),
+			renameOmniboltChannelId({
+				oldChannelId: tempChannelId,
+				newChannelId: sendSignedResponse.value.result.channel_id,
+				selectedWallet,
+				selectedNetwork,
+			}),
+		]);
+		await updateOmniboltChannels({
+			selectedWallet,
+			selectedNetwork,
+		});
+		await clearOmniboltCheckpoint({
+			channelId: tempChannelId,
+			selectedWallet,
+			selectedNetwork,
+		});
+		return sendSignedResponse;
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const sendSignedHex101035 = async ({
+	data,
+	channelId,
+	funder_node_address,
+	funder_peer_id,
+}: {
+	data: IAssetFundingSigned;
+	channelId: string;
+	funder_node_address: string;
+	funder_peer_id: string;
+}): Promise<Result<TSendSignedHex101035>> => {
+	try {
+		const channel_id = channelId;
+		// Bob sign the tx on client side
+		// NO.1 alice_br_sign_data
+		let br = data.alice_br_sign_data;
+		let inputs = br.inputs;
+		let fundingAddressResponse = await getFundingAddress({
+			channelId,
+		});
+		if (fundingAddressResponse.isErr()) {
+			return err(fundingAddressResponse.error.message);
+		}
+		let privkey = fundingAddressResponse.value.privateKey;
+		let br_hex = await signP2SH({
+			is_first_sign: true,
+			txhex: br.hex,
+			pubkey_1: br.pub_key_a,
+			pubkey_2: br.pub_key_b,
+			privkey,
+			inputs,
+		});
+
+		// NO.2 alice_rd_sign_data
+		let rd = data.alice_rd_sign_data;
+		inputs = rd.inputs;
+		let rd_hex = await signP2SH({
+			is_first_sign: true,
+			txhex: rd.hex,
+			pubkey_1: rd.pub_key_a,
+			pubkey_2: rd.pub_key_b,
+			privkey,
+			inputs,
+		});
+
+		// will send 101035
+		let signedInfo: SignedInfo101035 = {
+			temporary_channel_id: '',
+			rd_signed_hex: '',
+			br_signed_hex: '',
+			br_id: 0,
+		};
+		signedInfo.temporary_channel_id = channel_id;
+		signedInfo.br_signed_hex = br_hex;
+		signedInfo.rd_signed_hex = rd_hex;
+		signedInfo.br_id = br.br_id;
+
+		return await obdapi.sendSignedHex101035(
+			funder_node_address,
+			funder_peer_id,
+			signedInfo,
+		);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Listener for -110351
+ * Acknowledge and accept the funder's commitment transaction.
+ * @param {TOnCommitmentTransactionCreated} data
+ * @param {string} channelId
+ */
+export const onCommitmentTransactionCreated = ({
+	data,
+	channelId,
+}: {
+	data: TOnCommitmentTransactionCreated;
+	channelId: string;
+}): void => {
+	console.log('onCommitmentTransactionCreatedData', data);
+	console.log('channelId', channelId);
+};
+
+export interface IGetFundingAddress extends IAddressContent {
+	privateKey: string;
+}
+export const getFundingAddress = async ({
+	channelId = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	channelId?: string | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Promise<Result<IGetFundingAddress>> => {
+	try {
+		if (!channelId) {
+			return err('No channelId provided.');
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const addressData: IAddressContent = getStore().omnibolt.wallets[
+			selectedWallet
+		].channelAddresses[selectedNetwork][channelId].fundingAddress;
+		const privKeyResult = await getPrivateKey({
+			addressData,
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (privKeyResult.isErr()) {
+			return err(privKeyResult.error.message);
+		}
+		return ok({
+			...addressData,
+			privateKey: privKeyResult.value,
+		});
+	} catch (e) {
+		return err(e);
+	}
 };
 
 /**
@@ -241,7 +680,7 @@ export const startOmnibolt = async ({
 		//Update available/pending channels
 		await updateOmniboltChannels({ selectedWallet, selectedNetwork });
 
-		await resumeFromCheckponts();
+		await resumeFromCheckpoints();
 
 		return ok(loginResponse.value);
 	} catch (e) {
@@ -511,6 +950,7 @@ export const connectAndOpenChannel = async ({
 export const onChannelOpenAttempt = async (
 	data: TOnChannelOpenAttempt,
 ): Promise<Result<TOnChannelOpenAttempt>> => {
+	await addOmniboltAddress({});
 	const {
 		funder_node_address,
 		funder_peer_id,
@@ -518,8 +958,9 @@ export const onChannelOpenAttempt = async (
 	} = data.result;
 	const selectedWallet = getSelectedWallet();
 	const selectedNetwork = getSelectedNetwork();
-	const funding_pubkey = getStore().omnibolt.wallets[selectedWallet]
-		.addressIndex[selectedNetwork].publicKey;
+	const channelAddress = getStore().omnibolt.wallets[selectedWallet]
+		.addressIndex[selectedNetwork];
+	const funding_pubkey = channelAddress.publicKey;
 	const response = await obdapi.acceptChannel(
 		funder_node_address,
 		funder_peer_id,
@@ -541,6 +982,13 @@ export const onChannelOpenAttempt = async (
 	await Promise.all([
 		updateOmniboltChannels({}),
 		addOmniboltAddress({ selectedWallet, selectedNetwork }),
+		updateOmniboltChannelAddress({
+			selectedWallet,
+			selectedNetwork,
+			channelId: temporary_channel_id,
+			channelAddressId: 'fundingAddress',
+			channelAddress,
+		}),
 	]);
 	return ok(data);
 };
@@ -572,7 +1020,11 @@ export const getNextOmniboltAddress = async ({
 			selectedNetwork
 		];
 	} catch {}
-	if (addressIndex && addressIndex?.index >= 0) {
+	if (
+		addressIndex &&
+		addressIndex?.index >= 0 &&
+		addressIndex?.path?.length > 0
+	) {
 		index = addressIndex.index + 1;
 	}
 	const keyDerivationPath = getKeyDerivationPath({
