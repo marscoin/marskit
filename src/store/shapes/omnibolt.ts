@@ -1,11 +1,17 @@
 import {
 	EOmniBoltConnectData,
 	EOmniBoltUserData,
+	IChannelAddress,
 	IOmniBolt,
 	IOmniBoltWallet,
 	TOmniboltCheckpoints,
 } from '../types/omnibolt';
-import { addressIndex, arrayTypeItems, objectTypeItems } from './wallet';
+import {
+	addressContent,
+	addressIndex,
+	arrayTypeItems,
+	objectTypeItems,
+} from './wallet';
 import { IWalletItem } from '../types/wallet';
 import { IGetMyChannelsData } from 'omnibolt-js/lib/types/types';
 
@@ -29,6 +35,15 @@ export interface ICheckpoint {
 const checkpoints: IWalletItem<ICheckpoint> = {
 	bitcoin: {},
 	bitcoinTestnet: {},
+};
+
+export const channelContent: IChannelAddress = {
+	fundingAddress: { ...addressContent },
+	addressIndex: { ...addressContent },
+	last_temp_address: { ...addressContent },
+	rsmc_temp_address: { ...addressContent },
+	htlc_temp_address: { ...addressContent },
+	htlc_temp_address_for_he1b: { ...addressContent },
 };
 
 export interface IMyChannelsData extends IGetMyChannelsData {

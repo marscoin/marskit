@@ -1,6 +1,6 @@
 import actions from '../actions/actions';
 import { IOmniBolt } from '../types/omnibolt';
-import { defaultOmniBoltShape } from '../shapes/omnibolt';
+import { channelContent, defaultOmniBoltShape } from '../shapes/omnibolt';
 
 let selectedWallet = '';
 let selectedNetwork = '';
@@ -78,11 +78,11 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 					[selectedWallet]: {
 						...state.wallets[selectedWallet],
 						channels: {
-							...state.wallets[selectedWallet].channels[selectedNetwork],
+							...state.wallets[selectedWallet].channels,
 							[selectedNetwork]: action.payload.channels,
 						},
 						tempChannels: {
-							...state.wallets[selectedWallet]?.tempChannels[selectedNetwork],
+							...state.wallets[selectedWallet]?.tempChannels,
 							[selectedNetwork]: action.payload.tempChannels,
 						},
 					},
@@ -108,6 +108,51 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 									data: action.payload.data,
 								},
 							},
+						},
+					},
+				},
+			};
+
+		case actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESS:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						channelAddresses: {
+							...state.wallets[selectedWallet]?.channelAddresses,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet]?.channelAddresses[
+									selectedNetwork
+								],
+								[action.payload.channelId]: {
+									...channelContent,
+									[action.payload.channelAddressId]:
+										action.payload.channelAddress,
+								},
+							},
+						},
+					},
+				},
+			};
+
+		case actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESSES_KEY:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						channelAddresses: {
+							...state.wallets[selectedWallet]?.channelAddresses,
+							[selectedNetwork]: action.payload.channelAddresses,
 						},
 					},
 				},
