@@ -17,6 +17,7 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { updateLightingActivityList } from './activity';
+import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
 
 const dispatch = getDispatch();
 
@@ -69,6 +70,7 @@ export const createLightningWallet = ({
 	password,
 	mnemonic,
 	network,
+	multiChanBackup,
 }: ICreateLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const existsRes = await lnd.walletExists(network);
@@ -80,15 +82,27 @@ export const createLightningWallet = ({
 		if (mnemonic) {
 			lndSeed = mnemonic.split(' ');
 		} else {
-			const seedRes = await lnd.genSeed();
-			if (seedRes.isErr()) {
-				return resolve(err(seedRes.error));
-			}
+			let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data;
+			if (seedStr) {
+				lndSeed = seedStr.split(' ');
+			} else {
+				const seedRes = await lnd.genSeed();
+				if (seedRes.isErr()) {
+					return resolve(err(seedRes.error));
+				}
 
-			lndSeed = seedRes.value;
+				lndSeed = seedRes.value;
+			}
 		}
 
-		const createRes = await lnd.createWallet(password, lndSeed);
+		//Generate Mnemonic if none was provided
+		await setKeychainValue({ key: 'lndMnemonic', value: lndSeed.join(' ') });
+
+		const createRes = await lnd.createWallet(
+			password,
+			lndSeed,
+			multiChanBackup,
+		);
 		if (createRes.isErr()) {
 			return resolve(err(createRes.error));
 		}

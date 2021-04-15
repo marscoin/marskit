@@ -22,7 +22,6 @@ function buildRnLightning() {
 		'yarn install\n' +
 		'yarn protobuf\n' +
 		'cd ../../\n' +
-		'cp node_modules/react-native-lightning/dist/rpc.js node_modules/react-native-lightning/src\n' +
 		'sed -i -e "s/dist\\/index.js/src\\/index.ts/g" node_modules/react-native-lightning/package.json\n' +
 		'sed -i -e "s/\\"types\\": \\".\\/dist\\/index.d.ts\\",//g" node_modules/react-native-lightning/package.json\n'
 	)

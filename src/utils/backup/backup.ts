@@ -6,6 +6,7 @@ import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
 import { bytesToHexString } from '../converters';
 import { createWallet } from '../../store/actions/wallet';
+import lnd from 'react-native-lightning';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -52,14 +53,27 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
 			);
 		}
 
-		//TODO LND channels
-		const lnd = new Scheme.LND();
-		lnd.channelState.push('my first channel state');
-		lnd.channelState.push('my second channel state');
+		//LND multi channel backup and seed required to decrypt backup
+		const lndScheme = new Scheme.LND();
+		let lndSeed = (await getKeychainValue({ key: 'lndMnemonic' })).data;
+		if (lndSeed) {
+			lndScheme.seed = lndSeed;
+		}
+
+		const backupRes = await lnd.exportAllChannelBackups();
+		if (backupRes.isErr()) {
+			return err(backupRes.error);
+		}
+
+		lndScheme.multiChanBackup = backupRes.value;
 
 		//TODO omni
 
-		const backup = new Scheme.Backup({ wallets, lnd });
+		const backup = new Scheme.Backup({
+			wallets,
+			lnd: lndScheme,
+			timestampUtc: new Date().getTime(),
+		});
 
 		return ok(Scheme.Backup.encode(backup).finish());
 	} catch (e) {
@@ -140,7 +154,7 @@ export const backupToBackpackServer = async (): Promise<Result<string>> => {
  * Verifies backup stored on backpack server is same as locally created one.
  * @returns {Promise<Err<unknown>>}
  */
-export const verifyFromBackpackServer = async (): Promise<Result<string>> => {
+export const verifyFromBackpackServer = async (): Promise<Result<Date>> => {
 	try {
 		const remoteBackup = await backpackRetrieve();
 		if (remoteBackup.isErr()) {
@@ -152,15 +166,21 @@ export const verifyFromBackpackServer = async (): Promise<Result<string>> => {
 			return err(localBackup.error);
 		}
 
-		if (
-			bytesToHexString(remoteBackup.value) ===
-			bytesToHexString(localBackup.value)
-		) {
-			//TODO return timestamp from remote backup
-			return ok('Verified');
+		if (!remoteBackup.value) {
+			return err('No remote backup');
 		}
 
-		return err('Remote backup out of sync with local backup');
+		//Verify with LND daemon that mutliChannelBackup is correct
+		const remoteBackupDecoded = Scheme.Backup.decode(remoteBackup.value);
+		const lndBackupVerifyRes = await lnd.verifyMultiChannelBackup(
+			remoteBackupDecoded.lnd?.multiChanBackup ?? '',
+		);
+
+		if (lndBackupVerifyRes.isErr()) {
+			return err(lndBackupVerifyRes.error);
+		}
+
+		return ok(new Date(Number(remoteBackupDecoded.timestampUtc)));
 	} catch (e) {
 		return err(e);
 	}

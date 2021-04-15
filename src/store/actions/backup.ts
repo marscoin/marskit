@@ -53,17 +53,9 @@ export const backupSetup = async (): Promise<Result<string>> => {
 	});
 
 	const verifyBackupRes = await verifyFromBackpackServer();
-	if (verifyBackupRes.isErr()) {
-		await dispatch({
-			type: actions.BACKUP_UPDATE,
-			payload: state,
-		});
-
-		//Schedule backup if we receive any sort of error
-		performFullBackup().then();
-	} else {
-		state.backpackSynced = true;
-		//TODO get timestamp from server backup
+	state.backpackSynced = verifyBackupRes.isOk();
+	if (verifyBackupRes.isOk()) {
+		state.lastBackedUp = verifyBackupRes.value;
 	}
 
 	//If they've registered we'll have the username
@@ -71,6 +63,10 @@ export const backupSetup = async (): Promise<Result<string>> => {
 		type: actions.BACKUP_UPDATE,
 		payload: state,
 	});
+
+	if (verifyBackupRes.isErr()) {
+		return err(`Backup not verified. ${verifyBackupRes.error.message}.`);
+	}
 
 	return ok('Backup setup');
 };

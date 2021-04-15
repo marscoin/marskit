@@ -25,6 +25,7 @@ export interface ICreateLightningWallet {
 	mnemonic: string;
 	password: string;
 	network: LndNetworks;
+	multiChanBackup?: string;
 }
 
 export interface IUnlockLightningWallet {
