@@ -89,7 +89,7 @@ export const performFullBackup = async ({
 				performFullBackup({ retries: retries - 1, retryTimeout }).then();
 			}, retryTimeout);
 		}
-		return err('backupRes.error');
+		return err(backupRes.error);
 	}
 
 	await dispatch({

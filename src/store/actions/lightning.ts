@@ -19,6 +19,7 @@ import {
 import { updateLightingActivityList } from './activity';
 import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { performFullBackup } from './backup';
 
 const dispatch = getDispatch();
 
@@ -56,6 +57,14 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: state,
 			});
 		});
+
+		//Any channel opening/closing triggers a new static channel state backup
+		lnd.subscribeToBackups(
+			() => {
+				performFullBackup({ retries: 3, retryTimeout: 1000 });
+			},
+			() => {},
+		);
 
 		refreshLightningTransactions().then();
 		resolve(ok('LND started'));
