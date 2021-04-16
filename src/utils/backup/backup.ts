@@ -4,7 +4,6 @@ import { getStore } from '../../store/helpers';
 import { getKeychainValue } from '../helpers';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
-import { bytesToHexString } from '../converters';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from 'react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
