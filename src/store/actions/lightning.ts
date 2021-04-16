@@ -18,8 +18,11 @@ import {
 } from '../../utils/notifications';
 import { updateLightingActivityList } from './activity';
 import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dispatch = getDispatch();
+
+const password = 'shhhhhhhh123'; //TODO use keychain stored password
 
 /**
  * Starts the LND service
@@ -67,10 +70,7 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
  * @returns {Promise<unknown>}
  */
 export const createLightningWallet = ({
-	password,
-	mnemonic,
 	network,
-	multiChanBackup,
 }: ICreateLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const existsRes = await lnd.walletExists(network);
@@ -79,24 +79,26 @@ export const createLightningWallet = ({
 		}
 
 		let lndSeed: string[] = [];
-		if (mnemonic) {
-			lndSeed = mnemonic.split(' ');
-		} else {
-			let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data;
-			if (seedStr) {
-				lndSeed = seedStr.split(' ');
-			} else {
-				const seedRes = await lnd.genSeed();
-				if (seedRes.isErr()) {
-					return resolve(err(seedRes.error));
-				}
 
-				lndSeed = seedRes.value;
+		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data; //Set if wallet is being restored from a backup
+		if (seedStr) {
+			lndSeed = seedStr.split(' ');
+		} else {
+			const seedRes = await lnd.genSeed();
+			if (seedRes.isErr()) {
+				return resolve(err(seedRes.error));
 			}
+
+			lndSeed = seedRes.value;
 		}
 
 		//Generate Mnemonic if none was provided
 		await setKeychainValue({ key: 'lndMnemonic', value: lndSeed.join(' ') });
+
+		//If we have this in storage still it means we need to restore funds from a backed up channel
+		const multiChanBackup = await AsyncStorage.getItem(
+			'multiChanBackupRestore',
+		);
 
 		const createRes = await lnd.createWallet(
 			password,
@@ -126,7 +128,6 @@ export const createLightningWallet = ({
  * @returns {Promise<unknown>}
  */
 export const unlockLightningWallet = ({
-	password,
 	network,
 }: IUnlockLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {

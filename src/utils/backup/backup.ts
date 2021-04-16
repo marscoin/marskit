@@ -7,6 +7,7 @@ import { backpackRetrieve, backpackStore } from './backpack';
 import { bytesToHexString } from '../converters';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from 'react-native-lightning';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -118,7 +119,11 @@ export const restoreFromBackup = async (
 			});
 		}
 
-		//TODO restore LND channels
+		//Cache static channel state backup for funds to be swept when creating LND wallet
+		const multiChanBackup = backup.lnd?.multiChanBackup;
+		if (multiChanBackup) {
+			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
+		}
 
 		//TODO restore Omni
 

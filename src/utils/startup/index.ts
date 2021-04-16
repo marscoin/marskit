@@ -46,7 +46,6 @@ export const createNewWallet = async (): Promise<Result<string>> => {
 
 export const startWalletServices = async (): Promise<Result<string>> => {
 	const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
-	const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
 
 	try {
 		InteractionManager.runAfterInteractions(async () => {
@@ -74,15 +73,11 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 					const existsRes = await lnd.walletExists(lndNetwork);
 					if (existsRes.isOk() && existsRes.value) {
 						await unlockLightningWallet({
-							password: tempPassword,
 							network: lndNetwork,
 						});
 					} else {
 						await createLightningWallet({
-							password: tempPassword,
-							mnemonic: '',
 							network: lndNetwork,
-							multiChanBackup: undefined, //TODO get this from backup
 						});
 					}
 				});

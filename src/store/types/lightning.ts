@@ -22,13 +22,9 @@ export interface ICachedNeutrinoDBDownloadState {
 }
 
 export interface ICreateLightningWallet {
-	mnemonic: string;
-	password: string;
 	network: LndNetworks;
-	multiChanBackup?: string;
 }
 
 export interface IUnlockLightningWallet {
-	password: string;
 	network: LndNetworks;
 }
