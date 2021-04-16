@@ -88,7 +88,7 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 					title: 'Failed to verify remote backup. Retrying...',
 					message: res.error.message,
 				});
-				performFullBackup().then();
+				performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
 			}
 		});
 

@@ -71,7 +71,10 @@ const BackupSettings = ({ navigation }): ReactElement => {
 					disabled={isBackingUp}
 					onPress={async (): Promise<void> => {
 						setIsBackingUp(true);
-						const backupRes = await performFullBackup();
+						const backupRes = await performFullBackup({
+							retries: 0,
+							retryTimeout: 0,
+						});
 						if (backupRes.isErr()) {
 							showErrorNotification({
 								title: 'Backup Failed',
