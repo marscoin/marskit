@@ -48,6 +48,7 @@ export const wipeWallet = async ({
 			resetKeychainValue({ key: `${selectedWallet}passphrase` }),
 			deleteOmniboltId({ selectedWallet }),
 			wipeAuthDetails(),
+			resetKeychainValue({ key: 'lndMnemonic' }),
 			wipeLndDir(),
 		]);
 		dispatch({

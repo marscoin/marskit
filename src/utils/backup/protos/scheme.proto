@@ -8,6 +8,8 @@ message Backup {
   repeated Wallet wallets = 1;
 
   LND lnd = 2;
+
+  int64 timestampUtc = 3;
 }
 
 message Wallet {
@@ -25,7 +27,6 @@ message Wallet {
 
   KeyDerivationPath keyDerivationPath = 4;
 
-
   enum AddressType {
     bech32 = 0;
     segwit = 1;
@@ -38,6 +39,7 @@ message Wallet {
 }
 
 message LND {
-  repeated string channel_state = 1; //TODO
+  string seed = 1;
+  string multiChanBackup = 2;
 }
 

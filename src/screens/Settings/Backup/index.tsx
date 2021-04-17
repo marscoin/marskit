@@ -13,12 +13,13 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import Store from '../../../store/types';
-import { verifyFromBackpackServer } from '../../../utils/backup/backup';
 import BackupRegisterForm from './RegisterForm';
+import { backupSetup, performFullBackup } from '../../../store/actions/backup';
 
 const BackupSettings = ({ navigation }): ReactElement => {
 	const backupState = useSelector((state: Store) => state.backup);
 	const [isVerifying, setIsVerifying] = useState<boolean>(false);
+	const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
 
 	const lastBackup = backupState.lastBackedUp
 		? backupState.lastBackedUp.toLocaleString()
@@ -48,7 +49,7 @@ const BackupSettings = ({ navigation }): ReactElement => {
 					disabled={isVerifying}
 					onPress={async (): Promise<void> => {
 						setIsVerifying(true);
-						const verifyResult = await verifyFromBackpackServer();
+						const verifyResult = await backupSetup();
 						if (verifyResult.isErr()) {
 							showErrorNotification({
 								title: 'Failed to verify backup',
@@ -62,6 +63,31 @@ const BackupSettings = ({ navigation }): ReactElement => {
 						}
 
 						setIsVerifying(false);
+					}}
+				/>
+
+				<Button
+					text={isBackingUp ? 'Backing up...' : 'Backup now'}
+					disabled={isBackingUp}
+					onPress={async (): Promise<void> => {
+						setIsBackingUp(true);
+						const backupRes = await performFullBackup({
+							retries: 0,
+							retryTimeout: 0,
+						});
+						if (backupRes.isErr()) {
+							showErrorNotification({
+								title: 'Backup Failed',
+								message: backupRes.error.message,
+							});
+						} else {
+							showSuccessNotification({
+								title: 'Success',
+								message: 'Full backup complete',
+							});
+						}
+
+						setIsBackingUp(false);
 					}}
 				/>
 			</ScrollView>

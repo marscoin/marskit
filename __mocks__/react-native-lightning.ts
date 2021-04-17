@@ -18,6 +18,10 @@ class LND {
 			return err(e);
 		}
 	}
+
+	async exportAllChannelBackups(): Promise<Result<string, Error>> {
+		return ok("fake-static-channel-backup")
+	}
 }
 
 import LndConf from 'react-native-lightning/src/lnd.conf';

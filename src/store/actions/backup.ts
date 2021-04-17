@@ -53,17 +53,9 @@ export const backupSetup = async (): Promise<Result<string>> => {
 	});
 
 	const verifyBackupRes = await verifyFromBackpackServer();
-	if (verifyBackupRes.isErr()) {
-		await dispatch({
-			type: actions.BACKUP_UPDATE,
-			payload: state,
-		});
-
-		//Schedule backup if we receive any sort of error
-		performFullBackup().then();
-	} else {
-		state.backpackSynced = true;
-		//TODO get timestamp from server backup
+	state.backpackSynced = verifyBackupRes.isOk();
+	if (verifyBackupRes.isOk()) {
+		state.lastBackedUp = verifyBackupRes.value;
 	}
 
 	//If they've registered we'll have the username
@@ -72,6 +64,10 @@ export const backupSetup = async (): Promise<Result<string>> => {
 		payload: state,
 	});
 
+	if (verifyBackupRes.isErr()) {
+		return err(`Backup not verified. ${verifyBackupRes.error.message}.`);
+	}
+
 	return ok('Backup setup');
 };
 
@@ -79,9 +75,20 @@ export const backupSetup = async (): Promise<Result<string>> => {
  * Triggers a full remote backup
  * @return {Promise<Err<unknown> | Ok<string>>}
  */
-export const performFullBackup = async (): Promise<Result<string>> => {
+export const performFullBackup = async ({
+	retries,
+	retryTimeout,
+}: {
+	retries: number;
+	retryTimeout: number;
+}): Promise<Result<string>> => {
 	const backupRes = await backupToBackpackServer();
 	if (backupRes.isErr()) {
+		if (retries > 1) {
+			setTimeout(() => {
+				performFullBackup({ retries: retries - 1, retryTimeout }).then();
+			}, retryTimeout);
+		}
 		return err(backupRes.error);
 	}
 

@@ -17,8 +17,13 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { updateLightingActivityList } from './activity';
+import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { performFullBackup } from './backup';
 
 const dispatch = getDispatch();
+
+const password = 'shhhhhhhh123'; //TODO use keychain stored password
 
 /**
  * Starts the LND service
@@ -53,6 +58,14 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			});
 		});
 
+		//Any channel opening/closing triggers a new static channel state backup
+		lnd.subscribeToBackups(
+			() => {
+				performFullBackup({ retries: 3, retryTimeout: 1000 });
+			},
+			() => {},
+		);
+
 		refreshLightningTransactions().then();
 		resolve(ok('LND started'));
 	});
@@ -66,8 +79,6 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
  * @returns {Promise<unknown>}
  */
 export const createLightningWallet = ({
-	password,
-	mnemonic,
 	network,
 }: ICreateLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
@@ -77,8 +88,10 @@ export const createLightningWallet = ({
 		}
 
 		let lndSeed: string[] = [];
-		if (mnemonic) {
-			lndSeed = mnemonic.split(' ');
+
+		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data; //Set if wallet is being restored from a backup
+		if (seedStr) {
+			lndSeed = seedStr.split(' ');
 		} else {
 			const seedRes = await lnd.genSeed();
 			if (seedRes.isErr()) {
@@ -88,7 +101,19 @@ export const createLightningWallet = ({
 			lndSeed = seedRes.value;
 		}
 
-		const createRes = await lnd.createWallet(password, lndSeed);
+		//Generate Mnemonic if none was provided
+		await setKeychainValue({ key: 'lndMnemonic', value: lndSeed.join(' ') });
+
+		//If we have this in storage still it means we need to restore funds from a backed up channel
+		const multiChanBackup = await AsyncStorage.getItem(
+			'multiChanBackupRestore',
+		);
+
+		const createRes = await lnd.createWallet(
+			password,
+			lndSeed,
+			multiChanBackup,
+		);
 		if (createRes.isErr()) {
 			return resolve(err(createRes.error));
 		}
@@ -112,7 +137,6 @@ export const createLightningWallet = ({
  * @returns {Promise<unknown>}
  */
 export const unlockLightningWallet = ({
-	password,
 	network,
 }: IUnlockLightningWallet): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {

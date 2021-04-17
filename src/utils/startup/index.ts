@@ -3,7 +3,7 @@ import { createWallet, updateWallet } from '../../store/actions/wallet';
 import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
-import { backupSetup } from '../../store/actions/backup';
+import { backupSetup, performFullBackup } from '../../store/actions/backup';
 import { backpackRetrieve, IBackpackAuth } from '../backup/backpack';
 import { restoreFromBackup } from '../backup/backup';
 import { startOmnibolt } from '../omnibolt';
@@ -14,6 +14,7 @@ import {
 	unlockLightningWallet,
 } from '../../store/actions/lightning';
 import lnd, { ENetworks as LndNetworks } from 'react-native-lightning';
+import { showErrorNotification } from '../notifications';
 
 export const checkWalletExists = async (): Promise<void> => {
 	const getMnemonicPhraseResponse = await getMnemonicPhrase('wallet0');
@@ -45,7 +46,6 @@ export const createNewWallet = async (): Promise<Result<string>> => {
 
 export const startWalletServices = async (): Promise<Result<string>> => {
 	const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
-	const tempPassword = 'shhhhhhhh123'; //TODO use keychain stored password
 
 	try {
 		InteractionManager.runAfterInteractions(async () => {
@@ -73,19 +73,23 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 					const existsRes = await lnd.walletExists(lndNetwork);
 					if (existsRes.isOk() && existsRes.value) {
 						await unlockLightningWallet({
-							password: tempPassword,
 							network: lndNetwork,
 						});
 					} else {
 						await createLightningWallet({
-							password: tempPassword,
-							mnemonic: '',
 							network: lndNetwork,
 						});
 					}
-				});
 
-			backupSetup().then();
+					const res = await backupSetup();
+					if (res.isErr()) {
+						showErrorNotification({
+							title: 'Failed to verify remote backup. Retrying...',
+							message: res.error.message,
+						});
+						performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
+					}
+				});
 		});
 
 		return ok('Wallet started');
