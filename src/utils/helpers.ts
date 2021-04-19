@@ -9,9 +9,10 @@ import {
 } from '../store/types/wallet';
 import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-community/clipboard';
-import { Alert } from 'react-native';
+import { Alert, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from './result';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const promiseTimeout = (
 	ms: number,
@@ -204,4 +205,52 @@ export const reduceValue = ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+export type TVibrate =
+	| 'impactLight'
+	| 'impactMedium'
+	| 'impactHeavy'
+	| 'notificationSuccess'
+	| 'notificationWarning'
+	| 'notificationError'
+	| 'selection'
+	| 'default';
+/**
+ * @param {TVibrate} type
+ * @param {number} [pattern]
+ */
+export const vibrate = ({
+	type = 'impactHeavy',
+	pattern = 1000,
+}: {
+	type: TVibrate;
+	pattern: number;
+}): void => {
+	try {
+		if (type === 'default') {
+			Vibration.vibrate(pattern);
+			return;
+		}
+		const options = {
+			enableVibrateFallback: true,
+			ignoreAndroidSystemSettings: false,
+		};
+		ReactNativeHapticFeedback.trigger(type, options);
+	} catch (e) {
+		console.log(e);
+	}
+};
+
+/**
+ * Shuffles a given array.
+ * @param {any[]} array
+ * @return {any[]}
+ */
+export const shuffleArray = (array): any[] => {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
 };
