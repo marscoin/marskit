@@ -101,6 +101,7 @@ const PinPad = ({
 				setAttemptsRemaining(numAttempts);
 			}
 		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => LayoutAnimation.easeInEaseOut());

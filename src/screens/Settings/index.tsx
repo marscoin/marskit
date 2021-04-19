@@ -19,6 +19,7 @@ import { resetUserStore } from '../../store/actions/user';
 import { resetActivityStore } from '../../store/actions/activity';
 import { resetLightningStore } from '../../store/actions/lightning';
 import { resetOmniBoltStore } from '../../store/actions/omnibolt';
+import { removePin } from '../../utils/settings';
 
 const Settings = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -39,6 +40,8 @@ const Settings = ({ navigation }): ReactElement => {
 		} catch {}
 	};
 
+	const hasPin = useSelector((state: Store) => state.settings.pin);
+
 	const SettingsListData = [
 		{
 			title: 'Settings',
@@ -48,6 +51,21 @@ const Settings = ({ navigation }): ReactElement => {
 					type: 'switch',
 					enabled: settingsTheme === 'dark',
 					onPress: updateTheme,
+				},
+				{
+					title: 'Pin',
+					type: 'switch',
+					enabled: hasPin,
+					onPress: (): void => {
+						if (hasPin) {
+							removePin().then();
+						} else {
+							navigation.navigate('Pin', {
+								pinSetup: !hasPin,
+								navigateBackOnSuccess: true,
+							});
+						}
+					},
 				},
 				{
 					title: 'Fiat Currency Selection',
@@ -61,11 +79,6 @@ const Settings = ({ navigation }): ReactElement => {
 				},
 				{
 					title: 'Biometrics',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-				},
-				{
-					title: 'Pin',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
 				},
