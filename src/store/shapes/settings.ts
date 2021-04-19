@@ -6,7 +6,6 @@ export const defaultSettingsShape: ISettings = {
 	error: false,
 	biometrics: false,
 	pin: false,
-	pinAttemptsRemaining: 5,
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
