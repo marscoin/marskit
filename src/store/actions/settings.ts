@@ -6,6 +6,7 @@ import { resetKeychainValue } from '../../utils/helpers';
 import { deleteOmniboltId } from '../../utils/omnibolt';
 import { wipeAuthDetails } from '../../utils/backup/backpack';
 import { wipeLndDir } from '../../utils/lightning';
+import { removePin } from '../../utils/settings';
 
 const dispatch = getDispatch();
 
@@ -46,6 +47,7 @@ export const wipeWallet = async ({
 		await Promise.all([
 			resetKeychainValue({ key: selectedWallet }),
 			resetKeychainValue({ key: `${selectedWallet}passphrase` }),
+			removePin(),
 			deleteOmniboltId({ selectedWallet }),
 			wipeAuthDetails(),
 			resetKeychainValue({ key: 'lndMnemonic' }),
