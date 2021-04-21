@@ -25,10 +25,30 @@ const BackupSettings = ({ navigation }): ReactElement => {
 		? backupState.lastBackedUp.toLocaleString()
 		: 'Never';
 
+	const isRegistered = !!backupState.username;
+
 	const status =
 		`Registered: ${backupState.username ? '✅' : '❌'}\n` +
 		`Last backed up: ${lastBackup}\n` +
 		`Synced: ${backupState.backpackSynced ? '✅' : '❌'}`;
+
+	const onVerify = async () => {
+		setIsVerifying(true);
+		const verifyResult = await backupSetup();
+		if (verifyResult.isErr()) {
+			showErrorNotification({
+				title: 'Failed to verify backup',
+				message: verifyResult.error.message,
+			});
+		} else {
+			showSuccessNotification({
+				title: 'Success',
+				message: 'Backup verified',
+			});
+		}
+
+		setIsVerifying(false);
+	};
 
 	return (
 		<View style={styles.container}>
@@ -42,54 +62,42 @@ const BackupSettings = ({ navigation }): ReactElement => {
 			<ScrollView>
 				<Text style={styles.status}>{status}</Text>
 
-				{!backupState.username ? <BackupRegisterForm /> : null}
+				{!isRegistered ? <BackupRegisterForm onRegister={onVerify} /> : null}
 
-				<Button
-					text={isVerifying ? 'Verifying...' : 'Verify backup'}
-					disabled={isVerifying}
-					onPress={async (): Promise<void> => {
-						setIsVerifying(true);
-						const verifyResult = await backupSetup();
-						if (verifyResult.isErr()) {
-							showErrorNotification({
-								title: 'Failed to verify backup',
-								message: verifyResult.error.message,
-							});
-						} else {
-							showSuccessNotification({
-								title: 'Success',
-								message: 'Backup verified',
-							});
-						}
+				{isRegistered ? (
+					<>
+						<Button
+							text={isVerifying ? 'Verifying...' : 'Verify backup'}
+							disabled={isVerifying}
+							onPress={onVerify}
+						/>
 
-						setIsVerifying(false);
-					}}
-				/>
+						<Button
+							text={isBackingUp ? 'Backing up...' : 'Backup now'}
+							disabled={isBackingUp}
+							onPress={async (): Promise<void> => {
+								setIsBackingUp(true);
+								const backupRes = await performFullBackup({
+									retries: 0,
+									retryTimeout: 0,
+								});
+								if (backupRes.isErr()) {
+									showErrorNotification({
+										title: 'Backup Failed',
+										message: backupRes.error.message,
+									});
+								} else {
+									showSuccessNotification({
+										title: 'Success',
+										message: 'Full backup complete',
+									});
+								}
 
-				<Button
-					text={isBackingUp ? 'Backing up...' : 'Backup now'}
-					disabled={isBackingUp}
-					onPress={async (): Promise<void> => {
-						setIsBackingUp(true);
-						const backupRes = await performFullBackup({
-							retries: 0,
-							retryTimeout: 0,
-						});
-						if (backupRes.isErr()) {
-							showErrorNotification({
-								title: 'Backup Failed',
-								message: backupRes.error.message,
-							});
-						} else {
-							showSuccessNotification({
-								title: 'Success',
-								message: 'Full backup complete',
-							});
-						}
-
-						setIsBackingUp(false);
-					}}
-				/>
+								setIsBackingUp(false);
+							}}
+						/>
+					</>
+				) : null}
 			</ScrollView>
 		</View>
 	);
