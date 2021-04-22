@@ -224,8 +224,8 @@ export const vibrate = ({
 	type = 'impactHeavy',
 	pattern = 1000,
 }: {
-	type: TVibrate;
-	pattern: number;
+	type?: TVibrate;
+	pattern?: number;
 }): void => {
 	try {
 		if (type === 'default') {
