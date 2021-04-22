@@ -68,6 +68,7 @@ const Biometrics = ({
 			setBiometricData(data);
 			authenticate(`Confirm ${data?.biometryType || ''}`);
 		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const Icon = useCallback(() => getIcon({ biometryData }), [

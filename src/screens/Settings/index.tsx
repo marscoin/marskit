@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
@@ -19,7 +19,9 @@ import { resetUserStore } from '../../store/actions/user';
 import { resetActivityStore } from '../../store/actions/activity';
 import { resetLightningStore } from '../../store/actions/lightning';
 import { resetOmniBoltStore } from '../../store/actions/omnibolt';
-import { removePin } from '../../utils/settings';
+import { removePin, toggleBiometrics } from '../../utils/settings';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import { IsSensorAvailableResult } from '../../components/Biometrics';
 
 const Settings = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -33,6 +35,17 @@ const Settings = ({ navigation }): ReactElement => {
 		(state: Store) => state.backup.backpackSynced,
 	);
 
+	const [biometryData, setBiometricData] = useState<
+		IsSensorAvailableResult | undefined
+	>(undefined);
+
+	useEffect(() => {
+		(async (): Promise<void> => {
+			const data: IsSensorAvailableResult = await ReactNativeBiometrics.isSensorAvailable();
+			setBiometricData(data);
+		})();
+	}, []);
+
 	const updateTheme = (): void => {
 		try {
 			const theme = settingsTheme === 'dark' ? 'light' : 'dark';
@@ -41,6 +54,9 @@ const Settings = ({ navigation }): ReactElement => {
 	};
 
 	const hasPin = useSelector((state: Store) => state.settings.pin);
+	const hasBiometrics = useSelector(
+		(state: Store) => state.settings.biometrics,
+	);
 
 	const SettingsListData = [
 		{
@@ -51,6 +67,7 @@ const Settings = ({ navigation }): ReactElement => {
 					type: 'switch',
 					enabled: settingsTheme === 'dark',
 					onPress: updateTheme,
+					hide: false,
 				},
 				{
 					title: 'Pin',
@@ -66,26 +83,34 @@ const Settings = ({ navigation }): ReactElement => {
 							});
 						}
 					},
+					hide: false,
+				},
+				{
+					title: 'Biometrics',
+					type: 'switch',
+					enabled: hasBiometrics,
+					onPress: (): void => {
+						toggleBiometrics();
+					},
+					hide: !biometryData?.available && !biometryData?.biometryType,
 				},
 				{
 					title: 'Fiat Currency Selection',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Security',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
-				},
-				{
-					title: 'Biometrics',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Two-Factor Authentication',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 			],
 		},
@@ -97,6 +122,7 @@ const Settings = ({ navigation }): ReactElement => {
 					type: 'icon',
 					onPress: (): void => navigation.navigate('BackupSettings'),
 					enabled: true,
+					hide: false,
 				},
 			],
 		},
@@ -107,11 +133,13 @@ const Settings = ({ navigation }): ReactElement => {
 					title: 'LND Logs',
 					type: 'button',
 					onPress: (): void => navigation.navigate('LndLogs'),
+					hide: false,
 				},
 				{
 					title: 'Test commands',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempLightningOptions'),
+					hide: false,
 				},
 			],
 		},
@@ -129,6 +157,7 @@ const Settings = ({ navigation }): ReactElement => {
 							refreshWallet().then();
 						});
 					},
+					hide: false,
 				},
 				{
 					title: 'Manage Seed Phrase',
@@ -136,6 +165,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						navigation.navigate('ManageSeedPhrase');
 					},
+					hide: false,
 				},
 			],
 		},
@@ -148,6 +178,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetSelectedWallet({ selectedWallet });
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset Entire Wallet Store',
@@ -155,6 +186,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetWalletStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset Lightning Store',
@@ -162,6 +194,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetLightningStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset Omnibolt Store',
@@ -169,6 +202,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetOmniBoltStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset Settings Store',
@@ -176,6 +210,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetSettingsStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset Activity Store',
@@ -183,6 +218,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetActivityStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset User Store',
@@ -190,6 +226,7 @@ const Settings = ({ navigation }): ReactElement => {
 					onPress: async (): Promise<void> => {
 						await resetUserStore();
 					},
+					hide: false,
 				},
 				{
 					title: 'Reset All Stores',
@@ -204,11 +241,13 @@ const Settings = ({ navigation }): ReactElement => {
 							resetOmniBoltStore(),
 						]);
 					},
+					hide: false,
 				},
 				{
 					title: 'Wipe Wallet Data',
 					type: 'button',
 					onPress: wipeWallet,
+					hide: false,
 				},
 			],
 		},
@@ -219,36 +258,43 @@ const Settings = ({ navigation }): ReactElement => {
 					title: 'Twitter: @synonym_to',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Telegram',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Website: synonym.to',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Leave A Review',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Report A Bug',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Contribute',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Legal',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 			],
 		},
@@ -259,11 +305,13 @@ const Settings = ({ navigation }): ReactElement => {
 					title: 'Help Centre',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 				{
 					title: 'Email: support@synonym.to',
 					type: 'button',
 					onPress: (): void => navigation.navigate('TempSettings'),
+					hide: false,
 				},
 			],
 		},
