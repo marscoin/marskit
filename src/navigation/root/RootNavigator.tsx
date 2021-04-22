@@ -9,6 +9,7 @@ import LightningInfo from '../../screens/Settings/Lightning/LightningInfo';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 import PinPad from '../../components/PinPad';
+import Biometrics from '../../components/Biometrics';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 
@@ -21,9 +22,18 @@ const navOptionHandler = {
 	detachPreviousScreen: false,
 };
 
+export type TInitialRoutes = 'Drawer' | 'StartPin' | 'Biometrics';
 const RootNavigator = (): ReactElement => {
 	const hasPin = useSelector((state: Store) => state.settings.pin);
-	const initialRouteName = hasPin ? 'StartPin' : 'Drawer';
+	const hasBiometrics = useSelector(
+		(state: Store) => state.settings.biometrics,
+	);
+	let initialRouteName: TInitialRoutes = 'Drawer';
+	if (hasPin) {
+		initialRouteName = 'StartPin';
+	} else if (hasBiometrics) {
+		initialRouteName = 'Biometrics';
+	}
 	return (
 		<NavigationContainer>
 			<Stack.Navigator initialRouteName={initialRouteName}>
@@ -41,7 +51,11 @@ const RootNavigator = (): ReactElement => {
 					{({ navigation }): ReactElement => (
 						<PinPad
 							onSuccess={(): void => {
-								navigation.navigate('Drawer');
+								if (hasBiometrics) {
+									navigation.navigate('Biometrics');
+								} else {
+									navigation.replace('Drawer');
+								}
 							}}
 							pinSetup={false}
 							displayBackButton={false}
@@ -53,6 +67,15 @@ const RootNavigator = (): ReactElement => {
 					component={PinPad}
 					options={navOptionHandler}
 				/>
+				<Stack.Screen name="Biometrics" options={navOptionHandler}>
+					{({ navigation }): ReactElement => (
+						<Biometrics
+							onSuccess={(): void => {
+								navigation.replace('Drawer');
+							}}
+						/>
+					)}
+				</Stack.Screen>
 				<Stack.Screen
 					name="BackupSettings"
 					component={BackupSettings}

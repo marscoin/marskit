@@ -6,9 +6,13 @@ import WelcomeScreen from '../../screens/Onboarding/Welcome';
 import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
 import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
 import PinPad from '../../components/PinPad';
+import Biometrics, {
+	IsSensorAvailableResult,
+} from '../../components/Biometrics';
 import { Text, TouchableOpacity } from '../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,10 +41,29 @@ const OnboardingNavigator = (): ReactElement => {
 							<TouchableOpacity
 								//eslint-disable-next-line react-native/no-inline-styles
 								style={{ alignItems: 'center' }}
-								onPress={(): void => navigation.navigate('Welcome')}>
+								onPress={async (): Promise<void> => {
+									const data: IsSensorAvailableResult = await ReactNativeBiometrics.isSensorAvailable();
+									if (!data.biometryType) {
+										navigation.replace('Welcome');
+									} else {
+										navigation.navigate('Biometrics');
+									}
+								}}>
 								<Text>Skip</Text>
 							</TouchableOpacity>
 						</PinPad>
+					)}
+				</Stack.Screen>
+				<Stack.Screen name="Biometrics" options={navOptionHandler}>
+					{({ navigation }): ReactElement => (
+						<Biometrics onSuccess={(): void => navigation.replace('Welcome')}>
+							<TouchableOpacity
+								//eslint-disable-next-line react-native/no-inline-styles
+								style={{ alignItems: 'center' }}
+								onPress={(): void => navigation.replace('Welcome')}>
+								<Text>Skip</Text>
+							</TouchableOpacity>
+						</Biometrics>
 					)}
 				</Stack.Screen>
 				<Stack.Screen
