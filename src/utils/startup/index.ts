@@ -45,12 +45,14 @@ export const createNewWallet = async (): Promise<Result<string>> => {
 };
 
 export const startWalletServices = async (): Promise<Result<string>> => {
-	const lndNetwork = LndNetworks.testnet; //TODO use the same network as other wallets
-
 	try {
 		InteractionManager.runAfterInteractions(async () => {
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
+			let lndNetwork = LndNetworks.testnet;
+			if (selectedNetwork === 'bitcoin') {
+				lndNetwork = LndNetworks.mainnet;
+			}
 			const walletKeys = Object.keys(wallets);
 			if (!wallets[walletKeys[0]] || !wallets[walletKeys[0]]?.id) {
 				await createWallet({});
