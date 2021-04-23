@@ -254,3 +254,12 @@ export const shuffleArray = (array): any[] => {
 	}
 	return array;
 };
+
+/**
+ * Truncates strings with an ellipses
+ * @param str
+ * @param n
+ * @returns {any}
+ */
+export const truncate = (str, n) =>
+	str.length > n ? str.substr(0, n - 1) + '...' : str;

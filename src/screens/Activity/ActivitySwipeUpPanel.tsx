@@ -7,11 +7,15 @@ import ActivityList from './ActivityList';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
+import { updateSearchFilter } from '../../store/actions/activity';
 
 const ActivitySwipeUpPanel = (): React.ReactElement => {
 	const [showUp, setShowUp] = React.useState(true);
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = themes[settings.theme];
+	const searchFilter = useSelector(
+		(state: Store) => state.activity.searchFilter,
+	);
 
 	const renderContent = (): React.ReactElement => (
 		<View style={styles.container}>
@@ -23,6 +27,8 @@ const ActivitySwipeUpPanel = (): React.ReactElement => {
 					placeholderTextColor={theme.colors.text}
 					placeholder={'Search...'}
 					style={styles.searchInput}
+					onChangeText={(text) => updateSearchFilter(text)}
+					value={searchFilter}
 				/>
 			</ThemedView>
 			<ThemedView color="onSurface" style={styles.content}>
@@ -55,7 +61,7 @@ const styles = StyleSheet.create({
 		height: '100%',
 	},
 	panelHeader: {
-		height: 80,
+		height: 85,
 		display: 'flex',
 		justifyContent: 'flex-end',
 		borderTopRightRadius: 20,

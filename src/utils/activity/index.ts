@@ -70,6 +70,7 @@ export const onChainTransactionsToActivityItems = (
 			address,
 			height,
 			timestamp,
+			messages,
 		} = transactions[txid];
 
 		items.push({
@@ -79,7 +80,7 @@ export const onChainTransactionsToActivityItems = (
 			confirmed: height > 0,
 			value,
 			fee,
-			message: address, //TODO, we might need to have some sort of address labeling
+			message: messages.length > 0 ? messages[0] : address,
 			timestamp,
 		});
 	});
@@ -129,7 +130,10 @@ export const filterActivityItems = (
 
 	items.forEach((item) => {
 		//If there is a search set and it's not found in the message then don't bother continuing
-		if (search && item.message.indexOf(search) === -1) {
+		if (
+			search &&
+			item.message.toLowerCase().indexOf(search.toLowerCase()) === -1
+		) {
 			return;
 		}
 
