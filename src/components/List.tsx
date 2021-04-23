@@ -19,6 +19,7 @@ type ItemData = {
 	type: string;
 	onPress: Function;
 	enabled?: boolean;
+	hide?: boolean;
 };
 
 interface IItem extends ItemData {
@@ -32,7 +33,11 @@ const _Item = ({
 	onPress,
 	navigation,
 	enabled = true,
+	hide = false,
 }: IItem): ReactElement => {
+	if (hide) {
+		return <View />;
+	}
 	const _onPress = (): void => onPress(navigation);
 	if (type === 'switch') {
 		return (
@@ -91,12 +96,20 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 			renderSectionHeader={({ section: { title } }): ReactElement => (
 				<ItemHeader title={title} />
 			)}
-			renderItem={({ item }): ReactElement => (
-				<Item {...item} navigation={navigation} />
-			)}
-			ItemSeparatorComponent={(): ReactElement => (
-				<View style={styles.separator} />
-			)}
+			renderItem={({ item }): ReactElement | null => {
+				if (item.hide === false) {
+					return <Item {...item} navigation={navigation} />;
+				}
+				return null;
+			}}
+			ItemSeparatorComponent={({
+				leadingItem: { hide },
+			}): ReactElement | null => {
+				if (!hide) {
+					return <View style={styles.separator} />;
+				}
+				return null;
+			}}
 			stickySectionHeadersEnabled={true}
 		/>
 	);
