@@ -7,15 +7,9 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 const Header = (): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
-	const openScanner = (): void => {
-		navigation.navigate('Scanner');
-	};
-
 	return (
 		<View style={styles.container}>
-			<View style={styles.leftColumn}>
-				<Ionicons name={'qr-code'} size={30} onPress={openScanner} />
-			</View>
+			<View style={styles.leftColumn} />
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<Feather

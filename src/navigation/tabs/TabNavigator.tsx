@@ -17,6 +17,7 @@ import themes from '../../styles/themes';
 import QR from '../../components/QR';
 import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -83,11 +84,6 @@ const ProfileStack = (): ReactElement => {
 				options={navOptionHandler}
 			/>
 			<Stack.Screen
-				name="Scanner"
-				component={ProfileDetail}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
 				name="ProfileDetail"
 				component={ProfileDetail}
 				options={navOptionHandler}
@@ -119,9 +115,13 @@ const TabNavigator = (): ReactElement => {
 			} => ({
 				tabBarIcon: ({ focused, color, size }): ReactElement => {
 					let iconName;
+
 					switch (route.name) {
 						case t('wallets'):
 							iconName = focused ? 'wallet' : 'wallet-outline';
+							break;
+						case t('scan'):
+							iconName = focused ? 'qr-code' : 'qr-code-outline';
 							break;
 						case t('profile'):
 							iconName = focused ? 'person-circle' : 'person-circle-outline';
@@ -143,6 +143,16 @@ const TabNavigator = (): ReactElement => {
 				keyboardHidesTabBar: true,
 			}}>
 			<Tab.Screen name={t('wallets')} component={WalletsStack} />
+			<Tab.Screen
+				name={t('scan')}
+				component={View}
+				listeners={({ navigation }) => ({
+					tabPress: (event) => {
+						event.preventDefault();
+						navigation.navigate('Scanner');
+					},
+				})}
+			/>
 			<Tab.Screen name={t('profile')} component={ProfileStack} />
 		</Tab.Navigator>
 	);
