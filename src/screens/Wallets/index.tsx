@@ -10,20 +10,23 @@ import Header from './Header';
 import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
+import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 
 const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
 	return (
-		<View style={styles.container}>
-			<Header />
-
-			<ScrollView showsVerticalScrollIndicator={false}>
-				<BitcoinCard />
-				<LightningCard />
-				<OmniboltCard />
-			</ScrollView>
-		</View>
+		<>
+			<View style={styles.container}>
+				<Header />
+				<ScrollView showsVerticalScrollIndicator={false}>
+					<BitcoinCard />
+					<LightningCard />
+					<OmniboltCard />
+				</ScrollView>
+			</View>
+			<ActivitySwipeUpPanel />
+		</>
 	);
 };
 

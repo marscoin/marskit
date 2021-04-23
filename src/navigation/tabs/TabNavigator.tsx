@@ -10,7 +10,6 @@ import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
-import ActivityScreen from '../../screens/Activity';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
@@ -66,6 +65,11 @@ const WalletsStack = (): ReactElement => {
 					...TransitionPresets.ModalSlideFromBottomIOS,
 				}}
 			/>
+			<Stack.Screen
+				name="ActivityDetail"
+				component={ActivityDetail}
+				options={navOptionHandler}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -79,25 +83,13 @@ const ProfileStack = (): ReactElement => {
 				options={navOptionHandler}
 			/>
 			<Stack.Screen
-				name="ProfileDetail"
+				name="Scanner"
 				component={ProfileDetail}
 				options={navOptionHandler}
 			/>
-		</Stack.Navigator>
-	);
-};
-
-const ActivityStack = (): ReactElement => {
-	return (
-		<Stack.Navigator initialRouteName="Activity">
 			<Stack.Screen
-				name="Activity"
-				component={ActivityScreen}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
-				name="ActivityDetail"
-				component={ActivityDetail}
+				name="ProfileDetail"
+				component={ProfileDetail}
 				options={navOptionHandler}
 			/>
 		</Stack.Navigator>
@@ -134,9 +126,6 @@ const TabNavigator = (): ReactElement => {
 						case t('profile'):
 							iconName = focused ? 'person-circle' : 'person-circle-outline';
 							break;
-						case t('activity'):
-							iconName = focused ? 'notifications-circle' : 'notifications';
-							break;
 					}
 					return <Ionicons name={iconName} size={size} color={color} />;
 				},
@@ -155,7 +144,6 @@ const TabNavigator = (): ReactElement => {
 			}}>
 			<Tab.Screen name={t('wallets')} component={WalletsStack} />
 			<Tab.Screen name={t('profile')} component={ProfileStack} />
-			<Tab.Screen name={t('activity')} component={ActivityStack} />
 		</Tab.Navigator>
 	);
 };

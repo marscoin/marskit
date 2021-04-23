@@ -2,16 +2,15 @@ import React, { memo, ReactElement, useState } from 'react';
 import {
 	Text,
 	TouchableOpacity,
-	View,
 	RefreshControl,
 } from '../../styles/components';
-import NavigationHeader from '../../components/NavigationHeader';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
 import { refreshWallet } from '../../utils/wallet';
 import { refreshLightningTransactions } from '../../store/actions/lightning';
+import { useNavigation } from '@react-navigation/native';
 
 const ListItem = ({
 	item,
@@ -39,7 +38,8 @@ const ListItem = ({
 	);
 };
 
-const ActivityScreen = ({ navigation }): ReactElement => {
+const ActivityList = (): ReactElement => {
+	const navigation = useNavigation();
 	const activity = useSelector((state: Store) => state.activity);
 	const [refreshing, setRefreshing] = useState(false);
 
@@ -63,32 +63,30 @@ const ActivityScreen = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<View style={styles.container}>
-			<NavigationHeader title="Activity" isHome={true} />
-			<FlatList
-				data={activity.items}
-				renderItem={renderItem}
-				keyExtractor={(item): string => item.id}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}
-			/>
-		</View>
+		<FlatList
+			data={activity.items}
+			renderItem={renderItem}
+			keyExtractor={(item): string => item.id}
+			refreshControl={
+				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+			}
+		/>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: 'transparent',
 	},
 	item: {
-		padding: 10,
 		borderColor: 'gray',
 		borderBottomWidth: 1,
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
+		backgroundColor: 'transparent',
 	},
 });
 
-export default memo(ActivityScreen);
+export default memo(ActivityList);
