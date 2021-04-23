@@ -71,9 +71,11 @@ const Biometrics = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const Icon = useCallback(() => getIcon({ biometryData }), [
-		biometryData?.biometryType,
-	]);
+	const Icon = useCallback(
+		() => getIcon({ biometryData }),
+		//eslint-disable-next-line react-hooks/exhaustive-deps
+		[biometryData?.biometryType],
+	);
 	const text = useCallback((): string => {
 		try {
 			if (!biometryData?.available || !biometryData?.biometryType) {

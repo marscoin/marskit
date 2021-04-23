@@ -32,7 +32,7 @@ const BackupSettings = ({ navigation }): ReactElement => {
 		`Last backed up: ${lastBackup}\n` +
 		`Synced: ${backupState.backpackSynced ? '✅' : '❌'}`;
 
-	const onVerify = async () => {
+	const onVerify = async (): Promise<void> => {
 		setIsVerifying(true);
 		const verifyResult = await backupSetup();
 		if (verifyResult.isErr()) {
