@@ -27,7 +27,9 @@ const ActivitySwipeUpPanel = (): React.ReactElement => {
 					placeholderTextColor={theme.colors.text}
 					placeholder={'Search...'}
 					style={styles.searchInput}
-					onChangeText={(text) => updateSearchFilter(text)}
+					onChangeText={async (text): Promise<void> =>
+						await updateSearchFilter(text)
+					}
 					value={searchFilter}
 				/>
 			</ThemedView>

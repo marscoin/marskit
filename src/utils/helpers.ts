@@ -261,5 +261,5 @@ export const shuffleArray = (array): any[] => {
  * @param n
  * @returns {any}
  */
-export const truncate = (str, n) =>
+export const truncate = (str, n): string =>
 	str.length > n ? str.substr(0, n - 1) + '...' : str;

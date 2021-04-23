@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import BitcoinIcon from '../../assets/bitcoin-logo.svg';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { truncate } from '../../utils/helpers';
-import { updateActivityList, updateOnChainActivityList } from '../../store/actions/activity';
+import { updateActivityList } from '../../store/actions/activity';
 
 const ListItem = ({
 	item,
@@ -66,7 +66,7 @@ const ListItem = ({
 				<Text>{confirmed ? '✅' : '⌛'}</Text>
 			</View>
 			<View style={styles.col2}>
-				<Text>{truncate(message, 20)}</Text>
+				<Text style={styles.message}>{truncate(message, 20)}</Text>
 				<Text style={styles.date}>
 					{date.toLocaleDateString(undefined, {
 						hour: 'numeric',
@@ -124,10 +124,6 @@ const ActivityList = (): ReactElement => {
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: 'transparent',
-	},
 	item: {
 		minHeight: 60,
 		borderColor: 'gray',

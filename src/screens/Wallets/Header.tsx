@@ -1,6 +1,6 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { Feather, Ionicons, View } from '../../styles/components';
+import { Feather, View } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 

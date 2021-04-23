@@ -146,8 +146,8 @@ const TabNavigator = (): ReactElement => {
 			<Tab.Screen
 				name={t('scan')}
 				component={View}
-				listeners={({ navigation }) => ({
-					tabPress: (event) => {
+				listeners={({ navigation }): any => ({
+					tabPress: (event): void => {
 						event.preventDefault();
 						navigation.navigate('Scanner');
 					},
