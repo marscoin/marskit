@@ -46,7 +46,7 @@ export const lightningPaymentToActivityItem = (
 		id: paymentHash ?? '',
 		activityType: EActivityTypes.lightning,
 		txType: 'sent',
-		confirmed: status === 2,
+		confirmed: status === 'SUCCEEDED',
 		value: Number(value),
 		fee: Number(fee),
 		message: memo,

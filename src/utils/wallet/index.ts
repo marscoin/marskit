@@ -82,12 +82,11 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 			}),
 		]);
 
+		await updateOnChainActivityList();
+
 		return ok('');
 	} catch (e) {
 		return err(e);
-	} finally {
-		//Keep the activity store up to date
-		await updateOnChainActivityList();
 	}
 };
 

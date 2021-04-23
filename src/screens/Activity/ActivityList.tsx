@@ -15,8 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import BitcoinIcon from '../../assets/bitcoin-logo.svg';
 import LightingIcon from '../../assets/lightning-logo.svg';
-import UpIcon from '../../assets/icons/chevron-up.svg';
 import { truncate } from '../../utils/helpers';
+import { updateActivityList, updateOnChainActivityList } from '../../store/actions/activity';
 
 const ListItem = ({
 	item,
@@ -39,11 +39,13 @@ const ListItem = ({
 					width={iconSize}
 				/>
 			);
+			break;
 		}
 		case 'onChain': {
 			walletIcon = (
 				<BitcoinIcon viewBox="0 0 70 70" height={iconSize} width={iconSize} />
 			);
+			break;
 		}
 	}
 
@@ -103,8 +105,9 @@ const ActivityList = (): ReactElement => {
 
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
-		//Refresh wallet and lightning transactions
+		//Refresh wallet and then update activity list
 		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
+		await updateActivityList();
 		setRefreshing(false);
 	};
 
