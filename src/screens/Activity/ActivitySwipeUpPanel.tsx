@@ -27,9 +27,9 @@ const ActivitySwipeUpPanel = (): React.ReactElement => {
 					placeholderTextColor={theme.colors.text}
 					placeholder={'Search...'}
 					style={styles.searchInput}
-					onChangeText={async (text): Promise<void> =>
-						await updateSearchFilter(text)
-					}
+					onChangeText={async (text): Promise<void> => {
+						await updateSearchFilter(text);
+					}}
 					value={searchFilter}
 				/>
 			</ThemedView>
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 		height: '100%',
 	},
 	panelHeader: {
-		height: 85,
+		minHeight: 85,
 		display: 'flex',
 		justifyContent: 'flex-end',
 		borderTopRightRadius: 20,
@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
 	},
 	searchInput: {
 		marginBottom: 20,
-		height: 30,
 		fontSize: 18,
 		borderStyle: 'solid',
 		borderBottomWidth: 1,
