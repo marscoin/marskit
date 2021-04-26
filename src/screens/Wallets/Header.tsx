@@ -1,21 +1,15 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { Feather, Ionicons, View } from '../../styles/components';
+import { Feather, View } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
-	const openScanner = (): void => {
-		navigation.navigate('Scanner');
-	};
-
 	return (
 		<View style={styles.container}>
-			<View style={styles.leftColumn}>
-				<Ionicons name={'qr-code'} size={30} onPress={openScanner} />
-			</View>
+			<View style={styles.leftColumn} />
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<Feather

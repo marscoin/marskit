@@ -59,6 +59,8 @@ export const TextInput = styled.TextInput.attrs(() => ({
 			: props.theme.colors.onSurface};
 	color: ${(props): string =>
 		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	border-color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
 `;
 
 export const RefreshControl = styled.RefreshControl.attrs((props) => ({

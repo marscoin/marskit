@@ -10,7 +10,6 @@ import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
-import ActivityScreen from '../../screens/Activity';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
@@ -18,6 +17,7 @@ import themes from '../../styles/themes';
 import QR from '../../components/QR';
 import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -66,6 +66,11 @@ const WalletsStack = (): ReactElement => {
 					...TransitionPresets.ModalSlideFromBottomIOS,
 				}}
 			/>
+			<Stack.Screen
+				name="ActivityDetail"
+				component={ActivityDetail}
+				options={navOptionHandler}
+			/>
 		</Stack.Navigator>
 	);
 };
@@ -81,23 +86,6 @@ const ProfileStack = (): ReactElement => {
 			<Stack.Screen
 				name="ProfileDetail"
 				component={ProfileDetail}
-				options={navOptionHandler}
-			/>
-		</Stack.Navigator>
-	);
-};
-
-const ActivityStack = (): ReactElement => {
-	return (
-		<Stack.Navigator initialRouteName="Activity">
-			<Stack.Screen
-				name="Activity"
-				component={ActivityScreen}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
-				name="ActivityDetail"
-				component={ActivityDetail}
 				options={navOptionHandler}
 			/>
 		</Stack.Navigator>
@@ -127,15 +115,16 @@ const TabNavigator = (): ReactElement => {
 			} => ({
 				tabBarIcon: ({ focused, color, size }): ReactElement => {
 					let iconName;
+
 					switch (route.name) {
 						case t('wallets'):
 							iconName = focused ? 'wallet' : 'wallet-outline';
 							break;
+						case t('scan'):
+							iconName = focused ? 'qr-code' : 'qr-code-outline';
+							break;
 						case t('profile'):
 							iconName = focused ? 'person-circle' : 'person-circle-outline';
-							break;
-						case t('activity'):
-							iconName = focused ? 'notifications-circle' : 'notifications';
 							break;
 					}
 					return <Ionicons name={iconName} size={size} color={color} />;
@@ -154,8 +143,17 @@ const TabNavigator = (): ReactElement => {
 				keyboardHidesTabBar: true,
 			}}>
 			<Tab.Screen name={t('wallets')} component={WalletsStack} />
+			<Tab.Screen
+				name={t('scan')}
+				component={View}
+				listeners={({ navigation }): any => ({
+					tabPress: (event): void => {
+						event.preventDefault();
+						navigation.navigate('Scanner');
+					},
+				})}
+			/>
 			<Tab.Screen name={t('profile')} component={ProfileStack} />
-			<Tab.Screen name={t('activity')} component={ActivityStack} />
 		</Tab.Navigator>
 	);
 };
