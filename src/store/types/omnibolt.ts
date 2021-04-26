@@ -112,3 +112,9 @@ export type TOmniboltCheckpontData =
 	| IFundingBitcoin
 	| IBitcoinFundingCreated
 	| ISendSignedHex100341;
+
+export interface IUpdateOmniboltChannelSigningData {
+	channelId: string;
+	signingDataKey: string;
+	signingData: IAddressContent | string;
+}
