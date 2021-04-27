@@ -9,11 +9,12 @@ import {
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
 import {
-	IChannelAddresses,
+	IChannelSigningData,
 	IOmniboltConnectData,
-	TChannelAddresses,
+	TSigningDataKey,
 	TOmniboltCheckpoints,
 	TOmniboltCheckpontData,
+	IUpdateOmniboltChannelSigningData,
 } from '../types/omnibolt';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import {
@@ -247,8 +248,8 @@ export const updateOmniboltChannels = async ({
 		await Promise.all(
 			response.value.data.map((channel) => {
 				try {
-					const initiator = userPeerId === channel.peer_ida;
-					const data = { ...channel, initiator };
+					const funder = userPeerId === channel.peer_ida;
+					const data = { ...channel, funder };
 					if (channel.channel_id === '') {
 						tempChannels[channel.temporary_channel_id] = data;
 					} else {
@@ -397,7 +398,11 @@ export const addOmniboltAddress = async ({
 		selectedNetwork,
 	});
 	if (response.isOk()) {
-		const payload = response.value;
+		const payload = {
+			selectedWallet,
+			selectedNetwork,
+			data: response.value,
+		};
 		await dispatch({
 			type: actions.ADD_OMNIBOLT_ADDRESS,
 			payload,
@@ -408,32 +413,28 @@ export const addOmniboltAddress = async ({
 	}
 };
 
-export interface IUpdateOmniboltChannelAddress {
-	channelId: string;
-	channelAddress: IAddressContent;
-}
 /**
  * This method updates an associated omnibolt channel address.
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
- * @param {TChannelAddresses} channelAddressId
- * @param {IAddressContent} [channelAddress]
+ * @param {TSigningDataKey} channelAddressId
+ * @param {IAddressContent | string | undefined} [signingData]
  * @param {string} channelId
  */
-export const updateOmniboltChannelAddress = async ({
+export const updateOmniboltChannelSigningData = async ({
 	channelId,
-	channelAddressId = 'fundingAddress',
+	signingDataKey = 'fundingAddress',
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
-	channelAddress = undefined,
+	signingData = undefined,
 }: {
 	channelId: string;
-	channelAddressId: TChannelAddresses;
+	signingDataKey: TSigningDataKey;
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-	channelAddress?: IAddressContent | undefined;
-}): Promise<Result<IUpdateOmniboltChannelAddress>> => {
-	if (!channelAddress) {
+	signingData?: IAddressContent | string | undefined;
+}): Promise<Result<IUpdateOmniboltChannelSigningData>> => {
+	if (!signingData) {
 		return err('No channelAddress specified.');
 	}
 	if (!selectedWallet) {
@@ -442,7 +443,7 @@ export const updateOmniboltChannelAddress = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	if (!channelAddress) {
+	if (!signingData) {
 		const response = await addOmniboltAddress({
 			selectedWallet,
 			selectedNetwork,
@@ -450,15 +451,15 @@ export const updateOmniboltChannelAddress = async ({
 		if (response.isErr()) {
 			return err(response.error.message);
 		}
-		channelAddress = response.value;
+		signingData = response.value;
 	}
 	const payload = {
 		channelId,
-		channelAddressId,
-		channelAddress,
+		signingDataKey,
+		signingData,
 	};
 	await dispatch({
-		type: actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESS,
+		type: actions.UPDATE_OMNIBOLT_CHANNEL_SIGNING_DATA,
 		payload,
 	});
 	return ok(payload);
@@ -481,7 +482,7 @@ export const renameOmniboltChannelId = async ({
 	newChannelId: string;
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-}): Promise<Result<IChannelAddresses>> => {
+}): Promise<Result<IChannelSigningData>> => {
 	if (!oldChannelId) {
 		return err('No oldChannelId specified.');
 	}
@@ -494,22 +495,23 @@ export const renameOmniboltChannelId = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	let channelAddresses = getStore().omnibolt.wallets[selectedWallet]
-		.channelAddresses[selectedNetwork];
-	if (!(oldChannelId in channelAddresses)) {
+	let signingData = getStore().omnibolt.wallets[selectedWallet].signingData[
+		selectedNetwork
+	];
+	if (!(oldChannelId in signingData)) {
 		return err('Channel ID does not exist.');
 	}
-	channelAddresses[newChannelId] = channelAddresses[oldChannelId];
-	delete channelAddresses[oldChannelId];
+	signingData[newChannelId] = signingData[oldChannelId];
+	delete signingData[oldChannelId];
 
 	const payload = {
 		selectedWallet,
 		selectedNetwork,
-		channelAddresses,
+		signingData,
 	};
 	await dispatch({
 		type: actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESSES_KEY,
 		payload,
 	});
-	return ok(channelAddresses);
+	return ok(signingData);
 };

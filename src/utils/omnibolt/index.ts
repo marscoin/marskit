@@ -35,14 +35,15 @@ import {
 	connectToOmnibolt,
 	loginToOmnibolt,
 	renameOmniboltChannelId,
-	updateOmniboltChannelAddress,
 	updateOmniboltChannels,
+	updateOmniboltChannelSigningData,
 	updateOmniboltCheckpoint,
 } from '../../store/actions/omnibolt';
 import {
-	IChannelAddress,
 	IOmniboltConnectData,
 	IOmniBoltUserData,
+	ISigningData,
+	TSigningDataKey,
 } from '../../store/types/omnibolt';
 import { networks, TAvailableNetworks } from '../networks';
 import {
@@ -52,6 +53,7 @@ import {
 } from 'omnibolt-js/lib/types/pojo';
 import { IAddressContent } from '../../store/types/wallet';
 import { resumeFromCheckpoints } from './checkpoints';
+import { IMyChannelsData } from '../../store/shapes/omnibolt';
 
 const bitcoin = require('bitcoinjs-lib');
 const obdapi = new ObdApi();
@@ -229,10 +231,9 @@ export const onBitcoinFundingCreated = async ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	const tempChannelId = data.result.sign_data.temporary_channel_id;
-	const channelContent: IChannelAddress = getStore().omnibolt.wallets[
-		selectedWallet
-	].channelAddresses[selectedNetwork][tempChannelId];
-	const fundingAddress = channelContent.fundingAddress;
+	const signingData: ISigningData = getStore().omnibolt.wallets[selectedWallet]
+		.signingData[selectedNetwork][tempChannelId];
+	const fundingAddress = signingData.fundingAddress;
 	const privkey = await getPrivateKey({
 		addressData: fundingAddress,
 		selectedNetwork,
@@ -291,10 +292,10 @@ export const onAssetFundingCreated = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const tempChannelId = data.result.sign_data.temporary_channel_id;
-		const channelContent: IChannelAddress = getStore().omnibolt.wallets[
+		const signingData: ISigningData = getStore().omnibolt.wallets[
 			selectedWallet
-		].channelAddresses[selectedNetwork][tempChannelId];
-		const fundingAddress = channelContent.fundingAddress;
+		].signingData[selectedNetwork][tempChannelId];
+		const fundingAddress = signingData.fundingAddress;
 		const privkey = await getPrivateKey({
 			addressData: fundingAddress,
 			selectedNetwork,
@@ -457,6 +458,61 @@ export const onCommitmentTransactionCreated = ({
 	console.log('channelId', channelId);
 };
 
+/**
+ * Determines whether the specified or current userPeerId is the funder of a given channel.
+ * @param {string} channelId
+ * @param {string} [userPeerId]
+ * @param {string} [selectedWallet]
+ * @param {string} [selectedNetwork]
+ */
+export const getIsFunder = ({
+	channelId,
+	userPeerId = undefined,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	channelId: string;
+	userPeerId?: string;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Result<boolean> => {
+	try {
+		if (!channelId) {
+			return err('No channel id provided.');
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		let channelData: IMyChannelsData | undefined;
+		try {
+			channelData = getStore().omnibolt.wallets[selectedWallet].channels[
+				selectedNetwork
+			][channelId];
+		} catch {}
+		if (!channelData) {
+			return err('Unable to find specified channel data.');
+		}
+		if (!userPeerId) {
+			//If no userPeerId is specified assume we are using the currently stored userPeerId.
+			return ok(channelData.funder);
+		}
+		const omniboltUserData = getOmniboltUserData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (omniboltUserData.isErr()) {
+			return err(omniboltUserData.error.message);
+		}
+		userPeerId = omniboltUserData.value?.userPeerId;
+		return ok(channelData.peer_ida === userPeerId);
+	} catch (e) {
+		return err(e);
+	}
+};
+
 export interface IGetFundingAddress extends IAddressContent {
 	privateKey: string;
 }
@@ -481,7 +537,7 @@ export const getFundingAddress = async ({
 		}
 		const addressData: IAddressContent = getStore().omnibolt.wallets[
 			selectedWallet
-		].channelAddresses[selectedNetwork][channelId].fundingAddress;
+		].signingData[selectedNetwork][channelId].fundingAddress;
 		const privKeyResult = await getPrivateKey({
 			addressData,
 			selectedWallet,
@@ -982,12 +1038,12 @@ export const onChannelOpenAttempt = async (
 	await Promise.all([
 		updateOmniboltChannels({}),
 		addOmniboltAddress({ selectedWallet, selectedNetwork }),
-		updateOmniboltChannelAddress({
+		updateOmniboltChannelSigningData({
 			selectedWallet,
 			selectedNetwork,
 			channelId: temporary_channel_id,
-			channelAddressId: 'fundingAddress',
-			channelAddress,
+			signingDataKey: 'fundingAddress',
+			signingData: channelAddress,
 		}),
 	]);
 	return ok(data);
@@ -1116,4 +1172,44 @@ export const bitcoinFundingCreated = async ({
 		recipient_user_peer_id,
 		info,
 	);
+};
+
+/**
+ * Returns omnibolt signing data for the speciied channel id & key.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} channelId
+ * @param {TSigningDataKey} [signingDataKey]
+ * @return {Result<IAddressContent|string>}
+ */
+export const getOmniboltChannelSigningData = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+	channelId,
+	signingDataKey = 'fundingAddress',
+}: {
+	selectedWallet: string | undefined;
+	selectedNetwork: TAvailableNetworks | undefined;
+	channelId: string;
+	signingDataKey: TSigningDataKey;
+}): Result<IAddressContent | string> => {
+	try {
+		if (!channelId) {
+			return err('No channelId specified.');
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const signingData = getStore().omnibolt.wallets[selectedWallet]
+			?.signingData[selectedNetwork][channelId][signingDataKey];
+		if (!signingData) {
+			return err('Unable to retrieve signingData.');
+		}
+		return signingData;
+	} catch (e) {
+		return err(e);
+	}
 };

@@ -25,7 +25,7 @@ export interface IOmniBoltWallet {
 	peers: IWalletItem<string[]>;
 	checkpoints: IWalletItem<ICheckpoint>;
 	addressIndex: IWalletItem<IAddressContent>; //The next available address index for signing.
-	channelAddresses: IWalletItem<IChannelAddresses> | IWalletItem<{}>; //A key-value index of the most recently used signing address per channel.
+	signingData: IWalletItem<IChannelSigningData> | IWalletItem<{}>; //A key-value index of the most recently used signing address per channel.
 	[key: string]: any;
 }
 
@@ -50,25 +50,21 @@ export enum EOmniBoltConnectData {
 	userPeerId = '',
 }
 
-export type TChannelAddresses =
-	| 'fundingAddress'
-	| 'addressIndex'
-	| 'last_temp_address'
-	| 'rsmc_temp_address'
-	| 'htlc_temp_address'
-	| 'htlc_temp_address_for_he1b';
+export type TSigningDataKey = keyof ISigningData;
 
-export interface IChannelAddress {
+export interface ISigningData {
 	fundingAddress: IAddressContent;
 	addressIndex: IAddressContent;
 	last_temp_address: IAddressContent;
 	rsmc_temp_address: IAddressContent;
 	htlc_temp_address: IAddressContent;
 	htlc_temp_address_for_he1b: IAddressContent;
+	cr_hex: string;
+	rr_hex: string;
 }
 
-export interface IChannelAddresses {
-	[key: string]: IChannelAddress;
+export interface IChannelSigningData {
+	[key: string]: ISigningData;
 }
 
 export interface IAddressIndex {
@@ -116,3 +112,9 @@ export type TOmniboltCheckpontData =
 	| IFundingBitcoin
 	| IBitcoinFundingCreated
 	| ISendSignedHex100341;
+
+export interface IUpdateOmniboltChannelSigningData {
+	channelId: string;
+	signingDataKey: string;
+	signingData: IAddressContent | string;
+}

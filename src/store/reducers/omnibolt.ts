@@ -1,6 +1,6 @@
 import actions from '../actions/actions';
 import { IOmniBolt } from '../types/omnibolt';
-import { channelContent, defaultOmniBoltShape } from '../shapes/omnibolt';
+import { defaultOmniBoltShape } from '../shapes/omnibolt';
 
 let selectedWallet = '';
 let selectedNetwork = '';
@@ -113,7 +113,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 				},
 			};
 
-		case actions.UPDATE_OMNIBOLT_CHANNEL_ADDRESS:
+		case actions.UPDATE_OMNIBOLT_CHANNEL_SIGNING_DATA:
 			if (!selectedWallet || !selectedNetwork) {
 				return state;
 			}
@@ -123,16 +123,15 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 					...state.wallets,
 					[selectedWallet]: {
 						...state.wallets[selectedWallet],
-						channelAddresses: {
-							...state.wallets[selectedWallet]?.channelAddresses,
+						signingData: {
+							...state.wallets[selectedWallet]?.signingData,
 							[selectedNetwork]: {
-								...state.wallets[selectedWallet]?.channelAddresses[
-									selectedNetwork
-								],
+								...state.wallets[selectedWallet]?.signingData[selectedNetwork],
 								[action.payload.channelId]: {
-									...channelContent,
-									[action.payload.channelAddressId]:
-										action.payload.channelAddress,
+									...state.wallets[selectedWallet]?.signingData[
+										selectedNetwork
+									][action.payload.channelId],
+									[action.payload.signingDataKey]: action.payload.signingData,
 								},
 							},
 						},
@@ -150,9 +149,9 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 					...state.wallets,
 					[selectedWallet]: {
 						...state.wallets[selectedWallet],
-						channelAddresses: {
-							...state.wallets[selectedWallet]?.channelAddresses,
-							[selectedNetwork]: action.payload.channelAddresses,
+						signingData: {
+							...state.wallets[selectedWallet]?.signingData,
+							[selectedNetwork]: action.payload.signingData,
 						},
 					},
 				},
@@ -191,8 +190,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 						addressIndex: {
 							...state.wallets[selectedWallet].addressIndex,
 							[selectedNetwork]: {
-								...state.wallets[selectedWallet].addressIndex[selectedNetwork],
-								...action.payload,
+								...action.payload.data,
 							},
 						},
 					},
