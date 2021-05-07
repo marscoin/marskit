@@ -309,6 +309,11 @@ export interface ICreateTransaction {
 interface ITargets extends IOutput {
 	script?: Buffer | undefined;
 }
+
+export const createPsbt = async (): Promise<Result<Psbt>> => {
+	return ok(new Psbt());
+};
+
 export const createTransaction = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
@@ -429,8 +434,9 @@ export const createTransaction = ({
 			//Set RBF if supported and prompted via rbf in Settings.
 			setReplaceByFee({ psbt, setRbf: true });
 
-			//Shuffle and add outputs.
-			targets = shuffleArray(targets);
+			// TODO use a deterministic way of ordering targets
+			// targets = shuffleArray(targets);
+			// Add outputs.
 			await Promise.all(
 				targets.map((target) => {
 					//Check if OP_RETURN
