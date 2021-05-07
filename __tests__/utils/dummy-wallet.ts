@@ -1,5 +1,3 @@
-import { IDefaultWalletShape } from '../../src/store/types/wallet';
-
 test.skip('Workaround', () => 1);
 
 export const mnemonic =
