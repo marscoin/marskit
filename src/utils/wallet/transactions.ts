@@ -316,6 +316,12 @@ interface ITargets extends IOutput {
 	script?: Buffer | undefined;
 }
 
+/**
+ * Creates a BIP32Interface from the selected wallet's mnemonic and passphrase
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @returns {Promise<Ok<BIP32Interface> | Err<unknown>>}
+ */
 const getBip32Interface = async (
 	selectedWallet: string,
 	selectedNetwork: TAvailableNetworks,
@@ -344,10 +350,12 @@ const getBip32Interface = async (
 	return ok(root);
 };
 
-//TODO fix doc here
 /**
- * Returns a PSBT that includes the not yet signed funding inputs.
- * @param psbt
+ * Returns a PSBT that includes unsigned funding inputs.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param transactionData
+ * @return {Promise<Ok<Psbt> | Err<unknown>>}
  */
 const createPsbtFromTransactionData = async ({
 	selectedWallet,
@@ -357,7 +365,6 @@ const createPsbtFromTransactionData = async ({
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
 	transactionData: IOnChainTransactionData;
-	shuffleTargets: boolean;
 }): Promise<Result<Psbt>> => {
 	const {
 		utxos = [],
@@ -480,7 +487,12 @@ const createPsbtFromTransactionData = async ({
 	return ok(psbt);
 };
 
-export const createPsbtTransaction = async ({
+/**
+ * Uses the transaction data store to create an unsigned PSBT with funded inputs
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const createFundedPsbtTransaction = async ({
 	selectedWallet,
 	selectedNetwork,
 }: ICreatePsbt): Promise<Result<Psbt>> => {
@@ -501,6 +513,56 @@ export const createPsbtTransaction = async ({
 	});
 };
 
+export const signPsbt = ({
+	selectedWallet,
+	selectedNetwork,
+	psbt,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+	psbt: Psbt;
+}): Promise<Result<Psbt>> => {
+	return new Promise(async (resolve) => {
+		//Loop through and sign our inputs
+		const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
+		if (bip32Res.isErr()) {
+			return resolve(err(bip32Res.error));
+		}
+
+		const root = bip32Res.value;
+
+		const transactionDataRes = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		if (transactionDataRes.isErr()) {
+			return err(transactionDataRes.error.message);
+		}
+
+		const { utxos = [] } = transactionDataRes.value;
+		await Promise.all(
+			utxos.map((utxo, i) => {
+				try {
+					const path = utxo.path;
+					const keyPair = root.derivePath(path);
+					psbt.signInput(i, keyPair);
+				} catch (e) {
+					return resolve(err(e));
+				}
+			}),
+		);
+		psbt.finalizeAllInputs();
+		return resolve(ok(psbt));
+	});
+};
+
+/**
+ * Creates complete signed transaction using the transaction data store
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
 export const createTransaction = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
@@ -513,21 +575,23 @@ export const createTransaction = ({
 			selectedNetwork = getSelectedNetwork();
 		}
 
-		const transactionData = getOnchainTransactionData({
+		const transactionDataRes = getOnchainTransactionData({
 			selectedWallet,
 			selectedNetwork,
 		});
 
-		if (transactionData.isErr()) {
-			return err(transactionData.error.message);
+		if (transactionDataRes.isErr()) {
+			return err(transactionDataRes.error.message);
 		}
+
+		const transactionData = transactionDataRes.value;
 
 		try {
 			//Create PSBT before signing inputs
 			const psbtRes = await createPsbtFromTransactionData({
 				selectedWallet,
 				selectedNetwork,
-				transactionData: transactionData.value,
+				transactionData,
 			});
 
 			if (psbtRes.isErr()) {
@@ -536,26 +600,17 @@ export const createTransaction = ({
 
 			const psbt = psbtRes.value;
 
-			//Loop through and sign our inputs
-			const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
-			if (bip32Res.isErr()) {
-				return err(bip32Res.error);
+			const signedPsbtRes = await signPsbt({
+				selectedWallet,
+				selectedNetwork,
+				psbt,
+			});
+
+			if (signedPsbtRes.isErr()) {
+				return resolve(err(signedPsbtRes.error));
 			}
-			const root = bip32Res.value;
-			const { utxos = [] } = transactionData.value;
-			await Promise.all(
-				utxos.map((utxo, i) => {
-					try {
-						const path = utxo.path;
-						const keyPair = root.derivePath(path);
-						psbt.signInput(i, keyPair);
-					} catch (e) {
-						return resolve(err(e));
-					}
-				}),
-			);
-			psbt.finalizeAllInputs();
-			const rawTx = psbt.extractTransaction().toHex();
+
+			const rawTx = signedPsbtRes.value.extractTransaction().toHex();
 			return resolve(ok(rawTx));
 		} catch (e) {
 			return resolve(err(e));

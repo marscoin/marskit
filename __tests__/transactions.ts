@@ -8,9 +8,11 @@ import { getSelectedWallet } from '../src/utils/wallet';
 import { TAvailableNetworks } from '../src/utils/networks';
 import { mnemonic, walletState } from './utils/dummy-wallet';
 import {
-	createPsbtTransaction,
+	createFundedPsbtTransaction,
 	createTransaction,
+	signPsbt,
 } from '../src/utils/wallet/transactions';
+import { lnrpc } from 'react-native-lightning';
 
 describe('On chain transactions', () => {
 	beforeAll(async () => {
@@ -63,36 +65,56 @@ describe('On chain transactions', () => {
 		const selectedNetwork: TAvailableNetworks = 'bitcoinTestnet';
 		const selectedWallet = getSelectedWallet();
 
-		//TODO use real funding tx detail from a Lnd node
+		//Real funding tx detail from a Lnd node
+		const lndPsbtResponse = lnrpc.ReadyForPsbtFunding.create({
+			fundingAddress:
+				'tb1q2j82upcszm9qtjjy7q845hvqgg3apmmkxnap6qmcn0ry8gn0kgvqvqwzxn',
+			fundingAmount: 123456,
+		});
+
 		await updateOnChainTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {
 				outputs: [
 					{
-						value: 10001,
+						value: Number(lndPsbtResponse.fundingAmount),
 						index: 0,
-						address: '2N4Pe5o1sZKcXdYC3JVVeJKMXCmEZgVEQFa',
+						address: lndPsbtResponse.fundingAddress,
 					},
 				],
 			},
 		});
 
-		const res = await createPsbtTransaction({
+		//Create a funded PSBT that'll be verified by LND
+		const fundedPsbtRes = await createFundedPsbtTransaction({
 			selectedWallet,
 			selectedNetwork,
 		});
-		if (res.isErr()) {
-			expect(res.error.message).toBeUndefined();
+
+		if (fundedPsbtRes.isErr()) {
+			expect(fundedPsbtRes.error.message).toBeUndefined();
 			return;
 		}
 
-		expect(res.value.toBase64()).toEqual(
-			'cHNidP8BAJsCAAAAAqJ9l2KCY1w1TrtG5cf34QWt1xibVBhrgOgKl8+fdsmDAAAAAAAAAAAA1ec3g3uzouINR9rlAwPzix5BVYSeluDdkP16vB3vJ2kAAAAAAAAAAAACEScAAAAAAAAXqRR6QNMm5N4ZNT4r+LPxWzlciLLSQYdF4QEAAAAAABYAFOsQpwZ25gJwvWgu+IP3utx9EOQMAAAAAAABAR9A4gEAAAAAABYAFMVrzRt7p05ZCLwvnEbI19QCGkBvAAEBHxAnAAAAAAAAFgAUsPqfdql0Z8oj9KFrmohp2B2U4SwAAAA=',
+		expect(fundedPsbtRes.value.toBase64()).toEqual(
+			'cHNidP8BAKYCAAAAAqJ9l2KCY1w1TrtG5cf34QWt1xibVBhrgOgKl8+fdsmDAAAAAAAAAAAA1ec3g3uzouINR9rlAwPzix5BVYSeluDdkP16vB3vJ2kAAAAAAAAAAAACQOIBAAAAAAAiACBUjq4HEBbKBcpE8A9aXYBCI9DvdjT6HQN4m8ZDom+yGBYmAAAAAAAAFgAU6xCnBnbmAnC9aC74g/e63H0Q5AwAAAAAAAEBH0DiAQAAAAAAFgAUxWvNG3unTlkIvC+cRsjX1AIaQG8AAQEfECcAAAAAAAAWABSw+p92qXRnyiP0oWuaiGnYHZThLAAAAA==',
+		);
+
+		//Sign the PSBT for LND finalization
+		const signedPsbtRes = await signPsbt({
+			selectedWallet,
+			selectedNetwork,
+			psbt: fundedPsbtRes.value,
+		});
+
+		if (signedPsbtRes.isErr()) {
+			expect(signedPsbtRes.error.message).toBeUndefined();
+			return;
+		}
+
+		expect(signedPsbtRes.value.toBase64()).toEqual(
+			'cHNidP8BAKYCAAAAAqJ9l2KCY1w1TrtG5cf34QWt1xibVBhrgOgKl8+fdsmDAAAAAAAAAAAA1ec3g3uzouINR9rlAwPzix5BVYSeluDdkP16vB3vJ2kAAAAAAAAAAAACQOIBAAAAAAAiACBUjq4HEBbKBcpE8A9aXYBCI9DvdjT6HQN4m8ZDom+yGBYmAAAAAAAAFgAU6xCnBnbmAnC9aC74g/e63H0Q5AwAAAAAAAEBH0DiAQAAAAAAFgAUxWvNG3unTlkIvC+cRsjX1AIaQG8BCGwCSDBFAiEA/CIvEVOcix9kA2QZ7/3FHcFDgG0EB+Gx2HiUGNA/ZXcCIDwF1OSRYGIIa+M3wPyTZBiPGRfyXz9CnbNhqKsnoVdRASEDLoffNiRKOSUtXdo1VZyb5gPF+Bt1EFtdJYd0bPhFAWsAAQEfECcAAAAAAAAWABSw+p92qXRnyiP0oWuaiGnYHZThLAEIawJHMEQCIBHpWaUEXzIdI488QPUlsUJhWSXQG+P20Tgmp1mFCtrrAiAD8ApWIuCuhV7q7yD4xTYcGuSyvCOg4X3iCkBrIjl2cAEhAz48+LJphtXoZVN5RMFdfIhkjg9/pdc7Mu1qZcpETcVMAAAA',
 		);
 	});
-
-	// it('Creates a fully signed transaction from a PSBT', async () => {
-	// 	expect('TODO').toEqual('TODO');
-	// });
 });
