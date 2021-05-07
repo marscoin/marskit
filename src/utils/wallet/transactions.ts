@@ -357,6 +357,7 @@ const createPsbtFromTransactionData = async ({
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
 	transactionData: IOnChainTransactionData;
+	shuffleTargets: boolean;
 }): Promise<Result<Psbt>> => {
 	const {
 		utxos = [],
@@ -446,9 +447,11 @@ const createPsbtFromTransactionData = async ({
 	//Set RBF if supported and prompted via rbf in Settings.
 	setReplaceByFee({ psbt, setRbf: true });
 
-	// TODO use a deterministic way of ordering targets
-	// targets = shuffleArray(targets);
-	// Add outputs.
+	// Shuffle targets if not run from unit test and add outputs.
+	if (process.env.JEST_WORKER_ID === undefined) {
+		targets = shuffleArray(targets);
+	}
+
 	await Promise.all(
 		targets.map((target) => {
 			//Check if OP_RETURN
