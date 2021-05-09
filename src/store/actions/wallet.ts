@@ -352,9 +352,11 @@ export const updateTransactions = ({
 			selectedNetwork,
 			selectedWallet,
 		});
+
 		if (history.isErr()) {
 			return resolve(err(history.error.message));
 		}
+
 		if (!history?.value?.length) {
 			return resolve(ok({}));
 		}
