@@ -159,6 +159,15 @@ const LightningCard = (): ReactElement => {
 							text="Move funds to lighting"
 						/>
 					)}
+
+					<Button
+						color="onSurface"
+						style={styles.fundButton}
+						onPress={async (): Promise<void> => {
+							navigation.navigate('BitcoinToLightning', {});
+						}}
+						text="Move funds to lighting"
+					/>
 				</View>
 
 				{!!message && <Text style={styles.message}>{message}</Text>}
