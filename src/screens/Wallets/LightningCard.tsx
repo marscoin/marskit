@@ -62,7 +62,6 @@ const LightningCard = (): ReactElement => {
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
-		lightning.onChainBalance.confirmedBalance > 0 &&
 		lightning.channelBalance.pendingOpenBalance === 0 &&
 		lightning.channelBalance.balance === 0;
 
@@ -131,43 +130,11 @@ const LightningCard = (): ReactElement => {
 							color="onSurface"
 							style={styles.fundButton}
 							onPress={async (): Promise<void> => {
-								setMessage('Connecting...');
-								setReceiveAddress('');
-								const connectRes = await connectToDefaultPeer();
-								if (
-									connectRes.isErr() &&
-									connectRes.error.message.indexOf('already connected') === -1
-								) {
-									return showErrorNotification({
-										title: 'Failed to move funds to lightning.',
-										message: connectRes.error.message,
-									});
-								}
-
-								showInfoNotification({ message: 'Connected to peer' });
-
-								const openRes = await openMaxChannel();
-								if (openRes.isErr()) {
-									return setMessage(openRes.error.message);
-								}
-
-								showInfoNotification({
-									title: 'Channel opened',
-									message: 'Waiting for confirmations',
-								});
+								navigation.navigate('BitcoinToLightning');
 							}}
 							text="Move funds to lighting"
 						/>
 					)}
-
-					<Button
-						color="onSurface"
-						style={styles.fundButton}
-						onPress={async (): Promise<void> => {
-							navigation.navigate('BitcoinToLightning', {});
-						}}
-						text="Move funds to lighting"
-					/>
 				</View>
 
 				{!!message && <Text style={styles.message}>{message}</Text>}

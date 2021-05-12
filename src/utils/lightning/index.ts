@@ -104,6 +104,33 @@ export const openMaxChannel = async (): Promise<Result<lnrpc.ChannelPoint>> => {
 	return err(res.error);
 };
 
+export const openChannelStream = (
+	sats: number,
+	onUpdate: (state: Result<lnrpc.OpenStatusUpdate>) => void,
+	onDone: () => void,
+): Uint8Array => {
+	//TODO get close address from onchain wallet
+	const closeAddress = 'bcrt1qll79gp5avu90rhg4x67yh6avsej9tcpeg5j0kw';
+
+	const channelId = lnd.openChannelStream(
+		sats,
+		defaultNodePubKey,
+		closeAddress,
+		(res) => {
+			if (res.isErr()) {
+				return onUpdate(err(res.error));
+			}
+
+			onUpdate(ok(res.value));
+		},
+		() => {
+			onDone();
+		},
+	);
+
+	return channelId;
+};
+
 /**
  * Wipes the testnet directory for LND
  * @returns {Promise<Ok<string>>}
