@@ -1,5 +1,5 @@
 import actions from '../actions/actions';
-import { IOmniBolt } from '../types/omnibolt';
+import { IOmniBolt, ISigningData } from '../types/omnibolt';
 import { defaultOmniBoltShape } from '../shapes/omnibolt';
 
 let selectedWallet = '';
@@ -117,6 +117,13 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 			if (!selectedWallet || !selectedNetwork) {
 				return state;
 			}
+			let signingData: ISigningData | {} = {};
+			try {
+				signingData =
+					state.wallets[selectedWallet]?.signingData[selectedNetwork][
+						action.payload.channelId
+					];
+			} catch {}
 			return {
 				...state,
 				wallets: {
@@ -128,9 +135,7 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet]?.signingData[selectedNetwork],
 								[action.payload.channelId]: {
-									...state.wallets[selectedWallet]?.signingData[
-										selectedNetwork
-									][action.payload.channelId],
+									...signingData,
 									[action.payload.signingDataKey]: action.payload.signingData,
 								},
 							},
