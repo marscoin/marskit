@@ -421,7 +421,7 @@ export const addOmniboltAddress = async ({
  * @param {IAddressContent | string | undefined} [signingData]
  * @param {string} channelId
  */
-export const updateOmniboltChannelSigningData = async ({
+export const updateSigningData = async ({
 	channelId,
 	signingDataKey = 'fundingAddress',
 	selectedWallet = undefined,
