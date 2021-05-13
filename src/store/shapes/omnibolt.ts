@@ -40,8 +40,11 @@ export const channelSigningData: ISigningData = {
 	rsmc_temp_address: { ...addressContent },
 	htlc_temp_address: { ...addressContent },
 	htlc_temp_address_for_he1b: { ...addressContent },
-	cr_hex: '',
-	rr_hex: '',
+	kTbSignedHex: '',
+	funding_txid: '',
+	kTempPrivKey: '',
+	kTbSignedHexCR110351: '',
+	kTbSignedHexRR110351: '',
 };
 
 export interface IMyChannelsData extends IGetMyChannelsData {

@@ -5,12 +5,18 @@ import {
 	onAssetFundingCreated,
 	sendSignedHex101035,
 	onCommitmentTransactionCreated,
+	commitmentTransactionAccepted,
+	on110353,
+	ICommitmentTransactionAcceptedCheckpointData,
+	on110352,
 } from './index';
 import {
 	TOnChannelOpenAttempt,
 	TOnBitcoinFundingCreated,
 	TOnAssetFundingCreated,
 	IAssetFundingSigned,
+	TOn110353,
+	TOn110352,
 } from 'omnibolt-js/lib/types/types';
 import { getStore } from '../../store/helpers';
 import { getSelectedNetwork, getSelectedWallet } from '../wallet';
@@ -42,6 +48,21 @@ export const resumeFromCheckpoints = async (): Promise<void> => {
 					onAssetFundingCreated({
 						data: onAssetFundingCreatedData,
 					}).then();
+					break;
+				case 'commitmentTransactionAccepted':
+					const commitmentTransactionAcceptedData: ICommitmentTransactionAcceptedCheckpointData =
+						checkpoints[channelId].data;
+					commitmentTransactionAccepted(
+						commitmentTransactionAcceptedData,
+					).then();
+					break;
+				case 'on110353':
+					const on110353Data: TOn110353 = checkpoints[channelId].data;
+					on110353(on110353Data).then();
+					break;
+				case 'on110352':
+					const on110352Data: TOn110352 = checkpoints[channelId].data;
+					on110352(on110352Data).then();
 					break;
 				case 'sendSignedHex101035':
 					const sendSignedHex101035Data: {
