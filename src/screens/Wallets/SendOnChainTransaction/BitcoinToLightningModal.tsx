@@ -3,13 +3,12 @@
  * @flow strict-local
  */
 
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 import LightningLogo from '../../../assets/lightning-logo.svg';
 import { Feather, TextInput, View, Text } from '../../../styles/components';
 import {
-	setupOnChainTransaction,
 	updateOnChainTransaction,
 	updateWalletBalance,
 } from '../../../store/actions/wallet';
@@ -21,16 +20,11 @@ import {
 import Button from '../../../components/Button';
 import {
 	createFundedPsbtTransaction,
-	getByteCount,
-	getTotalFee,
 	getTransactionOutputValue,
 	signPsbt,
 } from '../../../utils/wallet/transactions';
 import OutputSummary from './OutputSummary';
-import {
-	connectToDefaultPeer,
-	openChannelStream,
-} from '../../../utils/lightning';
+import { openChannelStream } from '../../../utils/lightning';
 import {
 	showErrorNotification,
 	showSuccessNotification,
@@ -40,7 +34,6 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
-import { getCurrentWallet } from '../../../utils/wallet';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
@@ -54,10 +47,6 @@ const BitcoinToLightning = (): ReactElement => {
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-	const { currentWallet } = getCurrentWallet({
-		selectedNetwork,
-		selectedWallet,
-	});
 	const transaction = useTransactionDetails();
 	const balance = useBalance();
 	const changeAddress = useChangeAddress();
@@ -230,6 +219,7 @@ const BitcoinToLightning = (): ReactElement => {
 				message: finalizeRes.error.message,
 			});
 			await onCancel();
+			await resetStore();
 			return;
 		}
 
@@ -244,7 +234,7 @@ const BitcoinToLightning = (): ReactElement => {
 		onClose();
 	};
 
-	const resetStore = async () => {
+	const resetStore = async (): Promise<void> => {
 		await updateOnChainTransaction({
 			selectedNetwork,
 			selectedWallet,
@@ -260,11 +250,7 @@ const BitcoinToLightning = (): ReactElement => {
 	const onCancel = async (): Promise<void> => {
 		if (channelID.length > 0) {
 			await lnd.fundingStateStep(channelID, '', 'cancel');
-			setChannelID(new Uint8Array());
-			setPsbt(new Psbt());
 		}
-
-		await resetStore();
 	};
 
 	const onClose = (): void => {
@@ -274,17 +260,6 @@ const BitcoinToLightning = (): ReactElement => {
 	const setMax = (): void => {
 		setValue(`${balance}`);
 	};
-
-	/**
-	 * Connect to default peer on open and cancel the
-	 * pending channel if exists when the modal is dismissed
-	 */
-	useEffect(() => {
-		connectToDefaultPeer().then();
-		return (): void => {
-			onCancel().then();
-		};
-	}, []);
 
 	const showConfirm = psbt.txInputs.length > 0;
 
@@ -340,6 +315,7 @@ const BitcoinToLightning = (): ReactElement => {
 				color={'onSurface'}
 				text="Cancel"
 				onPress={async (): Promise<void> => {
+					await resetStore();
 					await onCancel();
 					onClose();
 				}}

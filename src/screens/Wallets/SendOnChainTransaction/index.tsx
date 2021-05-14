@@ -294,28 +294,12 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		padding: 5,
 	},
-	addressText: {
-		textAlign: 'center',
-	},
 	row: {
 		flexDirection: 'row',
 		justifyContent: 'space-evenly',
 	},
 	summary: {
 		marginVertical: 20,
-	},
-	summaryContainer: {
-		marginVertical: 5,
-	},
-	summaryLeft: {
-		flex: 1,
-		alignItems: 'flex-end',
-		marginRight: 10,
-	},
-	summaryRight: {
-		flex: 1,
-		alignItems: 'flex-start',
-		marginLeft: 10,
 	},
 	broadcastButton: {
 		width: '40%',

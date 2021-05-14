@@ -12,7 +12,10 @@ import AssetCard from '../../components/AssetCard';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { debugLightningStatusMessage } from '../../utils/lightning';
+import {
+	connectToDefaultPeer,
+	debugLightningStatusMessage,
+} from '../../utils/lightning';
 import lnd from 'react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
@@ -45,7 +48,7 @@ const LightningCard = (): ReactElement => {
 		}
 	}, [lightning.invoiceList, receivePaymentRequest]);
 
-	if (!lightning.onChainBalance || !lightning.channelBalance) {
+	if (!lightning.channelBalance) {
 		return <View />;
 	}
 
@@ -58,13 +61,12 @@ const LightningCard = (): ReactElement => {
 		lightning.channelBalance.balance === 0;
 
 	const channelBalance = `${lightning.channelBalance.balance} sats`;
-	const onChainBalance = `${lightning.onChainBalance.totalBalance} sats`;
 
 	return (
 		<AssetCard
 			title={t('lightning')}
 			description={`${debugLightningStatusMessage(lightning)}`}
-			assetBalanceLabel={showSendReceive ? channelBalance : onChainBalance}
+			assetBalanceLabel={channelBalance}
 			fiatBalanceLabel="$0"
 			asset="lightning"
 			onPress={(): void => setDisplayButtonRow(!displayButtonRow)}>
@@ -110,6 +112,7 @@ const LightningCard = (): ReactElement => {
 								color="onSurface"
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
+									connectToDefaultPeer().then();
 									navigation.navigate('BitcoinToLightning');
 								}}
 								text="Move funds to lighting"

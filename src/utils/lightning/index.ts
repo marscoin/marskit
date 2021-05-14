@@ -88,7 +88,6 @@ export const openChannelStream = (
 	onUpdate: (state: Result<lnrpc.OpenStatusUpdate>) => void,
 	onDone: () => void,
 ): Uint8Array => {
-	//TODO get close address from onchain wallet
 	const { selectedNetwork, selectedWallet } = getStore().wallet;
 	const closeAddress = getStore().wallet?.wallets[selectedWallet]?.addressIndex[
 		selectedNetwork

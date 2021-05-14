@@ -11,22 +11,13 @@ import {
 	connectToDefaultPeer,
 	debugGetBalance,
 	debugListPeers,
-	defaultNodePubKey,
 } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import lnd, {
-	ENetworks as LndNetworks,
-	TLndConf,
-	lnrpc,
-} from 'react-native-lightning';
-import { bytesToString } from '../../../utils/converters';
 
 const LightningInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
-
 	const [content, setContent] = useState<string>('');
-	const [pendingChanId, setPendingChanId] = useState(new Uint8Array(0));
 
 	const SettingsListData = [
 		{
@@ -83,51 +74,6 @@ const LightningInfo = ({ navigation }): ReactElement => {
 						}
 
 						setContent(JSON.stringify(res.value));
-					},
-					hide: false,
-				},
-				{
-					title: 'Move on-chain wallet funds to lightning',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						setContent('Opening...');
-						const channelId = lnd.openChannelStream(
-							123456,
-							defaultNodePubKey,
-							'bcrt1qll79gp5avu90rhg4x67yh6avsej9tcpeg5j0kw', //TODO use on chain wallet address
-							(res) => {
-								if (res.isErr()) {
-									return setContent(`Stream error: ${res.error.message}`);
-								}
-
-								setContent('STREAM UPDATE: ' + JSON.stringify(res.value));
-
-								const { psbtFund } = res.value;
-
-								console.warn(JSON.stringify(res.value));
-							},
-							() => {
-								setContent('Channel funded.');
-							},
-						);
-
-						setPendingChanId(channelId);
-					},
-					hide: false,
-				},
-				{
-					title: 'Fund it',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						if (pendingChanId.length === 0) {
-							return alert('No pending channel ID');
-						}
-
-						setContent('Funding...');
-
-						const psbt =
-							'cHNidP8BAKYCAAAAAqJ9l2KCY1w1TrtG5cf34QWt1xibVBhrgOgKl8+fdsmDAAAAAAAAAAAA1ec3g3uzouINR9rlAwPzix5BVYSeluDdkP16vB3vJ2kAAAAAAAAAAAACQOIBAAAAAAAiACBUjq4HEBbKBcpE8A9aXYBCI9DvdjT6HQN4m8ZDom+yGBYmAAAAAAAAFgAU6xCnBnbmAnC9aC74g/e63H0Q5AwAAAAAAAEBH0DiAQAAAAAAFgAUxWvNG3unTlkIvC+cRsjX1AIaQG8AAQEfECcAAAAAAAAWABSw+p92qXRnyiP0oWuaiGnYHZThLAAAAA==';
-						await lnd.fundingStateStep(pendingChanId, psbt, 'verify');
 					},
 					hide: false,
 				},

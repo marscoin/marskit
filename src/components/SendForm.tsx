@@ -12,7 +12,6 @@ import AdjustFee from './AdjustFee';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import {
-	defaultOnChainTransactionData,
 	EOutput,
 	IOnChainTransactionData,
 	IOutput,
@@ -22,6 +21,10 @@ import {
 	getTransactionOutputValue,
 } from '../utils/wallet/transactions';
 import Button from './Button';
+import {
+	useBalance,
+	useTransactionDetails,
+} from '../screens/Wallets/SendOnChainTransaction/TransactionHook';
 
 const SendForm = ({
 	index = 0,
@@ -37,22 +40,9 @@ const SendForm = ({
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 
-	/**
-	 * Current transaction object of the selectedWallet/Network.
-	 */
-	const transaction = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			defaultOnChainTransactionData,
-	);
+	const transaction = useTransactionDetails();
 
-	/**
-	 * Current balance of the selectedWallet/Network.
-	 */
-	const balance = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork] || 0,
-	);
+	const balance = useBalance();
 
 	useEffect(() => {
 		if (!transaction?.outputs?.length) {
@@ -62,7 +52,7 @@ const SendForm = ({
 				transaction: {
 					outputs: [EOutput],
 				},
-			});
+			}).then();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
@@ -70,9 +60,9 @@ const SendForm = ({
 	/**
 	 * Returns the current output by index.
 	 */
-	const getOutput = (): IOutput => {
+	const getOutput = (): IOutput | undefined => {
 		try {
-			return transaction.outputs[index];
+			return transaction.outputs?.[index];
 		} catch {
 			return { address: '', value: 0 };
 		}
@@ -177,7 +167,7 @@ const SendForm = ({
 					selectedNetwork,
 					selectedWallet,
 					transaction: _transaction,
-				});
+				}).then();
 				return;
 			}
 			if (newTotalAmount <= balance) {
@@ -185,7 +175,7 @@ const SendForm = ({
 					selectedNetwork,
 					selectedWallet,
 					transaction: _transaction,
-				});
+				}).then();
 			}
 		} catch (e) {
 			console.log(e);
@@ -214,7 +204,7 @@ const SendForm = ({
 				selectedNetwork,
 				selectedWallet,
 				transaction: _transaction,
-			});
+			}).then();
 		} catch {}
 	};
 
@@ -232,7 +222,7 @@ const SendForm = ({
 				transaction: {
 					outputs: [{ address, value: newAmount, index }],
 				},
-			});
+			}).then();
 		}
 	};
 
@@ -252,7 +242,7 @@ const SendForm = ({
 				selectedNetwork,
 				selectedWallet,
 				transaction: _transaction,
-			});
+			}).then();
 			return;
 		}
 		if (totalNewAmount <= balance) {
@@ -260,7 +250,7 @@ const SendForm = ({
 				selectedNetwork,
 				selectedWallet,
 				transaction: _transaction,
-			});
+			}).then();
 		}
 	};
 
