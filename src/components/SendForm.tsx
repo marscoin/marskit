@@ -276,7 +276,7 @@ const SendForm = ({
 					transaction: {
 						outputs: [{ address, value: balance - transaction.fee, index }],
 					},
-				});
+				}).then();
 			}
 			setMax(!max);
 		} catch {}
@@ -301,7 +301,7 @@ const SendForm = ({
 							transaction: {
 								outputs: [{ address: txt, value, index }],
 							},
-						});
+						}).then();
 					}}
 					value={address}
 					onSubmitEditing={(): void => {}}

@@ -9,11 +9,13 @@ const OutputSummary = ({
 	changeAddress = '',
 	sendAmount = 0,
 	fee = 0,
+	lightning = false,
 }: {
 	outputs: IOutput[];
 	changeAddress: string;
 	sendAmount: number;
 	fee: number;
+	lightning?: boolean;
 }): ReactElement => {
 	return (
 		<>
@@ -26,10 +28,15 @@ const OutputSummary = ({
 								color="transparent"
 								style={styles.summaryContainer}>
 								<View color="transparent" style={styles.summary}>
-									<Text style={styles.addressText}>Address:</Text>
-									<Text style={styles.addressText}>{address}</Text>
+									{!lightning && (
+										<>
+											<Text style={styles.addressText}>Address:</Text>
+											<Text style={styles.addressText}>{address}</Text>
+										</>
+									)}
+
 									<Summary
-										leftText={'Send:'}
+										leftText={lightning ? 'Transfer:' : 'Send:'}
 										rightText={`${sendAmount} sats`}
 									/>
 									<Summary leftText={'Fee:'} rightText={`${fee} sats`} />

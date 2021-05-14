@@ -50,6 +50,8 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			return resolve(err(res.error));
 		}
 
+		await connectToDefaultPeer();
+
 		await refreshLightningState();
 		lnd.subscribeToCurrentState((state) => {
 			dispatch({
@@ -112,7 +114,7 @@ export const createLightningWallet = ({
 		const createRes = await lnd.createWallet(
 			password,
 			lndSeed,
-			multiChanBackup,
+			multiChanBackup || undefined,
 		);
 		if (createRes.isErr()) {
 			return resolve(err(createRes.error));

@@ -12,22 +12,15 @@ import AssetCard from '../../components/AssetCard';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import {
-	connectToDefaultPeer,
-	debugLightningStatusMessage,
-	openMaxChannel,
-} from '../../utils/lightning';
+import { debugLightningStatusMessage } from '../../utils/lightning';
 import lnd from 'react-native-lightning';
-import {
-	showErrorNotification,
-	showInfoNotification,
-} from '../../utils/notifications';
+import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
 
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 	const [message, setMessage] = useState('');
-	const [receiveAddress, setReceiveAddress] = useState('');
+	const [displayButtonRow, setDisplayButtonRow] = useState(false);
 	const [receivePaymentRequest, setReceivePaymentRequest] = useState('');
 	const navigation = useNavigation();
 	const { t } = useTranslation(['wallets']);
@@ -56,12 +49,11 @@ const LightningCard = (): ReactElement => {
 		return <View />;
 	}
 
-	const showFundingButton =
-		lightning.info.syncedToChain && lightning.onChainBalance.totalBalance === 0;
 	const showSendReceive = lightning.channelBalance.balance > 0;
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
+		lightning.info.syncedToChain &&
 		lightning.channelBalance.pendingOpenBalance === 0 &&
 		lightning.channelBalance.balance === 0;
 
@@ -74,77 +66,66 @@ const LightningCard = (): ReactElement => {
 			description={`${debugLightningStatusMessage(lightning)}`}
 			assetBalanceLabel={showSendReceive ? channelBalance : onChainBalance}
 			fiatBalanceLabel="$0"
-			asset="lightning">
-			<>
-				<View color="transparent" style={styles.buttonRow}>
-					{!!showSendReceive && (
-						<>
+			asset="lightning"
+			onPress={(): void => setDisplayButtonRow(!displayButtonRow)}>
+			{displayButtonRow && (
+				<>
+					<View color="transparent" style={styles.buttonRow}>
+						{!!showSendReceive && (
+							<>
+								<Button
+									color="onSurface"
+									style={styles.sendButton}
+									onPress={(): void => {
+										navigation.navigate('Scanner');
+									}}
+									text={t('common:send')}
+								/>
+								<Button
+									color="onSurface"
+									style={styles.receiveButton}
+									onPress={async (): Promise<void> => {
+										const res = await lnd.createInvoice(
+											25,
+											`Spectrum test ${new Date().getTime()}`,
+										);
+
+										if (res.isErr()) {
+											return showErrorNotification({
+												title: 'Failed to create invoice.',
+												message: res.error.message,
+											});
+										}
+
+										setReceivePaymentRequest(res.value.paymentRequest);
+										setMessage('');
+									}}
+									text={t('common:receive')}
+								/>
+							</>
+						)}
+
+						{showOpenChannelButton && (
 							<Button
 								color="onSurface"
-								style={styles.sendButton}
-								onPress={(): void => {
-									navigation.navigate('Scanner');
-								}}
-								text={t('common:send')}
-							/>
-							<Button
-								color="onSurface"
-								style={styles.receiveButton}
+								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
-									const res = await lnd.createInvoice(
-										25,
-										`Spectrum test ${new Date().getTime()}`,
-									);
-
-									if (res.isErr()) {
-										return showErrorNotification({
-											title: 'Failed to create invoice.',
-											message: res.error.message,
-										});
-									}
-
-									setReceivePaymentRequest(res.value.paymentRequest);
-									setMessage('');
+									navigation.navigate('BitcoinToLightning');
 								}}
-								text={t('common:receive')}
+								text="Move funds to lighting"
 							/>
-						</>
+						)}
+					</View>
+
+					{!showSendReceive && !!message && (
+						<Text style={styles.message}>{message}</Text>
 					)}
 
-					{showFundingButton && (
-						<Button
-							color="onSurface"
-							style={styles.fundButton}
-							onPress={async (): Promise<void> => {
-								const res = await lnd.getAddress();
-								if (res.isOk()) {
-									setReceiveAddress(res.value.address);
-								}
-							}}
-							text="Fund"
-						/>
+					{!!receivePaymentRequest && (
+						<QR data={receivePaymentRequest} header={false} />
 					)}
-
-					{showOpenChannelButton && (
-						<Button
-							color="onSurface"
-							style={styles.fundButton}
-							onPress={async (): Promise<void> => {
-								navigation.navigate('BitcoinToLightning');
-							}}
-							text="Move funds to lighting"
-						/>
-					)}
-				</View>
-
-				{!!message && <Text style={styles.message}>{message}</Text>}
-
-				{!!receiveAddress && <QR data={receiveAddress} header={false} />}
-
-				{!!receivePaymentRequest && (
-					<QR data={receivePaymentRequest} header={false} />
-				)}
-			</>
+				</>
+			)}
 		</AssetCard>
 	);
 };

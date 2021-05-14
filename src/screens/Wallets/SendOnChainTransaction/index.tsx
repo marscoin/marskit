@@ -119,7 +119,7 @@ const SendOnChainTransaction = ({
 	const totalFee = transaction.fee;
 
 	/*
-	 * Retreives total value of all outputs. Excludes change address.
+	 * Retrieves total value of all outputs. Excludes change address.
 	 */
 	const getAmountToSend = useCallback((): number => {
 		try {

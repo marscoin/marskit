@@ -3,14 +3,15 @@
  * @flow strict-local
  */
 
-import React, { memo, ReactElement, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 import LightningLogo from '../../../assets/lightning-logo.svg';
 import { Feather, TextInput, View, Text } from '../../../styles/components';
 import {
 	setupOnChainTransaction,
 	updateOnChainTransaction,
+	updateWalletBalance,
 } from '../../../store/actions/wallet';
 import {
 	useBalance,
@@ -20,27 +21,30 @@ import {
 import Button from '../../../components/Button';
 import {
 	createFundedPsbtTransaction,
+	getByteCount,
+	getTotalFee,
 	getTransactionOutputValue,
 	signPsbt,
 } from '../../../utils/wallet/transactions';
 import OutputSummary from './OutputSummary';
-import { openChannelStream } from '../../../utils/lightning';
+import {
+	connectToDefaultPeer,
+	openChannelStream,
+} from '../../../utils/lightning';
 import {
 	showErrorNotification,
-	showInfoNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
-import { bytesToHexString } from '../../../utils/converters';
 import lnd, { lnrpc } from 'react-native-lightning/src/index';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
+import { getCurrentWallet } from '../../../utils/wallet';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
 	const [psbt, setPsbt] = useState(new Psbt());
-	const [state, setState] = useState('');
 	const [channelID, setChannelID] = useState(new Uint8Array());
 	const navigation = useNavigation();
 
@@ -50,6 +54,10 @@ const BitcoinToLightning = (): ReactElement => {
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
+	const { currentWallet } = getCurrentWallet({
+		selectedNetwork,
+		selectedWallet,
+	});
 	const transaction = useTransactionDetails();
 	const balance = useBalance();
 	const changeAddress = useChangeAddress();
@@ -63,32 +71,48 @@ const BitcoinToLightning = (): ReactElement => {
 	): Promise<void> => {
 		const { psbtFund, update, pendingChanId } = channelState;
 
-		setState(update || 'Unknown  state');
-
-		if (update === 'chanPending') {
-			//TODO close the modal, now we wait
-		}
-
-		if (psbtFund) {
-			const { fundingAddress, fundingAmount } = psbtFund;
-			if (fundingAddress && fundingAmount) {
-				await updateOnChainTransaction({
-					selectedNetwork,
-					selectedWallet,
-					transaction: {
-						outputs: [
-							{
-								address: fundingAddress,
-								value: Number(fundingAmount),
-								index: 0,
-							},
-						],
-					},
+		switch (update) {
+			//Channel funding TX fully confirmed
+			case 'chanOpen': {
+				showSuccessNotification({
+					title: 'Lightning channel opened',
+					message: 'Lightning payments can now be made',
 				});
-
-				await onPsbtFund(pendingChanId);
+				return;
 			}
-			//TODO set transaction details here
+			//Channel funding finalized now the user just needs to wait 2 confs
+			case 'chanPending': {
+				showSuccessNotification({
+					title: 'Success',
+					message: 'Lightning channel opening...',
+				});
+				onClose();
+				return;
+			}
+			//A funded (not yet signed) PSBT can now be created using the returned output
+			case 'psbtFund': {
+				const { fundingAddress, fundingAmount } = psbtFund!;
+				if (fundingAddress && fundingAmount) {
+					let outputValue = Number(fundingAmount);
+
+					await updateOnChainTransaction({
+						selectedNetwork,
+						selectedWallet,
+						transaction: {
+							outputs: [
+								{
+									address: fundingAddress,
+									value: outputValue,
+									index: 0,
+								},
+							],
+						},
+					});
+
+					await onPsbtFund(pendingChanId);
+				}
+				return;
+			}
 		}
 	};
 
@@ -97,11 +121,31 @@ const BitcoinToLightning = (): ReactElement => {
 	 * @returns {Promise<void>}
 	 */
 	const onStart = async (): Promise<void> => {
-		//TODO validate amount
-		const amount = balance - 5000;
+		let fundingAmount = Number(value);
+
+		const minChannelSize = 20000;
+		if (fundingAmount < minChannelSize) {
+			return showErrorNotification({
+				title: 'Channel too small',
+				message: `Fund the channel with more than ${minChannelSize} sats`,
+			});
+		}
+
+		if (fundingAmount > balance) {
+			return showErrorNotification({
+				title: 'Insufficient balance',
+				message: `Fund the channel with less than ${balance} sats`,
+			});
+		}
+
+		//TODO get the true fee calculation once getTotalFee has been updated to support this address type
+		const fee = 250;
+		if (fundingAmount + fee > balance) {
+			fundingAmount = fundingAmount - fee;
+		}
 
 		const id = openChannelStream(
-			amount,
+			fundingAmount,
 			(channelStateRes) => {
 				if (channelStateRes.isErr()) {
 					//Don't show if the user triggered this error on purpose
@@ -134,7 +178,6 @@ const BitcoinToLightning = (): ReactElement => {
 	 * Creates a PSBT from our on chain wallet
 	 */
 	const onPsbtFund = async (id: Uint8Array): Promise<void> => {
-		//TODO create TX
 		const fundedPsbtRes = await createFundedPsbtTransaction({
 			selectedWallet,
 			selectedNetwork,
@@ -145,10 +188,7 @@ const BitcoinToLightning = (): ReactElement => {
 			return;
 		}
 
-		//TODO verify
 		setPsbt(fundedPsbtRes.value);
-
-		console.log(fundedPsbtRes.value.toBase64());
 
 		const verifyRes = await lnd.fundingStateStep(
 			id,
@@ -177,6 +217,41 @@ const BitcoinToLightning = (): ReactElement => {
 			expect(signedPsbtRes.error.message).toBeUndefined();
 			return;
 		}
+
+		const finalizeRes = await lnd.fundingStateStep(
+			channelID,
+			signedPsbtRes.value.toBase64(),
+			'finalize',
+		);
+
+		if (finalizeRes.isErr()) {
+			showErrorNotification({
+				title: 'Failed to finalize PSBT',
+				message: finalizeRes.error.message,
+			});
+			await onCancel();
+			return;
+		}
+
+		updateWalletBalance({
+			balance: balance - Number(value),
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		await resetStore();
+
+		onClose();
+	};
+
+	const resetStore = async () => {
+		await updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: {
+				outputs: [],
+			},
+		});
 	};
 
 	/**
@@ -184,48 +259,49 @@ const BitcoinToLightning = (): ReactElement => {
 	 */
 	const onCancel = async (): Promise<void> => {
 		if (channelID.length > 0) {
-			const res = await lnd.fundingStateStep(channelID, '', 'cancel');
-
-			if (res.isErr()) {
-				return showErrorNotification({
-					title: 'Failed to cancel channel',
-					message: '',
-				});
-			}
-
+			await lnd.fundingStateStep(channelID, '', 'cancel');
 			setChannelID(new Uint8Array());
-			setPsbt('');
-			setState('');
-
-			showInfoNotification({ title: 'Channel cancelled', message: '' });
+			setPsbt(new Psbt());
 		}
 
-		setupOnChainTransaction({ selectedNetwork, selectedWallet });
+		await resetStore();
 	};
 
-	const onClose = async (): Promise<void> => {
-		await onCancel();
+	const onClose = (): void => {
 		navigation.goBack();
 	};
 
+	const setMax = (): void => {
+		setValue(`${balance}`);
+	};
+
 	/**
-	 * Cancel the channel when the modal is dismissed
+	 * Connect to default peer on open and cancel the
+	 * pending channel if exists when the modal is dismissed
 	 */
-	// useEffect(() => {
-	// 	return (): void => {
-	// 		// onCancel().then();
-	// 	};
-	// }, [onCancel]);
+	useEffect(() => {
+		connectToDefaultPeer().then();
+		return (): void => {
+			onCancel().then();
+		};
+	}, []);
+
+	const showConfirm = psbt.txInputs.length > 0;
 
 	return (
 		<View style={styles.container}>
 			<View color={'transparent'} style={styles.header}>
 				<BitcoinLogo viewBox="0 0 70 70" height={65} width={65} />
-				{/*<Text style={styles.headerTitle}>Switch</Text>*/}
 				<Feather name={'arrow-right'} size={30} />
 				<LightningLogo viewBox="0 0 300 300" height={65} width={65} />
 			</View>
-			<Text>Available balance: {balance}</Text>
+
+			<TouchableOpacity onPress={setMax}>
+				<Text style={styles.availableBalance}>
+					Available balance: {balance} sats
+				</Text>
+			</TouchableOpacity>
+
 			<TextInput
 				underlineColorAndroid="transparent"
 				style={styles.textInput}
@@ -239,13 +315,8 @@ const BitcoinToLightning = (): ReactElement => {
 				}}
 				value={Number(value) ? value.toString() : ''}
 				onSubmitEditing={(): void => {}}
+				editable={!showConfirm}
 			/>
-
-			{state ? <Text>STATE: {state}</Text> : null}
-			{channelID.length > 0 ? (
-				<Text>Channel ID: {bytesToHexString(channelID)}</Text>
-			) : null}
-			{psbt.txInputs.length > 0 ? <Text>PSBT: {psbt.toBase64()}</Text> : null}
 
 			{channelID.length > 0 ? (
 				<OutputSummary
@@ -253,6 +324,7 @@ const BitcoinToLightning = (): ReactElement => {
 					changeAddress={changeAddress}
 					sendAmount={getTransactionOutputValue({})}
 					fee={transaction.fee || 0}
+					lightning
 				/>
 			) : null}
 
@@ -260,11 +332,18 @@ const BitcoinToLightning = (): ReactElement => {
 				<Button color={'onSurface'} text="Move funds" onPress={onStart} />
 			) : null}
 
-			{psbt.txInputs.length > 0 ? (
+			{showConfirm ? (
 				<Button color={'onSurface'} text="Confirm" onPress={onChannelFund} />
 			) : null}
 
-			<Button color={'onSurface'} text="Cancel" onPress={onClose} />
+			<Button
+				color={'onSurface'}
+				text="Cancel"
+				onPress={async (): Promise<void> => {
+					await onCancel();
+					onClose();
+				}}
+			/>
 		</View>
 	);
 };
@@ -283,20 +362,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginTop: 20,
 	},
-	multilineTextInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-		paddingTop: Platform.OS === 'ios' ? 15 : 10,
-	},
 	textInput: {
 		minHeight: 50,
 		borderRadius: 5,
@@ -309,6 +374,13 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 10,
 		backgroundColor: 'white',
 		marginVertical: 5,
+	},
+	availableBalance: {
+		marginTop: 20,
+		marginBottom: 20,
+		fontWeight: 'bold',
+		fontSize: 16,
+		textAlign: 'center',
 	},
 });
 
