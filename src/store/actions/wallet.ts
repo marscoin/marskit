@@ -386,16 +386,22 @@ export const updateTransactions = ({
 
 		const formattedTransactions: IFormattedTransaction = {};
 
-		const storedTransactions =
-			Object.keys(currentWallet.transactions[selectedNetwork]) || [];
+		const storedTransactions = currentWallet.transactions[selectedNetwork];
 
 		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
-			if (!storedTransactions.includes(txid)) {
+			//If the tx is new or the tx now has a block height (state changed to confirmed)
+			if (
+				!storedTransactions[txid] ||
+				storedTransactions[txid].height !==
+					formatTransactionsResponse.value[txid].height
+			) {
 				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
 			}
 		});
+
+		//No new or updated transactions
 		if (!Object.keys(formattedTransactions)?.length) {
-			return resolve(ok(currentWallet.transactions[selectedNetwork]));
+			return resolve(ok(storedTransactions));
 		}
 
 		const payload = {
@@ -567,6 +573,7 @@ export const updateOnChainTransaction = async ({
 			selectedWallet,
 			transaction,
 		};
+
 		dispatch({
 			type: actions.UPDATE_ON_CHAIN_TRANSACTION,
 			payload,
