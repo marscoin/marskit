@@ -204,7 +204,7 @@ PODS:
     - React-Core
   - react-native-libsodium (0.0.1):
     - React-Core
-  - react-native-lightning (0.0.18):
+  - react-native-lightning (0.0.24):
     - React
   - react-native-netinfo (5.9.10):
     - React-Core
@@ -498,7 +498,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: eb89d59d50a3fc124b067134b688bccbff0ee841
   react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
-  react-native-lightning: 66297f5f3c4c3ecc984818886bb2cf74dce421dd
+  react-native-lightning: 609ccfb42e601a7a075fba5fb1366003a9e287cb
   react-native-netinfo: 30fb89fa913c342be82a887b56e96be6d71201dd
   react-native-randombytes: b6677f7d495c27e9ee0dbd77ebc97b3c59173729
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94

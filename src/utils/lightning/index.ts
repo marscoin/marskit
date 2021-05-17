@@ -83,25 +83,33 @@ export const connectToDefaultPeer = async (): Promise<
 	return err(res.error);
 };
 
-export const openMaxChannel = async (): Promise<Result<lnrpc.ChannelPoint>> => {
-	let value = getStore().lightning.onChainBalance.confirmedBalance;
+export const openChannelStream = (
+	sats: number,
+	onUpdate: (state: Result<lnrpc.OpenStatusUpdate>) => void,
+	onDone: () => void,
+): Uint8Array => {
+	const { selectedNetwork, selectedWallet } = getStore().wallet;
+	const closeAddress = getStore().wallet?.wallets[selectedWallet]?.addressIndex[
+		selectedNetwork
+	].address;
 
-	const maxChannel = 0.16 * 100000000;
-	if (value > maxChannel) {
-		value = maxChannel;
-	}
+	const channelId = lnd.openChannelStream(
+		sats,
+		defaultNodePubKey,
+		closeAddress,
+		(res) => {
+			if (res.isErr()) {
+				return onUpdate(err(res.error));
+			}
 
-	//TODO use actual fee estimate
-	value = Number(value) - 50000;
-	// const feeEstimateRes = lnd.feeEstimate()
+			onUpdate(ok(res.value));
+		},
+		() => {
+			onDone();
+		},
+	);
 
-	const res = await lnd.openChannel(value, defaultNodePubKey);
-
-	if (res.isOk()) {
-		return ok(res.value);
-	}
-
-	return err(res.error);
+	return channelId;
 };
 
 /**

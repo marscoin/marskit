@@ -50,6 +50,8 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			return resolve(err(res.error));
 		}
 
+		await connectToDefaultPeer();
+
 		await refreshLightningState();
 		lnd.subscribeToCurrentState((state) => {
 			dispatch({
@@ -112,7 +114,7 @@ export const createLightningWallet = ({
 		const createRes = await lnd.createWallet(
 			password,
 			lndSeed,
-			multiChanBackup,
+			multiChanBackup || undefined,
 		);
 		if (createRes.isErr()) {
 			return resolve(err(createRes.error));
@@ -201,26 +203,6 @@ export const refreshLightningInfo = (): Promise<Result<string>> => {
 			payload: res.value,
 		});
 		resolve(ok('LND info refreshed'));
-	});
-};
-
-/**
- * Updates the lightning store with the latest WalletBalance response from LND
- * TODO: Should be removed when on chain wallet is ready to replace the built in LND wallet
- * @returns {(dispatch) => Promise<unknown>}
- */
-export const refreshLightningOnChainBalance = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		const res = await lnd.getWalletBalance();
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		await dispatch({
-			type: actions.UPDATE_LIGHTNING_ON_CHAIN_BALANCE,
-			payload: res.value,
-		});
-		resolve(ok('LND on chain balance refreshed'));
 	});
 };
 
@@ -339,29 +321,6 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 			});
 		},
 	);
-
-	//TODO when LND's on-chain transactions are not needed then remove this
-	lnd.subscribeToOnChainTransactions(
-		(res) => {
-			if (res.isOk()) {
-				const { amount } = res.value;
-
-				refreshLightningOnChainBalance();
-
-				showSuccessNotification({
-					title: `Received ${amount} sats`,
-					message: 'Paid on-chain',
-				});
-			}
-		},
-		(res) => {
-			//If this fails ever then we probably need to subscribe again
-			showErrorNotification({
-				title: 'Failed to subscribe to on chain transactions',
-				message: JSON.stringify(res),
-			});
-		},
-	);
 };
 
 let pollLndGetInfoTimeout;
@@ -373,11 +332,7 @@ let pollLndGetInfoTimeout;
 const pollLndGetInfo = async (): Promise<void> => {
 	clearTimeout(pollLndGetInfoTimeout); //If previously subscribed make sure we don't keep have more than 1
 
-	await Promise.all([
-		refreshLightningInfo(),
-		refreshLightningOnChainBalance(),
-		refreshLightningChannelBalance(),
-	]);
+	await Promise.all([refreshLightningInfo(), refreshLightningChannelBalance()]);
 
 	pollLndGetInfoTimeout = setTimeout(pollLndGetInfo, 3000);
 };

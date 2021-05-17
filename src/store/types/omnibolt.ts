@@ -59,8 +59,11 @@ export interface ISigningData {
 	rsmc_temp_address: IAddressContent;
 	htlc_temp_address: IAddressContent;
 	htlc_temp_address_for_he1b: IAddressContent;
-	cr_hex: string;
-	rr_hex: string;
+	kTbSignedHex: string;
+	funding_txid: string;
+	kTempPrivKey: string;
+	kTbSignedHexCR110351: string;
+	kTbSignedHexRR110351: string;
 }
 
 export interface IChannelSigningData {
@@ -90,6 +93,9 @@ export type TOmniboltCheckpoints =
 	| 'onAssetFundingCreated'
 	| 'sendSignedHex101035'
 	| 'onCommitmentTransactionCreated'
+	| 'commitmentTransactionAccepted'
+	| 'on110353'
+	| 'on110352'
 	| 'htlcFindPath'
 	| 'onHtlcFindPath'
 	| 'addHtlc'

@@ -306,9 +306,263 @@ export interface ICreateTransaction {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
 }
+
+export interface ICreatePsbt {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+}
+
 interface ITargets extends IOutput {
 	script?: Buffer | undefined;
 }
+
+/**
+ * Creates a BIP32Interface from the selected wallet's mnemonic and passphrase
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @returns {Promise<Ok<BIP32Interface> | Err<unknown>>}
+ */
+const getBip32Interface = async (
+	selectedWallet: string,
+	selectedNetwork: TAvailableNetworks,
+): Promise<Result<BIP32Interface>> => {
+	const network = networks[selectedNetwork];
+
+	const getMnemonicPhraseResult = await getMnemonicPhrase(selectedWallet);
+	if (getMnemonicPhraseResult.error) {
+		return err(getMnemonicPhraseResult.data);
+	}
+
+	//Attempt to acquire the bip39Passphrase if available
+	let bip39Passphrase = '';
+	try {
+		const key = `${selectedWallet}passphrase`;
+		const bip39PassphraseResult = await getKeychainValue({ key });
+		if (!bip39PassphraseResult.error && bip39PassphraseResult.data) {
+			bip39Passphrase = bip39PassphraseResult.data;
+		}
+	} catch {}
+
+	const mnemonic = getMnemonicPhraseResult.data;
+	const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
+	const root = bip32.fromSeed(seed, network);
+
+	return ok(root);
+};
+
+/**
+ * Returns a PSBT that includes unsigned funding inputs.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param transactionData
+ * @return {Promise<Ok<Psbt> | Err<unknown>>}
+ */
+const createPsbtFromTransactionData = async ({
+	selectedWallet,
+	selectedNetwork,
+	transactionData,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+	transactionData: IOnChainTransactionData;
+}): Promise<Result<Psbt>> => {
+	const {
+		utxos = [],
+		outputs = [],
+		changeAddress,
+		fee = 250,
+	} = transactionData;
+	let message = transactionData.message;
+
+	//Get balance of current utxos.
+	const balance = await getTransactionUtxoValue({
+		selectedWallet,
+		selectedNetwork,
+		utxos,
+	});
+
+	//Get value of current outputs.
+	const outputValue = getTransactionOutputValue({
+		selectedNetwork,
+		selectedWallet,
+		outputs,
+	});
+
+	const { currentWallet } = getCurrentWallet({
+		selectedNetwork,
+		selectedWallet,
+	});
+
+	const network = networks[selectedNetwork];
+	//TODO: Get address type by inspecting the address or path.
+	const addressType = currentWallet.addressType[selectedNetwork];
+
+	//Collect all outputs.
+	let targets: ITargets[] = await Promise.all(outputs.map((output) => output));
+
+	//Change address and amount to send back to wallet.
+	if (changeAddress !== '') {
+		targets.push({
+			address: changeAddress,
+			value: balance - (outputValue + fee),
+		});
+	}
+
+	//Embed any OP_RETURN messages.
+	if (message && message.trim() !== '') {
+		const messageLength = message.length;
+		const lengthMin = 5;
+		//This is a patch for the following: https://github.com/coreyphillips/moonshine/issues/52
+		if (messageLength > 0 && messageLength < lengthMin) {
+			message += ' '.repeat(lengthMin - messageLength);
+		}
+		const data = Buffer.from(message, 'utf8');
+		const embed = bitcoin.payments.embed({
+			data: [data],
+			network,
+		});
+		targets.push({ script: embed.output!, value: 0 });
+	}
+
+	const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
+	if (bip32Res.isErr()) {
+		return err(bip32Res.error);
+	}
+
+	const root = bip32Res.value;
+	const psbt = new bitcoin.Psbt({ network });
+
+	//Add Inputs from utxos array
+	try {
+		await Promise.all(
+			utxos.map(async (utxo) => {
+				const path = utxo.path;
+				const keyPair: BIP32Interface = root.derivePath(path);
+				await addInput({
+					psbt,
+					addressType,
+					keyPair,
+					utxo,
+					selectedNetwork,
+				});
+			}),
+		);
+	} catch (e) {
+		return err(e);
+	}
+
+	//Set RBF if supported and prompted via rbf in Settings.
+	setReplaceByFee({ psbt, setRbf: true });
+
+	// Shuffle targets if not run from unit test and add outputs.
+	if (process.env.JEST_WORKER_ID === undefined) {
+		targets = shuffleArray(targets);
+	}
+
+	await Promise.all(
+		targets.map((target) => {
+			//Check if OP_RETURN
+			let isOpReturn = false;
+			try {
+				isOpReturn = !!target.script;
+			} catch (e) {}
+			if (isOpReturn) {
+				if (target?.script) {
+					psbt.addOutput({
+						script: target.script,
+						value: target.value,
+					});
+				}
+			} else {
+				if (target?.address && target?.value) {
+					psbt.addOutput({
+						address: target.address,
+						value: target.value,
+					});
+				}
+			}
+		}),
+	);
+
+	return ok(psbt);
+};
+
+/**
+ * Uses the transaction data store to create an unsigned PSBT with funded inputs
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const createFundedPsbtTransaction = async ({
+	selectedWallet,
+	selectedNetwork,
+}: ICreatePsbt): Promise<Result<Psbt>> => {
+	const transactionData = getOnchainTransactionData({
+		selectedWallet,
+		selectedNetwork,
+	});
+
+	if (transactionData.isErr()) {
+		return err(transactionData.error.message);
+	}
+
+	//Create PSBT before signing inputs
+	return await createPsbtFromTransactionData({
+		selectedWallet,
+		selectedNetwork,
+		transactionData: transactionData.value,
+	});
+};
+
+export const signPsbt = ({
+	selectedWallet,
+	selectedNetwork,
+	psbt,
+}: {
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+	psbt: Psbt;
+}): Promise<Result<Psbt>> => {
+	return new Promise(async (resolve) => {
+		//Loop through and sign our inputs
+		const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
+		if (bip32Res.isErr()) {
+			return resolve(err(bip32Res.error));
+		}
+
+		const root = bip32Res.value;
+
+		const transactionDataRes = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		if (transactionDataRes.isErr()) {
+			return err(transactionDataRes.error.message);
+		}
+
+		const { utxos = [] } = transactionDataRes.value;
+		await Promise.all(
+			utxos.map((utxo, i) => {
+				try {
+					const path = utxo.path;
+					const keyPair = root.derivePath(path);
+					psbt.signInput(i, keyPair);
+				} catch (e) {
+					return resolve(err(e));
+				}
+			}),
+		);
+		psbt.finalizeAllInputs();
+		return resolve(ok(psbt));
+	});
+};
+
+/**
+ * Creates complete signed transaction using the transaction data store
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
 export const createTransaction = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
@@ -320,156 +574,43 @@ export const createTransaction = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const { currentWallet } = getCurrentWallet({
-			selectedNetwork,
-			selectedWallet,
-		});
-		const transactionData = getOnchainTransactionData({
+
+		const transactionDataRes = getOnchainTransactionData({
 			selectedWallet,
 			selectedNetwork,
 		});
 
-		if (transactionData.isErr()) {
-			return err(transactionData.error.message);
+		if (transactionDataRes.isErr()) {
+			return err(transactionDataRes.error.message);
 		}
-		const {
-			utxos = [],
-			outputs = [],
-			changeAddress,
-			fee = 250,
-		} = transactionData.value;
-		let message = transactionData.value.message;
 
-		//Get balance of current utxos.
-		const balance = await getTransactionUtxoValue({
-			selectedWallet,
-			selectedNetwork,
-			utxos,
-		});
-		//Get value of current outputs.
-		const outputValue = getTransactionOutputValue({
-			selectedNetwork,
-			selectedWallet,
-			outputs,
-		});
+		const transactionData = transactionDataRes.value;
 
 		try {
-			const network = networks[selectedNetwork];
-			//TODO: Get address type by inspecting the address or path.
-			const addressType = currentWallet.addressType[selectedNetwork];
+			//Create PSBT before signing inputs
+			const psbtRes = await createPsbtFromTransactionData({
+				selectedWallet,
+				selectedNetwork,
+				transactionData,
+			});
 
-			//Collect all outputs.
-			let targets: ITargets[] = await Promise.all(
-				outputs.map((output) => output),
-			);
-
-			//Change address and amount to send back to wallet.
-			if (changeAddress !== '') {
-				targets.push({
-					address: changeAddress,
-					value: balance - (outputValue + fee),
-				});
+			if (psbtRes.isErr()) {
+				return resolve(err(psbtRes.error));
 			}
 
-			//Embed any OP_RETURN messages.
-			if (message && message.trim() !== '') {
-				const messageLength = message.length;
-				const lengthMin = 5;
-				//This is a patch for the following: https://github.com/coreyphillips/moonshine/issues/52
-				if (messageLength > 0 && messageLength < lengthMin) {
-					message += ' '.repeat(lengthMin - messageLength);
-				}
-				const data = Buffer.from(message, 'utf8');
-				const embed = bitcoin.payments.embed({
-					data: [data],
-					network,
-				});
-				targets.push({ script: embed.output!, value: 0 });
+			const psbt = psbtRes.value;
+
+			const signedPsbtRes = await signPsbt({
+				selectedWallet,
+				selectedNetwork,
+				psbt,
+			});
+
+			if (signedPsbtRes.isErr()) {
+				return resolve(err(signedPsbtRes.error));
 			}
 
-			const getMnemonicPhraseResult = await getMnemonicPhrase(selectedWallet);
-			if (getMnemonicPhraseResult.error) {
-				return;
-			}
-
-			//Attempt to acquire the bip39Passphrase if available
-			let bip39Passphrase = '';
-			try {
-				const key = `${selectedWallet}passphrase`;
-				const bip39PassphraseResult = await getKeychainValue({ key });
-				if (!bip39PassphraseResult.error && bip39PassphraseResult.data) {
-					bip39Passphrase = bip39PassphraseResult.data;
-				}
-			} catch {}
-
-			const mnemonic = getMnemonicPhraseResult.data;
-			const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
-			const root = bip32.fromSeed(seed, network);
-			const psbt = new bitcoin.Psbt({ network });
-
-			//Add Inputs from utxos array
-			await Promise.all(
-				utxos.map(async (utxo) => {
-					try {
-						const path = utxo.path;
-						const keyPair: BIP32Interface = root.derivePath(path);
-						await addInput({
-							psbt,
-							addressType,
-							keyPair,
-							utxo,
-							selectedNetwork,
-						});
-					} catch (e) {
-						return resolve(err(e));
-					}
-				}),
-			);
-
-			//Set RBF if supported and prompted via rbf in Settings.
-			setReplaceByFee({ psbt, setRbf: true });
-
-			//Shuffle and add outputs.
-			targets = shuffleArray(targets);
-			await Promise.all(
-				targets.map((target) => {
-					//Check if OP_RETURN
-					let isOpReturn = false;
-					try {
-						isOpReturn = !!target.script;
-					} catch (e) {}
-					if (isOpReturn) {
-						if (target?.script) {
-							psbt.addOutput({
-								script: target.script,
-								value: target.value,
-							});
-						}
-					} else {
-						if (target?.address && target?.value) {
-							psbt.addOutput({
-								address: target.address,
-								value: target.value,
-							});
-						}
-					}
-				}),
-			);
-
-			//Loop through and sign our inputs
-			await Promise.all(
-				utxos.map((utxo, i) => {
-					try {
-						const path = utxo.path;
-						const keyPair = root.derivePath(path);
-						psbt.signInput(i, keyPair);
-					} catch (e) {
-						return resolve(err(e));
-					}
-				}),
-			);
-			psbt.finalizeAllInputs();
-			const rawTx = psbt.extractTransaction().toHex();
+			const rawTx = signedPsbtRes.value.extractTransaction().toHex();
 			return resolve(ok(rawTx));
 		} catch (e) {
 			return resolve(err(e));

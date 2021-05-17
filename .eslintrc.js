@@ -65,5 +65,6 @@ module.exports = {
 		'no-async-promise-executor': 0,
 		'brace-style': [2, '1tbs', { allowSingleLine: true }],
 		'@typescript-eslint/explicit-function-return-type': 'warn',
+		'jest/no-disabled-tests': 0,
 	},
 };

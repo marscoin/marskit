@@ -310,11 +310,11 @@ export const generateAddresses = async ({
  * @return {Promise<Result<string>>}
  */
 export const getPrivateKey = async ({
-	addressData = undefined,
-	selectedWallet = EWallet.defaultWallet,
-	selectedNetwork = EWallet.selectedNetwork,
+	addressData,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
 }: {
-	addressData: IAddressContent | undefined;
+	addressData: IAddressContent;
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
 }): Promise<Result<string>> => {
@@ -440,8 +440,8 @@ export const getKeyDerivationPath = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 }: {
-	selectedWallet: string | undefined;
-	selectedNetwork: TAvailableNetworks | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 }): IKeyDerivationPath => {
 	try {
 		if (!selectedWallet) {
