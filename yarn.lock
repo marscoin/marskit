@@ -7975,7 +7975,7 @@ react-native-keychain@^6.2.0:
 
 "react-native-lightning@git+ssh://git@github.com/synonymdev/react-native-lightning":
   version "0.0.18"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-lightning#149044590431fb71a884d1b16fe7bdedc6d2768f"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-lightning#02a97ae122d05416ffd2aa89f0371df7214d6e3a"
 
 react-native-modal@^11.5.6:
   version "11.6.1"

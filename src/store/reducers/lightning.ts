@@ -15,11 +15,6 @@ const lightning = (state: ILightning, action): ILightning => {
 				...state,
 				info: action.payload,
 			};
-		case actions.UPDATE_LIGHTNING_ON_CHAIN_BALANCE:
-			return {
-				...state,
-				onChainBalance: action.payload,
-			};
 		case actions.UPDATE_LIGHTNING_CHANNEL_BALANCE:
 			return {
 				...state,

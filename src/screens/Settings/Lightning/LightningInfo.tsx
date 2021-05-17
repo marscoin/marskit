@@ -17,7 +17,6 @@ import Store from '../../../store/types';
 
 const LightningInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
-
 	const [content, setContent] = useState<string>('');
 
 	const SettingsListData = [
@@ -57,11 +56,13 @@ const LightningInfo = ({ navigation }): ReactElement => {
 					title: 'Show all balances',
 					type: 'button',
 					onPress: async (): Promise<void> => await debugGetBalance(setContent),
+					hide: false,
 				},
 				{
 					title: 'List peers',
 					type: 'button',
 					onPress: async (): Promise<void> => await debugListPeers(setContent),
+					hide: false,
 				},
 				{
 					title: 'Connect to default peer',
@@ -74,6 +75,7 @@ const LightningInfo = ({ navigation }): ReactElement => {
 
 						setContent(JSON.stringify(res.value));
 					},
+					hide: false,
 				},
 			],
 		},

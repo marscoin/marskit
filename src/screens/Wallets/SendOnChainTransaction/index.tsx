@@ -11,92 +11,32 @@ import {
 	AnimatedView,
 	Text,
 	TouchableOpacity,
-} from '../../styles/components';
+} from '../../../styles/components';
 import Animated, { Easing } from 'react-native-reanimated';
-import NavigationHeader from '../../components/NavigationHeader';
+import NavigationHeader from '../../../components/NavigationHeader';
 import { useSelector } from 'react-redux';
-import Store from '../../store/types';
-import Button from '../../components/Button';
+import Store from '../../../store/types';
+import Button from '../../../components/Button';
 import { systemWeights } from 'react-native-typography';
 import {
 	broadcastTransaction,
 	createTransaction,
 	getTransactionOutputValue,
-} from '../../utils/wallet/transactions';
+} from '../../../utils/wallet/transactions';
 import {
 	resetOnChainTransaction,
 	setupOnChainTransaction,
 	updateWalletBalance,
-} from '../../store/actions/wallet';
+} from '../../../store/actions/wallet';
 import {
 	showErrorNotification,
 	showSuccessNotification,
-} from '../../utils/notifications';
-import {
-	defaultOnChainTransactionData,
-	IOutput,
-} from '../../store/types/wallet';
-import SendForm from '../../components/SendForm';
-import { getFiatBalance } from '../../utils/helpers';
-
-const Summary = ({
-	leftText = '',
-	rightText = '',
-}: {
-	leftText: string;
-	rightText: string;
-}): ReactElement => {
-	return (
-		<View color="transparent" style={styles.summaryContainer}>
-			<View color="transparent" style={styles.row}>
-				<View color="transparent" style={styles.summaryLeft}>
-					<Text>{leftText}</Text>
-				</View>
-				<View color="transparent" style={styles.summaryRight}>
-					<Text>{rightText}</Text>
-				</View>
-			</View>
-		</View>
-	);
-};
-
-const OutputSummary = ({
-	outputs = [],
-	changeAddress = '',
-	sendAmount = 0,
-	fee = 0,
-}: {
-	outputs: IOutput[];
-	changeAddress: string;
-	sendAmount: number;
-	fee: number;
-}): ReactElement => {
-	return (
-		<>
-			{outputs &&
-				outputs.map(({ address, value }, index) => {
-					if (changeAddress !== address) {
-						return (
-							<View
-								key={`${index}${value}`}
-								color="transparent"
-								style={styles.summaryContainer}>
-								<View color="transparent" style={styles.summary}>
-									<Text style={styles.addressText}>Address:</Text>
-									<Text style={styles.addressText}>{address}</Text>
-									<Summary
-										leftText={'Send:'}
-										rightText={`${sendAmount} sats`}
-									/>
-									<Summary leftText={'Fee:'} rightText={`${fee} sats`} />
-								</View>
-							</View>
-						);
-					}
-				})}
-		</>
-	);
-};
+} from '../../../utils/notifications';
+import { defaultOnChainTransactionData } from '../../../store/types/wallet';
+import SendForm from '../../../components/SendForm';
+import { getFiatBalance } from '../../../utils/helpers';
+import Summary from './Summary';
+import OutputSummary from './OutputSummary';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -179,7 +119,7 @@ const SendOnChainTransaction = ({
 	const totalFee = transaction.fee;
 
 	/*
-	 * Retreives total value of all outputs. Excludes change address.
+	 * Retrieves total value of all outputs. Excludes change address.
 	 */
 	const getAmountToSend = useCallback((): number => {
 		try {
@@ -354,28 +294,12 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		padding: 5,
 	},
-	addressText: {
-		textAlign: 'center',
-	},
 	row: {
 		flexDirection: 'row',
 		justifyContent: 'space-evenly',
 	},
 	summary: {
 		marginVertical: 20,
-	},
-	summaryContainer: {
-		marginVertical: 5,
-	},
-	summaryLeft: {
-		flex: 1,
-		alignItems: 'flex-end',
-		marginRight: 10,
-	},
-	summaryRight: {
-		flex: 1,
-		alignItems: 'flex-start',
-		marginLeft: 10,
 	},
 	broadcastButton: {
 		width: '40%',

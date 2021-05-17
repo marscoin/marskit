@@ -17,6 +17,7 @@ import themes from '../../styles/themes';
 import QR from '../../components/QR';
 import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
+import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
@@ -45,6 +46,14 @@ const WalletsStack = (): ReactElement => {
 			<Stack.Screen
 				name="SendOnChainTransaction"
 				component={SendOnChainTransaction}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
+			/>
+			<Stack.Screen
+				name="BitcoinToLightning"
+				component={BitcoinToLightningModal}
 				options={{
 					...navOptionHandler,
 					...TransitionPresets.ModalSlideFromBottomIOS,
