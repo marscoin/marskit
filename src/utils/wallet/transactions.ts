@@ -4,10 +4,13 @@ import { validateAddress } from '../scanner';
 import { networks, TAvailableNetworks } from '../networks';
 import { getKeychainValue, reduceValue } from '../helpers';
 import {
+	defaultOnChainTransactionData,
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
 	TAddressType,
+	TGetByteCountInputs,
+	TGetByteCountOutputs,
 } from '../../store/types/wallet';
 import {
 	getCurrentWallet,
@@ -18,6 +21,8 @@ import {
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
+import validate, { getAddressInfo } from 'bitcoin-address-validation';
+import { updateOnChainTransaction } from '../../store/actions/wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -143,7 +148,11 @@ const setReplaceByFee = ({
 	getByteCount({'MULTISIG-P2SH:2-4':45},{'P2PKH':1}) Means "45 inputs of P2SH Multisig and 1 output of P2PKH"
 	getByteCount({'P2PKH':1,'MULTISIG-P2SH:2-3':2},{'P2PKH':2}) means "1 P2PKH input and 2 Multisig P2SH (2 of 3) inputs along with 2 P2PKH outputs"
 */
-export const getByteCount = (inputs, outputs, message = ''): number => {
+export const getByteCount = (
+	inputs: TGetByteCountInputs = {},
+	outputs: TGetByteCountOutputs = {},
+	message = '',
+): number => {
 	try {
 		let totalWeight = 0;
 		let hasWitness = false;
@@ -193,6 +202,7 @@ export const getByteCount = (inputs, outputs, message = ''): number => {
 
 		Object.keys(inputs).forEach(function (key) {
 			checkUInt53(inputs[key]);
+			const addressTypeCount = inputs[key] || 1;
 			if (key.slice(0, 8) === 'MULTISIG') {
 				// ex. "MULTISIG-P2SH:2-3" would mean 2 of 3 P2SH MULTISIG
 				var keyParts = key.split(':');
@@ -205,14 +215,14 @@ export const getByteCount = (inputs, outputs, message = ''): number => {
 					return parseInt(item);
 				});
 
-				totalWeight += types.inputs[newKey] * inputs[key];
+				totalWeight += types.inputs[newKey] * addressTypeCount;
 				var multiplyer = newKey === 'MULTISIG-P2SH' ? 4 : 1;
 				totalWeight +=
-					(73 * mAndN[0] + 34 * mAndN[1]) * multiplyer * inputs[key];
+					(73 * mAndN[0] + 34 * mAndN[1]) * multiplyer * addressTypeCount;
 			} else {
-				totalWeight += types.inputs[key] * inputs[key];
+				totalWeight += types.inputs[key] * addressTypeCount;
 			}
-			inputCount += inputs[key];
+			inputCount += addressTypeCount;
 			if (key.indexOf('W') >= 0) {
 				hasWitness = true;
 			}
@@ -244,6 +254,30 @@ export const getByteCount = (inputs, outputs, message = ''): number => {
 	}
 };
 
+/**
+ * Constructs the parameter for getByteCount via an array of addresses.
+ * @param {string[]} addresses
+ */
+export const constructByteCountParam = (
+	addresses: string[] = [],
+): TGetByteCountInputs | TGetByteCountOutputs => {
+	try {
+		if (!addresses || addresses.length <= 0) {
+			return { P2WPKH: 0 };
+		}
+		let param = {};
+		addresses.map((address) => {
+			if (address && validate(address)) {
+				const addressType = getAddressInfo(address).type.toUpperCase();
+				param[addressType] = param[addressType] ? param[addressType] + 1 : 1;
+			}
+		});
+		return param;
+	} catch {
+		return { P2WPKH: 0 };
+	}
+};
+
 /*
  * Attempt to estimate the current fee for a given wallet and its UTXO's
  */
@@ -252,11 +286,13 @@ export const getTotalFee = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 	message = '',
+	fundingLightning = false,
 }: {
 	satsPerByte: number;
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
 	message?: string;
+	fundingLightning?: boolean | undefined;
 }): number => {
 	const fallBackFee = 250;
 	try {
@@ -271,30 +307,37 @@ export const getTotalFee = ({
 			selectedWallet,
 		});
 
-		let utxoLength = 1;
-		try {
-			const utxos = currentWallet.utxos[selectedNetwork];
-			utxoLength = Object.keys(utxos).length;
-		} catch {}
-		let outputLength = 1;
-		try {
-			const changeAddress =
-				currentWallet?.transaction[selectedNetwork]?.changeAddress;
-			const outputs = currentWallet?.transaction[selectedNetwork]?.outputs;
-			if (outputs) {
-				outputLength = changeAddress ? outputs.length + 1 : outputs.length;
-			}
-		} catch {}
+		const utxos = currentWallet?.utxos[selectedNetwork] || [];
+		let outputs: IOutput[] =
+			currentWallet?.transaction[selectedNetwork]?.outputs || [];
+		const changeAddress =
+			currentWallet?.transaction[selectedNetwork]?.changeAddress;
 
-		const addressType = currentWallet.addressType[selectedNetwork];
+		//Group all utxo & output addresses into their respective array.
+		const utxoAddresses = utxos.map((utxo) => utxo.address) || [];
+		const outputAddresses =
+			outputs.map((output) => {
+				if (output.address) {
+					return output.address;
+				}
+			}) || [];
+		if (changeAddress) {
+			outputAddresses.push(changeAddress);
+		}
+
+		//Determine the address type of each address and construct the object for fee calculation
+		const inputParam = constructByteCountParam(utxoAddresses);
+		// @ts-ignore
+		const outputParam = constructByteCountParam(outputAddresses);
+		//Increase P2WPKH output address by one for lightning funding calculation.
+		if (fundingLightning) {
+			outputParam.P2WPKH = (outputParam?.P2WPKH || 0) + 1;
+		}
+
 		const transactionByteCount =
-			getByteCount(
-				{ [addressType]: utxoLength },
-				{ [addressType]: outputLength },
-				message,
-			) || fallBackFee;
+			getByteCount(inputParam, outputParam, message) || fallBackFee;
 		const totalFee = transactionByteCount * Number(satsPerByte);
-		return totalFee > fallBackFee
+		return totalFee > fallBackFee || Number.isNaN(totalFee)
 			? totalFee
 			: fallBackFee * Number(satsPerByte);
 	} catch {
@@ -829,5 +872,62 @@ export const getTransactionUtxoValue = ({
 		return 0;
 	} catch (e) {
 		return 0;
+	}
+};
+
+/**
+ * Updates the fee for the current transaction by the specified amount.
+ * @param {number} [satsPerByte]
+ * @param {string | undefined} [selectedWallet]
+ * @param {TAvailableNetworks | undefined} [selectedNetwork]
+ */
+export const updateFee = ({
+	satsPerByte = 1,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	satsPerByte?: number;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): void => {
+	if (!satsPerByte || satsPerByte < 1) {
+		return;
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const wallet = getStore().wallet.wallets[selectedWallet];
+	const transaction =
+		wallet?.transaction[selectedNetwork] || defaultOnChainTransactionData;
+	const previousSatsPerByte = transaction?.satsPerByte;
+	//Return if no update needs to be applied.
+	if (previousSatsPerByte === satsPerByte) {
+		return;
+	}
+	const balance = wallet?.balance[selectedNetwork];
+
+	const newFee = getTotalFee({ satsPerByte });
+	//Return if the new fee exceeds half of the user's balance
+	if (Number(newFee) >= balance / 2) {
+		return;
+	}
+	const totalTransactionValue = getTransactionOutputValue({
+		selectedWallet,
+		selectedNetwork,
+	});
+	const newTotalAmount = Number(totalTransactionValue) + Number(newFee);
+	const _transaction: IOnChainTransactionData = {
+		satsPerByte,
+		fee: newFee,
+	};
+	if (newTotalAmount <= balance) {
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: _transaction,
+		}).then();
 	}
 };
