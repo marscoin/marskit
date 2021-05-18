@@ -156,7 +156,7 @@ export interface IDefaultWalletShape {
 	addressIndex: IWalletItem<IAddressContent>;
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	changeAddressIndex: IWalletItem<IAddressContent>;
-	utxos: IWalletItem<IUtxo> | IWalletItem<[]>;
+	utxos: IWalletItem<IUtxo[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;
