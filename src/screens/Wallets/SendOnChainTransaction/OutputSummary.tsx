@@ -6,12 +6,10 @@ import { StyleSheet } from 'react-native';
 const OutputSummary = ({
 	outputs = [],
 	changeAddress = '',
-	lightning = false,
 	children = <></>,
 }: {
 	outputs: IOutput[];
 	changeAddress: string;
-	lightning?: boolean;
 	children?: ReactElement;
 }): ReactElement => {
 	return (
@@ -21,12 +19,8 @@ const OutputSummary = ({
 					if (changeAddress !== address) {
 						return (
 							<View key={`${index}${value}`} color="transparent">
-								{!lightning && (
-									<>
-										<Text style={styles.addressText}>Address:</Text>
-										<Text style={styles.addressText}>{address}</Text>
-									</>
-								)}
+								<Text style={styles.addressText}>Address:</Text>
+								<Text style={styles.addressText}>{address}</Text>
 							</View>
 						);
 					}
