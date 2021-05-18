@@ -3,27 +3,31 @@
  * @flow strict-local
  */
 
-import React, { memo, ReactElement, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
+import { LayoutAnimation, StyleSheet, TouchableOpacity } from 'react-native';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 import LightningLogo from '../../../assets/lightning-logo.svg';
 import { Feather, TextInput, View, Text } from '../../../styles/components';
 import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
 	updateOnChainTransaction,
 	updateWalletBalance,
 } from '../../../store/actions/wallet';
-import {
-	useBalance,
-	useTransactionDetails,
-	useChangeAddress,
-} from './TransactionHook';
+import { useBalance, useTransactionDetails } from './TransactionHook';
 import Button from '../../../components/Button';
 import {
 	createFundedPsbtTransaction,
-	getTransactionOutputValue,
+	getTotalFee,
 	signPsbt,
+	updateFee,
 } from '../../../utils/wallet/transactions';
-import OutputSummary from './OutputSummary';
 import { openChannelStream } from '../../../utils/lightning';
 import {
 	showErrorNotification,
@@ -34,6 +38,8 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
+import AdjustFee from '../../../components/AdjustFee';
+import FeeSummary from './FeeSummary';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
@@ -49,7 +55,39 @@ const BitcoinToLightning = (): ReactElement => {
 	);
 	const transaction = useTransactionDetails();
 	const balance = useBalance();
-	const changeAddress = useChangeAddress();
+
+	useEffect(() => {
+		setupOnChainTransaction({
+			selectedWallet,
+			selectedNetwork,
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	/**
+	 * Returns the satsPerByte for the given transaction.
+	 */
+	const getSatsPerByte = useCallback((): number => {
+		try {
+			return transaction?.satsPerByte || 1;
+		} catch (e) {
+			return 1;
+		}
+	}, [transaction?.satsPerByte]);
+	const satsPerByte = getSatsPerByte();
+
+	/**
+	 * Adjusts the fee of the current on-chain transaction by a specified amount.
+	 * @param {number} adjustBy
+	 */
+	const adjustFee = (adjustBy = 0): void => {
+		const spb = satsPerByte || 0;
+		updateFee({
+			selectedNetwork,
+			selectedWallet,
+			satsPerByte: spb + adjustBy,
+		});
+	};
 
 	/**
 	 * Channel open state has progressed
@@ -127,10 +165,15 @@ const BitcoinToLightning = (): ReactElement => {
 			});
 		}
 
-		//TODO get the true fee calculation once getTotalFee has been updated to support this address type
-		const fee = 250;
-		if (fundingAmount + fee > balance) {
-			fundingAmount = fundingAmount - fee;
+		const totalFee = await getTotalFee({
+			selectedNetwork,
+			selectedWallet,
+			satsPerByte,
+			fundingLightning: true,
+		});
+
+		if (fundingAmount + totalFee > balance) {
+			fundingAmount = fundingAmount - totalFee;
 		}
 
 		const id = openChannelStream(
@@ -235,12 +278,9 @@ const BitcoinToLightning = (): ReactElement => {
 	};
 
 	const resetStore = async (): Promise<void> => {
-		await updateOnChainTransaction({
+		await resetOnChainTransaction({
 			selectedNetwork,
 			selectedWallet,
-			transaction: {
-				outputs: [],
-			},
 		});
 	};
 
@@ -263,6 +303,12 @@ const BitcoinToLightning = (): ReactElement => {
 
 	const showConfirm = psbt.txInputs.length > 0;
 
+	const hasChannelId = useCallback(() => {
+		return channelID?.length > 0 || false;
+	}, [channelID]);
+
+	LayoutAnimation.easeInEaseOut();
+
 	return (
 		<View style={styles.container}>
 			<View color={'transparent'} style={styles.header}>
@@ -279,7 +325,11 @@ const BitcoinToLightning = (): ReactElement => {
 
 			<TextInput
 				underlineColorAndroid="transparent"
-				style={styles.textInput}
+				style={[
+					styles.textInput,
+					// eslint-disable-next-line react-native/no-inline-styles
+					{ backgroundColor: hasChannelId() ? '#E1E1E4' : 'white' },
+				]}
 				placeholder="Amount (sats)"
 				keyboardType="number-pad"
 				autoCapitalize="none"
@@ -293,17 +343,17 @@ const BitcoinToLightning = (): ReactElement => {
 				editable={!showConfirm}
 			/>
 
-			{channelID.length > 0 ? (
-				<OutputSummary
-					outputs={transaction.outputs || []}
-					changeAddress={changeAddress}
-					sendAmount={getTransactionOutputValue({})}
-					fee={transaction.fee || 0}
-					lightning
+			{!hasChannelId() ? (
+				<AdjustFee
+					satsPerByte={satsPerByte}
+					decreaseFee={(): void => adjustFee(-1)}
+					increaseFee={(): void => adjustFee(1)}
 				/>
 			) : null}
 
-			{channelID.length === 0 ? (
+			<FeeSummary amount={value} lightning />
+
+			{!hasChannelId() ? (
 				<Button color={'onSurface'} text="Move funds" onPress={onStart} />
 			) : null}
 
