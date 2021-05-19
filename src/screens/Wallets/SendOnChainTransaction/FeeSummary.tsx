@@ -1,4 +1,3 @@
-import { defaultOnChainTransactionData } from '../../../store/types/wallet';
 import React, { memo, ReactElement, useCallback } from 'react';
 import Summary from './Summary';
 import { LayoutAnimation, StyleSheet } from 'react-native';
@@ -7,6 +6,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { getFiatBalance } from '../../../utils/helpers';
 import { View } from '../../../styles/components';
+import { useTransactionDetails } from './TransactionHook';
 
 const FeeSummary = ({
 	amount: _amount = '0',
@@ -22,11 +22,7 @@ const FeeSummary = ({
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 
-	const transaction = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			defaultOnChainTransactionData,
-	);
+	const transaction = useTransactionDetails();
 
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
@@ -34,7 +30,7 @@ const FeeSummary = ({
 
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 
-	const totalFee = transaction.fee;
+	const totalFee = transaction?.fee || 250;
 
 	/*
 	 * Retrieves total value of all outputs. Excludes change address.
