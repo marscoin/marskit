@@ -20,6 +20,35 @@ export type TTicker = 'BTC' | 'tBTC';
 
 export type TTransactionType = 'sent' | 'received';
 
+export type TGetByteCountInput =
+	| 'MULTISIG-P2SH'
+	| 'MULTISIG-P2WSH'
+	| 'MULTISIG-P2SH-P2WSH'
+	| 'P2PKH'
+	| 'P2WPKH'
+	| 'P2SH-P2WPKH'
+	| 'bech32'
+	| 'segwit'
+	| 'legacy'
+	| any; //Unsure how to account for multisig variations (ex. 'MULTISIG-P2SH:2-4')
+
+export type TGetByteCountOutput =
+	| 'P2SH'
+	| 'P2PKH'
+	| 'P2WPKH'
+	| 'P2WSH'
+	| 'bech32'
+	| 'segwit'
+	| 'legacy';
+
+export type TGetByteCountInputs = {
+	[key in TGetByteCountInput]?: number;
+};
+
+export type TGetByteCountOutputs = {
+	[key in TGetByteCountOutput]?: number;
+};
+
 export enum EWallet {
 	selectedNetwork = 'bitcoin',
 	defaultWallet = 'wallet0',
@@ -156,7 +185,7 @@ export interface IDefaultWalletShape {
 	addressIndex: IWalletItem<IAddressContent>;
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	changeAddressIndex: IWalletItem<IAddressContent>;
-	utxos: IWalletItem<IUtxo> | IWalletItem<[]>;
+	utxos: IWalletItem<IUtxo[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;
