@@ -19,6 +19,7 @@ import {
 import {
 	getTotalFee,
 	getTransactionOutputValue,
+	updateFee,
 } from '../utils/wallet/transactions';
 import Button from './Button';
 import {
@@ -147,20 +148,18 @@ const SendForm = ({
 	 */
 	const increaseFee = (): void => {
 		try {
-			//Check that the user has enough funds
-			const newSatsPerByte = Number(satsPerByte) + 1;
-			const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
-			const totalTransactionValue = getOutputsValue();
-			const newTotalAmount = Number(totalTransactionValue) + Number(newFee);
-			//Return if the new fee exceeds half of the user's balance
-			if (Number(newFee) >= balance / 2) {
-				return;
-			}
-			const _transaction: IOnChainTransactionData = {
-				satsPerByte: newSatsPerByte,
-				fee: newFee,
-			};
 			if (max) {
+				//Check that the user has enough funds
+				const newSatsPerByte = Number(satsPerByte) + 1;
+				const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
+				//Return if the new fee exceeds half of the user's balance
+				if (Number(newFee) >= balance / 2) {
+					return;
+				}
+				const _transaction: IOnChainTransactionData = {
+					satsPerByte: newSatsPerByte,
+					fee: newFee,
+				};
 				//Update the tx value with the new fee to continue sending the max amount.
 				_transaction.outputs = [{ address, value: balance - newFee, index }];
 				updateOnChainTransaction({
@@ -168,14 +167,12 @@ const SendForm = ({
 					selectedWallet,
 					transaction: _transaction,
 				}).then();
-				return;
-			}
-			if (newTotalAmount <= balance) {
-				updateOnChainTransaction({
-					selectedNetwork,
+			} else {
+				updateFee({
 					selectedWallet,
-					transaction: _transaction,
-				}).then();
+					selectedNetwork,
+					satsPerByte: Number(satsPerByte) + 1,
+				});
 			}
 		} catch (e) {
 			console.log(e);
@@ -190,21 +187,27 @@ const SendForm = ({
 			if (satsPerByte <= 1) {
 				return;
 			}
-			const newSatsPerByte = Number(satsPerByte) - 1;
-			const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
-			const _transaction: IOnChainTransactionData = {
-				satsPerByte: newSatsPerByte,
-				fee: newFee,
-			};
 			if (max) {
+				const newSatsPerByte = Number(satsPerByte) - 1;
+				const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
+				const _transaction: IOnChainTransactionData = {
+					satsPerByte: newSatsPerByte,
+					fee: newFee,
+				};
 				//Update the tx value with the new fee to continue sending the max amount.
 				_transaction.outputs = [{ address, value: balance - newFee, index }];
+				updateOnChainTransaction({
+					selectedNetwork,
+					selectedWallet,
+					transaction: _transaction,
+				}).then();
+			} else {
+				updateFee({
+					selectedWallet,
+					selectedNetwork,
+					satsPerByte: Number(satsPerByte) - 1,
+				});
 			}
-			updateOnChainTransaction({
-				selectedNetwork,
-				selectedWallet,
-				transaction: _transaction,
-			}).then();
 		} catch {}
 	};
 
@@ -259,7 +262,7 @@ const SendForm = ({
 	 */
 	const sendMax = (): void => {
 		try {
-			if (!max) {
+			if (!max && transaction?.fee) {
 				updateOnChainTransaction({
 					selectedWallet,
 					selectedNetwork,

@@ -34,9 +34,9 @@ import {
 } from '../../../utils/notifications';
 import { defaultOnChainTransactionData } from '../../../store/types/wallet';
 import SendForm from '../../../components/SendForm';
-import { getFiatBalance } from '../../../utils/helpers';
 import Summary from './Summary';
 import OutputSummary from './OutputSummary';
+import FeeSummary from './FeeSummary';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -90,12 +90,6 @@ const SendOnChainTransaction = ({
 				?.address || ' ',
 	);
 
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-
-	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
-
 	useEffect(() => {
 		if (animate) {
 			setTimeout(() => {
@@ -135,24 +129,6 @@ const SendOnChainTransaction = ({
 
 	const amount = getAmountToSend();
 
-	const getFiatAmount = useCallback((): string => {
-		return getFiatBalance({
-			balance: amount,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [amount, exchangeRate, selectedCurrency]);
-	const fiatAmount = getFiatAmount();
-
-	const getFiatTotalFee = useCallback((): string => {
-		return getFiatBalance({
-			balance: totalFee,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [totalFee, exchangeRate, selectedCurrency]);
-	const fiatTotalFee = getFiatTotalFee();
-
 	const getTransactionTotal = useCallback((): number => {
 		try {
 			return Number(amount) + Number(totalFee);
@@ -162,16 +138,6 @@ const SendOnChainTransaction = ({
 	}, [amount, totalFee]);
 
 	const transactionTotal = getTransactionTotal();
-
-	const getFiatTransactionTotal = useCallback((): string => {
-		return getFiatBalance({
-			balance: transactionTotal,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [transactionTotal, exchangeRate, selectedCurrency]);
-
-	const fiatTransactionTotal = getFiatTransactionTotal();
 
 	const _createTransaction = async (): Promise<void> => {
 		try {
@@ -193,12 +159,9 @@ const SendOnChainTransaction = ({
 	if (rawTx) {
 		return (
 			<>
-				<OutputSummary
-					outputs={outputs}
-					changeAddress={changeAddress}
-					sendAmount={getTransactionOutputValue({})}
-					fee={totalFee}
-				/>
+				<OutputSummary outputs={outputs} changeAddress={changeAddress}>
+					<FeeSummary />
+				</OutputSummary>
 				<View color={'transparent'} style={styles.row}>
 					<Summary leftText={'Total:'} rightText={`${transactionTotal} sats`} />
 					<TouchableOpacity
@@ -257,20 +220,7 @@ const SendOnChainTransaction = ({
 			{header && <NavigationHeader title="Send Transaction" />}
 			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
 				<SendForm />
-				<View color="transparent" style={styles.summary}>
-					<Summary
-						leftText={'Amount:'}
-						rightText={`${amount} sats\n$${fiatAmount}`}
-					/>
-					<Summary
-						leftText={'Fee:'}
-						rightText={`${totalFee} sats\n$${fiatTotalFee}`}
-					/>
-					<Summary
-						leftText={'Total:'}
-						rightText={`${transactionTotal} sats\n$${fiatTransactionTotal}`}
-					/>
-				</View>
+				<FeeSummary />
 				<Button
 					disabled={balance < transactionTotal}
 					color="onSurface"
@@ -297,9 +247,6 @@ const styles = StyleSheet.create({
 	row: {
 		flexDirection: 'row',
 		justifyContent: 'space-evenly',
-	},
-	summary: {
-		marginVertical: 20,
 	},
 	broadcastButton: {
 		width: '40%',
