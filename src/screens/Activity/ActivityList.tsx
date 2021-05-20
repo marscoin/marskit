@@ -51,9 +51,9 @@ const ListItem = ({
 
 	const directionIcon =
 		txType === 'sent' ? (
-			<Feather style={{}} name="arrow-up" size={iconSize} />
+			<Feather name="arrow-up" size={iconSize} />
 		) : (
-			<Feather style={{}} name="arrow-down" size={iconSize} />
+			<Feather name="arrow-down" size={iconSize} />
 		);
 
 	const date = new Date(timestamp);
@@ -78,7 +78,7 @@ const ListItem = ({
 				</Text>
 			</View>
 			<View style={styles.col3}>
-				<Text style={styles.value}>{value}</Text>
+				<Text style={styles.value}>{value} sats</Text>
 			</View>
 		</TouchableOpacity>
 	);

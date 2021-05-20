@@ -831,3 +831,23 @@ export const getTransactionUtxoValue = ({
 		return 0;
 	}
 };
+
+/**
+ * Returns a block explorer URL for a specific transaction
+ * @param id
+ * @param selectedNetwork
+ */
+export const getBlockExplorerLink = (
+	id: string,
+	selectedNetwork: TAvailableNetworks | undefined = undefined,
+): string => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	if (selectedNetwork === 'bitcoinTestnet') {
+		return `https://blockstream.info/testnet/tx/${id}`;
+	} else {
+		return `https://blockstream.info/tx/${id}`;
+	}
+};

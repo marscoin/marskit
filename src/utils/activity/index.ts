@@ -78,7 +78,7 @@ export const onChainTransactionsToActivityItems = (
 			activityType: EActivityTypes.onChain,
 			txType,
 			confirmed: height > 0,
-			value: value * 100000000,
+			value: Math.round(value * 100000000),
 			fee,
 			message: messages.length > 0 ? messages[0] : address,
 			timestamp,

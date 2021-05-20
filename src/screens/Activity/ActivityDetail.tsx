@@ -1,19 +1,20 @@
-import React, { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, Linking } from 'react-native';
+import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
+import { StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { IActivityItem } from '../../store/types/activity';
-import themes from '../../styles/themes';
 import Divider from '../../components/Divider';
 import { getFiatBalance, truncate } from '../../utils/helpers';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import { getBlockExplorerLink } from '../../utils/wallet/transactions';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;
 	description?: string;
 	value1: string;
 	value2?: string;
+	link?: string;
 }
 
 const Section = ({
@@ -21,7 +22,19 @@ const Section = ({
 	description,
 	value1,
 	value2,
+	handleLink,
 }: SectionProps): ReactElement => {
+	const Col2Container = ({ children }): ReactElement => {
+		console.log(handleLink);
+		if (handleLink) {
+			return (
+				<TouchableOpacity onPress={handleLink}>{children}</TouchableOpacity>
+			);
+		}
+
+		return <>{children}</>;
+	};
+
 	return (
 		<View style={styles.sectionContent}>
 			<View style={styles.sectionColumn1}>
@@ -29,10 +42,12 @@ const Section = ({
 				{description ? <Text>{description}</Text> : null}
 			</View>
 
-			<View style={styles.sectionColumn2}>
-				<Text>{value1}</Text>
-				{value2 ? <Text>{value2}</Text> : null}
-			</View>
+			<Col2Container>
+				<View style={styles.sectionColumn2}>
+					<Text style={handleLink ? styles.linkText : {}}>{value1}</Text>
+					{value2 ? <Text>{value2}</Text> : null}
+				</View>
+			</Col2Container>
 		</View>
 	);
 };
@@ -82,32 +97,61 @@ const ActivityDetail = (props: Props): ReactElement => {
 		selectedCurrency,
 	});
 
+	const fiatFee = getFiatBalance({
+		balance: Number(fee),
+		exchangeRate,
+		selectedCurrency,
+	});
+
+	const blockExplorerUrl =
+		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
+
+	const handleBlockExplorerOpen = useCallback(async () => {
+		if (await Linking.canOpenURL(blockExplorerUrl)) {
+			await Linking.openURL(blockExplorerUrl);
+		}
+	}, [blockExplorerUrl]);
+
 	return (
 		<View style={styles.container}>
 			<NavigationHeader />
 			<View style={styles.content}>
-				<Text style={styles.title}>Transaction detail</Text>
-				<Divider />
-				<Section
-					title={status}
-					description={confirmed ? 'Confirmed' : 'Unconfirmed'}
-					value1={new Date(timestamp).toLocaleString()}
-				/>
+				<View>
+					<Text style={styles.title}>Transaction detail</Text>
+					<Divider />
+					<Section
+						title={status}
+						description={confirmed ? 'Confirmed' : 'Unconfirmed'}
+						value1={new Date(timestamp).toLocaleString()}
+					/>
+					<Divider />
+					<Section
+						title={'Amount'}
+						value1={`${value} sats`}
+						value2={`${fiatBalance} ${selectedCurrency}`}
+					/>
 
-				<Divider />
+					{fee && txType === 'sent' ? (
+						<>
+							<Divider />
+							<Section
+								title={'Fees'}
+								value1={`${fee} sats`}
+								value2={`${fiatFee} ${selectedCurrency}`}
+							/>
+						</>
+					) : null}
+				</View>
 
-				<Section title={'Amount'} value1={`${value}`} value2={fiatBalance} />
+				<View style={styles.footer}>
+					<Divider />
 
-				{/*<Text>*/}
-				{/*	Type: {activityType} {txType}*/}
-				{/*</Text>*/}
-				{/*<Text>Message: {message}</Text>*/}
-				{/*<Text>Value: {value}</Text>*/}
-				{/*<Text>Confirmed: {confirmed ? '✅' : '⌛'}</Text>*/}
-				{/*{fee ? <Text>Fee: {fee}</Text> : null}*/}
-				<Divider />
-
-				<Section title={'Transaction ID'} value1={truncate(id, 16)} />
+					<Section
+						title={'Transaction ID'}
+						value1={truncate(id, 16)}
+						handleLink={blockExplorerUrl ? handleBlockExplorerOpen : undefined}
+					/>
+				</View>
 			</View>
 		</View>
 	);
@@ -120,6 +164,15 @@ const styles = StyleSheet.create({
 	content: {
 		paddingLeft: 20,
 		paddingRight: 20,
+
+		flex: 1,
+
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+	},
+	footer: {
+		paddingBottom: 20,
 	},
 	title: {
 		fontSize: 21,
@@ -129,17 +182,21 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		flexDirection: 'row',
 		minHeight: 60,
+		paddingVertical: 6,
 	},
 	sectionColumn1: {
 		flex: 4,
 		display: 'flex',
-		justifyContent: 'center',
+		justifyContent: 'space-around',
 	},
 	sectionColumn2: {
 		flex: 5,
 		display: 'flex',
-		justifyContent: 'center',
+		justifyContent: 'space-around',
 		alignItems: 'flex-end',
+	},
+	linkText: {
+		color: '#2D9CDB',
 	},
 });
 
