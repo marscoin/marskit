@@ -39,7 +39,6 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				payload: stateRes.value,
 			});
 
-			refreshLightningTransactions().then();
 			return resolve(ok('LND already started')); //Already running
 		}
 
@@ -58,6 +57,10 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 				type: actions.UPDATE_LIGHTNING_STATE,
 				payload: state,
 			});
+
+			if (state.walletUnlocked) {
+				refreshLightningTransactions().then();
+			}
 		});
 
 		//Any channel opening/closing triggers a new static channel state backup
@@ -68,7 +71,6 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
 			() => {},
 		);
 
-		refreshLightningTransactions().then();
 		resolve(ok('LND started'));
 	});
 };
@@ -249,6 +251,10 @@ const refreshLightningInvoices = (): Promise<Result<string>> => {
 			return resolve(err(res.error));
 		}
 
+		if (res.value.invoices.length === 0) {
+			return resolve(ok('No LND invoices'));
+		}
+
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_INVOICES,
 			payload: res.value,
@@ -267,6 +273,10 @@ const refreshLightningPayments = (): Promise<Result<string>> => {
 		const res = await lnd.listPayments();
 		if (res.isErr()) {
 			return resolve(err(res.error));
+		}
+
+		if (res.value.payments.length === 0) {
+			return resolve(ok('No LND payments'));
 		}
 
 		await dispatch({

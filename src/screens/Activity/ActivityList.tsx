@@ -106,8 +106,9 @@ const ActivityList = (): ReactElement => {
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
-		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
-		await updateActivityList();
+		await Promise.all([refreshLightningTransactions()]);
+		// await Promise.all([refreshWallet(), refreshLightningTransactions()]);
+		// await updateActivityList();
 		setRefreshing(false);
 	};
 

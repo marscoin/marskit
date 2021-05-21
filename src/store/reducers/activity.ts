@@ -3,7 +3,10 @@ import { IActivity } from '../types/activity';
 import { defaultActivityShape } from '../shapes/activity';
 import { filterActivityItems, mergeActivityItems } from '../../utils/activity';
 
-const activity = (state: IActivity, action): IActivity => {
+const activity = (
+	state: IActivity = { ...defaultActivityShape },
+	action,
+): IActivity => {
 	switch (action.type) {
 		case actions.UPDATE_ACTIVITY_ENTRIES:
 			const items = mergeActivityItems(state.items, action.payload);
@@ -41,10 +44,7 @@ const activity = (state: IActivity, action): IActivity => {
 		case actions.RESET_ACTIVITY_STORE:
 			return { ...defaultActivityShape };
 		default:
-			return {
-				...defaultActivityShape,
-				...state,
-			};
+			return state;
 	}
 };
 
