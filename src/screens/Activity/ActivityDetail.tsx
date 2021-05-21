@@ -24,8 +24,7 @@ const Section = ({
 	value2,
 	handleLink,
 }: SectionProps): ReactElement => {
-	const Col2Container = ({ children }): ReactElement => {
-		console.log(handleLink);
+	const Col2 = ({ children }): ReactElement => {
 		if (handleLink) {
 			return (
 				<TouchableOpacity onPress={handleLink}>{children}</TouchableOpacity>
@@ -42,12 +41,12 @@ const Section = ({
 				{description ? <Text>{description}</Text> : null}
 			</View>
 
-			<Col2Container>
+			<Col2>
 				<View style={styles.sectionColumn2}>
 					<Text style={handleLink ? styles.linkText : {}}>{value1}</Text>
 					{value2 ? <Text>{value2}</Text> : null}
 				</View>
-			</Col2Container>
+			</Col2>
 		</View>
 	);
 };

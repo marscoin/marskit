@@ -19,6 +19,7 @@ import {
 import lnd from 'react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
+import { getFiatBalance } from '../../utils/helpers';
 
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -48,10 +49,6 @@ const LightningCard = (): ReactElement => {
 		}
 	}, [lightning.invoiceList, receivePaymentRequest]);
 
-	if (!lightning.channelBalance) {
-		return <View />;
-	}
-
 	const showSendReceive = lightning.channelBalance.balance > 0;
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
@@ -60,14 +57,27 @@ const LightningCard = (): ReactElement => {
 		lightning.channelBalance.pendingOpenBalance === 0 &&
 		lightning.channelBalance.balance === 0;
 
-	const channelBalance = `${lightning.channelBalance.balance} sats`;
+	const balance =
+		Number(lightning.channelBalance.balance) +
+		Number(lightning.channelBalance.pendingOpenBalance);
+
+	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+
+	const fiatBalance = getFiatBalance({
+		balance,
+		exchangeRate,
+		selectedCurrency,
+	});
 
 	return (
 		<AssetCard
 			title={t('lightning')}
 			description={`${debugLightningStatusMessage(lightning)}`}
-			assetBalanceLabel={channelBalance}
-			fiatBalanceLabel="$0"
+			assetBalanceLabel={`${balance} sats`}
+			fiatBalanceLabel={`$${fiatBalance}`}
 			asset="lightning"
 			onPress={(): void => setDisplayButtonRow(!displayButtonRow)}>
 			{displayButtonRow && (
