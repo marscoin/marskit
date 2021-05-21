@@ -83,14 +83,16 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 						});
 					}
 
-					const res = await backupSetup();
-					if (res.isErr()) {
-						showErrorNotification({
-							title: 'Failed to verify remote backup. Retrying...',
-							message: res.error.message,
-						});
-						performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
-					}
+					setTimeout(async () => {
+						const res = await backupSetup();
+						if (res.isErr()) {
+							showErrorNotification({
+								title: 'Failed to verify remote backup. Retrying...',
+								message: res.error.message,
+							});
+							performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
+						}
+					}, 3000);
 				});
 		});
 

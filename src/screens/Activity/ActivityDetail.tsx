@@ -14,7 +14,7 @@ interface SectionProps extends PropsWithChildren<any> {
 	description?: string;
 	value1: string;
 	value2?: string;
-	link?: string;
+	handleLink?: (event) => void;
 }
 
 const Section = ({
@@ -57,7 +57,6 @@ interface Props extends PropsWithChildren<any> {
 
 const ActivityDetail = (props: Props): ReactElement => {
 	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
-	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
 	);
@@ -66,6 +65,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 		activityItem: {
 			id,
 			message,
+			address,
 			activityType,
 			txType,
 			value,
@@ -138,6 +138,20 @@ const ActivityDetail = (props: Props): ReactElement => {
 								value1={`${fee} sats`}
 								value2={`${fiatFee} ${selectedCurrency}`}
 							/>
+						</>
+					) : null}
+
+					{message ? (
+						<>
+							<Divider />
+							<Section title={'Message'} value1={message} />
+						</>
+					) : null}
+
+					{address ? (
+						<>
+							<Divider />
+							<Section title={'Address'} value1={address} />
 						</>
 					) : null}
 				</View>

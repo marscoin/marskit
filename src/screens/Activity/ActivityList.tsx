@@ -25,7 +25,15 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const { message, value, activityType, txType, confirmed, timestamp } = item;
+	const {
+		message,
+		address,
+		value,
+		activityType,
+		txType,
+		confirmed,
+		timestamp,
+	} = item;
 
 	const iconSize = 20;
 
@@ -58,6 +66,8 @@ const ListItem = ({
 
 	const date = new Date(timestamp);
 
+	const note = message || address || '';
+
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
 			<View style={styles.col1}>
@@ -66,7 +76,7 @@ const ListItem = ({
 				<Text>{confirmed ? '✅' : '⌛'}</Text>
 			</View>
 			<View style={styles.col2}>
-				<Text style={styles.message}>{truncate(message, 20)}</Text>
+				<Text style={styles.note}>{truncate(note, 20)}</Text>
 				<Text style={styles.date}>
 					{date.toLocaleDateString(undefined, {
 						hour: 'numeric',
@@ -106,9 +116,8 @@ const ActivityList = (): ReactElement => {
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
-		await Promise.all([refreshLightningTransactions()]);
-		// await Promise.all([refreshWallet(), refreshLightningTransactions()]);
-		// await updateActivityList();
+		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
+		await updateActivityList();
 		setRefreshing(false);
 	};
 
@@ -154,7 +163,7 @@ const styles = StyleSheet.create({
 	value: {
 		textAlign: 'right',
 	},
-	message: {},
+	note: {},
 	date: {
 		fontWeight: '300',
 	},
