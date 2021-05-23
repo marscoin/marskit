@@ -35,7 +35,7 @@ const NavigationHeader = ({
 	title = '',
 	isHome = false,
 }: {
-	title: string;
+	title?: string;
 	isHome?: boolean;
 }): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();

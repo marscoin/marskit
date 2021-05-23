@@ -25,7 +25,15 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const { message, value, activityType, txType, confirmed, timestamp } = item;
+	const {
+		message,
+		address,
+		value,
+		activityType,
+		txType,
+		confirmed,
+		timestamp,
+	} = item;
 
 	const iconSize = 20;
 
@@ -51,12 +59,14 @@ const ListItem = ({
 
 	const directionIcon =
 		txType === 'sent' ? (
-			<Feather style={{}} name="arrow-up" size={iconSize} />
+			<Feather name="arrow-up" size={iconSize} />
 		) : (
-			<Feather style={{}} name="arrow-down" size={iconSize} />
+			<Feather name="arrow-down" size={iconSize} />
 		);
 
 	const date = new Date(timestamp);
+
+	const note = message || address || '';
 
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
@@ -66,7 +76,7 @@ const ListItem = ({
 				<Text>{confirmed ? '✅' : '⌛'}</Text>
 			</View>
 			<View style={styles.col2}>
-				<Text style={styles.message}>{truncate(message, 20)}</Text>
+				<Text style={styles.note}>{truncate(note, 20)}</Text>
 				<Text style={styles.date}>
 					{date.toLocaleDateString(undefined, {
 						hour: 'numeric',
@@ -78,7 +88,7 @@ const ListItem = ({
 				</Text>
 			</View>
 			<View style={styles.col3}>
-				<Text style={styles.value}>{value}</Text>
+				<Text style={styles.value}>{value} sats</Text>
 			</View>
 		</TouchableOpacity>
 	);
@@ -153,7 +163,7 @@ const styles = StyleSheet.create({
 	value: {
 		textAlign: 'right',
 	},
-	message: {},
+	note: {},
 	date: {
 		fontWeight: '300',
 	},
