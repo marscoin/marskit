@@ -42,7 +42,8 @@ const OnboardingNavigator = (): ReactElement => {
 								//eslint-disable-next-line react-native/no-inline-styles
 								style={{ alignItems: 'center' }}
 								onPress={async (): Promise<void> => {
-									const data: IsSensorAvailableResult = await ReactNativeBiometrics.isSensorAvailable();
+									const data: IsSensorAvailableResult =
+										await ReactNativeBiometrics.isSensorAvailable();
 									if (!data.biometryType) {
 										navigation.replace('Welcome');
 									} else {

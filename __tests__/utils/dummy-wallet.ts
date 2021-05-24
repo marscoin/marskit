@@ -220,8 +220,7 @@ export const walletState = {
 				fee: 0.00000222,
 				type: 'received',
 				value: 0.0001,
-				txid:
-					'6927ef1dbc7afd90dde0969e8455411e8bf30303e5da470de2a2b37b8337e7d5',
+				txid: '6927ef1dbc7afd90dde0969e8455411e8bf30303e5da470de2a2b37b8337e7d5',
 				messages: [],
 				timestamp: 1620126237217,
 			},
@@ -237,8 +236,7 @@ export const walletState = {
 				fee: 0.00000222,
 				type: 'received',
 				value: 0.00123456,
-				txid:
-					'83c9769fcf970ae8806b18549b18d7ad05e1f7c7e546bb4e355c638262977da2',
+				txid: '83c9769fcf970ae8806b18549b18d7ad05e1f7c7e546bb4e355c638262977da2',
 				messages: [],
 				timestamp: 1620302316342,
 			},

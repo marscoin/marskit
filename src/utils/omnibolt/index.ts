@@ -286,8 +286,10 @@ export const onBitcoinFundingCreated = async ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	const tempChannelId = data.result.sign_data.temporary_channel_id;
-	const signingData: ISigningData = getStore().omnibolt.wallets[selectedWallet]
-		.signingData[selectedNetwork][tempChannelId];
+	const signingData: ISigningData =
+		getStore().omnibolt.wallets[selectedWallet].signingData[selectedNetwork][
+			tempChannelId
+		];
 	const fundingAddress = signingData.addressIndex;
 	const privkey = await getPrivateKey({
 		addressData: fundingAddress,
@@ -369,9 +371,10 @@ export const onAssetFundingCreated = async ({
 		}
 
 		const tempChannelId = data.result.sign_data.temporary_channel_id;
-		const signingData: ISigningData = getStore().omnibolt.wallets[
-			selectedWallet
-		].signingData[selectedNetwork][tempChannelId];
+		const signingData: ISigningData =
+			getStore().omnibolt.wallets[selectedWallet].signingData[selectedNetwork][
+				tempChannelId
+			];
 		const fundingAddress = signingData.fundingAddress;
 		const privkey = await getPrivateKey({
 			addressData: fundingAddress,
@@ -641,11 +644,8 @@ export const onCommitmentTransactionCreated = async ({
 		// Save address index to OBD and can get private key back if lose it.
 		curr_temp_address_index: newAddressIndex.index,
 	};
-	const commitmentTransactionAcceptedResponse = await obdapi.commitmentTransactionAccepted(
-		nodeID,
-		userID,
-		info,
-	);
+	const commitmentTransactionAcceptedResponse =
+		await obdapi.commitmentTransactionAccepted(nodeID, userID, info);
 
 	if (commitmentTransactionAcceptedResponse.isErr()) {
 		return err(commitmentTransactionAcceptedResponse.error.message);
@@ -1164,9 +1164,10 @@ export const getIsFunder = ({
 		}
 		let channelData: IMyChannelsData | undefined;
 		try {
-			channelData = getStore().omnibolt.wallets[selectedWallet].channels[
-				selectedNetwork
-			][channelId];
+			channelData =
+				getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork][
+					channelId
+				];
 		} catch {}
 		if (!channelData) {
 			return err('Unable to find specified channel data.');
@@ -1205,9 +1206,10 @@ export const getChannelData = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const channelData = getStore().omnibolt.wallets[selectedWallet]?.channels[
-			selectedNetwork
-		][channelId];
+		const channelData =
+			getStore().omnibolt.wallets[selectedWallet]?.channels[selectedNetwork][
+				channelId
+			];
 		if (channelData) {
 			return ok(channelData);
 		}
@@ -1286,9 +1288,10 @@ export const getFundingAddress = async ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const addressData: IAddressContent = getStore().omnibolt.wallets[
-			selectedWallet
-		].signingData[selectedNetwork][channelId].fundingAddress;
+		const addressData: IAddressContent =
+			getStore().omnibolt.wallets[selectedWallet].signingData[selectedNetwork][
+				channelId
+			].fundingAddress;
 		const privKeyResult = await getPrivateKey({
 			addressData,
 			selectedWallet,
@@ -1566,9 +1569,8 @@ export const getConnectPeerInfo = ({
 		if (!omniboltStore[selectedWallet]?.userData[selectedNetwork]) {
 			return '';
 		}
-		const { nodeAddress, nodePeerId, userPeerId } = omniboltStore[
-			selectedWallet
-		]?.userData[selectedNetwork];
+		const { nodeAddress, nodePeerId, userPeerId } =
+			omniboltStore[selectedWallet]?.userData[selectedNetwork];
 		return JSON.stringify({
 			nodeAddress,
 			nodePeerId,
@@ -1634,9 +1636,8 @@ export const openOmniboltChannel = async ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
-	const { address } = getStore().wallet.wallets[selectedWallet].utxos[
-		selectedNetwork
-	][0];
+	const { address } =
+		getStore().wallet.wallets[selectedWallet].utxos[selectedNetwork][0];
 	const info: OpenChannelInfo = {
 		funding_pubkey: address,
 		is_private: false,
@@ -1674,9 +1675,8 @@ export const getOmniboltUserData = ({
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
 		}
-		const userData = getStore().omnibolt.wallets[selectedWallet].userData[
-			selectedNetwork
-		];
+		const userData =
+			getStore().omnibolt.wallets[selectedWallet].userData[selectedNetwork];
 		return ok(userData);
 	} catch (e) {
 		return err(e);
@@ -1708,9 +1708,11 @@ export const connectAndOpenChannel = async ({
 			selectedWallet = getSelectedWallet();
 		}
 		data = data.trim();
-		const { nodeAddress = '', nodePeerId = '', userPeerId = '' } = JSON.parse(
-			data,
-		);
+		const {
+			nodeAddress = '',
+			nodePeerId = '',
+			userPeerId = '',
+		} = JSON.parse(data);
 
 		const connectPeerResponse = await obdapi.connectPeer({
 			remote_node_address: nodeAddress,
@@ -1720,9 +1722,8 @@ export const connectAndOpenChannel = async ({
 			//return err(`Unable to connect to:\n${nodeAddress}`);
 		}
 
-		const { publicKey } = getStore().wallet.wallets[selectedWallet].utxos[
-			selectedNetwork
-		][0];
+		const { publicKey } =
+			getStore().wallet.wallets[selectedWallet].utxos[selectedNetwork][0];
 
 		const info: OpenChannelInfo = {
 			funding_pubkey: publicKey,
@@ -1759,15 +1760,12 @@ export const connectAndOpenChannel = async ({
 export const onChannelOpenAttempt = async (
 	data: TOnChannelOpenAttempt,
 ): Promise<Result<TOnChannelOpenAttempt>> => {
-	const {
-		funder_node_address,
-		funder_peer_id,
-		temporary_channel_id,
-	} = data.result;
+	const { funder_node_address, funder_peer_id, temporary_channel_id } =
+		data.result;
 	const selectedWallet = getSelectedWallet();
 	const selectedNetwork = getSelectedNetwork();
-	const channelAddress = getStore().omnibolt.wallets[selectedWallet]
-		.addressIndex[selectedNetwork];
+	const channelAddress =
+		getStore().omnibolt.wallets[selectedWallet].addressIndex[selectedNetwork];
 	const funding_pubkey = channelAddress.publicKey;
 
 	const info = {
@@ -1833,9 +1831,10 @@ export const getNextOmniboltAddress = async ({
 	let index = 0;
 	let addressIndex;
 	try {
-		addressIndex = getStore().omnibolt?.wallets[selectedWallet]?.addressIndex[
-			selectedNetwork
-		];
+		addressIndex =
+			getStore().omnibolt?.wallets[selectedWallet]?.addressIndex[
+				selectedNetwork
+			];
 	} catch {}
 	if (
 		addressIndex &&
@@ -1959,8 +1958,10 @@ export const getOmniboltChannelSigningData = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const signingData = getStore().omnibolt.wallets[selectedWallet]
-			?.signingData[selectedNetwork][channelId][signingDataKey];
+		const signingData =
+			getStore().omnibolt.wallets[selectedWallet]?.signingData[selectedNetwork][
+				channelId
+			][signingDataKey];
 		if (!signingData) {
 			return err('Unable to retrieve signingData.');
 		}
@@ -1997,8 +1998,10 @@ export const getSigningData = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const signingData = getStore().omnibolt.wallets[selectedWallet]
-			?.signingData[selectedNetwork][channelId];
+		const signingData =
+			getStore().omnibolt.wallets[selectedWallet]?.signingData[selectedNetwork][
+				channelId
+			];
 		if (!signingData) {
 			return err('Unable to retrieve signingData.');
 		}

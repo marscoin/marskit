@@ -680,9 +680,8 @@ export const getOnchainTransactionData = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const transaction = getStore().wallet.wallets[selectedWallet].transaction[
-			selectedNetwork
-		];
+		const transaction =
+			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork];
 		if (transaction) {
 			return ok(transaction);
 		}

@@ -353,9 +353,8 @@ export const clearOmniboltCheckpoint = async ({
 		selectedWallet = getSelectedWallet();
 	}
 
-	const checkpoints = getStore().omnibolt.wallets[selectedWallet].checkpoints[
-		selectedNetwork
-	];
+	const checkpoints =
+		getStore().omnibolt.wallets[selectedWallet].checkpoints[selectedNetwork];
 
 	if (channelId in checkpoints) {
 		delete checkpoints[channelId];
@@ -495,9 +494,8 @@ export const renameOmniboltChannelId = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	let signingData = getStore().omnibolt.wallets[selectedWallet].signingData[
-		selectedNetwork
-	];
+	let signingData =
+		getStore().omnibolt.wallets[selectedWallet].signingData[selectedNetwork];
 	if (!(oldChannelId in signingData)) {
 		return err('Channel ID does not exist.');
 	}

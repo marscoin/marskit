@@ -35,13 +35,13 @@ const Settings = ({ navigation }): ReactElement => {
 		(state: Store) => state.backup.backpackSynced,
 	);
 
-	const [biometryData, setBiometricData] = useState<
-		IsSensorAvailableResult | undefined
-	>(undefined);
+	const [biometryData, setBiometricData] =
+		useState<IsSensorAvailableResult | undefined>(undefined);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
-			const data: IsSensorAvailableResult = await ReactNativeBiometrics.isSensorAvailable();
+			const data: IsSensorAvailableResult =
+				await ReactNativeBiometrics.isSensorAvailable();
 			setBiometricData(data);
 		})();
 	}, []);
