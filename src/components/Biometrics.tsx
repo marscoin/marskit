@@ -58,13 +58,13 @@ const Biometrics = ({
 	style = {},
 	children = <></>,
 }: BiometricsComponent): ReactElement => {
-	const [biometryData, setBiometricData] = useState<
-		IsSensorAvailableResult | undefined
-	>(undefined);
+	const [biometryData, setBiometricData] =
+		useState<IsSensorAvailableResult | undefined>(undefined);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
-			const data: IsSensorAvailableResult = await ReactNativeBiometrics.isSensorAvailable();
+			const data: IsSensorAvailableResult =
+				await ReactNativeBiometrics.isSensorAvailable();
 			setBiometricData(data);
 			authenticate(`Confirm ${data?.biometryType || ''}`);
 		})();

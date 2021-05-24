@@ -47,7 +47,7 @@ export const setKeychainValue = async ({
 export const isOnline = async (): Promise<boolean> => {
 	try {
 		const connectionInfo = await NetInfo.fetch();
-		return connectionInfo.isConnected;
+		return connectionInfo.isConnected === true;
 	} catch {
 		return false;
 	}

@@ -25,7 +25,7 @@ const defaultNodeHost = '35.240.72.95:9735'; //Our testnet server
 
 export const getCustomLndConf = (network: LndNetworks): TLndConf => {
 	//Lightning alias to help identify users on our node
-	let alias = `Spectrum v${packageJson.version}`;
+	let alias = `Backpack v${packageJson.version}`;
 	if (__DEV__) {
 		alias = `${alias} (${Platform.OS} ${Platform.Version})`;
 	}

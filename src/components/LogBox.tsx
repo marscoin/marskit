@@ -12,7 +12,7 @@ import Store from '../store/types';
 
 let scrollView;
 
-const onSharePress = ({ title = 'spectrum-lnd-logs', message = '' }): void => {
+const onSharePress = ({ title = 'backpack-lnd-logs', message = '' }): void => {
 	try {
 		Share.share(
 			{

@@ -99,7 +99,7 @@ const LightningCard = (): ReactElement => {
 									onPress={async (): Promise<void> => {
 										const res = await lnd.createInvoice(
 											25,
-											`Spectrum test ${new Date().getTime()}`,
+											`Backpack test ${new Date().getTime()}`,
 										);
 
 										if (res.isErr()) {
