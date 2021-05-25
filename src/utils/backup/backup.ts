@@ -19,9 +19,8 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
 		//Derivation paths and address types depend on the currently selected network
 		const walletKeys = Object.keys(getStore().wallet.wallets);
 		for (let index = 0; index < walletKeys.length; index++) {
-			const wallet: IDefaultWalletShape = getStore().wallet.wallets[
-				walletKeys[index]
-			];
+			const wallet: IDefaultWalletShape =
+				getStore().wallet.wallets[walletKeys[index]];
 
 			const { data: mnemonic } = await getKeychainValue({
 				key: wallet.id,

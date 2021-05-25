@@ -25,7 +25,7 @@ const defaultNodeHost = '35.240.72.95:9735'; //Our testnet server
 
 export const getCustomLndConf = (network: LndNetworks): TLndConf => {
 	//Lightning alias to help identify users on our node
-	let alias = `Spectrum v${packageJson.version}`;
+	let alias = `Backpack v${packageJson.version}`;
 	if (__DEV__) {
 		alias = `${alias} (${Platform.OS} ${Platform.Version})`;
 	}
@@ -89,9 +89,9 @@ export const openChannelStream = (
 	onDone: () => void,
 ): Uint8Array => {
 	const { selectedNetwork, selectedWallet } = getStore().wallet;
-	const closeAddress = getStore().wallet?.wallets[selectedWallet]?.addressIndex[
-		selectedNetwork
-	].address;
+	const closeAddress =
+		getStore().wallet?.wallets[selectedWallet]?.addressIndex[selectedNetwork]
+			.address;
 
 	const channelId = lnd.openChannelStream(
 		sats,
@@ -216,11 +216,8 @@ export const debugListPeers = async (
  * @returns {string}
  */
 export const debugLightningStatusMessage = (lightning: ILightning): string => {
-	const {
-		task,
-		unzipProgress,
-		downloadProgress,
-	} = lightning.cachedNeutrinoDBDownloadState;
+	const { task, unzipProgress, downloadProgress } =
+		lightning.cachedNeutrinoDBDownloadState;
 	if (task === 'downloading') {
 		return `Cache ⬇ ${downloadProgress}%`;
 	}

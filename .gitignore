@@ -57,7 +57,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-ios/spectrum/lightning/Lndmobile.framework/
+ios/backpack/lightning/Lndmobile.framework/
 android/Lndmobile/Lndmobile.aar
 coverage
 

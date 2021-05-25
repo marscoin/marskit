@@ -128,8 +128,8 @@ export const subscribeToAddresses = async ({
 		changeAddressScriptHash =
 			currentWallet.changeAddressIndex[selectedNetwork].scriptHash;
 	}*/
-	const subscribeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
-		{
+	const subscribeAddressResponse: ISubscribeToAddress =
+		await electrum.subscribeAddress({
 			scriptHash: addressScriptHash,
 			network: selectedNetwork,
 			onReceive: (data): void => {
@@ -139,8 +139,7 @@ export const subscribeToAddresses = async ({
 				});
 				refreshWallet();
 			},
-		},
-	);
+		});
 	/*const subscribeChangeAddressResponse: ISubscribeToAddress = await electrum.subscribeAddress(
 		{
 			scriptHash: changeAddressScriptHash,
@@ -1180,9 +1179,9 @@ export const getHighestStoredAddressIndex = ({
 			prev.index > current.index ? prev : current,
 		);
 
-		const changeAddressIndex = Object.values(
-			changeAddresses,
-		).reduce((prev, current) => (prev.index > current.index ? prev : current));
+		const changeAddressIndex = Object.values(changeAddresses).reduce(
+			(prev, current) => (prev.index > current.index ? prev : current),
+		);
 
 		return ok({ addressIndex, changeAddressIndex });
 	} catch (e) {
@@ -1625,19 +1624,17 @@ export const getAddressHistory = async ({
 			key: 'scriptHash',
 			data: scriptHashes,
 		};
-		const response: IGetAddressScriptHashesHistoryResponse = await electrum.getAddressScriptHashesHistory(
-			{
+		const response: IGetAddressScriptHashesHistoryResponse =
+			await electrum.getAddressScriptHashesHistory({
 				scriptHashes: payload,
 				network: selectedNetwork,
-			},
-		);
+			});
 
-		const mempoolResponse: IGetAddressScriptHashesHistoryResponse = await electrum.getAddressScriptHashesMempool(
-			{
+		const mempoolResponse: IGetAddressScriptHashesHistoryResponse =
+			await electrum.getAddressScriptHashesMempool({
 				scriptHashes: payload,
 				network: selectedNetwork,
-			},
-		);
+			});
 
 		if (response.error || mempoolResponse.error) {
 			return err('Unable to get address history.');
@@ -1813,11 +1810,10 @@ export const getRbfData = async ({
 	}
 	const txData: ITransaction<ITxHash>[] = txResponse.value.data;
 
-	const addresses = getStore().wallet.wallets[selectedWallet].addresses[
-		selectedNetwork
-	];
-	const changeAddresses = getStore().wallet.wallets[selectedWallet]
-		.changeAddresses[selectedNetwork];
+	const addresses =
+		getStore().wallet.wallets[selectedWallet].addresses[selectedNetwork];
+	const changeAddresses =
+		getStore().wallet.wallets[selectedWallet].changeAddresses[selectedNetwork];
 
 	const allAddress = { ...addresses, ...changeAddresses };
 
@@ -1911,14 +1907,8 @@ export const getRbfData = async ({
 export const formatRbfData = async (
 	data: IRbfData,
 ): Promise<IOnChainTransactionData> => {
-	const {
-		selectedWallet,
-		utxos,
-		outputs,
-		fee,
-		selectedNetwork,
-		message,
-	} = data;
+	const { selectedWallet, utxos, outputs, fee, selectedNetwork, message } =
+		data;
 
 	let changeAddress: undefined | string;
 	let satsPerByte = 1;

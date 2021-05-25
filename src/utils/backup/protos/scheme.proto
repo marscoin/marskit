@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 /*
- * Spectrum wallet backup schema
+ * Backpack wallet backup schema
  */
 
 message Backup {

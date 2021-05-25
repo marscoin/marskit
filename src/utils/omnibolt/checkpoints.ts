@@ -24,8 +24,8 @@ import { getSelectedNetwork, getSelectedWallet } from '../wallet';
 export const resumeFromCheckpoints = async (): Promise<void> => {
 	const selectedWallet = getSelectedWallet();
 	const selectedNetwork = getSelectedNetwork();
-	const checkpoints: ICheckpoint = getStore().omnibolt.wallets[selectedWallet]
-		.checkpoints[selectedNetwork];
+	const checkpoints: ICheckpoint =
+		getStore().omnibolt.wallets[selectedWallet].checkpoints[selectedNetwork];
 	await Promise.all(
 		Object.keys(checkpoints).map((channelId): void => {
 			const id = checkpoints[channelId].checkpoint;

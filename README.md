@@ -1,10 +1,10 @@
-# Spectrum
+# Backpack
 
-[![Test status](https://github.com/synonymdev/spectrum/workflows/tests/badge.svg)](https://github.com/synonymdev/spectrum/actions)
+[![Test status](https://github.com/synonymdev/backpack/workflows/tests/badge.svg)](https://github.com/synonymdev/backpack/actions)
 
 ### Installation
-1. Clone Spectrum:
-    - `git clone git@github.com:synonymdev/spectrum.git`
+1. Clone Backpack:
+    - `git clone git@github.com:synonymdev/backpack.git`
    
 
 3. Install Dependencies:
@@ -18,4 +18,4 @@
 
 ### Download APK
  - As testing proceeds, APK's will be added to each release and updated as needed for testing.
-   - https://github.com/synonymdev/spectrum/releases/
+   - https://github.com/synonymdev/backpack/releases/

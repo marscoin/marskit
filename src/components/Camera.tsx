@@ -18,7 +18,7 @@ const _Camera = ({
 		<View style={styles.notAuthorizedView}>
 			<EvilIcon name={'exclamation'} size={60} />
 			<Text style={styles.boldText}>
-				It appears Spectrum does not have permission to access your camera.
+				It appears Backpack does not have permission to access your camera.
 			</Text>
 			<Text style={styles.text}>
 				To utilize this feature in the future you will need to enable camera
@@ -40,7 +40,7 @@ const _Camera = ({
 				}}
 				onMountError={(): void => {
 					console.log(
-						'An error was encountered when loading the camera. Please ensure Spectrum has permission to use this feature in your phone settings.',
+						'An error was encountered when loading the camera. Please ensure Backpack has permission to use this feature in your phone settings.',
 					);
 					onClose();
 				}}
@@ -49,7 +49,7 @@ const _Camera = ({
 				flashMode={RNCamera.Constants.FlashMode.on}
 				androidCameraPermissionOptions={{
 					title: 'Permission to use camera',
-					message: 'Spectrum needs permission to use your camera',
+					message: 'Backpack needs permission to use your camera',
 					buttonPositive: 'Okay',
 					buttonNegative: 'Cancel',
 				}}>
