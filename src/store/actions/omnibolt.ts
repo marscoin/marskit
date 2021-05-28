@@ -5,6 +5,7 @@ import { TAvailableNetworks } from '../../utils/networks';
 import {
 	IConnect,
 	IGetMyChannelsData,
+	IGetProperty,
 	ILogin,
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
@@ -19,6 +20,7 @@ import {
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import {
 	createOmniboltId,
+	getAssetDataById,
 	getNextOmniboltAddress,
 	getOmniboltChannels,
 	getOmniboltUserData,
@@ -512,4 +514,28 @@ export const renameOmniboltChannelId = async ({
 		payload,
 	});
 	return ok(signingData);
+};
+
+/**
+ * Fetches and saves the specified asset's data for future use and reference.
+ * @param {string} id
+ * @return {Promise<Result<IGetProperty>>}
+ */
+export const addOmniboltAssetData = async (
+	id,
+): Promise<Result<IGetProperty>> => {
+	try {
+		const response = await getAssetDataById(id.toString());
+		if (response.isErr()) {
+			return err(response.error.message);
+		}
+		const payload = response.value;
+		await dispatch({
+			type: actions.UPDATE_OMNIBOLT_ASSET_DATA,
+			payload,
+		});
+		return response;
+	} catch (e) {
+		return err(e);
+	}
 };

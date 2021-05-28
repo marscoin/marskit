@@ -220,6 +220,15 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 				},
 			};
 
+		case actions.UPDATE_OMNIBOLT_ASSET_DATA:
+			return {
+				...state,
+				assetData: {
+					...state.assetData,
+					[action.payload.propertyid]: action.payload,
+				},
+			};
+
 		case actions.RESET_OMNIBOLT_STORE:
 		case actions.WIPE_WALLET:
 			return { ...defaultOmniBoltShape };
