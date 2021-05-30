@@ -3,6 +3,7 @@ import {
 	IBitcoinFundingCreated,
 	IConnect,
 	IFundingBitcoin,
+	IGetProperty,
 	ILogin,
 	IOnBitcoinFundingCreated,
 	IOnChannelOpenAttempt,
@@ -14,6 +15,9 @@ import { ICheckpoint, IMyChannels } from '../shapes/omnibolt';
 export interface IOmniBolt {
 	wallets: {
 		[key: string]: IOmniBoltWallet;
+	};
+	assetData: {
+		[key: string]: IGetProperty;
 	};
 }
 

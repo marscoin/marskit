@@ -38,7 +38,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
-import AdjustFee from '../../../components/AdjustFee';
+import AdjustValue from '../../../components/AdjustValue';
 import FeeSummary from './FeeSummary';
 
 const BitcoinToLightning = (): ReactElement => {
@@ -344,10 +344,10 @@ const BitcoinToLightning = (): ReactElement => {
 			/>
 
 			{!hasChannelId() ? (
-				<AdjustFee
-					satsPerByte={satsPerByte}
-					decreaseFee={(): void => adjustFee(-1)}
-					increaseFee={(): void => adjustFee(1)}
+				<AdjustValue
+					value={satsPerByte}
+					decreaseValue={(): void => adjustFee(-1)}
+					increaseValue={(): void => adjustFee(1)}
 				/>
 			) : null}
 

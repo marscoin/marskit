@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getConnectPeerInfo } from '../../utils/omnibolt';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import SendOmniAsset from './SendOmniAsset';
 
 const OmniboltCard = (): ReactElement => {
 	const [displayReceive, setDisplayReceive] = useState(false);
@@ -76,11 +77,19 @@ const OmniboltCard = (): ReactElement => {
 		<AssetCard
 			title="Omnibolt"
 			assetBalanceLabel={`Channels: ${channelCount()}\nTemp Channels ${tempChannelCount()}`}
-			fiatBalanceLabel={'Peers: 0'}
+			fiatBalanceLabel={''}
 			asset="omnibolt"
 			onPress={toggleCard}>
 			{shouldDisplayButtons() && (
 				<>
+					{Object.keys(channels).map((channelId, i) => (
+						<View
+							key={`${channelId}${i}`}
+							color={'transparent'}
+							style={styles.sendAssetContainer}>
+							<SendOmniAsset channelId={channelId} />
+						</View>
+					))}
 					<View color="transparent" style={styles.buttonRow}>
 						<Button
 							color="onSurface"
@@ -112,6 +121,9 @@ const styles = StyleSheet.create({
 	receiveButton: {
 		flex: 1,
 		marginLeft: 5,
+	},
+	sendAssetContainer: {
+		marginVertical: 20,
 	},
 });
 

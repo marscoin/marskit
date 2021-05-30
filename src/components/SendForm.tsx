@@ -8,7 +8,7 @@ import React, {
 import { Platform, StyleSheet } from 'react-native';
 import { AnimatedView, TextInput, View } from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
-import AdjustFee from './AdjustFee';
+import AdjustValue from './AdjustValue';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import {
@@ -262,7 +262,12 @@ const SendForm = ({
 	 */
 	const sendMax = (): void => {
 		try {
-			if (!max && transaction?.fee) {
+			if (
+				!max &&
+				balance > 0 &&
+				transaction?.fee &&
+				balance / 2 > transaction.fee
+			) {
 				updateOnChainTransaction({
 					selectedWallet,
 					selectedNetwork,
@@ -324,6 +329,7 @@ const SendForm = ({
 					<Button
 						color={max ? 'surface' : 'onSurface'}
 						text="Max"
+						disabled={balance <= 0}
 						onPress={sendMax}
 					/>
 				</View>
@@ -345,10 +351,10 @@ const SendForm = ({
 				)}
 
 				{!!displayFee && (
-					<AdjustFee
-						satsPerByte={getSatsPerByte()}
-						decreaseFee={decreaseFee}
-						increaseFee={increaseFee}
+					<AdjustValue
+						value={`${getSatsPerByte()} sats/byte`}
+						decreaseValue={decreaseFee}
+						increaseValue={increaseFee}
 					/>
 				)}
 			</AnimatedView>

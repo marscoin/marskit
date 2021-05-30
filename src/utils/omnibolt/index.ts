@@ -25,6 +25,7 @@ import {
 	TOnChannelOpenAttempt,
 	TOnCommitmentTransactionCreated,
 	TSendSignedHex101035,
+	IGetProperty,
 } from 'omnibolt-js/lib/types/types';
 import {
 	generateAddresses,
@@ -37,6 +38,7 @@ import {
 } from '../wallet';
 import {
 	addOmniboltAddress,
+	addOmniboltAssetData,
 	clearOmniboltCheckpoint,
 	connectToOmnibolt,
 	loginToOmnibolt,
@@ -67,6 +69,7 @@ import {
 import { IAddressContent } from '../../store/types/wallet';
 import { resumeFromCheckpoints } from './checkpoints';
 import { IMyChannelsData } from '../../store/shapes/omnibolt';
+import { showSuccessNotification } from '../notifications';
 
 const bitcoin = require('bitcoinjs-lib');
 const obdapi = new ObdApi();
@@ -853,6 +856,11 @@ export const on110353 = async (e: TOn110353): Promise<unknown> => {
 	await clearOmniboltCheckpoint({
 		channelId: e.result.channel_id,
 	});
+	showSuccessNotification({
+		title: 'Omnibolt Channel Update',
+		message: 'Successfully Received Funds',
+	});
+	updateOmniboltChannels({}).then();
 	return ok(sendSignedHex100364Res.value);
 };
 
@@ -918,7 +926,7 @@ export const sendOmniAsset = async ({
 		);
 
 		if (response.isErr()) {
-			return err(response.error.message);
+			return err(response.error);
 		}
 		const e = response.value;
 
@@ -1131,6 +1139,11 @@ export const on110352 = async (
 	if (sendSignedHex100363Res.isErr()) {
 		return err(sendSignedHex100363Res.error.message);
 	}
+	showSuccessNotification({
+		title: 'Omnibolt Channel Update',
+		message: 'Successfully Sent Funds',
+	});
+	updateOmniboltChannels({}).then();
 	return ok(sendSignedHex100363Res.value);
 };
 
@@ -1870,6 +1883,8 @@ export const getNextOmniboltAddress = async ({
  */
 export const onAcceptChannel = (data: TOnAcceptChannel): void => {
 	console.log('onAcceptChannel', data);
+	//Save omnibolt property id and it's data for future use/reference.
+	addOmniboltAssetData(data.result.property_id);
 	updateOmniboltChannels({}).then();
 };
 
@@ -2006,6 +2021,24 @@ export const getSigningData = ({
 			return err('Unable to retrieve signingData.');
 		}
 		return ok(signingData);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns related data for a given omnibolt asset id.
+ * @param {string} id
+ * @return {Promise<Result<IGetProperty>>}
+ */
+export const getAssetDataById = async (
+	id: string | undefined,
+): Promise<Result<IGetProperty>> => {
+	try {
+		if (!id) {
+			return err('No asset id provided.');
+		}
+		return await obdapi.getProperty(id);
 	} catch (e) {
 		return err(e);
 	}

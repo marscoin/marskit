@@ -85,4 +85,5 @@ export const defaultOmniBoltShape: IOmniBolt = {
 	wallets: {
 		wallet0: defaultOmniboltWalletShape,
 	},
+	assetData: {},
 };
