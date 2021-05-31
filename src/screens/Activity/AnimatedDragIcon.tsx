@@ -6,8 +6,7 @@ import {
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native';
 
-import UpIcon from '../../assets/icons/chevron-up.svg';
-import DownIcon from '../../assets/icons/chevron-down.svg';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
@@ -16,7 +15,7 @@ interface Props {
 	direction: 'up' | 'down';
 }
 
-const iconSize = 22;
+const iconSize = 40;
 
 const AnimatedDragIcon: React.FC<Props> = ({ direction }) => {
 	const ref = React.useRef<TransitioningView | null>(null);
@@ -39,16 +38,16 @@ const AnimatedDragIcon: React.FC<Props> = ({ direction }) => {
 			ref={ref}
 			transition={transition}>
 			{direction === 'up' ? (
-				<UpIcon
-					fill={theme.colors.onBackground}
-					height={iconSize}
-					width={iconSize}
+				<EvilIcons
+					name={'chevron-up'}
+					size={iconSize}
+					color={theme.colors.onBackground}
 				/>
 			) : (
-				<DownIcon
-					fill={theme.colors.onBackground}
-					height={iconSize}
-					width={iconSize}
+				<EvilIcons
+					name={'chevron-down'}
+					size={iconSize}
+					color={theme.colors.onBackground}
 				/>
 			)}
 		</Transitioning.View>
