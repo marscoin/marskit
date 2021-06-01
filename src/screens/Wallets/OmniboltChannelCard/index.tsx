@@ -19,7 +19,7 @@ import {
 	showInfoNotification,
 } from '../../../utils/notifications';
 import Clipboard from '@react-native-community/clipboard';
-const SendOmniAsset = ({
+const OmniboltChannelCard = ({
 	channelId = '',
 }: {
 	channelId: string;
@@ -141,31 +141,35 @@ const SendOmniAsset = ({
 				style={styles.row}>
 				<Text>Channel ID: {channelId}</Text>
 			</TouchableOpacity>
-			<AdjustValue
-				value={`${amount} ${assetName}`}
-				decreaseValue={(): void => {
-					const newAmount = amount - 1;
-					if (newAmount >= 0) {
-						setAmount(newAmount);
-					}
-				}}
-				increaseValue={(): void => {
-					const newAmount = amount + 1;
-					if (myBalance >= newAmount) {
-						setAmount(newAmount);
-					}
-				}}
-			/>
-			<View color="transparent" style={styles.row}>
-				<Button
-					color="onSurface"
-					style={styles.receiveButton}
-					disabled={amount <= 0}
-					onPress={sendAsset}
-					loading={loading}
-					text={`Send ${amount} ${assetName}`}
-				/>
-			</View>
+			{myBalance > 0 && (
+				<>
+					<AdjustValue
+						value={`${amount} ${assetName}`}
+						decreaseValue={(): void => {
+							const newAmount = amount - 1;
+							if (newAmount >= 0) {
+								setAmount(newAmount);
+							}
+						}}
+						increaseValue={(): void => {
+							const newAmount = amount + 1;
+							if (myBalance >= newAmount) {
+								setAmount(newAmount);
+							}
+						}}
+					/>
+					<View color="transparent" style={styles.row}>
+						<Button
+							color="onSurface"
+							style={styles.button}
+							disabled={amount <= 0}
+							onPress={sendAsset}
+							loading={loading}
+							text={`Send ${amount} ${assetName}`}
+						/>
+					</View>
+				</>
+			)}
 		</View>
 	);
 };
@@ -179,10 +183,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		marginVertical: 5,
 	},
-	receiveButton: {
+	button: {
 		flex: 1,
-		marginLeft: 5,
 	},
 });
 
-export default memo(SendOmniAsset);
+export default memo(OmniboltChannelCard);

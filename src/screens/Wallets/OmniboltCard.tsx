@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getConnectPeerInfo } from '../../utils/omnibolt';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import SendOmniAsset from './SendOmniAsset';
+import OmniboltChannelCard from './OmniboltChannelCard';
 
 const OmniboltCard = (): ReactElement => {
 	const [displayReceive, setDisplayReceive] = useState(false);
@@ -87,7 +87,7 @@ const OmniboltCard = (): ReactElement => {
 							key={`${channelId}${i}`}
 							color={'transparent'}
 							style={styles.sendAssetContainer}>
-							<SendOmniAsset channelId={channelId} />
+							<OmniboltChannelCard channelId={channelId} />
 						</View>
 					))}
 					<View color="transparent" style={styles.buttonRow}>
