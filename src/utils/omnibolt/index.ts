@@ -70,6 +70,7 @@ import { IAddressContent } from '../../store/types/wallet';
 import { resumeFromCheckpoints } from './checkpoints';
 import { IMyChannelsData } from '../../store/shapes/omnibolt';
 import { showSuccessNotification } from '../notifications';
+import { ISendSignedHex100362Response } from 'omnibolt-js/src/types';
 
 const bitcoin = require('bitcoinjs-lib');
 const obdapi = new ObdApi();
@@ -141,15 +142,6 @@ export const connect = async ({
 				channelId: data.result.channel_id,
 			});
 		},
-		on110353: (data: TOn110353): void => {
-			//Auto response to -110353
-			updateOmniboltCheckpoint({
-				channelId: data.result.channel_id,
-				checkpoint: 'on110353',
-				data,
-			}).then();
-			on110353(data);
-		},
 		on110352: (data: TOn110352): void => {
 			//Auto response to -110352
 			updateOmniboltCheckpoint({
@@ -157,7 +149,18 @@ export const connect = async ({
 				checkpoint: 'on110352',
 				data,
 			}).then();
+			console.log('on110352', data);
 			on110352(data);
+		},
+		on110353: (data: TOn110353): void => {
+			//Auto response to -110353
+			updateOmniboltCheckpoint({
+				channelId: data.result.channel_id,
+				checkpoint: 'on110353',
+				data,
+			}).then();
+			console.log('on110353', data);
+			on110353(data);
 		},
 		onAddHTLC: (data: TOnCommitmentTransactionCreated): any => {
 			console.log('onAddHTLC', data);
@@ -169,6 +172,17 @@ export const connect = async ({
 		onForwardR: (data) => console.log('onForwardR', data),
 		onOpen: (data) => console.log('onOpen', data),
 		onSignR: (data) => console.log('onSignR', data),
+		onChannelCloseAttempt: (data): void => {
+			console.log('onChannelCloseAttempt', data);
+			try {
+				updateOmniboltCheckpoint({
+					channelId: data.result.channel_id,
+					checkpoint: 'onChannelCloseAttempt',
+					data,
+				}).then();
+			} catch {}
+			onChannelCloseAttempt(data);
+		},
 	});
 };
 
@@ -1096,55 +1110,94 @@ export const on110352 = async (
 	if (resp.isErr()) {
 		return err(resp.error.message);
 	}
-	// console.info('sendSignedHex100362 = ' + JSON.stringify(e));
 
-	// Receiver sign the tx on client side
-	// NO.1 c2b_br_raw_data
-	let br = resp.value.c2b_br_raw_data;
-	let br_inputs = br.inputs;
-	let br_hex = await signP2SH({
-		is_first_sign: true,
-		txhex: br.hex,
-		pubkey_1: br.pub_key_a,
-		pubkey_2: br.pub_key_b,
+	const sendSignedHex100363Data: ISendSignedHex100363 = {
+		data: resp.value,
 		privkey,
-		inputs: br_inputs,
-	});
-
-	// NO.2 c2b_rd_raw_data
-	let rd2 = resp.value.c2b_rd_raw_data;
-	const rd_inputs2 = rd.inputs;
-	let rd_hex2 = await signP2SH({
-		is_first_sign: true,
-		txhex: rd2.hex,
-		pubkey_1: rd2.pub_key_a,
-		pubkey_2: rd2.pub_key_b,
-		privkey,
-		inputs: rd_inputs2,
-	});
-
-	// will send 100363
-	let signedInfo100363: SignedInfo100363 = {
-		channel_id: e.channel_id,
-		c2b_rd_signed_hex: rd_hex2,
-		c2b_br_signed_hex: br_hex,
-		c2b_br_id: br.br_id,
-	};
-
-	const sendSignedHex100363Res = await obdapi.sendSignedHex100363(
+		channelId: e.channel_id,
 		nodeID,
 		userID,
-		signedInfo100363,
-	);
-	if (sendSignedHex100363Res.isErr()) {
-		return err(sendSignedHex100363Res.error.message);
+	};
+
+	updateOmniboltCheckpoint({
+		channelId: data.result.channel_id,
+		checkpoint: 'sendSignedHex100363',
+		data: sendSignedHex100363Data,
+	}).then();
+
+	return await sendSignedHex100363(sendSignedHex100363Data);
+};
+
+export interface ISendSignedHex100363 {
+	data: ISendSignedHex100362Response;
+	privkey: string;
+	channelId: string;
+	nodeID: string;
+	userID: string;
+}
+export const sendSignedHex100363 = async ({
+	data,
+	privkey,
+	channelId,
+	nodeID,
+	userID,
+}: ISendSignedHex100363): Promise<Result<ISendSignedHex100363Response>> => {
+	try {
+		// Receiver sign the tx on client side
+		// NO.1 c2b_br_raw_data
+		let br = data.c2b_br_raw_data;
+		let br_inputs = br.inputs;
+		let br_hex = await signP2SH({
+			is_first_sign: true,
+			txhex: br.hex,
+			pubkey_1: br.pub_key_a,
+			pubkey_2: br.pub_key_b,
+			privkey,
+			inputs: br_inputs,
+		});
+
+		// NO.2 c2b_rd_raw_data
+		let rd = data.c2b_rd_raw_data;
+		const rd_inputs = rd.inputs;
+		const rdData = {
+			is_first_sign: true,
+			txhex: rd.hex,
+			pubkey_1: rd.pub_key_a,
+			pubkey_2: rd.pub_key_b,
+			privkey,
+			inputs: rd_inputs,
+		};
+		let rd_hex = await signP2SH(rdData);
+
+		// will send 100363
+		let signedInfo100363: SignedInfo100363 = {
+			channel_id: channelId,
+			c2b_rd_signed_hex: rd_hex,
+			c2b_br_signed_hex: br_hex,
+			c2b_br_id: br.br_id,
+		};
+
+		const sendSignedHex100363Res = await obdapi.sendSignedHex100363(
+			nodeID,
+			userID,
+			signedInfo100363,
+		);
+
+		if (sendSignedHex100363Res.isErr()) {
+			return err(sendSignedHex100363Res.error.message);
+		}
+		clearOmniboltCheckpoint({
+			channelId,
+		}).then();
+		showSuccessNotification({
+			title: 'Omnibolt Channel Update',
+			message: 'Successfully Sent Funds',
+		});
+		updateOmniboltChannels({}).then();
+		return ok(sendSignedHex100363Res.value);
+	} catch (error) {
+		return err(error);
 	}
-	showSuccessNotification({
-		title: 'Omnibolt Channel Update',
-		message: 'Successfully Sent Funds',
-	});
-	updateOmniboltChannels({}).then();
-	return ok(sendSignedHex100363Res.value);
 };
 
 /**
@@ -2041,5 +2094,33 @@ export const getAssetDataById = async (
 		return await obdapi.getProperty(id);
 	} catch (e) {
 		return err(e);
+	}
+};
+
+export const closeChannel = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	channelId = '',
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	channelId: string;
+}): Promise<any> => {
+	try {
+		return await obdapi.closeChannel(
+			recipient_node_peer_id,
+			recipient_user_peer_id,
+			channelId,
+		);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const onChannelCloseAttempt = (data: any): void => {
+	try {
+		console.log(data);
+	} catch (e) {
+		console.log(e);
 	}
 };
