@@ -113,7 +113,9 @@ export type TOmniboltCheckpoints =
 	| 'closeHtlc'
 	| 'onCloseHtlc'
 	| 'closeHtlcSigned'
-	| 'onCloseHtlcSigned';
+	| 'onCloseHtlcSigned'
+	| 'onChannelCloseAttempt'
+	| 'sendSignedHex100363';
 
 export type TOmniboltCheckpontData =
 	| IOnBitcoinFundingCreated

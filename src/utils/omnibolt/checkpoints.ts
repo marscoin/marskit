@@ -9,6 +9,7 @@ import {
 	on110353,
 	ICommitmentTransactionAcceptedCheckpointData,
 	on110352,
+	sendSignedHex100363,
 } from './index';
 import {
 	TOnChannelOpenAttempt,
@@ -56,13 +57,17 @@ export const resumeFromCheckpoints = async (): Promise<void> => {
 						commitmentTransactionAcceptedData,
 					).then();
 					break;
+				case 'on110352':
+					const on110352Data: TOn110352 = checkpoints[channelId].data;
+					on110352(on110352Data).then();
+					break;
 				case 'on110353':
 					const on110353Data: TOn110353 = checkpoints[channelId].data;
 					on110353(on110353Data).then();
 					break;
-				case 'on110352':
-					const on110352Data: TOn110352 = checkpoints[channelId].data;
-					on110352(on110352Data).then();
+				case 'sendSignedHex100363':
+					const sendSignedHex100363Data = checkpoints[channelId].data;
+					sendSignedHex100363(sendSignedHex100363Data).then();
 					break;
 				case 'sendSignedHex101035':
 					const sendSignedHex101035Data: {
