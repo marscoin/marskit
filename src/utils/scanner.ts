@@ -2,7 +2,7 @@
  * Helper functions that allow for any possible bitcoin related QR to be scanned
  */
 
-import lnd from 'react-native-lightning';
+import lnd from '@synonymdev/react-native-lightning';
 import bip21 from 'bip21';
 import { err, ok, Result } from './result';
 import {

@@ -25,6 +25,11 @@ jobs:
           key: ${{ secrets.TEST_USER_SSH_KEY }}
           known_hosts: ${{ secrets.TEST_USER_KNOWN_HOSTS }}
 
+      - name: Use NPM Token with organization read access
+        uses: dkershner6/use-npm-token-action@v1
+        with:
+          token: "${{ secrets.NPMJS_READ }}"
+
       - name: Install Node.js dependencies
         run: yarn install
 

@@ -2,7 +2,7 @@ import actions from './actions';
 import { ok, Result } from '../../utils/result';
 import { EActivityTypes, IActivityItem } from '../types/activity';
 import { getDispatch, getStore } from '../helpers';
-import lnd from 'react-native-lightning';
+import lnd from '@synonymdev/react-native-lightning';
 import {
 	lightningInvoiceToActivityItem,
 	lightningPaymentToActivityItem,

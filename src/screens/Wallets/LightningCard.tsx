@@ -16,7 +16,7 @@ import {
 	connectToDefaultPeer,
 	debugLightningStatusMessage,
 } from '../../utils/lightning';
-import lnd from 'react-native-lightning';
+import lnd from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
 import { getFiatBalance } from '../../utils/helpers';

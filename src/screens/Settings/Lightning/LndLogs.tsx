@@ -7,7 +7,7 @@ import {
 	TouchableOpacity,
 } from '../../../styles/components';
 import LogBox from '../../../components/LogBox';
-import lnd from 'react-native-lightning';
+import lnd from '@synonymdev/react-native-lightning';
 
 const LndLogs = ({ navigation }): ReactElement => {
 	const [content, setContent] = useState<string[]>([]);

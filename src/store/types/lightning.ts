@@ -2,7 +2,8 @@ import {
 	lnrpc,
 	TCurrentLndState,
 	ENetworks as LndNetworks,
-} from 'react-native-lightning';
+	ICachedNeutrinoDBDownloadState,
+} from '@synonymdev/react-native-lightning';
 
 export interface ILightning {
 	syncProgress: number;
@@ -12,12 +13,6 @@ export interface ILightning {
 	invoiceList: lnrpc.ListInvoiceResponse;
 	paymentList: lnrpc.ListPaymentsResponse;
 	cachedNeutrinoDBDownloadState: ICachedNeutrinoDBDownloadState;
-}
-
-export interface ICachedNeutrinoDBDownloadState {
-	task?: undefined | 'downloading' | 'unzipping' | 'complete' | 'failed';
-	downloadProgress?: number;
-	unzipProgress?: number;
 }
 
 export interface ICreateLightningWallet {

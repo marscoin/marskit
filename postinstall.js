@@ -12,25 +12,8 @@ function postInstallLinWin() {
 	);
 }
 
-//TODO: remove this once react-native-lightning is published to npm
-function buildRnLightning() {
-	console.log("***Start of temporary hack for building react-native-lightning. TODO: remove this once published to npm.***\"\n")
-	exec(
-		'cd node_modules/react-native-lightning/\n' +
-		'rm -rf dist\n' +
-		'mkdir dist\n' +
-		'yarn install\n' +
-		'yarn protobuf\n' +
-		'cd ../../\n' +
-		'sed -i -e "s/dist\\/index.js/src\\/index.ts/g" node_modules/react-native-lightning/package.json\n' +
-		'sed -i -e "s/\\"types\\": \\".\\/dist\\/index.d.ts\\",//g" node_modules/react-native-lightning/package.json\n'
-	)
-	console.log("***End of temporary hack.***\"")
-}
-
 if (os.type() === 'Darwin') {
 	postInstallMac();
-	buildRnLightning();
 } else {
 	postInstallLinWin();
 }

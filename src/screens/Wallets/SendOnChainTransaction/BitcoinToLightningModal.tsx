@@ -33,7 +33,7 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
-import lnd, { lnrpc } from 'react-native-lightning/src/index';
+import lnd, { lnrpc } from '@synonymdev/react-native-lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
