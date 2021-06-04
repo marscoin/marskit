@@ -12,7 +12,7 @@ import {
 	createTransaction,
 	signPsbt,
 } from '../src/utils/wallet/transactions';
-import { lnrpc } from 'react-native-lightning';
+import { lnrpc } from '@synonymdev/react-native-lightning';
 
 describe('On chain transactions', () => {
 	beforeAll(async () => {

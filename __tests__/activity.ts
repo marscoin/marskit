@@ -4,7 +4,7 @@ import {
 	updateSearchFilter,
 	updateTypesFilter,
 } from '../src/store/actions/activity';
-import { lnrpc } from 'react-native-lightning';
+import { lnrpc } from '@synonymdev/react-native-lightning';
 import { getDispatch, getStore } from '../src/store/helpers';
 import { EActivityTypes } from '../src/store/types/activity';
 import { IFormattedTransaction } from '../src/store/types/wallet';

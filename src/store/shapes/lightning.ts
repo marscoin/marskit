@@ -1,5 +1,5 @@
 import { ILightning } from '../types/lightning';
-import { lnrpc } from 'react-native-lightning';
+import { lnrpc } from '@synonymdev/react-native-lightning';
 
 export const defaultLightningShape: ILightning = {
 	syncProgress: 0,

@@ -5,7 +5,7 @@ import { getKeychainValue } from '../helpers';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
-import lnd from 'react-native-lightning';
+import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {

@@ -1,4 +1,4 @@
-import { ENetworks as LndNetworks } from 'react-native-lightning/src/types';
+import { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning';
 import { DownloadProgressCallbackResult } from 'react-native-fs';
 import RNFS from 'react-native-fs';
 import { unzip, subscribe } from 'react-native-zip-archive';

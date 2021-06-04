@@ -1,7 +1,7 @@
 import actions from '../actions/actions';
 import { ILightning } from '../types/lightning';
 import { defaultLightningShape } from '../shapes/lightning';
-import { lnrpc } from 'react-native-lightning';
+import { lnrpc } from '@synonymdev/react-native-lightning';
 
 const lightning = (state: ILightning, action): ILightning => {
 	switch (action.type) {

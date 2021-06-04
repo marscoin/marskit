@@ -6,7 +6,7 @@ import lnd, {
 	ENetworks as LndNetworks,
 	TLndConf,
 	lnrpc,
-} from 'react-native-lightning';
+} from '@synonymdev/react-native-lightning';
 import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import RNFS from 'react-native-fs';

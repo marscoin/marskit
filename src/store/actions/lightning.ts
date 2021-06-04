@@ -9,7 +9,7 @@ import lnd, {
 	lnrpc,
 	LndConf,
 	ENetworks as LndNetworks,
-} from 'react-native-lightning';
+} from '@synonymdev/react-native-lightning';
 import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
 import {

@@ -20,7 +20,7 @@ import {
 import { refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
 import { lnAuth, lnWithdraw } from '../../utils/lnurl';
-import lnd from 'react-native-lightning/src/index';
+import lnd from '@synonymdev/react-native-lightning';
 import { LNURLWithdrawParams } from 'js-lnurl';
 
 const ScannerScreen = ({ navigation }): ReactElement => {

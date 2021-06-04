@@ -2,7 +2,7 @@ import {
 	lnrpc,
 	TCurrentLndState,
 	ENetworks as LndNetworks,
-} from 'react-native-lightning';
+} from '@synonymdev/react-native-lightning';
 
 export interface ILightning {
 	syncProgress: number;
