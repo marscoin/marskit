@@ -7,15 +7,16 @@ import { backupSetup, performFullBackup } from '../../store/actions/backup';
 import { backpackRetrieve, IBackpackAuth } from '../backup/backpack';
 import { restoreFromBackup } from '../backup/backup';
 import { startOmnibolt } from '../omnibolt';
-import { downloadNeutrinoCache } from '../lightning/cachedHeaders';
 import {
 	createLightningWallet,
 	startLnd,
 	unlockLightningWallet,
+	updateCachedNeutrinoDownloadState,
 } from '../../store/actions/lightning';
 import lnd, {
 	ENetworks as LndNetworks,
 } from '@synonymdev/react-native-lightning';
+import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cache';
 import { showErrorNotification } from '../notifications';
 
 export const checkWalletExists = async (): Promise<void> => {
@@ -68,7 +69,9 @@ export const startWalletServices = async (): Promise<Result<string>> => {
 			//Create and start omnibolt.
 			startOmnibolt({ selectedWallet }).then();
 
-			downloadNeutrinoCache(lndNetwork)
+			lndCache.addStateListener(updateCachedNeutrinoDownloadState);
+			lndCache
+				.downloadCache(lndNetwork)
 				//Start LND no matter the outcome of the download
 				.finally(async () => {
 					await startLnd(lndNetwork);

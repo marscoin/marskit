@@ -1,6 +1,5 @@
 import actions from './actions';
 import {
-	ICachedNeutrinoDBDownloadState,
 	ICreateLightningWallet,
 	IUnlockLightningWallet,
 } from '../types/lightning';
@@ -9,6 +8,7 @@ import lnd, {
 	lnrpc,
 	LndConf,
 	ENetworks as LndNetworks,
+	ICachedNeutrinoDBDownloadState,
 } from '@synonymdev/react-native-lightning';
 import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
