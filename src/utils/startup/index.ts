@@ -13,7 +13,9 @@ import {
 	startLnd,
 	unlockLightningWallet,
 } from '../../store/actions/lightning';
-import lnd, { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning';
+import lnd, {
+	ENetworks as LndNetworks,
+} from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../notifications';
 
 export const checkWalletExists = async (): Promise<void> => {
