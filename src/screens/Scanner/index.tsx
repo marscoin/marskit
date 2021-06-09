@@ -17,9 +17,13 @@ import {
 	updateOnChainTransaction,
 	updateWallet,
 } from '../../store/actions/wallet';
-import { refreshWallet } from '../../utils/wallet';
+import { getMnemonicPhrase, refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
-import { lnAuth, lnWithdraw } from '../../utils/lnurl';
+import {
+	lnurlAuth,
+	LNURLAuthParams,
+	lnurlWithdraw,
+} from '@synonymdev/react-native-lnurl';
 import lnd from '@synonymdev/react-native-lightning';
 import { LNURLWithdrawParams } from 'js-lnurl';
 
@@ -105,7 +109,15 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.lnurlAuth: {
-				const authRes = await lnAuth(data.lnUrlParams!);
+				const getMnemonicPhraseResponse = await getMnemonicPhrase(
+					selectedWallet,
+				);
+
+				const authRes = await lnurlAuth({
+					params: data.lnUrlParams! as LNURLAuthParams,
+					network: selectedNetwork,
+					bip32Mnemonic: getMnemonicPhraseResponse.data,
+				});
 				if (authRes.isErr()) {
 					showErrorNotification({
 						title: 'LNURL-Auth failed',
@@ -134,7 +146,10 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					return;
 				}
 
-				let withdrawRes = await lnWithdraw(params, invRes.value.paymentRequest);
+				let withdrawRes = await lnurlWithdraw(
+					params,
+					invRes.value.paymentRequest,
+				);
 				if (withdrawRes.isErr()) {
 					showErrorNotification({
 						title: 'LNURL-Withdraw failed',

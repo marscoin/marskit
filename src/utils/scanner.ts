@@ -17,8 +17,14 @@ import { IOmniboltConnectData } from '../store/types/omnibolt';
 import { parseOmniboltConnectData } from './omnibolt';
 import { getStore } from '../store/helpers';
 import { getSelectedNetwork, getSelectedWallet } from './wallet';
-import { getLNURLParams } from './lnurl';
-import { LNURLAuthParams, LNURLWithdrawParams } from 'js-lnurl';
+import {
+	getLNURLParams,
+	LNURLAuthParams,
+	LNURLWithdrawParams,
+	LNURLChannelParams,
+	LNURLPayParams,
+	LNURLResponse,
+} from '@synonymdev/react-native-lnurl';
 
 const availableNetworksList = availableNetworks();
 
@@ -80,7 +86,12 @@ export interface QRData extends IOmniboltConnectData {
 	address?: string;
 	lightningPaymentRequest?: string;
 	message?: string;
-	lnUrlParams?: LNURLWithdrawParams | LNURLAuthParams;
+	lnUrlParams?:
+		| LNURLAuthParams
+		| LNURLWithdrawParams
+		| LNURLChannelParams
+		| LNURLPayParams
+		| LNURLResponse;
 }
 
 /**
@@ -110,19 +121,31 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 				return err(res.error);
 			}
 
-			const qrDataType =
-				res.value.tag === 'login'
-					? EQRDataType.lnurlAuth
-					: res.value.tag === 'withdrawRequest'
-					? EQRDataType.lnurlWithdraw
-					: null;
+			const params = res.value;
+			let tag = '';
+			if ('tag' in params) {
+				tag = params.tag;
+			}
+
+			let qrDataType: EQRDataType | undefined;
+
+			switch (tag) {
+				case 'login': {
+					qrDataType = EQRDataType.lnurlAuth;
+					break;
+				}
+				case 'withdrawRequest': {
+					qrDataType = EQRDataType.lnurlWithdraw;
+					break;
+				}
+			}
 
 			if (qrDataType) {
 				foundNetworksInQR.push({
 					qrDataType,
 					//No real difference between networks for lnurl, all keys are derived the same way so assuming current network
 					network: getStore().wallet.selectedNetwork,
-					lnUrlParams: res.value,
+					lnUrlParams: params,
 				});
 			}
 		} else {
