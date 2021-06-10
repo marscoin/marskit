@@ -1,4 +1,5 @@
 import { IWalletItem, TBitcoinUnit } from './wallet';
+import { EExchangeRateService } from '../../utils/fiat';
 
 type TTheme = 'dark' | 'light' | 'blue';
 type TProtocol = 'ssl' | 'tcp';
@@ -19,6 +20,7 @@ export interface ISettings {
 	bitcoinUnit: TBitcoinUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
+	exchangeRateService: EExchangeRateService;
 	selectedLanguage: string;
 	[key: string]: any;
 }

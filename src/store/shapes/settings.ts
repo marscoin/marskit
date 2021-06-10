@@ -1,5 +1,6 @@
 import { ISettings } from '../types/settings';
 import { arrayTypeItems } from './wallet';
+import { EExchangeRateService } from '../../utils/fiat';
 
 export const defaultSettingsShape: ISettings = {
 	loading: false,
@@ -9,7 +10,7 @@ export const defaultSettingsShape: ISettings = {
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
-	exchangeRateService: 'bitfinex',
+	exchangeRateService: EExchangeRateService.bitfinex,
 	selectedLanguage: 'english',
 	customElectrumPeers: { ...arrayTypeItems },
 };

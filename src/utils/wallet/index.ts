@@ -678,27 +678,6 @@ export const getBitcoinBalance = ({
 	}
 };
 
-export const getExchangeRate = async ({
-	selectedCurrency = 'USD',
-	asset = 'bitcoin',
-	exchangeRateService = 'bitfinex',
-}: {
-	selectedCurrency?: string;
-	asset?: string;
-	exchangeRateService?: string;
-}): Promise<IResponse<number | object>> => {
-	try {
-		const assetTicker = getAssetTicker(asset);
-		selectedCurrency = selectedCurrency.toUpperCase();
-		return await exchangeRateHelpers[exchangeRateService]({
-			assetTicker,
-			selectedCurrency,
-		});
-	} catch (e) {
-		return { error: true, data: e };
-	}
-};
-
 /**
  *
  * @param {string} asset

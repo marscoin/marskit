@@ -95,6 +95,7 @@ export const defaultWalletStoreShape: IWallet = {
 	selectedNetwork: 'bitcoinTestnet',
 	selectedWallet: EWallet.defaultWallet,
 	exchangeRate: 0,
+	exchangeRates: {},
 	wallets: {
 		wallet0: { ...defaultWalletShape },
 	},
