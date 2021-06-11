@@ -60,7 +60,22 @@ const OmniboltCard = (): ReactElement => {
 
 	const channelCount = useCallback((): number => {
 		try {
-			return Object.keys(channels)?.length || 0;
+			return (
+				Object.keys(channels)?.filter((channel) => {
+					return channels[channel].curr_state !== 21;
+				}).length || 0
+			);
+		} catch (e) {
+			return 0;
+		}
+	}, [channels]);
+	const closedChannelCount = useCallback((): number => {
+		try {
+			return (
+				Object.keys(channels)?.filter((channel) => {
+					return channels[channel].curr_state === 21;
+				}).length || 0
+			);
 		} catch (e) {
 			return 0;
 		}
@@ -76,20 +91,12 @@ const OmniboltCard = (): ReactElement => {
 	return (
 		<AssetCard
 			title="Omnibolt"
-			assetBalanceLabel={`Channels: ${channelCount()}\nTemp Channels ${tempChannelCount()}`}
+			assetBalanceLabel={`Channels: ${channelCount()}\nTemp: ${tempChannelCount()}\nClosed: ${closedChannelCount()}`}
 			fiatBalanceLabel={''}
 			asset="omnibolt"
 			onPress={toggleCard}>
 			{shouldDisplayButtons() && (
 				<>
-					{Object.keys(channels).map((channelId, i) => (
-						<View
-							key={`${channelId}${i}`}
-							color={'transparent'}
-							style={styles.sendAssetContainer}>
-							<OmniboltChannelCard channelId={channelId} />
-						</View>
-					))}
 					<View color="transparent" style={styles.buttonRow}>
 						<Button
 							color="onSurface"
@@ -107,6 +114,14 @@ const OmniboltCard = (): ReactElement => {
 					{displayReceive && (
 						<QR data={connectId} displayText={false} header={false} />
 					)}
+					{Object.keys(channels).map((channelId, i) => (
+						<View
+							key={`${channelId}${i}`}
+							color={'transparent'}
+							style={styles.sendAssetContainer}>
+							<OmniboltChannelCard channelId={channelId} />
+						</View>
+					))}
 				</>
 			)}
 		</AssetCard>
