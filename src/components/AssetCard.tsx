@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
 		alignItems: 'flex-start',
 	},
 	col2: {
-		flex: 2,
+		flex: 2.2,
 	},
 	fiatLabelContainer: {
 		flex: 1,

@@ -55,9 +55,22 @@ import {
 } from '../../store/types/omnibolt';
 import { networks, TAvailableNetworks } from '../networks';
 import {
+	AcceptChannelInfo,
+	addHTLCInfo,
+	AtomicSwapAccepted,
+	AtomicSwapRequest,
+	CloseHtlcTxInfo,
+	CloseHtlcTxInfoSigned,
 	CommitmentTx,
 	CommitmentTxSigned,
+	ForwardRInfo,
+	HTLCFindPathInfo,
+	HtlcSignedInfo,
+	InvoiceInfo,
 	IssueFixedAmountInfo,
+	IssueManagedAmoutInfo,
+	OmniSendGrant,
+	OmniSendRevoke,
 	OpenChannelInfo,
 	SignedInfo100360,
 	SignedInfo100361,
@@ -65,6 +78,7 @@ import {
 	SignedInfo100363,
 	SignedInfo100364,
 	SignedInfo101035,
+	SignRInfo,
 } from 'omnibolt-js/lib/types/pojo';
 import { IAddressContent } from '../../store/types/wallet';
 import { resumeFromCheckpoints } from './checkpoints';
@@ -2123,4 +2137,595 @@ export const onChannelCloseAttempt = (data: any): void => {
 	} catch (e) {
 		console.log(e);
 	}
+};
+
+/**
+ * MsgType_HTLC_CreatedRAndHInfoList_N4001
+ * @return {Promise<Result<any>>}
+ */
+export const getAddHTLCRandHInfoList = async (): Promise<Result<any>> => {
+	try {
+		return await obdapi.getAddHTLCRandHInfoList();
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_SignedRAndHInfoList_N4101
+ * @return {Promise<Result<any>>}
+ */
+export const getHtlcSignedRandHInfoList = async (): Promise<Result<any>> => {
+	try {
+		return await obdapi.getHtlcSignedRandHInfoList();
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_GetRFromLCommitTx_N4103
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getRFromCommitmentTx = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getRFromCommitmentTx(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_GetPathInfoByH_N4104
+ * @param {string} h
+ * @return {Promise<Result<any>>}
+ */
+export const getPathInfoByH = async (h): Promise<Result<any>> => {
+	try {
+		if (!h) {
+			return err('Empty h.');
+		}
+		return await obdapi.getPathInfoByH(h);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_GetRInfoByHOfOwner_N4105
+ * @param {string} h
+ * @return {Promise<Result<any>>}
+ */
+export const getRByHOfReceiver = async (h): Promise<Result<any>> => {
+	try {
+		if (!h) {
+			return err('Empty h.');
+		}
+		return await obdapi.getRByHOfReceiver(h);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_LatestCommitmentTxByChanId_3203
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getLatestCommitmentTransaction = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getLatestCommitmentTransaction(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_LatestCommitmentTxByChanId_3203
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getItemsByChannelId = async (channel_id): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getItemsByChannelId(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_GetMiniBtcFundAmount_2006
+ * @return {Promise<Result<any>>}
+ */
+export const getAmountOfRechargeBTC = async (): Promise<Result<any>> => {
+	try {
+		return await obdapi.getAmountOfRechargeBTC();
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_GetChannelInfoByChannelId_3154
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getChannelDetailFromChannelID = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getChannelDetailFromChannelID(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_GetChannelInfoByDbId_3155
+ * @param {string} id
+ * @return {Promise<Result<any>>}
+ */
+export const getChannelDetailFromDatabaseID = async (
+	id,
+): Promise<Result<any>> => {
+	try {
+		if (!id) {
+			return err('No id provided.');
+		}
+		return await obdapi.getChannelDetailFromDatabaseID(id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_AllBRByChanId_3208
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getAllBreachRemedyTransactions = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getAllBreachRemedyTransactions(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_ItemsByChanId_3200
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getAllCommitmentTx = async (channel_id): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getAllCommitmentTx(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_LatestRDByChanId_3204
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getLatestRevockableDeliveryTransaction = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getLatestRevockableDeliveryTransaction(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_LatestRDByChanId_3204
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getLatestBreachRemedyTransaction = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getLatestBreachRemedyTransaction(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_SendSomeCommitmentById_3206
+ * @param {string} id
+ * @return {Promise<Result<any>>}
+ */
+export const sendSomeCommitmentById = async (id): Promise<Result<any>> => {
+	try {
+		if (!id) {
+			return err('No id provided.');
+		}
+		return await obdapi.sendSomeCommitmentById(id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_CommitmentTx_AllRDByChanId_3207
+ * @param {string} channel_id
+ * @return {Promise<Result<any>>}
+ */
+export const getAllRevockableDeliveryTransactions = async (
+	channel_id,
+): Promise<Result<any>> => {
+	try {
+		if (!channel_id) {
+			return err('No channel id provided.');
+		}
+		return await obdapi.getAllRevockableDeliveryTransactions(channel_id);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_Atomic_SendSwap_80
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info AtomicSwapRequest
+ */
+export const atomicSwap = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: AtomicSwapRequest;
+}): Promise<unknown> => {
+	return await obdapi.atomicSwap(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_Atomic_SendSwapAccept_81
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info AtomicSwapAccepted
+ */
+export const atomicSwapAccepted = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: AtomicSwapAccepted;
+}): Promise<Result<any>> => {
+	return await obdapi.atomicSwapAccepted(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_CheckChannelAddessExist_3156
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info AcceptChannelInfo
+ */
+export const checkChannelAddessExist = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: AcceptChannelInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.checkChannelAddessExist(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_Invoice_402
+ * @param {InvoiceInfo} info
+ * @return {Promise<Result<any>>}
+ */
+export const addInvoice = async (info: InvoiceInfo): Promise<Result<any>> => {
+	try {
+		if (!info) {
+			return err('No invoice info provided.');
+		}
+		return await obdapi.addInvoice(info);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_Invoice_402
+ * @param {HTLCFindPathInfo} info
+ * @return {Promise<Result<any>>}
+ */
+export const HTLCFindPath = async (
+	info: HTLCFindPathInfo,
+): Promise<unknown> => {
+	try {
+		if (!info) {
+			return err('No info provided.');
+		}
+		return await obdapi.HTLCFindPath(info);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * MsgType_HTLC_SendAddHTLC_40
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info addHTLCInfo
+ */
+export const addHTLC = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: addHTLCInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.addHTLC(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_SendAddHTLCSigned_41
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info HtlcSignedInfo
+ */
+export const htlcSigned = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: HtlcSignedInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.htlcSigned(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_SendVerifyR_45
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info ForwardRInfo
+ */
+export const forwardR = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: ForwardRInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.forwardR(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_SendSignVerifyR_46
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info SignRInfo
+ */
+export const signR = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: SignRInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.signR(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_SendRequestCloseCurrTx_49
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info CloseHtlcTxInfo
+ */
+export const closeHTLC = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: CloseHtlcTxInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.closeHTLC(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_HTLC_SendCloseSigned_50
+ * @param recipient_node_peer_id string
+ * @param recipient_user_peer_id string
+ * @param info CloseHtlcTxInfoSigned
+ */
+export const closeHTLCSigned = async ({
+	recipient_node_peer_id = '',
+	recipient_user_peer_id = '',
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: CloseHtlcTxInfoSigned;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.closeHTLCSigned(
+		recipient_node_peer_id,
+		recipient_user_peer_id,
+		info,
+	);
+};
+
+/**
+ * MsgType_Core_Omni_CreateNewTokenFixed_2113
+ * @param info IssueFixedAmountInfo
+ */
+export const issueFixedAmount = async ({
+	info,
+}: {
+	recipient_node_peer_id: string;
+	recipient_user_peer_id: string;
+	info: IssueFixedAmountInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.issueFixedAmount(info);
+};
+
+/**
+ * MsgType_Core_Omni_CreateNewTokenManaged_2114
+ * @param info IssueManagedAmoutInfo
+ */
+export const issueManagedAmout = async ({
+	info,
+}: {
+	info: IssueManagedAmoutInfo;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.issueManagedAmout(info);
+};
+
+/**
+ * MsgType_Core_Omni_GrantNewUnitsOfManagedToken_2115
+ * @param info OmniSendGrant
+ */
+export const sendGrant = async ({
+	info,
+}: {
+	info: OmniSendGrant;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.sendGrant(info);
+};
+
+/**
+ * MsgType_Core_Omni_RevokeUnitsOfManagedToken_2116
+ * @param info OmniSendRevoke
+ */
+export const sendRevoke = async ({
+	info,
+}: {
+	info: OmniSendRevoke;
+}): Promise<unknown> => {
+	if (!info) {
+		return err('No info provided.');
+	}
+	return await obdapi.sendRevoke(info);
+};
+
+/**
+ * MsgType_Core_Omni_Getbalance_2112
+ * @param address string
+ * @param callback function
+ */
+export const getAllBalancesForAddress = async ({
+	address,
+}: {
+	address: string;
+}): Promise<unknown> => {
+	if (!address) {
+		return err('No address provided.');
+	}
+	return await obdapi.getAllBalancesForAddress(address);
 };
