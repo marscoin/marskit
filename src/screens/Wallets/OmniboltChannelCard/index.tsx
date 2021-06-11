@@ -11,12 +11,20 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import AdjustValue from '../../../components/AdjustValue';
 import Button from '../../../components/Button';
-import { sendOmniAsset } from '../../../utils/omnibolt';
-import { addOmniboltAssetData } from '../../../store/actions/omnibolt';
+import {
+	closeChannel,
+	getOmniboltUserData,
+	sendOmniAsset,
+} from '../../../utils/omnibolt';
+import {
+	addOmniboltAssetData,
+	updateOmniboltChannels,
+} from '../../../store/actions/omnibolt';
 import { IGetProperty } from 'omnibolt-js/lib/types/types';
 import {
 	showErrorNotification,
 	showInfoNotification,
+	showSuccessNotification,
 } from '../../../utils/notifications';
 import Clipboard from '@react-native-community/clipboard';
 const OmniboltChannelCard = ({
@@ -74,6 +82,7 @@ const OmniboltChannelCard = ({
 	const assetId = channel.property_id;
 	const assetName = asset?.name;
 	const assetDescription = asset?.data;
+	const isClosed = channel.curr_state === 21;
 
 	useEffect(() => {
 		if (myBalance < amount) {
@@ -107,6 +116,41 @@ const OmniboltChannelCard = ({
 		}, 4000);
 	};
 
+	const _closeChannel = async (): Promise<void> => {
+		try {
+			const userData = getOmniboltUserData({});
+			if (userData.isErr()) {
+				showErrorNotification({
+					title: 'Unable to retrieve Omnibolt user data.',
+					message: '',
+				});
+				return;
+			}
+			const {
+				nodePeerId: recipient_node_peer_id,
+				userPeerId: recipient_user_peer_id,
+			} = userData.value;
+			const closeResponse = await closeChannel({
+				recipient_node_peer_id,
+				recipient_user_peer_id,
+				channelId: channel.channel_id,
+			});
+			if (closeResponse.isOk()) {
+				showSuccessNotification({
+					title: 'Channel Closed Successfully',
+					message: channel.channel_id,
+				});
+				updateOmniboltChannels({}).then();
+			}
+		} catch (e) {
+			showErrorNotification({
+				title: 'Error Closing Channel',
+				message: e,
+			});
+			console.log(e);
+		}
+	};
+
 	LayoutAnimation.easeInEaseOut();
 
 	return (
@@ -115,6 +159,9 @@ const OmniboltChannelCard = ({
 				<Text>
 					Asset: {assetName} ({assetId})
 				</Text>
+			</View>
+			<View color="transparent" style={styles.row}>
+				<Text>Status: {isClosed ? 'Closed' : 'Open'}</Text>
 			</View>
 			<View color="transparent" style={styles.row}>
 				<Text>Description: {assetDescription}</Text>
@@ -141,7 +188,7 @@ const OmniboltChannelCard = ({
 				style={styles.row}>
 				<Text>Channel ID: {channelId}</Text>
 			</TouchableOpacity>
-			{myBalance > 0 && (
+			{myBalance > 0 && !isClosed && (
 				<>
 					<AdjustValue
 						value={`${amount} ${assetName}`}
@@ -169,6 +216,16 @@ const OmniboltChannelCard = ({
 						/>
 					</View>
 				</>
+			)}
+			{!isClosed && (
+				<View color="transparent" style={styles.row}>
+					<Button
+						color="onSurface"
+						style={styles.button}
+						onPress={_closeChannel}
+						text={'Close Channel'}
+					/>
+				</View>
 			)}
 		</View>
 	);
