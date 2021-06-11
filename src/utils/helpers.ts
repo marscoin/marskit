@@ -140,6 +140,7 @@ export const displayAlert = (msg = '', title = ''): void => {
 	} catch {}
 };
 
+//TODO remove me
 export const getFiatBalance = ({
 	balance = 0,
 	exchangeRate = 0,

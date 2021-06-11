@@ -1,5 +1,7 @@
+import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
+import { TBitcoinUnit } from '../../store/types/wallet';
 
 export enum EExchangeRateService {
 	bitfinex = 'Bitfinex',
@@ -23,15 +25,14 @@ export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
 	const { exchangeRateService } = getStore().settings;
 
 	switch (exchangeRateService) {
-		case 'Bitfinex': {
-			return getBitfinexRates();
-		}
 		case 'Crypto Compare': {
 			return getCryptoCompareRates();
 		}
+		case 'Bitfinex':
+		default: {
+			return getBitfinexRates();
+		}
 	}
-
-	return err(`Unsupported exchange rat service: ${exchangeRateService}`);
 };
 
 const getBitfinexRates = async (): Promise<Result<IExchangeRates>> => {
@@ -63,4 +64,85 @@ const getCryptoCompareRates = async (): Promise<Result<IExchangeRates>> => {
 	);
 
 	return ok((await response.json()) as IExchangeRates);
+};
+
+export interface IDisplayValues {
+	fiatFormatted: string;
+	fiatSymbol: string; //$,€,£
+	bitcoinFormatted: string;
+	bitcoinSymbol: string;
+}
+
+export const defaultDisplayValues: IDisplayValues = {
+	fiatFormatted: '-',
+	fiatSymbol: '',
+	bitcoinFormatted: '-',
+	bitcoinSymbol: '',
+};
+
+export const getDisplayValues = ({
+	satoshis,
+	exchangeRate,
+	currency,
+	bitcoinUnit,
+	locale,
+}: {
+	satoshis: number;
+	exchangeRate: number;
+	currency: string;
+	bitcoinUnit: TBitcoinUnit;
+	locale: string;
+}): IDisplayValues => {
+	try {
+		bitcoinUnits.setFiat(currency, exchangeRate);
+		let fiatValue = exchangeRate
+			? bitcoinUnits(satoshis, 'satoshi').to(currency).value().toFixed(2)
+			: '-';
+
+		const fiatFormattedIntl = new Intl.NumberFormat(locale, {
+			style: 'currency',
+			currency,
+		});
+		let fiatFormatted = fiatFormattedIntl.format(fiatValue);
+
+		let fiatSymbol = '';
+		fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
+			if (part.type === 'currency') {
+				fiatSymbol = part.value;
+			}
+		});
+
+		fiatFormatted = fiatFormatted.replace(fiatSymbol, '');
+
+		const bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')
+			.to(bitcoinUnit)
+			.value()
+			.toString();
+
+		let bitcoinSymbol = '';
+		switch (bitcoinUnit) {
+			case 'BTC':
+				bitcoinSymbol = '₿';
+				break;
+			case 'mBTC':
+				bitcoinSymbol = 'm₿';
+				break;
+			case 'μBTC':
+				bitcoinSymbol = 'μ₿';
+				break;
+			case 'satoshi':
+				bitcoinSymbol = '⚡';
+				break;
+		}
+
+		return {
+			fiatFormatted,
+			fiatSymbol,
+			bitcoinFormatted,
+			bitcoinSymbol,
+		};
+	} catch (e) {
+		console.error(e);
+		return defaultDisplayValues;
+	}
 };

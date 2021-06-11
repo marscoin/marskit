@@ -41,7 +41,7 @@ import * as electrum from 'rn-electrum-client/helpers';
 import {
 	addAddresses,
 	updateAddressIndexes,
-	updateExchangeRate,
+	updateExchangeRates,
 	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
@@ -71,7 +71,7 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 				selectedWallet,
 				selectedNetwork,
 			}),
-			updateExchangeRate(),
+			updateExchangeRates(),
 			updateUtxos({
 				selectedWallet,
 				selectedNetwork,
