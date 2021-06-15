@@ -7,7 +7,6 @@ import { deleteOmniboltId } from '../../utils/omnibolt';
 import { wipeAuthDetails } from '../../utils/backup/backpack';
 import { wipeLndDir } from '../../utils/lightning';
 import { removePin } from '../../utils/settings';
-import { EExchangeRateService } from '../../utils/exchange-rate';
 
 const dispatch = getDispatch();
 
@@ -15,20 +14,6 @@ export const updateSettings = (payload): Result<string> => {
 	dispatch({
 		type: actions.UPDATE_SETTINGS,
 		payload,
-	});
-	return ok('');
-};
-
-export const setExchangeCurrency = (
-	service: EExchangeRateService,
-	currency: string,
-): Result<string> => {
-	dispatch({
-		type: actions.UPDATE_SETTINGS,
-		payload: {
-			selectedCurrency: currency,
-			exchangeRateService: service,
-		},
 	});
 	return ok('');
 };

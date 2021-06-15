@@ -4,8 +4,8 @@ import {
 	EExchangeRateService,
 	getDisplayValues,
 	supportedExchangeTickers,
-} from '../src/utils/fiat';
-import { setExchangeCurrency } from '../src/store/actions/settings';
+} from '../src/utils/exchange-rate';
+import { updateSettings } from '../src/store/actions/settings';
 
 global.fetch = require('node-fetch');
 
@@ -37,7 +37,10 @@ describe('Pulls latest fiat exchange rates and checks the wallet store for valid
 	});
 
 	it('Crypto Compare rates with new selected currency', async () => {
-		setExchangeCurrency(EExchangeRateService.cryptoCompare, 'EUR');
+		updateSettings({
+			exchangeRateService: 'cryptoCompare',
+			selectedCurrency: 'EUR',
+		});
 
 		const res = await updateExchangeRates();
 

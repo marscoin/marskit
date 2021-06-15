@@ -84,7 +84,6 @@ export interface IWallet {
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
-	exchangeRate: number; //TODO REMOVE THIS WHEN DONE
 	exchangeRates: IExchangeRates;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;

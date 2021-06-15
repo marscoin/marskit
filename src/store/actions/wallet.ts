@@ -92,28 +92,6 @@ export const createWallet = async ({
 	}
 };
 
-//TODO update all rates
-export const updateExchangeRate = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		resolve(ok('Successfully updated the exchange rate.'));
-		// const settings = getStore().settings;
-		// const { selectedCurrency, exchangeRateService } = settings;
-		// const response = await getExchangeRate({
-		// 	selectedCurrency,
-		// 	exchangeRateService,
-		// });
-		// if (!response.error) {
-		// 	await dispatch({
-		// 		type: actions.UPDATE_WALLET,
-		// 		payload: { exchangeRate: response.data },
-		// 	});
-		// 	resolve(ok('Successfully updated the exchange rate.'));
-		// } else {
-		// 	resolve(err('Unable to acquire exchange rate data.'));
-		// }
-	});
-};
-
 export const updateExchangeRates = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await getExchangeRates();
