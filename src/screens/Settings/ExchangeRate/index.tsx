@@ -1,6 +1,6 @@
 import React, { memo, ReactElement } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { StyleSheet } from 'react-native';
+import RadioButtonRN from 'radio-buttons-react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
 	Feather,
@@ -17,16 +17,22 @@ import {
 import { updateSettings } from '../../../store/actions/settings';
 import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 import { updateExchangeRates } from '../../../store/actions/wallet';
+import { TBitcoinUnit } from '../../../store/types/wallet';
+
+type RadioButtonItem = { label: string; value: string };
 
 const ExchangeRateSettings = ({ navigation }): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
 	const itemStyle = { color: themes[settings.theme].colors.text };
+	const activeColor = themes[settings.theme].colors.onBackground;
 
 	const exchangeRateProviders = Object.keys(EExchangeRateService).filter(
 		(key) => isNaN(Number(EExchangeRateService[key])),
 	);
 	const selectedExchangeRateService = settings.exchangeRateService;
 	const selectedCurrency = settings.selectedCurrency;
+	const selectedBitcoinUnit = settings.bitcoinUnit;
+	const bitcoinUnits: TBitcoinUnit[] = ['BTC', 'satoshi'];
 
 	const onSetExchangeRateService = (provider: EExchangeRateService): void => {
 		updateSettings({ exchangeRateService: provider });
@@ -47,14 +53,51 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 		updateSettings({ selectedCurrency: currency });
 	};
 
+	const onSetBitcoinUnit = (unit: TBitcoinUnit): void => {
+		updateSettings({ bitcoinUnit: unit });
+	};
+
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useDisplayValues(100000000);
 
-	const service = selectedExchangeRateService
+	const selectedServiceKey = selectedExchangeRateService
 		? EExchangeRateService[selectedExchangeRateService]
 		: EExchangeRateService.bitfinex;
 
-	const tickers = supportedExchangeTickers[service] ?? [];
+	let services: RadioButtonItem[] = [];
+	let initialServiceIndex = -1;
+	exchangeRateProviders.forEach((service, index) => {
+		services.push({ label: EExchangeRateService[service], value: service });
+		if (service === selectedExchangeRateService) {
+			initialServiceIndex = index + 1;
+		}
+	});
+
+	let tickers: RadioButtonItem[] = [];
+	let initialTickerIndex = -1;
+	(supportedExchangeTickers[selectedServiceKey] ?? []).forEach(
+		(ticker, index) => {
+			tickers.push({ label: ticker, value: ticker });
+			if (ticker === selectedCurrency) {
+				initialTickerIndex = index + 1;
+			}
+		},
+	);
+
+	let units: RadioButtonItem[] = [];
+	let initialUnitIndex = -1;
+	bitcoinUnits.forEach((unit, index) => {
+		units.push({ label: unit, value: unit });
+		if (selectedBitcoinUnit === unit) {
+			initialUnitIndex = index + 1;
+		}
+	});
+
+	const radioButtonProps = {
+		box: false,
+		textStyle: itemStyle,
+		activeColor,
+	};
 
 	return (
 		<View style={styles.container}>
@@ -71,31 +114,36 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 				{fiatFormatted}
 			</Text>
 
-			<Text style={styles.titleText}>Display currency</Text>
-			<Picker
-				itemStyle={itemStyle}
-				selectedValue={selectedCurrency}
-				onValueChange={(itemValue: string) => onSetCurrency(itemValue)}>
-				{tickers.map((currency) => (
-					<Picker.Item key={currency} label={currency} value={currency} />
-				))}
-			</Picker>
+			<ScrollView>
+				<Text style={styles.titleText}>Exchange rate provider</Text>
+				<RadioButtonRN
+					{...radioButtonProps}
+					data={services}
+					selectedBtn={(e): void => onSetExchangeRateService(e.value)}
+					initial={initialServiceIndex}
+				/>
 
-			<Text style={styles.titleText}>Exchange rate provider</Text>
-			<Picker
-				itemStyle={itemStyle}
-				selectedValue={selectedExchangeRateService}
-				onValueChange={(itemValue: EExchangeRateService) =>
-					onSetExchangeRateService(itemValue)
-				}>
-				{exchangeRateProviders.map((provider) => (
-					<Picker.Item
-						key={provider}
-						label={EExchangeRateService[provider]}
-						value={provider}
-					/>
-				))}
-			</Picker>
+				<Text style={styles.titleText}>Display currency</Text>
+				<RadioButtonRN
+					{...radioButtonProps}
+					data={tickers}
+					selectedBtn={(e): void => {
+						if (e) {
+							onSetCurrency(e.value);
+						}
+					}}
+					initial={initialTickerIndex}
+				/>
+
+				<Text style={styles.titleText}>Bitcoin display unit</Text>
+
+				<RadioButtonRN
+					{...radioButtonProps}
+					data={units}
+					selectedBtn={(e): void => onSetBitcoinUnit(e.value)}
+					initial={initialUnitIndex}
+				/>
+			</ScrollView>
 		</View>
 	);
 };
@@ -103,6 +151,8 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		paddingRight: 20,
+		paddingLeft: 20,
 	},
 	row: {
 		flexDirection: 'row',
@@ -114,8 +164,7 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 	},
 	titleText: {
-		textAlign: 'center',
-		marginTop: 20,
+		marginTop: 30,
 	},
 });
 

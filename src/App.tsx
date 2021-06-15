@@ -1,4 +1,6 @@
 import '../shim';
+import 'intl';
+import 'intl/locale-data/jsonp/en';
 import React, { memo, ReactElement, useEffect } from 'react';
 import { Platform, StyleSheet, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
