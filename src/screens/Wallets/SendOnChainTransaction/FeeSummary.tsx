@@ -4,9 +4,9 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import { getFiatBalance } from '../../../utils/helpers';
 import { View } from '../../../styles/components';
 import { useTransactionDetails } from './TransactionHook';
+import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 
 const FeeSummary = ({
 	amount: _amount = '0',
@@ -23,12 +23,6 @@ const FeeSummary = ({
 	);
 
 	const transaction = useTransactionDetails();
-
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-
-	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 
 	const totalFee = transaction?.fee || 250;
 
@@ -49,24 +43,6 @@ const FeeSummary = ({
 
 	const amount = Number(_amount) || getAmountToSend();
 
-	const getFiatAmount = useCallback((): string => {
-		return getFiatBalance({
-			balance: amount,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [amount, exchangeRate, selectedCurrency]);
-	const fiatAmount = getFiatAmount();
-
-	const getFiatTotalFee = useCallback((): string => {
-		return getFiatBalance({
-			balance: totalFee,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [totalFee, exchangeRate, selectedCurrency]);
-	const fiatTotalFee = getFiatTotalFee();
-
 	const getTransactionTotal = useCallback((): number => {
 		try {
 			return Number(amount) + Number(totalFee);
@@ -77,30 +53,24 @@ const FeeSummary = ({
 
 	const transactionTotal = getTransactionTotal();
 
-	const getFiatTransactionTotal = useCallback((): string => {
-		return getFiatBalance({
-			balance: transactionTotal,
-			exchangeRate,
-			selectedCurrency,
-		});
-	}, [transactionTotal, exchangeRate, selectedCurrency]);
-
-	const fiatTransactionTotal = getFiatTransactionTotal();
+	const amountDisplay = useDisplayValues(amount);
+	const totalFeeDisplay = useDisplayValues(totalFee);
+	const transactionTotalDisplay = useDisplayValues(transactionTotal);
 
 	LayoutAnimation.easeInEaseOut();
 	return (
 		<View color="transparent" style={styles.summary}>
 			<Summary
 				leftText={lightning ? 'Transfer' : 'Send:'}
-				rightText={`${amount} sats\n$${fiatAmount}`}
+				rightText={`${amountDisplay.bitcoinSymbol}${amountDisplay.bitcoinFormatted}\n${amountDisplay.fiatSymbol}${amountDisplay.fiatFormatted}`}
 			/>
 			<Summary
 				leftText={'Fee:'}
-				rightText={`${totalFee} sats\n$${fiatTotalFee}`}
+				rightText={`${totalFeeDisplay.bitcoinSymbol}${totalFeeDisplay.bitcoinFormatted}\n${totalFeeDisplay.fiatSymbol}${totalFeeDisplay.fiatFormatted}`}
 			/>
 			<Summary
 				leftText={'Total:'}
-				rightText={`${transactionTotal} sats\n$${fiatTransactionTotal}`}
+				rightText={`${transactionTotalDisplay.bitcoinSymbol}${transactionTotalDisplay.bitcoinFormatted}\n${transactionTotalDisplay.fiatSymbol}${transactionTotalDisplay.fiatFormatted}`}
 			/>
 		</View>
 	);

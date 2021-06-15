@@ -698,30 +698,6 @@ export const getAssetTicker = (asset = 'bitcoin'): string => {
 	}
 };
 
-const exchangeRateHelpers = {
-	/**
-	 * Get Bitfinexs' exchange rate for specified asset/currency.
-	 * @param assetTicker
-	 * @param selectedCurrency
-	 * @return {{ error: boolean, data: number }}
-	 */
-	bitfinex: async ({
-		assetTicker = 'BTC',
-		selectedCurrency = 'USD',
-	}): Promise<IResponse<number>> => {
-		try {
-			const response = await fetch(
-				`https://api-pub.bitfinex.com/v2/ticker/t${assetTicker}${selectedCurrency}`,
-			);
-			const jsonResponse = await response.json();
-			const price = jsonResponse[6];
-			return { error: false, data: price };
-		} catch {
-			return { error: true, data: 0 };
-		}
-	},
-};
-
 /**
  * This method will compare a set of specified addresses to the currently stored addresses and remove any duplicates.
  * @param addresses

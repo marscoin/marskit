@@ -7,7 +7,7 @@ import { deleteOmniboltId } from '../../utils/omnibolt';
 import { wipeAuthDetails } from '../../utils/backup/backpack';
 import { wipeLndDir } from '../../utils/lightning';
 import { removePin } from '../../utils/settings';
-import { EExchangeRateService } from '../../utils/fiat';
+import { EExchangeRateService } from '../../utils/exchange-rate';
 
 const dispatch = getDispatch();
 

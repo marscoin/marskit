@@ -140,31 +140,6 @@ export const displayAlert = (msg = '', title = ''): void => {
 	} catch {}
 };
 
-//TODO remove me
-export const getFiatBalance = ({
-	balance = 0,
-	exchangeRate = 0,
-	selectedCurrency = 'usd',
-}: {
-	balance: number;
-	exchangeRate: number;
-	selectedCurrency?: string;
-}): string => {
-	try {
-		bitcoinUnits.setFiat(selectedCurrency.toLowerCase(), exchangeRate);
-		const fiatBalance = bitcoinUnits(balance, 'satoshi')
-			.to('usd')
-			.value()
-			.toFixed(2);
-		if (isNaN(fiatBalance)) {
-			return '0';
-		}
-		return fiatBalance;
-	} catch (e) {
-		return '0';
-	}
-};
-
 export const btcToSats = (balance = 0): number => {
 	try {
 		return bitcoinUnits(balance, 'BTC').to('satoshi').value();

@@ -4,10 +4,9 @@ import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { IActivityItem } from '../../store/types/activity';
 import Divider from '../../components/Divider';
-import { getFiatBalance, truncate } from '../../utils/helpers';
-import { useSelector } from 'react-redux';
-import Store from '../../store/types';
+import { truncate } from '../../utils/helpers';
 import { getBlockExplorerLink } from '../../utils/wallet/transactions';
+import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;
@@ -56,11 +55,6 @@ interface Props extends PropsWithChildren<any> {
 }
 
 const ActivityDetail = (props: Props): ReactElement => {
-	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-
 	const {
 		activityItem: {
 			id,
@@ -90,17 +84,9 @@ const ActivityDetail = (props: Props): ReactElement => {
 		}
 	}
 
-	const fiatBalance = getFiatBalance({
-		balance: value,
-		exchangeRate,
-		selectedCurrency,
-	});
-
-	const fiatFee = getFiatBalance({
-		balance: Number(fee),
-		exchangeRate,
-		selectedCurrency,
-	});
+	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+		useDisplayValues(value);
+	const feeDisplay = useDisplayValues(Number(fee));
 
 	const blockExplorerUrl =
 		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
@@ -126,8 +112,8 @@ const ActivityDetail = (props: Props): ReactElement => {
 					<Divider />
 					<Section
 						title={'Amount'}
-						value1={`${value} sats`}
-						value2={`${fiatBalance} ${selectedCurrency}`}
+						value1={`${bitcoinSymbol}${bitcoinFormatted}`}
+						value2={`${fiatSymbol}${fiatFormatted}`}
 					/>
 
 					{fee && txType === 'sent' ? (
@@ -135,8 +121,8 @@ const ActivityDetail = (props: Props): ReactElement => {
 							<Divider />
 							<Section
 								title={'Fees'}
-								value1={`${fee} sats`}
-								value2={`${fiatFee} ${selectedCurrency}`}
+								value1={`${feeDisplay.bitcoinSymbol}${feeDisplay.bitcoinFormatted}`}
+								value2={`${feeDisplay.fiatSymbol}${feeDisplay.fiatFormatted}`}
 							/>
 						</>
 					) : null}

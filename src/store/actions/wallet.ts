@@ -36,7 +36,7 @@ import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
-import { getExchangeRates } from '../../utils/fiat';
+import { getExchangeRates } from '../../utils/exchange-rate';
 
 const dispatch = getDispatch();
 

@@ -1,5 +1,5 @@
 import { default as bitcoinUnits } from 'bitcoin-units';
-import { err, ok, Result } from '../result';
+import { ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { TBitcoinUnit } from '../../store/types/wallet';
 
