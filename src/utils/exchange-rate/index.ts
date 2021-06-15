@@ -22,13 +22,17 @@ export type IExchangeTickers = {
 };
 
 export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
-	const { exchangeRateService } = getStore().settings;
+	let { exchangeRateService } = getStore().settings;
 
-	switch (exchangeRateService) {
-		case 'Crypto Compare': {
+	const service = exchangeRateService
+		? EExchangeRateService[exchangeRateService]
+		: EExchangeRateService.bitfinex;
+
+	switch (service) {
+		case EExchangeRateService.cryptoCompare: {
 			return getCryptoCompareRates();
 		}
-		case 'Bitfinex':
+		case EExchangeRateService.bitfinex:
 		default: {
 			return getBitfinexRates();
 		}
@@ -99,20 +103,25 @@ export const getDisplayValues = ({
 			? bitcoinUnits(satoshis, 'satoshi').to(currency).value().toFixed(2)
 			: '-';
 
-		const fiatFormattedIntl = new Intl.NumberFormat(locale, {
-			style: 'currency',
-			currency,
-		});
-		let fiatFormatted = fiatFormattedIntl.format(fiatValue);
+		let { fiatFormatted, fiatSymbol } = defaultDisplayValues;
 
-		let fiatSymbol = '';
-		fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
-			if (part.type === 'currency') {
-				fiatSymbol = part.value;
-			}
-		});
+		if (!isNaN(fiatValue)) {
+			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
+				style: 'currency',
+				currency,
+			});
+			fiatFormatted = fiatFormattedIntl.format(fiatValue);
 
-		fiatFormatted = fiatFormatted.replace(fiatSymbol, '');
+			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
+				if (part.type === 'currency') {
+					fiatSymbol = part.value;
+				}
+			});
+
+			fiatFormatted = isNaN(fiatValue)
+				? '-'
+				: fiatFormatted.replace(fiatSymbol, '');
+		}
 
 		const bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')
 			.to(bitcoinUnit)

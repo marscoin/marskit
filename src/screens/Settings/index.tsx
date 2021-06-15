@@ -97,7 +97,7 @@ const Settings = ({ navigation }): ReactElement => {
 				{
 					title: 'Fiat Currency Selection',
 					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
+					onPress: (): void => navigation.navigate('ExchangeRateSettings'),
 					hide: false,
 				},
 				{
