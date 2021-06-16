@@ -19,7 +19,7 @@ import {
 import lnd from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
-import { getFiatBalance } from '../../utils/helpers';
+import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -61,23 +61,15 @@ const LightningCard = (): ReactElement => {
 		Number(lightning.channelBalance.balance) +
 		Number(lightning.channelBalance.pendingOpenBalance);
 
-	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-
-	const fiatBalance = getFiatBalance({
-		balance,
-		exchangeRate,
-		selectedCurrency,
-	});
+	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+		useDisplayValues(balance);
 
 	return (
 		<AssetCard
 			title={t('lightning')}
 			description={`${debugLightningStatusMessage(lightning)}`}
-			assetBalanceLabel={`${balance} sats`}
-			fiatBalanceLabel={`$${fiatBalance}`}
+			assetBalanceLabel={`${bitcoinSymbol}${bitcoinFormatted}`}
+			fiatBalanceLabel={`${fiatSymbol}${fiatFormatted}`}
 			asset="lightning"
 			onPress={(): void => setDisplayButtonRow(!displayButtonRow)}>
 			{displayButtonRow && (

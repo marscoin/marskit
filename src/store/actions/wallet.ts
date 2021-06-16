@@ -13,7 +13,6 @@ import {
 	generateAddresses,
 	getAddressHistory,
 	getCurrentWallet,
-	getExchangeRate,
 	getKeyDerivationPath,
 	getNextAvailableAddress,
 	getSelectedNetwork,
@@ -37,6 +36,7 @@ import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
+import { getExchangeRates } from '../../utils/exchange-rate';
 
 const dispatch = getDispatch();
 
@@ -92,23 +92,20 @@ export const createWallet = async ({
 	}
 };
 
-export const updateExchangeRate = (): Promise<Result<string>> => {
+export const updateExchangeRates = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const settings = getStore().settings;
-		const { selectedCurrency, exchangeRateService } = settings;
-		const response = await getExchangeRate({
-			selectedCurrency,
-			exchangeRateService,
-		});
-		if (!response.error) {
-			await dispatch({
-				type: actions.UPDATE_WALLET,
-				payload: { exchangeRate: response.data },
-			});
-			resolve(ok('Successfully updated the exchange rate.'));
-		} else {
-			resolve(err('Unable to acquire exchange rate data.'));
+		const res = await getExchangeRates();
+
+		if (res.isErr()) {
+			return resolve(err(res.error));
 		}
+
+		await dispatch({
+			type: actions.UPDATE_WALLET,
+			payload: { exchangeRates: res.value },
+		});
+
+		resolve(ok('Successfully updated the exchange rate.'));
 	});
 };
 

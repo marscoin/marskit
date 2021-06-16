@@ -40,6 +40,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
 import AdjustValue from '../../../components/AdjustValue';
 import FeeSummary from './FeeSummary';
+import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
@@ -55,6 +56,9 @@ const BitcoinToLightning = (): ReactElement => {
 	);
 	const transaction = useTransactionDetails();
 	const balance = useBalance();
+
+	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+		useDisplayValues(balance);
 
 	useEffect(() => {
 		setupOnChainTransaction({
@@ -319,7 +323,12 @@ const BitcoinToLightning = (): ReactElement => {
 
 			<TouchableOpacity onPress={setMax}>
 				<Text style={styles.availableBalance}>
-					Available balance: {balance} sats
+					Available balance:{'\n'}
+					{bitcoinSymbol}
+					{bitcoinFormatted}
+					{'\n'}
+					{fiatSymbol}
+					{fiatFormatted}
 				</Text>
 			</TouchableOpacity>
 

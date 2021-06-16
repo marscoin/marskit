@@ -242,5 +242,5 @@ export const debugLightningStatusMessage = (lightning: ILightning): string => {
 		return `Syncing ⌛ (${lightning.info.blockHeight})`;
 	}
 
-	return `Ready ✅${__DEV__ ? ` (${lightning.info.blockHeight})` : ''}`;
+	return '';
 };

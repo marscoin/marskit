@@ -1,4 +1,5 @@
 import { TAvailableNetworks } from '../../utils/networks';
+import { IExchangeRates } from '../../utils/exchange-rate';
 
 export type TAddressType = 'bech32' | 'segwit' | 'legacy'; //"84" | "49" | "44";
 export type TKeyDerivationAccountType = 'onchain' | 'rgb' | 'omnibolt';
@@ -83,7 +84,7 @@ export interface IWallet {
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
-	exchangeRate: number;
+	exchangeRates: IExchangeRates;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;
 }

@@ -4,6 +4,7 @@ import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import DrawerNavigator from '../drawer/DrawerNavigator';
 import TempSettings from '../../screens/Settings/TempSettings';
+import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
 import BackupSettings from '../../screens/Settings/Backup';
 import LightningInfo from '../../screens/Settings/Lightning/LightningInfo';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
@@ -65,6 +66,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="Pin"
 					component={PinPad}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ExchangeRateSettings"
+					component={ExchangeRateSettings}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen name="Biometrics" options={navOptionHandler}>

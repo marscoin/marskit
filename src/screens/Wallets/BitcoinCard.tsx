@@ -7,11 +7,12 @@ import AssetCard from '../../components/AssetCard';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { getFiatBalance, getNetworkData } from '../../utils/helpers';
+import { getNetworkData } from '../../utils/helpers';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
+import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 
 const BitcoinCard = (): ReactElement => {
 	const [displaySend, setDisplaySend] = useState(false);
@@ -35,13 +36,10 @@ const BitcoinCard = (): ReactElement => {
 	const addressIndex = useSelector(
 		(state: Store) => state.wallet?.wallets[selectedWallet]?.addressIndex,
 	);
-	const exchangeRate = useSelector((state: Store) => state.wallet.exchangeRate);
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
 
 	const networkData = getNetworkData({ bitcoinUnit, selectedNetwork });
+
 	let balance = useSelector((state: Store) => {
 		try {
 			return state.wallet.wallets[selectedWallet].balance[selectedNetwork];
@@ -49,11 +47,10 @@ const BitcoinCard = (): ReactElement => {
 			return 0;
 		}
 	});
-	const fiatBalance = getFiatBalance({
-		balance,
-		exchangeRate,
-		selectedCurrency,
-	});
+
+	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+		useDisplayValues(balance);
+
 	const getReceiveAddress = useCallback((): string => {
 		try {
 			return addressIndex[selectedNetwork].address || ' ';
@@ -125,8 +122,8 @@ const BitcoinCard = (): ReactElement => {
 	return (
 		<AssetCard
 			title={`${networkData.label} Wallet`}
-			assetBalanceLabel={`${balance} ${networkData.abbreviation}`}
-			fiatBalanceLabel={`$${fiatBalance}`}
+			assetBalanceLabel={`${bitcoinSymbol}${bitcoinFormatted}`}
+			fiatBalanceLabel={`${fiatSymbol}${fiatFormatted}`}
 			asset="bitcoin"
 			onPress={toggleCard}>
 			{!!shouldDisplayButtons() && (

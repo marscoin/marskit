@@ -17,6 +17,7 @@ import BitcoinIcon from '../../assets/bitcoin-logo.svg';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { truncate } from '../../utils/helpers';
 import { updateActivityList } from '../../store/actions/activity';
+import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 
 const ListItem = ({
 	item,
@@ -34,6 +35,9 @@ const ListItem = ({
 		confirmed,
 		timestamp,
 	} = item;
+
+	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+		useDisplayValues(value);
 
 	const iconSize = 20;
 
@@ -88,7 +92,14 @@ const ListItem = ({
 				</Text>
 			</View>
 			<View style={styles.col3}>
-				<Text style={styles.value}>{value} sats</Text>
+				<Text style={styles.value}>
+					{bitcoinSymbol}
+					{bitcoinFormatted}
+				</Text>
+				<Text style={styles.value}>
+					{fiatSymbol}
+					{fiatFormatted}
+				</Text>
 			</View>
 		</TouchableOpacity>
 	);
@@ -156,7 +167,7 @@ const styles = StyleSheet.create({
 	},
 	col3: {
 		display: 'flex',
-		flexDirection: 'row',
+		flexDirection: 'column',
 		justifyContent: 'flex-end',
 		flex: 3,
 	},
