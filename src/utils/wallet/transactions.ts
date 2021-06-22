@@ -372,8 +372,8 @@ const getBip32Interface = async (
 	const network = networks[selectedNetwork];
 
 	const getMnemonicPhraseResult = await getMnemonicPhrase(selectedWallet);
-	if (getMnemonicPhraseResult.error) {
-		return err(getMnemonicPhraseResult.data);
+	if (getMnemonicPhraseResult.isErr()) {
+		return err(getMnemonicPhraseResult.error.message);
 	}
 
 	//Attempt to acquire the bip39Passphrase if available
@@ -386,7 +386,7 @@ const getBip32Interface = async (
 		}
 	} catch {}
 
-	const mnemonic = getMnemonicPhraseResult.data;
+	const mnemonic = getMnemonicPhraseResult.value;
 	const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
 	const root = bip32.fromSeed(seed, network);
 
@@ -933,20 +933,30 @@ export const updateFee = ({
 
 /**
  * Returns a block explorer URL for a specific transaction
- * @param id
- * @param selectedNetwork
+ * @param {string} id
+ * @param {TAvailableNetworks} selectedNetwork
+ * @param {'blockstream' | 'mempool'} [service]
  */
 export const getBlockExplorerLink = (
 	id: string,
 	selectedNetwork: TAvailableNetworks | undefined = undefined,
+	service: 'blockstream' | 'mempool' = 'mempool',
 ): string => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-
-	if (selectedNetwork === 'bitcoinTestnet') {
-		return `https://blockstream.info/testnet/tx/${id}`;
-	} else {
-		return `https://blockstream.info/tx/${id}`;
+	switch (service) {
+		case 'blockstream':
+			if (selectedNetwork === 'bitcoinTestnet') {
+				return `https://blockstream.info/testnet/tx/${id}`;
+			} else {
+				return `https://blockstream.info/tx/${id}`;
+			}
+		case 'mempool':
+			if (selectedNetwork === 'bitcoinTestnet') {
+				return `https://mempool.space/testnet/tx/${id}`;
+			} else {
+				return `https://mempool.space/tx/${id}`;
+			}
 	}
 };

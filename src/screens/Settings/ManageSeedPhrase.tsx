@@ -36,9 +36,9 @@ const ManageSeedPhrase = (): ReactElement => {
 
 	const setupComponent = async (): Promise<void> => {
 		const response = await getMnemonicPhrase();
-		if (!response.error) {
-			updateMnemonic(response.data);
-			setCurrentMnemonic(response.data);
+		if (!response.isErr()) {
+			updateMnemonic(response.value);
+			setCurrentMnemonic(response.value);
 		}
 	};
 

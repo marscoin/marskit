@@ -112,11 +112,14 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				const getMnemonicPhraseResponse = await getMnemonicPhrase(
 					selectedWallet,
 				);
+				if (getMnemonicPhraseResponse.isErr()) {
+					return;
+				}
 
 				const authRes = await lnurlAuth({
 					params: data.lnUrlParams! as LNURLAuthParams,
 					network: selectedNetwork,
-					bip32Mnemonic: getMnemonicPhraseResponse.data,
+					bip32Mnemonic: getMnemonicPhraseResponse.value,
 				});
 				if (authRes.isErr()) {
 					showErrorNotification({
