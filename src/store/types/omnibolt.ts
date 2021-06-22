@@ -1,6 +1,7 @@
 import {
 	IAcceptChannel,
 	IBitcoinFundingCreated,
+	ICheckpoints,
 	IConnect,
 	IFundingBitcoin,
 	IGetProperty,
@@ -10,7 +11,7 @@ import {
 	ISendSignedHex100341,
 } from 'omnibolt-js/lib/types/types';
 import { IAddressContent, IWalletItem } from './wallet';
-import { ICheckpoint, IMyChannels } from '../shapes/omnibolt';
+import { IMyChannels } from '../shapes/omnibolt';
 
 export interface IOmniBolt {
 	wallets: {
@@ -27,7 +28,7 @@ export interface IOmniBoltWallet {
 	channels: IWalletItem<IMyChannels>;
 	tempChannels: IWalletItem<IMyChannels>;
 	peers: IWalletItem<string[]>;
-	checkpoints: IWalletItem<ICheckpoint>;
+	checkpoints: IWalletItem<ICheckpoints>;
 	addressIndex: IWalletItem<IAddressContent>; //The next available address index for signing.
 	signingData: IWalletItem<IChannelSigningData> | IWalletItem<{}>; //A key-value index of the most recently used signing address per channel.
 	[key: string]: any;
