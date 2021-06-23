@@ -1,4 +1,4 @@
-import { createWallet } from '../src/store/actions/wallet';
+import { createWallet, resetWalletStore } from '../src/store/actions/wallet';
 import {
 	backpackRegister,
 	backpackRetrieve,
@@ -10,6 +10,12 @@ import { bytesToString, stringToBytes } from '../src/utils/converters';
 import { getDispatch, getStore } from '../src/store/helpers';
 import actions from '../src/store/actions/actions';
 import { getKeychainValue, setKeychainValue } from '../src/utils/helpers';
+import {
+	createOmniboltWallet,
+	resetOmniBoltStore,
+	updateOmniboltCheckpoint,
+} from '../src/store/actions/omnibolt';
+import { resetLightningStore } from '../src/store/actions/lightning';
 
 global.WebSocket = WebSocket;
 
@@ -79,6 +85,13 @@ describe('Backup', () => {
 			'changeAddresses',
 		);
 
+		const testChannelID = 'TEST_channelId';
+		await updateOmniboltCheckpoint({
+			data: { funder_node_address: 'TEST_funder_node_address' },
+			channelId: testChannelID,
+			checkpoint: 'channelAccept',
+		});
+
 		const backupRes = await createBackup();
 		expect(backupRes.isOk()).toEqual(true);
 		if (backupRes.isErr()) {
@@ -92,6 +105,8 @@ describe('Backup', () => {
 		await getDispatch()({
 			type: actions.RESET_WALLET_STORE,
 		});
+		resetOmniBoltStore();
+		resetLightningStore();
 
 		//TODO maybe also test wallets in store before and after are the same
 
@@ -114,5 +129,12 @@ describe('Backup', () => {
 		expect(getFirstAddress(walletKey, 'changeAddresses')).toEqual(
 			firstChangeAddressBeforeBackup,
 		);
+
+		//Basic OmniBolt restore test
+		expect(
+			getStore().omnibolt.wallets.wallet0.checkpoints.bitcoinTestnet[
+				testChannelID
+			],
+		).toBeDefined();
 	});
 });

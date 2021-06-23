@@ -7,6 +7,7 @@ import { backpackRetrieve, backpackStore } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { updateOmnibolt } from '../../store/actions/omnibolt';
 
 export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	try {
@@ -66,11 +67,14 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
 
 		lndScheme.multiChanBackup = backupRes.value;
 
-		//TODO omni
+		//TODO we may be able to get away with backing up less data
+		const omniBoltScheme = new Scheme.OmniBolt();
+		omniBoltScheme.walletStore = JSON.stringify(getStore().omnibolt);
 
 		const backup = new Scheme.Backup({
 			wallets,
 			lnd: lndScheme,
+			omniBolt: omniBoltScheme,
 			timestampUtc: new Date().getTime(),
 		});
 
@@ -123,12 +127,13 @@ export const restoreFromBackup = async (
 			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
 		}
 
-		//TODO restore Omni
+		const omniBoltStore = backup.omniBolt?.walletStore;
+		if (omniBoltStore) {
+			updateOmnibolt(JSON.parse(omniBoltStore));
+		}
 
 		return ok(
-			`Restored ${backup.wallets.length} on chain wallets and ${
-				backup.lnd?.channelState?.length ?? 0
-			} lightning channels`,
+			`Restored ${backup.wallets.length} on chain wallets and closed lightning channels`,
 		);
 	} catch (e) {
 		return err(e);
