@@ -216,14 +216,14 @@ export const generateAddresses = async ({
 		}
 		const network = networks[selectedNetwork];
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
-		if (getMnemonicPhraseResponse.error) {
-			return err(getMnemonicPhraseResponse.data);
+		if (getMnemonicPhraseResponse.isErr()) {
+			return err(getMnemonicPhraseResponse.error.message);
 		}
 
 		//Attempt to acquire the bip39Passphrase if available
 		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
 
-		const mnemonic = getMnemonicPhraseResponse.data;
+		const mnemonic = getMnemonicPhraseResponse.value;
 		const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
 		const root = bip32.fromSeed(seed, network);
 
@@ -329,14 +329,14 @@ export const getPrivateKey = async ({
 		}
 		const network = networks[selectedNetwork];
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
-		if (getMnemonicPhraseResponse.error) {
-			return err(getMnemonicPhraseResponse.data);
+		if (getMnemonicPhraseResponse.isErr()) {
+			return err(getMnemonicPhraseResponse.error.message);
 		}
 
 		//Attempt to acquire the bip39Passphrase if available
 		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
 
-		const mnemonic = getMnemonicPhraseResponse.data;
+		const mnemonic = getMnemonicPhraseResponse.value;
 		const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
 		const root = bip32.fromSeed(seed, network);
 
@@ -458,21 +458,25 @@ export const getKeyDerivationPath = ({
 };
 
 /**
- * Get mnemonic phrase for a given wallet.
+ * Get onchain mnemonic phrase for a given wallet.
  * @async
- * @return {{error: boolean, data: string}}
  * @param {string} [selectedWallet]
+ * @return {Promise<Result<string>>}
  */
 export const getMnemonicPhrase = async (
 	selectedWallet: string | undefined = undefined,
-): Promise<IResponse<string>> => {
+): Promise<Result<string>> => {
 	try {
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
 		}
-		return await getKeychainValue({ key: selectedWallet });
+		const response = await getKeychainValue({ key: selectedWallet });
+		if (response.error) {
+			return err(response.data);
+		}
+		return ok(response.data);
 	} catch (e) {
-		return { error: true, data: e };
+		return err(e);
 	}
 };
 
@@ -1939,7 +1943,12 @@ export const createDefaultWallet = async ({
 }: ICreateWallet): Promise<Result<IDefaultWallet>> => {
 	try {
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(walletName);
-		const { error, data } = getMnemonicPhraseResponse;
+		let error = true;
+		let data;
+		if (getMnemonicPhraseResponse.isOk()) {
+			error = false;
+			data = getMnemonicPhraseResponse.value;
+		}
 		const { wallets } = getStore().wallet;
 		if (!error && data && walletName in wallets && wallets[walletName]?.id) {
 			return err(`Wallet ID, "${walletName}" already exists.`);

@@ -4,9 +4,11 @@ import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
 import {
 	IConnect,
+	IData,
 	IGetMyChannelsData,
 	IGetProperty,
 	ILogin,
+	ISaveData,
 } from 'omnibolt-js/lib/types/types';
 import * as omnibolt from '../../utils/omnibolt';
 import {
@@ -464,6 +466,30 @@ export const updateSigningData = async ({
 		payload,
 	});
 	return ok(payload);
+};
+
+/**
+ * This method saves over previous omnibolt signing data.
+ * @param {IData} data
+ */
+export const saveSigningData = async (
+	data: IData,
+): Promise<Result<ISaveData>> => {
+	if (!data) {
+		return err('No data specified.');
+	}
+	const selectedWallet = getSelectedWallet();
+	const selectedNetwork = getSelectedNetwork();
+	const payload = {
+		data,
+		selectedWallet,
+		selectedNetwork,
+	};
+	await dispatch({
+		type: actions.SAVE_OMNIBOLT_CHANNEL_SIGNING_DATA,
+		payload,
+	});
+	return ok(data);
 };
 
 /**

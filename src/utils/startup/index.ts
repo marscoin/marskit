@@ -20,10 +20,12 @@ import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cac
 import { showErrorNotification } from '../notifications';
 
 export const checkWalletExists = async (): Promise<void> => {
-	const getMnemonicPhraseResponse = await getMnemonicPhrase('wallet0');
-	const { data } = getMnemonicPhraseResponse;
-
-	await updateWallet({ walletExists: !!data });
+	const response = await getMnemonicPhrase('wallet0');
+	let walletExists = false;
+	if (response.isOk() && !!response.value) {
+		walletExists = true;
+	}
+	await updateWallet({ walletExists });
 };
 
 export const restoreWallet = async (

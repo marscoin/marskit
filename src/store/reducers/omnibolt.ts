@@ -4,6 +4,7 @@ import { defaultOmniBoltShape } from '../shapes/omnibolt';
 
 let selectedWallet = '';
 let selectedNetwork = '';
+let signingData: ISigningData | {} = {};
 
 const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 	if (action.payload?.selectedWallet) {
@@ -117,7 +118,6 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 			if (!selectedWallet || !selectedNetwork) {
 				return state;
 			}
-			let signingData: ISigningData | {} = {};
 			try {
 				signingData =
 					state.wallets[selectedWallet]?.signingData[selectedNetwork][
@@ -139,6 +139,32 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 									[action.payload.signingDataKey]: action.payload.signingData,
 								},
 							},
+						},
+					},
+				},
+			};
+
+		case actions.SAVE_OMNIBOLT_CHANNEL_SIGNING_DATA:
+			if (!selectedWallet || !selectedNetwork) {
+				return state;
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						addressIndex: {
+							...state.wallets[selectedWallet]?.addressIndex,
+							[selectedNetwork]: action.payload.data.nextAddressIndex,
+						},
+						signingData: {
+							...state.wallets[selectedWallet]?.signingData,
+							[selectedNetwork]: action.payload.data.signingData,
+						},
+						checkpoints: {
+							...state.wallets[selectedWallet]?.checkpoints,
+							[selectedNetwork]: action.payload.data.checkpoints,
 						},
 					},
 				},
