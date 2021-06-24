@@ -6,27 +6,50 @@ import Button from '../../../components/Button';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../../../utils/notifications';
+import { showErrorNotification } from '../../../utils/notifications';
 import { backpackPassword } from '../../../utils/backup/backpack';
 import {
 	cleanupBackupFiles,
 	createBackupFile,
 } from '../../../utils/backup/backup';
+import Share from 'react-native-share';
 
-const ExportBackups = ({ navigation }): ReactElement => {
+const ExportBackups = (): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
+	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const [password, setPassword] = useState<string>('');
 
 	useEffect(() => {
 		backpackPassword().then(setPassword);
+
+		return (): void => {
+			cleanupBackupFiles().catch((e) => alert(JSON.stringify(e)));
+		};
 	}, []);
 
 	const themeColors = useSelector(
 		(state: Store) => themes[state.settings.theme].colors,
 	);
+
+	const shareToFiles = async (filePath): Promise<void> => {
+		const shareOptions = {
+			title: 'Share backup file',
+			failOnCancel: false,
+			saveToFiles: true,
+			urls: [filePath],
+		};
+
+		try {
+			await Share.open(shareOptions);
+		} catch (error) {
+			if (JSON.stringify(error).indexOf('CANCELLED') < 0) {
+				showErrorNotification({
+					title: 'Error',
+					message: 'Failed to save backup file',
+				});
+			}
+		}
+	};
 
 	const onCreateBackup = async (): Promise<void> => {
 		if (isEncrypted && !password) {
@@ -36,23 +59,25 @@ const ExportBackups = ({ navigation }): ReactElement => {
 			});
 		}
 
+		setIsCreating(true);
+
 		const fileRes = await createBackupFile(isEncrypted ? password : undefined);
 		if (fileRes.isErr()) {
+			setIsCreating(false);
 			return showErrorNotification({
 				title: 'Failed to create backup file',
 				message: fileRes.error.message,
 			});
 		}
 
-		showSuccessNotification({
-			title: 'Backup created',
-			message: fileRes.value,
-		});
+		await shareToFiles(fileRes.value);
+
+		setIsCreating(false);
 	};
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="Backup Export" onGoBack={cleanupBackupFiles} />
+			<NavigationHeader title="Backup Export" />
 			<View style={styles.content}>
 				<View style={styles.row}>
 					<Text style={styles.text}>Encrypt backup</Text>
@@ -86,6 +111,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 				) : null}
 
 				<Button
+					disabled={isCreating}
 					style={styles.button}
 					text={'Create backup file'}
 					onPress={onCreateBackup}

@@ -34,24 +34,15 @@ const BackButton = ({
 const NavigationHeader = ({
 	title = '',
 	isHome = false,
-	onGoBack = () => {},
 }: {
 	title?: string;
 	isHome?: boolean;
-	onGoBack?: () => void;
 }): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				{!isHome && (
-					<BackButton
-						onPress={(): void => {
-							navigation.goBack();
-							onGoBack();
-						}}
-					/>
-				)}
+				{!isHome && <BackButton onPress={navigation.goBack} />}
 			</View>
 			<View style={styles.middleColumn}>
 				<Text style={styles.title}>{title}</Text>
