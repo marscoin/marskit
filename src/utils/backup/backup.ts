@@ -7,8 +7,10 @@ import { backpackRetrieve, backpackStore } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
+import { zipWithPassword } from 'react-native-zip-archive';
 
-export const createBackup = async (): Promise<Result<Uint8Array>> => {
+const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 	try {
 		//TODO get wallet backup details from state
 
@@ -74,12 +76,30 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
 			timestampUtc: new Date().getTime(),
 		});
 
-		return ok(Scheme.Backup.encode(backup).finish());
+		return ok(backup);
 	} catch (e) {
 		return err(e);
 	}
 };
 
+/**
+ * Creates a complete backup returned as a byte array
+ * @returns {Promise<Ok<Uint8Array> | Err<unknown>>}
+ */
+export const createBackup = async (): Promise<Result<Uint8Array>> => {
+	const backup = await createBackupObject();
+	if (backup.isErr()) {
+		return err(backup.error);
+	}
+
+	return ok(Scheme.Backup.encode(backup.value).finish());
+};
+
+/**
+ * Recreates all wallet content from a backup byte array
+ * @param bytes
+ * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
+ */
 export const restoreFromBackup = async (
 	bytes: Uint8Array,
 ): Promise<Result<string>> => {
@@ -126,9 +146,7 @@ export const restoreFromBackup = async (
 		//TODO restore Omni
 
 		return ok(
-			`Restored ${backup.wallets.length} on chain wallets and ${
-				backup.lnd?.channelState?.length ?? 0
-			} lightning channels`,
+			`Restored ${backup.wallets.length} on chain wallets and lightning channels`,
 		);
 	} catch (e) {
 		return err(e);
@@ -184,6 +202,49 @@ export const verifyFromBackpackServer = async (): Promise<Result<Date>> => {
 		}
 
 		return ok(new Date(Number(remoteBackupDecoded.timestampUtc)));
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Creates a full backup and saves to local file
+ * @return {Promise<Err<unknown> | Ok<string>>}
+ */
+export const createBackupFile = async (
+	encryptionPassword?: string,
+): Promise<Result<string>> => {
+	const backupRes = await createBackupObject();
+	if (backupRes.isErr()) {
+		return err(backupRes.error);
+	}
+
+	try {
+		const backupDir = `${
+			RNFS.DocumentDirectoryPath
+		}/backup_${new Date().getTime()}`;
+
+		await RNFS.mkdir(backupDir);
+
+		const backupFilePrefix = `backpack_wallet_${new Date().getTime()}`;
+		const filePath = `${backupDir}/${backupFilePrefix}.json`;
+
+		await RNFS.writeFile(
+			filePath,
+			JSON.stringify(backupRes.value.toJSON()),
+			'utf8',
+		);
+
+		if (!encryptionPassword) {
+			return ok(filePath);
+		}
+
+		const encryptedFilePath = `${RNFS.DocumentDirectoryPath}/${backupFilePrefix}.zip`;
+		await zipWithPassword(backupDir, encryptedFilePath, encryptionPassword);
+
+		await RNFS.unlink(backupDir);
+
+		return ok(encryptedFilePath);
 	} catch (e) {
 		return err(e);
 	}

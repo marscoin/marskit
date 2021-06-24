@@ -6,6 +6,7 @@ import DrawerNavigator from '../drawer/DrawerNavigator';
 import TempSettings from '../../screens/Settings/TempSettings';
 import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
 import BackupSettings from '../../screens/Settings/Backup';
+import ExportBackups from '../../screens/Settings/Backup/Export';
 import LightningInfo from '../../screens/Settings/Lightning/LightningInfo';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
@@ -85,6 +86,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="BackupSettings"
 					component={BackupSettings}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ExportBackups"
+					component={ExportBackups}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
