@@ -11,7 +11,10 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import { backpackPassword } from '../../../utils/backup/backpack';
-import { createBackupFile } from '../../../utils/backup/backup';
+import {
+	cleanupBackupFiles,
+	createBackupFile,
+} from '../../../utils/backup/backup';
 
 const ExportBackups = ({ navigation }): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
@@ -33,7 +36,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 			});
 		}
 
-		const fileRes = await createBackupFile(password);
+		const fileRes = await createBackupFile(isEncrypted ? password : undefined);
 		if (fileRes.isErr()) {
 			return showErrorNotification({
 				title: 'Failed to create backup file',
@@ -49,7 +52,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="Backup Export" />
+			<NavigationHeader title="Backup Export" onGoBack={cleanupBackupFiles} />
 			<View style={styles.content}>
 				<View style={styles.row}>
 					<Text style={styles.text}>Encrypt backup</Text>
