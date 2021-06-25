@@ -8,7 +8,7 @@ import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
-import { zipWithPassword } from 'react-native-zip-archive';
+import { unzipWithPassword, zipWithPassword } from 'react-native-zip-archive';
 
 const backupFilePrefix = 'backpack_wallet_';
 
@@ -102,12 +102,10 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
  * @param bytes
  * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
  */
-export const restoreFromBackup = async (
-	bytes: Uint8Array,
+export const restoreFromBackupObject = async (
+	backup: Scheme.Backup,
 ): Promise<Result<string>> => {
 	try {
-		const backup = Scheme.Backup.decode(bytes);
-
 		//TODO we should probably validate a backup here
 
 		//Wallets
@@ -150,6 +148,23 @@ export const restoreFromBackup = async (
 		return ok(
 			`Restored ${backup.wallets.length} on chain wallets and lightning channels`,
 		);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Recreates all wallet content from a backup byte array
+ * @param bytes
+ * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
+ */
+export const restoreFromBackup = async (
+	bytes: Uint8Array,
+): Promise<Result<string>> => {
+	try {
+		const backup = Scheme.Backup.decode(bytes);
+
+		return await restoreFromBackupObject(backup);
 	} catch (e) {
 		return err(e);
 	}
@@ -270,6 +285,66 @@ export const cleanupBackupFiles = async (): Promise<Result<string>> => {
 		}
 
 		return ok('Files removed');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Restores backup from a valid JSON file
+ * @param uri
+ * @param password
+ */
+export const restoreFromFile = async (uri: string): Promise<Result<string>> => {
+	try {
+		const fileContent = await RNFS.readFile(uri);
+
+		return await restoreFromBackupObject(JSON.parse(fileContent));
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Restores a backup from an encrypted zip file
+ * @param uri
+ * @param password
+ * @returns {Promise<Err<unknown> | Result<string>>}
+ */
+export const restoreFromEncryptedZip = async (
+	uri: string,
+	password: string,
+): Promise<Result<string>> => {
+	//TODO try unzip
+
+	try {
+		const extractedDir = await unzipWithPassword(
+			uri,
+			`${RNFS.DocumentDirectoryPath}/${backupFilePrefix}_restore`,
+			password,
+		);
+
+		await RNFS.unlink(uri);
+
+		//Scan the output dir for a JSON file
+		const extractedFiles = await RNFS.readDir(extractedDir);
+		let jsonFiles: RNFS.ReadDirItem[] = [];
+		extractedFiles.forEach((file) => {
+			if (file.isFile() && file.name.toLowerCase().endsWith('.json')) {
+				jsonFiles.push(file);
+			}
+		});
+
+		//Ensure only one JSON file is found in the archive
+		if (jsonFiles.length < 1) {
+			return err('No valid backup files found in archive');
+		}
+
+		if (jsonFiles.length > 1) {
+			return err('Multiple backup files found in archive');
+		}
+
+		return restoreFromFile(jsonFiles[0].path);
 	} catch (e) {
 		return err(e);
 	}

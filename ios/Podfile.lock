@@ -264,6 +264,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (3.43.9):
     - React-Core
+  - react-native-document-picker (5.2.0):
+    - React-Core
   - react-native-libsodium (0.0.1):
     - React-Core
   - react-native-lightning (0.0.29):
@@ -419,6 +421,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-libsodium (from `../node_modules/react-native-libsodium`)
   - "react-native-lightning (from `../node_modules/@synonymdev/react-native-lightning`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -506,6 +509,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-libsodium:
     :path: "../node_modules/react-native-libsodium"
   react-native-lightning:
@@ -603,6 +608,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: bf312a2c11c4150fd4f850e78778e23170d78c5b
+  react-native-document-picker: f1b5398801b332c77bc62ae0eae2116f49bdff26
   react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
   react-native-lightning: 0b52088528d8c796c76c30cfaaef32622c247161
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
