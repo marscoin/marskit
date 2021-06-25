@@ -4,8 +4,6 @@ import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
 import { backupSetup, performFullBackup } from '../../store/actions/backup';
-import { backpackRetrieve, IBackpackAuth } from '../backup/backpack';
-import { restoreFromBackup } from '../backup/backup';
 import { startOmnibolt } from '../omnibolt';
 import {
 	createLightningWallet,

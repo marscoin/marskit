@@ -6,7 +6,10 @@ import Button from '../../../components/Button';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';
-import { showErrorNotification } from '../../../utils/notifications';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../../../utils/notifications';
 import { backpackPassword } from '../../../utils/backup/backpack';
 import {
 	cleanupBackupFiles,
@@ -14,7 +17,7 @@ import {
 } from '../../../utils/backup/backup';
 import Share from 'react-native-share';
 
-const ExportBackups = (): ReactElement => {
+const ExportBackups = ({ navigation }): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
 	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const [password, setPassword] = useState<string>('');
@@ -23,7 +26,7 @@ const ExportBackups = (): ReactElement => {
 		backpackPassword().then(setPassword);
 
 		return (): void => {
-			cleanupBackupFiles().catch((e) => alert(JSON.stringify(e)));
+			cleanupBackupFiles().finally();
 		};
 	}, []);
 
@@ -40,7 +43,12 @@ const ExportBackups = (): ReactElement => {
 		};
 
 		try {
-			await Share.open(shareOptions);
+			const res = await Share.open(shareOptions);
+
+			if (res.success) {
+				showSuccessNotification({ title: 'File saved', message: '' });
+				navigation.goBack();
+			}
 		} catch (error) {
 			if (JSON.stringify(error).indexOf('CANCELLED') < 0) {
 				showErrorNotification({

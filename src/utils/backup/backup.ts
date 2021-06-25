@@ -63,12 +63,12 @@ const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 			lndScheme.seed = lndSeed;
 		}
 
-		const backupRes = await lnd.exportAllChannelBackups();
-		if (backupRes.isErr()) {
-			return err(backupRes.error);
+		const lndBackupRes = await lnd.exportAllChannelBackups();
+		if (lndBackupRes.isErr()) {
+			return err(lndBackupRes.error);
 		}
 
-		lndScheme.multiChanBackup = backupRes.value;
+		lndScheme.multiChanBackup = lndBackupRes.value;
 
 		//TODO omni
 
