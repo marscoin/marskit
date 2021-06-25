@@ -4,93 +4,12 @@ import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
-import DocumentPicker from 'react-native-document-picker';
-import {
-	restoreFromEncryptedZip,
-	restoreFromFile,
-} from '../../utils/backup/backup';
 
 const OnboardingWelcomeScreen = ({
 	navigation,
 }: {
 	navigation: any;
 }): ReactElement => {
-	const _restoreFromFile = async (uri: string): Promise<void> => {
-		const restoreRes = await restoreFromFile(uri);
-		if (restoreRes.isErr()) {
-			showErrorNotification({
-				title: 'Restore failed',
-				message: restoreRes.error.message,
-			});
-		}
-	};
-
-	const _restoreFromEncryptedZip = async (uri: string): Promise<void> => {
-		Alert.prompt('Restore', '', [
-			{
-				text: 'Restore',
-				onPress: async (password): Promise<void> => {
-					if (!password) {
-						return;
-					}
-
-					const restoreRes = await restoreFromEncryptedZip(uri, password);
-					if (restoreRes.isErr()) {
-						showErrorNotification({
-							title: 'Restore failed',
-							message: restoreRes.error.message,
-						});
-					}
-				},
-			},
-			{
-				text: 'Cancel',
-				onPress: (): void => {},
-				style: 'cancel',
-			},
-		]);
-	};
-
-	const loadFiles = async (): Promise<void> => {
-		try {
-			const res = await DocumentPicker.pick({
-				type: [DocumentPicker.types.allFiles],
-				copyTo: 'documentDirectory',
-			});
-
-			if (!['application/json', 'application/zip'].includes(res.type)) {
-				showErrorNotification({
-					title: 'Restore failed',
-					message: 'Invalid filetype',
-				});
-			}
-
-			switch (res.type) {
-				case 'application/json': {
-					await _restoreFromFile(res.fileCopyUri);
-					break;
-				}
-				case 'application/zip': {
-					await _restoreFromEncryptedZip(res.fileCopyUri);
-					break;
-				}
-				default: {
-					showErrorNotification({
-						title: 'Restore failed',
-						message: 'Invalid filetype',
-					});
-				}
-			}
-		} catch (e) {
-			if (!DocumentPicker.isCancel(e)) {
-				showErrorNotification({
-					title: 'Restore failed',
-					message: 'Could not load files',
-				});
-			}
-		}
-	};
-
 	const onRestorePress = (): void => {
 		Alert.alert('Restore', '', [
 			{
@@ -99,7 +18,7 @@ const OnboardingWelcomeScreen = ({
 			},
 			{
 				text: 'From file',
-				onPress: loadFiles,
+				onPress: (): void => navigation.navigate('RestoreAccountFromFile'),
 			},
 			{
 				text: 'Cancel',

@@ -3,7 +3,7 @@ import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { getKeychainValue } from '../helpers';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
-import { backpackRetrieve, backpackStore } from './backpack';
+import { backpackRetrieve, backpackStore, IBackpackAuth } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -95,79 +95,6 @@ export const createBackup = async (): Promise<Result<Uint8Array>> => {
 	}
 
 	return ok(Scheme.Backup.encode(backup.value).finish());
-};
-
-/**
- * Recreates all wallet content from a backup byte array
- * @param bytes
- * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
- */
-export const restoreFromBackupObject = async (
-	backup: Scheme.Backup,
-): Promise<Result<string>> => {
-	try {
-		//TODO we should probably validate a backup here
-
-		//Wallets
-		for (let index = 0; index < backup.wallets.length; index++) {
-			const backedUpWallet = backup.wallets[index];
-			const { key, mnemonic, keyDerivationPath } = backedUpWallet; //TODO get passphrase as well when we support that
-
-			let addressType: TAddressType = 'bech32';
-			switch (backedUpWallet.addressType) {
-				case Scheme.Wallet.AddressType.bech32:
-					addressType = 'bech32';
-					break;
-				case Scheme.Wallet.AddressType.segwit:
-					addressType = 'segwit';
-					break;
-				case Scheme.Wallet.AddressType.legacy:
-					addressType = 'legacy';
-					break;
-			}
-
-			await createWallet({
-				walletName: key!,
-				addressAmount: 2,
-				changeAddressAmount: 2,
-				mnemonic: mnemonic!,
-				// @ts-ignore
-				keyDerivationPath,
-				addressType,
-			});
-		}
-
-		//Cache static channel state backup for funds to be swept when creating LND wallet
-		const multiChanBackup = backup.lnd?.multiChanBackup;
-		if (multiChanBackup) {
-			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
-		}
-
-		//TODO restore Omni
-
-		return ok(
-			`Restored ${backup.wallets.length} on chain wallets and lightning channels`,
-		);
-	} catch (e) {
-		return err(e);
-	}
-};
-
-/**
- * Recreates all wallet content from a backup byte array
- * @param bytes
- * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
- */
-export const restoreFromBackup = async (
-	bytes: Uint8Array,
-): Promise<Result<string>> => {
-	try {
-		const backup = Scheme.Backup.decode(bytes);
-
-		return await restoreFromBackupObject(backup);
-	} catch (e) {
-		return err(e);
-	}
 };
 
 /**
@@ -269,25 +196,97 @@ export const createBackupFile = async (
 };
 
 /**
- * Removes all local backup files
- * @return {Promise<Err<unknown> | Ok<string>>}
+ * Recreates all wallet content from a backup byte array
+ * @param bytes
+ * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
  */
-export const cleanupBackupFiles = async (): Promise<Result<string>> => {
-	const list = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-
+export const restoreFromBackupObject = async (
+	backup: Scheme.Backup,
+): Promise<Result<string>> => {
 	try {
-		for (let index = 0; index < list.length; index++) {
-			const file = list[index];
+		//TODO we should probably validate a backup here
 
-			if (file.name.indexOf(backupFilePrefix) > -1) {
-				await RNFS.unlink(file.path);
+		//Wallets
+		for (let index = 0; index < backup.wallets.length; index++) {
+			const backedUpWallet = backup.wallets[index];
+			const { key, mnemonic, keyDerivationPath } = backedUpWallet; //TODO get passphrase as well when we support that
+
+			let addressType: TAddressType = 'bech32';
+			switch (backedUpWallet.addressType) {
+				case Scheme.Wallet.AddressType.bech32:
+					addressType = 'bech32';
+					break;
+				case Scheme.Wallet.AddressType.segwit:
+					addressType = 'segwit';
+					break;
+				case Scheme.Wallet.AddressType.legacy:
+					addressType = 'legacy';
+					break;
 			}
+
+			await createWallet({
+				walletName: key!,
+				addressAmount: 2,
+				changeAddressAmount: 2,
+				mnemonic: mnemonic!,
+				// @ts-ignore
+				keyDerivationPath,
+				addressType,
+			});
 		}
 
-		return ok('Files removed');
+		//Cache static channel state backup for funds to be swept when creating LND wallet
+		const multiChanBackup = backup.lnd?.multiChanBackup;
+		if (multiChanBackup) {
+			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
+		}
+
+		//TODO restore Omni
+
+		return ok(
+			`Restored ${backup.wallets.length} on chain wallets and lightning channels`,
+		);
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Recreates all wallet content from a backup byte array
+ * @param bytes
+ * @returns {Promise<Ok<`Restored ${number} on chain wallets and ${any} lightning channels`> | Err<unknown>>}
+ */
+export const restoreFromBackup = async (
+	bytes: Uint8Array,
+): Promise<Result<string>> => {
+	try {
+		const backup = Scheme.Backup.decode(bytes);
+
+		return await restoreFromBackupObject(backup);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Restores a backup from the backpack server
+ * @param auth
+ * @returns {Promise<Err<unknown> | Ok<string>>}
+ */
+export const restoreWalletFromServer = async (
+	auth: IBackpackAuth,
+): Promise<Result<string>> => {
+	const retrieveRes = await backpackRetrieve(auth);
+	if (retrieveRes.isErr()) {
+		return err(retrieveRes.error);
+	}
+
+	const restoreRes = await restoreFromBackup(retrieveRes.value);
+	if (restoreRes.isErr()) {
+		return err(restoreRes.error);
+	}
+
+	return ok('Wallet restored');
 };
 
 /**
@@ -315,8 +314,6 @@ export const restoreFromEncryptedZip = async (
 	uri: string,
 	password: string,
 ): Promise<Result<string>> => {
-	//TODO try unzip
-
 	try {
 		const extractedDir = await unzipWithPassword(
 			uri,
@@ -345,6 +342,28 @@ export const restoreFromEncryptedZip = async (
 		}
 
 		return restoreFromFile(jsonFiles[0].path);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Removes all local backup files
+ * @return {Promise<Err<unknown> | Ok<string>>}
+ */
+export const cleanupBackupFiles = async (): Promise<Result<string>> => {
+	const list = await RNFS.readDir(RNFS.DocumentDirectoryPath);
+
+	try {
+		for (let index = 0; index < list.length; index++) {
+			const file = list[index];
+
+			if (file.name.indexOf(backupFilePrefix) > -1) {
+				await RNFS.unlink(file.path);
+			}
+		}
+
+		return ok('Files removed');
 	} catch (e) {
 		return err(e);
 	}

@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
 import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
 import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
+import OnboardingRestoreFromFileScreen from '../../screens/Onboarding/RestoreFromFile';
 import PinPad from '../../components/PinPad';
 import Biometrics, {
 	IsSensorAvailableResult,
@@ -80,6 +81,11 @@ const OnboardingNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="RestoreAccount"
 					component={OnboardingRestoreAccountScreen}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="RestoreAccountFromFile"
+					component={OnboardingRestoreFromFileScreen}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>
