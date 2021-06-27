@@ -2,11 +2,12 @@ import React, { ReactElement, useState } from 'react';
 import { Text, View } from '../../styles/components';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import RegisterForm from '../../screens/Settings/Backup/RegisterForm';
-import { restoreWallet } from '../../utils/startup';
+import { startWalletServices } from '../../utils/startup';
 import {
 	showErrorNotification,
 	showInfoNotification,
 } from '../../utils/notifications';
+import { restoreWalletFromServer } from '../../utils/backup/backup';
 
 const OnboardingRestoreAccountScreen = (): ReactElement => {
 	const [isRestoring, setIsRestoring] = useState<boolean>(false);
@@ -22,7 +23,7 @@ const OnboardingRestoreAccountScreen = (): ReactElement => {
 					<RegisterForm
 						onAuthDetails={async (auth): Promise<void> => {
 							setIsRestoring(true);
-							const res = await restoreWallet(auth);
+							const res = await restoreWalletFromServer(auth);
 							if (res.isErr()) {
 								showErrorNotification({
 									title: 'Wallet restore failed',
@@ -36,6 +37,8 @@ const OnboardingRestoreAccountScreen = (): ReactElement => {
 								title: 'Success',
 								message: 'Wallet is being restored',
 							});
+
+							await startWalletServices();
 
 							setIsRestoring(false);
 						}}

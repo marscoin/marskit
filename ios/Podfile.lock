@@ -264,6 +264,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (3.43.9):
     - React-Core
+  - react-native-document-picker (5.2.0):
+    - React-Core
   - react-native-libsodium (0.0.1):
     - React-Core
   - react-native-lightning (0.0.29):
@@ -359,6 +361,8 @@ PODS:
     - React-Core
   - RNScreens (3.2.0):
     - React-Core
+  - RNShare (6.2.1):
+    - React-Core
   - RNSVG (12.1.1):
     - React
   - RNVectorIcons (8.1.0):
@@ -417,6 +421,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-libsodium (from `../node_modules/react-native-libsodium`)
   - "react-native-lightning (from `../node_modules/@synonymdev/react-native-lightning`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -444,6 +449,7 @@ DEPENDENCIES:
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
@@ -503,6 +509,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-libsodium:
     :path: "../node_modules/react-native-libsodium"
   react-native-lightning:
@@ -557,6 +565,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNShare:
+    :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -573,7 +583,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: 7b423f9e248eae65987838148c36eec1dbfe0b53
-  FBReactNativeSpec: 559fb0b2054a6400fd94f3361b459519015929ce
+  FBReactNativeSpec: 48fe9617a70000d48cde537d939824365b283ac7
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -598,6 +608,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: bf312a2c11c4150fd4f850e78778e23170d78c5b
+  react-native-document-picker: f1b5398801b332c77bc62ae0eae2116f49bdff26
   react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
   react-native-lightning: 0b52088528d8c796c76c30cfaaef32622c247161
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
@@ -625,6 +636,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: 514a11da3a2bcc6c3dfd9de32b38e2b9bf101926
   RNScreens: c277bfc4b5bb7c2fe977d19635df6f974f95dfd6
+  RNShare: 5ac8f6532ca4cd80fc71caef1cfbba1854a6a045
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   RNZipArchive: 924d63f15f2838837f8379ee6e9955d8ff4736c4

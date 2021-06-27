@@ -39,10 +39,8 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 		username = auth.username;
 		password = auth.password;
 	} else {
-		username = (await getKeychainValue({ key: BackpackKeychainKeys.username }))
-			.data;
-		password = (await getKeychainValue({ key: BackpackKeychainKeys.password }))
-			.data;
+		username = await backpackUsername();
+		password = await backpackPassword();
 	}
 
 	//If we didn't get passed auth details and none were found in the keychain then we can't proceed
@@ -101,6 +99,19 @@ export const wipeAuthDetails = async (): Promise<void> => {
 export const backpackUsername = async (): Promise<string> => {
 	try {
 		return (await getKeychainValue({ key: BackpackKeychainKeys.username }))
+			.data;
+	} catch (e) {
+		return '';
+	}
+};
+
+/**
+ * Gets backpack password. Returns empty string if not registered.
+ * @return {Promise<string>}
+ */
+export const backpackPassword = async (): Promise<string> => {
+	try {
+		return (await getKeychainValue({ key: BackpackKeychainKeys.password }))
 			.data;
 	} catch (e) {
 		return '';

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
@@ -10,6 +10,24 @@ const OnboardingWelcomeScreen = ({
 }: {
 	navigation: any;
 }): ReactElement => {
+	const onRestorePress = (): void => {
+		Alert.alert('Restore', '', [
+			{
+				text: 'From backup server',
+				onPress: (): void => navigation.navigate('RestoreAccount'),
+			},
+			{
+				text: 'From file',
+				onPress: (): void => navigation.navigate('RestoreAccountFromFile'),
+			},
+			{
+				text: 'Cancel',
+				onPress: (): void => {},
+				style: 'cancel',
+			},
+		]);
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.content}>
@@ -25,9 +43,7 @@ const OnboardingWelcomeScreen = ({
 				<Button
 					style={styles.button}
 					text={'Restore'}
-					onPress={(): void => {
-						navigation.navigate('RestoreAccount');
-					}}
+					onPress={onRestorePress}
 				/>
 				<Button
 					style={styles.button}

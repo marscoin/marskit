@@ -4,8 +4,6 @@ import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
 import { backupSetup, performFullBackup } from '../../store/actions/backup';
-import { backpackRetrieve, IBackpackAuth } from '../backup/backpack';
-import { restoreFromBackup } from '../backup/backup';
 import { startOmnibolt } from '../omnibolt';
 import {
 	createLightningWallet,
@@ -28,27 +26,19 @@ export const checkWalletExists = async (): Promise<void> => {
 	await updateWallet({ walletExists });
 };
 
-export const restoreWallet = async (
-	auth: IBackpackAuth,
-): Promise<Result<string>> => {
-	const retrieveRes = await backpackRetrieve(auth);
-	if (retrieveRes.isErr()) {
-		return err(retrieveRes.error);
-	}
-
-	const restoreRes = await restoreFromBackup(retrieveRes.value);
-	if (restoreRes.isErr()) {
-		return err(restoreRes.error);
-	}
-
-	return await startWalletServices();
-};
-
+/**
+ * Creates a new wallet from scratch
+ * @returns {Promise<Ok<string> | Err<string>>}
+ */
 export const createNewWallet = async (): Promise<Result<string>> => {
 	//All seeds will get automatically created
 	return await startWalletServices();
 };
 
+/**
+ * Starts all wallet services
+ * @returns {Promise<Err<unknown> | Ok<string>>}
+ */
 export const startWalletServices = async (): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
