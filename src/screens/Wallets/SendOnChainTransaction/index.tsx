@@ -37,6 +37,8 @@ import SendForm from '../../../components/SendForm';
 import Summary from './Summary';
 import OutputSummary from './OutputSummary';
 import FeeSummary from './FeeSummary';
+import { useNavigation } from '@react-navigation/native';
+import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -65,6 +67,7 @@ const SendOnChainTransaction = ({
 	const [opacity] = useState(new Animated.Value(0));
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [rawTx, setRawTx] = useState('');
+	const navigation = useNavigation();
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -149,7 +152,16 @@ const SendOnChainTransaction = ({
 				if (__DEV__) {
 					console.log(response.value);
 				}
-				setRawTx(response.value);
+				const { pin, biometrics } = hasEnabledAuthentication();
+				if (pin || biometrics) {
+					navigation.navigate('AuthCheck', {
+						onSuccess: () => {
+							// @ts-ignore
+							navigation.pop();
+							setRawTx(response.value);
+						},
+					});
+				}
 			}
 		} catch {}
 	};
