@@ -161,6 +161,8 @@ const SendOnChainTransaction = ({
 							setRawTx(response.value);
 						},
 					});
+				} else {
+					setRawTx(response.value);
 				}
 			}
 		} catch {}
