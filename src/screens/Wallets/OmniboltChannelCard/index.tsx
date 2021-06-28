@@ -27,6 +27,9 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import Clipboard from '@react-native-community/clipboard';
+import { hasEnabledAuthentication } from '../../../utils/settings';
+import { useNavigation } from '@react-navigation/native';
+
 const OmniboltChannelCard = ({
 	channelId = '',
 }: {
@@ -34,6 +37,8 @@ const OmniboltChannelCard = ({
 }): ReactElement => {
 	const [amount, setAmount] = useState(0); //Determines whether the user is sending the max amount.
 	const [loading, setLoading] = useState(false);
+
+	const navigation = useNavigation();
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -95,6 +100,23 @@ const OmniboltChannelCard = ({
 	if (myBalance === 0 && peerBalance === 0) {
 		peerBalance = channelBalance;
 	}
+
+	const authCheck = (): void => {
+		const { pin, biometrics } = hasEnabledAuthentication();
+		if (pin || biometrics) {
+			navigation.navigate('AuthCheck', {
+				onSuccess: () => {
+					// @ts-ignore
+					navigation.pop();
+					setTimeout(() => {
+						sendAsset().then();
+					}, 500);
+				},
+			});
+		} else {
+			sendAsset().then();
+		}
+	};
 
 	const sendAsset = async (): Promise<void> => {
 		setLoading(true);
@@ -210,7 +232,7 @@ const OmniboltChannelCard = ({
 							color="onSurface"
 							style={styles.button}
 							disabled={amount <= 0}
-							onPress={sendAsset}
+							onPress={authCheck}
 							loading={loading}
 							text={`Send ${amount} ${assetName}`}
 						/>
