@@ -26,6 +26,7 @@ import {
 } from '@synonymdev/react-native-lnurl';
 import lnd from '@synonymdev/react-native-lightning';
 import { LNURLWithdrawParams } from 'js-lnurl';
+import { hasEnabledAuthentication } from '../../utils/settings';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -46,9 +47,44 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 			);
 		}
 
+		const { address, sats: amount, message, network } = data;
+
+		const payLightningInvoicePrompt = (): void => {
+			Alert.alert(
+				`Pay ${data.sats} sats?`,
+				data.message,
+				[
+					{
+						text: 'Cancel',
+						onPress: (): void => {},
+						style: 'cancel',
+					},
+					{
+						text: 'Pay',
+						onPress: async (): Promise<void> => {
+							const payRes = await payLightningRequest(
+								data.lightningPaymentRequest ?? '',
+							);
+							if (payRes.isErr()) {
+								showErrorNotification({
+									title: 'Payment failed',
+									message: payRes.error.message,
+								});
+								return;
+							}
+
+							showSuccessNotification({
+								title: 'Paid!',
+								message: `${data.sats} sats`,
+							});
+						},
+					},
+				],
+				{ cancelable: true },
+			);
+		};
 		switch (data.qrDataType) {
 			case EQRDataType.bitcoinAddress: {
-				const { address, sats: amount, message, network } = data;
 				updateOnChainTransaction({
 					selectedWallet,
 					selectedNetwork,
@@ -73,39 +109,19 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.lightningPaymentRequest: {
-				Alert.alert(
-					`Pay ${data.sats} sats?`,
-					data.message,
-					[
-						{
-							text: 'Cancel',
-							onPress: (): void => {},
-							style: 'cancel',
+				const { pin, biometrics } = hasEnabledAuthentication();
+				if (pin || biometrics) {
+					navigation.navigate('AuthCheck', {
+						onSuccess: () => {
+							navigation.pop();
+							setTimeout(() => {
+								payLightningInvoicePrompt();
+							}, 500);
 						},
-						{
-							text: 'Pay',
-							onPress: async (): Promise<void> => {
-								const payRes = await payLightningRequest(
-									data.lightningPaymentRequest ?? '',
-								);
-								if (payRes.isErr()) {
-									showErrorNotification({
-										title: 'Payment failed',
-										message: payRes.error.message,
-									});
-									return;
-								}
-
-								showSuccessNotification({
-									title: 'Paid!',
-									message: `${data.sats} sats`,
-								});
-							},
-						},
-					],
-					{ cancelable: true },
-				);
-
+					});
+				} else {
+					payLightningInvoicePrompt();
+				}
 				break;
 			}
 			case EQRDataType.lnurlAuth: {
