@@ -18,7 +18,8 @@ import QR from '../../components/QR';
 import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
-import { View } from 'react-native';
+import { View } from '../../styles/components';
+import AuthCheck from '../../components/AuthCheck';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -79,6 +80,14 @@ const WalletsStack = (): ReactElement => {
 				name="ActivityDetail"
 				component={ActivityDetail}
 				options={navOptionHandler}
+			/>
+			<Stack.Screen
+				name="AuthCheck"
+				component={AuthCheck}
+				options={{
+					...navOptionHandler,
+					...TransitionPresets.ModalSlideFromBottomIOS,
+				}}
 			/>
 		</Stack.Navigator>
 	);

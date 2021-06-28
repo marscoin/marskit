@@ -14,6 +14,7 @@ import PinPad from '../../components/PinPad';
 import Biometrics from '../../components/Biometrics';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import AuthCheck from '../../components/AuthCheck';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,21 +25,28 @@ const navOptionHandler = {
 	detachPreviousScreen: false,
 };
 
-export type TInitialRoutes = 'Drawer' | 'StartPin' | 'Biometrics';
+export type TInitialRoutes = 'Drawer' | 'AuthCheck';
 const RootNavigator = (): ReactElement => {
 	const hasPin = useSelector((state: Store) => state.settings.pin);
 	const hasBiometrics = useSelector(
 		(state: Store) => state.settings.biometrics,
 	);
 	let initialRouteName: TInitialRoutes = 'Drawer';
-	if (hasPin) {
-		initialRouteName = 'StartPin';
-	} else if (hasBiometrics) {
-		initialRouteName = 'Biometrics';
+	if (hasPin || hasBiometrics) {
+		initialRouteName = 'AuthCheck';
 	}
 	return (
 		<NavigationContainer>
 			<Stack.Navigator initialRouteName={initialRouteName}>
+				<Stack.Screen name="AuthCheck" options={navOptionHandler}>
+					{({ navigation }): ReactElement => (
+						<AuthCheck
+							onSuccess={(): void => {
+								navigation.replace('Drawer');
+							}}
+						/>
+					)}
+				</Stack.Screen>
 				<Stack.Screen
 					name="Drawer"
 					component={DrawerNavigator}
