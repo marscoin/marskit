@@ -50,11 +50,13 @@ export interface IsSensorAvailableResult {
 
 interface BiometricsComponent {
 	onSuccess: Function;
+	onFailure?: Function;
 	style?: object;
 	children?: ReactElement;
 }
 const Biometrics = ({
 	onSuccess = (): null => null,
+	onFailure = (): null => null,
 	style = {},
 	children = <></>,
 }: BiometricsComponent): ReactElement => {
@@ -112,6 +114,7 @@ const Biometrics = ({
 				})
 				.catch(() => {
 					console.log('biometrics failed');
+					onFailure();
 				});
 		} catch {}
 	};

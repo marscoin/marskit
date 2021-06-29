@@ -16,6 +16,7 @@ import {
 	createBackupFile,
 } from '../../../utils/backup/backup';
 import Share from 'react-native-share';
+import AuthCheck from '../../../components/AuthCheck';
 
 const ExportBackups = ({ navigation }): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
@@ -86,45 +87,47 @@ const ExportBackups = ({ navigation }): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Backup Export" />
-			<View style={styles.content}>
-				<View style={styles.row}>
-					<Text style={styles.text}>Encrypt backup</Text>
-					<Switch
-						ios_backgroundColor={themeColors.surface}
-						onValueChange={(): void => setIsEncrypted(!isEncrypted)}
-						value={isEncrypted}
+			<AuthCheck>
+				<View style={styles.content}>
+					<View style={styles.row}>
+						<Text style={styles.text}>Encrypt backup</Text>
+						<Switch
+							ios_backgroundColor={themeColors.surface}
+							onValueChange={(): void => setIsEncrypted(!isEncrypted)}
+							value={isEncrypted}
+						/>
+					</View>
+
+					{isEncrypted ? (
+						<View>
+							<TextInput
+								textAlignVertical={'center'}
+								underlineColorAndroid="transparent"
+								style={styles.textInput}
+								placeholder="Password"
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								onChangeText={setPassword}
+								value={password}
+								textContentType={'newPassword'}
+								secureTextEntry
+							/>
+
+							<Text style={styles.text2}>
+								(Default password is your Backpack password)
+							</Text>
+						</View>
+					) : null}
+
+					<Button
+						disabled={isCreating}
+						style={styles.button}
+						text={'Create backup file'}
+						onPress={onCreateBackup}
 					/>
 				</View>
-
-				{isEncrypted ? (
-					<View>
-						<TextInput
-							textAlignVertical={'center'}
-							underlineColorAndroid="transparent"
-							style={styles.textInput}
-							placeholder="Password"
-							autoCapitalize="none"
-							autoCompleteType="off"
-							autoCorrect={false}
-							onChangeText={setPassword}
-							value={password}
-							textContentType={'newPassword'}
-							secureTextEntry
-						/>
-
-						<Text style={styles.text2}>
-							(Default password is your Backpack password)
-						</Text>
-					</View>
-				) : null}
-
-				<Button
-					disabled={isCreating}
-					style={styles.button}
-					text={'Create backup file'}
-					onPress={onCreateBackup}
-				/>
-			</View>
+			</AuthCheck>
 		</View>
 	);
 };
