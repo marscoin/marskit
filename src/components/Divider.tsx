@@ -1,26 +1,13 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useSelector } from 'react-redux';
-import Store from '../store/types';
-import themes from '../styles/themes';
+import { StyleSheet } from 'react-native';
+import { View } from '../styles/components';
 
 interface Props extends PropsWithChildren<any> {
 	style?: {};
 }
 
 const Divider = ({ style }: Props = { style: {} }): ReactElement => {
-	const settings = useSelector((state: Store) => state.settings);
-	const theme = themes[settings.theme];
-
-	return (
-		<View
-			style={[
-				styles.line,
-				{ backgroundColor: theme.colors.onBackground },
-				style,
-			]}
-		/>
-	);
+	return <View color={'onBackground'} style={[styles.line, style]} />;
 };
 
 const styles = StyleSheet.create({

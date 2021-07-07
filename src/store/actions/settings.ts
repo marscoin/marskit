@@ -7,6 +7,7 @@ import { deleteOmniboltId } from '../../utils/omnibolt';
 import { wipeAuthDetails } from '../../utils/backup/backpack';
 import { wipeLndDir } from '../../utils/lightning';
 import { removePin } from '../../utils/settings';
+import { resetActivityStore } from './activity';
 
 const dispatch = getDispatch();
 
@@ -52,6 +53,7 @@ export const wipeWallet = async ({
 			wipeAuthDetails(),
 			resetKeychainValue({ key: 'lndMnemonic' }),
 			wipeLndDir(),
+			resetActivityStore(),
 		]);
 		dispatch({
 			type: actions.WIPE_WALLET,
