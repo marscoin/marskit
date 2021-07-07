@@ -18,8 +18,7 @@ import { updateSettings } from '../../../store/actions/settings';
 import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 import { updateExchangeRates } from '../../../store/actions/wallet';
 import { TBitcoinUnit } from '../../../store/types/wallet';
-
-type RadioButtonItem = { label: string; value: string };
+import { RadioButtonItem } from '../../../store/types/settings';
 
 const ExchangeRateSettings = ({ navigation }): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);

@@ -13,4 +13,5 @@ export const defaultSettingsShape: ISettings = {
 	exchangeRateService: EExchangeRateService.bitfinex,
 	selectedLanguage: 'english',
 	customElectrumPeers: { ...arrayTypeItems },
+	coinSelectPreference: 'small',
 };
