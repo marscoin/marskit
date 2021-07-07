@@ -1,5 +1,4 @@
 import React, { memo, ReactElement } from 'react';
-import RadioButtonRN from 'radio-buttons-react-native';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
@@ -7,9 +6,9 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	RadioButtonRN,
 } from '../../../styles/components';
 import Store from '../../../store/types';
-import themes from '../../../styles/themes';
 import {
 	EExchangeRateService,
 	supportedExchangeTickers,
@@ -21,16 +20,19 @@ import { TBitcoinUnit } from '../../../store/types/wallet';
 import { RadioButtonItem } from '../../../store/types/settings';
 
 const ExchangeRateSettings = ({ navigation }): ReactElement => {
-	const settings = useSelector((state: Store) => state.settings);
-	const itemStyle = { color: themes[settings.theme].colors.text };
-	const activeColor = themes[settings.theme].colors.onBackground;
+	const selectedExchangeRateService = useSelector(
+		(state: Store) => state.settings.exchangeRateService,
+	);
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+	const selectedBitcoinUnit = useSelector(
+		(state: Store) => state.settings.bitcoinUnit,
+	);
 
 	const exchangeRateProviders = Object.keys(EExchangeRateService).filter(
 		(key) => isNaN(Number(EExchangeRateService[key])),
 	);
-	const selectedExchangeRateService = settings.exchangeRateService;
-	const selectedCurrency = settings.selectedCurrency;
-	const selectedBitcoinUnit = settings.bitcoinUnit;
 	const bitcoinUnits: TBitcoinUnit[] = ['BTC', 'satoshi'];
 
 	const onSetExchangeRateService = (provider: EExchangeRateService): void => {
@@ -92,12 +94,6 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 		}
 	});
 
-	const radioButtonProps = {
-		box: false,
-		textStyle: itemStyle,
-		activeColor,
-	};
-
 	return (
 		<View style={styles.container}>
 			<TouchableOpacity
@@ -116,7 +112,6 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 			<ScrollView>
 				<Text style={styles.titleText}>Exchange rate provider</Text>
 				<RadioButtonRN
-					{...radioButtonProps}
 					data={services}
 					selectedBtn={(e): void => onSetExchangeRateService(e.value)}
 					initial={initialServiceIndex}
@@ -124,7 +119,6 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 
 				<Text style={styles.titleText}>Display currency</Text>
 				<RadioButtonRN
-					{...radioButtonProps}
 					data={tickers}
 					selectedBtn={(e): void => {
 						if (e) {
@@ -137,7 +131,6 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 				<Text style={styles.titleText}>Bitcoin display unit</Text>
 
 				<RadioButtonRN
-					{...radioButtonProps}
 					data={units}
 					selectedBtn={(e): void => onSetBitcoinUnit(e.value)}
 					initial={initialUnitIndex}
