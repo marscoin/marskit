@@ -4,8 +4,9 @@
 
 import lnd, {
 	ENetworks as LndNetworks,
-	TLndConf,
 	lnrpc,
+	ss_lnrpc,
+	TLndConf,
 } from '@synonymdev/react-native-lightning';
 import { Platform } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -13,6 +14,7 @@ import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
+
 const packageJson = require('../../../package.json');
 
 const defaultNodePubKey =
@@ -117,9 +119,9 @@ export const openChannelStream = (
  * @returns {Promise<Ok<string>>}
  */
 export const wipeLndDir = async (): Promise<Result<string>> => {
-	const stateRes = await lnd.currentState();
+	const stateRes = await lnd.stateService.getState();
 
-	if (stateRes.isOk() && stateRes.value.lndRunning) {
+	if (stateRes.isOk() && stateRes.value === ss_lnrpc.WalletState.RPC_ACTIVE) {
 		await lnd.stop();
 
 		//Takes a few seconds to stop the daemon
@@ -226,16 +228,8 @@ export const debugLightningStatusMessage = (lightning: ILightning): string => {
 		return `Unzipping cache 🤐 ${unzipProgress}%`;
 	}
 
-	if (!lightning.state.lndRunning) {
-		return 'Starting ⌛';
-	}
-
-	if (!lightning.state.walletUnlocked) {
-		return 'Unlocking ⌛';
-	}
-
-	if (!lightning.state.grpcReady) {
-		return 'Unlocked ⌛';
+	if (lightning.state !== ss_lnrpc.WalletState.RPC_ACTIVE) {
+		return lnd.stateService.readableState(lightning.state);
 	}
 
 	if (!lightning.info.syncedToChain) {

@@ -38,7 +38,7 @@ const lightning = (state: ILightning, action): ILightning => {
 		case actions.UNLOCK_LIGHTNING_WALLET:
 			return {
 				...state,
-				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }), //As they just unlocked rather assume they're not in sync //lnrpc.GetInfoResponse.create({ syncedToChain: false })
+				info: lnrpc.GetInfoResponse.create({ syncedToChain: false }), //As they just unlocked rather assume they're not in sync
 			};
 		case actions.RESET_LIGHTNING_STORE:
 		case actions.WIPE_WALLET:

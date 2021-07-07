@@ -1450,10 +1450,10 @@
     merge-deep "^3.0.2"
     svgo "^1.2.2"
 
-"@synonymdev/react-native-lightning@0.0.29":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-lightning/-/react-native-lightning-0.0.29.tgz#6345ee4571f587fb8f524e1af591e875ad4493a5"
-  integrity sha512-HsQVJx1x6FHEvAQ0GaRWOrDg8EbLff5AsquxKWILVdsGoe2HxudxXXXSQBkAkQxkoZPZD2C2aZHDiUYBVsf44A==
+"@synonymdev/react-native-lightning@0.0.33":
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-lightning/-/react-native-lightning-0.0.33.tgz#6af2ee920fa6ee191ba2eec3abc4f2316b3de716"
+  integrity sha512-catt/cNAqYn8m1/mDK1QzCZiTggZ0+ZU7r3VQ4NFgWMfmzqsawHQg4hd0oJHPlbpJGBCze1cMotpGffOcXri9A==
   dependencies:
     base64-js "^1.5.1"
     protobufjs "^6.10.2"
