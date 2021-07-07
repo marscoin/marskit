@@ -17,13 +17,22 @@ import lnd, {
 import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cache';
 import { showErrorNotification } from '../notifications';
 
-export const checkWalletExists = async (): Promise<void> => {
-	const response = await getMnemonicPhrase('wallet0');
+/**
+ * Checks if the specified wallet's phrase is saved to storage.
+ */
+export const checkWalletExists = async (
+	wallet = 'wallet0',
+): Promise<boolean> => {
+	const response = await getMnemonicPhrase(wallet);
 	let walletExists = false;
 	if (response.isOk() && !!response.value) {
 		walletExists = true;
 	}
-	await updateWallet({ walletExists });
+	const _walletExists = getStore().wallet.walletExists;
+	if (walletExists !== _walletExists) {
+		await updateWallet({ walletExists });
+	}
+	return walletExists;
 };
 
 /**
@@ -32,65 +41,81 @@ export const checkWalletExists = async (): Promise<void> => {
  */
 export const createNewWallet = async (): Promise<Result<string>> => {
 	//All seeds will get automatically created
-	return await startWalletServices();
+	return await startWalletServices({});
 };
 
 /**
  * Starts all wallet services
  * @returns {Promise<Err<unknown> | Ok<string>>}
  */
-export const startWalletServices = async (): Promise<Result<string>> => {
+const ENABLE_SERVICES = true;
+export const startWalletServices = async ({
+	onchain = ENABLE_SERVICES,
+	lightning = ENABLE_SERVICES,
+	omnibolt = ENABLE_SERVICES,
+}: {
+	onchain?: boolean;
+	lightning?: boolean;
+	omnibolt?: boolean;
+}): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
-			let lndNetwork = LndNetworks.testnet;
-			if (selectedNetwork === 'bitcoin') {
-				lndNetwork = LndNetworks.mainnet;
-			}
+
 			const walletKeys = Object.keys(wallets);
 			if (!wallets[walletKeys[0]] || !wallets[walletKeys[0]]?.id) {
 				await createWallet({});
 			}
 
-			const electrumResponse = await connectToElectrum({ selectedNetwork });
-			if (electrumResponse.isOk()) {
-				refreshWallet().then();
+			if (onchain) {
+				const electrumResponse = await connectToElectrum({ selectedNetwork });
+				if (electrumResponse.isOk()) {
+					refreshWallet().then();
+				}
 			}
 
-			//Create and start omnibolt.
-			startOmnibolt({ selectedWallet }).then();
+			if (omnibolt) {
+				//Create and start omnibolt.
+				startOmnibolt({ selectedWallet }).then();
+			}
 
-			lndCache.addStateListener(updateCachedNeutrinoDownloadState);
-			lndCache
-				.downloadCache(lndNetwork)
-				//Start LND no matter the outcome of the download
-				.finally(async () => {
-					await startLnd(lndNetwork);
+			if (lightning) {
+				let lndNetwork = LndNetworks.testnet;
+				if (selectedNetwork === 'bitcoin') {
+					lndNetwork = LndNetworks.mainnet;
+				}
+				lndCache.addStateListener(updateCachedNeutrinoDownloadState);
+				lndCache
+					.downloadCache(lndNetwork)
+					//Start LND no matter the outcome of the download
+					.finally(async () => {
+						await startLnd(lndNetwork);
 
-					// Create or unlock LND wallet
-					const existsRes = await lnd.walletExists(lndNetwork);
-					if (existsRes.isOk() && existsRes.value) {
-						await unlockLightningWallet({
-							network: lndNetwork,
-						});
-					} else {
-						await createLightningWallet({
-							network: lndNetwork,
-						});
-					}
-
-					setTimeout(async () => {
-						const res = await backupSetup();
-						if (res.isErr()) {
-							showErrorNotification({
-								title: 'Failed to verify remote backup. Retrying...',
-								message: res.error.message,
+						// Create or unlock LND wallet
+						const existsRes = await lnd.walletExists(lndNetwork);
+						if (existsRes.isOk() && existsRes.value) {
+							await unlockLightningWallet({
+								network: lndNetwork,
 							});
-							performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
+						} else {
+							await createLightningWallet({
+								network: lndNetwork,
+							});
 						}
-					}, 3000);
-				});
+
+						setTimeout(async () => {
+							const res = await backupSetup();
+							if (res.isErr()) {
+								showErrorNotification({
+									title: 'Failed to verify remote backup. Retrying...',
+									message: res.error.message,
+								});
+								performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
+							}
+						}, 3000);
+					});
+			}
 		});
 
 		return ok('Wallet started');
