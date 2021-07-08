@@ -29,6 +29,7 @@ import LndConf from '@synonymdev/react-native-lightning/dist/utils/lnd.conf';
 export { LndConf };
 export * from '@synonymdev/react-native-lightning/dist/utils/types';
 export * from '@synonymdev/react-native-lightning/dist/protos/rpc';
+export * from '@synonymdev/react-native-lightning/dist/protos/stateservice';
 export * from '@synonymdev/react-native-lightning/dist/utils/result';
 
 export default new LND();
