@@ -44,7 +44,7 @@ const OnboardingRestoreFromFileScreen = ({ navigation }): ReactElement => {
 			message: 'Wallet is being restored',
 		});
 
-		await startWalletServices();
+		await startWalletServices({});
 	};
 
 	const openFiles = async (): Promise<void> => {

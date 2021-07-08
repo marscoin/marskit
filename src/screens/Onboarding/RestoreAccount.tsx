@@ -38,7 +38,7 @@ const OnboardingRestoreAccountScreen = (): ReactElement => {
 								message: 'Wallet is being restored',
 							});
 
-							await startWalletServices();
+							await startWalletServices({});
 
 							setIsRestoring(false);
 						}}
