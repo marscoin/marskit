@@ -1,4 +1,10 @@
-import React, { useState, useEffect, memo, ReactElement } from 'react';
+import React, {
+	useState,
+	useEffect,
+	memo,
+	ReactElement,
+	useCallback,
+} from 'react';
 import { StyleSheet, LayoutAnimation } from 'react-native';
 import { systemWeights } from 'react-native-typography';
 import { Text, TouchableOpacity, EvilIcon, View } from '../styles/components';
@@ -38,23 +44,19 @@ interface PinComponent {
 	>;
 }
 
-const PinPadButton = ({
-	num,
-	onPress,
-}: {
-	num: number;
-	onPress: Function;
-}): ReactElement => {
-	return (
-		<TouchableOpacity
-			onPress={onPress}
-			activeOpacity={ACTIVE_OPACITY}
-			style={styles.buttonContainer}
-			color={'surface'}>
-			<Text style={styles.button}>{num}</Text>
-		</TouchableOpacity>
-	);
-};
+const PinPadButton = memo(
+	({ num, onPress }: { num: number; onPress: Function }): ReactElement => {
+		return (
+			<TouchableOpacity
+				onPress={onPress}
+				activeOpacity={ACTIVE_OPACITY}
+				style={styles.buttonContainer}
+				color={'surface'}>
+				<Text style={styles.button}>{num}</Text>
+			</TouchableOpacity>
+		);
+	},
+);
 
 const PinPad = ({
 	onSuccess = (): null => null,
@@ -93,10 +95,13 @@ const PinPad = ({
 			const attemptsRemainingResponse = await getKeychainValue({
 				key: 'pinAttemptsRemaining',
 			});
-			if (!attemptsRemainingResponse.error) {
+			if (
+				!attemptsRemainingResponse.error &&
+				Number(attemptsRemainingResponse.data) !== Number(attemptsRemaining)
+			) {
 				let numAttempts =
 					attemptsRemainingResponse.data !== undefined
-						? attemptsRemainingResponse.data
+						? Number(attemptsRemainingResponse.data)
 						: 5;
 				setAttemptsRemaining(numAttempts);
 			}
@@ -239,7 +244,7 @@ const PinPad = ({
 		}
 	};
 
-	const getDots = (): string => {
+	const getDots = useCallback((): string => {
 		try {
 			if (value.length > 4) {
 				return ` ● ● ● ●  +${value.length - 4}`;
@@ -251,9 +256,9 @@ const PinPad = ({
 		} catch (e) {
 			return makeDots(4);
 		}
-	};
+	}, [value]);
 
-	const getHeaderText = (): ReactElement => {
+	const getHeaderText = useCallback((): ReactElement => {
 		try {
 			if (pinSetup) {
 				if (pinSetupStep === 1) {
@@ -284,7 +289,7 @@ const PinPad = ({
 		} catch {
 			return <></>;
 		}
-	};
+	}, [pinSetup, pinSetupStep, attemptsRemaining, invalidPin]);
 
 	return (
 		<View color={'background'} style={[styles.container, { ...style }]}>
@@ -454,4 +459,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(PinPad);
+export default memo(PinPad, () => true);

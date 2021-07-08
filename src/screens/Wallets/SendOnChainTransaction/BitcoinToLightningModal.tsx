@@ -41,6 +41,7 @@ import { Psbt } from 'bitcoinjs-lib';
 import AdjustValue from '../../../components/AdjustValue';
 import FeeSummary from './FeeSummary';
 import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
@@ -305,6 +306,23 @@ const BitcoinToLightning = (): ReactElement => {
 		setValue(`${balance}`);
 	};
 
+	const authCheck = (): void => {
+		const { pin, biometrics } = hasEnabledAuthentication();
+		if (pin || biometrics) {
+			navigation.navigate('AuthCheck', {
+				onSuccess: () => {
+					// @ts-ignore
+					navigation.pop();
+					setTimeout(() => {
+						onStart().then();
+					}, 500);
+				},
+			});
+		} else {
+			onStart().then();
+		}
+	};
+
 	const showConfirm = psbt.txInputs.length > 0;
 
 	const hasChannelId = useCallback(() => {
@@ -363,7 +381,7 @@ const BitcoinToLightning = (): ReactElement => {
 			<FeeSummary amount={value} lightning />
 
 			{!hasChannelId() ? (
-				<Button color={'onSurface'} text="Move funds" onPress={onStart} />
+				<Button color={'onSurface'} text="Move funds" onPress={authCheck} />
 			) : null}
 
 			{showConfirm ? (

@@ -124,6 +124,14 @@ const Settings = ({ navigation }): ReactElement => {
 					enabled: true,
 					hide: false,
 				},
+
+				{
+					title: 'Export Backups',
+					type: 'icon',
+					onPress: (): void => navigation.navigate('ExportBackups'),
+					enabled: true,
+					hide: false,
+				},
 			],
 		},
 		{

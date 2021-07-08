@@ -36,3 +36,18 @@ export const toggleBiometrics = (
 		}
 	} catch {}
 };
+
+/**
+ * Returns if the user's various methods of authentication are enabled or disabled.
+ */
+export const hasEnabledAuthentication = (): {
+	pin: boolean;
+	biometrics: boolean;
+} => {
+	try {
+		const { pin, biometrics } = getStore().settings;
+		return { pin, biometrics };
+	} catch {
+		return { pin: false, biometrics: false };
+	}
+};
