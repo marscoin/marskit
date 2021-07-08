@@ -1,7 +1,7 @@
 import '../shim';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import React, { memo, ReactElement, useEffect } from 'react';
+import React, { memo, ReactElement, useMemo, useEffect } from 'react';
 import { Platform, StyleSheet, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
@@ -13,7 +13,6 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
-import { getStore } from './store/helpers';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -22,21 +21,24 @@ if (Platform.OS === 'android') {
 }
 
 const App = (): ReactElement => {
-	const { walletExists } = useSelector((state: Store) => state.wallet);
+	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
+	const theme = useSelector((state: Store) => state.settings.theme);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
-			await checkWalletExists();
-
-			if (getStore().wallet.walletExists) {
-				await startWalletServices();
+			const _walletExists = await checkWalletExists();
+			if (_walletExists) {
+				await startWalletServices({});
 			}
 		})();
 	}, []);
 
-	const settings = useSelector((state: Store) => state.settings);
+	const currentTheme = useMemo(() => {
+		return themes[theme];
+	}, [theme]);
+
 	return (
-		<ThemeProvider theme={themes[settings.theme]}>
+		<ThemeProvider theme={currentTheme}>
 			<StatusBar />
 			<SafeAreaView style={styles.container}>
 				{walletExists ? <RootNavigator /> : <OnboardingNavigator />}

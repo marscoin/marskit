@@ -5,7 +5,7 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { LayoutAnimation, Linking, StyleSheet } from 'react-native';
 import { Text, TouchableOpacity, View } from '../../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
@@ -29,6 +29,11 @@ import {
 import Clipboard from '@react-native-community/clipboard';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 import { useNavigation } from '@react-navigation/native';
+import { getStore } from '../../../store/helpers';
+import {
+	broadcastTransaction,
+	getBlockExplorerLink,
+} from '../../../utils/wallet/transactions';
 
 const OmniboltChannelCard = ({
 	channelId = '',
@@ -50,6 +55,13 @@ const OmniboltChannelCard = ({
 	const channel = useSelector(
 		(state: Store) =>
 			state.omnibolt.wallets[selectedWallet].channels[selectedNetwork][
+				channelId
+			],
+	);
+
+	const signingData = useSelector(
+		(state: Store) =>
+			state.omnibolt.wallets[selectedWallet].signingData[selectedNetwork][
 				channelId
 			],
 	);
@@ -85,6 +97,7 @@ const OmniboltChannelCard = ({
 	const myBalance = channel.balance_a;
 	let peerBalance = channel.balance_b;
 	const assetId = channel.property_id;
+	const fundingAddress = signingData?.fundingAddress?.address || ' ';
 	const assetName = asset?.name;
 	const assetDescription = asset?.data;
 	const isClosed = channel.curr_state === 21;
@@ -173,6 +186,37 @@ const OmniboltChannelCard = ({
 		}
 	};
 
+	const forceCloseChannel = async (): Promise<void> => {
+		try {
+			const rawTx =
+				getStore().omnibolt.wallets[selectedWallet].signingData[
+					selectedNetwork
+				][channelId].kTbSignedHexCR110351;
+			const broadcastResponse = await broadcastTransaction({
+				rawTx,
+				selectedNetwork,
+			});
+			if (broadcastResponse.isErr()) {
+				showErrorNotification({
+					title: 'Error Force Closing Channel',
+					message: broadcastResponse.error.message,
+				});
+				return;
+			}
+			showSuccessNotification({
+				title: 'Channel Force Closed Successfully',
+				message: channel.channel_id,
+			});
+			updateOmniboltChannels({}).then();
+		} catch (e) {
+			console.log(e);
+			showErrorNotification({
+				title: 'Error Force Closing Channel',
+				message: e,
+			});
+		}
+	};
+
 	LayoutAnimation.easeInEaseOut();
 
 	return (
@@ -210,6 +254,19 @@ const OmniboltChannelCard = ({
 				style={styles.row}>
 				<Text>Channel ID: {channelId}</Text>
 			</TouchableOpacity>
+			{fundingAddress && (
+				<TouchableOpacity
+					activeOpacity={0.6}
+					onPress={(): void => {
+						Linking.openURL(
+							getBlockExplorerLink(fundingAddress, 'address', selectedNetwork),
+						);
+					}}
+					color="transparent"
+					style={styles.row}>
+					<Text>Funding Address: {fundingAddress}</Text>
+				</TouchableOpacity>
+			)}
 			{myBalance > 0 && !isClosed && (
 				<>
 					<AdjustValue
@@ -240,14 +297,26 @@ const OmniboltChannelCard = ({
 				</>
 			)}
 			{!isClosed && (
-				<View color="transparent" style={styles.row}>
-					<Button
-						color="onSurface"
-						style={styles.button}
-						onPress={_closeChannel}
-						text={'Close Channel'}
-					/>
-				</View>
+				<>
+					<View color="transparent" style={styles.row}>
+						<Button
+							color="onSurface"
+							style={styles.button}
+							onPress={_closeChannel}
+							text={'Close Channel'}
+						/>
+					</View>
+					{myBalance > 0 && (
+						<View color="transparent" style={styles.row}>
+							<Button
+								color="onSurface"
+								style={styles.button}
+								onPress={forceCloseChannel}
+								text={'Force Close Channel'}
+							/>
+						</View>
+					)}
+				</>
 			)}
 		</View>
 	);

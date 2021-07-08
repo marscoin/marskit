@@ -934,11 +934,13 @@ export const updateFee = ({
 /**
  * Returns a block explorer URL for a specific transaction
  * @param {string} id
+ * @param {'tx' | 'address'} type
  * @param {TAvailableNetworks} selectedNetwork
  * @param {'blockstream' | 'mempool'} [service]
  */
 export const getBlockExplorerLink = (
 	id: string,
+	type: 'tx' | 'address' = 'tx',
 	selectedNetwork: TAvailableNetworks | undefined = undefined,
 	service: 'blockstream' | 'mempool' = 'mempool',
 ): string => {
@@ -948,15 +950,15 @@ export const getBlockExplorerLink = (
 	switch (service) {
 		case 'blockstream':
 			if (selectedNetwork === 'bitcoinTestnet') {
-				return `https://blockstream.info/testnet/tx/${id}`;
+				return `https://blockstream.info/testnet/${type}/${id}`;
 			} else {
-				return `https://blockstream.info/tx/${id}`;
+				return `https://blockstream.info/${type}/${id}`;
 			}
 		case 'mempool':
 			if (selectedNetwork === 'bitcoinTestnet') {
-				return `https://mempool.space/testnet/tx/${id}`;
+				return `https://mempool.space/testnet/${type}/${id}`;
 			} else {
-				return `https://mempool.space/tx/${id}`;
+				return `https://mempool.space/${type}/${id}`;
 			}
 	}
 };

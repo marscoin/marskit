@@ -74,7 +74,7 @@ import { IMyChannelsData } from '../../store/shapes/omnibolt';
 import { showSuccessNotification } from '../notifications';
 import { ISendSignedHex100362Response } from 'omnibolt-js/src/types';
 
-const obdapi = new ObdApi();
+const obdapi = new ObdApi({});
 
 /**
  * Connect to a specified omnibolt server.

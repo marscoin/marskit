@@ -3,6 +3,7 @@ import { EExchangeRateService } from '../../utils/exchange-rate';
 
 type TTheme = 'dark' | 'light' | 'blue';
 type TProtocol = 'ssl' | 'tcp';
+export type TCoinSelectPreference = 'small' | 'large' | 'consolidate';
 
 export interface ICustomElectrumPeer {
 	host: string;
@@ -22,5 +23,8 @@ export interface ISettings {
 	selectedCurrency: string;
 	exchangeRateService: EExchangeRateService;
 	selectedLanguage: string;
+	coinSelectPreference: TCoinSelectPreference;
 	[key: string]: any;
 }
+
+export type RadioButtonItem = { label: string; value: string };

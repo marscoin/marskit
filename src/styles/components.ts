@@ -6,6 +6,7 @@ import _Ionicons from 'react-native-vector-icons/Ionicons';
 import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated from 'react-native-reanimated';
 import colors from './colors';
+import _RadioButtonRN from 'radio-buttons-react-native';
 
 export const SafeAreaView = styled.SafeAreaView`
 	flex: 1;
@@ -50,8 +51,11 @@ export const ScrollView = styled.ScrollView`
 	background-color: ${(props): string => props.theme.colors.background};
 `;
 
-export const TextInput = styled.TextInput.attrs(() => ({
+export const TextInput = styled.TextInput.attrs((props) => ({
 	selectionColor: colors.orange,
+	placeholderTextColor: props?.placeholderTextColor
+		? props.placeholderTextColor
+		: 'gray',
 }))`
 	background-color: ${(props): string =>
 		props.backgroundColor
@@ -89,6 +93,16 @@ export const Text = styled.Text`
 			? props.theme.fonts[props.font].fontWeight
 			: props.theme.fonts.medium.fontWeight};
 `;
+
+export const RadioButtonRN = styled(_RadioButtonRN).attrs((props) => ({
+	box: props?.box ? props.box : false,
+	textStyle: props?.textStyle
+		? props.textStyle
+		: { color: props.theme.colors.text },
+	activeColor: props?.activeColor
+		? props.activeColor
+		: props.theme.colors.onBackground,
+}))``;
 
 export const Feather = styled(_Feather).attrs((props) => ({
 	color: props.color
