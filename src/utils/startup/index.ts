@@ -1,5 +1,9 @@
 import { connectToElectrum, getMnemonicPhrase, refreshWallet } from '../wallet';
-import { createWallet, updateWallet } from '../../store/actions/wallet';
+import {
+	createWallet,
+	updateExchangeRates,
+	updateWallet,
+} from '../../store/actions/wallet';
 import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
@@ -71,6 +75,8 @@ export const startWalletServices = async ({
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
+			updateExchangeRates().finally();
+
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
 
