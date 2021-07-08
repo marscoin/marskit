@@ -12,6 +12,7 @@ import Store from '../../../store/types';
 import themes from '../../../styles/themes';
 import {
 	EExchangeRateService,
+	exchangeRateServices,
 	supportedExchangeTickers,
 } from '../../../utils/exchange-rate';
 import { updateSettings } from '../../../store/actions/settings';
@@ -67,7 +68,8 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 	let services: RadioButtonItem[] = [];
 	let initialServiceIndex = -1;
 	exchangeRateProviders.forEach((service, index) => {
-		services.push({ label: EExchangeRateService[service], value: service });
+		services.push({ label: exchangeRateServices[service], value: service });
+
 		if (service === selectedExchangeRateService) {
 			initialServiceIndex = index + 1;
 		}

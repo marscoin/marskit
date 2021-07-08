@@ -4,9 +4,14 @@ import { getStore } from '../../store/helpers';
 import { TBitcoinUnit } from '../../store/types/wallet';
 
 export enum EExchangeRateService {
-	bitfinex = 'Bitfinex',
-	cryptoCompare = 'Crypto Compare',
+	bitfinex = 'bitfinex',
+	cryptoCompare = 'cryptoCompare',
 }
+
+export const exchangeRateServices = {
+	[EExchangeRateService.bitfinex]: 'Bitfinex',
+	[EExchangeRateService.cryptoCompare]: 'Crypto Compare',
+};
 
 export const supportedExchangeTickers = {
 	[EExchangeRateService.bitfinex]: ['USD', 'EUR', 'JPY', 'GBP'],
