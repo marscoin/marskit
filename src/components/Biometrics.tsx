@@ -117,6 +117,7 @@ const Biometrics = ({
 					});
 			} catch {}
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[biometryData?.biometryType],
 	);
 

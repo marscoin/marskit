@@ -364,6 +364,7 @@ const Settings = ({ navigation }): ReactElement => {
 				],
 			},
 		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			biometryData?.available,
 			biometryData?.biometryType,

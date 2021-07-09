@@ -108,6 +108,7 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 					return <Item {...item} navigation={navigation} />;
 				}
 				return null;
+				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
 			ItemSeparatorComponent={useCallback(
 				({ leadingItem: { hide } }): ReactElement | null => {

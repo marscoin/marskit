@@ -38,6 +38,7 @@ const App = (): ReactElement => {
 				await startWalletServices({});
 			}
 		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const currentTheme = useMemo(() => {

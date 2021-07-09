@@ -26,7 +26,7 @@ import validate, {
 	getAddressInfo,
 } from 'bitcoin-address-validation';
 import { updateOnChainTransaction } from '../../store/actions/wallet';
-import { TCoinSelectPreference } from "../../store/types/settings";
+import { TCoinSelectPreference } from '../../store/types/settings';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
