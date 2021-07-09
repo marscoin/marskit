@@ -2,7 +2,7 @@ import '../shim';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import React, { memo, ReactElement, useMemo, useEffect } from 'react';
-import { Platform, StyleSheet, UIManager } from 'react-native';
+import { Platform, StyleSheet, UIManager, useColorScheme } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { StatusBar, SafeAreaView } from './styles/components';
@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
+import { updateSettings } from './store/actions/settings';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -23,10 +24,16 @@ if (Platform.OS === 'android') {
 const App = (): ReactElement => {
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
+	const colorScheme = useColorScheme();
 
 	useEffect(() => {
 		(async (): Promise<void> => {
 			const _walletExists = await checkWalletExists();
+			if (!_walletExists) {
+				//Set theme based on device preference.
+				const userPreference = colorScheme === 'light' ? 'light' : 'dark';
+				updateSettings({ theme: userPreference });
+			}
 			if (_walletExists) {
 				await startWalletServices({});
 			}
