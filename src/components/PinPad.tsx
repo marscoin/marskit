@@ -4,6 +4,7 @@ import React, {
 	memo,
 	ReactElement,
 	useCallback,
+	useMemo,
 } from 'react';
 import { StyleSheet, LayoutAnimation } from 'react-native';
 import { systemWeights } from 'react-native-typography';
@@ -12,6 +13,8 @@ import { updateSettings, wipeWallet } from '../store/actions/settings';
 import NavigationHeader from './NavigationHeader';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { useSelector } from 'react-redux';
+import Store from '../store/types';
 
 const {
 	setKeychainValue,
@@ -82,12 +85,15 @@ const PinPad = ({
 	const [pinSetupStep, setPinSetupStep] = useState(1);
 	const [invalidPin, setInvalidPin] = useState(false);
 	const [attemptsRemaining, setAttemptsRemaining] = useState(0);
+	const pinIsEnabled = useSelector((state: Store) => state.settings.pin);
 
 	useEffect(() => {
 		if (pinSetup) {
 			//Allow enough time to transition to PinPad view
 			setTimeout(() => {
-				updateSettings({ pin: false });
+				if (pinIsEnabled) {
+					updateSettings({ pin: false });
+				}
 			}, 500);
 		}
 
@@ -244,19 +250,20 @@ const PinPad = ({
 		}
 	};
 
+	const dots = useMemo(() => makeDots(4 - value.length), [value]);
+	const marks = useMemo(() => value.replace(/./g, ' ● '), [value]);
+
 	const getDots = useCallback((): string => {
 		try {
 			if (value.length > 4) {
 				return ` ● ● ● ●  +${value.length - 4}`;
 			} else {
-				const marks = value.replace(/./g, ' ● ');
-				const dots = makeDots(4 - value.length);
 				return `${marks}${dots}`;
 			}
 		} catch (e) {
 			return makeDots(4);
 		}
-	}, [value]);
+	}, [dots, marks, value.length]);
 
 	const getHeaderText = useCallback((): ReactElement => {
 		try {

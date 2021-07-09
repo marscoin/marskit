@@ -1,14 +1,16 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { SectionList, StyleSheet, Switch } from 'react-native';
 import { Text, TouchableOpacity, View } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 
-const _ItemHeader = ({ title }: { title: string }): ReactElement => (
-	<View style={styles.itemHeader}>
-		<Text color="white" style={styles.header}>
-			{title}
-		</Text>
-	</View>
+const _ItemHeader = memo(
+	({ title }: { title: string }): ReactElement => (
+		<View style={styles.itemHeader}>
+			<Text color="white" style={styles.header}>
+				{title}
+			</Text>
+		</View>
+	),
 );
 const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 	return prevProps.title === nextProps.title;
@@ -27,52 +29,54 @@ interface IItem extends ItemData {
 	type: string;
 }
 
-const _Item = ({
-	type,
-	title,
-	onPress,
-	navigation,
-	enabled = true,
-	hide = false,
-}: IItem): ReactElement => {
-	if (hide) {
-		return <View />;
-	}
-	const _onPress = (): void => onPress(navigation);
-	if (type === 'switch') {
+const _Item = memo(
+	({
+		type,
+		title,
+		onPress,
+		navigation,
+		enabled = true,
+		hide = false,
+	}: IItem): ReactElement => {
+		if (hide) {
+			return <View />;
+		}
+		const _onPress = (): void => onPress(navigation);
+		if (type === 'switch') {
+			return (
+				<TouchableOpacity
+					activeOpacity={0.7}
+					onPress={_onPress}
+					style={styles.row}>
+					<View color="transparent" style={styles.leftColumn}>
+						<Text color="white" style={styles.title}>
+							{title}
+						</Text>
+					</View>
+					<View color="transparent" style={styles.rightColumn}>
+						<Switch
+							trackColor={{ false: '#767577', true: '#81b0ff' }}
+							thumbColor={'#f4f3f4'}
+							ios_backgroundColor="#3e3e3e"
+							onValueChange={_onPress}
+							value={enabled}
+						/>
+					</View>
+				</TouchableOpacity>
+			);
+		}
 		return (
 			<TouchableOpacity
 				activeOpacity={0.7}
-				onPress={_onPress}
+				onPress={enabled ? _onPress : null}
 				style={styles.row}>
-				<View color="transparent" style={styles.leftColumn}>
-					<Text color="white" style={styles.title}>
-						{title}
-					</Text>
-				</View>
-				<View color="transparent" style={styles.rightColumn}>
-					<Switch
-						trackColor={{ false: '#767577', true: '#81b0ff' }}
-						thumbColor={'#f4f3f4'}
-						ios_backgroundColor="#3e3e3e"
-						onValueChange={_onPress}
-						value={enabled}
-					/>
-				</View>
+				<Text color="white" style={styles.title}>
+					{title}
+				</Text>
 			</TouchableOpacity>
 		);
-	}
-	return (
-		<TouchableOpacity
-			activeOpacity={0.7}
-			onPress={enabled ? _onPress : null}
-			style={styles.row}>
-			<Text color="white" style={styles.title}>
-				{title}
-			</Text>
-		</TouchableOpacity>
-	);
-};
+	},
+);
 const Item = memo(_Item, (prevProps, nextProps) => {
 	return (
 		prevProps.title === nextProps.title &&
@@ -93,23 +97,27 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 			sections={data}
 			extraData={data}
 			keyExtractor={(item): string => item.title}
-			renderSectionHeader={({ section: { title } }): ReactElement => (
-				<ItemHeader title={title} />
+			renderSectionHeader={useCallback(
+				({ section: { title } }): ReactElement => (
+					<ItemHeader title={title} />
+				),
+				[],
 			)}
-			renderItem={({ item }): ReactElement | null => {
+			renderItem={useCallback(({ item }): ReactElement | null => {
 				if (item.hide === false) {
 					return <Item {...item} navigation={navigation} />;
 				}
 				return null;
-			}}
-			ItemSeparatorComponent={({
-				leadingItem: { hide },
-			}): ReactElement | null => {
-				if (!hide) {
-					return <View style={styles.separator} />;
-				}
-				return null;
-			}}
+			}, [])}
+			ItemSeparatorComponent={useCallback(
+				({ leadingItem: { hide } }): ReactElement | null => {
+					if (!hide) {
+						return <View style={styles.separator} />;
+					}
+					return null;
+				},
+				[],
+			)}
 			stickySectionHeadersEnabled={true}
 		/>
 	);

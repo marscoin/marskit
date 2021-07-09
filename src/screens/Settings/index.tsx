@@ -1,5 +1,12 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import { Linking, Platform, StyleSheet } from 'react-native';
 import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
@@ -46,284 +53,328 @@ const Settings = ({ navigation }): ReactElement => {
 		})();
 	}, []);
 
-	const updateTheme = (): void => {
+	const updateTheme = useCallback((): void => {
 		try {
 			const theme = settingsTheme === 'dark' ? 'light' : 'dark';
 			updateSettings({ theme });
 		} catch {}
-	};
+	}, [settingsTheme]);
 
 	const hasPin = useSelector((state: Store) => state.settings.pin);
 	const hasBiometrics = useSelector(
 		(state: Store) => state.settings.biometrics,
 	);
 
-	const SettingsListData = [
-		{
-			title: 'Settings',
-			data: [
-				{
-					title: 'Dark Mode',
-					type: 'switch',
-					enabled: settingsTheme === 'dark',
-					onPress: updateTheme,
-					hide: false,
-				},
-				{
-					title: 'Pin',
-					type: 'switch',
-					enabled: hasPin,
-					onPress: (): void => {
-						if (hasPin) {
-							removePin().then();
-						} else {
-							navigation.navigate('Pin', {
-								pinSetup: !hasPin,
-								navigateBackOnSuccess: true,
-							});
-						}
+	const SettingsListData = useMemo(
+		() => [
+			{
+				title: 'Settings',
+				data: [
+					{
+						title: 'Dark Mode',
+						type: 'switch',
+						enabled: settingsTheme === 'dark',
+						onPress: updateTheme,
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Biometrics',
-					type: 'switch',
-					enabled: hasBiometrics,
-					onPress: (): void => {
-						toggleBiometrics();
+					{
+						title: 'Pin',
+						type: 'switch',
+						enabled: hasPin,
+						onPress: (): void => {
+							if (hasPin) {
+								removePin().then();
+							} else {
+								navigation.navigate('Pin', {
+									pinSetup: !hasPin,
+									navigateBackOnSuccess: true,
+								});
+							}
+						},
+						hide: false,
 					},
-					hide: !biometryData?.available && !biometryData?.biometryType,
-				},
-				{
-					title: 'Fiat Currency Selection',
-					type: 'button',
-					onPress: (): void => navigation.navigate('ExchangeRateSettings'),
-					hide: false,
-				},
-				{
-					title: 'Security',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Two-Factor Authentication',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'Backup',
-			data: [
-				{
-					title: `${remoteBackupSynced ? 'Synced ✅' : 'Requires backup ❌'}`,
-					type: 'icon',
-					onPress: (): void => navigation.navigate('BackupSettings'),
-					enabled: true,
-					hide: false,
-				},
+					{
+						title: 'Biometrics',
+						type: 'switch',
+						enabled: hasBiometrics,
+						onPress: (): void => {
+							toggleBiometrics();
+						},
+						hide: !biometryData?.available && !biometryData?.biometryType,
+					},
+					{
+						title: 'Fiat Currency Selection',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ExchangeRateSettings'),
+						hide: false,
+					},
+					{
+						title: 'Coin-Select Preference',
+						type: 'button',
+						onPress: (): void => navigation.navigate('CoinSelectPreference'),
+						hide: false,
+					},
+					{
+						title: 'Security',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+					{
+						title: 'Two-Factor Authentication',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+					{
+						title: 'App Permissions',
+						type: 'button',
+						onPress: (): void => {
+							if (Platform.OS === 'ios') {
+								Linking.openURL('App-Prefs:Privacy');
+							} else {
+								Linking.openSettings();
+							}
+						},
+						hide: false,
+					},
+				],
+			},
+			{
+				title: 'Backup',
+				data: [
+					{
+						title: `${remoteBackupSynced ? 'Synced ✅' : 'Requires backup ❌'}`,
+						type: 'icon',
+						onPress: (): void => navigation.navigate('BackupSettings'),
+						enabled: true,
+						hide: false,
+					},
 
-				{
-					title: 'Export Backups',
-					type: 'icon',
-					onPress: (): void => navigation.navigate('ExportBackups'),
-					enabled: true,
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'Lightning Debug',
-			data: [
-				{
-					title: 'LND Logs',
-					type: 'button',
-					onPress: (): void => navigation.navigate('LndLogs'),
-					hide: false,
-				},
-				{
-					title: 'Test commands',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempLightningOptions'),
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'On-Chain Settings',
-			data: [
-				{
-					title: 'Enable On-Chain Testnet',
-					type: 'switch',
-					enabled: selectedNetwork === 'bitcoinTestnet',
-					onPress: async (): Promise<void> => {
-						const network =
-							selectedNetwork === 'bitcoin' ? 'bitcoinTestnet' : 'bitcoin';
-						updateWallet({ selectedNetwork: network }).then(() => {
-							refreshWallet().then();
-						});
+					{
+						title: 'Export Backups',
+						type: 'icon',
+						onPress: (): void => navigation.navigate('ExportBackups'),
+						enabled: true,
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Manage Seed Phrase',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						navigation.navigate('ManageSeedPhrase');
+				],
+			},
+			{
+				title: 'Lightning Debug',
+				data: [
+					{
+						title: 'LND Logs',
+						type: 'button',
+						onPress: (): void => navigation.navigate('LndLogs'),
+						hide: false,
 					},
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'Dev Settings',
-			data: [
-				{
-					title: 'Reset Current Wallet Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetSelectedWallet({ selectedWallet });
+					{
+						title: 'Test commands',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempLightningOptions'),
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset Entire Wallet Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetWalletStore();
+				],
+			},
+			{
+				title: 'On-Chain Settings',
+				data: [
+					{
+						title: 'Enable On-Chain Testnet',
+						type: 'switch',
+						enabled: selectedNetwork === 'bitcoinTestnet',
+						onPress: async (): Promise<void> => {
+							const network =
+								selectedNetwork === 'bitcoin' ? 'bitcoinTestnet' : 'bitcoin';
+							updateWallet({ selectedNetwork: network }).then(() => {
+								refreshWallet().then();
+							});
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset Lightning Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetLightningStore();
+					{
+						title: 'Manage Seed Phrase',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							navigation.navigate('ManageSeedPhrase');
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset Omnibolt Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetOmniBoltStore();
+				],
+			},
+			{
+				title: 'Dev Settings',
+				data: [
+					{
+						title: 'Reset Current Wallet Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetSelectedWallet({ selectedWallet });
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset Settings Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetSettingsStore();
+					{
+						title: 'Reset Entire Wallet Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetWalletStore();
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset Activity Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetActivityStore();
+					{
+						title: 'Reset Lightning Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetLightningStore();
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset User Store',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await resetUserStore();
+					{
+						title: 'Reset Omnibolt Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetOmniBoltStore();
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Reset All Stores',
-					type: 'button',
-					onPress: async (): Promise<void> => {
-						await Promise.all([
-							resetWalletStore(),
-							resetLightningStore(),
-							resetSettingsStore(),
-							resetActivityStore(),
-							resetUserStore(),
-							resetOmniBoltStore(),
-						]);
+					{
+						title: 'Reset Settings Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetSettingsStore();
+						},
+						hide: false,
 					},
-					hide: false,
-				},
-				{
-					title: 'Wipe Wallet Data',
-					type: 'button',
-					onPress: wipeWallet,
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'About',
-			data: [
-				{
-					title: 'Twitter: @synonym_to',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Telegram',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Website: synonym.to',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Leave A Review',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Report A Bug',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Contribute',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Legal',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-			],
-		},
-		{
-			title: 'Support',
-			data: [
-				{
-					title: 'Help Centre',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-				{
-					title: 'Email: support@synonym.to',
-					type: 'button',
-					onPress: (): void => navigation.navigate('TempSettings'),
-					hide: false,
-				},
-			],
-		},
-	];
+					{
+						title: 'Reset Activity Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetActivityStore();
+						},
+						hide: false,
+					},
+					{
+						title: 'Reset User Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetUserStore();
+						},
+						hide: false,
+					},
+					{
+						title: 'Reset All Stores',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await Promise.all([
+								resetWalletStore(),
+								resetLightningStore(),
+								resetSettingsStore(),
+								resetActivityStore(),
+								resetUserStore(),
+								resetOmniBoltStore(),
+							]);
+						},
+						hide: false,
+					},
+					{
+						title: 'Wipe Wallet Data',
+						type: 'button',
+						onPress: wipeWallet,
+						hide: false,
+					},
+				],
+			},
+			{
+				title: 'About',
+				data: [
+					{
+						title: 'Twitter: @synonym_to',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL('https://twitter.com/synonym_to').then(),
+						hide: false,
+					},
+					{
+						title: 'Telegram',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL('https://t.me/backpackwallet').then(),
+						hide: false,
+					},
+					{
+						title: 'Email: info@synonym.to',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL('mailto:info@synonym.to?subject=General Inquiry'),
+						hide: false,
+					},
+					{
+						title: 'Website: synonym.to',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL('https://synonym.to').then(),
+						hide: false,
+					},
+					{
+						title: 'Leave A Review',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+					{
+						title: 'Report A Bug',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+					{
+						title: 'Contribute to this open-source project',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL('https://github.com/synonymdev').then(),
+						hide: false,
+					},
+					{
+						title: 'Legal',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+				],
+			},
+			{
+				title: 'Support',
+				data: [
+					{
+						title: 'Help Centre',
+						type: 'button',
+						onPress: (): void => navigation.navigate('TempSettings'),
+						hide: false,
+					},
+					{
+						title: 'Email: support@synonym.to',
+						type: 'button',
+						onPress: (): Promise<void> =>
+							Linking.openURL(
+								'mailto:support@synonym.to?subject=Support Request',
+							),
+						hide: false,
+					},
+				],
+			},
+		],
+		[
+			biometryData?.available,
+			biometryData?.biometryType,
+			hasBiometrics,
+			hasPin,
+			remoteBackupSynced,
+			selectedNetwork,
+			selectedWallet,
+			settingsTheme,
+		],
+	);
 
 	return (
 		<View style={styles.container}>
