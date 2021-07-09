@@ -21,8 +21,12 @@ import {
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
-import validate, { getAddressInfo } from 'bitcoin-address-validation';
+import validate, {
+	AddressInfo,
+	getAddressInfo,
+} from 'bitcoin-address-validation';
 import { updateOnChainTransaction } from '../../store/actions/wallet';
+import { TCoinSelectPreference } from "../../store/types/settings";
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -960,5 +964,166 @@ export const getBlockExplorerLink = (
 			} else {
 				return `https://mempool.space/${type}/${id}`;
 			}
+	}
+};
+
+export enum AddressType {
+	p2pkh = 'p2pkh',
+	p2sh = 'p2sh',
+	p2wpkh = 'p2wpkh',
+	p2wsh = 'p2wsh',
+	legacy = 'legacy',
+	segwit = 'segwit',
+	bech32 = 'bech32',
+}
+export interface IAddressTypes {
+	inputs: {
+		[key in TAddressType]: number;
+	};
+	outputs: {
+		[key in TAddressType]: number;
+	};
+}
+/**
+ * Returns the transaction fee and outputs along with the inputs that best fit the sort method.
+ * @async
+ * @param {IAddress[]} inputs
+ * @param {IAddress[]} outputs
+ * @param {number} [satsPerByte]
+ * @param {sortMethod}
+ * @return {Promise<number>}
+ */
+export interface ICoinSelectResponse {
+	fee: number;
+	inputs: IUtxo[];
+	outputs: IOutput[];
+}
+export const autoCoinSelect = async ({
+	inputs = [],
+	outputs = [],
+	satsPerByte = 1,
+	sortMethod = 'small',
+	amountToSend = 0,
+}: {
+	inputs: IUtxo[] | undefined;
+	outputs: IOutput[] | undefined;
+	satsPerByte?: number;
+	sortMethod?: TCoinSelectPreference;
+	amountToSend?: number | undefined;
+}): Promise<Result<ICoinSelectResponse>> => {
+	try {
+		if (!inputs) {
+			return err('No inputs provided');
+		}
+		if (!outputs) {
+			return err('No outputs provided');
+		}
+		if (!amountToSend) {
+			//If amountToSend is not specified, attempt to determine how much to send from the output values.
+			amountToSend = outputs.reduce((acc, cur) => {
+				return acc + Number(cur?.value) || 0;
+			}, 0);
+		}
+
+		//Sort by the largest UTXO amount (Lowest fee, but reveals your largest UTXO's)
+		if (sortMethod === 'large') {
+			inputs.sort((a, b) => Number(b.value) - Number(a.value));
+		} else {
+			//Sort by the smallest UTXO amount (Highest fee, but hides your largest UTXO's)
+			inputs.sort((a, b) => Number(a.value) - Number(b.value));
+		}
+
+		//Add UTXO's until we have more than the target amount to send.
+		let inputAmount = 0;
+		let newInputs: IUtxo[] = [];
+		let oldInputs: IUtxo[] = [];
+
+		//Consolidate UTXO's if unable to determine the amount to send.
+		if (sortMethod === 'consolidate' || !amountToSend) {
+			//Add all inputs
+			newInputs = [...inputs];
+			inputAmount = newInputs.reduce((acc, cur) => {
+				return acc + Number(cur.value);
+			}, 0);
+		} else {
+			//Add only the necessary inputs based on the amountToSend.
+			await Promise.all(
+				inputs.map((input) => {
+					if (inputAmount < amountToSend) {
+						inputAmount += input.value;
+						newInputs.push(input);
+					} else {
+						oldInputs.push(input);
+					}
+				}),
+			);
+
+			//The provided UTXO's do not have enough to cover the transaction.
+			if ((amountToSend && inputAmount < amountToSend) || !newInputs?.length) {
+				return err('Not enough funds.');
+			}
+		}
+
+		// Get all input and output address types for fee calculation.
+		let addressTypes: IAddressTypes | { inputs: {}; outputs: {} } = {
+			inputs: {},
+			outputs: {},
+		};
+		await Promise.all([
+			newInputs.map(({ address }) => {
+				const validateResponse: AddressInfo = getAddressInfo(address);
+				if (!validateResponse) {
+					return;
+				}
+				const type = validateResponse.type.toUpperCase();
+				if (type in addressTypes.inputs) {
+					addressTypes.inputs[type] = addressTypes.inputs[type] + 1;
+				} else {
+					addressTypes.inputs[type] = 1;
+				}
+			}),
+			outputs.map(({ address }) => {
+				if (!address) {
+					return;
+				}
+				const validateResponse = getAddressInfo(address);
+				if (!validateResponse) {
+					return;
+				}
+				const type = validateResponse.type.toUpperCase();
+				if (type in addressTypes.outputs) {
+					addressTypes.outputs[type] = addressTypes.outputs[type] + 1;
+				} else {
+					addressTypes.outputs[type] = 1;
+				}
+			}),
+		]);
+
+		let baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
+		if (baseFee < 256) {
+			baseFee = 256;
+		}
+		let fee = baseFee * satsPerByte;
+
+		//Ensure we can still cover the transaction with the previously selected UTXO's. Add more UTXO's if not.
+		const totalTxCost = amountToSend + fee;
+		if (amountToSend && inputAmount < totalTxCost) {
+			await Promise.all(
+				oldInputs.map((input) => {
+					if (inputAmount < totalTxCost) {
+						inputAmount += input.value;
+						newInputs.push(input);
+					}
+				}),
+			);
+		}
+
+		//The provided UTXO's do not have enough to cover the transaction.
+		if (inputAmount < totalTxCost || !newInputs?.length) {
+			return err('Not enough funds');
+		}
+		return ok({ inputs: newInputs, outputs, fee });
+	} catch (e) {
+		return err(e);
 	}
 };
