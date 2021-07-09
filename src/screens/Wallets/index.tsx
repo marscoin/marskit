@@ -14,7 +14,6 @@ import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 
 const Wallets = (): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
-
 	return (
 		<>
 			<View style={styles.container}>

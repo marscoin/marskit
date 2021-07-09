@@ -268,7 +268,7 @@ PODS:
     - React-Core
   - react-native-libsodium (0.0.1):
     - React-Core
-  - react-native-lightning (0.0.29):
+  - react-native-lightning (0.0.33):
     - React
   - react-native-netinfo (6.0.0):
     - React-Core
@@ -584,7 +584,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
-  FBReactNativeSpec: fe39bec3e0150af82f6a88ce623ed2bde157bd76
+  FBReactNativeSpec: 6d55a356fd2e8185702eec4812b71a6e58191383
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -611,7 +611,7 @@ SPEC CHECKSUMS:
   react-native-camera: 7bf59f2728ffb019fa25e60a225d2c57e1a8f0f6
   react-native-document-picker: f1b5398801b332c77bc62ae0eae2116f49bdff26
   react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
-  react-native-lightning: 0b52088528d8c796c76c30cfaaef32622c247161
+  react-native-lightning: f956294d6cf651711e37c95aceea14f0a24ac0f2
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79

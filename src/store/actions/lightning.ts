@@ -1,14 +1,11 @@
 import actions from './actions';
-import {
-	ICreateLightningWallet,
-	IUnlockLightningWallet,
-} from '../types/lightning';
 import { getDispatch } from '../helpers';
 import lnd, {
 	lnrpc,
 	LndConf,
 	ENetworks as LndNetworks,
 	ICachedNeutrinoDBDownloadState,
+	ss_lnrpc,
 } from '@synonymdev/react-native-lightning';
 import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
@@ -25,54 +22,86 @@ const dispatch = getDispatch();
 
 const password = 'shhhhhhhh123'; //TODO use keychain stored password
 
+let onRpcReady: (() => Promise<void>) | undefined;
 /**
  * Starts the LND service
  * @param network
  * @returns {Promise<unknown>}
  */
-export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
+export const startLnd = (
+	network: LndNetworks,
+	onLndReady: () => Promise<void>,
+): Promise<Result<string>> => {
+	onRpcReady = onLndReady;
 	return new Promise(async (resolve) => {
-		const stateRes = await lnd.currentState();
-		if (stateRes.isOk() && stateRes.value.lndRunning) {
-			await dispatch({
-				type: actions.UPDATE_LIGHTNING_STATE,
-				payload: stateRes.value,
-			});
-
-			return resolve(ok('LND already started')); //Already running
-		}
-
-		const lndConf = new LndConf(network, getCustomLndConf(network));
-
-		const res = await lnd.start(lndConf);
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
-
-		await connectToDefaultPeer();
-
-		await refreshLightningState();
-		lnd.subscribeToCurrentState((state) => {
-			dispatch({
-				type: actions.UPDATE_LIGHTNING_STATE,
-				payload: state,
-			});
-
-			if (state.walletUnlocked) {
-				refreshLightningTransactions().then();
+		const stateRes = await lnd.stateService.getState();
+		if (
+			stateRes.isOk() &&
+			stateRes.value === ss_lnrpc.WalletState.WAITING_TO_START
+		) {
+			const lndConf = new LndConf(network, getCustomLndConf(network));
+			const res = await lnd.start(lndConf);
+			if (res.isErr()) {
+				return resolve(err(res.error));
 			}
-		});
+			await new Promise((r) => setTimeout(r, 2000));
+		}
 
-		//Any channel opening/closing triggers a new static channel state backup
-		lnd.subscribeToBackups(
-			() => {
-				performFullBackup({ retries: 3, retryTimeout: 1000 });
+		lnd.stateService.subscribeToStateChanges(
+			(updatedStateRes) => {
+				if (updatedStateRes.isOk()) {
+					onLightningStateUpdate(updatedStateRes.value);
+				} else {
+					showErrorNotification({
+						title: 'Lightning state error',
+						message: updatedStateRes.error.message,
+					});
+				}
 			},
 			() => {},
 		);
 
-		resolve(ok('LND started'));
+		resolve(ok('LND started?'));
 	});
+};
+
+const onLightningStateUpdate = async (
+	state: ss_lnrpc.WalletState,
+): Promise<void> => {
+	await refreshLightningState(state);
+
+	switch (state) {
+		case ss_lnrpc.WalletState.NON_EXISTING: {
+			await createLightningWallet();
+			break;
+		}
+		case ss_lnrpc.WalletState.LOCKED: {
+			await unlockLightningWallet();
+			break;
+		}
+		case ss_lnrpc.WalletState.RPC_ACTIVE: {
+			//Seems to require a slight delay between receiving this state and it actually being active
+			// await new Promise((r) => setTimeout(r, 1000));
+
+			//Wallet is ready to accept commands and subscriptions
+			await refreshLightningTransactions();
+
+			await subscribeToLndInfo();
+
+			//Attempt to connect to default peer from the start so it's ready when the channel needs to be opened
+			try {
+				await connectToDefaultPeer();
+			} catch {}
+
+			//This is passed when LND is started for any additional logic that's requires after RPC is available
+			if (onRpcReady) {
+				await onRpcReady();
+				onRpcReady = undefined;
+			}
+
+			break;
+		}
+	}
 };
 
 /**
@@ -82,22 +111,15 @@ export const startLnd = (network: LndNetworks): Promise<Result<string>> => {
  * @param network
  * @returns {Promise<unknown>}
  */
-export const createLightningWallet = ({
-	network,
-}: ICreateLightningWallet): Promise<Result<string>> => {
+export const createLightningWallet = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const existsRes = await lnd.walletExists(network);
-		if (existsRes.isOk() && existsRes.value) {
-			return resolve(err('LND wallet already exists'));
-		}
-
 		let lndSeed: string[] = [];
 
 		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data; //Set if wallet is being restored from a backup
 		if (seedStr) {
 			lndSeed = seedStr.split(' ');
 		} else {
-			const seedRes = await lnd.genSeed();
+			const seedRes = await lnd.walletUnlocker.genSeed();
 			if (seedRes.isErr()) {
 				return resolve(err(seedRes.error));
 			}
@@ -113,7 +135,7 @@ export const createLightningWallet = ({
 			'multiChanBackupRestore',
 		);
 
-		const createRes = await lnd.createWallet(
+		const createRes = await lnd.walletUnlocker.initWallet(
 			password,
 			lndSeed,
 			multiChanBackup || undefined,
@@ -125,11 +147,6 @@ export const createLightningWallet = ({
 			type: actions.CREATE_LIGHTNING_WALLET,
 		});
 
-		//Attempt to connect to default peer from the start so it's ready when the channel needs to be opened
-		await connectToDefaultPeer();
-
-		subscribeToLndUpdates().then();
-
 		resolve(ok('LND wallet created'));
 	});
 };
@@ -140,50 +157,39 @@ export const createLightningWallet = ({
  * @param network
  * @returns {Promise<unknown>}
  */
-export const unlockLightningWallet = ({
-	network,
-}: IUnlockLightningWallet): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		const stateRes = await lnd.currentState();
-		if (stateRes.isOk() && stateRes.value.grpcReady) {
-			subscribeToLndUpdates().then();
-			return resolve(ok('Wallet already unlocked')); //Wallet already unlocked
-		}
+export const unlockLightningWallet = async (): Promise<Result<string>> => {
+	const unlockRes = await lnd.walletUnlocker.unlockWallet(password);
+	if (unlockRes.isErr()) {
+		return err(unlockRes.error);
+	}
 
-		const existsRes = await lnd.walletExists(network);
-		if (existsRes.isOk() && !existsRes.value) {
-			return resolve(err('LND wallet does not exist'));
-		}
-
-		const unlockRes = await lnd.unlockWallet(password);
-		if (unlockRes.isErr()) {
-			return resolve(err(unlockRes.error));
-		}
-
-		await dispatch({
-			type: actions.UNLOCK_LIGHTNING_WALLET,
-		});
-
-		subscribeToLndUpdates().then();
-
-		resolve(ok('Wallet unlocked'));
+	await dispatch({
+		type: actions.UNLOCK_LIGHTNING_WALLET,
 	});
+
+	return ok('Wallet unlocked');
 };
 
 /**
  * Updates the lightning store with the latest state of LND
  * @returns {(dispatch) => Promise<unknown>}
  */
-export const refreshLightningState = (): Promise<Result<string>> => {
+export const refreshLightningState = (
+	state?: ss_lnrpc.WalletState,
+): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const res = await lnd.currentState();
-		if (res.isErr()) {
-			return resolve(err(res.error));
+		if (!state) {
+			const res = await lnd.stateService.getState();
+			if (res.isErr()) {
+				return resolve(err(res.error));
+			}
+
+			state = res.value;
 		}
 
 		await dispatch({
 			type: actions.UPDATE_LIGHTNING_STATE,
-			payload: res.value,
+			payload: state,
 		});
 		resolve(ok('LND state refreshed'));
 	});
@@ -292,14 +298,7 @@ const refreshLightningPayments = (): Promise<Result<string>> => {
  * Listens and polls for LND updates
  * @returns {Promise<void>}
  */
-const subscribeToLndUpdates = async (): Promise<void> => {
-	//If grpc hasn't even started yet wait and try again
-	const stateRes = await lnd.currentState();
-	if (stateRes.isOk() && !stateRes.value.grpcReady) {
-		setTimeout(subscribeToLndUpdates, 1000);
-		return;
-	}
-
+const subscribeToLndInfo = async (): Promise<void> => {
 	//Poll for the calls we can't subscribe to
 	await pollLndGetInfo();
 
@@ -330,6 +329,14 @@ const subscribeToLndUpdates = async (): Promise<void> => {
 				message: JSON.stringify(res),
 			});
 		},
+	);
+
+	//Any channel opening/closing triggers a new static channel state backup
+	lnd.subscribeToBackups(
+		() => {
+			performFullBackup({ retries: 3, retryTimeout: 1000 }).finally();
+		},
+		() => {},
 	);
 };
 
