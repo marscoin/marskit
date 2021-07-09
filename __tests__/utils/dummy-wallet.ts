@@ -270,7 +270,7 @@ export const walletState = {
 	transaction: {
 		bitcoin: {
 			outputs: [{ '0': 'index', address: '', value: 0, index: 0 }],
-			utxos: [],
+			inputs: [],
 			changeAddress: '',
 			fiatAmount: 0,
 			fee: 250,
@@ -282,7 +282,7 @@ export const walletState = {
 		},
 		bitcoinTestnet: {
 			outputs: [],
-			utxos: [
+			inputs: [
 				{
 					index: 0,
 					path: "m/84'/1'/0'/0/0",
