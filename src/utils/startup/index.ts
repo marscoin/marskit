@@ -75,8 +75,6 @@ export const startWalletServices = async ({
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
-			updateExchangeRates().finally();
-
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
 
@@ -110,6 +108,8 @@ export const startWalletServices = async ({
 						await startLnd(lndNetwork, backupServiceStart);
 					});
 			}
+
+			await updateExchangeRates();
 		});
 
 		return ok('Wallet started');

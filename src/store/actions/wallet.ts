@@ -92,21 +92,19 @@ export const createWallet = async ({
 	}
 };
 
-export const updateExchangeRates = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		const res = await getExchangeRates();
+export const updateExchangeRates = async (): Promise<Result<string>> => {
+	const res = await getExchangeRates();
 
-		if (res.isErr()) {
-			return resolve(err(res.error));
-		}
+	if (res.isErr()) {
+		return err(res.error);
+	}
 
-		await dispatch({
-			type: actions.UPDATE_WALLET,
-			payload: { exchangeRates: res.value },
-		});
-
-		resolve(ok('Successfully updated the exchange rate.'));
+	await dispatch({
+		type: actions.UPDATE_WALLET,
+		payload: { exchangeRates: res.value },
 	});
+
+	return ok('Successfully updated the exchange rate.');
 };
 
 /**
