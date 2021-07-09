@@ -29,7 +29,7 @@ import { err, ok, Result } from '../../utils/result';
 import { createOmniboltWallet } from './omnibolt';
 import {
 	getTotalFee,
-	getTransactionUtxoValue,
+	getTransactionInputValue,
 } from '../../utils/wallet/transactions';
 import { defaultKeyDerivationPath } from '../shapes/wallet';
 import {
@@ -469,7 +469,7 @@ export const setupOnChainTransaction = ({
 			selectedWallet,
 			selectedNetwork,
 		});
-		const utxos = currentWallet.utxos[selectedNetwork];
+		const inputs = currentWallet.utxos[selectedNetwork];
 		const outputs = currentWallet.transaction[selectedNetwork].outputs || [];
 		let changeAddresses = currentWallet.changeAddresses[selectedNetwork];
 		const changeAddressesArr = Object.values(changeAddresses).map(
@@ -491,7 +491,7 @@ export const setupOnChainTransaction = ({
 		const payload = {
 			selectedNetwork,
 			selectedWallet,
-			utxos,
+			inputs,
 			changeAddress,
 			fee,
 			outputs: newOutputs,
@@ -531,11 +531,11 @@ export const updateOnChainTransaction = async ({
 			selectedWallet = getSelectedWallet();
 		}
 
-		const utxoValue = getTransactionUtxoValue({
+		const inputValue = getTransactionInputValue({
 			selectedWallet,
 			selectedNetwork,
 		});
-		if (!utxoValue) {
+		if (!inputValue) {
 			await setupOnChainTransaction({ selectedWallet, selectedNetwork });
 		}
 

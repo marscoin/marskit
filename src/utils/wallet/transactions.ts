@@ -307,14 +307,14 @@ export const getTotalFee = ({
 			selectedWallet,
 		});
 
-		const utxos = currentWallet?.utxos[selectedNetwork] || [];
+		const inputs = currentWallet?.transaction[selectedNetwork].inputs || [];
 		let outputs: IOutput[] =
 			currentWallet?.transaction[selectedNetwork]?.outputs || [];
 		const changeAddress =
 			currentWallet?.transaction[selectedNetwork]?.changeAddress;
 
-		//Group all utxo & output addresses into their respective array.
-		const utxoAddresses = utxos.map((utxo) => utxo.address) || [];
+		//Group all input & output addresses into their respective array.
+		const inputAddresses = inputs.map((input) => input.address) || [];
 		const outputAddresses =
 			outputs.map((output) => {
 				if (output.address) {
@@ -326,7 +326,7 @@ export const getTotalFee = ({
 		}
 
 		//Determine the address type of each address and construct the object for fee calculation
-		const inputParam = constructByteCountParam(utxoAddresses);
+		const inputParam = constructByteCountParam(inputAddresses);
 		// @ts-ignore
 		const outputParam = constructByteCountParam(outputAddresses);
 		//Increase P2WPKH output address by one for lightning funding calculation.
@@ -410,7 +410,7 @@ const createPsbtFromTransactionData = async ({
 	transactionData: IOnChainTransactionData;
 }): Promise<Result<Psbt>> => {
 	const {
-		utxos = [],
+		inputs = [],
 		outputs = [],
 		changeAddress,
 		fee = 250,
@@ -418,10 +418,10 @@ const createPsbtFromTransactionData = async ({
 	let message = transactionData.message;
 
 	//Get balance of current utxos.
-	const balance = await getTransactionUtxoValue({
+	const balance = await getTransactionInputValue({
 		selectedWallet,
 		selectedNetwork,
-		utxos,
+		inputs,
 	});
 
 	//Get value of current outputs.
@@ -475,17 +475,17 @@ const createPsbtFromTransactionData = async ({
 	const root = bip32Res.value;
 	const psbt = new bitcoin.Psbt({ network });
 
-	//Add Inputs from utxos array
+	//Add Inputs from inputs array
 	try {
 		await Promise.all(
-			utxos.map(async (utxo) => {
-				const path = utxo.path;
+			inputs.map(async (input) => {
+				const path = input.path;
 				const keyPair: BIP32Interface = root.derivePath(path);
 				await addInput({
 					psbt,
 					addressType,
 					keyPair,
-					utxo,
+					input,
 					selectedNetwork,
 				});
 			}),
@@ -583,11 +583,11 @@ export const signPsbt = ({
 			return err(transactionDataRes.error.message);
 		}
 
-		const { utxos = [] } = transactionDataRes.value;
+		const { inputs = [] } = transactionDataRes.value;
 		await Promise.all(
-			utxos.map((utxo, i) => {
+			inputs.map((input, i) => {
 				try {
-					const path = utxo.path;
+					const path = input.path;
 					const keyPair = root.derivePath(path);
 					psbt.signInput(i, keyPair);
 				} catch (e) {
@@ -694,14 +694,14 @@ export interface IAddInput {
 	psbt: Psbt;
 	addressType: TAddressType;
 	keyPair: BIP32Interface;
-	utxo: IUtxo;
+	input: IUtxo;
 	selectedNetwork?: TAvailableNetworks;
 }
 export const addInput = async ({
 	psbt,
 	addressType,
 	keyPair,
-	utxo,
+	input,
 	selectedNetwork,
 }: IAddInput): Promise<Result<string>> => {
 	try {
@@ -715,11 +715,11 @@ export const addInput = async ({
 				network,
 			});
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				witnessUtxo: {
 					script: p2wpkh.output,
-					value: utxo.value,
+					value: input.value,
 				},
 			});
 		}
@@ -731,11 +731,11 @@ export const addInput = async ({
 			});
 			const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				witnessUtxo: {
 					script: p2sh.output,
-					value: utxo.value,
+					value: input.value,
 				},
 				redeemScript: p2sh.redeem.output,
 			});
@@ -744,7 +744,7 @@ export const addInput = async ({
 		if (addressType === 'legacy') {
 			const transaction = await getTransactions({
 				selectedNetwork,
-				txHashes: [{ tx_hash: utxo.tx_hash }],
+				txHashes: [{ tx_hash: input.tx_hash }],
 			});
 			if (transaction.isErr()) {
 				return err(transaction.error.message);
@@ -752,8 +752,8 @@ export const addInput = async ({
 			const hex = transaction[0].value.data.result.hex;
 			const nonWitnessUtxo = Buffer.from(hex, 'hex');
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				nonWitnessUtxo,
 			});
 		}
@@ -836,17 +836,17 @@ export const getTransactionOutputValue = ({
  * @param selectedNetwork
  * @param utxos
  */
-export const getTransactionUtxoValue = ({
+export const getTransactionInputValue = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
-	utxos = undefined,
+	inputs = undefined,
 }: {
 	selectedWallet: string | undefined;
 	selectedNetwork: TAvailableNetworks | undefined;
-	utxos?: IUtxo[] | undefined;
+	inputs?: IUtxo[] | undefined;
 }): number => {
 	try {
-		if (!utxos) {
+		if (!inputs) {
 			if (!selectedWallet) {
 				selectedWallet = getSelectedWallet();
 			}
@@ -860,10 +860,10 @@ export const getTransactionUtxoValue = ({
 			if (transaction.isErr()) {
 				return 0;
 			}
-			utxos = transaction.value.utxos;
+			inputs = transaction.value.inputs;
 		}
-		if (utxos) {
-			const response = reduceValue({ arr: utxos, value: 'value' });
+		if (inputs) {
+			const response = reduceValue({ arr: inputs, value: 'value' });
 			if (response.isOk()) {
 				return response.value;
 			}

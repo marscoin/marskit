@@ -1730,7 +1730,7 @@ export interface IRbfData {
 	selectedNetwork: TAvailableNetworks;
 	addressType: TAddressType;
 	fee: number; // Total fee in sats.
-	utxos: IUtxo[];
+	inputs: IUtxo[];
 	message: string;
 }
 
@@ -1776,7 +1776,7 @@ export const getRbfData = async ({
 
 	const allAddress = { ...addresses, ...changeAddresses };
 
-	let utxos: IUtxo[] = [];
+	let inputs: IUtxo[] = [];
 	let address: string = '';
 	let scriptHash = '';
 	let path = '';
@@ -1810,7 +1810,7 @@ export const getRbfData = async ({
 			scriptHash = getScriptHash(address, selectedNetwork);
 			path = allAddress[scriptHash].path;
 			value = btcToSats(txVout.value);
-			utxos.push({
+			inputs.push({
 				tx_hash: input.txid,
 				index: input.vout,
 				tx_pos: input.vout,
@@ -1849,7 +1849,7 @@ export const getRbfData = async ({
 	fee = Number((inputTotal - outputTotal).toFixed(8));
 	return ok({
 		selectedWallet,
-		utxos,
+		inputs,
 		balance: inputTotal,
 		outputs,
 		fee,
@@ -1866,7 +1866,7 @@ export const getRbfData = async ({
 export const formatRbfData = async (
 	data: IRbfData,
 ): Promise<IOnChainTransactionData> => {
-	const { selectedWallet, utxos, outputs, fee, selectedNetwork, message } =
+	const { selectedWallet, inputs, outputs, fee, selectedNetwork, message } =
 		data;
 
 	let changeAddress: undefined | string;
@@ -1914,7 +1914,7 @@ export const formatRbfData = async (
 		message,
 		label,
 		outputs: newOutputs,
-		utxos,
+		inputs,
 		fee: newFee,
 		satsPerByte: newSatsPerByte,
 		fiatAmount: newFiatAmount,
