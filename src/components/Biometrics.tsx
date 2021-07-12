@@ -92,32 +92,34 @@ const Biometrics = ({
 		}
 	}, [biometryData?.available, biometryData?.biometryType]);
 
-	const authenticate = (
-		promptMessage: string | undefined = undefined,
-	): void => {
-		try {
-			if (!promptMessage) {
-				const biotmetryType = biometryData?.biometryType;
-				promptMessage = `Confirm ${biotmetryType}`;
-			}
-			ReactNativeBiometrics.simplePrompt({
-				promptMessage: promptMessage || '',
-			})
-				.then(({ success }) => {
-					if (success) {
-						toggleBiometrics(true);
-						onSuccess();
-						return;
-					} else {
-						vibrate({});
-					}
+	const authenticate = useCallback(
+		(promptMessage: string | undefined = undefined): void => {
+			try {
+				if (!promptMessage) {
+					const biotmetryType = biometryData?.biometryType;
+					promptMessage = `Confirm ${biotmetryType}`;
+				}
+				ReactNativeBiometrics.simplePrompt({
+					promptMessage: promptMessage || '',
 				})
-				.catch(() => {
-					console.log('biometrics failed');
-					onFailure();
-				});
-		} catch {}
-	};
+					.then(({ success }) => {
+						if (success) {
+							toggleBiometrics(true);
+							onSuccess();
+							return;
+						} else {
+							vibrate({});
+						}
+					})
+					.catch(() => {
+						console.log('biometrics failed');
+						onFailure();
+					});
+			} catch {}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[biometryData?.biometryType],
+	);
 
 	return (
 		<View style={[styles.container, { ...style }]}>

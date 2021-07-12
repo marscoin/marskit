@@ -15,6 +15,7 @@ import Biometrics from '../../components/Biometrics';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import AuthCheck from '../../components/AuthCheck';
+import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 
 const Stack = createNativeStackNavigator();
 
@@ -91,6 +92,11 @@ const RootNavigator = (): ReactElement => {
 						/>
 					)}
 				</Stack.Screen>
+				<Stack.Screen
+					name="CoinSelectPreference"
+					component={CoinSelectPreference}
+					options={navOptionHandler}
+				/>
 				<Stack.Screen
 					name="BackupSettings"
 					component={BackupSettings}

@@ -2,7 +2,7 @@
  * @format
  * @flow strict-local
  */
-import React, { ReactElement } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, TouchableOpacity, View } from '../styles/components';
 
@@ -29,9 +29,7 @@ const Button = ({
 			activeOpacity={0.6}
 			color={color}
 			style={[styles.button, style]}
-			//@ts-ignore
 			onPress={onPress}
-			//@ts-ignore
 			onLongPress={onLongPress}
 			disabled={disabled}>
 			<Text style={styles.text}>{text}</Text>
@@ -81,4 +79,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default Button;
+export default memo(Button);

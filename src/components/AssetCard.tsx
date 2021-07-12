@@ -10,7 +10,7 @@ import Card from './Card';
 import BitcoinLogo from '../assets/bitcoin-logo.svg';
 import LightningLogo from '../assets/lightning-logo.svg';
 
-const HeaderIcon = ({ id = 'bitcoin' }): ReactElement => {
+const HeaderIcon = memo(({ id = 'bitcoin' }: { id: string }): ReactElement => {
 	try {
 		switch (id) {
 			case 'bitcoin':
@@ -30,7 +30,7 @@ const HeaderIcon = ({ id = 'bitcoin' }): ReactElement => {
 	} catch {
 		return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
 	}
-};
+});
 
 const AssetCard = ({
 	asset = 'bitcoin',

@@ -181,7 +181,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet].transaction[selectedNetwork],
 								changeAddress: action.payload.changeAddress,
-								utxos: action.payload.utxos,
+								inputs: action.payload.inputs,
 								outputs: action.payload.outputs,
 								fee: action.payload.fee,
 							},

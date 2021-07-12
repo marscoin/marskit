@@ -21,8 +21,12 @@ import {
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
-import validate, { getAddressInfo } from 'bitcoin-address-validation';
+import validate, {
+	AddressInfo,
+	getAddressInfo,
+} from 'bitcoin-address-validation';
 import { updateOnChainTransaction } from '../../store/actions/wallet';
+import { TCoinSelectPreference } from '../../store/types/settings';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -307,14 +311,14 @@ export const getTotalFee = ({
 			selectedWallet,
 		});
 
-		const utxos = currentWallet?.utxos[selectedNetwork] || [];
+		const inputs = currentWallet?.transaction[selectedNetwork].inputs || [];
 		let outputs: IOutput[] =
 			currentWallet?.transaction[selectedNetwork]?.outputs || [];
 		const changeAddress =
 			currentWallet?.transaction[selectedNetwork]?.changeAddress;
 
-		//Group all utxo & output addresses into their respective array.
-		const utxoAddresses = utxos.map((utxo) => utxo.address) || [];
+		//Group all input & output addresses into their respective array.
+		const inputAddresses = inputs.map((input) => input.address) || [];
 		const outputAddresses =
 			outputs.map((output) => {
 				if (output.address) {
@@ -326,7 +330,7 @@ export const getTotalFee = ({
 		}
 
 		//Determine the address type of each address and construct the object for fee calculation
-		const inputParam = constructByteCountParam(utxoAddresses);
+		const inputParam = constructByteCountParam(inputAddresses);
 		// @ts-ignore
 		const outputParam = constructByteCountParam(outputAddresses);
 		//Increase P2WPKH output address by one for lightning funding calculation.
@@ -410,7 +414,7 @@ const createPsbtFromTransactionData = async ({
 	transactionData: IOnChainTransactionData;
 }): Promise<Result<Psbt>> => {
 	const {
-		utxos = [],
+		inputs = [],
 		outputs = [],
 		changeAddress,
 		fee = 250,
@@ -418,10 +422,10 @@ const createPsbtFromTransactionData = async ({
 	let message = transactionData.message;
 
 	//Get balance of current utxos.
-	const balance = await getTransactionUtxoValue({
+	const balance = await getTransactionInputValue({
 		selectedWallet,
 		selectedNetwork,
-		utxos,
+		inputs,
 	});
 
 	//Get value of current outputs.
@@ -475,17 +479,17 @@ const createPsbtFromTransactionData = async ({
 	const root = bip32Res.value;
 	const psbt = new bitcoin.Psbt({ network });
 
-	//Add Inputs from utxos array
+	//Add Inputs from inputs array
 	try {
 		await Promise.all(
-			utxos.map(async (utxo) => {
-				const path = utxo.path;
+			inputs.map(async (input) => {
+				const path = input.path;
 				const keyPair: BIP32Interface = root.derivePath(path);
 				await addInput({
 					psbt,
 					addressType,
 					keyPair,
-					utxo,
+					input,
 					selectedNetwork,
 				});
 			}),
@@ -583,11 +587,11 @@ export const signPsbt = ({
 			return err(transactionDataRes.error.message);
 		}
 
-		const { utxos = [] } = transactionDataRes.value;
+		const { inputs = [] } = transactionDataRes.value;
 		await Promise.all(
-			utxos.map((utxo, i) => {
+			inputs.map((input, i) => {
 				try {
-					const path = utxo.path;
+					const path = input.path;
 					const keyPair = root.derivePath(path);
 					psbt.signInput(i, keyPair);
 				} catch (e) {
@@ -694,14 +698,14 @@ export interface IAddInput {
 	psbt: Psbt;
 	addressType: TAddressType;
 	keyPair: BIP32Interface;
-	utxo: IUtxo;
+	input: IUtxo;
 	selectedNetwork?: TAvailableNetworks;
 }
 export const addInput = async ({
 	psbt,
 	addressType,
 	keyPair,
-	utxo,
+	input,
 	selectedNetwork,
 }: IAddInput): Promise<Result<string>> => {
 	try {
@@ -715,11 +719,11 @@ export const addInput = async ({
 				network,
 			});
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				witnessUtxo: {
 					script: p2wpkh.output,
-					value: utxo.value,
+					value: input.value,
 				},
 			});
 		}
@@ -731,11 +735,11 @@ export const addInput = async ({
 			});
 			const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				witnessUtxo: {
 					script: p2sh.output,
-					value: utxo.value,
+					value: input.value,
 				},
 				redeemScript: p2sh.redeem.output,
 			});
@@ -744,7 +748,7 @@ export const addInput = async ({
 		if (addressType === 'legacy') {
 			const transaction = await getTransactions({
 				selectedNetwork,
-				txHashes: [{ tx_hash: utxo.tx_hash }],
+				txHashes: [{ tx_hash: input.tx_hash }],
 			});
 			if (transaction.isErr()) {
 				return err(transaction.error.message);
@@ -752,8 +756,8 @@ export const addInput = async ({
 			const hex = transaction[0].value.data.result.hex;
 			const nonWitnessUtxo = Buffer.from(hex, 'hex');
 			psbt.addInput({
-				hash: utxo.tx_hash,
-				index: utxo.tx_pos,
+				hash: input.tx_hash,
+				index: input.tx_pos,
 				nonWitnessUtxo,
 			});
 		}
@@ -836,17 +840,17 @@ export const getTransactionOutputValue = ({
  * @param selectedNetwork
  * @param utxos
  */
-export const getTransactionUtxoValue = ({
+export const getTransactionInputValue = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
-	utxos = undefined,
+	inputs = undefined,
 }: {
 	selectedWallet: string | undefined;
 	selectedNetwork: TAvailableNetworks | undefined;
-	utxos?: IUtxo[] | undefined;
+	inputs?: IUtxo[] | undefined;
 }): number => {
 	try {
-		if (!utxos) {
+		if (!inputs) {
 			if (!selectedWallet) {
 				selectedWallet = getSelectedWallet();
 			}
@@ -860,10 +864,10 @@ export const getTransactionUtxoValue = ({
 			if (transaction.isErr()) {
 				return 0;
 			}
-			utxos = transaction.value.utxos;
+			inputs = transaction.value.inputs;
 		}
-		if (utxos) {
-			const response = reduceValue({ arr: utxos, value: 'value' });
+		if (inputs) {
+			const response = reduceValue({ arr: inputs, value: 'value' });
 			if (response.isOk()) {
 				return response.value;
 			}
@@ -960,5 +964,166 @@ export const getBlockExplorerLink = (
 			} else {
 				return `https://mempool.space/${type}/${id}`;
 			}
+	}
+};
+
+export enum AddressType {
+	p2pkh = 'p2pkh',
+	p2sh = 'p2sh',
+	p2wpkh = 'p2wpkh',
+	p2wsh = 'p2wsh',
+	legacy = 'legacy',
+	segwit = 'segwit',
+	bech32 = 'bech32',
+}
+export interface IAddressTypes {
+	inputs: {
+		[key in TAddressType]: number;
+	};
+	outputs: {
+		[key in TAddressType]: number;
+	};
+}
+/**
+ * Returns the transaction fee and outputs along with the inputs that best fit the sort method.
+ * @async
+ * @param {IAddress[]} inputs
+ * @param {IAddress[]} outputs
+ * @param {number} [satsPerByte]
+ * @param {sortMethod}
+ * @return {Promise<number>}
+ */
+export interface ICoinSelectResponse {
+	fee: number;
+	inputs: IUtxo[];
+	outputs: IOutput[];
+}
+export const autoCoinSelect = async ({
+	inputs = [],
+	outputs = [],
+	satsPerByte = 1,
+	sortMethod = 'small',
+	amountToSend = 0,
+}: {
+	inputs: IUtxo[] | undefined;
+	outputs: IOutput[] | undefined;
+	satsPerByte?: number;
+	sortMethod?: TCoinSelectPreference;
+	amountToSend?: number | undefined;
+}): Promise<Result<ICoinSelectResponse>> => {
+	try {
+		if (!inputs) {
+			return err('No inputs provided');
+		}
+		if (!outputs) {
+			return err('No outputs provided');
+		}
+		if (!amountToSend) {
+			//If amountToSend is not specified, attempt to determine how much to send from the output values.
+			amountToSend = outputs.reduce((acc, cur) => {
+				return acc + Number(cur?.value) || 0;
+			}, 0);
+		}
+
+		//Sort by the largest UTXO amount (Lowest fee, but reveals your largest UTXO's)
+		if (sortMethod === 'large') {
+			inputs.sort((a, b) => Number(b.value) - Number(a.value));
+		} else {
+			//Sort by the smallest UTXO amount (Highest fee, but hides your largest UTXO's)
+			inputs.sort((a, b) => Number(a.value) - Number(b.value));
+		}
+
+		//Add UTXO's until we have more than the target amount to send.
+		let inputAmount = 0;
+		let newInputs: IUtxo[] = [];
+		let oldInputs: IUtxo[] = [];
+
+		//Consolidate UTXO's if unable to determine the amount to send.
+		if (sortMethod === 'consolidate' || !amountToSend) {
+			//Add all inputs
+			newInputs = [...inputs];
+			inputAmount = newInputs.reduce((acc, cur) => {
+				return acc + Number(cur.value);
+			}, 0);
+		} else {
+			//Add only the necessary inputs based on the amountToSend.
+			await Promise.all(
+				inputs.map((input) => {
+					if (inputAmount < amountToSend) {
+						inputAmount += input.value;
+						newInputs.push(input);
+					} else {
+						oldInputs.push(input);
+					}
+				}),
+			);
+
+			//The provided UTXO's do not have enough to cover the transaction.
+			if ((amountToSend && inputAmount < amountToSend) || !newInputs?.length) {
+				return err('Not enough funds.');
+			}
+		}
+
+		// Get all input and output address types for fee calculation.
+		let addressTypes: IAddressTypes | { inputs: {}; outputs: {} } = {
+			inputs: {},
+			outputs: {},
+		};
+		await Promise.all([
+			newInputs.map(({ address }) => {
+				const validateResponse: AddressInfo = getAddressInfo(address);
+				if (!validateResponse) {
+					return;
+				}
+				const type = validateResponse.type.toUpperCase();
+				if (type in addressTypes.inputs) {
+					addressTypes.inputs[type] = addressTypes.inputs[type] + 1;
+				} else {
+					addressTypes.inputs[type] = 1;
+				}
+			}),
+			outputs.map(({ address }) => {
+				if (!address) {
+					return;
+				}
+				const validateResponse = getAddressInfo(address);
+				if (!validateResponse) {
+					return;
+				}
+				const type = validateResponse.type.toUpperCase();
+				if (type in addressTypes.outputs) {
+					addressTypes.outputs[type] = addressTypes.outputs[type] + 1;
+				} else {
+					addressTypes.outputs[type] = 1;
+				}
+			}),
+		]);
+
+		let baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
+		if (baseFee < 256) {
+			baseFee = 256;
+		}
+		let fee = baseFee * satsPerByte;
+
+		//Ensure we can still cover the transaction with the previously selected UTXO's. Add more UTXO's if not.
+		const totalTxCost = amountToSend + fee;
+		if (amountToSend && inputAmount < totalTxCost) {
+			await Promise.all(
+				oldInputs.map((input) => {
+					if (inputAmount < totalTxCost) {
+						inputAmount += input.value;
+						newInputs.push(input);
+					}
+				}),
+			);
+		}
+
+		//The provided UTXO's do not have enough to cover the transaction.
+		if (inputAmount < totalTxCost || !newInputs?.length) {
+			return err('Not enough funds');
+		}
+		return ok({ inputs: newInputs, outputs, fee });
+	} catch (e) {
+		return err(e);
 	}
 };

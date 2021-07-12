@@ -11,6 +11,7 @@
     "test:coverage": "jest --coverage=true",
     "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
+    "clean": "rm -rf node_modules ios/Pods && yarn install",
     "postinstall": "node postinstall.js && yarn backpack:protobuff",
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon",
     "backpack:protobuff": "pbjs -t static-module -w commonjs -o src/utils/backup/protos/scheme.js src/utils/backup/protos/scheme.proto && pbjs -t static-module src/utils/backup/protos/scheme.proto | pbts -o src/utils/backup/protos/scheme.d.ts -"

@@ -6,9 +6,6 @@ import React, { ReactElement } from 'react';
 import { StyleSheet, ScrollView, Share } from 'react-native';
 import { View, Text } from '../styles/components';
 import Button from './Button';
-import themes from '../styles/themes';
-import { useSelector } from 'react-redux';
-import Store from '../store/types';
 
 let scrollView;
 
@@ -31,9 +28,6 @@ interface ILogBox {
 }
 
 const LogBox = ({ data = [] }: ILogBox): ReactElement => {
-	const settings = useSelector((state: Store) => state.settings);
-	const theme = themes[settings.theme];
-
 	return (
 		<View type="transparent" style={styles.logBoxContainer}>
 			<ScrollView
@@ -45,9 +39,7 @@ const LogBox = ({ data = [] }: ILogBox): ReactElement => {
 				}}
 				contentContainerStyle={styles.logBox}>
 				{data.map((line, index) => (
-					<Text
-						key={index}
-						style={[styles.logBoxText, { color: theme.colors.logText }]}>
+					<Text color={'logText'} key={index} style={styles.logBoxText}>
 						{line}
 					</Text>
 				))}

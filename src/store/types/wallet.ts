@@ -154,7 +154,7 @@ export interface IFormattedTransaction {
 
 export interface IOnChainTransactionData {
 	outputs?: IOutput[];
-	utxos?: IUtxo[];
+	inputs?: IUtxo[];
 	changeAddress?: string;
 	fiatAmount?: number;
 	fee?: number; //Total fee in sats
@@ -167,7 +167,7 @@ export interface IOnChainTransactionData {
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	outputs: [EOutput],
-	utxos: [],
+	inputs: [],
 	changeAddress: '',
 	fiatAmount: 0,
 	fee: 250,
