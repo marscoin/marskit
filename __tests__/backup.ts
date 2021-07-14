@@ -1,4 +1,4 @@
-import { createWallet, resetWalletStore } from '../src/store/actions/wallet';
+import { createWallet } from '../src/store/actions/wallet';
 import {
 	backpackRegister,
 	backpackRetrieve,
@@ -11,11 +11,11 @@ import { getDispatch, getStore } from '../src/store/helpers';
 import actions from '../src/store/actions/actions';
 import { getKeychainValue, setKeychainValue } from '../src/utils/helpers';
 import {
-	createOmniboltWallet,
 	resetOmniBoltStore,
 	updateOmniboltCheckpoint,
 } from '../src/store/actions/omnibolt';
 import { resetLightningStore } from '../src/store/actions/lightning';
+import { createOmniboltId } from '../src/utils/omnibolt';
 
 global.WebSocket = WebSocket;
 
@@ -72,11 +72,18 @@ describe('Backup', () => {
 	it('Backup a wallet to a serialised string and restore the wallet from it', async () => {
 		//TODO create multiple wallets, lightning channel states, omni, etc
 		const walletKey = 'wallet0'; //If we have multiple wallets one day make this an array
+		const walletKeyOmnibolt = 'wallet0omnibolt';
 
 		await createWallet({});
 
+		await createOmniboltId({});
+
 		const { data: originalMnemonic } = await getKeychainValue({
 			key: walletKey,
+		});
+
+		const { data: originalOmniMnemonic } = await getKeychainValue({
+			key: walletKeyOmnibolt,
 		});
 
 		const firstAddressBeforeBackup = getFirstAddress(walletKey, 'addresses');
@@ -102,6 +109,7 @@ describe('Backup', () => {
 
 		//Nuke all stored seeds before restoring
 		await setKeychainValue({ key: walletKey, value: '' });
+		await setKeychainValue({ key: walletKeyOmnibolt, value: '' });
 		await getDispatch()({
 			type: actions.RESET_WALLET_STORE,
 		});
@@ -121,10 +129,18 @@ describe('Backup', () => {
 			key: walletKey,
 		});
 
+		expect(restoredMnemonic).not.toEqual('');
 		expect(restoredMnemonic).toEqual(originalMnemonic);
 		expect(getFirstAddress(walletKey, 'addresses')).toEqual(
 			firstAddressBeforeBackup,
 		);
+
+		const { data: restoredOmniMnemonic } = await getKeychainValue({
+			key: walletKeyOmnibolt,
+		});
+
+		expect(restoredOmniMnemonic).not.toEqual('');
+		expect(restoredOmniMnemonic).toEqual(originalOmniMnemonic);
 
 		expect(getFirstAddress(walletKey, 'changeAddresses')).toEqual(
 			firstChangeAddressBeforeBackup,

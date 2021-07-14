@@ -46,6 +46,7 @@ message LND {
 }
 
 message OmniBolt {
-  string walletStore = 1;
+  repeated string mnemonics = 1;
+  string walletStore = 2;
 }
 
