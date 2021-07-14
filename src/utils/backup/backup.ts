@@ -1,14 +1,17 @@
 import Scheme from './protos/scheme';
 import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
-import { getKeychainValue } from '../helpers';
+import { getKeychainValue, setKeychainValue } from '../helpers';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore, IBackpackAuth } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { updateOmnibolt } from '../../store/actions/omnibolt';
 import RNFS from 'react-native-fs';
 import { unzipWithPassword, zipWithPassword } from 'react-native-zip-archive';
+import { getOmniboltKey } from '../omnibolt';
+import { IOmniBoltWallet } from '../../store/types/omnibolt';
 
 const backupFilePrefix = 'backpack_wallet_';
 
@@ -70,11 +73,26 @@ const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 
 		lndScheme.multiChanBackup = lndBackupRes.value;
 
-		//TODO omni
+		const omniBoltScheme = new Scheme.OmniBolt();
+
+		//All omnibolt mnemonics
+		for (let index = 0; index < walletKeys.length; index++) {
+			const wallet: IOmniBoltWallet =
+				getStore().omnibolt.wallets[walletKeys[index]];
+
+			const key = getOmniboltKey({ selectedWallet: wallet.id });
+			const { data: mnemonic } = await getKeychainValue({ key });
+
+			omniBoltScheme.mnemonics.push(mnemonic);
+		}
+
+		//TODO we may be able to get away with backing up less data
+		omniBoltScheme.walletStore = JSON.stringify(getStore().omnibolt);
 
 		const backup = new Scheme.Backup({
 			wallets,
 			lnd: lndScheme,
+			omniBolt: omniBoltScheme,
 			timestampUtc: new Date().getTime(),
 		});
 
@@ -241,10 +259,23 @@ export const restoreFromBackupObject = async (
 			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
 		}
 
-		//TODO restore Omni
+		//Omni mnemonics
+		const omniMnemonics = backup.omniBolt?.mnemonics || [];
+		for (let index = 0; index < omniMnemonics.length; index++) {
+			const key = getOmniboltKey({ selectedWallet: `wallet${index}` });
+			await setKeychainValue({
+				key,
+				value: omniMnemonics[index],
+			});
+		}
+
+		const omniBoltStore = backup.omniBolt?.walletStore;
+		if (omniBoltStore) {
+			updateOmnibolt(JSON.parse(omniBoltStore));
+		}
 
 		return ok(
-			`Restored ${backup.wallets.length} on chain wallets and lightning channels`,
+			`Restored ${backup.wallets.length} on chain wallets and closed lightning channels`,
 		);
 	} catch (e) {
 		return err(e);

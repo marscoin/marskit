@@ -9,7 +9,9 @@ message Backup {
 
   LND lnd = 2;
 
-  int64 timestampUtc = 3;
+  OmniBolt omniBolt = 3;
+
+  int64 timestampUtc = 4;
 }
 
 message Wallet {
@@ -41,5 +43,10 @@ message Wallet {
 message LND {
   string seed = 1;
   string multiChanBackup = 2;
+}
+
+message OmniBolt {
+  repeated string mnemonics = 1;
+  string walletStore = 2;
 }
 

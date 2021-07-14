@@ -33,6 +33,7 @@ import {
 	IMyChannelsData,
 } from '../shapes/omnibolt';
 import { IAddressContent } from '../types/wallet';
+import { performFullBackup } from './backup';
 
 const dispatch = getDispatch();
 
@@ -273,6 +274,9 @@ export const updateOmniboltChannels = async ({
 		type: actions.UPDATE_OMNIBOLT_CHANNELS,
 		payload,
 	});
+
+	performFullBackup({ retries: 1, retryTimeout: 250 }).then();
+
 	return ok({ channels, tempChannels });
 };
 
