@@ -417,7 +417,7 @@ const createPsbtFromTransactionData = async ({
 		inputs = [],
 		outputs = [],
 		changeAddress,
-		fee = 250,
+		fee = 256,
 	} = transactionData;
 	let message = transactionData.message;
 
