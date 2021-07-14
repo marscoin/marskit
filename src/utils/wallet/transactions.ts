@@ -298,7 +298,7 @@ export const getTotalFee = ({
 	message?: string;
 	fundingLightning?: boolean | undefined;
 }): number => {
-	const fallBackFee = 250;
+	const fallBackFee = 256;
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -421,7 +421,7 @@ const createPsbtFromTransactionData = async ({
 	} = transactionData;
 	let message = transactionData.message;
 
-	//Get balance of current utxos.
+	//Get balance of current inputs.
 	const balance = await getTransactionInputValue({
 		selectedWallet,
 		selectedNetwork,
@@ -453,6 +453,8 @@ const createPsbtFromTransactionData = async ({
 			address: changeAddress,
 			value: balance - (outputValue + fee),
 		});
+	} else if (outputValue + fee < balance) {
+		return err('Unsure what to do with the change.');
 	}
 
 	//Embed any OP_RETURN messages.
