@@ -3,6 +3,7 @@ import React, {
 	ReactElement,
 	useCallback,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { Platform, StyleSheet } from 'react-native';
@@ -26,6 +27,8 @@ import {
 	useBalance,
 	useTransactionDetails,
 } from '../screens/Wallets/SendOnChainTransaction/TransactionHook';
+import { autoCoinSelect } from '../utils/wallet';
+import { getStore } from '../store/helpers';
 
 const SendForm = ({
 	index = 0,
@@ -39,6 +42,13 @@ const SendForm = ({
 	);
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
+	);
+	const coinSelectPreference = useSelector(
+		(store: Store) => store.settings.coinSelectPreference,
+	);
+	const utxos = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet].utxos[selectedNetwork],
 	);
 
 	const transaction = useTransactionDetails();
@@ -61,18 +71,18 @@ const SendForm = ({
 	/**
 	 * Returns the current output by index.
 	 */
-	const getOutput = (): IOutput | undefined => {
+	const getOutput = useMemo((): IOutput | undefined => {
 		try {
 			return transaction.outputs?.[index];
 		} catch {
 			return { address: '', value: 0 };
 		}
-	};
+	}, [index, transaction?.outputs]);
 
 	/**
 	 * Returns the selected satsPerByte for the given transaction.
 	 */
-	const getSatsPerByte = useCallback((): number => {
+	const satsPerByte = useMemo((): number => {
 		try {
 			return transaction?.satsPerByte || 1;
 		} catch (e) {
@@ -83,25 +93,25 @@ const SendForm = ({
 	/**
 	 * Returns the current address to send funds to.
 	 */
-	const getAddress = (): string => {
+	const address = useMemo((): string => {
 		try {
-			return getOutput()?.address || '';
+			return getOutput?.address || '';
 		} catch (e) {
 			console.log(e);
 			return '';
 		}
-	};
+	}, [getOutput?.address]);
 
 	/**
 	 * Returns the value of the current output.
 	 */
-	const getValue = (): number => {
+	const value = useMemo((): number => {
 		try {
-			return getOutput()?.value || 0;
+			return getOutput?.value || 0;
 		} catch (e) {
 			return 0;
 		}
-	};
+	}, [getOutput?.value]);
 
 	/**
 	 * Returns the total value of all outputs for the given transaction
@@ -121,26 +131,21 @@ const SendForm = ({
 	/**
 	 * Returns a message, if any, of the current transaction.
 	 */
-	const getMessage = useCallback(() => {
+	const message = useMemo(() => {
 		return transaction.message || '';
 	}, [transaction.message]);
-
-	const address = getAddress();
-	const value = getValue();
-	const message = getMessage();
-	const satsPerByte = getSatsPerByte();
 
 	/**
 	 * Returns the total calculated fee given the current satsPerByte selected and message.
 	 */
-	const getFee = useCallback((): number => {
+	const getFee = useMemo((): number => {
 		const totalFee = getTotalFee({
 			satsPerByte,
 			message,
 			selectedWallet,
 			selectedNetwork,
 		});
-		return totalFee || 250;
+		return totalFee || 256;
 	}, [message, satsPerByte, selectedWallet, selectedNetwork]);
 
 	/**
@@ -173,6 +178,9 @@ const SendForm = ({
 					selectedNetwork,
 					satsPerByte: Number(satsPerByte) + 1,
 				});
+				if (address && coinSelectPreference !== 'consolidate') {
+					runCoinSelect();
+				}
 			}
 		} catch (e) {
 			console.log(e);
@@ -207,29 +215,77 @@ const SendForm = ({
 					selectedNetwork,
 					satsPerByte: Number(satsPerByte) - 1,
 				});
+				if (address && coinSelectPreference !== 'consolidate') {
+					runCoinSelect();
+				}
 			}
 		} catch {}
+	};
+
+	/**
+	 * Runs & Applies the autoCoinSelect method to the current transaction.
+	 */
+	const runCoinSelect = (): void => {
+		try {
+			const outputs =
+				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+					.outputs;
+			const amountToSend =
+				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+					.value;
+			const newSatsPerByte =
+				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+					.satsPerByte;
+			autoCoinSelect({
+				amountToSend,
+				inputs: utxos,
+				outputs,
+				satsPerByte: newSatsPerByte,
+				sortMethod: coinSelectPreference,
+			}).then((response) => {
+				if (response.isErr()) {
+					console.log(response.error.message);
+					return;
+				}
+				if (transaction?.inputs?.length !== response.value.inputs.length) {
+					const updatedTx: IOnChainTransactionData = {
+						fee: response.value.fee,
+						inputs: response.value.inputs,
+					};
+					updateOnChainTransaction({
+						selectedWallet,
+						selectedNetwork,
+						transaction: updatedTx,
+					}).then();
+				}
+			});
+		} catch (e) {
+			console.log(e);
+		}
 	};
 
 	/**
 	 * Updates the amount to send for the currently selected output.
 	 * @param {string} txt
 	 */
-	const updateAmount = (txt = ''): void => {
+	const updateAmount = async (txt = ''): Promise<void> => {
 		const newAmount = Number(txt);
-		const totalNewAmount = newAmount + getFee();
+		const totalNewAmount = newAmount + getFee;
 		if (totalNewAmount <= balance) {
-			updateOnChainTransaction({
+			await updateOnChainTransaction({
 				selectedWallet,
 				selectedNetwork,
 				transaction: {
 					outputs: [{ address, value: newAmount, index }],
 				},
-			}).then();
+			});
+			if (address && coinSelectPreference !== 'consolidate') {
+				runCoinSelect();
+			}
 		}
 	};
 
-	const updateMessage = (txt = ''): void => {
+	const updateMessage = async (txt = ''): Promise<void> => {
 		const newFee = getTotalFee({ satsPerByte, message: txt });
 		const totalTransactionValue = getOutputsValue();
 		const totalNewAmount = totalTransactionValue + newFee;
@@ -249,11 +305,14 @@ const SendForm = ({
 			return;
 		}
 		if (totalNewAmount <= balance) {
-			updateOnChainTransaction({
+			await updateOnChainTransaction({
 				selectedNetwork,
 				selectedWallet,
 				transaction: _transaction,
-			}).then();
+			});
+			if (address && coinSelectPreference !== 'consolidate') {
+				runCoinSelect();
+			}
 		}
 	};
 
@@ -268,13 +327,21 @@ const SendForm = ({
 				transaction?.fee &&
 				balance / 2 > transaction.fee
 			) {
-				updateOnChainTransaction({
-					selectedWallet,
-					selectedNetwork,
-					transaction: {
-						outputs: [{ address, value: balance - transaction.fee, index }],
-					},
-				}).then();
+				const newFee = getTotalFee({ satsPerByte, message });
+				const totalTransactionValue = getOutputsValue();
+				const totalNewAmount = totalTransactionValue + newFee;
+
+				if (totalNewAmount <= balance) {
+					const _transaction: IOnChainTransactionData = {
+						fee: newFee,
+						outputs: [{ address, value: balance - newFee, index }],
+					};
+					updateOnChainTransaction({
+						selectedWallet,
+						selectedNetwork,
+						transaction: _transaction,
+					}).then();
+				}
 			}
 			setMax(!max);
 		} catch {}
@@ -352,7 +419,7 @@ const SendForm = ({
 
 				{!!displayFee && (
 					<AdjustValue
-						value={`${getSatsPerByte()} sats/byte`}
+						value={`${satsPerByte} sats/byte`}
 						decreaseValue={decreaseFee}
 						increaseValue={increaseFee}
 					/>
