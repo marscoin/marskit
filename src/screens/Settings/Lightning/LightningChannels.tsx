@@ -125,9 +125,6 @@ const styles = StyleSheet.create({
 	backText: {
 		fontSize: 20,
 	},
-	debugContent: {
-		textAlign: 'center',
-	},
 });
 
 export default memo(LightningChannels);

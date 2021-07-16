@@ -1,28 +1,20 @@
-import React, {
-	memo,
-	PropsWithChildren,
-	ReactElement,
-	useEffect,
-	useState,
-} from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { memo, PropsWithChildren, ReactElement } from 'react';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import lnd from '@synonymdev/react-native-lightning';
-import {
-	View,
-	Feather,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
+import { View, Text } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
-import { IActivityItem } from '../../../store/types/activity';
 import { lnrpc } from '@synonymdev/react-native-lightning';
 import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import Button from '../../../components/Button';
+import { showErrorNotification } from '../../../utils/notifications';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { channel: lnrpc.IChannel } };
+	navigation: any;
 }
 
 const LightningChannelDetails = (props: Props): ReactElement => {
+	const { channel } = props.route.params;
 	const {
 		chanId,
 		active,
@@ -34,7 +26,7 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 		totalSatoshisReceived,
 		totalSatoshisSent,
 		uptime,
-	} = props.route.params.channel;
+	} = channel;
 
 	const capacityDisplay = useDisplayValues(Number(capacity));
 	const remoteBalanceDisplay = useDisplayValues(Number(remoteBalance));
@@ -74,6 +66,39 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 	]);
 	output.push(['Close address', closeAddress]);
 
+	const onClose = async (): Promise<void> => {
+		Alert.alert(
+			'Close channel',
+			'Are you sure you want to close this channel?',
+			[
+				{
+					text: 'Yes, close',
+					onPress: (): void => {
+						lnd.closeChannelStream(
+							channel,
+							(res) => {
+								if (res.isOk()) {
+									return props.navigation.goBack();
+								} else {
+									showErrorNotification({
+										title: 'Failed to close channel',
+										message: res.error.message,
+									});
+								}
+							},
+							() => {},
+						);
+					},
+				},
+				{
+					text: 'Cancel',
+					onPress: (): void => {},
+					style: 'cancel',
+				},
+			],
+		);
+	};
+
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title={'Channel'} />
@@ -85,6 +110,8 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 							<Text style={styles.itemValue}>{value}</Text>
 						</View>
 					))}
+
+					<Button text={'Close channel'} onPress={onClose} />
 				</View>
 			</ScrollView>
 		</View>
