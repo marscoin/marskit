@@ -7,7 +7,8 @@ import TempSettings from '../../screens/Settings/TempSettings';
 import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
 import BackupSettings from '../../screens/Settings/Backup';
 import ExportBackups from '../../screens/Settings/Backup/Export';
-import LightningInfo from '../../screens/Settings/Lightning/LightningInfo';
+import LightningChannels from '../../screens/Settings/Lightning/LightningChannels';
+import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 import PinPad from '../../components/PinPad';
@@ -108,8 +109,13 @@ const RootNavigator = (): ReactElement => {
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="TempLightningOptions"
-					component={LightningInfo}
+					name="LightningChannels"
+					component={LightningChannels}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="LightningNodeInfo"
+					component={LightningNodeInfo}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
