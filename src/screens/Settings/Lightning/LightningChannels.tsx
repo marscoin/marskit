@@ -78,18 +78,16 @@ const LightningChannels = ({ navigation }): ReactElement => {
 	const ListData = [
 		{
 			title: 'Channels',
-			data: channelList.map((c) => {
-				let title = `${c.chanId}\n`;
-				title += c.active ? 'Active ✅' : 'Inactive ❌';
-
-				title += `Can send: ${c.localBalance}`;
-				title += `Can receive: ${c.remoteBalance}`;
+			data: channelList.map((channel) => {
+				const { chanId, active } = channel;
+				let title = `${chanId}\n`;
+				title += active ? 'Active ✅' : 'Inactive ❌';
 
 				return {
 					title,
 					type: 'button',
 					onPress: async (): Promise<void> => {
-						//TODO navigate to detail view
+						navigation.navigate('LightningChannelDetails', { channel });
 					},
 					hide: false,
 				};

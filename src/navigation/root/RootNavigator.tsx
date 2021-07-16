@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import AuthCheck from '../../components/AuthCheck';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
+import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -111,6 +112,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="LightningChannels"
 					component={LightningChannels}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="LightningChannelDetails"
+					component={LightningChannelDetails}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
