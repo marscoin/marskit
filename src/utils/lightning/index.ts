@@ -14,10 +14,11 @@ import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
+import { showErrorNotification } from '../notifications';
 
 const packageJson = require('../../../package.json');
 
-const defaultNodePubKey =
+export const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
 const defaultNodeHost = '35.240.72.95:9735'; //Our testnet server
 

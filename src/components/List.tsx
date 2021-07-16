@@ -86,7 +86,7 @@ const Item = memo(_Item, (prevProps, nextProps) => {
 });
 
 interface IListData {
-	title?: string;
+	title: string;
 	data: ItemData[];
 }
 
@@ -98,8 +98,9 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 			extraData={data}
 			keyExtractor={(item): string => item.title}
 			renderSectionHeader={useCallback(
-				({ section: { title } }): ReactElement =>
-					title ? <ItemHeader title={title} /> : <View />,
+				({ section: { title } }): ReactElement => (
+					<ItemHeader title={title} />
+				),
 				[],
 			)}
 			renderItem={useCallback(({ item }): ReactElement | null => {

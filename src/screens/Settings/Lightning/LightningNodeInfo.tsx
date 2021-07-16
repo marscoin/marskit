@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import {
 	View,
@@ -8,38 +8,37 @@ import {
 } from '../../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
+import lnd from '@synonymdev/react-native-lightning';
 
 const LightningNodeInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
-	const [content, setContent] = useState<string[][]>([]);
 
-	useEffect(() => {
-		const {
-			blockHeight,
-			chains,
-			identityPubkey,
-			numActiveChannels,
-			numInactiveChannels,
-			numPeers,
-			syncedToChain,
-			version,
-			alias,
-			numPendingChannels,
-		} = lightning.info;
+	const { state, info } = lightning;
 
-		let output = [['Version', version]];
-		output.push(['Synced', `${syncedToChain ? '✅' : '❌'}`]);
-		output.push(['Block Height', blockHeight.toString()]);
-		output.push(['Identity Pubkey', identityPubkey]);
-		output.push(['Alias', alias]);
-		output.push(['Active Channels', numActiveChannels.toString()]);
-		output.push(['Inactive Channels', numInactiveChannels.toString()]);
-		output.push(['Pending Channels', numPendingChannels.toString()]);
-		output.push(['Peers', numPeers.toString()]);
-		output.push(['Network', `${chains[0].network}`]);
+	const {
+		blockHeight,
+		chains,
+		identityPubkey,
+		numActiveChannels,
+		numInactiveChannels,
+		numPeers,
+		syncedToChain,
+		version,
+		alias,
+		numPendingChannels,
+	} = info;
 
-		setContent(output);
-	}, []);
+	let output = [['Version', version]];
+	output.push(['State', lnd.stateService.readableState(state)]);
+	output.push(['Synced', `${syncedToChain ? '✅' : '❌'}`]);
+	output.push(['Block Height', blockHeight.toString()]);
+	output.push(['Identity Pubkey', identityPubkey]);
+	output.push(['Alias', alias]);
+	output.push(['Active Channels', numActiveChannels.toString()]);
+	output.push(['Inactive Channels', numInactiveChannels.toString()]);
+	output.push(['Pending Channels', numPendingChannels.toString()]);
+	output.push(['Peers', numPeers.toString()]);
+	output.push(['Network', `${chains[0].network}`]);
 
 	return (
 		<View style={styles.container}>
@@ -52,7 +51,7 @@ const LightningNodeInfo = ({ navigation }): ReactElement => {
 			</TouchableOpacity>
 			<ScrollView>
 				<View style={styles.info}>
-					{content.map(([title, value]) => (
+					{output.map(([title, value]) => (
 						<View style={styles.item} key={title}>
 							<Text style={styles.itemTitle}>{title}:</Text>
 							<Text style={styles.itemValue}>{value}</Text>

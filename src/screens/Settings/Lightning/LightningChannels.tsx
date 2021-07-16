@@ -1,5 +1,6 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
+import lnd from '@synonymdev/react-native-lightning';
 import {
 	View,
 	Feather,
@@ -11,30 +12,99 @@ import {
 	connectToDefaultPeer,
 	debugGetBalance,
 	debugListPeers,
+	defaultNodePubKey,
 } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
+import { showErrorNotification } from '../../../utils/notifications';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import { IsSensorAvailableResult } from '../../../components/Biometrics';
+import { lnrpc } from '@synonymdev/react-native-lightning';
+import { truncate } from '../../../utils/helpers';
+import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 
 const LightningChannels = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
-	const [content, setContent] = useState<string>('');
+	const [channelList, setChannelList] = useState<lnrpc.IChannel[]>([]);
+
+	const [peerList, setPeerList] = useState<lnrpc.IPeer[]>([]);
+
+	useEffect(() => {
+		(async (): Promise<void> => {
+			const channelRes = await lnd.listChannels();
+			if (channelRes.isErr()) {
+				showErrorNotification({
+					title: 'Failed to load channels',
+					message: channelRes.error.message,
+				});
+				return;
+			}
+
+			setChannelList(
+				channelRes.value.channels.sort((a, b) => {
+					if (`${a.chanId}` < `${b.chanId}`) {
+						return -1;
+					}
+					if (`${a.chanId}` > `${b.chanId}`) {
+						return 1;
+					}
+					return 0;
+				}),
+			);
+
+			const peerRes = await lnd.listPeers();
+			if (peerRes.isErr()) {
+				showErrorNotification({
+					title: 'Failed to load peers',
+					message: peerRes.error.message,
+				});
+				return;
+			}
+
+			setPeerList(
+				peerRes.value.peers.sort((a, b) => {
+					if (`${a.pubKey}` < `${b.pubKey}`) {
+						return -1;
+					}
+					if (`${a.pubKey}` > `${b.pubKey}`) {
+						return 1;
+					}
+					return 0;
+				}),
+			);
+		})();
+	}, [lightning]);
 
 	const ListData = [
 		{
-			data: [
-				{
-					title: 'Channel 1',
+			title: 'Channels',
+			data: channelList.map((c) => {
+				let title = `${c.chanId}\n`;
+				title += c.active ? 'Active ✅' : 'Inactive ❌';
+
+				title += `Can send: ${c.localBalance}`;
+				title += `Can receive: ${c.remoteBalance}`;
+
+				return {
+					title,
 					type: 'button',
-					onPress: async (): Promise<void> => {},
+					onPress: async (): Promise<void> => {
+						//TODO navigate to detail view
+					},
 					hide: false,
-				},
-				{
-					title: 'Channel 2',
-					type: 'button',
-					onPress: async (): Promise<void> => {},
-					hide: false,
-				},
-			],
+				};
+			}),
+		},
+		{
+			title: 'Peers',
+			data: peerList.map((p) => ({
+				title: `Pubkey: ${truncate(p.pubKey, 20)}${
+					p.pubKey === defaultNodePubKey ? ' (Default node)' : ''
+				}\nAddress: ${p.address}`,
+				type: 'button',
+				onPress: async (): Promise<void> => {},
+				hide: false,
+			})),
 		},
 	];
 
@@ -48,9 +118,6 @@ const LightningChannels = ({ navigation }): ReactElement => {
 				<Text style={styles.backText}>Lightning channels</Text>
 			</TouchableOpacity>
 			<List data={ListData} />
-			<ScrollView>
-				<Text style={styles.debugContent}>{content}</Text>
-			</ScrollView>
 		</View>
 	);
 };
