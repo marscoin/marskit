@@ -14,7 +14,6 @@ import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
-import { showErrorNotification } from '../notifications';
 
 const packageJson = require('../../../package.json');
 

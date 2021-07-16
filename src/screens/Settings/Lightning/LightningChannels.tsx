@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import lnd from '@synonymdev/react-native-lightning';
 import {
 	View,
@@ -8,20 +8,12 @@ import {
 	TouchableOpacity,
 } from '../../../styles/components';
 import List from '../../../components/List';
-import {
-	connectToDefaultPeer,
-	debugGetBalance,
-	debugListPeers,
-	defaultNodePubKey,
-} from '../../../utils/lightning';
+import { defaultNodePubKey } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { showErrorNotification } from '../../../utils/notifications';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import { IsSensorAvailableResult } from '../../../components/Biometrics';
 import { lnrpc } from '@synonymdev/react-native-lightning';
 import { truncate } from '../../../utils/helpers';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
 
 const LightningChannels = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
