@@ -161,18 +161,24 @@ const Settings = ({ navigation }): ReactElement => {
 				],
 			},
 			{
-				title: 'Lightning Debug',
+				title: 'Lightning Network',
 				data: [
+					{
+						title: 'Node info',
+						type: 'button',
+						onPress: (): void => navigation.navigate('LightningNodeInfo'),
+						hide: false,
+					},
+					{
+						title: 'Channels',
+						type: 'button',
+						onPress: (): void => navigation.navigate('LightningChannels'),
+						hide: false,
+					},
 					{
 						title: 'LND Logs',
 						type: 'button',
 						onPress: (): void => navigation.navigate('LndLogs'),
-						hide: false,
-					},
-					{
-						title: 'Test commands',
-						type: 'button',
-						onPress: (): void => navigation.navigate('TempLightningOptions'),
 						hide: false,
 					},
 				],
