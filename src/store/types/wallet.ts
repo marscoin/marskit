@@ -72,6 +72,7 @@ export enum EKeyDerivationAccount {
 export interface IAddressType {
 	[key: string]: {
 		path: string;
+		type: 'p2wpkh' | 'p2sh' | 'p2pkh';
 		label: string;
 	};
 }
