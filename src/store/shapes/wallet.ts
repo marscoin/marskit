@@ -7,7 +7,23 @@ import {
 	IOnChainTransactionData,
 	defaultOnChainTransactionData,
 	IKeyDerivationPath,
+	IAddressType,
 } from '../types/wallet';
+
+export const addressTypes: IAddressType = {
+	p2pkh: {
+		path: "m/44'/0'/0'/0/0",
+		label: 'legacy',
+	},
+	p2sh: {
+		path: "m/49'/0'/0'/0/0",
+		label: 'segwit',
+	},
+	p2wpkh: {
+		path: "m/84'/0'/0'/0/0",
+		label: 'bech32',
+	},
+};
 
 export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
 	bitcoin: defaultOnChainTransactionData,
@@ -94,6 +110,7 @@ export const defaultWalletStoreShape: IWallet = {
 	error: false,
 	selectedNetwork: 'bitcoinTestnet',
 	selectedWallet: EWallet.defaultWallet,
+	addressTypes: { ...addressTypes },
 	exchangeRates: {},
 	wallets: {
 		wallet0: { ...defaultWalletShape },
