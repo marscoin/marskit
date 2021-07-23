@@ -16,6 +16,7 @@ import { IService } from '../../utils/chainreactor/types';
 import { refreshServiceList } from '../../store/actions/chainreactor';
 import { updateExchangeRates } from '../../store/actions/wallet';
 import { truncate } from '../../utils/helpers';
+import { showErrorNotification } from '../../utils/notifications';
 
 const ListItem = ({
 	item,
@@ -63,24 +64,29 @@ const ListItem = ({
 };
 
 const ChainReactorScreen = ({ navigation }): ReactElement => {
-	const { serviceList, lastUpdated } = useSelector(
+	const { serviceList, serviceListLastUpdated, orders } = useSelector(
 		(state: Store) => state.chainreactor,
 	);
 
 	const [refreshing, setRefreshing] = useState(false);
 
 	useEffect(() => {
-		if (!lastUpdated) {
-			onRefresh().finally();
-		}
-	}, [lastUpdated]);
+		refreshServiceList().catch(() => {
+			showErrorNotification({
+				title: 'Update failed',
+				message: 'Failed to refresh service list',
+			});
+		});
+	});
 
 	const renderItem = ({ item }: { item: IService }): ReactElement => {
 		return (
 			<ListItem
 				key={item.product_id}
 				item={item}
-				onPress={(): void => navigation.navigate('Profile', { service: item })}
+				onPress={(): void =>
+					navigation.navigate('ChainReactorOrder', { service: item })
+				}
 			/>
 		);
 	};
@@ -94,7 +100,9 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="Chain Reactor" />
+			<NavigationHeader title={'Chain Reactor'} />
+
+			<Text style={styles.text}>Current orders: {orders.length}</Text>
 
 			<FlatList
 				data={serviceList}
@@ -111,6 +119,9 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	text: {
+		textAlign: 'center',
 	},
 	item: {
 		padding: 20,

@@ -19,6 +19,7 @@ import AuthCheck from '../../components/AuthCheck';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import ChainReactor from '../../screens/ChainReactor';
+import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
 
 const Stack = createNativeStackNavigator();
 
@@ -138,6 +139,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="ChainReactor"
 					component={ChainReactor}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ChainReactorOrder"
+					component={ChainReactorOrder}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

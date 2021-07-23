@@ -1,6 +1,7 @@
 export interface IService {
 	available: boolean;
 	product_id: string;
+	product_name: string;
 	min_channel_size: number;
 	max_channel_size: number;
 	min_chan_expiry: number;
@@ -40,4 +41,16 @@ export interface IBuyChannelResponse {
 	ln_invoice: string;
 	price: number;
 	lnurl_channel: string;
+}
+
+export interface IGetOrderResponse {
+	_id: string;
+	local_balance: number;
+	remote_balance: number;
+	channel_expiry: number;
+	channel_expiry_ts: number;
+	price: number;
+	created_at: number;
+	state: number;
+	purchase_invoice: string;
 }

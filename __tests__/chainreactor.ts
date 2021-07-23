@@ -43,6 +43,7 @@ describe('chain reactor', () => {
 			return;
 		}
 
-		expect(typeof getOrderRes.value).toBe('number');
+		expect(getOrderRes.value.state).toBe(0);
+		expect(typeof orderRes.ln_invoice).toBe('string');
 	});
 });
