@@ -5,6 +5,7 @@ import { IOmniBolt } from './omnibolt';
 import { ILightning } from './lightning';
 import { IActivity } from './activity';
 import { IBackup } from './backup';
+import { IChainReactor } from './chainreactor';
 
 export default interface Store {
 	user: IUser;
@@ -14,4 +15,5 @@ export default interface Store {
 	lightning: ILightning;
 	activity: IActivity;
 	backup: IBackup;
+	chainreactor: IChainReactor;
 }

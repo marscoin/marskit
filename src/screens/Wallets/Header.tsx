@@ -9,7 +9,14 @@ const Header = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.leftColumn} />
+			<View style={styles.leftColumn}>
+				<Feather
+					style={styles.rightIcon}
+					onPress={(): void => navigation.navigate('ChainReactor')}
+					name="shopping-cart"
+					size={30}
+				/>
+			</View>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<Feather

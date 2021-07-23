@@ -35,9 +35,14 @@ describe('chain reactor', () => {
 
 		expect(typeof orderRes.ln_invoice).toBe('string');
 
-
 		//Check order
-		const getOrderRes = await cr.getOrder(orderRes.order_id)
+		const getOrderRes = await cr.getOrder(orderRes.order_id);
+		expect(getOrderRes.isOk()).toBe(true);
+		if (getOrderRes.isErr()) {
+			expect(getOrderRes.error.message).toEqual('');
+			return;
+		}
 
+		expect(typeof getOrderRes.value).toBe('number');
 	});
 });
