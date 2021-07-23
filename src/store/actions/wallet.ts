@@ -6,6 +6,7 @@ import {
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
+	TAddressType,
 } from '../types/wallet';
 import {
 	createDefaultWallet,
@@ -597,6 +598,35 @@ export const resetOnChainTransaction = ({
 		};
 		dispatch({
 			type: actions.RESET_ON_CHAIN_TRANSACTION,
+			payload,
+		});
+	} catch {}
+};
+
+export const updateSelectedAddressType = ({
+	addressType = EWallet.addressType,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	addressType?: TAddressType;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): void => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const payload = {
+			addressType,
+			selectedNetwork,
+			selectedWallet,
+		};
+		dispatch({
+			type: actions.UPDATE_SELECTED_ADDRESS_TYPE,
 			payload,
 		});
 	} catch {}
