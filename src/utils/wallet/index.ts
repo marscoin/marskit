@@ -1156,14 +1156,48 @@ export const getHighestStoredAddressIndex = ({
 	}
 };
 
+/**
+ * Returns the currently selected network (bitcoin | bitcoinTestnet).
+ * @return {TAvailableNetworks}
+ */
 export const getSelectedNetwork = (): TAvailableNetworks => {
 	return getStore().wallet.selectedNetwork;
 };
 
+/**
+ * Returns the currently selected address type (p2pkh | p2sh | p2wpkh | p2tr).
+ * @return {TAddressType}
+ */
+export const getSelectedAddressType = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): TAddressType => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	return getStore().wallet.wallets[selectedWallet].addressType[selectedNetwork];
+};
+
+/**
+ * Returns the currently selected wallet (Ex: 'wallet0').
+ * @return {string}
+ */
 export const getSelectedWallet = (): string => {
 	return getStore().wallet.selectedWallet;
 };
 
+/**
+ * Returns all state data for the currently selected wallet.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @return {{ currentWallet: IDefaultWalletShape, selectedWallet: string, selectedNetwork: TAvailableNetworks }}
+ */
 export const getCurrentWallet = ({
 	selectedNetwork = undefined,
 	selectedWallet = undefined,
