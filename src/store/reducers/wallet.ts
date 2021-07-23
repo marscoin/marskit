@@ -226,6 +226,21 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 				},
 			};
 
+		case actions.UPDATE_SELECTED_ADDRESS_TYPE:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						addressType: {
+							...state.wallets[selectedWallet].addressType,
+							[selectedNetwork]: action.payload.addressType,
+						},
+					},
+				},
+			};
+
 		default:
 			return state;
 	}

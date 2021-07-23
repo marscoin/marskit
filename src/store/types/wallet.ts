@@ -69,6 +69,14 @@ export enum EKeyDerivationAccount {
 	omnibolt = 3,
 }
 
+export interface IAddressType {
+	[key: string]: {
+		path: string;
+		type: 'p2wpkh' | 'p2sh' | 'p2pkh';
+		label: string;
+	};
+}
+
 // m / purpose' / coin_type' / account' / change / address_index
 export interface IKeyDerivationPath {
 	purpose: TKeyDerivationPurpose;
@@ -84,6 +92,7 @@ export interface IWallet {
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
+	addressTypes: IAddressType;
 	exchangeRates: IExchangeRates;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;
