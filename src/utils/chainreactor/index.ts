@@ -5,7 +5,6 @@ import {
 	IGetOrderResponse,
 } from './types';
 import { err, ok, Result } from '../result';
-import { truncate } from '../helpers';
 
 class ChainReactor {
 	private host = '';

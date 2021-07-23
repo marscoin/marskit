@@ -6,8 +6,6 @@ import Divider from '../../components/Divider';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 import { IBuyChannelResponse, IService } from '../../utils/chainreactor/types';
 import Button from '../../components/Button';
-import { useSelector } from 'react-redux';
-import Store from '../../store/types';
 import { buyChannel } from '../../store/actions/chainreactor';
 import {
 	showErrorNotification,
@@ -27,11 +25,8 @@ const Order = (props: Props): ReactElement => {
 		service: {
 			product_id,
 			product_name,
-			available,
-			order_states,
 			min_channel_size,
 			max_channel_size,
-			min_chan_expiry,
 			max_chan_expiry,
 		},
 	} = props.route.params;
@@ -46,8 +41,6 @@ const Order = (props: Props): ReactElement => {
 
 	const [remoteBalance, setRemoteBalance] = useState('0');
 	const [localBalance, setLocalBalance] = useState(`${min_channel_size}`);
-
-	const { channelBalance } = useSelector((state: Store) => state.lightning);
 
 	const minChannelSizeDisplay = useDisplayValues(min_channel_size);
 	const maxChannelSizeDisplay = useDisplayValues(max_channel_size);

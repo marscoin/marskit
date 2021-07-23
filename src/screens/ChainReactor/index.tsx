@@ -64,7 +64,7 @@ const ListItem = ({
 };
 
 const ChainReactorScreen = ({ navigation }): ReactElement => {
-	const { serviceList, serviceListLastUpdated, orders } = useSelector(
+	const { serviceList, orders } = useSelector(
 		(state: Store) => state.chainreactor,
 	);
 
