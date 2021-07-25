@@ -49,13 +49,16 @@ const LightningCard = (): ReactElement => {
 		}
 	}, [lightning.invoiceList, receivePaymentRequest]);
 
-	const showSendReceive = lightning.channelBalance.balance > 0;
+	const showSendReceive =
+		lightning.channelBalance.balance > 0 ||
+		lightning.channelBalance.remoteBalance;
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
 		lightning.info.syncedToChain &&
 		lightning.channelBalance.pendingOpenBalance === 0 &&
-		lightning.channelBalance.balance === 0;
+		lightning.channelBalance.balance === 0 &&
+		lightning.channelBalance.remoteBalance === 0;
 
 	const balance =
 		Number(lightning.channelBalance.balance) +
@@ -90,7 +93,7 @@ const LightningCard = (): ReactElement => {
 									style={styles.receiveButton}
 									onPress={async (): Promise<void> => {
 										const res = await lnd.createInvoice(
-											25,
+											9999999,
 											`Backpack test ${new Date().getTime()}`,
 										);
 

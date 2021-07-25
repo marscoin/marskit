@@ -16,6 +16,7 @@ import {
 import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cache';
 import { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning/dist/utils/types';
 import { showErrorNotification } from '../notifications';
+import { refreshServiceList } from '../../store/actions/chainreactor';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -110,6 +111,7 @@ export const startWalletServices = async ({
 			}
 
 			await updateExchangeRates();
+			await refreshServiceList();
 		});
 
 		return ok('Wallet started');
