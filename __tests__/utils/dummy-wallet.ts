@@ -1,3 +1,5 @@
+import { EWallet } from '../../src/store/types/wallet';
+
 test.skip('Workaround', () => 1);
 
 export const mnemonic =
@@ -265,7 +267,10 @@ export const walletState = {
 		},
 	},
 	networkTypePath: { bitcoin: '0', bitcoinTestnet: '1' },
-	addressType: { bitcoin: 'bech32', bitcoinTestnet: 'bech32' },
+	addressType: {
+		bitcoin: EWallet.addressType,
+		bitcoinTestnet: EWallet.addressType,
+	},
 	rbfData: { bitcoin: {}, bitcoinTestnet: {}, timestamp: null },
 	transaction: {
 		bitcoin: {

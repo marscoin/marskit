@@ -35,16 +35,16 @@ const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 
 			const { selectedNetwork } = getStore().wallet;
 
-			let addressType = Scheme.Wallet.AddressType.bech32;
+			let addressType = Scheme.Wallet.AddressType.p2wpkh;
 			switch (wallet.addressType[selectedNetwork]) {
-				case 'bech32':
-					addressType = Scheme.Wallet.AddressType.bech32;
+				case 'p2wpkh':
+					addressType = Scheme.Wallet.AddressType.p2wpkh;
 					break;
-				case 'segwit':
-					addressType = Scheme.Wallet.AddressType.segwit;
+				case 'p2sh':
+					addressType = Scheme.Wallet.AddressType.p2sh;
 					break;
-				case 'legacy':
-					addressType = Scheme.Wallet.AddressType.legacy;
+				case 'p2pkh':
+					addressType = Scheme.Wallet.AddressType.p2pkh;
 					break;
 			}
 
@@ -229,16 +229,16 @@ export const restoreFromBackupObject = async (
 			const backedUpWallet = backup.wallets[index];
 			const { key, mnemonic, keyDerivationPath } = backedUpWallet; //TODO get passphrase as well when we support that
 
-			let addressType: TAddressType = 'bech32';
+			let addressType: TAddressType = 'p2wpkh';
 			switch (backedUpWallet.addressType) {
-				case Scheme.Wallet.AddressType.bech32:
-					addressType = 'bech32';
+				case Scheme.Wallet.AddressType.p2wpkh:
+					addressType = 'p2wpkh';
 					break;
-				case Scheme.Wallet.AddressType.segwit:
-					addressType = 'segwit';
+				case Scheme.Wallet.AddressType.p2sh:
+					addressType = 'p2sh';
 					break;
-				case Scheme.Wallet.AddressType.legacy:
-					addressType = 'legacy';
+				case Scheme.Wallet.AddressType.p2pkh:
+					addressType = 'p2pkh';
 					break;
 			}
 

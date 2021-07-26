@@ -1,9 +1,9 @@
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate';
 
-export type TAddressType = 'bech32' | 'segwit' | 'legacy'; //"84" | "49" | "44";
+export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
 export type TKeyDerivationAccountType = 'onchain' | 'rgb' | 'omnibolt';
-export type TKeyDerivationPurpose = '84' | '49' | '44'; //"bech32" | "segwit" | "legacy";
+export type TKeyDerivationPurpose = '84' | '49' | '44'; //"p2wpkh" | "p2sh" | "p2pkh";
 export type TKeyDerivationCoinType = '0' | '1'; //"mainnet" | "testnet";
 export type TKeyDerivationAccount = '0' | '2' | '3'; //"On-Chain Wallet" | "RGB" | "Omnibolt";
 export type TKeyDerivationChange = '0' | '1'; //"Receiving Address" | "Change Address";
@@ -28,9 +28,9 @@ export type TGetByteCountInput =
 	| 'P2PKH'
 	| 'P2WPKH'
 	| 'P2SH-P2WPKH'
-	| 'bech32'
-	| 'segwit'
-	| 'legacy'
+	| 'p2wpkh'
+	| 'p2sh'
+	| 'p2pkh'
 	| any; //Unsure how to account for multisig variations (ex. 'MULTISIG-P2SH:2-4')
 
 export type TGetByteCountOutput =
@@ -38,9 +38,9 @@ export type TGetByteCountOutput =
 	| 'P2PKH'
 	| 'P2WPKH'
 	| 'P2WSH'
-	| 'bech32'
-	| 'segwit'
-	| 'legacy';
+	| 'p2wpkh'
+	| 'p2sh'
+	| 'p2pkh';
 
 export type TGetByteCountInputs = {
 	[key in TGetByteCountInput]?: number;
@@ -54,7 +54,7 @@ export enum EWallet {
 	selectedNetwork = 'bitcoin',
 	defaultWallet = 'wallet0',
 	aezeedPassphrase = 'shhhhhhhh123',
-	addressType = 'bech32',
+	addressType = 'p2wpkh',
 }
 
 export enum EOutput {

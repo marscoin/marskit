@@ -239,3 +239,11 @@ export const shuffleArray = (array): any[] => {
  */
 export const truncate = (str, n): string =>
 	str.length > n ? str.substr(0, n - 1) + '...' : str;
+
+/**
+ * Capitalizes the first letter of every word.
+ * @param {string} str
+ */
+export const capitalize = (str = ''): string => {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+};

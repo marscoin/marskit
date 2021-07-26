@@ -100,8 +100,8 @@ export const defaultWalletShape: IDefaultWalletShape = {
 		bitcoinTestnet: '1',
 	},
 	addressType: {
-		bitcoin: 'bech32',
-		bitcoinTestnet: 'bech32',
+		bitcoin: EWallet.addressType,
+		bitcoinTestnet: EWallet.addressType,
 	},
 	rbfData: objectTypeItems,
 	transaction: onChainTransaction,
