@@ -171,18 +171,18 @@ export const getByteCount = (
 				P2PKH: 148 * 4,
 				P2WPKH: 108 + 41 * 4,
 				'P2SH-P2WPKH': 108 + 64 * 4,
-				bech32: 108 + 41 * 4 + 1,
-				segwit: 108 + 64 * 4 + 1,
-				legacy: 148 * 4 + 1,
+				p2wpkh: 108 + 41 * 4 + 1,
+				p2sh: 108 + 64 * 4 + 1,
+				p2pkh: 148 * 4 + 1,
 			},
 			outputs: {
 				P2SH: 32 * 4,
 				P2PKH: 34 * 4,
 				P2WPKH: 31 * 4,
 				P2WSH: 43 * 4,
-				bech32: 31 * 4 + 1,
-				segwit: 32 * 4 + 1,
-				legacy: 34 * 4 + 1,
+				p2wpkh: 31 * 4 + 1,
+				p2sh: 32 * 4 + 1,
+				p2pkh: 34 * 4 + 1,
 			},
 		};
 
@@ -715,7 +715,7 @@ export const addInput = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const network = networks[selectedNetwork];
-		if (addressType === 'bech32') {
+		if (addressType === 'p2wpkh') {
 			const p2wpkh = bitcoin.payments.p2wpkh({
 				pubkey: keyPair.publicKey,
 				network,
@@ -730,7 +730,7 @@ export const addInput = async ({
 			});
 		}
 
-		if (addressType === 'segwit') {
+		if (addressType === 'p2sh') {
 			const p2wpkh = bitcoin.payments.p2wpkh({
 				pubkey: keyPair.publicKey,
 				network,
@@ -747,7 +747,7 @@ export const addInput = async ({
 			});
 		}
 
-		if (addressType === 'legacy') {
+		if (addressType === 'p2pkh') {
 			const transaction = await getTransactions({
 				selectedNetwork,
 				txHashes: [{ tx_hash: input.tx_hash }],
@@ -974,9 +974,6 @@ export enum AddressType {
 	p2sh = 'p2sh',
 	p2wpkh = 'p2wpkh',
 	p2wsh = 'p2wsh',
-	legacy = 'legacy',
-	segwit = 'segwit',
-	bech32 = 'bech32',
 }
 export interface IAddressTypes {
 	inputs: {

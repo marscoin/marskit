@@ -115,6 +115,12 @@ const Settings = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
+						title: 'Address-Type Preference',
+						type: 'button',
+						onPress: (): void => navigation.navigate('AddressTypePreference'),
+						hide: false,
+					},
+					{
 						title: 'Security',
 						type: 'button',
 						onPress: (): void => navigation.navigate('TempSettings'),

@@ -1029,7 +1029,7 @@ export const getNextOmniboltAddress = async ({
 		selectedNetwork,
 		selectedWallet,
 		accountType: 'omnibolt',
-		addressType: 'legacy', //TODO: Change this to the user's selected addressType once bech32 is supported by omnibolt.
+		addressType: 'p2pkh', //TODO: Change this to the user's selected addressType once bech32 is supported by omnibolt.
 		addressAmount: 1,
 		addressIndex: index,
 		changeAddressAmount: 0,

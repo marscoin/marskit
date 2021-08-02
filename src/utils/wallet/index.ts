@@ -202,7 +202,7 @@ export const subscribeToHeader = async ({
  * @param {string} [selectedNetwork] - What network to generate addresses for (bitcoin or bitcoinTestnet).
  * @param {string} [keyDerivationPath] - The path to generate addresses from.
  * @param [TKeyDerivationAccountType] - Specifies which account to generate an address from (onchain, rgb, omnibolt).
- * @param {string} [addressType] - Determines what type of address to generate (legacy, segwit, bech32).
+ * @param {string} [addressType] - Determines what type of address to generate (p2pkh, p2sh, p2wpkh).
  */
 export const generateAddresses = async ({
 	selectedWallet = undefined,
@@ -585,7 +585,7 @@ export const getScriptHash = (
  * Get address for a given keyPair, network and type.
  * @param {Object|undefined} keyPair
  * @param {string|Object|undefined} network
- * @param {string} type - Determines what type of address to generate (legacy, segwit, bech32).
+ * @param {string} type - Determines what type of address to generate (p2pkh, p2sh, p2wpkh).
  * @return {string}
  */
 export const getAddress = ({
@@ -598,11 +598,11 @@ export const getAddress = ({
 	}
 	try {
 		switch (type) {
-			case 'bech32':
+			case 'p2wpkh':
 				//Get Native Bech32 (bc1) addresses
 				return bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network })
 					.address;
-			case 'segwit':
+			case 'p2sh':
 				//Get Segwit P2SH Address (3)
 				return bitcoin.payments.p2sh({
 					redeem: bitcoin.payments.p2wpkh({
@@ -612,7 +612,7 @@ export const getAddress = ({
 					network,
 				}).address;
 			//Get Legacy Address (1)
-			case 'legacy':
+			case 'p2pkh':
 				return bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network })
 					.address;
 		}
@@ -790,7 +790,7 @@ export const getNextAvailableAddress = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 	keyDerivationPath = undefined,
-	addressType = 'bech32',
+	addressType = EWallet.addressType,
 }: IGetNextAvailableAddress): Promise<
 	Result<IGetNextAvailableAddressResponse>
 > => {
@@ -1823,7 +1823,7 @@ export const getRbfData = async ({
 	let scriptHash = '';
 	let path = '';
 	let value: number = 0;
-	let addressType: TAddressType = 'bech32';
+	let addressType: TAddressType = EWallet.addressType;
 	let outputs: IOutput[] = [];
 	let message: string = '';
 	let inputTotal = 0;
@@ -1981,7 +1981,7 @@ export const createDefaultWallet = async ({
 	changeAddressAmount = 2,
 	mnemonic = '',
 	keyDerivationPath = defaultKeyDerivationPath,
-	addressType = 'bech32',
+	addressType = EWallet.addressType,
 }: ICreateWallet): Promise<Result<IDefaultWallet>> => {
 	try {
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(walletName);

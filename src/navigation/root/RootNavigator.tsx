@@ -20,6 +20,7 @@ import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import ChainReactor from '../../screens/ChainReactor';
 import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
+import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 
 const Stack = createNativeStackNavigator();
 
@@ -99,6 +100,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="CoinSelectPreference"
 					component={CoinSelectPreference}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="AddressTypePreference"
+					component={AddressTypePreference}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen

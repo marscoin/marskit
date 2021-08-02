@@ -67,7 +67,7 @@ export const createWallet = async ({
 	changeAddressAmount = 2,
 	mnemonic = '',
 	keyDerivationPath = defaultKeyDerivationPath,
-	addressType = 'bech32',
+	addressType = EWallet.addressType,
 }: ICreateWallet): Promise<Result<string>> => {
 	try {
 		const response = await createDefaultWallet({
