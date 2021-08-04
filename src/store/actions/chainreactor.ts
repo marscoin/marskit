@@ -53,7 +53,7 @@ export const refreshOrder = (orderId: string): Promise<Result<string>> => {
 			payload: res.value,
 		});
 
-		resolve(ok('Product list updated'));
+		resolve(ok('Order updated'));
 	});
 };
 

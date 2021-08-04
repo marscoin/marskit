@@ -51,14 +51,14 @@ const LightningCard = (): ReactElement => {
 
 	const showSendReceive =
 		lightning.channelBalance.balance > 0 ||
-		lightning.channelBalance.remoteBalance;
+		(lightning.channelBalance.remoteBalance?.sat ?? 0) > 0;
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
 		lightning.info.syncedToChain &&
 		lightning.channelBalance.pendingOpenBalance === 0 &&
 		lightning.channelBalance.balance === 0 &&
-		lightning.channelBalance.remoteBalance === 0;
+		(lightning.channelBalance.remoteBalance?.sat ?? 0) === 0;
 
 	const balance =
 		Number(lightning.channelBalance.balance) +

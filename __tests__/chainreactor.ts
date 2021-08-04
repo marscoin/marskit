@@ -22,10 +22,9 @@ describe('chain reactor', () => {
 			product_id: service.product_id,
 			channel_expiry: 4,
 			remote_balance: 0,
-			local_balance: 14990950,
+			local_balance: 20000,
 		});
 
-		expect(buyRes.isOk()).toBe(true);
 		if (buyRes.isErr()) {
 			expect(buyRes.error.message).toEqual('');
 			return;
@@ -34,6 +33,8 @@ describe('chain reactor', () => {
 		const orderRes = buyRes.value;
 
 		expect(typeof orderRes.ln_invoice).toBe('string');
+		expect(typeof orderRes.total_amount).toBe('number');
+		expect(typeof orderRes.btc_address).toBe('string');
 
 		//Check order
 		const getOrderRes = await cr.getOrder(orderRes.order_id);

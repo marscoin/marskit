@@ -92,6 +92,7 @@ class ChainReactor {
 			);
 
 			res.price = Number(res.price);
+			res.total_amount = Number(res.total_amount);
 
 			return ok(res);
 		} catch (e) {

@@ -21,6 +21,7 @@ import LightningChannelDetails from '../../screens/Settings/Lightning/LightningC
 import ChainReactor from '../../screens/ChainReactor';
 import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
+import ChainReactorPayment from '../../screens/ChainReactor/Payment';
 
 const Stack = createNativeStackNavigator();
 
@@ -150,6 +151,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="ChainReactorOrder"
 					component={ChainReactorOrder}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ChainReactorPayment"
+					component={ChainReactorPayment}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

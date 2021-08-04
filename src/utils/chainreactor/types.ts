@@ -40,6 +40,8 @@ export interface IBuyChannelResponse {
 	order_id: string;
 	ln_invoice: string;
 	price: number;
+	total_amount: number;
+	btc_address: string;
 	lnurl_channel: string;
 }
 

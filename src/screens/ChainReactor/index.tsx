@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
 	col1: {
 		display: 'flex',
 		flexDirection: 'row',
-		flex: 2,
+		flex: 1,
 	},
 	col2: {
 		display: 'flex',
