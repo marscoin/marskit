@@ -7,6 +7,7 @@ import Store from '../../../store/types';
 import { View } from '../../../styles/components';
 import { useTransactionDetails } from './TransactionHook';
 import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import { ETransactionDefaults } from '../../../store/types/wallet';
 
 const FeeSummary = ({
 	amount: _amount = '0',
@@ -24,7 +25,7 @@ const FeeSummary = ({
 
 	const transaction = useTransactionDetails();
 
-	const totalFee = transaction?.fee || 250;
+	const totalFee = transaction?.fee || ETransactionDefaults.recommendedBaseFee;
 
 	/*
 	 * Retrieves total value of all outputs. Excludes change address.

@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useCallback, useState } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useMemo,
+	useState,
+} from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import QR from '../../components/QR';
@@ -27,6 +33,10 @@ const BitcoinCard = (): ReactElement => {
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
+	const selectedAddressType = useSelector(
+		(state: Store) =>
+			state.wallet?.wallets[selectedWallet]?.addressType[selectedNetwork],
+	);
 
 	const outputs = useSelector(
 		(state: Store) =>
@@ -51,15 +61,14 @@ const BitcoinCard = (): ReactElement => {
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useDisplayValues(balance);
 
-	const getReceiveAddress = useCallback((): string => {
+	const receiveAddress = useMemo((): string => {
 		try {
-			return addressIndex[selectedNetwork].address || ' ';
+			return addressIndex[selectedNetwork][selectedAddressType].address || ' ';
 		} catch {
 			return ' ';
 		}
-	}, [addressIndex, selectedNetwork]);
-	const receiveAddress = getReceiveAddress();
-	balance = bitcoinUnits(balance, 'satoshi').to(bitcoinUnit).value();
+	}, [addressIndex, selectedNetwork, selectedAddressType]);
+	//balance = bitcoinUnits(balance, 'satoshi').to(bitcoinUnit).value();
 
 	LayoutAnimation.easeInEaseOut();
 
