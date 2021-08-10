@@ -202,7 +202,7 @@ export const generateAddresses = async ({
 	selectedNetwork = undefined,
 	keyDerivationPath = { ...defaultKeyDerivationPath },
 	accountType = 'onchain',
-	addressType = EWallet.addressType,
+	addressType,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	try {
 		if (!selectedWallet) {
