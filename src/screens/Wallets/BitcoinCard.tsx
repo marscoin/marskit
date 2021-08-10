@@ -14,7 +14,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { getNetworkData } from '../../utils/helpers';
-import { default as bitcoinUnits } from 'bitcoin-units';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
