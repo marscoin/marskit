@@ -27,7 +27,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 		backpackPassword().then(setPassword);
 
 		return (): void => {
-			cleanupBackupFiles().finally();
+			cleanupBackupFiles().catch();
 		};
 	}, []);
 

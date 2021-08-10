@@ -1,6 +1,7 @@
 import React, {
 	PropsWithChildren,
 	ReactElement,
+	useCallback,
 	useEffect,
 	useState,
 } from 'react';
@@ -9,21 +10,14 @@ import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
-import {
-	IBuyChannelResponse,
-	IGetOrderResponse,
-	IService,
-} from '../../utils/chainreactor/types';
+import { IService } from '../../utils/chainreactor/types';
 import Button from '../../components/Button';
 import { buyChannel, refreshOrder } from '../../store/actions/chainreactor';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
-import lnd from '@synonymdev/react-native-lightning';
-import { lnrpc } from '@synonymdev/react-native-lightning/dist/protos/rpc';
-import { payLightningRequest } from '../../store/actions/lightning';
-import { onChainTransaction } from '../../store/shapes/wallet';
+import { claimChannel } from '../../store/actions/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 
@@ -48,15 +42,6 @@ const Order = (props: Props): ReactElement => {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [orderId, setOrderId] = useState<string>('');
 
-	useEffect(() => {
-		onRefreshOrder().catch();
-	});
-
-	//610aaf56be89c84b8fabb08f
-	//61095974f09dad37a8eaf96e
-	// const [payRequest, setPayRequest] =
-	// 	useState<lnrpc.PayReq | undefined>(undefined);
-
 	const order = useSelector((state: Store) => {
 		if (!orderId) {
 			return null;
@@ -70,14 +55,6 @@ const Order = (props: Props): ReactElement => {
 
 	const minChannelSizeDisplay = useDisplayValues(min_channel_size);
 	const maxChannelSizeDisplay = useDisplayValues(max_channel_size);
-
-	// const priceDisplayValue = useDisplayValues(
-	// 	orderDetails ? orderDetails.price : 0,
-	// );
-
-	// const payRequestDisplayValue = useDisplayValues(
-	// 	payRequest ? Number(payRequest.numSatoshis) : 0,
-	// );
 
 	const onOrder = async (): Promise<void> => {
 		setIsProcessing(true);
@@ -95,19 +72,6 @@ const Order = (props: Props): ReactElement => {
 				message: res.error.message,
 			});
 		}
-		// const lightningRes = await lnd.decodeInvoice(res.value.ln_invoice);
-		//
-		// if (lightningRes.isErr()) {
-		// 	setIsProcessing(false);
-		// 	return showErrorNotification({
-		// 		title: 'Failed to decode invoice',
-		// 		message: lightningRes.error.message,
-		// 	});
-		// }
-
-		// setPayRequest(lightningRes.value);
-
-		console.warn(res.value.order_id);
 
 		setOrderId(res.value.order_id);
 		setIsProcessing(false);
@@ -117,23 +81,24 @@ const Order = (props: Props): ReactElement => {
 		});
 	};
 
-	// const onPay = async (): Promise<void> => {
-	// 	setIsProcessing(true);
-	//
-	// 	navigation.navigate('ChainReactorPayment', {
-	//
-	// 	});
-	//
-	// 	// showSuccessNotification({ title: 'Invoice paid', message: '' });
-	// 	setIsProcessing(false);
-	// 	// navigation.goBack();
-	// };
+	const onClaimChannel = async (): Promise<void> => {
+		if (!order) {
+			return;
+		}
 
-	const onClaimChannel = (): void => {
-		alert('TODO');
+		const { tag, uri, k1, callback } = order.lnurl;
+		const res = await claimChannel({ tag, uri, k1, callback, domain: '' });
+		if (res.isErr()) {
+			return showErrorNotification({
+				title: 'Failed to claim channel',
+				message: res.error.message,
+			});
+		}
+
+		showSuccessNotification({ title: 'Channel claimed', message: res.value });
 	};
 
-	const onRefreshOrder = async (): Promise<void> => {
+	const onRefreshOrder = useCallback(async (): Promise<void> => {
 		if (!orderId) {
 			return;
 		}
@@ -143,13 +108,17 @@ const Order = (props: Props): ReactElement => {
 		const res = await refreshOrder(orderId);
 		if (res.isErr()) {
 			showErrorNotification({
-				title: 'Failed tp refresh order',
+				title: 'Failed to refresh order',
 				message: res.error.message,
 			});
 		}
 
 		setIsRefreshing(false);
-	};
+	}, [orderId]);
+
+	useEffect(() => {
+		onRefreshOrder().catch();
+	}, [onRefreshOrder]);
 
 	return (
 		<View style={styles.container}>
@@ -158,8 +127,8 @@ const Order = (props: Props): ReactElement => {
 				{order ? (
 					<View>
 						<Text>Order: {order?._id}</Text>
-						<Text>State: {order?.state}</Text>
-						<Text>{order ? JSON.stringify(order) : 'No order'}</Text>
+						<Text>State: {order?.stateMessage}</Text>
+						<Text>{order ? 'Channel available' : 'No order'}</Text>
 					</View>
 				) : (
 					<View>
@@ -219,7 +188,7 @@ const Order = (props: Props): ReactElement => {
 								onPress={onRefreshOrder}
 							/>
 							<Button
-								text={isProcessing ? 'Claiming...' : 'Claim prize'}
+								text={isProcessing ? 'Claiming...' : 'Claim channel'}
 								disabled={isProcessing}
 								onPress={onClaimChannel}
 							/>

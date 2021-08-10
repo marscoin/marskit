@@ -12,13 +12,7 @@ const Header = (): ReactElement => {
 			<View style={styles.leftColumn}>
 				<Feather
 					style={styles.rightIcon}
-					onPress={(): void => {
-						navigation.navigate('ChainReactor');
-						// navigation.navigate('ChainReactorPayment', {
-						// 	address: 'tb1q3ywsv2m2wjt2qws3eertnnk66sxn0f6p8ejvcr',
-						// 	amount: 2998,
-						// })
-					}}
+					onPress={(): void => navigation.navigate('ChainReactor')}
 					name="shopping-cart"
 					size={30}
 				/>

@@ -1,4 +1,4 @@
-export interface IService {
+export type IService = {
 	available: boolean;
 	product_id: string;
 	product_name: string;
@@ -13,9 +13,9 @@ export interface IService {
 		OPENED: number;
 		GIVE_UP: number;
 	};
-}
+};
 
-export interface IGetInfoResponse {
+export type IGetInfoResponse = {
 	capacity: {
 		local_balance: number;
 		remote_balance: number;
@@ -27,32 +27,53 @@ export interface IGetInfoResponse {
 		uris: string[];
 		public_key: string;
 	};
-}
+};
 
-export interface IBuyChannelRequest {
+export type IBuyChannelRequest = {
 	product_id: string;
 	remote_balance: number;
 	local_balance: number;
 	channel_expiry: number;
-}
+};
 
-export interface IBuyChannelResponse {
+export type IBuyChannelResponse = {
 	order_id: string;
 	ln_invoice: string;
 	price: number;
 	total_amount: number;
 	btc_address: string;
 	lnurl_channel: string;
-}
+};
 
-export interface IGetOrderResponse {
+type IOnchainPayment = {
+	height: number;
+	hash: string;
+	to: string;
+	amount_base: number;
+	fee_base: number;
+	confirmed: true;
+};
+
+type ILnurl = {
+	uri: string;
+	callback: string;
+	k1: string;
+	tag: string;
+};
+
+export type IGetOrderResponse = {
 	_id: string;
 	local_balance: number;
 	remote_balance: number;
 	channel_expiry: number;
 	channel_expiry_ts: number;
+	order_expiry: number;
 	price: number;
 	created_at: number;
 	state: number;
+	stateMessage: string; // Debug message derived from state value
 	purchase_invoice: string;
-}
+	amount_received: number;
+	onchain_payments: IOnchainPayment[];
+	lnurl: ILnurl;
+};

@@ -17,6 +17,8 @@ import { updateLightingActivityList } from './activity';
 import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { performFullBackup } from './backup';
+import { LNURLChannelParams } from 'js-lnurl';
+import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
 
 const dispatch = getDispatch();
 
@@ -334,7 +336,7 @@ const subscribeToLndInfo = async (): Promise<void> => {
 	//Any channel opening/closing triggers a new static channel state backup
 	lnd.subscribeToBackups(
 		() => {
-			performFullBackup({ retries: 3, retryTimeout: 1000 }).finally();
+			performFullBackup({ retries: 3, retryTimeout: 1000 }).catch();
 		},
 		() => {},
 	);
@@ -382,6 +384,72 @@ export const payLightningRequest = (
 
 		//paymentRoute exists when there is no paymentError
 		resolve(ok(res.value.paymentRoute!));
+	});
+};
+
+/**
+ * Claims a lightning channel from a lnurl-channel string
+ * @param lnurl
+ * @returns {Promise<Ok<boolean> | Err<boolean>>}
+ */
+export const claimChannelFromLnurlString = (
+	lnurl: string,
+): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		const res = await getLNURLParams(lnurl);
+		if (res.isErr()) {
+			return resolve(err(res.error));
+		}
+
+		const params = res.value as LNURLChannelParams;
+		if (params.tag !== 'channelRequest') {
+			return resolve(err('Not a channel request lnurl'));
+		}
+
+		resolve(claimChannel(params));
+	});
+};
+
+/**
+ * Claims a lightning channel from a decoded lnurl-channel request
+ * @param params
+ * @returns {Promise<Ok<boolean> | Err<boolean>>}
+ */
+export const claimChannel = (
+	params: LNURLChannelParams,
+): Promise<Result<string>> => {
+	return new Promise(async (resolve) => {
+		//TODO switch to connectPeerFromUri once published
+		const uriParams = params.uri.split('@');
+		if (uriParams.length !== 2) {
+			return resolve(err('Invalid URI'));
+		}
+
+		const connectRes = await lnd.connectPeer(uriParams[0], uriParams[1]);
+		if (
+			connectRes.isErr() &&
+			connectRes.error.message.indexOf('already connected to peer') < 0
+		) {
+			return resolve(err(connectRes.error));
+		}
+
+		const infoRes = await lnd.getInfo();
+		if (infoRes.isErr()) {
+			return resolve(err(infoRes.error));
+		}
+
+		const lnurlRes = await lnurlChannel({
+			params,
+			isPrivate: true,
+			cancel: false,
+			localNodeId: infoRes.value.identityPubkey,
+		});
+
+		if (lnurlRes.isErr()) {
+			return resolve(err(lnurlRes.error));
+		}
+
+		resolve(ok(lnurlRes.value));
 	});
 };
 

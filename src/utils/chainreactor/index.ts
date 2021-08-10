@@ -29,6 +29,23 @@ class ChainReactor {
 		}
 	}
 
+	static getStateMessage(code: number): string {
+		switch (code) {
+			case 0:
+				return 'CREATED';
+			case 100:
+				return 'PAID';
+			case 200:
+				return 'URI_SET';
+			case 300:
+				return 'OPENED';
+			case 400:
+				return 'GIVE_UP';
+		}
+
+		return `Unknown code: ${code}`;
+	}
+
 	async call<T, Req>(
 		path: string,
 		method: 'GET' | 'POST',
@@ -106,6 +123,21 @@ class ChainReactor {
 				`channel/order?order_id=${orderId}`,
 				'GET',
 			);
+
+			res.amount_received = res.amount_received
+				? Number(res.amount_received)
+				: 0;
+
+			res.onchain_payments.forEach((payment, index) => {
+				res.onchain_payments[index] = {
+					...payment,
+					amount_base: Number(payment.amount_base),
+					fee_base: Number(payment.fee_base),
+				};
+			});
+
+			res.stateMessage = ChainReactor.getStateMessage(res.state);
+
 			return ok(res);
 		} catch (e) {
 			return err(e);
