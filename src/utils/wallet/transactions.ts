@@ -5,6 +5,7 @@ import { networks, TAvailableNetworks } from '../networks';
 import { getKeychainValue, reduceValue } from '../helpers';
 import {
 	defaultOnChainTransactionData,
+	ETransactionDefaults,
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
@@ -254,7 +255,7 @@ export const getByteCount = (
 		} catch {}
 		return Math.ceil(totalWeight / 4) + messageByteCount;
 	} catch (e) {
-		return 256;
+		return ETransactionDefaults.recommendedBaseFee;
 	}
 };
 
@@ -298,7 +299,7 @@ export const getTotalFee = ({
 	message?: string;
 	fundingLightning?: boolean | undefined;
 }): number => {
-	const fallBackFee = 256;
+	const fallBackFee = ETransactionDefaults.recommendedBaseFee;
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -417,7 +418,7 @@ const createPsbtFromTransactionData = async ({
 		inputs = [],
 		outputs = [],
 		changeAddress,
-		fee = 256,
+		fee = ETransactionDefaults.recommendedBaseFee,
 	} = transactionData;
 	let message = transactionData.message;
 
@@ -435,14 +436,7 @@ const createPsbtFromTransactionData = async ({
 		outputs,
 	});
 
-	const { currentWallet } = getCurrentWallet({
-		selectedNetwork,
-		selectedWallet,
-	});
-
 	const network = networks[selectedNetwork];
-	//TODO: Get address type by inspecting the address or path.
-	const addressType = currentWallet.addressType[selectedNetwork];
 
 	//Collect all outputs.
 	let targets: ITargets[] = await Promise.all(outputs.map((output) => output));
@@ -489,7 +483,6 @@ const createPsbtFromTransactionData = async ({
 				const keyPair: BIP32Interface = root.derivePath(path);
 				await addInput({
 					psbt,
-					addressType,
 					keyPair,
 					input,
 					selectedNetwork,
@@ -698,14 +691,12 @@ export const getOnchainTransactionData = ({
 };
 export interface IAddInput {
 	psbt: Psbt;
-	addressType: TAddressType;
 	keyPair: BIP32Interface;
 	input: IUtxo;
 	selectedNetwork?: TAvailableNetworks;
 }
 export const addInput = async ({
 	psbt,
-	addressType,
 	keyPair,
 	input,
 	selectedNetwork,
@@ -715,7 +706,13 @@ export const addInput = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const network = networks[selectedNetwork];
-		if (addressType === 'p2wpkh') {
+		const { type } = getAddressInfo(input.address);
+
+		if (!input || !input?.value) {
+			return err('No input provided.');
+		}
+
+		if (type === 'p2wpkh') {
 			const p2wpkh = bitcoin.payments.p2wpkh({
 				pubkey: keyPair.publicKey,
 				network,
@@ -730,7 +727,7 @@ export const addInput = async ({
 			});
 		}
 
-		if (addressType === 'p2sh') {
+		if (type === 'p2sh') {
 			const p2wpkh = bitcoin.payments.p2wpkh({
 				pubkey: keyPair.publicKey,
 				network,
@@ -747,7 +744,7 @@ export const addInput = async ({
 			});
 		}
 
-		if (addressType === 'p2pkh') {
+		if (type === 'p2pkh') {
 			const transaction = await getTransactions({
 				selectedNetwork,
 				txHashes: [{ tx_hash: input.tx_hash }],
@@ -755,7 +752,7 @@ export const addInput = async ({
 			if (transaction.isErr()) {
 				return err(transaction.error.message);
 			}
-			const hex = transaction[0].value.data.result.hex;
+			const hex = transaction.value.data[0].result.hex;
 			const nonWitnessUtxo = Buffer.from(hex, 'hex');
 			psbt.addInput({
 				hash: input.tx_hash,
@@ -1099,8 +1096,8 @@ export const autoCoinSelect = async ({
 		]);
 
 		let baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
-		if (baseFee < 256) {
-			baseFee = 256;
+		if (baseFee < ETransactionDefaults.recommendedBaseFee) {
+			baseFee = ETransactionDefaults.recommendedBaseFee;
 		}
 		let fee = baseFee * satsPerByte;
 
