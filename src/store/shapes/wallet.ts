@@ -59,9 +59,43 @@ export const addressContent = {
 	publicKey: '',
 };
 
-export const addressIndex: IWalletItem<IAddressContent> = {
-	bitcoin: addressContent,
-	bitcoinTestnet: addressContent,
+export const getAddressTypeContent = (data: any): IAddressTypeContent<any> => {
+	let content = {};
+	Object.keys(addressTypes).map((addressType) => {
+		content[addressType] = data;
+	});
+	return content;
+};
+
+export type IAddressTypeContent<T> = {
+	[key: string]: T;
+};
+
+export const addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>> = {
+	bitcoin: getAddressTypeContent({ ...addressContent }),
+	bitcoinTestnet: getAddressTypeContent({ ...addressContent }),
+	timestamp: null,
+};
+
+export const changeAddressIndex: IWalletItem<
+	IAddressTypeContent<IAddressContent>
+> = {
+	bitcoin: getAddressTypeContent(addressContent),
+	bitcoinTestnet: getAddressTypeContent(addressContent),
+	timestamp: null,
+};
+
+export const addresses: IWalletItem<IAddressTypeContent<IAddressContent>> = {
+	bitcoin: getAddressTypeContent({}),
+	bitcoinTestnet: getAddressTypeContent({}),
+	timestamp: null,
+};
+
+export const changeAddresses: IWalletItem<
+	IAddressTypeContent<IAddressContent>
+> = {
+	bitcoin: getAddressTypeContent({}),
+	bitcoinTestnet: getAddressTypeContent({}),
 	timestamp: null,
 };
 
@@ -77,10 +111,10 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
 	type: 'default',
-	addresses: arrayTypeItems,
-	addressIndex: addressIndex,
-	changeAddresses: arrayTypeItems,
-	changeAddressIndex: addressIndex,
+	addresses,
+	addressIndex,
+	changeAddresses,
+	changeAddressIndex,
 	utxos: arrayTypeItems,
 	transactions: objectTypeItems,
 	blacklistedUtxos: arrayTypeItems,
