@@ -1,12 +1,14 @@
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate';
+import { IAddressTypeContent } from '../shapes/wallet';
 
-export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
+export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
+export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
 export type TKeyDerivationAccountType = 'onchain' | 'rgb' | 'omnibolt';
-export type TKeyDerivationPurpose = '84' | '49' | '44'; //"p2wpkh" | "p2sh" | "p2pkh";
-export type TKeyDerivationCoinType = '0' | '1'; //"mainnet" | "testnet";
-export type TKeyDerivationAccount = '0' | '2' | '3'; //"On-Chain Wallet" | "RGB" | "Omnibolt";
-export type TKeyDerivationChange = '0' | '1'; //"Receiving Address" | "Change Address";
+export type TKeyDerivationPurpose = '84' | '49' | '44' | string; //"p2wpkh" | "p2sh" | "p2pkh";
+export type TKeyDerivationCoinType = '0' | '1' | string; //"mainnet" | "testnet";
+export type TKeyDerivationAccount = '0' | '2' | '3' | string; //"On-Chain Wallet" | "RGB" | "Omnibolt";
+export type TKeyDerivationChange = '0' | '1' | string; //"Receiving Address" | "Change Address";
 export type TKeyDerivationAddressIndex = string;
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
@@ -63,6 +65,11 @@ export enum EOutput {
 	index = 0,
 }
 
+export enum ETransactionDefaults {
+	recommendedBaseFee = 256, //Total recommended tx base fee in sats
+	baseTransactionSize = 250, //In bytes (250 is about normal)
+}
+
 export enum EKeyDerivationAccount {
 	onchain = 0,
 	rgb = 2,
@@ -84,6 +91,11 @@ export interface IKeyDerivationPath {
 	account: TKeyDerivationAccount;
 	change: TKeyDerivationChange;
 	addressIndex: TKeyDerivationAddressIndex;
+}
+
+export interface IKeyDerivationPathData {
+	pathString: string;
+	pathObject: IKeyDerivationPath;
 }
 
 export interface IWallet {
@@ -121,8 +133,7 @@ export interface ICreateWallet {
 	mnemonic?: string;
 	addressAmount?: number;
 	changeAddressAmount?: number;
-	keyDerivationPath?: IKeyDerivationPath;
-	addressType?: TAddressType;
+	addressTypes?: IAddressType;
 }
 
 export interface IUtxo {
@@ -175,14 +186,14 @@ export interface IOnChainTransactionData {
 }
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
-	outputs: [EOutput],
+	outputs: [],
 	inputs: [],
 	changeAddress: '',
 	fiatAmount: 0,
-	fee: 250,
+	fee: 256,
 	satsPerByte: 1,
 	recommendedFee: 1,
-	transactionSize: 250,
+	transactionSize: ETransactionDefaults.baseTransactionSize,
 	message: '',
 	label: '',
 };
@@ -192,9 +203,9 @@ export interface IDefaultWalletShape {
 	name: string;
 	type: string;
 	addresses: IWalletItem<IAddress> | IWalletItem<{}>;
-	addressIndex: IWalletItem<IAddressContent>;
+	addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
-	changeAddressIndex: IWalletItem<IAddressContent>;
+	changeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	utxos: IWalletItem<IUtxo[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;

@@ -87,10 +87,16 @@ const SendOnChainTransaction = ({
 			defaultOnChainTransactionData,
 	);
 
+	const addressType = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet]?.addressType[selectedNetwork],
+	);
+
 	const changeAddress = useSelector(
 		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.changeAddressIndex[selectedNetwork]
-				?.address || ' ',
+			store.wallet.wallets[selectedWallet]?.changeAddressIndex[selectedNetwork][
+				addressType
+			] || ' ',
 	);
 
 	useEffect(() => {

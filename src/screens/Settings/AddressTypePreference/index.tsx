@@ -54,6 +54,7 @@ const AddressTypePreference = ({ navigation }): ReactElement => {
 		} catch (e) {
 			return index;
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedAddressType]);
 
 	return (

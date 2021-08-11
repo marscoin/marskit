@@ -1,6 +1,7 @@
 import actions from './actions';
 import {
 	EWallet,
+	IAddress,
 	ICreateWallet,
 	IFormattedTransaction,
 	IOnChainTransactionData,
@@ -13,9 +14,11 @@ import {
 	formatTransactions,
 	generateAddresses,
 	getAddressHistory,
+	getAddressTypes,
 	getCurrentWallet,
-	getKeyDerivationPath,
+	getKeyDerivationPathObject,
 	getNextAvailableAddress,
+	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
 	getTransactions,
@@ -32,7 +35,6 @@ import {
 	getTotalFee,
 	getTransactionInputValue,
 } from '../../utils/wallet/transactions';
-import { defaultKeyDerivationPath } from '../shapes/wallet';
 import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
@@ -57,8 +59,7 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  * @param {number} [addressAmount]
  * @param {number} [changeAddressAmount]
  * @param {string} [mnemonic]
- * @param {string} [keyDerivationPath]
- * @param {string} [addressType]
+ * @param {IAddressType} [addressTypes]
  * @return {Promise<Result<string>>}
  */
 export const createWallet = async ({
@@ -66,17 +67,18 @@ export const createWallet = async ({
 	addressAmount = 2,
 	changeAddressAmount = 2,
 	mnemonic = '',
-	keyDerivationPath = defaultKeyDerivationPath,
-	addressType = EWallet.addressType,
+	addressTypes,
 }: ICreateWallet): Promise<Result<string>> => {
+	if (!addressTypes) {
+		addressTypes = getAddressTypes();
+	}
 	try {
 		const response = await createDefaultWallet({
 			walletName,
 			addressAmount,
 			changeAddressAmount,
 			mnemonic,
-			keyDerivationPath,
-			addressType,
+			addressTypes,
 		});
 		if (response.isErr()) {
 			return err(response.error.message);
@@ -113,14 +115,17 @@ export const updateExchangeRates = async (): Promise<Result<string>> => {
  * @async
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TAddressType} [addressType]
  * @return {string}
  */
 export const updateAddressIndexes = async ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	addressType, //If this param is left undefined it will update the indexes for all stored address types.
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
+	addressType?: TAddressType | undefined;
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
@@ -128,43 +133,65 @@ export const updateAddressIndexes = async ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
-
-	const response = await getNextAvailableAddress({
-		selectedWallet,
-		selectedNetwork,
-	});
-	if (response.isErr()) {
-		return err(response.error);
-	}
 	const { currentWallet } = getCurrentWallet({
 		selectedWallet,
 		selectedNetwork,
 	});
-	let addressIndex = currentWallet.addressIndex[selectedNetwork];
-	let changeAddressIndex = currentWallet.changeAddressIndex[selectedNetwork];
-	if (
-		response.value?.addressIndex?.path !==
-			currentWallet.addressIndex[selectedNetwork].path ||
-		response.value?.changeAddressIndex?.path !==
-			currentWallet.changeAddressIndex[selectedNetwork].path
-	) {
-		if (response.value?.addressIndex) {
-			addressIndex = response.value.addressIndex;
-		}
-
-		if (response.value?.changeAddressIndex) {
-			changeAddressIndex = response.value?.changeAddressIndex;
-		}
-
-		await dispatch({
-			type: actions.UPDATE_ADDRESS_INDEX,
-			payload: {
-				addressIndex,
-				changeAddressIndex,
-			},
-		});
-		return ok('Successfully updated indexes.');
+	const addressTypes = getAddressTypes();
+	let addressTypesToCheck = Object.keys(addressTypes);
+	if (addressType) {
+		addressTypesToCheck = await Promise.all(
+			addressTypesToCheck.filter(
+				(_addressType) => _addressType === addressType,
+			),
+		);
 	}
+
+	addressTypesToCheck.map(async (key) => {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const response = await getNextAvailableAddress({
+			selectedWallet,
+			selectedNetwork,
+			addressType: key,
+		});
+		if (response.isErr()) {
+			return err(response.error);
+		}
+
+		const { type } = addressTypes[key];
+		let addressIndex = currentWallet.addressIndex[selectedNetwork][type];
+		let changeAddressIndex =
+			currentWallet.changeAddressIndex[selectedNetwork][type];
+		if (
+			response.value?.addressIndex?.path !==
+				currentWallet.addressIndex[selectedNetwork][type].path ||
+			response.value?.changeAddressIndex?.path !==
+				currentWallet.changeAddressIndex[selectedNetwork][type].path
+		) {
+			if (response.value?.addressIndex) {
+				addressIndex = response.value.addressIndex;
+			}
+
+			if (response.value?.changeAddressIndex) {
+				changeAddressIndex = response.value?.changeAddressIndex;
+			}
+
+			await dispatch({
+				type: actions.UPDATE_ADDRESS_INDEX,
+				payload: {
+					addressIndex,
+					changeAddressIndex,
+					addressType: key,
+				},
+			});
+			return ok('Successfully updated indexes.');
+		}
+	});
 	return ok('No update needed.');
 };
 
@@ -188,8 +215,8 @@ export const addAddresses = async ({
 	addressIndex = 0,
 	changeAddressIndex = 0,
 	selectedNetwork = undefined,
-	keyDerivationPath = undefined,
 	addressType = EWallet.addressType,
+	keyDerivationPath,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
@@ -197,11 +224,17 @@ export const addAddresses = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
+	const addressTypes = getAddressTypes();
+	const { path, type } = addressTypes[addressType];
 	if (!keyDerivationPath) {
-		keyDerivationPath = getKeyDerivationPath({
-			selectedWallet,
+		const keyDerivationPathResponse = getKeyDerivationPathObject({
 			selectedNetwork,
+			path,
 		});
+		if (keyDerivationPathResponse.isErr()) {
+			return err(keyDerivationPathResponse.error.message);
+		}
+		keyDerivationPath = keyDerivationPathResponse.value;
 	}
 	const generatedAddresses = await generateAddresses({
 		addressAmount,
@@ -211,7 +244,7 @@ export const addAddresses = async ({
 		selectedNetwork,
 		selectedWallet,
 		keyDerivationPath,
-		addressType,
+		addressType: type,
 	});
 	if (generatedAddresses.isErr()) {
 		return err(generatedAddresses.error);
@@ -232,15 +265,13 @@ export const addAddresses = async ({
 	const payload = {
 		addresses,
 		changeAddresses,
+		addressType,
 	};
 	await dispatch({
 		type: actions.ADD_ADDRESSES,
 		payload,
 	});
-	return ok({
-		addresses: generatedAddresses.value.addresses,
-		changeAddresses: generatedAddresses.value.changeAddresses,
-	});
+	return ok(payload);
 };
 
 /**
@@ -449,13 +480,15 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 	return ok('');
 };
 
-export const setupOnChainTransaction = ({
+export const setupOnChainTransaction = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
+	addressType,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-}): void => {
+	addressType?: TAddressType | undefined;
+}): Promise<void> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -463,19 +496,34 @@ export const setupOnChainTransaction = ({
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
 		}
+		if (!addressType) {
+			addressType = getSelectedAddressType({ selectedWallet, selectedNetwork });
+		}
 
 		const { currentWallet } = getCurrentWallet({
 			selectedWallet,
 			selectedNetwork,
 		});
+		const currentChangeAddresses =
+			currentWallet.changeAddresses[selectedNetwork];
+
 		const inputs = currentWallet.utxos[selectedNetwork];
 		const outputs = currentWallet.transaction[selectedNetwork].outputs || [];
-		let changeAddresses = currentWallet.changeAddresses[selectedNetwork];
+		const addressTypes = getAddressTypes();
+		let changeAddresses: IAddress = {};
+		await Promise.all(
+			Object.keys(addressTypes).map((key) => {
+				changeAddresses = {
+					...changeAddresses,
+					...currentChangeAddresses[key],
+				};
+			}),
+		);
 		const changeAddressesArr = Object.values(changeAddresses).map(
 			({ address }) => address,
 		);
 		const changeAddress =
-			currentWallet.changeAddressIndex[selectedNetwork].address;
+			currentWallet.changeAddressIndex[selectedNetwork][addressType].address;
 		const fee = getTotalFee({
 			satsPerByte: 1,
 			message: '',

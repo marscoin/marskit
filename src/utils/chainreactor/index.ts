@@ -13,7 +13,7 @@ class ChainReactor {
 		this.setNetwork('regtest');
 	}
 
-	setNetwork(network: 'mainnet' | 'testnet' | 'regtest') {
+	setNetwork(network: 'mainnet' | 'testnet' | 'regtest'): void {
 		switch (network) {
 			case 'mainnet': {
 				this.host = '';
@@ -63,7 +63,7 @@ class ChainReactor {
 
 	async getInfo(): Promise<Result<IGetInfoResponse>> {
 		try {
-			const res = <IGetInfoResponse>await this.call('node/info', 'GET');
+			const res: IGetInfoResponse = await this.call('node/info', 'GET');
 
 			//Adds a product name for display
 			res.services.forEach((s) => {
