@@ -43,7 +43,7 @@ export interface IGenerateAddresses {
 	selectedNetwork?: TAvailableNetworks | undefined;
 	keyDerivationPath?: IKeyDerivationPath | undefined;
 	accountType?: TKeyDerivationAccountType;
-	addressType?: TAddressType;
+	addressType?: string;
 }
 
 export interface IGenerateAddressesResponse {

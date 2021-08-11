@@ -21,6 +21,17 @@ import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 
+const hasBalance = (value: any): boolean => {
+	try {
+		if (typeof value === 'string') {
+			value = Number(value);
+		}
+		return value && value > 0;
+	} catch {
+		return false;
+	}
+};
+
 const LightningCard = (): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 	const [message, setMessage] = useState('');
@@ -50,15 +61,15 @@ const LightningCard = (): ReactElement => {
 	}, [lightning.invoiceList, receivePaymentRequest]);
 
 	const showSendReceive =
-		lightning.channelBalance.balance > 0 ||
-		(lightning.channelBalance.remoteBalance?.sat ?? 0) > 0;
+		hasBalance(lightning.channelBalance.balance) ||
+		hasBalance(lightning.channelBalance.remoteBalance);
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
 		lightning.info.syncedToChain &&
-		lightning.channelBalance.pendingOpenBalance === 0 &&
-		lightning.channelBalance.balance === 0 &&
-		(lightning.channelBalance.remoteBalance?.sat ?? 0) === 0;
+		!hasBalance(lightning.channelBalance.pendingOpenBalance) &&
+		!hasBalance(lightning.channelBalance.balance) &&
+		!hasBalance(lightning.channelBalance.remoteBalance);
 
 	const balance =
 		Number(lightning.channelBalance.balance) +

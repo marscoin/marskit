@@ -15,6 +15,10 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 	if (action.payload?.selectedNetwork) {
 		selectedNetwork = action.payload.selectedNetwork;
 	}
+	let addressType = state.wallets[selectedWallet]?.selectedAddressType;
+	if (action.payload?.addressType) {
+		addressType = action.payload.addressType;
+	}
 	switch (action.type) {
 		case actions.UPDATE_WALLET:
 			return {
@@ -42,13 +46,17 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 						addressIndex: {
 							...state.wallets[selectedWallet].addressIndex,
 							[selectedNetwork]: {
-								...action.payload.addressIndex,
+								...state.wallets[selectedWallet].addressIndex[selectedNetwork],
+								[addressType]: action.payload.addressIndex,
 							},
 						},
 						changeAddressIndex: {
 							...state.wallets[selectedWallet].changeAddressIndex,
 							[selectedNetwork]: {
-								...action.payload.changeAddressIndex,
+								...state.wallets[selectedWallet].changeAddressIndex[
+									selectedNetwork
+								],
+								[addressType]: action.payload.changeAddressIndex,
 							},
 						},
 					},
@@ -81,7 +89,12 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 							...state.wallets[selectedWallet].addresses,
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet].addresses[selectedNetwork],
-								...action.payload.addresses,
+								[addressType]: {
+									...state.wallets[selectedWallet].addresses[selectedNetwork][
+										addressType
+									],
+									...action.payload.addresses,
+								},
 							},
 						},
 						changeAddresses: {
@@ -90,7 +103,12 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 								...state.wallets[selectedWallet].changeAddresses[
 									selectedNetwork
 								],
-								...action.payload.changeAddresses,
+								[addressType]: {
+									...state.wallets[selectedWallet].changeAddresses[
+										selectedNetwork
+									][addressType],
+									...action.payload.changeAddresses,
+								},
 							},
 						},
 					},
