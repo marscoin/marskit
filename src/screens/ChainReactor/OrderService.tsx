@@ -22,7 +22,12 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 
 interface Props extends PropsWithChildren<any> {
-	route: { params: { service: IService } };
+	route: {
+		params: {
+			service: IService;
+			existingOrderId: string;
+		};
+	};
 	navigation: any;
 }
 
@@ -35,12 +40,13 @@ const Order = (props: Props): ReactElement => {
 			max_channel_size,
 			max_chan_expiry,
 		},
+		existingOrderId,
 	} = props.route.params;
 	const { navigation } = props;
 
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [orderId, setOrderId] = useState<string>('');
+	const [orderId, setOrderId] = useState<string>(existingOrderId);
 
 	const order = useSelector((state: Store) => {
 		if (!orderId) {
@@ -86,16 +92,20 @@ const Order = (props: Props): ReactElement => {
 			return;
 		}
 
+		setIsProcessing(true);
+
 		const { tag, uri, k1, callback } = order.lnurl;
 		const res = await claimChannel({ tag, uri, k1, callback, domain: '' });
 		if (res.isErr()) {
-			return showErrorNotification({
+			showErrorNotification({
 				title: 'Failed to claim channel',
 				message: res.error.message,
 			});
+		} else {
+			showSuccessNotification({ title: 'Channel claimed', message: res.value });
 		}
 
-		showSuccessNotification({ title: 'Channel claimed', message: res.value });
+		setIsProcessing(false);
 	};
 
 	const onRefreshOrder = useCallback(async (): Promise<void> => {
@@ -128,7 +138,6 @@ const Order = (props: Props): ReactElement => {
 					<View>
 						<Text>Order: {order?._id}</Text>
 						<Text>State: {order?.stateMessage}</Text>
-						<Text>{order ? 'Channel available' : 'No order'}</Text>
 					</View>
 				) : (
 					<View>

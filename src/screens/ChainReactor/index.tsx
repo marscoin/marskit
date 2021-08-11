@@ -80,12 +80,23 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 	});
 
 	const renderItem = ({ item }: { item: IService }): ReactElement => {
+		//If we have an order that's created or paid but unclaimed
+		let existingOrderId = '';
+		orders.forEach((o) => {
+			if (o.state === 0 || o.state === 100) {
+				existingOrderId = o._id;
+			}
+		});
+
 		return (
 			<ListItem
 				key={item.product_id}
 				item={item}
 				onPress={(): void =>
-					navigation.navigate('ChainReactorOrder', { service: item })
+					navigation.navigate('ChainReactorOrder', {
+						service: item,
+						existingOrderId,
+					})
 				}
 			/>
 		);

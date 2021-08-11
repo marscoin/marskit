@@ -31,7 +31,6 @@ import {
 } from '../../utils/wallet/transactions';
 import {
 	showErrorNotification,
-	showInfoNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { useSelector } from 'react-redux';
@@ -108,7 +107,7 @@ const ChainReactorPayment = (props: Props): ReactElement => {
 	};
 
 	const onCreateTransaction = async (): Promise<void> => {
-		const totalFee = await getTotalFee({
+		const totalFee = getTotalFee({
 			selectedNetwork,
 			selectedWallet,
 			satsPerByte,
@@ -182,24 +181,22 @@ const ChainReactorPayment = (props: Props): ReactElement => {
 		navigation.goBack();
 	};
 
-	// const authCheck = (): void => {
-	// 	const { pin, biometrics } = hasEnabledAuthentication();
-	// 	if (pin || biometrics) {
-	// 		navigation.navigate('AuthCheck', {
-	// 			onSuccess: () => {
-	// 				// @ts-ignore
-	// 				navigation.pop();
-	// 				setTimeout(() => {
-	// 					onStart().then();
-	// 				}, 500);
-	// 			},
-	// 		});
-	// 	} else {
-	// 		onStart().then();
-	// 	}
-	// };
-
-	const showConfirm = false; //TODO
+	const authCheck = (): void => {
+		const { pin, biometrics } = hasEnabledAuthentication();
+		if (pin || biometrics) {
+			navigation.navigate('AuthCheck', {
+				onSuccess: () => {
+					// @ts-ignore
+					navigation.pop();
+					setTimeout(() => {
+						onCreateTransaction().catch();
+					}, 500);
+				},
+			});
+		} else {
+			onCreateTransaction().catch();
+		}
+	};
 
 	LayoutAnimation.easeInEaseOut();
 
@@ -225,11 +222,7 @@ const ChainReactorPayment = (props: Props): ReactElement => {
 
 			<FeeSummary amount={order.total_amount} lightning />
 
-			<Button color={'onSurface'} text="Pay" onPress={onCreateTransaction} />
-
-			{showConfirm ? (
-				<Button color={'onSurface'} text="Confirm" onPress={onSend} />
-			) : null}
+			<Button color={'onSurface'} text="Pay" onPress={authCheck} />
 
 			<Button
 				color={'onSurface'}
