@@ -77,7 +77,7 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 				message: 'Failed to refresh service list',
 			});
 		});
-	});
+	}, []);
 
 	const renderItem = ({ item }: { item: IService }): ReactElement => {
 		//If we have an order that's created or paid but unclaimed
