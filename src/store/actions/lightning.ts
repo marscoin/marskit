@@ -419,13 +419,7 @@ export const claimChannel = (
 	params: LNURLChannelParams,
 ): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		//TODO switch to connectPeerFromUri once published
-		const uriParams = params.uri.split('@');
-		if (uriParams.length !== 2) {
-			return resolve(err('Invalid URI'));
-		}
-
-		const connectRes = await lnd.connectPeer(uriParams[0], uriParams[1]);
+		const connectRes = await lnd.connectPeerFromUri(params.uri);
 		if (
 			connectRes.isErr() &&
 			connectRes.error.message.indexOf('already connected to peer') < 0
