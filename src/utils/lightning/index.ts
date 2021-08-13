@@ -77,7 +77,6 @@ export const connectToDefaultPeer = async (): Promise<
 	Result<lnrpc.ConnectPeerResponse>
 > => {
 	const res = await lnd.connectPeer(defaultNodePubKey, defaultNodeHost);
-
 	if (res.isOk()) {
 		return ok(res.value);
 	}

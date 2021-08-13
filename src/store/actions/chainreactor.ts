@@ -16,7 +16,7 @@ export const refreshServiceList = (): Promise<Result<string>> => {
 			return resolve(err(res.error));
 		}
 
-		await dispatch({
+		dispatch({
 			type: actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST,
 			payload: res.value.services,
 		});
@@ -45,15 +45,15 @@ export const refreshOrder = (orderId: string): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		const res = await cr.getOrder(orderId);
 		if (res.isErr()) {
-			return err(res.error);
+			return resolve(err(res.error));
 		}
 
-		await dispatch({
+		dispatch({
 			type: actions.UPDATE_CHAIN_REACTOR_ORDER,
 			payload: res.value,
 		});
 
-		resolve(ok('Product list updated'));
+		resolve(ok('Order updated'));
 	});
 };
 

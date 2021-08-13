@@ -1,22 +1,34 @@
-import React, { PropsWithChildren, ReactElement, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, {
+	PropsWithChildren,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
-import { IBuyChannelResponse, IService } from '../../utils/chainreactor/types';
+import { IService } from '../../utils/chainreactor/types';
 import Button from '../../components/Button';
-import { buyChannel } from '../../store/actions/chainreactor';
+import { buyChannel, refreshOrder } from '../../store/actions/chainreactor';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
-import lnd from '@synonymdev/react-native-lightning';
-import { lnrpc } from '@synonymdev/react-native-lightning/dist/protos/rpc';
-import { payLightningRequest } from '../../store/actions/lightning';
+import { claimChannel } from '../../store/actions/lightning';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
+import Clipboard from '@react-native-community/clipboard';
 
 interface Props extends PropsWithChildren<any> {
-	route: { params: { service: IService } };
+	route: {
+		params: {
+			service: IService;
+			existingOrderId: string;
+		};
+	};
 	navigation: any;
 }
 
@@ -24,34 +36,32 @@ const Order = (props: Props): ReactElement => {
 	const {
 		service: {
 			product_id,
-			product_name,
+			description,
 			min_channel_size,
 			max_channel_size,
 			max_chan_expiry,
 		},
+		existingOrderId,
 	} = props.route.params;
 	const { navigation } = props;
 
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [orderDetails, setOrderDetails] =
-		useState<IBuyChannelResponse | undefined>(undefined);
+	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [orderId, setOrderId] = useState<string>(existingOrderId);
 
-	const [payRequest, setPayRequest] =
-		useState<lnrpc.PayReq | undefined>(undefined);
+	const order = useSelector((state: Store) => {
+		if (!orderId) {
+			return null;
+		}
+
+		return state.chainreactor.orders.find((o) => o._id === orderId);
+	});
 
 	const [remoteBalance, setRemoteBalance] = useState('0');
 	const [localBalance, setLocalBalance] = useState(`${min_channel_size}`);
 
 	const minChannelSizeDisplay = useDisplayValues(min_channel_size);
 	const maxChannelSizeDisplay = useDisplayValues(max_channel_size);
-
-	const priceDisplayValue = useDisplayValues(
-		orderDetails ? orderDetails.price : 0,
-	);
-
-	const payRequestDisplayValue = useDisplayValues(
-		payRequest ? Number(payRequest.numSatoshis) : 0,
-	);
 
 	const onOrder = async (): Promise<void> => {
 		setIsProcessing(true);
@@ -70,62 +80,72 @@ const Order = (props: Props): ReactElement => {
 			});
 		}
 
-		const lightningRes = await lnd.decodeInvoice(res.value.ln_invoice);
-
-		if (lightningRes.isErr()) {
-			setIsProcessing(false);
-			return showErrorNotification({
-				title: 'Failed to decode invoice',
-				message: lightningRes.error.message,
-			});
-		}
-
-		setPayRequest(lightningRes.value);
-		setOrderDetails(res.value);
+		setOrderId(res.value.order_id);
 		setIsProcessing(false);
 	};
 
-	const onPay = async (): Promise<void> => {
+	const goToPayment = (): void => {
+		if (order) {
+			navigation.navigate('ChainReactorPayment', {
+				order,
+			});
+		}
+	};
+
+	const onClaimChannel = async (): Promise<void> => {
+		if (!order) {
+			return;
+		}
+
 		setIsProcessing(true);
 
-		const payRes = await payLightningRequest(orderDetails?.ln_invoice || '');
-		if (payRes.isErr()) {
-			setIsProcessing(false);
-			return showErrorNotification({
-				title: 'Failed to pay invoice',
-				message: payRes.error.message,
+		const { tag, uri, k1, callback } = order.lnurl;
+		const res = await claimChannel({ tag, uri, k1, callback, domain: '' });
+		if (res.isErr()) {
+			showErrorNotification({
+				title: 'Failed to claim channel',
+				message: res.error.message,
+			});
+		} else {
+			showSuccessNotification({ title: 'Channel claimed', message: res.value });
+		}
+
+		setIsProcessing(false);
+	};
+
+	const onRefreshOrder = useCallback(async (): Promise<void> => {
+		if (!orderId) {
+			return;
+		}
+
+		setIsRefreshing(true);
+
+		const res = await refreshOrder(orderId);
+		if (res.isErr()) {
+			showErrorNotification({
+				title: 'Failed to refresh order',
+				message: res.error.message,
 			});
 		}
 
-		showSuccessNotification({ title: 'Invoice paid', message: '' });
-		setIsProcessing(false);
-		navigation.goBack();
-	};
+		setIsRefreshing(false);
+	}, [orderId]);
+
+	useEffect(() => {
+		onRefreshOrder().catch();
+	}, [onRefreshOrder]);
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title={product_name} />
+			<NavigationHeader title={description} />
 			<View style={styles.content}>
-				{orderDetails && payRequest ? (
+				{order ? (
 					<View>
-						<Text>Order: {orderDetails.order_id}</Text>
-						<Text>
-							Price:
-							{priceDisplayValue.bitcoinSymbol}
-							{priceDisplayValue.bitcoinFormatted} (
-							{priceDisplayValue.fiatSymbol}
-							{priceDisplayValue.fiatFormatted})
-						</Text>
-
-						<Text>
-							Invoice amount:
-							{payRequestDisplayValue.bitcoinSymbol}
-							{payRequestDisplayValue.bitcoinFormatted} (
-							{payRequestDisplayValue.fiatSymbol}
-							{payRequestDisplayValue.fiatFormatted})
-						</Text>
-
-						<Text>Note: {payRequest.description}</Text>
+						<TouchableOpacity
+							onPress={(): void => Clipboard.setString(order?._id)}>
+							<Text>Order: {order?._id}</Text>
+						</TouchableOpacity>
+						<Text>State: {order?.stateMessage}</Text>
 					</View>
 				) : (
 					<View>
@@ -177,12 +197,27 @@ const Order = (props: Props): ReactElement => {
 				<View style={styles.footer}>
 					<Divider />
 
-					{orderDetails ? (
-						<Button
-							text={isProcessing ? 'Paying...' : 'Pay'}
-							disabled={isProcessing}
-							onPress={onPay}
-						/>
+					{orderId ? (
+						<>
+							<Button
+								text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
+								disabled={isRefreshing}
+								onPress={onRefreshOrder}
+							/>
+							{order?.state === 0 ? (
+								<Button
+									text={'Pay'}
+									disabled={isProcessing}
+									onPress={goToPayment}
+								/>
+							) : (
+								<Button
+									text={isProcessing ? 'Claiming...' : 'Claim channel'}
+									disabled={isProcessing}
+									onPress={onClaimChannel}
+								/>
+							)}
+						</>
 					) : (
 						<Button
 							text={isProcessing ? 'Ordering...' : 'Order'}

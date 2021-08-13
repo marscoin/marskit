@@ -3,7 +3,10 @@ import { defaultChainReactorShape } from '../shapes/chainreactor';
 import { IChainReactor } from '../types/chainreactor';
 import { IGetOrderResponse } from '../../utils/chainreactor/types';
 
-const chainreactor = (state: IChainReactor, action): IChainReactor => {
+const chainreactor = (
+	state: IChainReactor = { ...defaultChainReactorShape },
+	action,
+): IChainReactor => {
 	switch (action.type) {
 		case actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST:
 			return {
@@ -36,10 +39,7 @@ const chainreactor = (state: IChainReactor, action): IChainReactor => {
 		case actions.RESET_CHAIN_REACTOR_STORE:
 			return { ...defaultChainReactorShape };
 		default:
-			return {
-				...defaultChainReactorShape,
-				...state,
-			};
+			return state;
 	}
 };
 

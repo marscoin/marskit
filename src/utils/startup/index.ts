@@ -104,6 +104,7 @@ export const startWalletServices = async ({
 				lndCache.addStateListener(updateCachedNeutrinoDownloadState);
 				lndCache
 					.downloadCache(lndNetwork)
+					.catch()
 					//Start LND no matter the outcome of the download
 					.finally(async () => {
 						await startLnd(lndNetwork, backupServiceStart);
