@@ -41,10 +41,10 @@ import FeeSummary from '../Wallets/SendOnChainTransaction/FeeSummary';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
-import { IBuyChannelResponse } from '../../utils/chainreactor/types';
+import { IGetOrderResponse } from '../../utils/chainreactor/types';
 
 interface Props extends PropsWithChildren<any> {
-	route: { params: { order: IBuyChannelResponse } };
+	route: { params: { order: IGetOrderResponse } };
 }
 
 const ChainReactorPayment = (props: Props): ReactElement => {

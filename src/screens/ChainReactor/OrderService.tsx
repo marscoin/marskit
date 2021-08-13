@@ -5,7 +5,7 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
@@ -20,6 +20,7 @@ import {
 import { claimChannel } from '../../store/actions/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import Clipboard from '@react-native-community/clipboard';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -35,7 +36,7 @@ const Order = (props: Props): ReactElement => {
 	const {
 		service: {
 			product_id,
-			product_name,
+			description,
 			min_channel_size,
 			max_channel_size,
 			max_chan_expiry,
@@ -81,10 +82,14 @@ const Order = (props: Props): ReactElement => {
 
 		setOrderId(res.value.order_id);
 		setIsProcessing(false);
+	};
 
-		navigation.navigate('ChainReactorPayment', {
-			order: res.value,
-		});
+	const goToPayment = (): void => {
+		if (order) {
+			navigation.navigate('ChainReactorPayment', {
+				order,
+			});
+		}
 	};
 
 	const onClaimChannel = async (): Promise<void> => {
@@ -132,11 +137,14 @@ const Order = (props: Props): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title={product_name} />
+			<NavigationHeader title={description} />
 			<View style={styles.content}>
 				{order ? (
 					<View>
-						<Text>Order: {order?._id}</Text>
+						<TouchableOpacity
+							onPress={(): void => Clipboard.setString(order?._id)}>
+							<Text>Order: {order?._id}</Text>
+						</TouchableOpacity>
 						<Text>State: {order?.stateMessage}</Text>
 					</View>
 				) : (
@@ -196,11 +204,19 @@ const Order = (props: Props): ReactElement => {
 								disabled={isRefreshing}
 								onPress={onRefreshOrder}
 							/>
-							<Button
-								text={isProcessing ? 'Claiming...' : 'Claim channel'}
-								disabled={isProcessing}
-								onPress={onClaimChannel}
-							/>
+							{order?.state === 0 ? (
+								<Button
+									text={'Pay'}
+									disabled={isProcessing}
+									onPress={goToPayment}
+								/>
+							) : (
+								<Button
+									text={isProcessing ? 'Claiming...' : 'Claim channel'}
+									disabled={isProcessing}
+									onPress={onClaimChannel}
+								/>
+							)}
 						</>
 					) : (
 						<Button

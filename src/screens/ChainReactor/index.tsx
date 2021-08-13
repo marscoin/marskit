@@ -15,7 +15,6 @@ import { IService } from '../../utils/chainreactor/types';
 
 import { refreshServiceList } from '../../store/actions/chainreactor';
 import { updateExchangeRates } from '../../store/actions/wallet';
-import { truncate } from '../../utils/helpers';
 import { showErrorNotification } from '../../utils/notifications';
 
 const ListItem = ({
@@ -25,7 +24,7 @@ const ListItem = ({
 	item: IService;
 	onPress: () => void;
 }): ReactElement => {
-	const { product_id, min_channel_size, max_channel_size, available } = item;
+	const { description, min_channel_size, max_channel_size, available } = item;
 
 	const minChannelSizeDisplay = useDisplayValues(min_channel_size);
 	const maxChannelSizeDisplay = useDisplayValues(max_channel_size);
@@ -35,19 +34,12 @@ const ListItem = ({
 		<LightingIcon viewBox="0 0 300 300" height={iconSize} width={iconSize} />
 	);
 
-	let name = `Product ${truncate(product_id, 8)}`;
-	switch (product_id) {
-		case '60eed21d3db8ba8ac85c7322': {
-			name = 'Lightning Channel';
-		}
-	}
-
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
 			<View style={styles.col1}>{walletIcon}</View>
 
 			<View style={styles.col2}>
-				<Text>{name}</Text>
+				<Text>{description}</Text>
 				<Text>
 					{minChannelSizeDisplay.bitcoinSymbol}
 					{minChannelSizeDisplay.bitcoinFormatted} to{' '}
@@ -57,7 +49,7 @@ const ListItem = ({
 			</View>
 
 			<View style={styles.col3}>
-				<Text>Available: {available ? '✅' : '❌'}</Text>
+				<Text>{available ? 'Available ✅' : 'Unavailable ❌'}</Text>
 			</View>
 		</TouchableOpacity>
 	);
@@ -80,10 +72,15 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 	}, []);
 
 	const renderItem = ({ item }: { item: IService }): ReactElement => {
-		//If we have an order that's created or paid but unclaimed
+		//If we have an order with state CREATED, OPENING, PAID, URI_SET
 		let existingOrderId = '';
 		orders.forEach((o) => {
-			if (o.state === 0 || o.state === 100) {
+			if (
+				o.state === 0 ||
+				o.state === 300 ||
+				o.state === 100 ||
+				o.state === 200
+			) {
 				existingOrderId = o._id;
 			}
 		});
@@ -92,12 +89,19 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 			<ListItem
 				key={item.product_id}
 				item={item}
-				onPress={(): void =>
-					navigation.navigate('ChainReactorOrder', {
-						service: item,
-						existingOrderId,
-					})
-				}
+				onPress={(): void => {
+					if (item.available) {
+						navigation.navigate('ChainReactorOrder', {
+							service: item,
+							existingOrderId,
+						});
+					} else {
+						showErrorNotification({
+							title: 'Service unavailable',
+							message: '',
+						});
+					}
+				}}
 			/>
 		);
 	};
