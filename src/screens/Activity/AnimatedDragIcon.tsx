@@ -23,7 +23,7 @@ const AnimatedDragIcon: React.FC<Props> = ({ direction }) => {
 
 const styles = StyleSheet.create({
 	iconContainer: {
-		height: 40,
+		height: 60,
 		width: '100%',
 		display: 'flex',
 		justifyContent: 'center',
