@@ -1,5 +1,8 @@
 import React, { ReactElement } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+	BottomTabNavigationOptions,
+	createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import {
 	createStackNavigator,
 	TransitionPresets,
@@ -20,6 +23,13 @@ import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import { View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
+import { SvgXml } from 'react-native-svg';
+import {
+	profileIcon,
+	receiveIcon,
+	sendIcon,
+	walletIcon,
+} from '../../assets/icons/tabs';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -33,7 +43,9 @@ const navOptionHandler = {
 
 const WalletsStack = (): ReactElement => {
 	return (
-		<Stack.Navigator initialRouteName="Wallets">
+		<Stack.Navigator
+			initialRouteName="Wallets"
+			screenOptions={{ headerShown: false }}>
 			<Stack.Screen
 				name="Wallets"
 				component={WalletsScreen}
@@ -113,54 +125,63 @@ const ProfileStack = (): ReactElement => {
 const TabNavigator = (): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = themes[settings.theme];
-	const activeTintColor = theme.colors.text;
-	const backgroundColor = theme.colors.background;
+	const activeTintColor = '#E94D27';
+	const tabBackground = theme.colors.tabBackground;
 	const { t } = useTranslation();
-	return (
-		<Tab.Navigator
-			screenOptions={({
-				route,
-			}): {
-				tabBarIcon: ({
-					focused,
-					color,
-					size,
-				}: {
-					focused: boolean;
-					color: string;
-					size: number;
-				}) => ReactElement;
-			} => ({
-				tabBarIcon: ({ focused, color, size }): ReactElement => {
-					let iconName;
 
-					switch (route.name) {
-						case t('wallets'):
-							iconName = focused ? 'wallet' : 'wallet-outline';
-							break;
-						case t('scan'):
-							iconName = focused ? 'qr-code' : 'qr-code-outline';
-							break;
-						case t('profile'):
-							iconName = focused ? 'person-circle' : 'person-circle-outline';
-							break;
-					}
-					return <Ionicons name={iconName} size={size} color={color} />;
-				},
-			})}
-			tabBarOptions={{
-				activeTintColor,
-				inactiveTintColor: 'gray',
-				activeBackgroundColor: backgroundColor,
-				inactiveBackgroundColor: backgroundColor,
-				labelStyle: {
-					fontSize: 14,
-					paddingBottom: 4,
-				},
-				style: { height: '8%' },
-				keyboardHidesTabBar: true,
-			}}>
-			<Tab.Screen name={t('wallets')} component={WalletsStack} />
+	const options: BottomTabNavigationOptions = {
+		tabBarShowLabel: false,
+		tabBarHideOnKeyboard: true,
+		headerShown: false,
+		tabBarActiveTintColor: activeTintColor,
+		tabBarInactiveTintColor: 'gray',
+		//activeBackgroundColor: backgroundColor,
+		//inactiveBackgroundColor: backgroundColor,
+		tabBarStyle: {
+			height: 60,
+			position: 'absolute',
+			bottom: 18,
+			left: 28,
+			right: 28,
+			backgroundColor: tabBackground,
+			borderRadius: 44,
+			borderTopWidth: 0,
+			elevation: 0,
+		},
+	};
+
+	return (
+		<Tab.Navigator>
+			<Tab.Screen
+				name={t('wallets')}
+				component={WalletsStack}
+				options={{
+					...options,
+					tabBarIcon: ({ size, color }): ReactElement => (
+						<SvgXml xml={walletIcon(color)} width={size} height={size} />
+					),
+				}}
+			/>
+			<Tab.Screen
+				name={t('send')}
+				component={View}
+				options={{
+					...options,
+					tabBarIcon: ({ size, color }): ReactElement => (
+						<SvgXml xml={sendIcon(color)} width={size} height={size} />
+					),
+				}}
+			/>
+			<Tab.Screen
+				name={t('receive')}
+				component={View}
+				options={{
+					...options,
+					tabBarIcon: ({ size, color }): ReactElement => (
+						<SvgXml xml={receiveIcon(color)} width={size} height={size} />
+					),
+				}}
+			/>
 			<Tab.Screen
 				name={t('scan')}
 				component={View}
@@ -170,8 +191,23 @@ const TabNavigator = (): ReactElement => {
 						navigation.navigate('Scanner');
 					},
 				})}
+				options={{
+					...options,
+					tabBarIcon: ({ size, color }): ReactElement => (
+						<Ionicons name={'qr-code-outline'} size={size} color={color} />
+					),
+				}}
 			/>
-			<Tab.Screen name={t('profile')} component={ProfileStack} />
+			<Tab.Screen
+				name={t('profile')}
+				component={ProfileStack}
+				options={{
+					...options,
+					tabBarIcon: ({ size, color }): ReactElement => (
+						<SvgXml xml={profileIcon(color)} width={size} height={size} />
+					),
+				}}
+			/>
 		</Tab.Navigator>
 	);
 };

@@ -17,6 +17,7 @@ export interface IThemeColors extends IDefaultColors {
 	onSurface: string;
 	logText: string;
 	refreshControl: string;
+	tabBackground: string;
 }
 
 export interface ITheme {
@@ -54,6 +55,7 @@ const light: ITheme = {
 		onSurface: '#D6D6D6',
 		logText: '#121212',
 		refreshControl: '#121212',
+		tabBackground: '#f2f2f2',
 	},
 };
 
@@ -70,6 +72,7 @@ const dark: ITheme = {
 		onSurface: '#5C5C5C',
 		logText: '#16ff00',
 		refreshControl: '#FFFFFF',
+		tabBackground: '#1C1C1F',
 	},
 };
 
