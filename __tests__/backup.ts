@@ -31,11 +31,9 @@ const getFirstAddress = (
 	return addresses[Object.keys(addresses)[0]].address;
 };
 
-describe('Backup', () => {
-	beforeAll(async () => {
-		jest.setTimeout(15000);
-	});
+jest.setTimeout(150000);
 
+describe('Backup', () => {
 	it('Backpack register, store and retrieve a string (Integration)', async () => {
 		const username = 'test-user';
 		const password = 'test-password';
@@ -110,7 +108,7 @@ describe('Backup', () => {
 		//Nuke all stored seeds before restoring
 		await setKeychainValue({ key: walletKey, value: '' });
 		await setKeychainValue({ key: walletKeyOmnibolt, value: '' });
-		await getDispatch()({
+		getDispatch()({
 			type: actions.RESET_WALLET_STORE,
 		});
 		resetOmniBoltStore();
