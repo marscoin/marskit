@@ -2535,7 +2535,7 @@ bindings@^1.3.0, bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bint8array@^1.1.1, bint8array@^1.1.2:
+bint8array@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/bint8array/-/bint8array-1.1.2.tgz#68b263caa6988aa85c6ac878926a2234583a570a"
   integrity sha512-w88GqsD0VUtYQrc/YGCjY5UnTz57MXBvED4cQyz84P2gpbtP3lZoiz1xl6xEDU9TNrgBZSX3VfkdUlEdByOIag==
@@ -8030,9 +8030,7 @@ react-native-keychain@^7.0.0:
 
 "react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#5fbaf14525e8c872618b53a58a44a22a32eec4a1"
-  dependencies:
-    bint8array "^1.1.1"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#eac4ad5e3e509bfe599bc9a8c72b3f747a79adeb"
 
 react-native-modal@^11.10.0:
   version "11.10.0"

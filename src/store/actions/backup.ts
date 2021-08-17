@@ -28,7 +28,7 @@ export const registerBackpack = async (
 		return err(registerRes.error);
 	}
 
-	await dispatch({
+	dispatch({
 		type: actions.BACKUP_UPDATE,
 		payload: { username: await backpackUsername() },
 	});
@@ -47,7 +47,7 @@ export const backupSetup = async (): Promise<Result<string>> => {
 	};
 
 	//If they've registered update that so long while we verify the backup
-	await dispatch({
+	dispatch({
 		type: actions.BACKUP_UPDATE,
 		payload: state,
 	});
@@ -59,7 +59,7 @@ export const backupSetup = async (): Promise<Result<string>> => {
 	}
 
 	//If they've registered we'll have the username
-	await dispatch({
+	dispatch({
 		type: actions.BACKUP_UPDATE,
 		payload: state,
 	});
@@ -92,7 +92,7 @@ export const performFullBackup = async ({
 		return err(backupRes.error);
 	}
 
-	await dispatch({
+	dispatch({
 		type: actions.BACKUP_UPDATE,
 		payload: {
 			backpackSynced: true,
