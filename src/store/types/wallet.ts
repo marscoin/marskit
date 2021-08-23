@@ -76,12 +76,14 @@ export enum EKeyDerivationAccount {
 	omnibolt = 3,
 }
 
+export interface IAddressData {
+	path: string;
+	type: 'p2wpkh' | 'p2sh' | 'p2pkh';
+	label: string;
+}
+
 export interface IAddressType {
-	[key: string]: {
-		path: string;
-		type: 'p2wpkh' | 'p2sh' | 'p2pkh';
-		label: string;
-	};
+	[key: string]: IAddressData;
 }
 
 // m / purpose' / coin_type' / account' / change / address_index
