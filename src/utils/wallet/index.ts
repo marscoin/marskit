@@ -47,10 +47,7 @@ import {
 	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../notifications';
+import { showSuccessNotification } from '../notifications';
 import {
 	ICustomElectrumPeer,
 	TCoinSelectPreference,
