@@ -40,7 +40,6 @@ import {
 	setKeychainValue,
 } from '../helpers';
 import { getStore } from '../../store/helpers';
-import * as electrum from 'rn-electrum-client/helpers';
 import {
 	addAddresses,
 	updateAddressIndexes,
@@ -62,10 +61,10 @@ import {
 	getTotalFee,
 	getTransactionOutputValue,
 } from './transactions';
-import * as tls from '../electrum/tls';
-import * as net from '../electrum/net';
+import * as electrum from 'rn-electrum-client/helpers';
 import * as peers from 'rn-electrum-client/helpers/peers.json';
 import { AddressInfo, getAddressInfo } from 'bitcoin-address-validation';
+import * as tls from '../electrum/tls';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -101,7 +100,7 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 	}
 };
 
-interface ISubscribeToAddress {
+export interface ISubscribeToAddress {
 	data: {
 		id: number;
 		jsonrpc: string;
@@ -1391,6 +1390,15 @@ export const getTransactions = async ({
 				data: [],
 			});
 		}
+		let paths: string[] = [];
+		txHashes = txHashes.filter((txHash) => {
+			// @ts-ignore
+			if (!paths.includes(txHash?.path)) {
+				// @ts-ignore
+				paths.push(txHash.path);
+				return txHash;
+			}
+		});
 		const data = {
 			key: 'tx_hash',
 			data: txHashes,
@@ -1403,6 +1411,28 @@ export const getTransactions = async ({
 			return err(response);
 		}
 		return ok(response);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export interface IPeerData {
+	host: string;
+	port: string | number;
+	protocol: 'tcp' | 'ssl' | string;
+}
+export const getConnectedPeer = async (
+	selectedNetwork,
+): Promise<Result<IPeerData>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const response = await electrum.getConnectedPeer(selectedNetwork);
+		if (response && response?.host && response?.port && response?.protocol) {
+			return ok(response);
+		}
+		return err('No peer available.');
 	} catch (e) {
 		return err(e);
 	}
@@ -1691,15 +1721,23 @@ export const getAddressHistory = async ({
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 		if (!scriptHashes || scriptHashes?.length < 1) {
+			let paths: string[] = [];
 			const addressTypes = getAddressTypes();
 			await Promise.all(
 				Object.keys(addressTypes).map((addressType) => {
 					const addresses = currentAddresses[addressType];
 					const changeAddresses = currentChangeAddresses[addressType];
-					const addressValues = Object.values(addresses);
-					const changeAddressValues = Object.values(changeAddresses);
-					// @ts-ignore
-					scriptHashes = [...addressValues, ...changeAddressValues];
+					const addressValues: IAddressContent[] = Object.values(addresses);
+					const changeAddressValues: IAddressContent[] =
+						Object.values(changeAddresses);
+					scriptHashes = [...addressValues, ...changeAddressValues].filter(
+						(scriptHash) => {
+							if (!paths.includes(scriptHash?.path)) {
+								paths.push(scriptHash.path);
+								return scriptHash;
+							}
+						},
+					);
 				}),
 			);
 		}
@@ -1774,37 +1812,42 @@ const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
 export const connectToElectrum = async ({
 	selectedNetwork = undefined,
 	retryAttempts = 2,
+	customPeers,
+	options = { net: undefined, tls: undefined },
 }: {
 	selectedNetwork?: TAvailableNetworks | undefined;
 	retryAttempts?: number;
+	customPeers?: ICustomElectrumPeer[];
+	options?: { net?: any; tls?: any };
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
+	// @ts-ignore
+	const net = options.net ?? global?.net;
+	const _tls = options.tls ?? tls;
 
 	//Attempt to disconnect from any old/lingering connections
 	await electrum.stop({ network: selectedNetwork });
 
 	// Fetch any stored custom peers.
-	let customPeers = getCustomElectrumPeers({ selectedNetwork });
+	if (!customPeers) {
+		customPeers = getCustomElectrumPeers({ selectedNetwork });
+	}
 	if (customPeers.length < 1) {
 		customPeers = tempElectrumServers[selectedNetwork];
 	}
-
-	let i = 0;
 	let startResponse = { error: true, data: '' };
-	while (i < retryAttempts) {
+	for (let i = 0; i < retryAttempts; i++) {
 		startResponse = await electrum.start({
 			network: selectedNetwork,
 			customPeers,
-			protocol: 'ssl',
 			net,
-			tls,
+			tls: _tls,
 		});
 		if (!startResponse.error) {
 			break;
 		}
-		i++;
 	}
 
 	if (startResponse.error) {
@@ -1813,7 +1856,7 @@ export const connectToElectrum = async ({
 			network: selectedNetwork,
 			customPeers,
 			net,
-			tls,
+			tls: _tls,
 		});
 		if (error) {
 			showErrorNotification({
