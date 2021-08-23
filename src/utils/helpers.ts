@@ -247,3 +247,25 @@ export const truncate = (str, n): string =>
 export const capitalize = (str = ''): string => {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+/**
+ * Determines if the two objects passed as params match.
+ * @param obj1
+ * @param obj2
+ * @return boolean
+ */
+export const objectsMatch = (obj1, obj2): boolean => {
+	if (!obj1 || !obj2) {
+		return false;
+	}
+	const obj1Length = Object.keys(obj1).length;
+	const obj2Length = Object.keys(obj2).length;
+
+	if (obj1Length === obj2Length) {
+		return Object.keys(obj1).every(
+			(key) => key in obj2 && obj2[key] === obj1[key],
+		);
+	} else {
+		return false;
+	}
+};
