@@ -65,7 +65,7 @@
     "react-native-screens": "^3.4.0",
     "react-native-share": "^6.2.1",
     "react-native-svg": "^12.1.1",
-    "react-native-tcp-socket": "^5.2.0",
+    "react-native-tcp-socket": "^5.2.1",
     "react-native-toast-message": "^1.4.9",
     "react-native-touch-id": "^4.4.1",
     "react-native-typography": "^1.4.1",
@@ -150,7 +150,8 @@
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify",
     "vm": "vm-browserify",
-    "sodium-native": "react-native-libsodium"
+    "sodium-native": "react-native-libsodium",
+    "net": "react-native-tcp-socket"
   },
   "browser": {
     "crypto": "react-native-crypto",
@@ -160,6 +161,7 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify",
-    "vm": "vm-browserify"
+    "vm": "vm-browserify",
+    "net": "react-native-tcp-socket"
   }
 }
