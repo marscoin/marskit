@@ -1859,10 +1859,6 @@ export const connectToElectrum = async ({
 			tls: _tls,
 		});
 		if (error) {
-			showErrorNotification({
-				title: 'Unable to connect to Electrum Server.',
-				message: data,
-			});
 			return err(data);
 		}
 	}

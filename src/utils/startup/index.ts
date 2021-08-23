@@ -88,6 +88,11 @@ export const startWalletServices = async ({
 				const electrumResponse = await connectToElectrum({ selectedNetwork });
 				if (electrumResponse.isOk()) {
 					refreshWallet().then();
+				} else {
+					showErrorNotification({
+						title: 'Unable to connect to Electrum Server.',
+						message: electrumResponse.error.message,
+					});
 				}
 			}
 

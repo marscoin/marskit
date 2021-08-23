@@ -46,25 +46,21 @@ const validateInput = ({
 	host: string;
 	port: string | number;
 }): Result<string> => {
-	try {
-		//Ensure the user passed in a host & port to test.
-		let data;
-		if (host === '' && port === '') {
-			data = 'Please specify a host and port to connect to.';
-		} else if (host === '') {
-			data = 'Please specify a host to connect to.';
-		} else if (port === '') {
-			data = 'Please specify a port to connect to.';
-		} else if (isNaN(Number(port))) {
-			data = 'Invalid port.';
-		}
-		if (data) {
-			return err(data);
-		}
-		return ok('');
-	} catch (e) {
-		return err(e);
+	//Ensure the user passed in a host & port to test.
+	let data;
+	if (host === '' && port === '') {
+		data = 'Please specify a host and port to connect to.';
+	} else if (host === '') {
+		data = 'Please specify a host to connect to.';
+	} else if (port === '') {
+		data = 'Please specify a port to connect to.';
+	} else if (isNaN(Number(port))) {
+		data = 'Invalid port.';
 	}
+	if (data) {
+		return err(data);
+	}
+	return ok('');
 };
 
 const ElectrumConfig = (): ReactElement => {
@@ -161,10 +157,11 @@ const ElectrumConfig = (): ReactElement => {
 			setLoading(true);
 			const validityCheck = validateInput(peerData);
 			if (validityCheck.isErr()) {
-				return showErrorNotification({
+				showErrorNotification({
 					title: 'Electrum Peer Error',
 					message: validityCheck.error.message,
 				});
+				return;
 			}
 			const customPeer: ICustomElectrumPeer = {
 				host: '',
@@ -194,6 +191,11 @@ const ElectrumConfig = (): ReactElement => {
 				if (getPeersResult.isOk()) {
 					setRandomPeers(getPeersResult.value);
 				}
+			} else {
+				showErrorNotification({
+					title: 'Unable to connect to Electrum Server.',
+					message: connectResponse.error.message,
+				});
 			}
 		} catch (e) {
 			console.log(e);
