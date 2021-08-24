@@ -28,6 +28,7 @@ import validate, {
 } from 'bitcoin-address-validation';
 import { updateOnChainTransaction } from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
+import { showErrorNotification } from '../notifications';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -628,6 +629,30 @@ export const createTransaction = ({
 
 		const transactionData = transactionDataRes.value;
 
+		const inputValue = getTransactionInputValue({
+			selectedNetwork,
+			selectedWallet,
+			inputs: transactionData.inputs,
+		});
+		const outputValue = getTransactionOutputValue({
+			selectedWallet,
+			selectedNetwork,
+			outputs: transactionData.outputs,
+		});
+		if (inputValue === 0) {
+			const message = 'No inputs to spend.';
+			showErrorNotification({
+				title: 'Unable to create transaction.',
+				message,
+			});
+			return resolve(err(message));
+		}
+		const fee = inputValue - outputValue;
+		if (fee > inputValue) {
+			const message = 'Fee is larger than the intended payment.';
+			showErrorNotification({ title: 'Unable to create transaction', message });
+			return resolve(err(message));
+		}
 		try {
 			//Create PSBT before signing inputs
 			const psbtRes = await createPsbtFromTransactionData({
@@ -829,6 +854,7 @@ export const getTransactionOutputValue = ({
 		}
 		return 0;
 	} catch (e) {
+		console.log(e);
 		return 0;
 	}
 };
@@ -844,8 +870,8 @@ export const getTransactionInputValue = ({
 	selectedNetwork = undefined,
 	inputs = undefined,
 }: {
-	selectedWallet: string | undefined;
-	selectedNetwork: TAvailableNetworks | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 	inputs?: IUtxo[] | undefined;
 }): number => {
 	try {
@@ -874,6 +900,39 @@ export const getTransactionInputValue = ({
 		return 0;
 	} catch (e) {
 		return 0;
+	}
+};
+
+/**
+ * Returns all inputs for the current transaction.
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const getTransactionInputs = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Result<IUtxo[]> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+		return ok(txData.value.inputs?.map((input) => input) ?? []);
+	} catch (e) {
+		console.log(e);
+		return err(e);
 	}
 };
 
@@ -1119,6 +1178,96 @@ export const autoCoinSelect = async ({
 			return err('Not enough funds');
 		}
 		return ok({ inputs: newInputs, outputs, fee });
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Used to validate transaction form data.
+ * @param {IOnChainTransactionData} transaction
+ * @return {Result<string>}
+ */
+export const validateTransaction = (
+	transaction: IOnChainTransactionData,
+): Result<string> => {
+	try {
+		if (!transaction) {
+			return err('Invalid transaction.');
+		}
+		const baseFee = 256;
+		if (!transaction?.fee) {
+			return err('No transaction fee provided.');
+		}
+		if (transaction.fee < baseFee) {
+			return err(`Transaction fee must be larger than ${baseFee}.`);
+		}
+		if (
+			!transaction?.outputs ||
+			transaction.outputs?.length < 1 ||
+			!transaction.outputs[0].address
+		) {
+			return err('Please provide an address to send funds to.');
+		}
+		if (
+			!transaction?.inputs ||
+			(transaction.outputs?.length > 0 && !transaction?.outputs[0]?.value)
+		) {
+			return err('Please provide an amount to send.');
+		}
+		const inputs = transaction.inputs ?? [];
+		const outputs = transaction.outputs ?? [];
+		for (let i = 0; i < outputs.length; i++) {
+			const address = outputs[i]?.address ?? '';
+			const value = outputs[i]?.value ?? 0;
+			const { isValid } = validateAddress({ address });
+			if (!isValid) {
+				return err(`Invalid Address: ${address}`);
+			}
+			if (value < baseFee) {
+				return err(
+					`Output value for ${address} must be greater than or equal to ${baseFee} sats`,
+				);
+			}
+		}
+
+		const inputsReduce = reduceValue({
+			arr: inputs,
+			value: 'value',
+		});
+		if (inputsReduce.isErr()) {
+			return err(inputsReduce.error.message);
+		}
+		//Remove the change address from the outputs array, if any.
+		let filteredOutputs = outputs;
+		if (transaction?.changeAddress) {
+			filteredOutputs = outputs.filter((output) => {
+				if (output.address !== transaction.changeAddress) {
+					return output;
+				}
+			});
+		}
+		const outputsReduce = reduceValue({
+			arr: filteredOutputs,
+			value: 'value',
+		});
+		if (outputsReduce.isErr()) {
+			return err(outputsReduce.error.message);
+		}
+		const inputsValue = inputsReduce.value;
+		const outputsValue = outputsReduce.value;
+		const fee = transaction.fee;
+		const changeAddressValue = inputsValue - outputsValue - fee;
+		if (changeAddressValue < baseFee) {
+			return err(
+				'Change address value is too low. Consider sending all funds instead.',
+			);
+		}
+
+		if (fee < baseFee) {
+			return err(`Fee must be larger than ${baseFee}`);
+		}
+		return ok('Transaction is valid.');
 	} catch (e) {
 		return err(e);
 	}
