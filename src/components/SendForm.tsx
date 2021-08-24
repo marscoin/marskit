@@ -68,6 +68,37 @@ const SendForm = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	// Handles balance changes from UTXO updates.
+	useEffect(() => {
+		const fee = transaction?.fee ?? 256;
+
+		if (value) {
+			const newValue =
+				balance > 0 && value + getFee > balance ? balance - fee : 0;
+			if (newValue + getFee > balance && max) {
+				setMax(false);
+			}
+			updateAmount(newValue.toString());
+		}
+
+		if (max) {
+			const totalTransactionValue = getOutputsValue();
+			const totalNewAmount = totalTransactionValue + fee;
+
+			if (totalNewAmount <= balance) {
+				const _transaction: IOnChainTransactionData = {
+					fee,
+					outputs: [{ address, value: balance - fee, index }],
+				};
+				updateOnChainTransaction({
+					selectedWallet,
+					selectedNetwork,
+					transaction: _transaction,
+				}).then();
+			}
+		}
+	}, [balance]);
+
 	/**
 	 * Returns the current output by index.
 	 */
@@ -269,19 +300,31 @@ const SendForm = ({
 	 * @param {string} txt
 	 */
 	const updateAmount = async (txt = ''): Promise<void> => {
-		const newAmount = Number(txt);
-		const totalNewAmount = newAmount + getFee;
-		if (totalNewAmount <= balance) {
-			await updateOnChainTransaction({
-				selectedWallet,
-				selectedNetwork,
-				transaction: {
-					outputs: [{ address, value: newAmount, index }],
-				},
-			});
-			if (address && coinSelectPreference !== 'consolidate') {
-				runCoinSelect();
+		let newAmount = Number(txt) ?? 0;
+		let totalNewAmount = 0;
+		if (newAmount !== 0) {
+			totalNewAmount = newAmount + getFee;
+			if (totalNewAmount > balance && balance - getFee < 0) {
+				newAmount = 0;
 			}
+		}
+		//Return if the new amount exceeds the current balance or there is no change detected.
+		if (
+			newAmount === value ||
+			newAmount > balance ||
+			totalNewAmount > balance
+		) {
+			return;
+		}
+		await updateOnChainTransaction({
+			selectedWallet,
+			selectedNetwork,
+			transaction: {
+				outputs: [{ address, value: newAmount, index }],
+			},
+		});
+		if (address && coinSelectPreference !== 'consolidate') {
+			runCoinSelect();
 		}
 	};
 
