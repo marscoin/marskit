@@ -2,7 +2,7 @@ import { IWalletItem, TBitcoinUnit } from './wallet';
 import { EExchangeRateService } from '../../utils/exchange-rate';
 
 type TTheme = 'dark' | 'light' | 'blue';
-type TProtocol = 'ssl' | 'tcp';
+export type TProtocol = 'ssl' | 'tcp' | string;
 
 /**
  * large = Sort by and use largest UTXO first. Lowest fee, but reveals your largest UTXO's.
@@ -13,8 +13,8 @@ export type TCoinSelectPreference = 'small' | 'large' | 'consolidate';
 
 export interface ICustomElectrumPeer {
 	host: string;
-	ssl: number; //ssl port
-	tcp: number; //tcp port
+	ssl: number | undefined; //ssl port
+	tcp: number | undefined; //tcp port
 	protocol?: TProtocol;
 }
 

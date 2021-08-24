@@ -144,6 +144,12 @@ const Settings = ({ navigation }): ReactElement => {
 						},
 						hide: false,
 					},
+					{
+						title: 'Electrum Config',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ElectrumConfig'),
+						hide: false,
+					},
 				],
 			},
 			{

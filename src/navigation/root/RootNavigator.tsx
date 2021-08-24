@@ -22,6 +22,7 @@ import ChainReactor from '../../screens/ChainReactor';
 import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import ChainReactorPayment from '../../screens/ChainReactor/Payment';
+import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 
 const Stack = createNativeStackNavigator();
 
@@ -87,6 +88,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="ExchangeRateSettings"
 					component={ExchangeRateSettings}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ElectrumConfig"
+					component={ElectrumConfig}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen name="Biometrics" options={navOptionHandler}>

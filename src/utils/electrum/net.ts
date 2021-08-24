@@ -25,14 +25,21 @@ interface ISocket {
 	end: Function;
 	destroy: Function;
 	write: Function;
+	setTimeout?: Function;
+	setEncoding?: Function;
+	setKeepAlive?: Function;
 }
 
-export default function Socket(this: ISocket): void {
-	this._socket = undefined; // reference to socket thats gona be created later
+function Socket(this: ISocket): void {
+	this._socket = undefined; // reference to socket that will be created later
 	// defaults:
 	this._noDelay = true;
 
 	this._listeners = {};
+
+	this.setTimeout = (): void => {};
+	this.setEncoding = (): void => {};
+	this.setKeepAlive = (): void => {};
 
 	// proxying call to real socket object:
 	this.setNoDelay = (noDelay): void => {
@@ -129,3 +136,5 @@ export default function Socket(this: ISocket): void {
 		}
 	};
 }
+
+module.exports.Socket = Socket;
