@@ -40,6 +40,7 @@ import {
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { getExchangeRates } from '../../utils/exchange-rate';
+import { objectsMatch } from '../../utils/helpers';
 
 const dispatch = getDispatch();
 
@@ -703,10 +704,7 @@ export const removeTxInput = ({
 		}
 		const txInputs = txData.value?.inputs ?? [];
 		const newInputs = txInputs.filter((txInput) => {
-			if (
-				input.tx_hash !== txInput.tx_hash &&
-				input.tx_pos !== txInput.tx_pos
-			) {
+			if (!objectsMatch(input, txInput)) {
 				return txInput;
 			}
 		});
