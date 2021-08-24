@@ -1258,7 +1258,7 @@ export const validateTransaction = (
 		const outputsValue = outputsReduce.value;
 		const fee = transaction.fee;
 		const changeAddressValue = inputsValue - outputsValue - fee;
-		if (changeAddressValue < baseFee) {
+		if (changeAddressValue && changeAddressValue < baseFee) {
 			return err(
 				'Change address value is too low. Consider sending all funds instead.',
 			);
