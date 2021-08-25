@@ -3,6 +3,7 @@ import React, {
 	ReactElement,
 	useCallback,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
@@ -21,7 +22,9 @@ import { systemWeights } from 'react-native-typography';
 import {
 	broadcastTransaction,
 	createTransaction,
+	getTransactionInputValue,
 	getTransactionOutputValue,
+	validateTransaction,
 } from '../../../utils/wallet/transactions';
 import {
 	resetOnChainTransaction,
@@ -39,6 +42,7 @@ import OutputSummary from './OutputSummary';
 import FeeSummary from './FeeSummary';
 import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
+import UTXOList from './UTXOList';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -67,6 +71,7 @@ const SendOnChainTransaction = ({
 	const [opacity] = useState(new Animated.Value(0));
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [rawTx, setRawTx] = useState('');
+	const [displayUtxoList, setDisplayUtxoList] = useState(false);
 	const navigation = useNavigation();
 
 	const selectedWallet = useSelector(
@@ -85,6 +90,11 @@ const SendOnChainTransaction = ({
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
 			defaultOnChainTransactionData,
+	);
+
+	const utxos = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet]?.utxos[selectedNetwork] || [],
 	);
 
 	const addressType = useSelector(
@@ -148,8 +158,22 @@ const SendOnChainTransaction = ({
 
 	const transactionTotal = getTransactionTotal();
 
+	const txInputValue = useMemo(
+		() => getTransactionInputValue({ selectedWallet, selectedNetwork }),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[selectedNetwork, selectedWallet, transaction?.inputs],
+	);
+
 	const _createTransaction = async (): Promise<void> => {
 		try {
+			const transactionIsValid = validateTransaction(transaction);
+			if (transactionIsValid.isErr()) {
+				showErrorNotification({
+					title: 'Error creating transaction.',
+					message: transactionIsValid.error.message,
+				});
+				return;
+			}
 			const response = await createTransaction({
 				selectedNetwork,
 				selectedWallet,
@@ -160,6 +184,7 @@ const SendOnChainTransaction = ({
 				}
 				const { pin, biometrics } = hasEnabledAuthentication();
 				if (pin || biometrics) {
+					// @ts-ignore
 					navigation.navigate('AuthCheck', {
 						onSuccess: () => {
 							// @ts-ignore
@@ -239,7 +264,21 @@ const SendOnChainTransaction = ({
 			style={{ flex: header ? 1 : 0 }}>
 			{header && <NavigationHeader title="Send Transaction" />}
 			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
+				<View color={'transparent'} style={styles.amountAvailable}>
+					<Text>Amount Available: {txInputValue}</Text>
+				</View>
 				<SendForm />
+				<Button
+					color={'onSurface'}
+					text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
+						utxos?.length ?? '0'
+					})`}
+					onPress={(): void => setDisplayUtxoList(true)}
+				/>
+				<UTXOList
+					isVisible={displayUtxoList}
+					closeList={(): void => setDisplayUtxoList(false)}
+				/>
 				<FeeSummary />
 				<Button
 					disabled={balance < transactionTotal}
@@ -273,6 +312,9 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		alignSelf: 'center',
 		paddingVertical: 5,
+	},
+	amountAvailable: {
+		alignItems: 'center',
 	},
 });
 
