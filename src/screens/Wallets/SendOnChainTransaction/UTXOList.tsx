@@ -107,6 +107,7 @@ const UTXOList = ({
 
 	const txInputValue = useMemo(
 		() => getTransactionInputValue({ selectedNetwork, selectedWallet }),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[selectedWallet, selectedNetwork, transaction?.inputs],
 	);
 
