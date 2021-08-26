@@ -11,29 +11,41 @@ import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
 import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
+import { PanGestureHandler } from 'react-native-gesture-handler';
 
-const Wallets = (): ReactElement => {
+const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
+
+	const onPanGestureEvent = (event): void => {
+		if (event.nativeEvent.velocityX < -600) {
+			//Swiping left, navigate to the scanner/camera.
+			navigation.navigate('Scanner');
+		}
+		/*if (event.nativeEvent.velocityX > 600) {
+			//Swiping right.
+		}*/
+	};
+
 	return (
-		<>
+		<PanGestureHandler onGestureEvent={onPanGestureEvent}>
 			<View style={styles.container}>
-				<Header />
-				<ScrollView showsVerticalScrollIndicator={false}>
-					<BitcoinCard />
-					<LightningCard />
-					<OmniboltCard />
-				</ScrollView>
+				<View>
+					<Header />
+					<ScrollView showsVerticalScrollIndicator={false}>
+						<BitcoinCard />
+						<LightningCard />
+						<OmniboltCard />
+					</ScrollView>
+				</View>
+				<ActivitySwipeUpPanel />
 			</View>
-			<ActivitySwipeUpPanel />
-		</>
+		</PanGestureHandler>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingRight: 20,
-		paddingLeft: 20,
 	},
 });
 
