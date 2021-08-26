@@ -1,30 +1,41 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
-import { Feather, View } from '../../styles/components';
+import {
+	View,
+	CameraIcon,
+	SettingsIcon,
+	TouchableOpacity,
+	Text01M,
+} from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation<DrawerNavigationProp<any>>();
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const openScanner = useCallback(() => navigation.navigate('Scanner'), []);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				<Feather
-					style={styles.rightIcon}
-					onPress={(): void => navigation.navigate('ChainReactor')}
-					name="shopping-cart"
-					size={30}
-				/>
+				<TouchableOpacity
+					style={styles.leftIcon}
+					activeOpacity={1}
+					onPress={navigation.openDrawer}>
+					<SettingsIcon />
+				</TouchableOpacity>
 			</View>
-			<View style={styles.middleColumn} />
+			<View style={styles.middleColumn}>
+				<Text01M>Wallet</Text01M>
+			</View>
 			<View style={styles.rightColumn}>
-				<Feather
+				<TouchableOpacity
 					style={styles.rightIcon}
-					onPress={navigation.openDrawer}
-					name="menu"
-					size={30}
-				/>
+					activeOpacity={1}
+					onPress={openScanner}>
+					<CameraIcon />
+				</TouchableOpacity>
 			</View>
 		</View>
 	);
@@ -38,7 +49,12 @@ const styles = StyleSheet.create({
 		marginHorizontal: 10,
 		marginBottom: 20,
 	},
-	rightIcon: {},
+	leftIcon: {
+		left: '8.7%',
+	},
+	rightIcon: {
+		right: '8.7%',
+	},
 	leftColumn: {
 		flex: 1,
 		justifyContent: 'center',
@@ -46,6 +62,7 @@ const styles = StyleSheet.create({
 	middleColumn: {
 		flex: 1.5,
 		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	rightColumn: {
 		flex: 1,
@@ -54,4 +71,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(Header);
+export default memo(Header, () => true);
