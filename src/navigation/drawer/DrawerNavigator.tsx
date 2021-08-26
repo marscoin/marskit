@@ -12,7 +12,7 @@ const Drawer = createDrawerNavigator();
 const screenOptions: DrawerNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	drawerPosition: 'right',
+	drawerPosition: 'left',
 };
 
 const DrawerNavigator = (): ReactElement => {
