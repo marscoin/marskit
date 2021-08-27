@@ -31,11 +31,9 @@ const getFirstAddress = (
 	return addresses[Object.keys(addresses)[0]].address;
 };
 
-describe('Backup', () => {
-	beforeAll(async () => {
-		jest.setTimeout(15000);
-	});
+jest.setTimeout(30000);
 
+describe('Backup', () => {
 	it('Backpack register, store and retrieve a string (Integration)', async () => {
 		const username = 'test-user';
 		const password = 'test-password';
