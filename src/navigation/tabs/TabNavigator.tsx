@@ -7,7 +7,6 @@ import {
 	createStackNavigator,
 	TransitionPresets,
 } from '@react-navigation/stack';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
@@ -83,10 +82,7 @@ const WalletsStack = (): ReactElement => {
 			<Stack.Screen
 				name="Scanner"
 				component={ScannerScreen}
-				options={{
-					...navOptionHandler,
-					...TransitionPresets.ModalSlideFromBottomIOS,
-				}}
+				options={navOptionHandler}
 			/>
 			<Stack.Screen
 				name="ActivityDetail"
@@ -134,7 +130,7 @@ const TabNavigator = (): ReactElement => {
 		tabBarHideOnKeyboard: true,
 		headerShown: false,
 		tabBarActiveTintColor: activeTintColor,
-		tabBarInactiveTintColor: 'gray',
+		tabBarInactiveTintColor: '#636366',
 		//activeBackgroundColor: backgroundColor,
 		//inactiveBackgroundColor: backgroundColor,
 		tabBarStyle: {
@@ -179,22 +175,6 @@ const TabNavigator = (): ReactElement => {
 					...options,
 					tabBarIcon: ({ size, color }): ReactElement => (
 						<SvgXml xml={receiveIcon(color)} width={size} height={size} />
-					),
-				}}
-			/>
-			<Tab.Screen
-				name={t('scan')}
-				component={View}
-				listeners={({ navigation }): any => ({
-					tabPress: (event): void => {
-						event.preventDefault();
-						navigation.navigate('Scanner');
-					},
-				})}
-				options={{
-					...options,
-					tabBarIcon: ({ size, color }): ReactElement => (
-						<Ionicons name={'qr-code-outline'} size={size} color={color} />
 					),
 				}}
 			/>

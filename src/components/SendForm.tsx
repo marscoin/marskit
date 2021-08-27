@@ -97,6 +97,7 @@ const SendForm = ({
 				}).then();
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [balance]);
 
 	/**

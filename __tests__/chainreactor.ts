@@ -34,7 +34,7 @@ describe('chain reactor', () => {
 
 		expect(typeof orderRes.ln_invoice).toBe('string');
 		expect(typeof orderRes.total_amount).toBe('number');
-		expect(typeof orderRes.btc_address).toBe('string');
+		// expect(typeof orderRes.btc_address).toBe('string');
 
 		//Check order
 		const getOrderRes = await cr.getOrder(orderRes.order_id);
