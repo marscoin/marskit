@@ -11,23 +11,18 @@ import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
 import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import DetectSwipe from '../../components/DetectSwipe';
 
 const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
-	const onPanGestureEvent = (event): void => {
-		if (event.nativeEvent.velocityX < -600) {
-			//Swiping left, navigate to the scanner/camera.
-			navigation.navigate('Scanner');
-		}
-		/*if (event.nativeEvent.velocityX > 600) {
-			//Swiping right.
-		}*/
+	const onSwipeLeft = (): void => {
+		//Swiping left, navigate to the scanner/camera.
+		navigation.navigate('Scanner');
 	};
 
 	return (
-		<PanGestureHandler onGestureEvent={onPanGestureEvent}>
+		<DetectSwipe onSwipeLeft={onSwipeLeft}>
 			<View style={styles.container}>
 				<View>
 					<Header />
@@ -39,7 +34,7 @@ const Wallets = ({ navigation }): ReactElement => {
 				</View>
 				<ActivitySwipeUpPanel />
 			</View>
-		</PanGestureHandler>
+		</DetectSwipe>
 	);
 };
 
