@@ -269,3 +269,50 @@ export const objectsMatch = (obj1, obj2): boolean => {
 		return false;
 	}
 };
+
+/**
+ * Returns the new value and abbreviation of the provided number for display.
+ * @param value
+ * @return { newValue: string; abbreviation: string }
+ */
+export const abbreviateNumber = (
+	value: string | number,
+): { newValue: string; abbreviation: string } => {
+	if (typeof value !== 'number') {
+		value = value.replace(/,/g, '');
+	}
+	let newValue: number = Number(value);
+	const abbreviations = [
+		'',
+		'K',
+		'M',
+		'B',
+		't',
+		'q',
+		'Q',
+		's',
+		'S',
+		'o',
+		'n',
+		'd',
+		'U',
+		'D',
+		'T',
+		'Qt',
+		'Qd',
+		'Sd',
+		'St',
+		'O',
+		'N',
+		'v',
+		'c',
+	];
+	let abbreviationNum = 0;
+	while (newValue >= 1000) {
+		newValue /= 1000;
+		abbreviationNum++;
+	}
+	const _newValue = newValue.toPrecision(3);
+	const abbreviation = abbreviations[abbreviationNum] ?? '';
+	return { newValue: _newValue, abbreviation };
+};
