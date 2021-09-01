@@ -78,15 +78,19 @@ const getCryptoCompareRates = async (): Promise<Result<IExchangeRates>> => {
 export interface IDisplayValues {
 	fiatFormatted: string;
 	fiatSymbol: string; //$,€,£
+	fiatTicker: string; //USD, EUR
 	bitcoinFormatted: string;
-	bitcoinSymbol: string;
+	bitcoinSymbol: string; //₿, m₿, μ₿, ⚡,
+	bitcoinTicker: string; //BTC, mBTC, μBTC, Sats
 }
 
 export const defaultDisplayValues: IDisplayValues = {
 	fiatFormatted: '-',
 	fiatSymbol: '',
+	fiatTicker: '',
 	bitcoinFormatted: '-',
 	bitcoinSymbol: '',
+	bitcoinTicker: '',
 };
 
 export const getDisplayValues = ({
@@ -133,7 +137,8 @@ export const getDisplayValues = ({
 			.value()
 			.toString();
 
-		let bitcoinSymbol = '';
+		let { bitcoinSymbol } = defaultDisplayValues;
+		let bitcoinTicker = bitcoinUnit.toString();
 		switch (bitcoinUnit) {
 			case 'BTC':
 				bitcoinSymbol = '₿';
@@ -146,14 +151,17 @@ export const getDisplayValues = ({
 				break;
 			case 'satoshi':
 				bitcoinSymbol = '⚡';
+				bitcoinTicker = 'Sats';
 				break;
 		}
 
 		return {
 			fiatFormatted,
 			fiatSymbol,
+			fiatTicker: currency,
 			bitcoinFormatted,
 			bitcoinSymbol,
+			bitcoinTicker,
 		};
 	} catch (e) {
 		console.error(e);
