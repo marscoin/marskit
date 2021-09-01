@@ -12,6 +12,7 @@ import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
 import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 import DetectSwipe from '../../components/DetectSwipe';
+import BalanceHeader from '../../components/BalanceHeader';
 
 const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -27,6 +28,7 @@ const Wallets = ({ navigation }): ReactElement => {
 				<View>
 					<Header />
 					<ScrollView showsVerticalScrollIndicator={false}>
+						<BalanceHeader />
 						<BitcoinCard />
 						<LightningCard />
 						<OmniboltCard />
