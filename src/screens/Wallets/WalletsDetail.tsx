@@ -1,14 +1,51 @@
-import React, { memo, ReactElement } from 'react';
-import { Text, View } from '../../styles/components';
+import React, { memo, PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
+import {
+	Headline,
+	Title,
+	Text,
+	Caption13M,
+	View,
+} from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
+import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import { useBalance } from './SendOnChainTransaction/WalletHook';
 
-const WalletsDetail = (): ReactElement => {
+interface Props extends PropsWithChildren<any> {
+	route: {
+		params: {
+			walletType: 'bitcoin' | 'omnibolt';
+		};
+	};
+	navigation: any;
+}
+
+const WalletsDetail = (props: Props): ReactElement => {
+	const { route, navigation } = props;
+
+	const {
+		bitcoinFormatted,
+		bitcoinSymbol,
+		bitcoinTicker,
+		fiatFormatted,
+		fiatSymbol,
+		fiatTicker,
+	} = useBalance({ onchain: true, lightning: true });
+
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title="Wallets Detail" />
 			<View style={styles.content}>
-				<Text>Wallets Detail</Text>
+				<Headline>Bitcoin</Headline>
+				<View style={styles.balanceContainer}>
+					<Title>
+						{fiatSymbol}
+						{fiatFormatted}
+					</Title>
+					<Caption13M>
+						{bitcoinFormatted} {bitcoinTicker}
+					</Caption13M>
+				</View>
 			</View>
 		</View>
 	);
@@ -20,8 +57,10 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
+		paddingHorizontal: 20,
+	},
+	balanceContainer: {
+		marginVertical: 28,
 	},
 });
 
