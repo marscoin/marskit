@@ -9,7 +9,11 @@ import { abbreviateNumber } from '../utils/helpers';
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
-	const { fiatFormatted, fiatSymbol } = useBalance();
+	const { fiatFormatted, fiatSymbol } = useBalance({
+		onchain: true,
+		lightning: true,
+		omnibolt: true,
+	});
 	const [whole, decimal] = useMemo(
 		() => fiatFormatted.split('.'),
 		[fiatFormatted],

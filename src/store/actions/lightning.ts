@@ -242,6 +242,11 @@ export const refreshLightningChannelBalance = (): Promise<Result<string>> => {
  */
 export const refreshLightningTransactions = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
+		const state = await lnd.stateService.getState();
+		if (state.isOk() && state.value !== ss_lnrpc.WalletState.UNLOCKED) {
+			return resolve(ok('LND transactions not ready to be refreshed'));
+		}
+
 		await Promise.all([refreshLightningPayments(), refreshLightningInvoices()]);
 		await updateLightingActivityList();
 		resolve(ok('LND transactions refreshed'));

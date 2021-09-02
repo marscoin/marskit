@@ -160,6 +160,14 @@ const BitcoinCard = (): ReactElement => {
 							}
 							text={'Receive'}
 						/>
+						<Button
+							color="onSurface"
+							style={styles.receiveButton}
+							onPress={(): void =>
+								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
+							}
+							text={'Detail'}
+						/>
 					</View>
 					{!!shouldDisplaySendButton() && (
 						<SendOnChainTransaction

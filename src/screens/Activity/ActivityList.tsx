@@ -134,6 +134,7 @@ const ActivityList = (): ReactElement => {
 
 	return (
 		<FlatList
+			style={styles.content}
 			data={activityItems}
 			renderItem={renderItem}
 			keyExtractor={(item): string => item.id}
@@ -145,10 +146,11 @@ const ActivityList = (): ReactElement => {
 };
 
 const styles = StyleSheet.create({
+	content: {
+		padding: 20,
+	},
 	item: {
 		minHeight: 60,
-		borderColor: 'gray',
-		borderBottomWidth: 1,
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',

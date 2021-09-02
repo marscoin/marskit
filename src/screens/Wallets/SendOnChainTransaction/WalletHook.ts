@@ -10,16 +10,13 @@ interface IncludeBalances {
 }
 
 /**
- * Retrieves the total wallet balance for the currently selected wallet and network.
- * Includes all wallets by default.
+ * Retrieves the total wallet display values for the currently selected wallet and network.
  */
-export function useBalance(
-	{ onchain = true, lightning = true, omnibolt = true }: IncludeBalances = {
-		omnibolt: true,
-		lightning: true,
-		onchain: true,
-	},
-): IDisplayValues {
+export function useBalance({
+	onchain = false,
+	lightning = false,
+	omnibolt = false,
+}: IncludeBalances): IDisplayValues {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);

@@ -20,6 +20,7 @@ import lnd from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
 import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import { useBalance } from './SendOnChainTransaction/WalletHook';
 
 const hasBalance = (value: any): boolean => {
 	try {
@@ -71,12 +72,8 @@ const LightningCard = (): ReactElement => {
 		!hasBalance(lightning.channelBalance.balance) &&
 		!hasBalance(lightning.channelBalance.remoteBalance);
 
-	const balance =
-		Number(lightning.channelBalance.balance) +
-		Number(lightning.channelBalance.pendingOpenBalance);
-
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-		useDisplayValues(balance);
+		useBalance({ lightning: true });
 
 	return (
 		<AssetCard

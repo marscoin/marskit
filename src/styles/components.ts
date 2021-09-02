@@ -23,6 +23,12 @@ export const SettingsIcon = styled(SvgXml).attrs((props) => ({
 	width: props?.width ?? '21.6px',
 }))``;
 
+export const TransferIcon = styled(SvgXml).attrs((props) => ({
+	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
 export const Display = styled.Text`
 	${sanFranciscoWeights.medium};
 	color: ${(props): string =>
