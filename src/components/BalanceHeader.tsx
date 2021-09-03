@@ -9,19 +9,15 @@ import { abbreviateNumber } from '../utils/helpers';
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
-	const { fiatFormatted, fiatSymbol } = useBalance({
+	const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } = useBalance({
 		onchain: true,
 		lightning: true,
 		omnibolt: true,
 	});
-	const [whole, decimal] = useMemo(
-		() => fiatFormatted.split('.'),
-		[fiatFormatted],
-	);
 
 	const Balance = useCallback((): ReactElement => {
-		if (whole?.length > 12) {
-			const { newValue, abbreviation } = abbreviateNumber(whole);
+		if (fiatWhole.length > 12) {
+			const { newValue, abbreviation } = abbreviateNumber(fiatWhole);
 			return (
 				<>
 					<Title style={styles.title} color="gray">
@@ -39,13 +35,14 @@ const BalanceHeader = (): ReactElement => {
 				<Title style={styles.title} color="gray">
 					{fiatSymbol}
 				</Title>
-				<Display size={'54px'}>{whole}</Display>
+				<Display size={'54px'}>{fiatWhole}</Display>
 				<Title style={styles.title} color="gray">
-					.{decimal}
+					{fiatDecimal}
+					{fiatDecimalValue}
 				</Title>
 			</>
 		);
-	}, [decimal, fiatSymbol, whole]);
+	}, [fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol]);
 
 	return (
 		<View style={styles.container}>

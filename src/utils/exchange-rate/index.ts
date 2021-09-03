@@ -77,6 +77,9 @@ const getCryptoCompareRates = async (): Promise<Result<IExchangeRates>> => {
 
 export interface IDisplayValues {
 	fiatFormatted: string;
+	fiatWhole: string; //Value before decimal point
+	fiatDecimal: string; //Decimal point "." or ","
+	fiatDecimalValue: string; // Value after decimal point
 	fiatSymbol: string; //$,€,£
 	fiatTicker: string; //USD, EUR
 	bitcoinFormatted: string;
@@ -86,6 +89,9 @@ export interface IDisplayValues {
 
 export const defaultDisplayValues: IDisplayValues = {
 	fiatFormatted: '-',
+	fiatWhole: '',
+	fiatDecimal: '',
+	fiatDecimalValue: '',
 	fiatSymbol: '',
 	fiatTicker: '',
 	bitcoinFormatted: '-',
@@ -112,7 +118,13 @@ export const getDisplayValues = ({
 			? bitcoinUnits(satoshis, 'satoshi').to(currency).value().toFixed(2)
 			: '-';
 
-		let { fiatFormatted, fiatSymbol } = defaultDisplayValues;
+		let {
+			fiatFormatted,
+			fiatWhole,
+			fiatDecimal,
+			fiatDecimalValue,
+			fiatSymbol,
+		} = defaultDisplayValues;
 
 		if (!isNaN(fiatValue)) {
 			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
@@ -124,6 +136,12 @@ export const getDisplayValues = ({
 			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
 				if (part.type === 'currency') {
 					fiatSymbol = part.value;
+				} else if (part.type === 'integer' || part.type === 'group') {
+					fiatWhole = `${fiatWhole}${part.value}`;
+				} else if (part.type === 'fraction') {
+					fiatDecimalValue = part.value;
+				} else if (part.type === 'decimal') {
+					fiatDecimal = part.value;
 				}
 			});
 
@@ -157,6 +175,9 @@ export const getDisplayValues = ({
 
 		return {
 			fiatFormatted,
+			fiatWhole,
+			fiatDecimal,
+			fiatDecimalValue,
 			fiatSymbol,
 			fiatTicker: currency,
 			bitcoinFormatted,
