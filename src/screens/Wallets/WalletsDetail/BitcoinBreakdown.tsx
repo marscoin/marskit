@@ -16,7 +16,7 @@ import {
 	BitcoinIcon,
 	LightningIcon,
 } from '../../../styles/components';
-import { useBalance } from '../SendOnChainTransaction/WalletHook';
+import { useBalance } from '../../../hooks/wallet';
 import { IDisplayValues } from '../../../utils/exchange-rate';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
@@ -42,7 +42,7 @@ const NetworkRow = ({
 				<View style={styles.networkIconContainer}>
 					<RadialGradient
 						style={styles.networkIconRadialGradient}
-						colors={[color, colors.tabBackground]}
+						colors={[color, colors.gray6]}
 						stops={[0, 0.55]}
 						center={[0, 0]}
 						radius={90}>

@@ -1,8 +1,7 @@
-import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { View, Text01M, Display, Title } from '../styles/components';
-import { useBalance } from '../screens/Wallets/SendOnChainTransaction/WalletHook';
+import { useBalance } from '../hooks/wallet';
 import { StyleSheet } from 'react-native';
-import useDisplayValues from '../utils/exchange-rate/useDisplayValues';
 import { abbreviateNumber } from '../utils/helpers';
 
 /**

@@ -18,10 +18,7 @@ import {
 	updateOnChainTransaction,
 	updateWalletBalance,
 } from '../../store/actions/wallet';
-import {
-	useBalance,
-	useTransactionDetails,
-} from '../Wallets/SendOnChainTransaction/TransactionHook';
+import { useBalance, useTransactionDetails } from '../../hooks/transaction';
 import Button from '../../components/Button';
 import {
 	broadcastTransaction,
@@ -38,7 +35,7 @@ import Store from '../../store/types';
 import { useNavigation } from '@react-navigation/native';
 import AdjustValue from '../../components/AdjustValue';
 import FeeSummary from '../Wallets/SendOnChainTransaction/FeeSummary';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
 import { IGetOrderResponse } from '../../utils/chainreactor/types';

@@ -9,7 +9,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 import { IService } from '../../utils/chainreactor/types';
 import Button from '../../components/Button';
 import { buyChannel, refreshOrder } from '../../store/actions/chainreactor';

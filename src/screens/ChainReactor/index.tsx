@@ -9,7 +9,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { IService } from '../../utils/chainreactor/types';
 

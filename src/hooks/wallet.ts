@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
-import Store from '../../../store/types';
-import { IDisplayValues } from '../../../utils/exchange-rate';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import Store from '../store/types';
+import { IDisplayValues } from '../utils/exchange-rate';
+import useDisplayValues from './displayValues';
 
 interface IncludeBalances {
 	onchain?: boolean;

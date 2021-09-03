@@ -6,7 +6,7 @@ import { IActivityItem } from '../../store/types/activity';
 import Divider from '../../components/Divider';
 import { truncate } from '../../utils/helpers';
 import { getBlockExplorerLink } from '../../utils/wallet/transactions';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;

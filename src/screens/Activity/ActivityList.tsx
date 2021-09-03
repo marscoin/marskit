@@ -17,7 +17,7 @@ import BitcoinIcon from '../../assets/bitcoin-logo.svg';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { truncate } from '../../utils/helpers';
 import { updateActivityList } from '../../store/actions/activity';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 
 const ListItem = ({
 	item,

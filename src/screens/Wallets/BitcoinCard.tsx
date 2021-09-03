@@ -17,7 +17,7 @@ import { getNetworkData } from '../../utils/helpers';
 import SendOnChainTransaction from './SendOnChainTransaction';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 
 const BitcoinCard = (): ReactElement => {
 	const [displaySend, setDisplaySend] = useState(false);

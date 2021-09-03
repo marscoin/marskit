@@ -4,7 +4,7 @@ import lnd from '@synonymdev/react-native-lightning';
 import { View, Text } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { lnrpc } from '@synonymdev/react-native-lightning';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../../hooks/displayValues';
 import Button from '../../../components/Button';
 import { showErrorNotification } from '../../../utils/notifications';
 

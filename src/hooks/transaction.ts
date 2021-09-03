@@ -1,10 +1,10 @@
 import { useSelector } from 'react-redux';
-import Store from '../../../store/types';
+import Store from '../store/types';
 import {
 	defaultOnChainTransactionData,
 	IOnChainTransactionData,
-} from '../../../store/types/wallet';
-import { reduceValue } from '../../../utils/helpers';
+} from '../store/types/wallet';
+import { reduceValue } from '../utils/helpers';
 
 /**
  * Current transaction object of the selectedWallet/Network.

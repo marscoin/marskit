@@ -19,8 +19,7 @@ import {
 import lnd from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
-import { useBalance } from './SendOnChainTransaction/WalletHook';
+import { useBalance } from '../../hooks/wallet';
 
 const hasBalance = (value: any): boolean => {
 	try {

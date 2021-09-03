@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import Store from '../../store/types';
+import Store from '../store/types';
 import {
 	defaultDisplayValues,
 	getDisplayValues,
 	IDisplayValues,
-} from './index';
+} from '../utils/exchange-rate';
 
 export default function useDisplayValues(sats: number): IDisplayValues {
 	const [displayValues, setDisplayValues] =

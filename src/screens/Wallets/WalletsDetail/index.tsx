@@ -1,11 +1,10 @@
-import React, { memo, PropsWithChildren, ReactElement, useMemo } from 'react';
+import React, { memo, PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
 import { Title, Caption13M, Headline, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
-import { useBalance } from '../SendOnChainTransaction/WalletHook';
-import Button from '../../../components/Button';
+import { useBalance } from '../../../hooks/wallet';
 import ActivityList from '../../Activity/ActivityList';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';
@@ -17,11 +16,10 @@ interface Props extends PropsWithChildren<any> {
 			assetType: 'bitcoin' | 'tether';
 		};
 	};
-	navigation: any;
 }
 
 const WalletsDetail = (props: Props): ReactElement => {
-	const { route, navigation } = props;
+	const { route } = props;
 
 	const { assetType } = route.params;
 
@@ -41,7 +39,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 		<View style={styles.container}>
 			<RadialGradient
 				style={styles.content}
-				colors={['rgb(52,34,10)', colors.tabBackground]}
+				colors={['rgb(52,34,10)', colors.gray6]}
 				stops={[0.1, 0.4]}
 				center={[50, 50]}
 				radius={600}>
@@ -71,7 +69,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 					{/*</View>*/}
 				</View>
 			</RadialGradient>
-			<View color={'tabBackground'} style={styles.radiusFooter} />
+			<View color={'gray6'} style={styles.radiusFooter} />
 
 			<ActivityList />
 		</View>
@@ -94,14 +92,14 @@ const styles = StyleSheet.create({
 	balanceContainer: {
 		marginVertical: 18,
 	},
-	txButton: {
-		marginRight: 16,
-	},
-	txButtonsContainer: {
-		display: 'flex',
-		flexDirection: 'row',
-		marginVertical: 20,
-	},
+	// txButton: {
+	// 	marginRight: 16,
+	// },
+	// txButtonsContainer: {
+	// 	display: 'flex',
+	// 	flexDirection: 'row',
+	// 	marginVertical: 20,
+	// },
 	largeValueContainer: {
 		display: 'flex',
 		flexDirection: 'row',
