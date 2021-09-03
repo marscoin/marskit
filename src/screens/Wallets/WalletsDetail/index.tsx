@@ -1,8 +1,8 @@
-import React, { memo, PropsWithChildren, ReactElement } from 'react';
+import React, { memo, PropsWithChildren, ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
-import { Headline, Title, Caption13M, View } from '../../../styles/components';
+import { Title, Caption13M, Headline, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../SendOnChainTransaction/WalletHook';
 import Button from '../../../components/Button';
@@ -25,8 +25,14 @@ const WalletsDetail = (props: Props): ReactElement => {
 
 	const { assetType } = route.params;
 
-	const { bitcoinFormatted, bitcoinTicker, fiatFormatted, fiatSymbol } =
-		useBalance({ onchain: true, lightning: true });
+	const {
+		bitcoinFormatted,
+		bitcoinSymbol,
+		fiatWhole,
+		fiatDecimal,
+		fiatDecimalValue,
+		fiatSymbol,
+	} = useBalance({ onchain: true, lightning: true });
 
 	const theme = useSelector((state: Store) => state.settings.theme);
 	const { colors } = themes[theme];
@@ -42,21 +48,27 @@ const WalletsDetail = (props: Props): ReactElement => {
 				<NavigationHeader />
 
 				<View color={'transparent'} style={styles.header}>
-					<Headline size={'26px'}>Bitcoin</Headline>
+					<Title>Bitcoin</Title>
 					<View color={'transparent'} style={styles.balanceContainer}>
-						<Title size={'34px'}>
-							{fiatSymbol}
-							{fiatFormatted}
-						</Title>
-						<Caption13M size={'14px'} color={'gray'}>
-							{bitcoinFormatted} {bitcoinTicker}
+						<Caption13M color={'gray'}>
+							{bitcoinSymbol}
+							{bitcoinFormatted}
 						</Caption13M>
+
+						<View color={'transparent'} style={styles.largeValueContainer}>
+							<Headline color={'gray'}>{fiatSymbol}</Headline>
+							<Headline>{fiatWhole}</Headline>
+							<Headline color={'gray'}>
+								{fiatDecimal}
+								{fiatDecimalValue}
+							</Headline>
+						</View>
 					</View>
 					{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
-					<View color={'transparent'} style={styles.txButtonsContainer}>
-						<Button color={'surface'} style={styles.txButton} text={'Send'} />
-						<Button color={'surface'} text={'Receive'} />
-					</View>
+					{/*<View color={'transparent'} style={styles.txButtonsContainer}>*/}
+					{/*	<Button color={'surface'} style={styles.txButton} text={'Send'} />*/}
+					{/*	<Button color={'surface'} text={'Receive'} />*/}
+					{/*</View>*/}
 				</View>
 			</RadialGradient>
 			<View color={'tabBackground'} style={styles.radiusFooter} />
@@ -80,7 +92,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 20,
 	},
 	balanceContainer: {
-		marginVertical: 28,
+		marginVertical: 18,
 	},
 	txButton: {
 		marginRight: 16,
@@ -89,6 +101,10 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		marginVertical: 20,
+	},
+	largeValueContainer: {
+		display: 'flex',
+		flexDirection: 'row',
 	},
 });
 

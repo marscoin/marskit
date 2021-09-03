@@ -5,13 +5,64 @@
 
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import RadialGradient from 'react-native-radial-gradient';
 import {
 	Caption13M,
+	Caption13S,
 	Text01M,
 	View,
 	TransferIcon,
+	Text02S,
+	BitcoinIcon,
+	LightningIcon,
 } from '../../../styles/components';
 import { useBalance } from '../SendOnChainTransaction/WalletHook';
+import { IDisplayValues } from '../../../utils/exchange-rate';
+import { useSelector } from 'react-redux';
+import Store from '../../../store/types';
+import themes from '../../../styles/themes';
+
+const NetworkRow = ({
+	title,
+	color,
+	icon,
+	values,
+}: {
+	title: string;
+	color: string;
+	icon: ReactElement;
+	values: IDisplayValues;
+}): ReactElement => {
+	const theme = useSelector((state: Store) => state.settings.theme);
+	const { colors } = themes[theme];
+
+	return (
+		<View color={'transparent'} style={styles.networkRow}>
+			<View color={'transparent'} style={styles.titleContainer}>
+				<View style={styles.networkIconContainer}>
+					<RadialGradient
+						style={styles.networkIconRadialGradient}
+						colors={[color, colors.tabBackground]}
+						stops={[0, 0.55]}
+						center={[0, 0]}
+						radius={90}>
+						{icon}
+					</RadialGradient>
+				</View>
+
+				<Text02S>{title}</Text02S>
+			</View>
+			<View color={'transparent'} style={styles.valueContainer}>
+				<Text01M style={styles.value}>
+					{values.bitcoinSymbol} {values.bitcoinFormatted}
+				</Text01M>
+				<Caption13S color={'gray'} style={styles.value}>
+					{values.fiatFormatted} {values.fiatTicker}
+				</Caption13S>
+			</View>
+		</View>
+	);
+};
 
 const BitcoinBreakdown = (): ReactElement => {
 	const onchainBalance = useBalance({ onchain: true });
@@ -19,64 +70,91 @@ const BitcoinBreakdown = (): ReactElement => {
 
 	return (
 		<View color={'transparent'} style={styles.container}>
-			<View color={'transparent'} style={styles.col1}>
-				<Text01M>Onchain</Text01M>
-				<Caption13M>
-					{onchainBalance.bitcoinSymbol}
-					{onchainBalance.bitcoinFormatted}
-				</Caption13M>
-				<Caption13M color={'gray'}>
-					≈{onchainBalance.fiatSymbol}
-					{onchainBalance.fiatFormatted}
-				</Caption13M>
-			</View>
-			<View color={'transparent'} style={styles.col2}>
+			<NetworkRow
+				title={'Bitcoin Network'}
+				color={'#B26200'}
+				icon={<BitcoinIcon />}
+				values={onchainBalance}
+			/>
+			<View color={'transparent'} style={styles.transferRow}>
+				<View color={'onSurface'} style={styles.line} />
 				<TouchableOpacity>
 					<View style={styles.transferButton} color={'surface'}>
-						<TransferIcon color={'white'} />
+						<TransferIcon />
+						<Caption13M color={'white'} style={styles.transferButtonText}>
+							Transfer
+						</Caption13M>
 					</View>
 				</TouchableOpacity>
+				<View color={'onSurface'} style={styles.line} />
 			</View>
-			<View color={'transparent'} style={styles.col3}>
-				<Text01M>Lightning</Text01M>
-				<Caption13M>
-					{lightningBalance.bitcoinSymbol}
-					{lightningBalance.bitcoinFormatted}
-				</Caption13M>
-				<Caption13M color={'gray'}>
-					≈{lightningBalance.fiatSymbol}
-					{lightningBalance.fiatFormatted}
-				</Caption13M>
-			</View>
+			<NetworkRow
+				title={'Lightning Network'}
+				color={'#9400DF'}
+				icon={<LightningIcon />}
+				values={lightningBalance}
+			/>
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		height: 80,
+		display: 'flex',
+	},
+	networkRow: {
 		display: 'flex',
 		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
 	},
-	col1: {
-		flex: 4,
+	transferRow: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		paddingVertical: 18.3,
 	},
-	col2: {
-		flex: 3,
+	line: {
+		flex: 1,
+		height: 1,
+	},
+	networkIconContainer: {
+		backgroundColor: 'green',
+		borderRadius: 30,
+		overflow: 'hidden',
+		height: 40,
+		width: 40,
+		marginRight: 14,
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	col3: {
-		flex: 4,
+	networkIconRadialGradient: {
+		padding: 12,
 	},
 	transferButton: {
-		width: 34,
-		height: 34,
+		paddingHorizontal: 12.28,
+		height: 30,
 		borderRadius: 34,
 		display: 'flex',
+		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	transferButtonText: {
+		paddingLeft: 12.28,
+	},
+	titleContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	valueContainer: {
+		display: 'flex',
+		alignItems: 'flex-end',
+	},
+	value: {
+		textAlign: 'right',
 	},
 });
 
