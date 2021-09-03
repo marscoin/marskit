@@ -8,19 +8,25 @@ import Animated from 'react-native-reanimated';
 import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
-import { camera, settings } from '../assets/icons/header';
+import { camera, settings, dismiss } from '../assets/icons/header';
 import { sanFranciscoWeights } from 'react-native-typography';
+
+export const DismissIcon = styled(SvgXml).attrs((props) => ({
+	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
+	width: props?.width ?? '14px',
+	height: props?.height ?? '16px',
+}))``;
 
 export const CameraIcon = styled(SvgXml).attrs((props) => ({
 	xml: camera(props?.color ? props.theme.colors[props.color] : '#636366'),
-	height: props?.height ?? '20.53px',
 	width: props?.width ?? '20.54px',
+	height: props?.height ?? '20.53px',
 }))``;
 
 export const SettingsIcon = styled(SvgXml).attrs((props) => ({
 	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
-	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+	height: props?.height ?? '19.8px',
 }))``;
 
 export const TransferIcon = styled(SvgXml).attrs((props) => ({

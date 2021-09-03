@@ -6,6 +6,7 @@ import { ILightning } from './lightning';
 import { IActivity } from './activity';
 import { IBackup } from './backup';
 import { IChainReactor } from './chainreactor';
+import { ITodos } from './todos';
 
 export default interface Store {
 	user: IUser;
@@ -16,4 +17,5 @@ export default interface Store {
 	activity: IActivity;
 	backup: IBackup;
 	chainreactor: IChainReactor;
+	todos: ITodos;
 }
