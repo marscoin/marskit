@@ -24,7 +24,7 @@ const BalanceHeader = (): ReactElement => {
 					<Title style={styles.title} color="gray">
 						{fiatSymbol}
 					</Title>
-					<Display size={54}>{newValue}</Display>
+					<Display size={'54px'}>{newValue}</Display>
 					<Title style={styles.title} color="gray">
 						{abbreviation}
 					</Title>
@@ -36,7 +36,7 @@ const BalanceHeader = (): ReactElement => {
 				<Title style={styles.title} color="gray">
 					{fiatSymbol}
 				</Title>
-				<Display size={54}>{whole}</Display>
+				<Display size={'54px'}>{whole}</Display>
 				<Title style={styles.title} color="gray">
 					.{decimal}
 				</Title>
@@ -61,7 +61,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'flex-start',
-		margin: 30,
+		marginVertical: 30,
+		marginHorizontal: 10,
 	},
 	row: {
 		flexDirection: 'row',

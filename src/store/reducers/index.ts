@@ -7,6 +7,7 @@ import lightning from './lightning';
 import activity from './activity';
 import backup from './backup';
 import chainreactor from './chainreactor';
+import todos from './todos';
 
 const appReducers = combineReducers({
 	user,
@@ -17,6 +18,7 @@ const appReducers = combineReducers({
 	activity,
 	backup,
 	chainreactor,
+	todos,
 });
 
 export default appReducers;
