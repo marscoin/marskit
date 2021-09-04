@@ -20,7 +20,7 @@ import {
 	updateOnChainTransaction,
 	updateWalletBalance,
 } from '../../../store/actions/wallet';
-import { useBalance, useTransactionDetails } from './TransactionHook';
+import { useBalance, useTransactionDetails } from '../../../hooks/transaction';
 import Button from '../../../components/Button';
 import {
 	createFundedPsbtTransaction,
@@ -40,7 +40,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
 import AdjustValue from '../../../components/AdjustValue';
 import FeeSummary from './FeeSummary';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const BitcoinToLightning = (): ReactElement => {

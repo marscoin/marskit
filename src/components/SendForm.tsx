@@ -23,10 +23,7 @@ import {
 	updateFee,
 } from '../utils/wallet/transactions';
 import Button from './Button';
-import {
-	useBalance,
-	useTransactionDetails,
-} from '../screens/Wallets/SendOnChainTransaction/TransactionHook';
+import { useBalance, useTransactionDetails } from '../hooks/transaction';
 import { autoCoinSelect } from '../utils/wallet';
 import { getStore } from '../store/helpers';
 

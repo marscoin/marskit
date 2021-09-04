@@ -1,24 +1,22 @@
-import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { View, Text01M, Display, Title } from '../styles/components';
-import { useBalance } from '../screens/Wallets/SendOnChainTransaction/WalletHook';
+import { useBalance } from '../hooks/wallet';
 import { StyleSheet } from 'react-native';
-import useDisplayValues from '../utils/exchange-rate/useDisplayValues';
 import { abbreviateNumber } from '../utils/helpers';
 
 /**
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
-	const balance = useBalance();
-	const { fiatFormatted, fiatSymbol } = useDisplayValues(balance ?? 0);
-	const [whole, decimal] = useMemo(
-		() => fiatFormatted.split('.'),
-		[fiatFormatted],
-	);
+	const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } = useBalance({
+		onchain: true,
+		lightning: true,
+		omnibolt: true,
+	});
 
 	const Balance = useCallback((): ReactElement => {
-		if (whole?.length > 12) {
-			const { newValue, abbreviation } = abbreviateNumber(whole);
+		if (fiatWhole.length > 12) {
+			const { newValue, abbreviation } = abbreviateNumber(fiatWhole);
 			return (
 				<>
 					<Title style={styles.title} color="gray">
@@ -36,13 +34,14 @@ const BalanceHeader = (): ReactElement => {
 				<Title style={styles.title} color="gray">
 					{fiatSymbol}
 				</Title>
-				<Display size={'54px'}>{whole}</Display>
+				<Display size={'54px'}>{fiatWhole}</Display>
 				<Title style={styles.title} color="gray">
-					.{decimal}
+					{fiatDecimal}
+					{fiatDecimalValue}
 				</Title>
 			</>
 		);
-	}, [decimal, fiatSymbol, whole]);
+	}, [fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol]);
 
 	return (
 		<View style={styles.container}>

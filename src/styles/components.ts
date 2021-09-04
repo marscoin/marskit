@@ -9,6 +9,11 @@ import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
 import { camera, settings, dismiss } from '../assets/icons/header';
+import {
+	bitcoinIcon,
+	lightningIcon,
+	transferIcon,
+} from '../assets/icons/wallet';
 import { sanFranciscoWeights } from 'react-native-typography';
 
 export const DismissIcon = styled(SvgXml).attrs((props) => ({
@@ -27,6 +32,26 @@ export const SettingsIcon = styled(SvgXml).attrs((props) => ({
 	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
 	width: props?.width ?? '21.6px',
 	height: props?.height ?? '19.8px',
+}))``;
+
+export const TransferIcon = styled(SvgXml).attrs((props) => ({
+	xml: transferIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
+export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
+	xml: bitcoinIcon(props?.color ? props.theme.colors[props.color] : '#ED8452'),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
+export const LightningIcon = styled(SvgXml).attrs((props) => ({
+	xml: lightningIcon(
+		props?.color ? props.theme.colors[props.color] : '#B95CE8',
+	),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
 }))``;
 
 export const Display = styled.Text`
@@ -125,6 +150,17 @@ export const Caption13M = styled.Text`
 		props.font
 			? props.theme.fonts[props.font].fontFamily
 			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
+
+export const Caption13S = styled.Text`
+	${sanFranciscoWeights.regular};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.regular.fontFamily};
 	font-size: ${(props): string => (props.size ? props.size : '13px')};
 `;
 

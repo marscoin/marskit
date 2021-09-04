@@ -79,8 +79,6 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		height: '100%',
-		paddingLeft: 15,
-		paddingRight: 15,
 	},
 });
 

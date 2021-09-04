@@ -77,16 +77,26 @@ const getCryptoCompareRates = async (): Promise<Result<IExchangeRates>> => {
 
 export interface IDisplayValues {
 	fiatFormatted: string;
+	fiatWhole: string; //Value before decimal point
+	fiatDecimal: string; //Decimal point "." or ","
+	fiatDecimalValue: string; // Value after decimal point
 	fiatSymbol: string; //$,€,£
+	fiatTicker: string; //USD, EUR
 	bitcoinFormatted: string;
-	bitcoinSymbol: string;
+	bitcoinSymbol: string; //₿, m₿, μ₿, ⚡,
+	bitcoinTicker: string; //BTC, mBTC, μBTC, Sats
 }
 
 export const defaultDisplayValues: IDisplayValues = {
 	fiatFormatted: '-',
+	fiatWhole: '',
+	fiatDecimal: '',
+	fiatDecimalValue: '',
 	fiatSymbol: '',
+	fiatTicker: '',
 	bitcoinFormatted: '-',
 	bitcoinSymbol: '',
+	bitcoinTicker: '',
 };
 
 export const getDisplayValues = ({
@@ -108,7 +118,13 @@ export const getDisplayValues = ({
 			? bitcoinUnits(satoshis, 'satoshi').to(currency).value().toFixed(2)
 			: '-';
 
-		let { fiatFormatted, fiatSymbol } = defaultDisplayValues;
+		let {
+			fiatFormatted,
+			fiatWhole,
+			fiatDecimal,
+			fiatDecimalValue,
+			fiatSymbol,
+		} = defaultDisplayValues;
 
 		if (!isNaN(fiatValue)) {
 			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
@@ -120,6 +136,12 @@ export const getDisplayValues = ({
 			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
 				if (part.type === 'currency') {
 					fiatSymbol = part.value;
+				} else if (part.type === 'integer' || part.type === 'group') {
+					fiatWhole = `${fiatWhole}${part.value}`;
+				} else if (part.type === 'fraction') {
+					fiatDecimalValue = part.value;
+				} else if (part.type === 'decimal') {
+					fiatDecimal = part.value;
 				}
 			});
 
@@ -133,7 +155,8 @@ export const getDisplayValues = ({
 			.value()
 			.toString();
 
-		let bitcoinSymbol = '';
+		let { bitcoinSymbol } = defaultDisplayValues;
+		let bitcoinTicker = bitcoinUnit.toString();
 		switch (bitcoinUnit) {
 			case 'BTC':
 				bitcoinSymbol = '₿';
@@ -146,14 +169,20 @@ export const getDisplayValues = ({
 				break;
 			case 'satoshi':
 				bitcoinSymbol = '⚡';
+				bitcoinTicker = 'Sats';
 				break;
 		}
 
 		return {
 			fiatFormatted,
+			fiatWhole,
+			fiatDecimal,
+			fiatDecimalValue,
 			fiatSymbol,
+			fiatTicker: currency,
 			bitcoinFormatted,
 			bitcoinSymbol,
+			bitcoinTicker,
 		};
 	} catch (e) {
 		console.error(e);
