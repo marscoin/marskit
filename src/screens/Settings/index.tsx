@@ -29,6 +29,7 @@ import { resetOmniBoltStore } from '../../store/actions/omnibolt';
 import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
+import { resetChainReactorStore } from '../../store/actions/chainreactor';
 
 const Settings = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -281,6 +282,14 @@ const Settings = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
+						title: 'Reset Chain Reactor Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetChainReactorStore();
+						},
+						hide: false,
+					},
+					{
 						title: 'Reset All Stores',
 						type: 'button',
 						onPress: async (): Promise<void> => {
@@ -291,6 +300,7 @@ const Settings = ({ navigation }): ReactElement => {
 								resetActivityStore(),
 								resetUserStore(),
 								resetOmniBoltStore(),
+								resetChainReactorStore(),
 							]);
 						},
 						hide: false,

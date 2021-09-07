@@ -39,17 +39,17 @@ const ListItem = ({
 				<View color={'gray6'} style={styles.iconCircle}>
 					{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
 				</View>
+				<View>
+					<Text02S style={styles.note}>
+						{txType === 'sent' ? 'Sent' : 'Received'}{' '}
+						{!confirmed ? '(Unconfirmed)' : ''}
+					</Text02S>
+					<Caption13S color={'gray'} style={styles.date}>
+						{timeAgo(timestamp)}
+					</Caption13S>
+				</View>
 			</View>
 			<View style={styles.col2}>
-				<Text02S style={styles.note}>
-					{txType === 'sent' ? 'Sent' : 'Received'}{' '}
-					{!confirmed ? '(Unconfirmed)' : ''}
-				</Text02S>
-				<Caption13S color={'gray'} style={styles.date}>
-					{timeAgo(timestamp)}
-				</Caption13S>
-			</View>
-			<View style={styles.col3}>
 				<Text02S style={styles.value}>
 					{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
 					{bitcoinFormatted.replace('-', '')}
@@ -127,14 +127,9 @@ const styles = StyleSheet.create({
 	col1: {
 		display: 'flex',
 		flexDirection: 'row',
-		flex: 1,
-	},
-	col2: {
-		display: 'flex',
-		flexDirection: 'column',
 		flex: 5,
 	},
-	col3: {
+	col2: {
 		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'flex-end',
@@ -147,6 +142,7 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
+		marginRight: 14,
 	},
 	value: {
 		textAlign: 'right',
