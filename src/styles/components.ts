@@ -12,6 +12,8 @@ import { camera, settings, dismiss } from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
+	receivedIcon,
+	sentIcon,
 	transferIcon,
 } from '../assets/icons/wallet';
 import { sanFranciscoWeights } from 'react-native-typography';
@@ -52,6 +54,18 @@ export const LightningIcon = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+}))``;
+
+export const SentIcon = styled(SvgXml).attrs((props) => ({
+	xml: sentIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '17px',
+	width: props?.width ?? '17px',
+}))``;
+
+export const ReceivedIcon = styled(SvgXml).attrs((props) => ({
+	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '17px',
+	width: props?.width ?? '17px',
 }))``;
 
 export const Display = styled.Text`
