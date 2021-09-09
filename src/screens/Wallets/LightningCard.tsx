@@ -125,9 +125,9 @@ const LightningCard = (): ReactElement => {
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
 									connectToDefaultPeer().then();
-									navigation.navigate('BitcoinToLightning');
+									navigation.navigate('ChainReactor');
 								}}
-								text="Move funds to lighting"
+								text="Buy Channel"
 							/>
 						)}
 					</View>
