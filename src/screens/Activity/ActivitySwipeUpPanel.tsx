@@ -22,7 +22,7 @@ const ActivitySwipeUpPanel = (): React.ReactElement => {
 			<View style={styles.dragIconContainer}>
 				<AnimatedDragIcon direction={showUp ? 'up' : 'down'} />
 			</View>
-			<ThemedView color="onSurface" style={styles.panelHeader}>
+			<ThemedView color="gray6" style={styles.panelHeader}>
 				<TextInput
 					placeholderTextColor={theme.colors.text}
 					placeholder={'Search...'}
@@ -33,7 +33,7 @@ const ActivitySwipeUpPanel = (): React.ReactElement => {
 					value={searchFilter}
 				/>
 			</ThemedView>
-			<ThemedView color="onSurface" style={styles.content}>
+			<ThemedView color="gray6" style={styles.content}>
 				<ActivityList />
 			</ThemedView>
 		</View>
@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		borderStyle: 'solid',
 		borderBottomWidth: 1,
+		backgroundColor: 'transparent',
 	},
 	content: {
 		height: '100%',

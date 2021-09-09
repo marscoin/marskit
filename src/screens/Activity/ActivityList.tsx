@@ -35,11 +35,11 @@ const ListItem = ({
 
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
-			<View style={styles.col1}>
+			<View style={styles.col1} color={'transparent'}>
 				<View color={'gray6'} style={styles.iconCircle}>
 					{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
 				</View>
-				<View>
+				<View color={'transparent'}>
 					<Text02S style={styles.note}>
 						{txType === 'sent' ? 'Sent' : 'Received'}{' '}
 						{!confirmed ? '(Unconfirmed)' : ''}
@@ -49,7 +49,7 @@ const ListItem = ({
 					</Caption13S>
 				</View>
 			</View>
-			<View style={styles.col2}>
+			<View style={styles.col2} color={'transparent'}>
 				<Text02S style={styles.value}>
 					{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
 					{bitcoinFormatted.replace('-', '')}
@@ -65,7 +65,7 @@ const ListItem = ({
 
 const ListHeaderComponent = (): ReactElement => {
 	return (
-		<View style={styles.header}>
+		<View style={styles.header} color={'transparent'}>
 			<Subtitle>Transactions</Subtitle>
 		</View>
 	);
