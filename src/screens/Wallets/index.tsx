@@ -4,7 +4,8 @@
  */
 
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, ScrollView, StyleSheet } from 'react-native';
+import { LayoutAnimation, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../../styles/components';
 import Header from './Header';
 import BitcoinCard from './BitcoinCard';
@@ -24,23 +25,30 @@ const Wallets = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<DetectSwipe onSwipeLeft={onSwipeLeft}>
-			<View style={styles.container}>
-				<View>
-					<Header />
-					<ScrollView showsVerticalScrollIndicator={false}>
-						<BalanceHeader />
-						<TodoCarousel />
+		<View style={styles.container}>
+			<View>
+				<Header />
+				<ScrollView
+					contentContainerStyle={styles.scrollview}
+					disableScrollViewPanResponder={true}
+					showsVerticalScrollIndicator={false}>
+					<DetectSwipe onSwipeLeft={onSwipeLeft}>
+						<View>
+							<BalanceHeader />
+						</View>
+					</DetectSwipe>
+					<TodoCarousel />
+					<DetectSwipe onSwipeLeft={onSwipeLeft}>
 						<View style={styles.content}>
 							<BitcoinCard />
 							<LightningCard />
 							<OmniboltCard />
 						</View>
-					</ScrollView>
-				</View>
-				<ActivitySwipeUpPanel />
+					</DetectSwipe>
+				</ScrollView>
 			</View>
-		</DetectSwipe>
+			<ActivitySwipeUpPanel />
+		</View>
 	);
 };
 
@@ -50,6 +58,9 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		paddingHorizontal: 20,
+	},
+	scrollview: {
+		paddingBottom: 400,
 	},
 });
 
