@@ -48,7 +48,10 @@ const DetectSwipe = ({
 	};
 
 	return (
-		<PanGestureHandler onGestureEvent={onPanGestureEvent}>
+		<PanGestureHandler
+			onGestureEvent={onPanGestureEvent}
+			// This allows Android to scroll when wrapping a ScrollView.
+			activeOffsetX={[-10, 10]}>
 			{children}
 		</PanGestureHandler>
 	);
