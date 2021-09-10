@@ -1,6 +1,6 @@
 import { IGetOrderResponse, IService } from '@synonymdev/blocktank-client';
 
-export interface IChainReactor {
+export interface IBlocktank {
 	serviceList: IService[];
 	serviceListLastUpdated?: Date;
 	orders: IGetOrderResponse[];

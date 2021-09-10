@@ -5,7 +5,7 @@ import { IOmniBolt } from './omnibolt';
 import { ILightning } from './lightning';
 import { IActivity } from './activity';
 import { IBackup } from './backup';
-import { IChainReactor } from './chainreactor';
+import { IBlocktank } from './blocktank';
 import { ITodos } from './todos';
 
 export default interface Store {
@@ -16,6 +16,6 @@ export default interface Store {
 	lightning: ILightning;
 	activity: IActivity;
 	backup: IBackup;
-	chainreactor: IChainReactor;
+	blocktank: IBlocktank;
 	todos: ITodos;
 }

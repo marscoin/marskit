@@ -18,10 +18,10 @@ import Store from '../../store/types';
 import AuthCheck from '../../components/AuthCheck';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
-import ChainReactor from '../../screens/ChainReactor';
-import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
+import Blocktank from '../../screens/Blocktank';
+import BlocktankOrder from '../../screens/Blocktank/OrderService';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
-import ChainReactorPayment from '../../screens/ChainReactor/Payment';
+import BlocktankPayment from '../../screens/Blocktank/Payment';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 
 const Stack = createNativeStackNavigator();
@@ -150,18 +150,18 @@ const RootNavigator = (): ReactElement => {
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactor"
-					component={ChainReactor}
+					name="Blocktank"
+					component={Blocktank}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactorOrder"
-					component={ChainReactorOrder}
+					name="BlocktankOrder"
+					component={BlocktankOrder}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactorPayment"
-					component={ChainReactorPayment}
+					name="BlocktankPayment"
+					component={BlocktankPayment}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

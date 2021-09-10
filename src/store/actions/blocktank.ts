@@ -14,7 +14,7 @@ export const refreshServiceList = (): Promise<Result<string>> => {
 			const res = await bt.getInfo();
 
 			dispatch({
-				type: actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST,
+				type: actions.UPDATE_BLOCKTANK_SERVICE_LIST,
 				payload: res.services,
 			});
 
@@ -48,7 +48,7 @@ export const refreshOrder = (orderId: string): Promise<Result<string>> => {
 			const res = await bt.getOrder(orderId);
 
 			dispatch({
-				type: actions.UPDATE_CHAIN_REACTOR_ORDER,
+				type: actions.UPDATE_BLOCKTANK_ORDER,
 				payload: res,
 			});
 
@@ -62,9 +62,9 @@ export const refreshOrder = (orderId: string): Promise<Result<string>> => {
 /*
  * This resets the activity store to defaultActivityShape
  */
-export const resetChainReactorStore = (): Result<string> => {
+export const resetBlocktankStore = (): Result<string> => {
 	dispatch({
-		type: actions.RESET_CHAIN_REACTOR_STORE,
+		type: actions.RESET_BLOCKTANK_STORE,
 	});
 	return ok('');
 };

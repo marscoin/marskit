@@ -13,7 +13,7 @@ import useDisplayValues from '../../hooks/displayValues';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { IService } from '@synonymdev/blocktank-client';
 
-import { refreshServiceList } from '../../store/actions/chainreactor';
+import { refreshServiceList } from '../../store/actions/blocktank';
 import { updateExchangeRates } from '../../store/actions/wallet';
 import { showErrorNotification } from '../../utils/notifications';
 
@@ -55,9 +55,9 @@ const ListItem = ({
 	);
 };
 
-const ChainReactorScreen = ({ navigation }): ReactElement => {
+const BlocktankScreen = ({ navigation }): ReactElement => {
 	const { serviceList, orders } = useSelector(
-		(state: Store) => state.chainreactor,
+		(state: Store) => state.blocktank,
 	);
 
 	const [refreshing, setRefreshing] = useState(false);
@@ -91,7 +91,7 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 				item={item}
 				onPress={(): void => {
 					if (item.available) {
-						navigation.navigate('ChainReactorOrder', {
+						navigation.navigate('BlocktankOrder', {
 							service: item,
 							existingOrderId,
 						});
@@ -115,7 +115,7 @@ const ChainReactorScreen = ({ navigation }): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title={'Chain Reactor'} />
+			<NavigationHeader title={'Blocktank'} />
 
 			<Text style={styles.text}>Current orders: {orders.length}</Text>
 
@@ -166,4 +166,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ChainReactorScreen;
+export default BlocktankScreen;

@@ -62,14 +62,16 @@ const LightningCard = (): ReactElement => {
 
 	const showSendReceive =
 		hasBalance(lightning.channelBalance.balance) ||
-		hasBalance(lightning.channelBalance.remoteBalance);
+		hasBalance(lightning.channelBalance.remoteBalance?.sat);
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
 		lightning.info.syncedToChain &&
 		!hasBalance(lightning.channelBalance.pendingOpenBalance) &&
 		!hasBalance(lightning.channelBalance.balance) &&
-		!hasBalance(lightning.channelBalance.remoteBalance);
+		!hasBalance(lightning.channelBalance.remoteBalance?.sat);
+
+	console.log(lightning.channelBalance);
 
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useBalance({ lightning: true });
@@ -125,7 +127,7 @@ const LightningCard = (): ReactElement => {
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
 									connectToDefaultPeer().then();
-									navigation.navigate('ChainReactor');
+									navigation.navigate('Blocktank');
 								}}
 								text="Buy Channel"
 							/>

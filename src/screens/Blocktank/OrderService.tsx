@@ -12,7 +12,7 @@ import Divider from '../../components/Divider';
 import useDisplayValues from '../../hooks/displayValues';
 import { IService } from '@synonymdev/blocktank-client';
 import Button from '../../components/Button';
-import { buyChannel, refreshOrder } from '../../store/actions/chainreactor';
+import { buyChannel, refreshOrder } from '../../store/actions/blocktank';
 import {
 	showErrorNotification,
 	showSuccessNotification,
@@ -54,7 +54,7 @@ const Order = (props: Props): ReactElement => {
 			return null;
 		}
 
-		return state.chainreactor.orders.find((o) => o._id === orderId);
+		return state.blocktank.orders.find((o) => o._id === orderId);
 	});
 
 	const [remoteBalance, setRemoteBalance] = useState('0');
@@ -86,7 +86,7 @@ const Order = (props: Props): ReactElement => {
 
 	const goToPayment = (): void => {
 		if (order) {
-			navigation.navigate('ChainReactorPayment', {
+			navigation.navigate('BlocktankPayment', {
 				order,
 			});
 		}

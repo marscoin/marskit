@@ -1,20 +1,20 @@
 import actions from '../actions/actions';
-import { defaultChainReactorShape } from '../shapes/chainreactor';
-import { IChainReactor } from '../types/chainreactor';
+import { defaultBlocktankShape } from '../shapes/blocktank';
+import { IBlocktank } from '../types/blocktank';
 import { IGetOrderResponse } from '@synonymdev/blocktank-client';
 
-const chainreactor = (
-	state: IChainReactor = { ...defaultChainReactorShape },
+const blocktank = (
+	state: IBlocktank = { ...defaultBlocktankShape },
 	action,
-): IChainReactor => {
+): IBlocktank => {
 	switch (action.type) {
-		case actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST:
+		case actions.UPDATE_BLOCKTANK_SERVICE_LIST:
 			return {
 				...state,
 				serviceList: action.payload,
 				serviceListLastUpdated: new Date(),
 			};
-		case actions.UPDATE_CHAIN_REACTOR_ORDER:
+		case actions.UPDATE_BLOCKTANK_ORDER:
 			//Find existing order and update it if it exists, else append to list
 			const updatedOrder: IGetOrderResponse = action.payload;
 
@@ -36,11 +36,11 @@ const chainreactor = (
 				...state,
 				orders,
 			};
-		case actions.RESET_CHAIN_REACTOR_STORE:
-			return { ...defaultChainReactorShape };
+		case actions.RESET_BLOCKTANK_STORE:
+			return { ...defaultBlocktankShape };
 		default:
 			return state;
 	}
 };
 
-export default chainreactor;
+export default blocktank;
