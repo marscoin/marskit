@@ -16,7 +16,7 @@ import {
 import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cache';
 import { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning/dist/utils/types';
 import { showErrorNotification } from '../notifications';
-import { refreshServiceList } from '../../store/actions/chainreactor';
+import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
 
 /**

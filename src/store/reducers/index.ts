@@ -6,7 +6,7 @@ import settings from './settings';
 import lightning from './lightning';
 import activity from './activity';
 import backup from './backup';
-import chainreactor from './chainreactor';
+import blocktank from './blocktank';
 import todos from './todos';
 
 const appReducers = combineReducers({
@@ -17,7 +17,7 @@ const appReducers = combineReducers({
 	lightning,
 	activity,
 	backup,
-	chainreactor,
+	blocktank,
 	todos,
 });
 

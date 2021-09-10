@@ -38,13 +38,13 @@ import FeeSummary from '../Wallets/SendOnChainTransaction/FeeSummary';
 import useDisplayValues from '../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
-import { IGetOrderResponse } from '../../utils/chainreactor/types';
+import { IGetOrderResponse } from '@synonymdev/blocktank-client';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { order: IGetOrderResponse } };
 }
 
-const ChainReactorPayment = (props: Props): ReactElement => {
+const BlocktankPayment = (props: Props): ReactElement => {
 	const { order } = props.route.params;
 
 	const navigation = useNavigation();
@@ -253,4 +253,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(ChainReactorPayment);
+export default memo(BlocktankPayment);
