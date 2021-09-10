@@ -1,27 +1,27 @@
 import actions from './actions';
 import { err, ok, Result } from '../../utils/result';
 import { getDispatch } from '../helpers';
-import cr from '../../utils/chainreactor';
-import {
+import bt, {
 	IBuyChannelRequest,
 	IBuyChannelResponse,
-} from '../../utils/chainreactor/types';
+} from '@synonymdev/blocktank-client';
 
 const dispatch = getDispatch();
 
 export const refreshServiceList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const res = await cr.getInfo();
-		if (res.isErr()) {
-			return resolve(err(res.error));
+		try {
+			const res = await bt.getInfo();
+
+			dispatch({
+				type: actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST,
+				payload: res.services,
+			});
+
+			resolve(ok('Product list updated'));
+		} catch (error) {
+			resolve(err(error));
 		}
-
-		dispatch({
-			type: actions.UPDATE_CHAIN_REACTOR_SERVICE_LIST,
-			payload: res.value.services,
-		});
-
-		resolve(ok('Product list updated'));
 	});
 };
 
@@ -29,31 +29,33 @@ export const buyChannel = (
 	req: IBuyChannelRequest,
 ): Promise<Result<IBuyChannelResponse>> => {
 	return new Promise(async (resolve) => {
-		const res = await cr.buyChannel(req);
-		if (res.isErr()) {
-			return resolve(err(res.error));
+		try {
+			const res = await bt.buyChannel(req);
+
+			//Fetches and updates the user's order list
+			await refreshOrder(res.order_id);
+
+			resolve(ok(res));
+		} catch (error) {
+			return resolve(err(error));
 		}
-
-		//Fetches and updates the user's order list
-		await refreshOrder(res.value.order_id);
-
-		resolve(ok(res.value));
 	});
 };
 
 export const refreshOrder = (orderId: string): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const res = await cr.getOrder(orderId);
-		if (res.isErr()) {
-			return resolve(err(res.error));
+		try {
+			const res = await bt.getOrder(orderId);
+
+			dispatch({
+				type: actions.UPDATE_CHAIN_REACTOR_ORDER,
+				payload: res,
+			});
+
+			resolve(ok('Order updated'));
+		} catch (error) {
+			return resolve(err(error));
 		}
-
-		dispatch({
-			type: actions.UPDATE_CHAIN_REACTOR_ORDER,
-			payload: res.value,
-		});
-
-		resolve(ok('Order updated'));
 	});
 };
 

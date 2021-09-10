@@ -10,7 +10,7 @@ import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
 import useDisplayValues from '../../hooks/displayValues';
-import { IService } from '../../utils/chainreactor/types';
+import { IService } from '@synonymdev/blocktank-client';
 import Button from '../../components/Button';
 import { buyChannel, refreshOrder } from '../../store/actions/chainreactor';
 import {

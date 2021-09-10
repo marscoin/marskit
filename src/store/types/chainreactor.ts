@@ -1,4 +1,4 @@
-import { IGetOrderResponse, IService } from '../../utils/chainreactor/types';
+import { IGetOrderResponse, IService } from '@synonymdev/blocktank-client';
 
 export interface IChainReactor {
 	serviceList: IService[];

@@ -1458,6 +1458,11 @@
     merge-deep "^3.0.2"
     svgo "^1.2.2"
 
+"@synonymdev/blocktank-client@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@synonymdev/blocktank-client/-/blocktank-client-0.0.3.tgz#62b0f3d246220f89951959123995677a970198b6"
+  integrity sha512-1CSgG5SlOjiuYsYgNccYA5GwQud4AqP1YdWApStrHWef4luQuhx2Lucs5Es/sO3w+Ol42GOySpt6MZY596RvxA==
+
 "@synonymdev/react-native-lightning@0.0.34":
   version "0.0.34"
   resolved "https://registry.yarnpkg.com/@synonymdev/react-native-lightning/-/react-native-lightning-0.0.34.tgz#46c8a7dc57826523127f7e34b16fc1836928fbfd"

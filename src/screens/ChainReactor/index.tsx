@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import useDisplayValues from '../../hooks/displayValues';
 import LightingIcon from '../../assets/lightning-logo.svg';
-import { IService } from '../../utils/chainreactor/types';
+import { IService } from '@synonymdev/blocktank-client';
 
 import { refreshServiceList } from '../../store/actions/chainreactor';
 import { updateExchangeRates } from '../../store/actions/wallet';

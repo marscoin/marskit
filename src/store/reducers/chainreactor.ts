@@ -1,7 +1,7 @@
 import actions from '../actions/actions';
 import { defaultChainReactorShape } from '../shapes/chainreactor';
 import { IChainReactor } from '../types/chainreactor';
-import { IGetOrderResponse } from '../../utils/chainreactor/types';
+import { IGetOrderResponse } from '@synonymdev/blocktank-client';
 
 const chainreactor = (
 	state: IChainReactor = { ...defaultChainReactorShape },
