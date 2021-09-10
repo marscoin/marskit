@@ -8,7 +8,7 @@ import Animated from 'react-native-reanimated';
 import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
-import { camera, settings, dismiss } from '../assets/icons/header';
+import { camera, settings, dismiss, boost } from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
@@ -40,6 +40,12 @@ export const TransferIcon = styled(SvgXml).attrs((props) => ({
 	xml: transferIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+}))``;
+
+export const BoostIcon = styled(SvgXml).attrs((props) => ({
+	xml: boost(),
+	width: props?.width ?? '39px',
+	height: props?.height ?? '39px',
 }))``;
 
 export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
@@ -145,6 +151,18 @@ export const Text02M = styled.Text`
 	font-size: ${(props): string => (props.size ? props.size : '15px')};
 `;
 
+export const SubHeadM = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-weight: 500;
+	font-size: ${(props): string => (props.size ? props.size : '14px')};
+`;
+
 export const Text02S = styled.Text`
 	${sanFranciscoWeights.regular};
 	color: ${(props): string =>
@@ -170,7 +188,7 @@ export const Caption13M = styled.Text`
 export const Caption13S = styled.Text`
 	${sanFranciscoWeights.regular};
 	color: ${(props): string =>
-		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+		props.color ? props.theme.colors[props.color] : '#636366'};
 	font-family: ${(props): string =>
 		props.font
 			? props.theme.fonts[props.font].fontFamily
