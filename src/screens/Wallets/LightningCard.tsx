@@ -71,8 +71,6 @@ const LightningCard = (): ReactElement => {
 		!hasBalance(lightning.channelBalance.balance) &&
 		!hasBalance(lightning.channelBalance.remoteBalance?.sat);
 
-	console.log(lightning.channelBalance);
-
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useBalance({ lightning: true });
 
