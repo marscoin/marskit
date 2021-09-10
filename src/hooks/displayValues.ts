@@ -11,11 +11,13 @@ export default function useDisplayValues(sats: number): IDisplayValues {
 	const [displayValues, setDisplayValues] =
 		useState<IDisplayValues>(defaultDisplayValues);
 
-	const { selectedCurrency, bitcoinUnit } = useSelector(
-		(state: Store) => state.settings,
+	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
 	);
-
-	const { exchangeRates } = useSelector((state: Store) => state.wallet);
+	const exchangeRates = useSelector(
+		(state: Store) => state.wallet.exchangeRates,
+	);
 
 	useEffect((): void => {
 		//Exchange rates haven't loaded yet
