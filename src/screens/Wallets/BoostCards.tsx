@@ -108,7 +108,7 @@ const BoostCards = (): ReactElement | null => {
 
 	return (
 		<View>
-			{Object.values(unconfirmedTransactions).map((tx) => {
+			{Object.values(unconfirmedTransactions).map((tx, i) => {
 				const satoshis = btcToSats(
 					Math.abs(tx.matchedInputValue - tx.matchedOutputValue),
 				);
@@ -117,7 +117,9 @@ const BoostCards = (): ReactElement | null => {
 					amount: satoshis,
 				});
 				if (tx.height < 1 && hasEnoughToBoostCPFP(tx.type)) {
-					return <BoostCard text={boostText} txid={tx.txid} />;
+					return (
+						<BoostCard key={`${tx.txid}${i}`} text={boostText} txid={tx.txid} />
+					);
 				}
 			})}
 			<View style={styles.separator} />

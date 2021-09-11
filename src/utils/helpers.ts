@@ -9,7 +9,7 @@ import {
 } from '../store/types/wallet';
 import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-community/clipboard';
-import { Alert, Vibration } from 'react-native';
+import { Alert, Linking, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from './result';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -142,7 +142,9 @@ export const displayAlert = (msg = '', title = ''): void => {
 
 export const btcToSats = (balance = 0): number => {
 	try {
-		return bitcoinUnits(balance, 'BTC').to('satoshi').value();
+		return Number(
+			bitcoinUnits(balance, 'BTC').to('satoshi').value().toFixed(0),
+		);
 	} catch (e) {
 		return 0;
 	}
@@ -401,4 +403,13 @@ export const timeAgo = (timestamp: number): string => {
 	}
 
 	return getFormattedDate(date); // 10. January 2017. at 10:20
+};
+
+export const openURL = async (link: string): Promise<void> => {
+	if (!link) {
+		return;
+	}
+	if (await Linking.canOpenURL(link)) {
+		await Linking.openURL(link);
+	}
 };
