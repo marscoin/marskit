@@ -44,7 +44,7 @@ const activity = (
 		case actions.REPLACE_ACTIVITY_ITEM:
 			return {
 				...state,
-				...action.payload,
+				items: action.payload,
 			};
 		case actions.RESET_ACTIVITY_STORE:
 			return { ...defaultActivityShape };
