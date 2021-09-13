@@ -23,6 +23,8 @@ import BlocktankOrder from '../../screens/Blocktank/OrderService';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import BlocktankPayment from '../../screens/Blocktank/Payment';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
+import ActivityDetail from '../../screens/Activity/ActivityDetail';
+import ScannerScreen from '../../screens/Scanner';
 
 const Stack = createNativeStackNavigator();
 
@@ -162,6 +164,16 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="BlocktankPayment"
 					component={BlocktankPayment}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ActivityDetail"
+					component={ActivityDetail}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="Scanner"
+					component={ScannerScreen}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

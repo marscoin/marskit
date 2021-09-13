@@ -12,12 +12,10 @@ import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
-import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
 import QR from '../../components/QR';
-import ScannerScreen from '../../screens/Scanner';
 import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import { View } from '../../styles/components';
@@ -78,16 +76,6 @@ const WalletsStack = (): ReactElement => {
 					...navOptionHandler,
 					...TransitionPresets.ModalSlideFromBottomIOS,
 				}}
-			/>
-			<Stack.Screen
-				name="Scanner"
-				component={ScannerScreen}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
-				name="ActivityDetail"
-				component={ActivityDetail}
-				options={navOptionHandler}
 			/>
 			<Stack.Screen
 				name="AuthCheck"
