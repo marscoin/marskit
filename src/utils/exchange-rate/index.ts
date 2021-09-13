@@ -104,15 +104,26 @@ export const getDisplayValues = ({
 	exchangeRate,
 	currency,
 	bitcoinUnit,
-	locale,
+	locale = 'en-US',
 }: {
 	satoshis: number;
-	exchangeRate: number;
-	currency: string;
-	bitcoinUnit: TBitcoinUnit;
-	locale: string;
+	exchangeRate?: number;
+	currency?: string;
+	bitcoinUnit?: TBitcoinUnit;
+	locale?: string;
 }): IDisplayValues => {
 	try {
+		if (!currency) {
+			currency = getStore().settings.selectedCurrency;
+		}
+		if (!exchangeRate) {
+			const exchangeRates = getStore().wallet.exchangeRates[currency];
+			exchangeRate = exchangeRates[currency];
+		}
+		if (!bitcoinUnit) {
+			bitcoinUnit = getStore().settings.bitcoinUnit;
+		}
+
 		bitcoinUnits.setFiat(currency, exchangeRate);
 		let fiatValue = exchangeRate
 			? bitcoinUnits(satoshis, 'satoshi').to(currency).value().toFixed(2)

@@ -15,6 +15,7 @@ import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
+import BoostCards from './BoostCards';
 
 const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -37,6 +38,9 @@ const Wallets = ({ navigation }): ReactElement => {
 							<BalanceHeader />
 						</View>
 					</DetectSwipe>
+					<View style={styles.content}>
+						<BoostCards />
+					</View>
 					<TodoCarousel />
 					<DetectSwipe onSwipeLeft={onSwipeLeft}>
 						<View style={styles.content}>
