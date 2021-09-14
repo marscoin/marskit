@@ -16,9 +16,10 @@ import {
 import {
 	getCurrentWallet,
 	getMnemonicPhrase,
+	getOnChainBalance,
 	getSelectedNetwork,
 	getSelectedWallet,
-	getTransactions,
+	getTransactionById,
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
@@ -29,6 +30,7 @@ import validate, {
 import { updateOnChainTransaction } from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
 import { showErrorNotification } from '../notifications';
+import { getTransactions } from './electrum';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -293,31 +295,34 @@ export const getTotalFee = ({
 	selectedNetwork = undefined,
 	message = '',
 	fundingLightning = false,
+	transaction, // If left undefined, the method will retrieve the tx data from state.
 }: {
 	satsPerByte: number;
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
 	message?: string;
 	fundingLightning?: boolean | undefined;
+	transaction?: IOnChainTransactionData | undefined;
 }): number => {
 	const fallBackFee = ETransactionDefaults.recommendedBaseFee;
 	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
+		if (!transaction) {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
+			const { currentWallet } = getCurrentWallet({
+				selectedNetwork,
+				selectedWallet,
+			});
+			transaction = currentWallet?.transaction[selectedNetwork];
 		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedNetwork,
-			selectedWallet,
-		});
 
-		const inputs = currentWallet?.transaction[selectedNetwork].inputs || [];
-		let outputs: IOutput[] =
-			currentWallet?.transaction[selectedNetwork]?.outputs || [];
-		const changeAddress =
-			currentWallet?.transaction[selectedNetwork]?.changeAddress;
+		const inputs = transaction.inputs || [];
+		let outputs: IOutput[] = transaction.outputs || [];
+		const changeAddress = transaction.changeAddress;
 
 		//Group all input & output addresses into their respective array.
 		const inputAddresses = inputs.map((input) => input.address) || [];
@@ -1270,5 +1275,34 @@ export const validateTransaction = (
 		return ok('Transaction is valid.');
 	} catch (e) {
 		return err(e);
+	}
+};
+
+export const canBoost = (txid: string): boolean => {
+	try {
+		let baseFee = ETransactionDefaults.recommendedBaseFee;
+		let type = 'sent';
+		if (txid) {
+			const transactionResponse = getTransactionById({ txid });
+			if (transactionResponse.isErr()) {
+				return false;
+			}
+			type = transactionResponse.value.type;
+		}
+		// We'll have to perform a CPFP which requires a new tx and requires higher fees.
+		// or
+		// Assume we'll have to pay more for a boost if no txid is provided.
+		if (type === 'received' || !txid) {
+			// TODO: We may need to bump up this baseline multiplier for CPFP transactions.
+			baseFee = ETransactionDefaults.recommendedBaseFee * 3;
+		}
+		const balance = getOnChainBalance({});
+		/*
+		 * For an RBF, technically we can reduce the output value and apply it to the fee,
+		 * but this might cause issues when paying a merchant that requested a specific amount.
+		 */
+		return balance <= baseFee;
+	} catch (e) {
+		return false;
 	}
 };
