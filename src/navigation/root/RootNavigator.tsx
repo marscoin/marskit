@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from 'react-native-screens/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DrawerNavigator from '../drawer/DrawerNavigator';
 import TempSettings from '../../screens/Settings/TempSettings';
 import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
@@ -25,6 +25,7 @@ import BlocktankPayment from '../../screens/Blocktank/Payment';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import ScannerScreen from '../../screens/Scanner';
+import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +33,7 @@ const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
-	detachPreviousScreen: false,
+	detachInactiveScreens: true,
 };
 
 export type TInitialRoutes = 'Drawer' | 'AuthCheck';
@@ -174,6 +175,11 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="Scanner"
 					component={ScannerScreen}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="WalletsDetail"
+					component={WalletsDetail}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

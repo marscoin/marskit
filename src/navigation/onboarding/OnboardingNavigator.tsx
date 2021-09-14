@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from 'react-native-screens/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
 import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
 import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
