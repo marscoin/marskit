@@ -137,3 +137,30 @@ export const resetActivityStore = (): Result<string> => {
 	});
 	return ok('');
 };
+
+/**
+ * @param {string} id
+ * @param {IActivityItem} newActivityItem
+ * @param {IActivityItem[]} activityItems
+ */
+export const replaceActivityItemById = ({
+	id,
+	newActivityItem,
+	activityItems,
+}: {
+	id: string;
+	newActivityItem: IActivityItem;
+	activityItems?: IActivityItem[];
+}): void => {
+	if (!activityItems) {
+		activityItems = getStore().activity.items;
+	}
+	activityItems = activityItems.filter(
+		(activityItem) => activityItem.id !== id,
+	);
+	activityItems.push(newActivityItem);
+	dispatch({
+		type: actions.REPLACE_ACTIVITY_ITEM,
+		payload: activityItems,
+	});
+};
