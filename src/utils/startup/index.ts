@@ -1,4 +1,4 @@
-import { connectToElectrum, getMnemonicPhrase, refreshWallet } from '../wallet';
+import { getMnemonicPhrase, refreshWallet } from '../wallet';
 import {
 	createWallet,
 	updateExchangeRates,
@@ -18,6 +18,7 @@ import { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning/dis
 import { showErrorNotification } from '../notifications';
 import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
+import { connectToElectrum } from '../wallet/electrum';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
