@@ -9,7 +9,6 @@ import {
 } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 import WalletsScreen from '../../screens/Wallets';
-import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
 import { useSelector } from 'react-redux';
@@ -35,7 +34,7 @@ const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
-	detachPreviousScreen: false,
+	detachInactiveScreens: true,
 };
 
 const WalletsStack = (): ReactElement => {
@@ -46,11 +45,6 @@ const WalletsStack = (): ReactElement => {
 			<Stack.Screen
 				name="Wallets"
 				component={WalletsScreen}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
-				name="WalletsDetail"
-				component={WalletsDetail}
 				options={navOptionHandler}
 			/>
 			<Stack.Screen

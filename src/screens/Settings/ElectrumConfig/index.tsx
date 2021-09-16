@@ -14,11 +14,7 @@ import {
 } from '../../../store/types/settings';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import {
-	connectToElectrum,
-	getConnectedPeer,
-	IPeerData,
-} from '../../../utils/wallet';
+import { connectToElectrum } from '../../../utils/wallet/electrum';
 import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import { objectsMatch, shuffleArray } from '../../../utils/helpers';
@@ -33,6 +29,7 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
+import { getConnectedPeer, IPeerData } from '../../../utils/wallet/electrum';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: 'TCP', value: 'tcp' },

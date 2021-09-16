@@ -3,7 +3,6 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import {
-	ETransactionDefaults,
 	IFormattedTransaction,
 	TTransactionType,
 } from '../../store/types/wallet';
@@ -17,6 +16,7 @@ import {
 } from '../../styles/components';
 import { btcToSats } from '../../utils/helpers';
 import { getDisplayValues } from '../../utils/exchange-rate';
+import { canBoost } from '../../utils/wallet/transactions';
 
 /**
  * Returns the appropriate text for the boost card.
@@ -90,13 +90,9 @@ const BoostCards = (): ReactElement | null => {
 		[transactions],
 	);
 
-	const hasEnoughToBoostCPFP = useCallback(
-		(type) => {
-			return !(
-				type === 'received' &&
-				balance < ETransactionDefaults.recommendedBaseFee * 3
-			);
-		},
+	const hasEnoughToBoost = useCallback(
+		(txid): boolean => canBoost(txid),
+		//eslint-disable-next-line react-hooks/exhaustive-deps
 		[balance],
 	);
 
@@ -116,7 +112,7 @@ const BoostCards = (): ReactElement | null => {
 					type: tx.type,
 					amount: satoshis,
 				});
-				if (tx.height < 1 && hasEnoughToBoostCPFP(tx.type)) {
+				if (tx.height < 1 && hasEnoughToBoost(tx.txid)) {
 					return (
 						<BoostCard key={`${tx.txid}${i}`} text={boostText} txid={tx.txid} />
 					);

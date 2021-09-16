@@ -185,6 +185,8 @@ export interface IOnChainTransactionData {
 	transactionSize?: number; //In bytes (250 is about normal)
 	message?: string; // OP_RETURN data for a given transaction.
 	label?: string; // User set label for a given transaction.
+	rbf?: boolean;
+	minFee?: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
 }
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
@@ -198,6 +200,8 @@ export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	transactionSize: ETransactionDefaults.baseTransactionSize,
 	message: '',
 	label: '',
+	rbf: false,
+	minFee: 1,
 };
 
 export interface IDefaultWalletShape {

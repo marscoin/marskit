@@ -13,7 +13,6 @@ import {
 	createDefaultWallet,
 	formatTransactions,
 	generateAddresses,
-	getAddressHistory,
 	getAddressTypes,
 	getCurrentWallet,
 	getKeyDerivationPathObject,
@@ -21,8 +20,6 @@ import {
 	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
-	getTransactions,
-	getUtxos,
 	ITransaction,
 	refreshWallet,
 	removeDuplicateAddresses,
@@ -41,6 +38,11 @@ import {
 } from '../../utils/types';
 import { getExchangeRates } from '../../utils/exchange-rate';
 import { objectsMatch } from '../../utils/helpers';
+import {
+	getAddressHistory,
+	getTransactions,
+	getUtxos,
+} from '../../utils/wallet/electrum';
 
 const dispatch = getDispatch();
 
