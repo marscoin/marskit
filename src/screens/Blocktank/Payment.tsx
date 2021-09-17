@@ -72,6 +72,8 @@ const BlocktankPayment = (props: Props): ReactElement => {
 			selectedNetwork,
 			transaction: {
 				outputs: [{ address: order.btc_address, value: order.total_amount }],
+				rbf: false, //Always needs to be false for zero conf payments to be accepted by blocktank
+				satsPerByte: order.zero_conf_satvbyte || 1,
 			},
 		}).catch(() => {});
 
@@ -81,14 +83,13 @@ const BlocktankPayment = (props: Props): ReactElement => {
 	/**
 	 * Returns the satsPerByte for the given transaction.
 	 */
-	const getSatsPerByte = useCallback((): number => {
+	const satsPerByte = useCallback((): number => {
 		try {
 			return transaction?.satsPerByte || 1;
 		} catch (e) {
 			return 1;
 		}
-	}, [transaction?.satsPerByte]);
-	const satsPerByte = getSatsPerByte();
+	}, [transaction?.satsPerByte])();
 
 	/**
 	 * Adjusts the fee of the current on-chain transaction by a specified amount.
@@ -103,12 +104,19 @@ const BlocktankPayment = (props: Props): ReactElement => {
 		});
 	};
 
+	const feeBelowRecommended = useCallback((): boolean => {
+		if (order.zero_conf_satvbyte && transaction?.satsPerByte) {
+			return transaction?.satsPerByte < order.zero_conf_satvbyte;
+		}
+
+		return false;
+	}, [transaction?.satsPerByte, order.zero_conf_satvbyte]);
+
 	const onCreateTransaction = async (): Promise<void> => {
 		const totalFee = getTotalFee({
 			selectedNetwork,
 			selectedWallet,
 			satsPerByte,
-			fundingLightning: true,
 		});
 
 		const transactionTotal = order.total_amount + totalFee;
@@ -217,6 +225,15 @@ const BlocktankPayment = (props: Props): ReactElement => {
 				increaseValue={(): void => adjustFee(1)}
 			/>
 
+			{feeBelowRecommended() ? (
+				<Text style={styles.feeWarning}>
+					Warning: lowering the fee below recommended minimum will result in
+					your channel purchase being delayed
+				</Text>
+			) : null}
+
+			<Text>RBF: {transaction.rbf ? 'TRUE' : 'FALSE'}</Text>
+
 			<FeeSummary amount={order.total_amount} lightning />
 
 			<Button color={'onSurface'} text="Pay" onPress={authCheck} />
@@ -242,6 +259,9 @@ const styles = StyleSheet.create({
 	},
 	feeHeading: {
 		marginTop: 20,
+		textAlign: 'center',
+	},
+	feeWarning: {
 		textAlign: 'center',
 	},
 	availableBalance: {
