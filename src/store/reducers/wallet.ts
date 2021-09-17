@@ -202,6 +202,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 								inputs: action.payload.inputs,
 								outputs: action.payload.outputs,
 								fee: action.payload.fee,
+								rbf: action.payload.rbf,
 							},
 						},
 					},

@@ -544,6 +544,7 @@ export const setupOnChainTransaction = async ({
 			inputs,
 			changeAddress,
 			fee,
+			rbf: true, //TODO default RBF flag should be determined from user settings
 			outputs: newOutputs,
 		};
 		dispatch({

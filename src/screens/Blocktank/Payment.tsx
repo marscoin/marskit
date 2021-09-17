@@ -232,8 +232,6 @@ const BlocktankPayment = (props: Props): ReactElement => {
 				</Text>
 			) : null}
 
-			<Text>RBF: {transaction.rbf ? 'TRUE' : 'FALSE'}</Text>
-
 			<FeeSummary amount={order.total_amount} lightning />
 
 			<Button color={'onSurface'} text="Pay" onPress={authCheck} />
