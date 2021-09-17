@@ -503,6 +503,8 @@ export const setupOnChainTransaction = async ({
 			addressType = getSelectedAddressType({ selectedWallet, selectedNetwork });
 		}
 
+		const rbf = getStore().settings?.rbf ?? true;
+
 		const { currentWallet } = getCurrentWallet({
 			selectedWallet,
 			selectedNetwork,
@@ -544,7 +546,7 @@ export const setupOnChainTransaction = async ({
 			inputs,
 			changeAddress,
 			fee,
-			rbf: true, //TODO default RBF flag should be determined from user settings
+			rbf,
 			outputs: newOutputs,
 		};
 		dispatch({
