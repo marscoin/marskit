@@ -425,11 +425,12 @@ const createPsbtFromTransactionData = async ({
 		outputs = [],
 		changeAddress,
 		fee = ETransactionDefaults.recommendedBaseFee,
+		rbf,
 	} = transactionData;
 	let message = transactionData.message;
 
 	//Get balance of current inputs.
-	const balance = await getTransactionInputValue({
+	const balance = getTransactionInputValue({
 		selectedWallet,
 		selectedNetwork,
 		inputs,
@@ -500,7 +501,7 @@ const createPsbtFromTransactionData = async ({
 	}
 
 	//Set RBF if supported and prompted via rbf in Settings.
-	setReplaceByFee({ psbt, setRbf: true });
+	setReplaceByFee({ psbt, setRbf: !!rbf });
 
 	// Shuffle targets if not run from unit test and add outputs.
 	if (process.env.JEST_WORKER_ID === undefined) {

@@ -25,7 +25,7 @@ describe('On chain transactions', () => {
 
 		await updateWallet({ wallets: { wallet0: walletState } });
 
-		setupOnChainTransaction({});
+		await setupOnChainTransaction({});
 	});
 
 	it('Creates an on chain transaction from the transaction store', async () => {

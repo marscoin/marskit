@@ -282,7 +282,7 @@ const Settings = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Reset Chaintank Store',
+						title: 'Reset Blocktank Store',
 						type: 'button',
 						onPress: async (): Promise<void> => {
 							await resetBlocktankStore();

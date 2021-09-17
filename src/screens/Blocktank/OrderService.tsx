@@ -135,6 +135,9 @@ const Order = (props: Props): ReactElement => {
 		onRefreshOrder().catch();
 	}, [onRefreshOrder]);
 
+	const showPayButton = order && order?.state === 0;
+	const showClaimButton = order && order?.state === 100;
+
 	return (
 		<View style={styles.container}>
 			<NavigationHeader title={description} />
@@ -198,26 +201,11 @@ const Order = (props: Props): ReactElement => {
 					<Divider />
 
 					{orderId ? (
-						<>
-							<Button
-								text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
-								disabled={isRefreshing}
-								onPress={onRefreshOrder}
-							/>
-							{order?.state === 0 ? (
-								<Button
-									text={'Pay'}
-									disabled={isProcessing}
-									onPress={goToPayment}
-								/>
-							) : (
-								<Button
-									text={isProcessing ? 'Claiming...' : 'Claim channel'}
-									disabled={isProcessing}
-									onPress={onClaimChannel}
-								/>
-							)}
-						</>
+						<Button
+							text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
+							disabled={isRefreshing}
+							onPress={onRefreshOrder}
+						/>
 					) : (
 						<Button
 							text={isProcessing ? 'Ordering...' : 'Order'}
@@ -225,6 +213,21 @@ const Order = (props: Props): ReactElement => {
 							onPress={onOrder}
 						/>
 					)}
+
+					{showPayButton ? (
+						<Button
+							text={'Pay'}
+							disabled={isProcessing}
+							onPress={goToPayment}
+						/>
+					) : null}
+					{showClaimButton ? (
+						<Button
+							text={isProcessing ? 'Claiming...' : 'Claim channel'}
+							disabled={isProcessing}
+							onPress={onClaimChannel}
+						/>
+					) : null}
 				</View>
 			</View>
 		</View>
