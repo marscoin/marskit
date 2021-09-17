@@ -15,7 +15,7 @@ import {
 	updateSettings,
 	wipeWallet,
 } from '../../store/actions/settings';
-import List from '../../components/List';
+import List, { IListData } from '../../components/List';
 import {
 	resetSelectedWallet,
 	resetWalletStore,
@@ -42,6 +42,7 @@ const Settings = ({ navigation }): ReactElement => {
 	const remoteBackupSynced = useSelector(
 		(state: Store) => state.backup.backpackSynced,
 	);
+	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
 
 	const [biometryData, setBiometricData] =
 		useState<IsSensorAvailableResult | undefined>(undefined);
@@ -66,7 +67,7 @@ const Settings = ({ navigation }): ReactElement => {
 		(state: Store) => state.settings.biometrics,
 	);
 
-	const SettingsListData = useMemo(
+	const SettingsListData: IListData[] = useMemo(
 		() => [
 			{
 				title: 'Settings',
@@ -158,7 +159,7 @@ const Settings = ({ navigation }): ReactElement => {
 				data: [
 					{
 						title: `${remoteBackupSynced ? 'Synced ✅' : 'Requires backup ❌'}`,
-						type: 'icon',
+						type: 'button',
 						onPress: (): void => navigation.navigate('BackupSettings'),
 						enabled: true,
 						hide: false,
@@ -166,7 +167,7 @@ const Settings = ({ navigation }): ReactElement => {
 
 					{
 						title: 'Export Backups',
-						type: 'icon',
+						type: 'button',
 						onPress: (): void => navigation.navigate('ExportBackups'),
 						enabled: true,
 						hide: false,
@@ -199,6 +200,15 @@ const Settings = ({ navigation }): ReactElement => {
 			{
 				title: 'On-Chain Settings',
 				data: [
+					{
+						title: 'Enable RBF',
+						type: 'switch',
+						enabled: rbf,
+						onPress: async (): Promise<void> => {
+							updateSettings({ rbf: !rbf });
+						},
+						hide: false,
+					},
 					{
 						title: 'Enable On-Chain Testnet',
 						type: 'switch',
@@ -402,6 +412,7 @@ const Settings = ({ navigation }): ReactElement => {
 			selectedNetwork,
 			selectedWallet,
 			settingsTheme,
+			rbf,
 		],
 	);
 
