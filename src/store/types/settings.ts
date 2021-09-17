@@ -23,6 +23,7 @@ export interface ISettings {
 	error: boolean;
 	biometrics: boolean;
 	pin: boolean;
+	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
