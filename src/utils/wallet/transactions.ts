@@ -945,20 +945,23 @@ export const getTransactionInputs = ({
 /**
  * Updates the fee for the current transaction by the specified amount.
  * @param {number} [satsPerByte]
- * @param {string | undefined} [selectedWallet]
- * @param {TAvailableNetworks | undefined} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {IOnChainTransactionData} [transaction]
  */
 export const updateFee = ({
 	satsPerByte = 1,
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
+	transaction,
 }: {
 	satsPerByte?: number;
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-}): void => {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	transaction?: IOnChainTransactionData;
+}): Result<string> => {
 	if (!satsPerByte || satsPerByte < 1) {
-		return;
+		return err('No satsPerByte provided.');
 	}
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
@@ -966,20 +969,34 @@ export const updateFee = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	const wallet = getStore().wallet.wallets[selectedWallet];
-	const transaction =
-		wallet?.transaction[selectedNetwork] || defaultOnChainTransactionData;
+	if (!transaction) {
+		const transactionDataResponse = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (transactionDataResponse.isErr()) {
+			return err(transactionDataResponse.error.message);
+		}
+		transaction =
+			transactionDataResponse?.value ?? defaultOnChainTransactionData;
+	}
 	const previousSatsPerByte = transaction?.satsPerByte;
 	//Return if no update needs to be applied.
 	if (previousSatsPerByte === satsPerByte) {
-		return;
+		return ok('No update needs to occur.');
 	}
-	const balance = wallet?.balance[selectedNetwork];
+	const inputTotal = getTransactionInputValue({
+		selectedNetwork,
+		selectedWallet,
+		inputs: transaction.inputs,
+	});
 
 	const newFee = getTotalFee({ satsPerByte });
 	//Return if the new fee exceeds half of the user's balance
-	if (Number(newFee) >= balance / 2) {
-		return;
+	if (Number(newFee) >= inputTotal / 2) {
+		return ok(
+			'Unable to increase the fee any further. Otherwise, it will exceed half the current balance.',
+		);
 	}
 	const totalTransactionValue = getTransactionOutputValue({
 		selectedWallet,
@@ -990,13 +1007,17 @@ export const updateFee = ({
 		satsPerByte,
 		fee: newFee,
 	};
-	if (newTotalAmount <= balance) {
+	if (newTotalAmount <= inputTotal) {
 		updateOnChainTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: _transaction,
 		}).then();
+		return ok('Successfully updated the transaction fee.');
 	}
+	return err(
+		'New total amount exceeds the available balance. Unable to update the transaction fee.',
+	);
 };
 
 /**
@@ -1307,3 +1328,445 @@ export const canBoost = (txid: string): boolean => {
 		return false;
 	}
 };
+
+/**
+ * Sends the max amount to the provided output index.
+ * @param {string} [address] If left undefined, the current receiving address will be provided.
+ * @param transaction
+ * @param selectedNetwork
+ * @param selectedWallet
+ * @param selectedAddressType
+ * @param index
+ */
+export const sendMax = ({
+	address,
+	transaction,
+	selectedNetwork,
+	selectedWallet,
+	index = 0,
+}: {
+	address?: string;
+	transaction?: IOnChainTransactionData;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+	index?: number;
+}): Result<string> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!transaction) {
+			const transactionDataResponse = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transactionDataResponse.isErr()) {
+				return err(transactionDataResponse.error.message);
+			}
+			transaction = transactionDataResponse.value;
+		}
+		const outputs = transaction?.outputs ?? [];
+		if (!address) {
+			address = outputs[index]?.address ?? '';
+		}
+
+		const inputTotal = getTransactionInputValue({
+			selectedNetwork,
+			selectedWallet,
+			inputs: transaction.inputs,
+		});
+		const max =
+			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+				.max;
+		if (
+			!max &&
+			inputTotal > 0 &&
+			transaction?.fee &&
+			inputTotal / 2 > transaction.fee
+		) {
+			const newFee = getTotalFee({
+				satsPerByte: transaction.satsPerByte ?? 1,
+				message: transaction.message,
+			});
+			const totalTransactionValue = getTransactionOutputValue({
+				selectedWallet,
+				selectedNetwork,
+			});
+			const totalNewAmount = totalTransactionValue + newFee;
+
+			if (totalNewAmount <= inputTotal) {
+				const _transaction: IOnChainTransactionData = {
+					fee: newFee,
+					outputs: [{ address, value: inputTotal - newFee, index }],
+					max: !max,
+				};
+				updateOnChainTransaction({
+					selectedWallet,
+					selectedNetwork,
+					transaction: _transaction,
+				}).then();
+			}
+		} else {
+			updateOnChainTransaction({
+				selectedWallet,
+				selectedNetwork,
+				transaction: { max: !max },
+			}).then();
+		}
+		return ok('Successfully setup max send transaction.');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Increases the fee by a given sat per byte.
+ * @param {IOnChainTransactionData} [transaction]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @param {number} [index]
+ * @param {number} [increaseBy]
+ */
+export const adjustFee = ({
+	transaction,
+	selectedNetwork,
+	selectedWallet,
+	index = 0,
+	adjustBy = 1,
+}: {
+	transaction?: IOnChainTransactionData;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+	index?: number;
+	adjustBy?: number;
+}): Result<string> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!transaction) {
+			const transactionDataResponse = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transactionDataResponse.isErr()) {
+				return err(transactionDataResponse.error.message);
+			}
+			transaction = transactionDataResponse.value;
+		}
+		//const coinSelectPreference = getStore().settings.coinSelectPreference;
+		const max =
+			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+				.max;
+		const inputTotal = getTransactionInputValue({
+			selectedNetwork,
+			selectedWallet,
+			inputs: transaction.inputs,
+		});
+		const satsPerByte = transaction.satsPerByte ?? 1;
+		const message = transaction?.message ?? '';
+		const outputs = transaction?.outputs ?? [];
+		let address = '';
+		if (outputs?.length > index) {
+			address = outputs[index]?.address ?? '';
+		}
+		if (Number(satsPerByte) + adjustBy <= 1) {
+			return ok('This is the lowest we can go. Returning...');
+		}
+		if (max) {
+			//Check that the user has enough funds
+			const newSatsPerByte = Number(satsPerByte) + adjustBy;
+			const newFee = getTotalFee({
+				satsPerByte: newSatsPerByte,
+				message,
+			});
+			//Return if the new fee exceeds half of the user's balance
+			if (Number(newFee) >= inputTotal / 2) {
+				return ok(
+					'Unable to increase the fee any further. Otherwise, it will exceed half the current balance.',
+				);
+			}
+			const _transaction: IOnChainTransactionData = {
+				satsPerByte: newSatsPerByte,
+				fee: newFee,
+			};
+			//Update the tx value with the new fee to continue sending the max amount.
+			_transaction.outputs = [{ address, value: inputTotal - newFee, index }];
+			updateOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				transaction: _transaction,
+			}).then();
+		} else {
+			updateFee({
+				selectedWallet,
+				selectedNetwork,
+				satsPerByte: Number(satsPerByte) + adjustBy,
+			});
+			/*if (address && coinSelectPreference !== 'consolidate') {
+				runCoinSelect({ selectedWallet, selectedNetwork });
+			}*/
+		}
+		return ok('Successfully adjust fee.');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Updates the amount to send for the currently selected output.
+ * @param {string} amount
+ * @param {number} [index]
+ * @param {IOnChainTransactionData} [transaction]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ */
+export const updateAmount = async ({
+	amount = '',
+	index = 0,
+	transaction,
+	selectedNetwork,
+	selectedWallet,
+}: {
+	amount: string;
+	index?: number;
+	transaction?: IOnChainTransactionData;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!transaction) {
+		const transactionDataResponse = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (transactionDataResponse.isErr()) {
+			return err(transactionDataResponse.error.message);
+		}
+		transaction = transactionDataResponse.value;
+	}
+	const satsPerByte = transaction?.satsPerByte ?? 1;
+	const message = transaction?.message;
+	const outputs = transaction?.outputs ?? [];
+	let newAmount = Number(amount);
+
+	let totalNewAmount = 0;
+	const totalFee = getTotalFee({
+		satsPerByte,
+		message,
+		selectedWallet,
+		selectedNetwork,
+	});
+
+	const inputTotal = getTransactionInputValue({
+		selectedNetwork,
+		selectedWallet,
+		inputs: transaction.inputs,
+	});
+
+	if (newAmount !== 0) {
+		totalNewAmount = newAmount + totalFee;
+		if (totalNewAmount > inputTotal && inputTotal - totalFee < 0) {
+			newAmount = 0;
+		}
+	}
+
+	let address = '';
+	let value = 0;
+	if (outputs?.length > index) {
+		value = outputs[index].value ?? 0;
+		address = outputs[index].address ?? '';
+	}
+
+	//Return if the new amount exceeds the current balance or there is no change detected.
+	if (newAmount === value) {
+		return ok('No change detected. No need to update.');
+	}
+	if (
+		newAmount === value ||
+		newAmount > inputTotal ||
+		totalNewAmount > inputTotal
+	) {
+		return err('New amount exceeds the current balance.');
+	}
+
+	const output = { address, value: newAmount, index };
+	await updateOnChainTransaction({
+		selectedWallet,
+		selectedNetwork,
+		transaction: {
+			outputs: [output],
+		},
+	});
+	return ok('');
+};
+
+/**
+ * Updates the OP_RETURN message.
+ * @param {string} message
+ * @param {IOnChainTransactionData} [transaction]
+ * @param {number} [index]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const updateMessage = async ({
+	message,
+	transaction,
+	index = 0,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	message: string;
+	transaction?: IOnChainTransactionData;
+	index?: number;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!transaction) {
+		const transactionDataResponse = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (transactionDataResponse.isErr()) {
+			return err(transactionDataResponse.error.message);
+		}
+		transaction = transactionDataResponse.value;
+	}
+	const max =
+		getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork].max;
+	const satsPerByte = transaction.satsPerByte ?? 1;
+	const outputs = transaction?.outputs ?? [];
+	const inputs = transaction?.inputs ?? [];
+
+	const newFee = getTotalFee({ satsPerByte, message });
+	const inputTotal = getTransactionInputValue({
+		selectedWallet,
+		selectedNetwork,
+		inputs,
+	});
+	const outputTotal = getTransactionOutputValue({
+		selectedWallet,
+		selectedNetwork,
+		outputs,
+	});
+	const totalNewAmount = outputTotal + newFee;
+	let address = '';
+	if (outputs?.length > index) {
+		address = outputs[index].address ?? '';
+	}
+	const _transaction: IOnChainTransactionData = {
+		message,
+		fee: newFee,
+	};
+	if (max) {
+		_transaction.outputs = [{ address, value: inputTotal - newFee, index }];
+		//Update the tx value with the new fee to continue sending the max amount.
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: _transaction,
+		});
+		return ok('Successfully updated the message.');
+	}
+	if (totalNewAmount <= inputTotal) {
+		await updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: _transaction,
+		});
+	}
+	return ok('Successfully updated the message.');
+};
+
+/**
+ * Runs & Applies the autoCoinSelect method to the current transaction.
+ * @param {IOnChainTransactionData} [transaction]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+//TODO: Uncomment and utilize the following runCoinSelect method once the send flow is complete.
+/*
+const runCoinSelect = async ({
+	transaction,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	transaction?: IOnChainTransactionData;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<string>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!transaction) {
+			const transactionDataResponse = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transactionDataResponse.isErr()) {
+				return err(transactionDataResponse.error.message);
+			}
+			transaction = transactionDataResponse.value;
+		}
+		const coinSelectPreference = getStore().settings.coinSelectPreference;
+		//const inputs = transaction.inputs;
+		const utxos: IUtxo[] =
+			getStore().wallet.wallets[selectedWallet].utxos[selectedNetwork];
+		const outputs = transaction.outputs;
+		const amountToSend = getTransactionOutputValue({
+			selectedNetwork,
+			selectedWallet,
+			outputs,
+		});
+		const newSatsPerByte = transaction.satsPerByte;
+		const autoCoinSelectResponse = await autoCoinSelect({
+			amountToSend,
+			inputs: utxos,
+			outputs,
+			satsPerByte: newSatsPerByte,
+			sortMethod: coinSelectPreference,
+		});
+		if (autoCoinSelectResponse.isErr()) {
+			return err(autoCoinSelectResponse.error.message);
+		}
+		if (
+			transaction?.inputs?.length !== autoCoinSelectResponse.value.inputs.length
+		) {
+			const updatedTx: IOnChainTransactionData = {
+				fee: autoCoinSelectResponse.value.fee,
+				inputs: autoCoinSelectResponse.value.inputs,
+			};
+			updateOnChainTransaction({
+				selectedWallet,
+				selectedNetwork,
+				transaction: updatedTx,
+			});
+			return ok('Successfully updated tx.');
+		}
+		return ok('No need to update transaction.');
+	} catch (e) {
+		return err(e);
+	}
+};
+*/
