@@ -11,11 +11,11 @@ import Header from './Header';
 import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
-import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
 import BoostCards from './BoostCards';
+import ActivityList from '../Activity/ActivityList';
 
 const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -47,11 +47,11 @@ const Wallets = ({ navigation }): ReactElement => {
 							<BitcoinCard />
 							<LightningCard />
 							<OmniboltCard />
+							<ActivityList />
 						</View>
 					</DetectSwipe>
 				</ScrollView>
 			</View>
-			<ActivitySwipeUpPanel />
 		</View>
 	);
 };
