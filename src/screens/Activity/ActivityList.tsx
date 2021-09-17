@@ -1,11 +1,15 @@
 import React, { memo, ReactElement, useState } from 'react';
 import {
-	Text,
+	View,
 	TouchableOpacity,
 	RefreshControl,
-	Feather,
+	SentIcon,
+	ReceivedIcon,
+	Text02S,
+	Caption13S,
+	Subtitle,
 } from '../../styles/components';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IActivityItem } from '../../store/types/activity';
@@ -13,11 +17,9 @@ import { refreshWallet } from '../../utils/wallet';
 import { refreshLightningTransactions } from '../../store/actions/lightning';
 import { useNavigation } from '@react-navigation/native';
 
-import BitcoinIcon from '../../assets/bitcoin-logo.svg';
-import LightingIcon from '../../assets/lightning-logo.svg';
-import { truncate } from '../../utils/helpers';
 import { updateActivityList } from '../../store/actions/activity';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
+import { timeAgo } from '../../utils/helpers';
 
 const ListItem = ({
 	item,
@@ -26,82 +28,46 @@ const ListItem = ({
 	item: IActivityItem;
 	onPress: () => void;
 }): ReactElement => {
-	const {
-		message,
-		address,
-		value,
-		activityType,
-		txType,
-		confirmed,
-		timestamp,
-	} = item;
+	const { value, txType, confirmed, timestamp } = item;
 
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useDisplayValues(value);
 
-	const iconSize = 20;
-
-	let walletIcon;
-	switch (activityType) {
-		case 'lightning': {
-			walletIcon = (
-				<LightingIcon
-					viewBox="0 0 300 300"
-					height={iconSize}
-					width={iconSize}
-				/>
-			);
-			break;
-		}
-		case 'onChain': {
-			walletIcon = (
-				<BitcoinIcon viewBox="0 0 70 70" height={iconSize} width={iconSize} />
-			);
-			break;
-		}
-	}
-
-	const directionIcon =
-		txType === 'sent' ? (
-			<Feather name="arrow-up" size={iconSize} />
-		) : (
-			<Feather name="arrow-down" size={iconSize} />
-		);
-
-	const date = new Date(timestamp);
-
-	const note = message || address || '';
-
 	return (
 		<TouchableOpacity style={styles.item} onPress={onPress}>
-			<View style={styles.col1}>
-				{walletIcon}
-				{directionIcon}
-				<Text>{confirmed ? '✅' : '⌛'}</Text>
+			<View style={styles.col1} color={'transparent'}>
+				<View color={'gray6'} style={styles.iconCircle}>
+					{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
+				</View>
+				<View color={'transparent'}>
+					<Text02S style={styles.note}>
+						{txType === 'sent' ? 'Sent' : 'Received'}{' '}
+						{!confirmed ? '(Unconfirmed)' : ''}
+					</Text02S>
+					<Caption13S color={'gray'} style={styles.date}>
+						{timeAgo(timestamp)}
+					</Caption13S>
+				</View>
 			</View>
-			<View style={styles.col2}>
-				<Text style={styles.note}>{truncate(note, 20)}</Text>
-				<Text style={styles.date}>
-					{date.toLocaleDateString(undefined, {
-						hour: 'numeric',
-						minute: 'numeric',
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric',
-					})}
-				</Text>
-			</View>
-			<View style={styles.col3}>
-				<Text style={styles.value}>
-					{bitcoinSymbol}
-					{bitcoinFormatted}
-				</Text>
-				<Text style={styles.value}>
+			<View style={styles.col2} color={'transparent'}>
+				<Text02S style={styles.value}>
+					{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
+					{bitcoinFormatted.replace('-', '')}
+				</Text02S>
+				<Caption13S color={'gray'} style={styles.value}>
 					{fiatSymbol}
-					{fiatFormatted}
-				</Text>
+					{fiatFormatted.replace('-', '')}
+				</Caption13S>
 			</View>
 		</TouchableOpacity>
+	);
+};
+
+const ListHeaderComponent = (): ReactElement => {
+	return (
+		<View style={styles.header} color={'transparent'}>
+			<Subtitle>Transactions</Subtitle>
+		</View>
 	);
 };
 
@@ -134,49 +100,59 @@ const ActivityList = (): ReactElement => {
 
 	return (
 		<FlatList
+			style={styles.content}
 			data={activityItems}
 			renderItem={renderItem}
 			keyExtractor={(item): string => item.id}
 			refreshControl={
 				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 			}
+			ListHeaderComponent={ListHeaderComponent}
 		/>
 	);
 };
 
 const styles = StyleSheet.create({
+	content: {
+		padding: 20,
+	},
 	item: {
-		minHeight: 60,
-		borderColor: 'gray',
-		borderBottomWidth: 1,
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		backgroundColor: 'transparent',
+		marginBottom: 24,
 	},
 	col1: {
 		display: 'flex',
 		flexDirection: 'row',
-		flex: 2,
+		flex: 5,
 	},
 	col2: {
 		display: 'flex',
 		flexDirection: 'column',
-		flex: 5,
-	},
-	col3: {
-		display: 'flex',
-		flexDirection: 'column',
 		justifyContent: 'flex-end',
 		flex: 3,
+	},
+	iconCircle: {
+		borderRadius: 20,
+		width: 36,
+		height: 36,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginRight: 14,
 	},
 	value: {
 		textAlign: 'right',
 	},
 	note: {},
 	date: {
-		fontWeight: '300',
+		marginTop: 4,
+	},
+	header: {
+		marginBottom: 23,
 	},
 });
 

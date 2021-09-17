@@ -276,7 +276,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.2.0):
     - React-Core
-  - react-native-tcp-socket (5.2.0):
+  - react-native-tcp-socket (5.2.1):
     - CocoaAsyncSocket
     - React-Core
   - React-perflogger (0.64.2)
@@ -375,6 +375,8 @@ PODS:
   - RNZipArchive/Core (6.0.3):
     - React-Core
     - SSZipArchive (= 2.2.3)
+  - SRSRadialGradient (1.0.9):
+    - React
   - SSZipArchive (2.2.3)
   - TouchID (4.4.1):
     - React
@@ -454,6 +456,7 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
+  - SRSRadialGradient (from `../node_modules/react-native-radial-gradient/ios`)
   - TouchID (from `../node_modules/react-native-touch-id`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -574,6 +577,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
+  SRSRadialGradient:
+    :path: "../node_modules/react-native-radial-gradient/ios"
   TouchID:
     :path: "../node_modules/react-native-touch-id"
   Yoga:
@@ -584,7 +589,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
-  FBReactNativeSpec: 6d55a356fd2e8185702eec4812b71a6e58191383
+  FBReactNativeSpec: f89a72338ecf41b2d9f538070f386bd60a427798
   Flipper: d3da1aa199aad94455ae725e9f3aa43f3ec17021
   Flipper-DoubleConversion: 38631e41ef4f9b12861c67d17cb5518d06badc41
   Flipper-Folly: 755929a4f851b2fb2c347d533a23f191b008554c
@@ -615,7 +620,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
-  react-native-tcp-socket: c752d16fd5300dc96fc4a749c4db7c2a3886cd52
+  react-native-tcp-socket: d05b8acbf1c045ff5b6a92ec6ca91960c94387d1
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
   React-RCTAnimation: 6a2e76ab50c6f25b428d81b76a5a45351c4d77aa
@@ -641,6 +646,7 @@ SPEC CHECKSUMS:
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   RNZipArchive: 924d63f15f2838837f8379ee6e9955d8ff4736c4
+  SRSRadialGradient: 49ba49a7a8f257c3fe785c250867b07185d1d01e
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   TouchID: ba4c656d849cceabc2e4eef722dea5e55959ecf4
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
@@ -648,4 +654,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: c8eac6f8d91aceceda4bd6420bc6b2fbe8197771
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.0

@@ -16,7 +16,6 @@ import {
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
-	IWalletItem,
 	TAddressType,
 	TKeyDerivationAccount,
 	TKeyDerivationAccountType,
@@ -24,6 +23,7 @@ import {
 	IAddressType,
 	IKeyDerivationPathData,
 	ETransactionDefaults,
+	IFormattedTransactionContent,
 } from '../../store/types/wallet';
 import { err, ok, Result } from '../result';
 import {
@@ -40,7 +40,6 @@ import {
 	setKeychainValue,
 } from '../helpers';
 import { getStore } from '../../store/helpers';
-import * as electrum from 'rn-electrum-client/helpers';
 import {
 	addAddresses,
 	updateAddressIndexes,
@@ -48,10 +47,6 @@ import {
 	updateTransactions,
 	updateUtxos,
 } from '../../store/actions/wallet';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../notifications';
 import {
 	ICustomElectrumPeer,
 	TCoinSelectPreference,
@@ -62,10 +57,16 @@ import {
 	getTotalFee,
 	getTransactionOutputValue,
 } from './transactions';
-import * as tls from '../electrum/tls';
-import * as net from '../electrum/net';
-import * as peers from 'rn-electrum-client/helpers/peers.json';
 import { AddressInfo, getAddressInfo } from 'bitcoin-address-validation';
+import {
+	getAddressHistory,
+	getTransactions,
+	getTransactionsFromInputs,
+	IGetAddressHistoryResponse,
+	subscribeToAddresses,
+	subscribeToHeader,
+	TTxResult,
+} from './electrum';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -99,85 +100,6 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 	} catch (e) {
 		return err(e);
 	}
-};
-
-interface ISubscribeToAddress {
-	data: {
-		id: number;
-		jsonrpc: string;
-		result: null;
-	};
-	error: boolean;
-	id: number;
-	method: string;
-}
-export const subscribeToAddresses = async ({
-	selectedNetwork,
-	selectedWallet,
-}: {
-	selectedNetwork?: undefined | TAvailableNetworks;
-	selectedWallet?: undefined | string;
-}): Promise<Result<string>> => {
-	const addressTypes = getAddressTypes();
-	const { currentWallet } = getCurrentWallet({
-		selectedNetwork,
-		selectedWallet,
-	});
-	await Promise.all(
-		Object.keys(addressTypes).map(async (addressType) => {
-			if (!selectedNetwork) {
-				selectedNetwork = getSelectedNetwork();
-			}
-			if (!selectedWallet) {
-				selectedWallet = getSelectedWallet();
-			}
-			const addressScriptHash =
-				currentWallet.addressIndex[selectedNetwork][addressType].scriptHash;
-			const subscribeAddressResponse: ISubscribeToAddress =
-				await electrum.subscribeAddress({
-					scriptHash: addressScriptHash,
-					network: selectedNetwork,
-					onReceive: (data): void => {
-						showSuccessNotification({
-							title: 'Received BTC',
-							message: data[1], //TODO: Include amount received as the message.
-						});
-						refreshWallet();
-					},
-				});
-			if (subscribeAddressResponse.error) {
-				return err('Unable to subscribe to receiving addresses.');
-			}
-		}),
-	);
-	return ok('Successfully subscribed to addresses.');
-};
-
-interface ISubscribeToHeader {
-	data: {
-		height: number;
-		hex: string;
-	};
-	error: boolean;
-	id: string;
-	method: string;
-}
-export const subscribeToHeader = async ({
-	selectedNetwork = undefined,
-}: {
-	selectedNetwork?: undefined | TAvailableNetworks;
-}): Promise<Result<string>> => {
-	if (!selectedNetwork) {
-		selectedNetwork = getSelectedNetwork();
-	}
-	const subscribeResponse: ISubscribeToHeader = await electrum.subscribeHeader({
-		network: selectedNetwork,
-		onReceive: refreshWallet,
-	});
-	if (subscribeResponse.error) {
-		return err('Unable to subscribe to headers.');
-	}
-	return ok('Successfully subscribed to headers.');
 };
 
 /**
@@ -676,25 +598,22 @@ export const validateMnemonic = (mnemonic = '', password = ''): boolean => {
  * Get the current Bitcoin balance in sats. (Confirmed+Unconfirmed)
  * @param {string} selectedWallet
  * @param {string} selectedNetwork
- * @return {{ error: boolean, data: number }} - Will always return balance in sats.
+ * @return number - Will always return balance in sats.
  */
-export const getBitcoinBalance = ({
-	selectedWallet = EWallet.defaultWallet,
-	selectedNetwork = EWallet.selectedNetwork,
+export const getOnChainBalance = ({
+	selectedWallet,
+	selectedNetwork,
 }: {
-	selectedWallet: string;
-	selectedNetwork: TAvailableNetworks;
-}): IResponse<number> => {
-	const wallet = getStore().wallet;
-	try {
-		const _wallet = wallet.wallets[selectedWallet];
-		const balance =
-			_wallet.confirmedBalance[selectedNetwork] +
-			_wallet.unconfirmedBalance[selectedNetwork];
-		return { error: false, data: balance };
-	} catch {
-		return { error: true, data: 0 };
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): number => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
 	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	return getStore().wallet[selectedWallet]?.balance[selectedNetwork] ?? 0;
 };
 
 /**
@@ -778,19 +697,8 @@ export const removeDuplicateAddresses = async ({
 	}
 };
 
-interface TTxResult {
-	tx_hash: string;
-	height: number;
-}
 interface ITxHashes extends TTxResult {
 	scriptHash: string;
-}
-interface TTxResponse {
-	data: IAddressContent;
-	id: number;
-	jsonrpc: string;
-	param: string;
-	result: TTxResult[];
 }
 interface IGetNextAvailableAddressResponse {
 	addressIndex: IAddressContent;
@@ -1233,7 +1141,7 @@ export const getSelectedAddressType = ({
  * @return {string}
  */
 export const getSelectedWallet = (): string => {
-	return getStore().wallet.selectedWallet;
+	return getStore()?.wallet?.selectedWallet ?? EWallet.defaultWallet;
 };
 
 /**
@@ -1268,73 +1176,54 @@ export const getCurrentWallet = ({
 	};
 };
 
-/**
- * Returns utxos for a given wallet and network along with the available balance.
- */
-export const getUtxos = async ({
+export const getOnChainTransactions = ({
 	selectedWallet,
 	selectedNetwork,
 }: {
-	selectedWallet: undefined | string;
-	selectedNetwork: undefined | TAvailableNetworks;
-}): Promise<Result<{ utxos: IUtxo[]; balance: number }>> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedNetwork,
-			selectedWallet,
-		});
+	selectedWallet: string;
+	selectedNetwork: TAvailableNetworks;
+}): IFormattedTransaction => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	return (
+		getStore().wallet?.wallets[selectedWallet]?.transactions[selectedNetwork] ??
+		{}
+	);
+};
 
-		const addressTypes = getAddressTypes();
-		let utxos: IUtxo[] = [];
-		let balance = 0;
-		await Promise.all(
-			Object.keys(addressTypes).map(async (addressTypeKey) => {
-				if (!selectedNetwork) {
-					selectedNetwork = getSelectedNetwork();
-				}
-				if (!selectedWallet) {
-					selectedWallet = getSelectedWallet();
-				}
-				const unspentAddressResult =
-					await electrum.listUnspentAddressScriptHashes({
-						scriptHashes: {
-							key: 'scriptHash',
-							data: {
-								...currentWallet.addresses[selectedNetwork][addressTypeKey],
-								...currentWallet.changeAddresses[selectedNetwork][
-									addressTypeKey
-								],
-							},
-						},
-						network: selectedNetwork,
-					});
-				if (unspentAddressResult.error) {
-					return err(unspentAddressResult.data);
-				}
-				await Promise.all(
-					unspentAddressResult.data.map(({ data, result }) => {
-						if (result && result?.length > 0) {
-							return result.map((unspentAddress: IUtxo) => {
-								balance = balance + unspentAddress.value;
-								utxos.push({
-									...data,
-									...unspentAddress,
-								});
-							});
-						}
-					}),
-				);
-			}),
-		);
-		return ok({ utxos, balance });
-	} catch (e) {
-		return err(e);
+/**
+ * @param {string} txid
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Result<IFormattedTransactionContent>}
+ */
+export const getTransactionById = ({
+	txid,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<IFormattedTransactionContent> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const transactions = getOnChainTransactions({
+		selectedNetwork,
+		selectedWallet,
+	});
+	if (txid in transactions) {
+		return ok(transactions[txid]);
+	} else {
+		return err('Unable to locate the specified txid.');
 	}
 };
 
@@ -1361,88 +1250,9 @@ export interface ITransaction<T> {
 	};
 }
 
-interface IGetTransactions {
-	error: boolean;
-	id: number;
-	method: string;
-	network: string;
-	data: ITransaction<IUtxo>[];
-}
 export interface ITxHash {
 	tx_hash: string;
 }
-export const getTransactions = async ({
-	txHashes = [],
-	selectedNetwork = EWallet.selectedNetwork,
-}: {
-	txHashes: ITxHash[];
-	selectedNetwork: TAvailableNetworks | undefined;
-}): Promise<Result<IGetTransactions>> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (txHashes.length < 1) {
-			return ok({
-				error: false,
-				id: 0,
-				method: 'getTransactions',
-				network: selectedNetwork,
-				data: [],
-			});
-		}
-		const data = {
-			key: 'tx_hash',
-			data: txHashes,
-		};
-		const response = await electrum.getTransactions({
-			txHashes: data,
-			network: selectedNetwork,
-		});
-		if (response.error) {
-			return err(response);
-		}
-		return ok(response);
-	} catch (e) {
-		return err(e);
-	}
-};
-
-interface IGetTransactionsFromInputs {
-	error: boolean;
-	id: number;
-	method: string;
-	network: string;
-	data: ITransaction<{
-		tx_hash: string;
-		vout: number;
-	}>[];
-}
-export const getTransactionsFromInputs = async ({
-	txHashes = [],
-	selectedNetwork = undefined,
-}: {
-	txHashes: ITxHash[];
-	selectedNetwork: undefined | TAvailableNetworks;
-}): Promise<Result<IGetTransactionsFromInputs>> => {
-	try {
-		const data = {
-			key: 'tx_hash',
-			data: txHashes,
-		};
-		const response = await electrum.getTransactions({
-			txHashes: data,
-			network: selectedNetwork,
-		});
-		if (!response.error) {
-			return ok(response);
-		} else {
-			return err(response);
-		}
-	} catch (e) {
-		return err(e);
-	}
-};
 
 export const getInputData = async ({
 	selectedNetwork = undefined,
@@ -1656,101 +1466,6 @@ export const decodeOpReturnMessage = (opReturn = ''): string[] => {
 	}
 };
 
-interface IGetAddressScriptHashesHistoryResponse {
-	data: TTxResponse[];
-	error: boolean;
-	id: number;
-	method: string;
-	network: string;
-}
-
-export interface IGetAddressHistoryResponse
-	extends TTxResult,
-		IAddressContent {}
-export const getAddressHistory = async ({
-	scriptHashes = undefined,
-	selectedNetwork = undefined,
-	selectedWallet = undefined,
-}: {
-	scriptHashes?: undefined | IAddressContent[];
-	selectedNetwork?: TAvailableNetworks | undefined;
-	selectedWallet?: string | undefined;
-}): Promise<Result<IGetAddressHistoryResponse[]>> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedNetwork,
-			selectedWallet,
-		});
-		const currentAddresses = currentWallet.addresses[selectedNetwork];
-		const currentChangeAddresses =
-			currentWallet.changeAddresses[selectedNetwork];
-		if (!scriptHashes || scriptHashes?.length < 1) {
-			const addressTypes = getAddressTypes();
-			await Promise.all(
-				Object.keys(addressTypes).map((addressType) => {
-					const addresses = currentAddresses[addressType];
-					const changeAddresses = currentChangeAddresses[addressType];
-					const addressValues = Object.values(addresses);
-					const changeAddressValues = Object.values(changeAddresses);
-					// @ts-ignore
-					scriptHashes = [...addressValues, ...changeAddressValues];
-				}),
-			);
-		}
-		if (!scriptHashes || scriptHashes?.length < 1) {
-			return err('No scriptHashes available to check.');
-		}
-		const payload = {
-			key: 'scriptHash',
-			data: scriptHashes,
-		};
-		const response: IGetAddressScriptHashesHistoryResponse =
-			await electrum.getAddressScriptHashesHistory({
-				scriptHashes: payload,
-				network: selectedNetwork,
-			});
-
-		const mempoolResponse: IGetAddressScriptHashesHistoryResponse =
-			await electrum.getAddressScriptHashesMempool({
-				scriptHashes: payload,
-				network: selectedNetwork,
-			});
-
-		if (response.error || mempoolResponse.error) {
-			return err('Unable to get address history.');
-		}
-
-		const combinedResponse = [...response.data, ...mempoolResponse.data];
-
-		let history: IGetAddressHistoryResponse[] = [];
-		combinedResponse.map(
-			({
-				data,
-				result,
-			}: {
-				data: IAddressContent;
-				result: TTxResult[];
-			}): void => {
-				if (result && result?.length > 0) {
-					result.map((item) => {
-						history.push({ ...data, ...item });
-					});
-				}
-			},
-		);
-
-		return ok(history);
-	} catch (e) {
-		return err(e);
-	}
-};
-
 export const getCustomElectrumPeers = ({
 	selectedNetwork = undefined,
 }: {
@@ -1765,65 +1480,6 @@ export const getCustomElectrumPeers = ({
 	} catch {
 		return [];
 	}
-};
-
-const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
-	bitcoin: peers.bitcoin,
-	bitcoinTestnet: peers.bitcoinTestnet,
-};
-export const connectToElectrum = async ({
-	selectedNetwork = undefined,
-	retryAttempts = 2,
-}: {
-	selectedNetwork?: TAvailableNetworks | undefined;
-	retryAttempts?: number;
-}): Promise<Result<string>> => {
-	if (!selectedNetwork) {
-		selectedNetwork = getSelectedNetwork();
-	}
-
-	//Attempt to disconnect from any old/lingering connections
-	await electrum.stop({ network: selectedNetwork });
-
-	// Fetch any stored custom peers.
-	let customPeers = getCustomElectrumPeers({ selectedNetwork });
-	if (customPeers.length < 1) {
-		customPeers = tempElectrumServers[selectedNetwork];
-	}
-
-	let i = 0;
-	let startResponse = { error: true, data: '' };
-	while (i < retryAttempts) {
-		startResponse = await electrum.start({
-			network: selectedNetwork,
-			customPeers,
-			protocol: 'ssl',
-			net,
-			tls,
-		});
-		if (!startResponse.error) {
-			break;
-		}
-		i++;
-	}
-
-	if (startResponse.error) {
-		//Attempt one more time
-		const { error, data } = await electrum.start({
-			network: selectedNetwork,
-			customPeers,
-			net,
-			tls,
-		});
-		if (error) {
-			showErrorNotification({
-				title: 'Unable to connect to Electrum Server.',
-				message: data,
-			});
-			return err(data);
-		}
-	}
-	return ok('Successfully connected.');
 };
 
 export interface IVin {

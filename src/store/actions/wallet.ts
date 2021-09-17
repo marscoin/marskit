@@ -13,7 +13,6 @@ import {
 	createDefaultWallet,
 	formatTransactions,
 	generateAddresses,
-	getAddressHistory,
 	getAddressTypes,
 	getCurrentWallet,
 	getKeyDerivationPathObject,
@@ -21,8 +20,6 @@ import {
 	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
-	getTransactions,
-	getUtxos,
 	ITransaction,
 	refreshWallet,
 	removeDuplicateAddresses,
@@ -32,14 +29,20 @@ import { TAvailableNetworks } from '../../utils/networks';
 import { err, ok, Result } from '../../utils/result';
 import { createOmniboltWallet } from './omnibolt';
 import {
+	getOnchainTransactionData,
 	getTotalFee,
-	getTransactionInputValue,
 } from '../../utils/wallet/transactions';
 import {
 	IGenerateAddresses,
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { getExchangeRates } from '../../utils/exchange-rate';
+import { objectsMatch } from '../../utils/helpers';
+import {
+	getAddressHistory,
+	getTransactions,
+	getUtxos,
+} from '../../utils/wallet/electrum';
 
 const dispatch = getDispatch();
 
@@ -578,14 +581,6 @@ export const updateOnChainTransaction = async ({
 			selectedWallet = getSelectedWallet();
 		}
 
-		const inputValue = getTransactionInputValue({
-			selectedWallet,
-			selectedNetwork,
-		});
-		if (!inputValue) {
-			await setupOnChainTransaction({ selectedWallet, selectedNetwork });
-		}
-
 		//Add output if specified
 		if (transaction?.outputs) {
 			let outputs =
@@ -678,4 +673,98 @@ export const updateSelectedAddressType = ({
 			payload,
 		});
 	} catch {}
+};
+
+/**
+ * Removes the specified input from the current transaction.
+ * @param {IUtxo} input
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const removeTxInput = ({
+	input,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	input: IUtxo;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<IUtxo[]> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+		const txInputs = txData.value?.inputs ?? [];
+		const newInputs = txInputs.filter((txInput) => {
+			if (!objectsMatch(input, txInput)) {
+				return txInput;
+			}
+		});
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: {
+				inputs: newInputs,
+			},
+		});
+		return ok(newInputs);
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * Adds a specified input to the current transaction.
+ * @param {IUtxo} input
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const addTxInput = ({
+	input,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	input: IUtxo;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<IUtxo[]> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+		const inputs = txData.value?.inputs ?? [];
+		const newInputs = [...inputs, input];
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: {
+				inputs: newInputs,
+			},
+		});
+		return ok(newInputs);
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };

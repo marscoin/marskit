@@ -15,7 +15,7 @@ import {
 	supportedExchangeTickers,
 } from '../../../utils/exchange-rate';
 import { updateSettings } from '../../../store/actions/settings';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../../hooks/displayValues';
 import { updateExchangeRates } from '../../../store/actions/wallet';
 import { TBitcoinUnit } from '../../../store/types/wallet';
 import { RadioButtonItem } from '../../../store/types/settings';

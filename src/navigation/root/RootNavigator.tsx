@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from 'react-native-screens/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DrawerNavigator from '../drawer/DrawerNavigator';
 import TempSettings from '../../screens/Settings/TempSettings';
 import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
@@ -18,10 +18,14 @@ import Store from '../../store/types';
 import AuthCheck from '../../components/AuthCheck';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
-import ChainReactor from '../../screens/ChainReactor';
-import ChainReactorOrder from '../../screens/ChainReactor/OrderService';
+import Blocktank from '../../screens/Blocktank';
+import BlocktankOrder from '../../screens/Blocktank/OrderService';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
-import ChainReactorPayment from '../../screens/ChainReactor/Payment';
+import BlocktankPayment from '../../screens/Blocktank/Payment';
+import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
+import ActivityDetail from '../../screens/Activity/ActivityDetail';
+import ScannerScreen from '../../screens/Scanner';
+import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +33,7 @@ const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
-	detachPreviousScreen: false,
+	detachInactiveScreens: true,
 };
 
 export type TInitialRoutes = 'Drawer' | 'AuthCheck';
@@ -89,6 +93,11 @@ const RootNavigator = (): ReactElement => {
 					component={ExchangeRateSettings}
 					options={navOptionHandler}
 				/>
+				<Stack.Screen
+					name="ElectrumConfig"
+					component={ElectrumConfig}
+					options={navOptionHandler}
+				/>
 				<Stack.Screen name="Biometrics" options={navOptionHandler}>
 					{({ navigation }): ReactElement => (
 						<Biometrics
@@ -144,18 +153,33 @@ const RootNavigator = (): ReactElement => {
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactor"
-					component={ChainReactor}
+					name="Blocktank"
+					component={Blocktank}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactorOrder"
-					component={ChainReactorOrder}
+					name="BlocktankOrder"
+					component={BlocktankOrder}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
-					name="ChainReactorPayment"
-					component={ChainReactorPayment}
+					name="BlocktankPayment"
+					component={BlocktankPayment}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="ActivityDetail"
+					component={ActivityDetail}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="Scanner"
+					component={ScannerScreen}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="WalletsDetail"
+					component={WalletsDetail}
 					options={navOptionHandler}
 				/>
 			</Stack.Navigator>

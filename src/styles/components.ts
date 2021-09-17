@@ -7,6 +7,216 @@ import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated from 'react-native-reanimated';
 import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
+import { SvgXml } from 'react-native-svg';
+import { camera, settings, dismiss, boost } from '../assets/icons/header';
+import {
+	bitcoinIcon,
+	lightningIcon,
+	receivedIcon,
+	sentIcon,
+	transferIcon,
+} from '../assets/icons/wallet';
+import { sanFranciscoWeights } from 'react-native-typography';
+
+export const DismissIcon = styled(SvgXml).attrs((props) => ({
+	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
+	width: props?.width ?? '14px',
+	height: props?.height ?? '16px',
+}))``;
+
+export const CameraIcon = styled(SvgXml).attrs((props) => ({
+	xml: camera(props?.color ? props.theme.colors[props.color] : '#636366'),
+	width: props?.width ?? '20.54px',
+	height: props?.height ?? '20.53px',
+}))``;
+
+export const SettingsIcon = styled(SvgXml).attrs((props) => ({
+	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
+	width: props?.width ?? '21.6px',
+	height: props?.height ?? '19.8px',
+}))``;
+
+export const TransferIcon = styled(SvgXml).attrs((props) => ({
+	xml: transferIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
+export const BoostIcon = styled(SvgXml).attrs((props) => ({
+	xml: boost(),
+	width: props?.width ?? '39px',
+	height: props?.height ?? '39px',
+}))``;
+
+export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
+	xml: bitcoinIcon(props?.color ? props.theme.colors[props.color] : '#ED8452'),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
+export const LightningIcon = styled(SvgXml).attrs((props) => ({
+	xml: lightningIcon(
+		props?.color ? props.theme.colors[props.color] : '#B95CE8',
+	),
+	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+}))``;
+
+export const SentIcon = styled(SvgXml).attrs((props) => ({
+	xml: sentIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '17px',
+	width: props?.width ?? '17px',
+}))``;
+
+export const ReceivedIcon = styled(SvgXml).attrs((props) => ({
+	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '17px',
+	width: props?.width ?? '17px',
+}))``;
+
+export const Display = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '48px')};
+`;
+
+export const Headline = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '34px')};
+`;
+
+export const Title = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '22px')};
+`;
+
+export const Subtitle = styled.Text`
+	${sanFranciscoWeights.bold};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.bold.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '18px')};
+`;
+
+export const Text01M = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '17px')};
+`;
+
+export const Text01S = styled.Text`
+	${sanFranciscoWeights.regular};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.regular.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '17px')};
+`;
+
+export const Text02M = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '15px')};
+`;
+
+export const SubHeadM = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-weight: 500;
+	font-size: ${(props): string => (props.size ? props.size : '14px')};
+`;
+
+export const Text02S = styled.Text`
+	${sanFranciscoWeights.regular};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.regular.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '15px')};
+`;
+
+export const Caption13M = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
+
+export const Caption13S = styled.Text`
+	${sanFranciscoWeights.regular};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : '#636366'};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.regular.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
+
+export const Text13S = styled.Text`
+	${sanFranciscoWeights.regular};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.regular.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
+
+export const Text13UP = styled.Text`
+	${sanFranciscoWeights.medium};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : props.theme.colors.text};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.medium.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
 
 export const SafeAreaView = styled.SafeAreaView`
 	flex: 1;

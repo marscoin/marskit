@@ -9,7 +9,7 @@ import {
 } from '../store/types/wallet';
 import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-community/clipboard';
-import { Alert, Vibration } from 'react-native';
+import { Alert, Linking, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from './result';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -142,7 +142,9 @@ export const displayAlert = (msg = '', title = ''): void => {
 
 export const btcToSats = (balance = 0): number => {
 	try {
-		return bitcoinUnits(balance, 'BTC').to('satoshi').value();
+		return Number(
+			bitcoinUnits(balance, 'BTC').to('satoshi').value().toFixed(0),
+		);
 	} catch (e) {
 		return 0;
 	}
@@ -246,4 +248,168 @@ export const truncate = (str, n): string =>
  */
 export const capitalize = (str = ''): string => {
 	return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+/**
+ * Determines if the two objects passed as params match.
+ * @param obj1
+ * @param obj2
+ * @return boolean
+ */
+export const objectsMatch = (obj1, obj2): boolean => {
+	if (!obj1 || !obj2) {
+		return false;
+	}
+	const obj1Length = Object.keys(obj1).length;
+	const obj2Length = Object.keys(obj2).length;
+
+	if (obj1Length === obj2Length) {
+		return Object.keys(obj1).every(
+			(key) => key in obj2 && obj2[key] === obj1[key],
+		);
+	} else {
+		return false;
+	}
+};
+
+/**
+ * Returns the new value and abbreviation of the provided number for display.
+ * @param value
+ * @return { newValue: string; abbreviation: string }
+ */
+export const abbreviateNumber = (
+	value: string | number,
+): { newValue: string; abbreviation: string } => {
+	if (typeof value !== 'number') {
+		value = value.replace(/,/g, '');
+	}
+	let newValue: number = Number(value);
+	const abbreviations = [
+		'',
+		'K',
+		'M',
+		'B',
+		't',
+		'q',
+		'Q',
+		's',
+		'S',
+		'o',
+		'n',
+		'd',
+		'U',
+		'D',
+		'T',
+		'Qt',
+		'Qd',
+		'Sd',
+		'St',
+		'O',
+		'N',
+		'v',
+		'c',
+	];
+	let abbreviationNum = 0;
+	while (newValue >= 1000) {
+		newValue /= 1000;
+		abbreviationNum++;
+	}
+	const _newValue = newValue.toPrecision(3);
+	const abbreviation = abbreviations[abbreviationNum] ?? '';
+	return { newValue: _newValue, abbreviation };
+};
+
+const monthName = (index): string => {
+	//TODO translate these
+	const months = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December',
+	];
+
+	if (index + 1 > months.length) {
+		return 'TODO';
+	}
+
+	return months[index];
+};
+
+export const getFormattedDate = (
+	date: Date,
+	preFormattedDate: string = '',
+	hideYear: boolean = false,
+): string => {
+	const day = date.getDate();
+	const month = monthName(date.getMonth());
+	const year = date.getFullYear();
+	const hours = date.getHours();
+	let minutes = date.getMinutes();
+	let minutesStr = `${minutes}`;
+	if (minutes < 10) {
+		// Adding leading zero to minutes
+		minutesStr = `0${minutes}`;
+	}
+
+	if (preFormattedDate) {
+		// Today at 10:20
+		// Yesterday at 10:20
+		return `${preFormattedDate} at ${hours}:${minutesStr}`;
+	}
+
+	if (hideYear) {
+		// 10. January at 10:20
+		return `${day} ${month} at ${hours}:${minutesStr}`;
+	}
+
+	// 10 January 2017 at 10:20
+	return `${day} ${month} ${year} at ${hours}:${minutesStr}`;
+};
+
+export const timeAgo = (timestamp: number): string => {
+	const date = new Date(timestamp);
+
+	const DAY_IN_MS = 24 * 60 * 60 * 1000;
+	const today = new Date();
+	const yesterday = new Date(today.getTime() - DAY_IN_MS);
+	const seconds = Math.round((today.getTime() - date.getTime()) / 1000);
+	const minutes = Math.round(seconds / 60);
+	const isToday = today.toDateString() === date.toDateString();
+	const isYesterday = yesterday.toDateString() === date.toDateString();
+	const isThisYear = today.getFullYear() === date.getFullYear();
+
+	if (seconds < 5) {
+		return 'now';
+	} else if (seconds < 60) {
+		return `${seconds} seconds ago`;
+	} else if (seconds < 90) {
+		return 'about a minute ago';
+	} else if (minutes < 60) {
+		return `${minutes} minutes ago`;
+	} else if (isToday) {
+		return getFormattedDate(date, 'Today'); // Today at 10:20
+	} else if (isYesterday) {
+		return getFormattedDate(date, 'Yesterday'); // Yesterday at 10:20
+	} else if (isThisYear) {
+		return getFormattedDate(date, '', true); // 10 January at 10:20
+	}
+
+	return getFormattedDate(date); // 10. January 2017. at 10:20
+};
+
+export const openURL = async (link: string): Promise<void> => {
+	if (!link) {
+		return;
+	}
+	if (await Linking.canOpenURL(link)) {
+		await Linking.openURL(link);
+	}
 };

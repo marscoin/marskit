@@ -1,12 +1,17 @@
-import React, { PropsWithChildren, ReactElement, useCallback } from 'react';
+import React, {
+	PropsWithChildren,
+	ReactElement,
+	useCallback,
+	useState,
+} from 'react';
 import { StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import { IActivityItem } from '../../store/types/activity';
+import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import Divider from '../../components/Divider';
 import { truncate } from '../../utils/helpers';
 import { getBlockExplorerLink } from '../../utils/wallet/transactions';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import useDisplayValues from '../../hooks/displayValues';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;
@@ -54,9 +59,21 @@ interface Props extends PropsWithChildren<any> {
 	route: { params: { activityItem: IActivityItem } };
 }
 
+const emptyActivityItem: IActivityItem = {
+	id: '',
+	message: '',
+	address: '',
+	activityType: EActivityTypes.onChain,
+	txType: 'sent',
+	value: 0,
+	confirmed: false,
+	fee: 0,
+	timestamp: 0,
+};
+
 const ActivityDetail = (props: Props): ReactElement => {
-	const {
-		activityItem: {
+	const [
+		{
 			id,
 			message,
 			address,
@@ -67,7 +84,10 @@ const ActivityDetail = (props: Props): ReactElement => {
 			fee,
 			timestamp,
 		},
-	} = props.route.params;
+		//setActivityItem,
+	] = useState<IActivityItem>(
+		props.route.params?.activityItem ?? emptyActivityItem,
+	);
 
 	let status = '';
 	if (value < 0) {

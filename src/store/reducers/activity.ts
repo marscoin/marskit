@@ -41,6 +41,11 @@ const activity = (
 					typesFilter,
 				),
 			};
+		case actions.REPLACE_ACTIVITY_ITEM:
+			return {
+				...state,
+				items: action.payload,
+			};
 		case actions.RESET_ACTIVITY_STORE:
 			return { ...defaultActivityShape };
 		default:

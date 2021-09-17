@@ -19,7 +19,7 @@ import {
 import lnd from '@synonymdev/react-native-lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { useTranslation } from 'react-i18next';
-import useDisplayValues from '../../utils/exchange-rate/useDisplayValues';
+import { useBalance } from '../../hooks/wallet';
 
 const hasBalance = (value: any): boolean => {
 	try {
@@ -62,21 +62,17 @@ const LightningCard = (): ReactElement => {
 
 	const showSendReceive =
 		hasBalance(lightning.channelBalance.balance) ||
-		hasBalance(lightning.channelBalance.remoteBalance);
+		hasBalance(lightning.channelBalance.remoteBalance?.sat);
 
 	//Show 'move to lightning button' if they have a confirmed on-chain balance but no channel balance
 	const showOpenChannelButton =
 		lightning.info.syncedToChain &&
 		!hasBalance(lightning.channelBalance.pendingOpenBalance) &&
 		!hasBalance(lightning.channelBalance.balance) &&
-		!hasBalance(lightning.channelBalance.remoteBalance);
-
-	const balance =
-		Number(lightning.channelBalance.balance) +
-		Number(lightning.channelBalance.pendingOpenBalance);
+		!hasBalance(lightning.channelBalance.remoteBalance?.sat);
 
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-		useDisplayValues(balance);
+		useBalance({ lightning: true });
 
 	return (
 		<AssetCard
@@ -129,9 +125,9 @@ const LightningCard = (): ReactElement => {
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
 									connectToDefaultPeer().then();
-									navigation.navigate('BitcoinToLightning');
+									navigation.navigate('Blocktank');
 								}}
-								text="Move funds to lighting"
+								text="Buy Channel"
 							/>
 						)}
 					</View>

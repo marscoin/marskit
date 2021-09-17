@@ -16,9 +16,10 @@ import {
 import {
 	getCurrentWallet,
 	getMnemonicPhrase,
+	getOnChainBalance,
 	getSelectedNetwork,
 	getSelectedWallet,
-	getTransactions,
+	getTransactionById,
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
@@ -28,6 +29,8 @@ import validate, {
 } from 'bitcoin-address-validation';
 import { updateOnChainTransaction } from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
+import { showErrorNotification } from '../notifications';
+import { getTransactions } from './electrum';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -292,31 +295,34 @@ export const getTotalFee = ({
 	selectedNetwork = undefined,
 	message = '',
 	fundingLightning = false,
+	transaction, // If left undefined, the method will retrieve the tx data from state.
 }: {
 	satsPerByte: number;
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
 	message?: string;
 	fundingLightning?: boolean | undefined;
+	transaction?: IOnChainTransactionData | undefined;
 }): number => {
 	const fallBackFee = ETransactionDefaults.recommendedBaseFee;
 	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
+		if (!transaction) {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
+			const { currentWallet } = getCurrentWallet({
+				selectedNetwork,
+				selectedWallet,
+			});
+			transaction = currentWallet?.transaction[selectedNetwork];
 		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedNetwork,
-			selectedWallet,
-		});
 
-		const inputs = currentWallet?.transaction[selectedNetwork].inputs || [];
-		let outputs: IOutput[] =
-			currentWallet?.transaction[selectedNetwork]?.outputs || [];
-		const changeAddress =
-			currentWallet?.transaction[selectedNetwork]?.changeAddress;
+		const inputs = transaction.inputs || [];
+		let outputs: IOutput[] = transaction.outputs || [];
+		const changeAddress = transaction.changeAddress;
 
 		//Group all input & output addresses into their respective array.
 		const inputAddresses = inputs.map((input) => input.address) || [];
@@ -628,6 +634,30 @@ export const createTransaction = ({
 
 		const transactionData = transactionDataRes.value;
 
+		const inputValue = getTransactionInputValue({
+			selectedNetwork,
+			selectedWallet,
+			inputs: transactionData.inputs,
+		});
+		const outputValue = getTransactionOutputValue({
+			selectedWallet,
+			selectedNetwork,
+			outputs: transactionData.outputs,
+		});
+		if (inputValue === 0) {
+			const message = 'No inputs to spend.';
+			showErrorNotification({
+				title: 'Unable to create transaction.',
+				message,
+			});
+			return resolve(err(message));
+		}
+		const fee = inputValue - outputValue;
+		if (fee > inputValue) {
+			const message = 'Fee is larger than the intended payment.';
+			showErrorNotification({ title: 'Unable to create transaction', message });
+			return resolve(err(message));
+		}
 		try {
 			//Create PSBT before signing inputs
 			const psbtRes = await createPsbtFromTransactionData({
@@ -829,6 +859,7 @@ export const getTransactionOutputValue = ({
 		}
 		return 0;
 	} catch (e) {
+		console.log(e);
 		return 0;
 	}
 };
@@ -844,8 +875,8 @@ export const getTransactionInputValue = ({
 	selectedNetwork = undefined,
 	inputs = undefined,
 }: {
-	selectedWallet: string | undefined;
-	selectedNetwork: TAvailableNetworks | undefined;
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
 	inputs?: IUtxo[] | undefined;
 }): number => {
 	try {
@@ -874,6 +905,39 @@ export const getTransactionInputValue = ({
 		return 0;
 	} catch (e) {
 		return 0;
+	}
+};
+
+/**
+ * Returns all inputs for the current transaction.
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const getTransactionInputs = ({
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	selectedWallet?: string | undefined;
+	selectedNetwork?: TAvailableNetworks | undefined;
+}): Result<IUtxo[]> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+		return ok(txData.value.inputs?.map((input) => input) ?? []);
+	} catch (e) {
+		console.log(e);
+		return err(e);
 	}
 };
 
@@ -1121,5 +1185,124 @@ export const autoCoinSelect = async ({
 		return ok({ inputs: newInputs, outputs, fee });
 	} catch (e) {
 		return err(e);
+	}
+};
+
+/**
+ * Used to validate transaction form data.
+ * @param {IOnChainTransactionData} transaction
+ * @return {Result<string>}
+ */
+export const validateTransaction = (
+	transaction: IOnChainTransactionData,
+): Result<string> => {
+	try {
+		if (!transaction) {
+			return err('Invalid transaction.');
+		}
+		const baseFee = 256;
+		if (!transaction?.fee) {
+			return err('No transaction fee provided.');
+		}
+		if (transaction.fee < baseFee) {
+			return err(`Transaction fee must be larger than ${baseFee}.`);
+		}
+		if (
+			!transaction?.outputs ||
+			transaction.outputs?.length < 1 ||
+			!transaction.outputs[0].address
+		) {
+			return err('Please provide an address to send funds to.');
+		}
+		if (
+			!transaction?.inputs ||
+			(transaction.outputs?.length > 0 && !transaction?.outputs[0]?.value)
+		) {
+			return err('Please provide an amount to send.');
+		}
+		const inputs = transaction.inputs ?? [];
+		const outputs = transaction.outputs ?? [];
+		for (let i = 0; i < outputs.length; i++) {
+			const address = outputs[i]?.address ?? '';
+			const value = outputs[i]?.value ?? 0;
+			const { isValid } = validateAddress({ address });
+			if (!isValid) {
+				return err(`Invalid Address: ${address}`);
+			}
+			if (value < baseFee) {
+				return err(
+					`Output value for ${address} must be greater than or equal to ${baseFee} sats`,
+				);
+			}
+		}
+
+		const inputsReduce = reduceValue({
+			arr: inputs,
+			value: 'value',
+		});
+		if (inputsReduce.isErr()) {
+			return err(inputsReduce.error.message);
+		}
+		//Remove the change address from the outputs array, if any.
+		let filteredOutputs = outputs;
+		if (transaction?.changeAddress) {
+			filteredOutputs = outputs.filter((output) => {
+				if (output.address !== transaction.changeAddress) {
+					return output;
+				}
+			});
+		}
+		const outputsReduce = reduceValue({
+			arr: filteredOutputs,
+			value: 'value',
+		});
+		if (outputsReduce.isErr()) {
+			return err(outputsReduce.error.message);
+		}
+		const inputsValue = inputsReduce.value;
+		const outputsValue = outputsReduce.value;
+		const fee = transaction.fee;
+		const changeAddressValue = inputsValue - outputsValue - fee;
+		if (changeAddressValue && changeAddressValue < baseFee) {
+			return err(
+				'Change address value is too low. Consider sending all funds instead.',
+			);
+		}
+
+		if (fee < baseFee) {
+			return err(`Fee must be larger than ${baseFee}`);
+		}
+		return ok('Transaction is valid.');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const canBoost = (txid: string): boolean => {
+	try {
+		let baseFee = ETransactionDefaults.recommendedBaseFee;
+		let type = 'sent';
+		if (txid) {
+			const transactionResponse = getTransactionById({ txid });
+			if (transactionResponse.isErr()) {
+				return false;
+			}
+			type = transactionResponse.value.type;
+		}
+		// We'll have to perform a CPFP which requires a new tx and requires higher fees.
+		// or
+		// Assume we'll have to pay more for a boost if no txid is provided.
+		if (type === 'received' || !txid) {
+			// TODO: We may need to bump up this baseline multiplier for CPFP transactions.
+			baseFee = ETransactionDefaults.recommendedBaseFee * 3;
+		}
+		const balance = getOnChainBalance({});
+		/*
+		 * For an RBF, technically we can reduce the output value and apply it to the fee,
+		 * but this might cause issues when paying a merchant that requested a specific amount.
+		 */
+		return balance <= baseFee;
+	} catch (e) {
+		return false;
 	}
 };

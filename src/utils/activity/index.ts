@@ -1,6 +1,9 @@
 import { lnrpc } from '@synonymdev/react-native-lightning';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
-import { IFormattedTransaction } from '../../store/types/wallet';
+import {
+	IFormattedTransaction,
+	IFormattedTransactionContent,
+} from '../../store/types/wallet';
 
 /**
  * Converts lightning invoice to activity item
@@ -63,30 +66,41 @@ export const onChainTransactionsToActivityItems = (
 ): IActivityItem[] => {
 	let items: IActivityItem[] = [];
 	Object.keys(transactions).forEach((txid) => {
-		const {
-			value,
-			fee,
-			type: txType,
-			address,
-			height,
-			timestamp,
-			messages,
-		} = transactions[txid];
-
-		items.push({
-			id: txid,
-			activityType: EActivityTypes.onChain,
-			txType,
-			confirmed: height > 0,
-			value: Math.round(value * 100000000),
-			fee,
-			message: messages.length > 0 ? messages[0] : '',
-			address,
-			timestamp,
-		});
+		const activityItem = onChainTransactionToActivityItem(transactions[txid]);
+		items.push(activityItem);
 	});
-
 	return items;
+};
+
+/**
+ * Converts a formatted transaction to an activity items
+ * @param {IFormattedTransactionContent} transaction
+ * @return IActivityItem
+ */
+export const onChainTransactionToActivityItem = (
+	transaction: IFormattedTransactionContent,
+): IActivityItem => {
+	const {
+		value,
+		fee,
+		type: txType,
+		address,
+		height,
+		timestamp,
+		messages,
+	} = transaction;
+
+	return {
+		id: transaction.txid,
+		activityType: EActivityTypes.onChain,
+		txType,
+		confirmed: height > 0,
+		value: Math.round(value * 100000000),
+		fee,
+		message: messages.length > 0 ? messages[0] : '',
+		address,
+		timestamp,
+	};
 };
 
 /**

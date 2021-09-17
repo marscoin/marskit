@@ -1,9 +1,10 @@
 import { useSelector } from 'react-redux';
-import Store from '../../../store/types';
+import Store from '../store/types';
 import {
 	defaultOnChainTransactionData,
 	IOnChainTransactionData,
-} from '../../../store/types/wallet';
+} from '../store/types/wallet';
+import { reduceValue } from '../utils/helpers';
 
 /**
  * Current transaction object of the selectedWallet/Network.
@@ -33,12 +34,20 @@ export function useBalance(): number {
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 
-	const balance = useSelector(
+	const transaction = useSelector(
 		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork],
+			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork],
 	);
 
-	return balance;
+	const balance = reduceValue({
+		arr: transaction?.inputs ?? [],
+		value: 'value',
+	});
+	if (balance.isOk()) {
+		return balance.value;
+	}
+
+	return 0;
 }
 
 export function useChangeAddress(): string {

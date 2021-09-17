@@ -16,8 +16,10 @@ const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 	return prevProps.title === nextProps.title;
 });
 
+type TItemType = 'switch' | 'button';
+
 type ItemData = {
-	title: string;
+	title: TItemType;
 	type: string;
 	onPress: Function;
 	enabled?: boolean;

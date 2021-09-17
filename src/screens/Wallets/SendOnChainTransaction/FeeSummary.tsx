@@ -5,8 +5,8 @@ import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { View } from '../../../styles/components';
-import { useTransactionDetails } from './TransactionHook';
-import useDisplayValues from '../../../utils/exchange-rate/useDisplayValues';
+import { useTransactionDetails } from '../../../hooks/transaction';
+import useDisplayValues from '../../../hooks/displayValues';
 import { ETransactionDefaults } from '../../../store/types/wallet';
 
 const FeeSummary = ({

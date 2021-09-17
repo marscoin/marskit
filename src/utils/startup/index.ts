@@ -1,4 +1,4 @@
-import { connectToElectrum, getMnemonicPhrase, refreshWallet } from '../wallet';
+import { getMnemonicPhrase, refreshWallet } from '../wallet';
 import {
 	createWallet,
 	updateExchangeRates,
@@ -16,7 +16,9 @@ import {
 import lndCache from '@synonymdev/react-native-lightning/dist/utils/neutrino-cache';
 import { ENetworks as LndNetworks } from '@synonymdev/react-native-lightning/dist/utils/types';
 import { showErrorNotification } from '../notifications';
-import { refreshServiceList } from '../../store/actions/chainreactor';
+import { refreshServiceList } from '../../store/actions/blocktank';
+import { setupTodos } from '../todos';
+import { connectToElectrum } from '../wallet/electrum';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -88,6 +90,11 @@ export const startWalletServices = async ({
 				const electrumResponse = await connectToElectrum({ selectedNetwork });
 				if (electrumResponse.isOk()) {
 					refreshWallet().then();
+				} else {
+					showErrorNotification({
+						title: 'Unable to connect to Electrum Server.',
+						message: electrumResponse.error.message,
+					});
 				}
 			}
 
@@ -110,6 +117,8 @@ export const startWalletServices = async ({
 						await startLnd(lndNetwork, backupServiceStart);
 					});
 			}
+
+			setupTodos();
 
 			await updateExchangeRates();
 			await refreshServiceList();
