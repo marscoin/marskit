@@ -19,8 +19,8 @@ const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 type TItemType = 'switch' | 'button';
 
 type ItemData = {
-	title: TItemType;
-	type: string;
+	title: string;
+	type: TItemType;
 	onPress: Function;
 	enabled?: boolean;
 	hide?: boolean;
@@ -28,7 +28,7 @@ type ItemData = {
 
 interface IItem extends ItemData {
 	navigation: Object;
-	type: string;
+	type: TItemType;
 }
 
 const _Item = memo(
@@ -87,7 +87,7 @@ const Item = memo(_Item, (prevProps, nextProps) => {
 	);
 });
 
-interface IListData {
+export interface IListData {
 	title: string;
 	data: ItemData[];
 }

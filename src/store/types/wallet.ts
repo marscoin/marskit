@@ -187,6 +187,7 @@ export interface IOnChainTransactionData {
 	label?: string; // User set label for a given transaction.
 	rbf?: boolean;
 	minFee?: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
+	max?: boolean; // If the user intends to send the max amount.
 }
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
@@ -202,6 +203,7 @@ export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	label: '',
 	rbf: false,
 	minFee: 1,
+	max: false,
 };
 
 export interface IDefaultWalletShape {
