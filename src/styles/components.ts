@@ -62,13 +62,13 @@ export const LightningIcon = styled(SvgXml).attrs((props) => ({
 	width: props?.width ?? '21.6px',
 }))``;
 
-export const SentIcon = styled(SvgXml).attrs((props) => ({
+export const SendIcon = styled(SvgXml).attrs((props) => ({
 	xml: sentIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
 }))``;
 
-export const ReceivedIcon = styled(SvgXml).attrs((props) => ({
+export const ReceiveIcon = styled(SvgXml).attrs((props) => ({
 	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',

@@ -3,8 +3,8 @@ import {
 	View,
 	TouchableOpacity,
 	RefreshControl,
-	SentIcon,
-	ReceivedIcon,
+	SendIcon,
+	ReceiveIcon,
 	Text02S,
 	Caption13S,
 	Subtitle,
@@ -38,7 +38,7 @@ const ListItem = memo(
 			<TouchableOpacity style={styles.item} onPress={onPress}>
 				<View style={styles.col1} color={'transparent'}>
 					<View color={'gray6'} style={styles.iconCircle}>
-						{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
+						{txType === 'sent' ? <SendIcon /> : <ReceiveIcon />}
 					</View>
 					<View color={'transparent'}>
 						<Text02S style={styles.note}>
@@ -123,7 +123,8 @@ const ActivityList = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		paddingVertical: 20,
+		paddingTop: 20,
+		paddingBottom: 100,
 	},
 	item: {
 		display: 'flex',

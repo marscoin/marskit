@@ -2,13 +2,21 @@ import React, { memo, PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
-import { Title, Caption13M, Headline, View } from '../../../styles/components';
+import {
+	Title,
+	Caption13M,
+	Headline,
+	View,
+	ReceiveIcon,
+	SendIcon,
+} from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
 import ActivityList from '../../Activity/ActivityList';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';
 import BitcoinBreakdown from './BitcoinBreakdown';
+import Button from '../../../components/Button';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -71,7 +79,25 @@ const WalletsDetail = (props: Props): ReactElement => {
 			</RadialGradient>
 			<View color={'gray6'} style={styles.radiusFooter} />
 
-			<ActivityList />
+			<View color={'transparent'} style={styles.transactionsContainer}>
+				<View color={'transparent'} style={styles.listContainer}>
+					<ActivityList />
+				</View>
+				<View color={'transparent'} style={styles.buttons}>
+					<Button
+						color={'surface'}
+						style={styles.button}
+						icon={<SendIcon color={'gray1'} />}
+						text={'Send'}
+					/>
+					<Button
+						color={'surface'}
+						style={styles.button}
+						icon={<ReceiveIcon color={'gray1'} />}
+						text={'Receive'}
+					/>
+				</View>
+			</View>
 		</View>
 	);
 };
@@ -92,17 +118,29 @@ const styles = StyleSheet.create({
 	balanceContainer: {
 		marginVertical: 18,
 	},
-	// txButton: {
-	// 	marginRight: 16,
-	// },
-	// txButtonsContainer: {
-	// 	display: 'flex',
-	// 	flexDirection: 'row',
-	// 	marginVertical: 20,
-	// },
 	largeValueContainer: {
 		display: 'flex',
 		flexDirection: 'row',
+	},
+	transactionsContainer: {
+		flex: 1,
+	},
+	listContainer: {
+		paddingHorizontal: 20,
+		flex: 1,
+	},
+	buttons: {
+		position: 'absolute',
+		display: 'flex',
+		flexDirection: 'row',
+		bottom: 10,
+		paddingHorizontal: 23,
+	},
+	button: {
+		flex: 1,
+		marginHorizontal: 8,
+		height: 56,
+		borderRadius: 64,
 	},
 });
 
