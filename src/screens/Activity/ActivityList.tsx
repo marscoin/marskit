@@ -3,8 +3,8 @@ import {
 	View,
 	TouchableOpacity,
 	RefreshControl,
-	SentIcon,
-	ReceivedIcon,
+	SendIcon,
+	ReceiveIcon,
 	Text02S,
 	Caption13S,
 	Subtitle,
@@ -12,7 +12,7 @@ import {
 import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { IActivityItem } from '../../store/types/activity';
+import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { refreshWallet } from '../../utils/wallet';
 import { refreshLightningTransactions } from '../../store/actions/lightning';
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +38,7 @@ const ListItem = memo(
 			<TouchableOpacity style={styles.item} onPress={onPress}>
 				<View style={styles.col1} color={'transparent'}>
 					<View color={'gray6'} style={styles.iconCircle}>
-						{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
+						{txType === 'sent' ? <SendIcon /> : <ReceiveIcon />}
 					</View>
 					<View color={'transparent'}>
 						<Text02S style={styles.note}>
@@ -76,11 +76,19 @@ const ListHeaderComponent = memo(
 	() => true,
 );
 
-const ActivityList = (): ReactElement => {
+const ActivityList = ({
+	assetFilter,
+}: {
+	assetFilter?: EActivityTypes[];
+}): ReactElement => {
 	const navigation = useNavigation();
-	const activityItems = useSelector(
-		(state: Store) => state.activity.itemsFiltered,
+
+	const activityItems = useSelector((state: Store) =>
+		state.activity.itemsFiltered.filter(
+			(v) => !assetFilter || assetFilter.indexOf(v.activityType) > -1,
+		),
 	);
+
 	const [refreshing, setRefreshing] = useState(false);
 
 	const renderItem = useCallback(
@@ -123,7 +131,8 @@ const ActivityList = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		paddingVertical: 20,
+		paddingTop: 20,
+		paddingBottom: 100,
 	},
 	item: {
 		display: 'flex',

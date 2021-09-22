@@ -17,6 +17,7 @@ import {
 } from '../../../utils/backup/backup';
 import Share from 'react-native-share';
 import AuthCheck from '../../../components/AuthCheck';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const ExportBackups = ({ navigation }): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
@@ -85,7 +86,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader title="Backup Export" />
 			<AuthCheck>
 				<View style={styles.content}>
@@ -128,14 +129,11 @@ const ExportBackups = ({ navigation }): ReactElement => {
 					/>
 				</View>
 			</AuthCheck>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		padding: 20,
 	},

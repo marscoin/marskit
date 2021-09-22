@@ -27,6 +27,7 @@ import {
 import lnd from '@synonymdev/react-native-lightning';
 import { LNURLWithdrawParams } from 'js-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
+import SafeAreaView from '../../components/SafeAreaView';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -240,7 +241,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<Camera onBarCodeRead={onRead} onClose={(): void => {}}>
 				<View color={'transparent'} style={styles.scannerView}>
 					<Button
@@ -250,14 +251,11 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					/>
 				</View>
 			</Camera>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	scannerView: {
 		flex: 1,
 		justifyContent: 'flex-end',

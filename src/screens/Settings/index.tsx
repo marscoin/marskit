@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import { Linking, Platform, StyleSheet } from 'react-native';
-import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
+import { Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -30,6 +30,7 @@ import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
+import SafeAreaView from '../../components/SafeAreaView';
 
 const Settings = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -417,7 +418,7 @@ const Settings = ({ navigation }): ReactElement => {
 	);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -426,14 +427,11 @@ const Settings = ({ navigation }): ReactElement => {
 				<Text style={styles.backText}>Settings</Text>
 			</TouchableOpacity>
 			<List data={SettingsListData} />
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',

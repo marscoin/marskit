@@ -5,7 +5,6 @@ import {
 	Feather,
 	Text,
 	TouchableOpacity,
-	View,
 	RadioButtonRN,
 } from '../../../styles/components';
 import Store from '../../../store/types';
@@ -19,6 +18,7 @@ import useDisplayValues from '../../../hooks/displayValues';
 import { updateExchangeRates } from '../../../store/actions/wallet';
 import { TBitcoinUnit } from '../../../store/types/wallet';
 import { RadioButtonItem } from '../../../store/types/settings';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const ExchangeRateSettings = ({ navigation }): ReactElement => {
 	const selectedExchangeRateService = useSelector(
@@ -97,7 +97,7 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 	});
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -105,13 +105,14 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 				<Feather style={{}} name="arrow-left" size={30} />
 				<Text style={styles.backText}>Settings</Text>
 			</TouchableOpacity>
-			<Text style={styles.titleText}>
-				{bitcoinSymbol}
-				{bitcoinFormatted} = {fiatSymbol}
-				{fiatFormatted}
-			</Text>
 
-			<ScrollView>
+			<ScrollView style={styles.content}>
+				<Text style={styles.titleText}>
+					{bitcoinSymbol}
+					{bitcoinFormatted} = {fiatSymbol}
+					{fiatFormatted}
+				</Text>
+
 				<Text style={styles.titleText}>Exchange rate provider</Text>
 				<RadioButtonRN
 					data={services}
@@ -138,12 +139,12 @@ const ExchangeRateSettings = ({ navigation }): ReactElement => {
 					initial={initialUnitIndex}
 				/>
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
+	content: {
 		flex: 1,
 		paddingRight: 20,
 		paddingLeft: 20,

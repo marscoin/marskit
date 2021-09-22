@@ -23,6 +23,7 @@ import {
 	setupBoost,
 } from '../../utils/wallet/transactions';
 import useDisplayValues from '../../hooks/displayValues';
+import SafeAreaView from '../../components/SafeAreaView';
 import AdjustValue from '../../components/AdjustValue';
 import Store from '../../store/types';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
@@ -210,7 +211,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 	);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader />
 			<View style={styles.content}>
 				<View>
@@ -295,14 +296,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 					/>
 				</View>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		paddingLeft: 20,
 		paddingRight: 20,

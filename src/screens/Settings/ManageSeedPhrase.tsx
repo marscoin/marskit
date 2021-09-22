@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { resetSelectedWallet } from '../../store/actions/wallet';
+import SafeAreaView from '../../components/SafeAreaView';
 
 const bip39 = require('bip39');
 
@@ -124,63 +125,65 @@ const ManageSeedPhrase = (): ReactElement => {
 	};
 
 	return (
-		<TouchableOpacity
-			activeOpacity={1}
-			onPress={Keyboard.dismiss}
-			style={styles.container}>
-			<NavigationHeader title="Manage Seed Phrase" />
-			<View style={styles.content}>
-				<TextInput
-					placeholder="Please enter your mnemonic phrase here with each word separated by a space... Ex: (project globe magnet)"
-					style={styles.textInput}
-					selectionColor={'orange'}
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => updateMnemonic(txt)}
-					value={mnemonic || ''}
-					multiline={true}
-				/>
-				<Button
-					color="onSurface"
-					style={styles.updateButton}
-					text={getButtonText()}
-					disabled={!canUpdateMnemonic()}
-					loading={loading}
-					onPress={saveMnemonic}
-				/>
-				<Button
-					color="onSurface"
-					style={styles.updateButton}
-					text="Generate Random Phrase"
-					onPress={getRandomMnemonic}
-				/>
-				{!mnemonicsMatch() && (
-					<Pressable onPress={clearChanges}>
-						<Text>Clear Changes</Text>
-					</Pressable>
-				)}
-				<FlatList
-					showsHorizontalScrollIndicator={false}
-					keyboardShouldPersistTaps={'handled'}
-					horizontal={true}
-					data={suggestedWords}
-					extraData={suggestedWords}
-					keyExtractor={(word): string => word}
-					renderItem={({ item: word }): ReactElement => {
-						return (
-							<Button
-								onPress={(): void => addWordToMnemonic(word)}
-								color="onSurface"
-								text={word}
-								style={styles.updateButton}
-							/>
-						);
-					}}
-				/>
-			</View>
-			<View style={styles.footer} />
-		</TouchableOpacity>
+		<SafeAreaView>
+			<TouchableOpacity
+				activeOpacity={1}
+				onPress={Keyboard.dismiss}
+				style={styles.container}>
+				<NavigationHeader title="Manage Seed Phrase" />
+				<View style={styles.content}>
+					<TextInput
+						placeholder="Please enter your mnemonic phrase here with each word separated by a space... Ex: (project globe magnet)"
+						style={styles.textInput}
+						selectionColor={'orange'}
+						autoCapitalize="none"
+						autoCompleteType="off"
+						autoCorrect={false}
+						onChangeText={(txt): void => updateMnemonic(txt)}
+						value={mnemonic || ''}
+						multiline={true}
+					/>
+					<Button
+						color="onSurface"
+						style={styles.updateButton}
+						text={getButtonText()}
+						disabled={!canUpdateMnemonic()}
+						loading={loading}
+						onPress={saveMnemonic}
+					/>
+					<Button
+						color="onSurface"
+						style={styles.updateButton}
+						text="Generate Random Phrase"
+						onPress={getRandomMnemonic}
+					/>
+					{!mnemonicsMatch() && (
+						<Pressable onPress={clearChanges}>
+							<Text>Clear Changes</Text>
+						</Pressable>
+					)}
+					<FlatList
+						showsHorizontalScrollIndicator={false}
+						keyboardShouldPersistTaps={'handled'}
+						horizontal={true}
+						data={suggestedWords}
+						extraData={suggestedWords}
+						keyExtractor={(word): string => word}
+						renderItem={({ item: word }): ReactElement => {
+							return (
+								<Button
+									onPress={(): void => addWordToMnemonic(word)}
+									color="onSurface"
+									text={word}
+									style={styles.updateButton}
+								/>
+							);
+						}}
+					/>
+				</View>
+				<View style={styles.footer} />
+			</TouchableOpacity>
+		</SafeAreaView>
 	);
 };
 

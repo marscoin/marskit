@@ -4,122 +4,73 @@
  */
 
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, StyleSheet, Image } from 'react-native';
-import { View, Text, Pressable } from '../styles/components';
-import Card from './Card';
-import BitcoinLogo from '../assets/bitcoin-logo.svg';
-import LightningLogo from '../assets/lightning-logo.svg';
-
-const HeaderIcon = memo(({ id = 'bitcoin' }: { id: string }): ReactElement => {
-	try {
-		switch (id) {
-			case 'bitcoin':
-				return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
-			case 'lightning':
-				return <LightningLogo viewBox="0 0 300 300" height={55} width={55} />;
-			case 'omnibolt':
-				return (
-					<Image
-						style={styles.image}
-						source={require('../assets/omnibolt.png')}
-					/>
-				);
-			default:
-				return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
-		}
-	} catch {
-		return <BitcoinLogo viewBox="0 0 70 70" height={55} width={55} />;
-	}
-});
+import { StyleSheet } from 'react-native';
+import { View, Pressable, Text02M, Caption13M } from '../styles/components';
+import { IDisplayValues } from '../utils/exchange-rate';
 
 const AssetCard = ({
-	asset = 'bitcoin',
-	title = 'Bitcoin Wallet',
-	description = '',
-	assetBalanceLabel = '0 BTC',
-	fiatBalanceLabel = '$0',
-	onPress = (): null => null,
-	children = <View />,
+	name,
+	ticker,
+	icon,
+	balances,
+	onPress,
 }: {
-	asset: string;
-	title: string;
-	description?: string;
-	assetBalanceLabel: string;
-	fiatBalanceLabel: string;
-	onPress?: Function;
-	children?: ReactElement | false;
+	name: string;
+	ticker: string;
+	icon: ReactElement;
+	balances: IDisplayValues;
+	onPress: Function;
 }): ReactElement => {
-	LayoutAnimation.easeInEaseOut();
-
 	return (
-		<Card>
-			<>
-				<Pressable onPress={onPress} color="transparent" style={styles.row}>
-					<View color="transparent" style={styles.col1}>
-						<HeaderIcon id={asset} />
-					</View>
-					<View color="transparent" style={styles.col2}>
-						<>
-							<Text style={styles.title}>{title}</Text>
-							{description ? (
-								<Text style={styles.description}>{description}</Text>
-							) : null}
-							<View color="transparent" style={styles.labelsContainer}>
-								<View color="transparent" style={styles.balanceLabelContainer}>
-									<Text style={styles.balanceLabels}>{assetBalanceLabel}</Text>
-								</View>
-								<View color="transparent" style={styles.fiatLabelContainer}>
-									<Text style={styles.balanceLabels}>{fiatBalanceLabel}</Text>
-								</View>
-							</View>
-						</>
-					</View>
-				</Pressable>
-				{children}
-			</>
-		</Card>
+		<Pressable style={styles.container} onPress={onPress} color="gray6">
+			<View color="transparent" style={styles.col1}>
+				{icon}
+				<View color="transparent" style={styles.titleContainer}>
+					<Text02M>{name}</Text02M>
+					<Caption13M color={'gray1'}>{ticker}</Caption13M>
+				</View>
+			</View>
+
+			<View color="transparent" style={styles.col2}>
+				<Text02M style={styles.value}>
+					{balances.bitcoinSymbol}
+					{balances.bitcoinFormatted}
+				</Text02M>
+				<Caption13M style={styles.value} color={'gray1'}>
+					{balances.fiatSymbol}
+					{balances.fiatFormatted}
+				</Caption13M>
+			</View>
+		</Pressable>
 	);
 };
 
 const styles = StyleSheet.create({
-	title: {
-		fontWeight: 'bold',
-		fontSize: 16,
-	},
-	description: {
-		fontSize: 12,
-	},
-	labelsContainer: {
-		flex: 1,
+	container: {
+		minHeight: 88,
+		marginBottom: 8,
+		borderRadius: 20,
+		paddingHorizontal: 16,
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		flexDirection: 'row',
-		alignItems: 'flex-end',
-	},
-	balanceLabelContainer: {
-		flex: 1,
-	},
-	balanceLabels: {
-		marginBottom: 5,
 	},
 	col1: {
-		flex: 0.6,
-		justifyContent: 'center',
-		alignItems: 'flex-start',
-	},
-	col2: {
-		flex: 2.2,
-	},
-	fiatLabelContainer: {
-		flex: 1,
-		alignItems: 'flex-end',
-		justifyContent: 'flex-end',
-	},
-	row: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		flexDirection: 'row',
 	},
-	image: {
-		width: 50,
-		height: 50,
-		borderRadius: 50,
+	col2: {
+		display: 'flex',
+		alignContent: 'flex-end',
+	},
+	titleContainer: {
+		marginHorizontal: 12,
+	},
+	value: {
+		textAlign: 'right',
 	},
 });
 

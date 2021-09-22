@@ -9,6 +9,7 @@ import {
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import lnd from '@synonymdev/react-native-lightning';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const LightningNodeInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -41,7 +42,7 @@ const LightningNodeInfo = ({ navigation }): ReactElement => {
 	output.push(['Network', `${chains[0].network}`]);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -59,14 +60,11 @@ const LightningNodeInfo = ({ navigation }): ReactElement => {
 					))}
 				</View>
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',

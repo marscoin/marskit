@@ -11,7 +11,7 @@ const BalanceHeader = (): ReactElement => {
 	const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } = useBalance({
 		onchain: true,
 		lightning: true,
-		omnibolt: true,
+		tether: true,
 	});
 
 	const Balance = useCallback((): ReactElement => {

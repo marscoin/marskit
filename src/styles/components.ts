@@ -12,6 +12,8 @@ import { camera, settings, dismiss, boost } from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
+	bitcoinCircleIcon,
+	tetherCircleIcon,
 	receivedIcon,
 	sentIcon,
 	transferIcon,
@@ -54,6 +56,22 @@ export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
 	width: props?.width ?? '21.6px',
 }))``;
 
+export const BitcoinCircleIcon = styled(SvgXml).attrs((props) => ({
+	xml: bitcoinCircleIcon(
+		props?.color ? props.theme.colors[props.color] : '#F7931A',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+}))``;
+
+export const TetherCircleIcon = styled(SvgXml).attrs((props) => ({
+	xml: tetherCircleIcon(
+		props?.color ? props.theme.colors[props.color] : '#50AF95',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+}))``;
+
 export const LightningIcon = styled(SvgXml).attrs((props) => ({
 	xml: lightningIcon(
 		props?.color ? props.theme.colors[props.color] : '#B95CE8',
@@ -62,13 +80,13 @@ export const LightningIcon = styled(SvgXml).attrs((props) => ({
 	width: props?.width ?? '21.6px',
 }))``;
 
-export const SentIcon = styled(SvgXml).attrs((props) => ({
+export const SendIcon = styled(SvgXml).attrs((props) => ({
 	xml: sentIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
 }))``;
 
-export const ReceivedIcon = styled(SvgXml).attrs((props) => ({
+export const ReceiveIcon = styled(SvgXml).attrs((props) => ({
 	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
