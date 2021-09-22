@@ -2,7 +2,7 @@ import { err, ok, Result } from '../result';
 import * as electrum from 'rn-electrum-client/helpers';
 import { validateAddress } from '../scanner';
 import { networks, TAvailableNetworks } from '../networks';
-import { getKeychainValue, reduceValue } from '../helpers';
+import { btcToSats, getKeychainValue, reduceValue } from '../helpers';
 import {
 	defaultOnChainTransactionData,
 	ETransactionDefaults,
@@ -17,9 +17,12 @@ import {
 	getCurrentWallet,
 	getMnemonicPhrase,
 	getOnChainBalance,
+	getRbfData,
+	getReceiveAddress,
 	getSelectedNetwork,
 	getSelectedWallet,
 	getTransactionById,
+	refreshWallet,
 } from './index';
 import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
@@ -27,10 +30,17 @@ import validate, {
 	AddressInfo,
 	getAddressInfo,
 } from 'bitcoin-address-validation';
-import { updateOnChainTransaction } from '../../store/actions/wallet';
+import {
+	addBoostedTransaction,
+	deleteOnChainTransactionById,
+	setupOnChainTransaction,
+	updateOnChainTransaction,
+} from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
 import { showErrorNotification } from '../notifications';
 import { getTransactions } from './electrum';
+import { EActivityTypes, IActivityItem } from '../../store/types/activity';
+import { replaceActivityItemById } from '../../store/actions/activity';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -1300,32 +1310,43 @@ export const validateTransaction = (
 	}
 };
 
-export const canBoost = (txid: string): boolean => {
+export interface ICanBoostResponse {
+	canBoost: boolean;
+	rbf: boolean;
+	cpfp: boolean;
+}
+
+/**
+ * Used to determine if we're able to boost a transaction either by RBF or CPFP.
+ * @param {string} txid
+ */
+export const canBoost = (txid: string): ICanBoostResponse => {
+	const failure = { canBoost: false, rbf: false, cpfp: false };
 	try {
-		let baseFee = ETransactionDefaults.recommendedBaseFee;
 		let type = 'sent';
-		if (txid) {
-			const transactionResponse = getTransactionById({ txid });
-			if (transactionResponse.isErr()) {
-				return false;
-			}
-			type = transactionResponse.value.type;
+		if (!txid) {
+			return failure;
 		}
-		// We'll have to perform a CPFP which requires a new tx and requires higher fees.
-		// or
-		// Assume we'll have to pay more for a boost if no txid is provided.
-		if (type === 'received' || !txid) {
-			// TODO: We may need to bump up this baseline multiplier for CPFP transactions.
-			baseFee = ETransactionDefaults.recommendedBaseFee * 3;
+		const transactionResponse = getTransactionById({ txid });
+		if (transactionResponse.isErr()) {
+			return failure;
 		}
+		if (transactionResponse.value.height > 0) {
+			return failure;
+		}
+		type = transactionResponse.value.type;
 		const balance = getOnChainBalance({});
 		/*
 		 * For an RBF, technically we can reduce the output value and apply it to the fee,
 		 * but this might cause issues when paying a merchant that requested a specific amount.
 		 */
-		return balance <= baseFee;
+		const rbf =
+			type === 'sent' && balance >= ETransactionDefaults.recommendedBaseFee;
+		// Performing a CPFP tx requires a new tx and higher fee.
+		const cpfp = balance >= ETransactionDefaults.recommendedBaseFee * 3;
+		return { canBoost: rbf || cpfp, rbf, cpfp };
 	} catch (e) {
-		return false;
+		return failure;
 	}
 };
 
@@ -1369,8 +1390,21 @@ export const sendMax = ({
 			transaction = transactionDataResponse.value;
 		}
 		const outputs = transaction?.outputs ?? [];
+		// No address specified, attempt to assign the address currently specified in the current output index.
 		if (!address) {
-			address = outputs[index]?.address ?? '';
+			address = outputs[index]?.address;
+		}
+
+		// No address specified in the output index. Add next available receiving address.
+		if (!address) {
+			const receiveAddressResponse = getReceiveAddress({
+				selectedNetwork,
+				selectedWallet,
+			});
+			if (receiveAddressResponse.isErr()) {
+				return err(receiveAddressResponse.error.message);
+			}
+			address = receiveAddressResponse.value;
 		}
 
 		const inputTotal = getTransactionInputValue({
@@ -1770,3 +1804,251 @@ const runCoinSelect = async ({
 	}
 };
 */
+
+/**
+ *
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} txid
+ */
+export const setupBoost = async ({
+	selectedWallet,
+	selectedNetwork,
+	txid,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!txid) {
+		return err('No txid provided.');
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const canBoostResponse = canBoost(txid);
+	if (!canBoostResponse.canBoost) {
+		return ok('Unable to boost this transaction.');
+	}
+	if (canBoostResponse.rbf) {
+		setupRbf({ selectedWallet, selectedNetwork, txid });
+		return ok('Successfully setup rbf.');
+	} else {
+		setupCpfp({ selectedNetwork, selectedWallet });
+		return ok('Successfully setup cpfp.');
+	}
+};
+
+/**
+ * Sets up a CPFP transaction.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const setupCpfp = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const response = await setupOnChainTransaction({
+		selectedWallet,
+		selectedNetwork,
+		rbf: true,
+	});
+	if (response.isErr()) {
+		return err(response.error?.message);
+	}
+	return sendMax({
+		selectedWallet,
+		selectedNetwork,
+		transaction: response.value,
+	});
+};
+
+/**
+ * Sets up a transaction for RBF.
+ * @param {string} txid
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const setupRbf = async ({
+	txid,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<IOnChainTransactionData>> => {
+	try {
+		if (!txid) {
+			return err('No txid provided.');
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const response = await getRbfData({
+			txHash: { tx_hash: txid },
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (response.isErr()) {
+			return err(response.error.message);
+		}
+		const transaction = response.value;
+		let newFee = transaction.fee;
+		let _satsPerByte = 1;
+		// Increment satsPerByte until the fee is greater than the previous + the default base fee.
+		while (
+			newFee <=
+			transaction.fee + ETransactionDefaults.recommendedBaseFee
+		) {
+			newFee = getTotalFee({
+				transaction,
+				satsPerByte: _satsPerByte,
+				message: transaction.message,
+			});
+			_satsPerByte++;
+		}
+		const inputTotal = getTransactionInputValue({
+			inputs: transaction.inputs,
+		});
+		// Ensure we have enough funds to perform an RBF transaction.
+		const outputTotal = getTransactionOutputValue({
+			outputs: transaction.outputs,
+		});
+		if (outputTotal + newFee >= inputTotal) {
+			return err('Not enough fees to support an RBF transaction.');
+		}
+		const newTransaction = {
+			...transaction,
+			minFee: _satsPerByte,
+			fee: newFee,
+			satsPerByte: _satsPerByte,
+			rbf: true,
+		};
+
+		await updateOnChainTransaction({
+			selectedWallet,
+			selectedNetwork,
+			transaction: newTransaction,
+		});
+		return ok(newTransaction);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Used to broadcast and update a boosted transaction as needed.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} oldTxid
+ * @param {boolean} [rbf]
+ */
+export const broadcastBoost = async ({
+	selectedWallet,
+	selectedNetwork,
+	oldTxid,
+	rbf = true,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	oldTxid: string;
+	rbf?: boolean;
+}): Promise<Result<IActivityItem>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const transactionDataResponse = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (transactionDataResponse.isErr()) {
+			return err(transactionDataResponse.error.message);
+		}
+		const transaction = transactionDataResponse.value;
+
+		const rawTx = await createTransaction({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (rawTx.isErr()) {
+			return err(rawTx.error.message);
+		}
+
+		const broadcastResult = await broadcastTransaction({
+			rawTx: rawTx.value,
+			selectedNetwork,
+		});
+		if (broadcastResult.isErr()) {
+			return err(broadcastResult.error.message);
+		}
+		await refreshWallet();
+		const newTxId = broadcastResult.value;
+		let transactions =
+			getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork];
+		// Only replace the old transaction if it was an RBF, not a CPFP.
+		if (rbf && oldTxid in transactions) {
+			await Promise.all([
+				deleteOnChainTransactionById({
+					txid: oldTxid,
+					selectedNetwork,
+					selectedWallet,
+				}),
+				addBoostedTransaction({
+					txid: oldTxid,
+					selectedWallet,
+					selectedNetwork,
+				}),
+			]);
+		}
+		const activityItemValue = getTransactionOutputValue({
+			selectedWallet,
+			selectedNetwork,
+			outputs: transaction.outputs,
+		});
+		const newActivityItem: IActivityItem = {
+			id: newTxId,
+			message: transaction?.message || '',
+			address: transaction.changeAddress,
+			activityType: EActivityTypes.onChain,
+			txType: 'sent',
+			value: activityItemValue,
+			confirmed: false,
+			fee: btcToSats(Number(transaction.fee)),
+			timestamp: new Date().getTime(),
+		};
+		// Only replace the old activity item if it was an RBF, not a CPFP.
+		if (rbf) {
+			await Promise.all([
+				replaceActivityItemById({
+					id: oldTxid,
+					newActivityItem,
+				}),
+			]);
+		}
+		await refreshWallet();
+		setupBoost({ txid: newTxId, selectedNetwork, selectedWallet });
+		return ok(newActivityItem);
+	} catch (e) {
+		return err(e);
+	}
+};
