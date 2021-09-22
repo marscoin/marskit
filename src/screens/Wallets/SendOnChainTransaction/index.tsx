@@ -110,6 +110,9 @@ const SendOnChainTransaction = ({
 	);
 
 	useEffect(() => {
+		if (transaction?.rbf) {
+			return;
+		}
 		if (animate) {
 			setTimeout(() => {
 				updateOpacity({ opacity, toValue: 1 });
@@ -122,6 +125,9 @@ const SendOnChainTransaction = ({
 		return (): void => {
 			if (animate) {
 				updateOpacity({ opacity, toValue: 0, duration: 0 });
+			}
+			if (transaction?.rbf) {
+				return;
 			}
 			resetOnChainTransaction({ selectedNetwork, selectedWallet });
 		};

@@ -58,6 +58,9 @@ const SendForm = ({
 
 	// Handles balance changes from UTXO updates.
 	useEffect(() => {
+		if (transaction?.rbf) {
+			return;
+		}
 		const fee = transaction?.fee ?? 256;
 
 		if (value) {
