@@ -9,6 +9,7 @@ import { defaultWalletStoreShape } from '../shapes/wallet';
 const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 	let selectedWallet = state.selectedWallet;
 	let selectedNetwork = state.selectedNetwork;
+	let transactions;
 	if (action.payload?.selectedWallet) {
 		selectedWallet = action.payload.selectedWallet;
 	}
@@ -136,7 +137,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 			};
 
 		case actions.UPDATE_TRANSACTIONS:
-			const transactions = action.payload.transactions;
+			transactions = action.payload.transactions;
 			return {
 				...state,
 				wallets: {
@@ -260,6 +261,66 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 				},
 			};
 
+		case actions.DELETE_ON_CHAIN_TRANSACTION:
+			transactions =
+				state.wallets[selectedWallet].transactions[selectedNetwork];
+			if (action.payload.txid in transactions) {
+				delete transactions[action.payload.txid];
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						transactions: {
+							...state.wallets[selectedWallet].transactions,
+							[selectedNetwork]: transactions,
+						},
+					},
+				},
+			};
+
+		case actions.DELETE_BOOSTED_TRANSACTION:
+			const boostedTransactions =
+				state.wallets[selectedWallet].boostedTransactions[selectedNetwork];
+			const index = boostedTransactions.indexOf(action.payload.txid);
+			if (index > -1) {
+				boostedTransactions.splice(index, 1);
+			}
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						boostedTransactions: {
+							...state.wallets[selectedWallet].transactions,
+							[selectedNetwork]: boostedTransactions,
+						},
+					},
+				},
+			};
+
+		case actions.ADD_BOOSTED_TRANSACTION:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						boostedTransactions: {
+							...state.wallets[selectedWallet].transactions,
+							[selectedNetwork]: [
+								...state.wallets[selectedWallet].boostedTransactions[
+									selectedNetwork
+								],
+								action.payload.txid,
+							],
+						},
+					},
+				},
+			};
 		default:
 			return state;
 	}

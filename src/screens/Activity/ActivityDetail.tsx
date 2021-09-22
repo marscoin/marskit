@@ -1,17 +1,35 @@
 import React, {
+	memo,
 	PropsWithChildren,
 	ReactElement,
 	useCallback,
+	useEffect,
+	useMemo,
 	useState,
 } from 'react';
+import { useSelector } from 'react-redux';
 import { StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { Text, View } from '../../styles/components';
+import Button from '../../components/Button';
 import NavigationHeader from '../../components/NavigationHeader';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import Divider from '../../components/Divider';
-import { truncate } from '../../utils/helpers';
-import { getBlockExplorerLink } from '../../utils/wallet/transactions';
+import { btcToSats, truncate } from '../../utils/helpers';
+import {
+	adjustFee,
+	broadcastBoost,
+	canBoost,
+	getBlockExplorerLink,
+	setupBoost,
+} from '../../utils/wallet/transactions';
 import useDisplayValues from '../../hooks/displayValues';
+import AdjustValue from '../../components/AdjustValue';
+import Store from '../../store/types';
+import { resetOnChainTransaction } from '../../store/actions/wallet';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../../utils/notifications';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;
@@ -21,39 +39,41 @@ interface SectionProps extends PropsWithChildren<any> {
 	handleLink?: (event) => void;
 }
 
-const Section = ({
-	title,
-	description,
-	value1,
-	value2,
-	handleLink,
-}: SectionProps): ReactElement => {
-	const Col2 = ({ children }): ReactElement => {
-		if (handleLink) {
-			return (
-				<TouchableOpacity onPress={handleLink}>{children}</TouchableOpacity>
-			);
-		}
+const Section = memo(
+	({
+		title,
+		description,
+		value1,
+		value2,
+		handleLink,
+	}: SectionProps): ReactElement => {
+		const Col2 = ({ children }): ReactElement => {
+			if (handleLink) {
+				return (
+					<TouchableOpacity onPress={handleLink}>{children}</TouchableOpacity>
+				);
+			}
 
-		return <>{children}</>;
-	};
+			return <>{children}</>;
+		};
 
-	return (
-		<View style={styles.sectionContent}>
-			<View style={styles.sectionColumn1}>
-				<Text>{title}</Text>
-				{description ? <Text>{description}</Text> : null}
-			</View>
-
-			<Col2>
-				<View style={styles.sectionColumn2}>
-					<Text style={handleLink ? styles.linkText : {}}>{value1}</Text>
-					{value2 ? <Text>{value2}</Text> : null}
+		return (
+			<View style={styles.sectionContent}>
+				<View style={styles.sectionColumn1}>
+					<Text>{title}</Text>
+					{description ? <Text>{description}</Text> : null}
 				</View>
-			</Col2>
-		</View>
-	);
-};
+
+				<Col2>
+					<View style={styles.sectionColumn2}>
+						<Text style={handleLink ? styles.linkText : {}}>{value1}</Text>
+						{value2 ? <Text>{value2}</Text> : null}
+					</View>
+				</Col2>
+			</View>
+		);
+	},
+);
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { activityItem: IActivityItem } };
@@ -81,13 +101,48 @@ const ActivityDetail = (props: Props): ReactElement => {
 			txType,
 			value,
 			confirmed,
-			fee,
+			fee: originalFee,
 			timestamp,
 		},
-		//setActivityItem,
+		setActivityItem,
 	] = useState<IActivityItem>(
 		props.route.params?.activityItem ?? emptyActivityItem,
 	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const transaction = useSelector(
+		(state: Store) =>
+			state.wallet.wallets[selectedWallet].transaction[selectedNetwork],
+	);
+	const satsPerByte =
+		useSelector(
+			(state: Store) =>
+				state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
+					?.satsPerByte,
+		) ?? 1;
+
+	const minFee =
+		useSelector(
+			(state: Store) =>
+				state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
+					?.minFee,
+		) ?? 1;
+
+	const boostData = useMemo(() => canBoost(id), [id]);
+	useEffect(() => {
+		setupBoost({ selectedWallet, selectedNetwork, txid: id });
+
+		return (): void => {
+			if (boostData.canBoost && !confirmed) {
+				resetOnChainTransaction({ selectedNetwork, selectedWallet });
+			}
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	let status = '';
 	if (value < 0) {
@@ -106,7 +161,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useDisplayValues(value);
-	const feeDisplay = useDisplayValues(Number(fee));
+	const feeDisplay = useDisplayValues(Number(originalFee));
 
 	const blockExplorerUrl =
 		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
@@ -116,6 +171,43 @@ const ActivityDetail = (props: Props): ReactElement => {
 			await Linking.openURL(blockExplorerUrl);
 		}
 	}, [blockExplorerUrl]);
+
+	const _broadcastBoost = async (): Promise<void> => {
+		try {
+			const response = await broadcastBoost({
+				selectedWallet,
+				selectedNetwork,
+				oldTxid: id,
+				rbf: boostData.rbf,
+			});
+			if (response.isOk()) {
+				showSuccessNotification({
+					title: 'Boost Success',
+					message: 'Successfully boosted this transaction.',
+				});
+				if (boostData.rbf) {
+					setActivityItem(response.value);
+				}
+			} else {
+				showErrorNotification({
+					title: 'Boost Error',
+					message: 'Unable to boost this transaction.',
+				});
+			}
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
+	const boostFee = useMemo(
+		() =>
+			boostData.canBoost
+				? boostData.rbf
+					? Math.abs(transaction.fee - (btcToSats(Number(originalFee)) ?? 0))
+					: transaction.fee
+				: 0,
+		[boostData.canBoost, boostData.rbf, transaction.fee, originalFee],
+	);
 
 	return (
 		<View style={styles.container}>
@@ -136,7 +228,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 						value2={`${fiatSymbol}${fiatFormatted}`}
 					/>
 
-					{fee && txType === 'sent' ? (
+					{originalFee && txType === 'sent' ? (
 						<>
 							<Divider />
 							<Section
@@ -160,6 +252,37 @@ const ActivityDetail = (props: Props): ReactElement => {
 							<Section title={'Address'} value1={address} />
 						</>
 					) : null}
+					{boostData.canBoost && (
+						<>
+							<Divider />
+							<AdjustValue
+								value={`${transaction.satsPerByte} sat${
+									transaction?.satsPerByte > 1 ? 's' : ''
+								}/B\n+${boostFee.toFixed(0)} sats`}
+								decreaseValue={(): void => {
+									if (satsPerByte - 1 > minFee) {
+										adjustFee({
+											selectedNetwork,
+											selectedWallet,
+											adjustBy: -1,
+										});
+									}
+								}}
+								increaseValue={(): void => {
+									adjustFee({
+										selectedNetwork,
+										selectedWallet,
+										adjustBy: 1,
+									});
+								}}
+							/>
+							<Button
+								color="onSurface"
+								text={'Boost'}
+								onPress={_broadcastBoost}
+							/>
+						</>
+					)}
 				</View>
 
 				<View style={styles.footer}>
@@ -219,4 +342,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ActivityDetail;
+export default memo(ActivityDetail);

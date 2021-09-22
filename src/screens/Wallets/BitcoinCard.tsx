@@ -101,7 +101,7 @@ const BitcoinCard = (): ReactElement => {
 
 	const shouldDisplayButtons = (): boolean => {
 		try {
-			return displayButtonRow || hasOutputs();
+			return displayButtonRow;
 		} catch {
 			return false;
 		}
@@ -109,7 +109,7 @@ const BitcoinCard = (): ReactElement => {
 
 	const shouldDisplaySendButton = (): boolean => {
 		try {
-			return displaySend || hasOutputs();
+			return displaySend;
 		} catch {
 			return false;
 		}
