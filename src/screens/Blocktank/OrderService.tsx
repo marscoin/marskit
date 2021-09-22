@@ -21,6 +21,7 @@ import { claimChannel } from '../../store/actions/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import Clipboard from '@react-native-community/clipboard';
+import SafeAreaView from '../../components/SafeAreaView';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -139,7 +140,7 @@ const Order = (props: Props): ReactElement => {
 	const showClaimButton = order && order?.state === 100;
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader title={description} />
 			<View style={styles.content}>
 				{order ? (
@@ -230,14 +231,11 @@ const Order = (props: Props): ReactElement => {
 					) : null}
 				</View>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		paddingLeft: 20,
 		paddingRight: 20,

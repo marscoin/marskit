@@ -16,6 +16,7 @@ import { IService } from '@synonymdev/blocktank-client';
 import { refreshServiceList } from '../../store/actions/blocktank';
 import { updateExchangeRates } from '../../store/actions/wallet';
 import { showErrorNotification } from '../../utils/notifications';
+import SafeAreaView from '../../components/SafeAreaView';
 
 const ListItem = ({
 	item,
@@ -114,7 +115,7 @@ const BlocktankScreen = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader title={'Blocktank'} />
 
 			<Text style={styles.text}>Current orders: {orders.length}</Text>
@@ -127,14 +128,11 @@ const BlocktankScreen = ({ navigation }): ReactElement => {
 					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 				}
 			/>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	text: {
 		textAlign: 'center',
 	},

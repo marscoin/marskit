@@ -14,6 +14,7 @@ import { updateSelectedAddressType } from '../../../store/actions/wallet';
 import { RadioButtonItem } from '../../../store/types/settings';
 import { TAddressType } from '../../../store/types/wallet';
 import { capitalize } from '../../../utils/helpers';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const setAddressTypePreference = (preference: TAddressType): void => {
 	updateSelectedAddressType({
@@ -58,7 +59,7 @@ const AddressTypePreference = ({ navigation }): ReactElement => {
 	}, [selectedAddressType]);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={styles.container}>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -77,13 +78,12 @@ const AddressTypePreference = ({ navigation }): ReactElement => {
 					initial={initialIndex}
 				/>
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
 		paddingRight: 20,
 		paddingLeft: 20,
 	},

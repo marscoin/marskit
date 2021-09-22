@@ -39,6 +39,7 @@ import useDisplayValues from '../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
 import { IGetOrderResponse } from '@synonymdev/blocktank-client';
+import SafeAreaView from '../../components/SafeAreaView';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { order: IGetOrderResponse } };
@@ -206,7 +207,7 @@ const BlocktankPayment = (props: Props): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={styles.container}>
 			<NavigationHeader title="Send Transaction" />
 
 			<Text style={styles.availableBalance}>
@@ -244,7 +245,7 @@ const BlocktankPayment = (props: Props): ReactElement => {
 					onClose();
 				}}
 			/>
-		</View>
+		</SafeAreaView>
 	);
 };
 

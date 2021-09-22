@@ -1,12 +1,7 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import lnd from '@synonymdev/react-native-lightning';
-import {
-	View,
-	Feather,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
+import { Feather, Text, TouchableOpacity } from '../../../styles/components';
 import List from '../../../components/List';
 import { defaultNodePubKey } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
@@ -14,6 +9,7 @@ import Store from '../../../store/types';
 import { showErrorNotification } from '../../../utils/notifications';
 import { lnrpc } from '@synonymdev/react-native-lightning';
 import { truncate } from '../../../utils/helpers';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const LightningChannels = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
@@ -99,7 +95,7 @@ const LightningChannels = ({ navigation }): ReactElement => {
 	];
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -108,14 +104,11 @@ const LightningChannels = ({ navigation }): ReactElement => {
 				<Text style={styles.backText}>Lightning channels</Text>
 			</TouchableOpacity>
 			<List data={ListData} />
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',

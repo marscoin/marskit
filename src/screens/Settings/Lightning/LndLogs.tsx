@@ -1,13 +1,9 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import {
-	View,
-	Feather,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
+import { Feather, Text, TouchableOpacity } from '../../../styles/components';
 import LogBox from '../../../components/LogBox';
 import lnd from '@synonymdev/react-native-lightning';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const LndLogs = ({ navigation }): ReactElement => {
 	const [content, setContent] = useState<string[]>([]);
@@ -42,7 +38,7 @@ const LndLogs = ({ navigation }): ReactElement => {
 	}, [content.length]);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -51,14 +47,11 @@ const LndLogs = ({ navigation }): ReactElement => {
 				<Text style={styles.backText}>LND logs</Text>
 			</TouchableOpacity>
 			<LogBox data={content} />
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',

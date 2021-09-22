@@ -26,6 +26,7 @@ import {
 	sendIcon,
 	walletIcon,
 } from '../../assets/icons/tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -107,6 +108,8 @@ const TabNavigator = (): ReactElement => {
 	const tabBackground = theme.colors.tabBackground;
 	const { t } = useTranslation();
 
+	const insets = useSafeAreaInsets();
+
 	const options: BottomTabNavigationOptions = {
 		tabBarShowLabel: false,
 		tabBarHideOnKeyboard: true,
@@ -118,13 +121,14 @@ const TabNavigator = (): ReactElement => {
 		tabBarStyle: {
 			height: 60,
 			position: 'absolute',
-			bottom: 18,
-			left: 28,
-			right: 28,
+			bottom: Math.max(insets.bottom, 18),
+			left: 48,
+			right: 48,
 			backgroundColor: tabBackground,
 			borderRadius: 44,
 			borderTopWidth: 0,
 			elevation: 0,
+			paddingTop: insets.bottom - 5,
 		},
 	};
 

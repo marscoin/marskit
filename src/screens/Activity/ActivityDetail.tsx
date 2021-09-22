@@ -12,6 +12,7 @@ import Divider from '../../components/Divider';
 import { truncate } from '../../utils/helpers';
 import { getBlockExplorerLink } from '../../utils/wallet/transactions';
 import useDisplayValues from '../../hooks/displayValues';
+import SafeAreaView from '../../components/SafeAreaView';
 
 interface SectionProps extends PropsWithChildren<any> {
 	title: string;
@@ -118,7 +119,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 	}, [blockExplorerUrl]);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader />
 			<View style={styles.content}>
 				<View>
@@ -172,14 +173,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 					/>
 				</View>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		paddingLeft: 20,
 		paddingRight: 20,

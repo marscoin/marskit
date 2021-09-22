@@ -17,6 +17,8 @@ import Store from '../../../store/types';
 import themes from '../../../styles/themes';
 import BitcoinBreakdown from './BitcoinBreakdown';
 import Button from '../../../components/Button';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SafeAreaInsets from '../../../components/SafeAreaInsets';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -40,8 +42,9 @@ const WalletsDetail = (props: Props): ReactElement => {
 		fiatSymbol,
 	} = useBalance({ onchain: true, lightning: true });
 
-	const theme = useSelector((state: Store) => state.settings.theme);
-	const { colors } = themes[theme];
+	const colors = useSelector(
+		(state: Store) => themes[state.settings.theme].colors,
+	);
 
 	return (
 		<View style={styles.container}>
@@ -51,6 +54,8 @@ const WalletsDetail = (props: Props): ReactElement => {
 				stops={[0.1, 0.4]}
 				center={[50, 50]}
 				radius={600}>
+				<SafeAreaInsets type={'top'} />
+
 				<NavigationHeader />
 
 				<View color={'transparent'} style={styles.header}>
@@ -98,6 +103,8 @@ const WalletsDetail = (props: Props): ReactElement => {
 					/>
 				</View>
 			</View>
+
+			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
 		</View>
 	);
 };
@@ -133,7 +140,7 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		display: 'flex',
 		flexDirection: 'row',
-		bottom: 10,
+		bottom: 0,
 		paddingHorizontal: 23,
 	},
 	button: {

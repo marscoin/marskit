@@ -14,6 +14,7 @@ import {
 } from '../../../store/types/settings';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: "Small: Use smallest UTXO's first.", value: 'small' },
@@ -48,7 +49,7 @@ const CoinSelect = ({ navigation }): ReactElement => {
 	}, [coinSelectPreference]);
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={styles.container}>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -65,13 +66,12 @@ const CoinSelect = ({ navigation }): ReactElement => {
 					initial={initialIndex}
 				/>
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
 		paddingRight: 20,
 		paddingLeft: 20,
 	},
