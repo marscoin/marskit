@@ -1327,6 +1327,7 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		if (!txid) {
 			return failure;
 		}
+		const rbfEnabled = getStore().settings.rbf;
 		const transactionResponse = getTransactionById({ txid });
 		if (transactionResponse.isErr()) {
 			return failure;
@@ -1341,7 +1342,9 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		 * but this might cause issues when paying a merchant that requested a specific amount.
 		 */
 		const rbf =
-			type === 'sent' && balance >= ETransactionDefaults.recommendedBaseFee;
+			type === 'sent' &&
+			balance >= ETransactionDefaults.recommendedBaseFee &&
+			rbfEnabled;
 		// Performing a CPFP tx requires a new tx and higher fee.
 		const cpfp = balance >= ETransactionDefaults.recommendedBaseFee * 3;
 		return { canBoost: rbf || cpfp, rbf, cpfp };
