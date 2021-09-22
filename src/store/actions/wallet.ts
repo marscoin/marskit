@@ -603,7 +603,7 @@ export const setupOnChainTransaction = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 	addressType,
-	rbf = false,
+	rbf = true,
 	submitDispatch = true,
 }: {
 	selectedWallet?: string | undefined;
