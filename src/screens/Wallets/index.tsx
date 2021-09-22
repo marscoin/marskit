@@ -34,7 +34,7 @@ const Wallets = ({ navigation }): ReactElement => {
 	};
 
 	const bitcoinBalances = useBalance({ onchain: true, lightning: true });
-	const tetherBalances = useBalance({ omnibolt: true });
+	const tetherBalances = useBalance({ tether: true });
 
 	return (
 		<SafeAreaView>

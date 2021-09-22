@@ -4,17 +4,9 @@
  */
 
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, StyleSheet, Image } from 'react-native';
-import {
-	View,
-	Text,
-	Pressable,
-	Text02M,
-	Caption13M,
-} from '../styles/components';
-import BitcoinLogo from '../assets/bitcoin-logo.svg';
-import LightningLogo from '../assets/lightning-logo.svg';
-import { defaultDisplayValues, IDisplayValues } from '../utils/exchange-rate';
+import { StyleSheet } from 'react-native';
+import { View, Pressable, Text02M, Caption13M } from '../styles/components';
+import { IDisplayValues } from '../utils/exchange-rate';
 
 const AssetCard = ({
 	name,

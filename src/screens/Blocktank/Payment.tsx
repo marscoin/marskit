@@ -11,7 +11,7 @@ import React, {
 	useEffect,
 } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
-import { View, Text } from '../../styles/components';
+import { Text } from '../../styles/components';
 import {
 	resetOnChainTransaction,
 	setupOnChainTransaction,

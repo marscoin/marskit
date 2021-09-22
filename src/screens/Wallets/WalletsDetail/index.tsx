@@ -17,8 +17,8 @@ import Store from '../../../store/types';
 import themes from '../../../styles/themes';
 import BitcoinBreakdown from './BitcoinBreakdown';
 import Button from '../../../components/Button';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import { EActivityTypes } from '../../../store/types/activity';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -47,12 +47,19 @@ const WalletsDetail = (props: Props): ReactElement => {
 	);
 
 	let title = '';
+	let assetFilter: EActivityTypes[] = [];
+	let gradientRadius = 450;
 	switch (assetType) {
 		case 'bitcoin': {
 			title = 'Bitcoin';
+			assetFilter = [EActivityTypes.onChain, EActivityTypes.lightning];
+			gradientRadius = 600;
+			break;
 		}
 		case 'tether': {
 			title = 'Tether';
+			assetFilter = [EActivityTypes.tether];
+			break;
 		}
 	}
 
@@ -63,7 +70,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 				colors={['rgb(52,34,10)', colors.gray6]}
 				stops={[0.1, 0.4]}
 				center={[50, 50]}
-				radius={600}>
+				radius={gradientRadius}>
 				<SafeAreaInsets type={'top'} />
 
 				<NavigationHeader />
@@ -92,7 +99,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 
 			<View color={'transparent'} style={styles.transactionsContainer}>
 				<View color={'transparent'} style={styles.listContainer}>
-					<ActivityList />
+					<ActivityList assetFilter={assetFilter} />
 				</View>
 				<View color={'transparent'} style={styles.buttons}>
 					<Button

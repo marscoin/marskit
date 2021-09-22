@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import { Linking, Platform, StyleSheet } from 'react-native';
-import { View, Feather, Text, TouchableOpacity } from '../../styles/components';
+import { Feather, Text, TouchableOpacity } from '../../styles/components';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -30,7 +30,6 @@ import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SafeAreaView from '../../components/SafeAreaView';
 
 const Settings = ({ navigation }): ReactElement => {

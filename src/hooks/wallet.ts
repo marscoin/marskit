@@ -6,7 +6,7 @@ import useDisplayValues from './displayValues';
 interface IncludeBalances {
 	onchain?: boolean;
 	lightning?: boolean;
-	omnibolt?: boolean;
+	tether?: boolean;
 }
 
 /**
@@ -15,7 +15,7 @@ interface IncludeBalances {
 export function useBalance({
 	onchain = false,
 	lightning = false,
-	omnibolt = false,
+	tether = false,
 }: IncludeBalances): IDisplayValues {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -38,7 +38,7 @@ export function useBalance({
 				Number(store.lightning.channelBalance.pendingOpenBalance);
 		}
 
-		if (omnibolt) {
+		if (tether) {
 			//TODO
 		}
 

@@ -4,7 +4,6 @@ import {
 	Feather,
 	Text,
 	TouchableOpacity,
-	View,
 	RadioButtonRN,
 } from '../../../styles/components';
 import { updateSettings } from '../../../store/actions/settings';
