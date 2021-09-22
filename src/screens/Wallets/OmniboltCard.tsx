@@ -3,7 +3,7 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 import QR from '../../components/QR';
 import Button from '../../components/Button';
-import AssetCard from '../../components/AssetCard';
+import AssetCard from '../../components/AssetCard_deprecated';
 import { useNavigation } from '@react-navigation/native';
 import { getConnectPeerInfo } from '../../utils/omnibolt';
 import { useSelector } from 'react-redux';

@@ -12,6 +12,8 @@ import { camera, settings, dismiss, boost } from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
+	bitcoinCircleIcon,
+	tetherCircleIcon,
 	receivedIcon,
 	sentIcon,
 	transferIcon,
@@ -52,6 +54,22 @@ export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
 	xml: bitcoinIcon(props?.color ? props.theme.colors[props.color] : '#ED8452'),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+}))``;
+
+export const BitcoinCircleIcon = styled(SvgXml).attrs((props) => ({
+	xml: bitcoinCircleIcon(
+		props?.color ? props.theme.colors[props.color] : '#F7931A',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+}))``;
+
+export const TetherCircleIcon = styled(SvgXml).attrs((props) => ({
+	xml: tetherCircleIcon(
+		props?.color ? props.theme.colors[props.color] : '#50AF95',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 }))``;
 
 export const LightningIcon = styled(SvgXml).attrs((props) => ({

@@ -46,6 +46,16 @@ const WalletsDetail = (props: Props): ReactElement => {
 		(state: Store) => themes[state.settings.theme].colors,
 	);
 
+	let title = '';
+	switch (assetType) {
+		case 'bitcoin': {
+			title = 'Bitcoin';
+		}
+		case 'tether': {
+			title = 'Tether';
+		}
+	}
+
 	return (
 		<View style={styles.container}>
 			<RadialGradient
@@ -59,7 +69,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 				<NavigationHeader />
 
 				<View color={'transparent'} style={styles.header}>
-					<Title>Bitcoin</Title>
+					<Title>{title}</Title>
 					<View color={'transparent'} style={styles.balanceContainer}>
 						<Caption13M color={'gray'}>
 							{bitcoinSymbol}
@@ -76,10 +86,6 @@ const WalletsDetail = (props: Props): ReactElement => {
 						</View>
 					</View>
 					{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
-					{/*<View color={'transparent'} style={styles.txButtonsContainer}>*/}
-					{/*	<Button color={'surface'} style={styles.txButton} text={'Send'} />*/}
-					{/*	<Button color={'surface'} text={'Receive'} />*/}
-					{/*</View>*/}
 				</View>
 			</RadialGradient>
 			<View color={'gray6'} style={styles.radiusFooter} />
