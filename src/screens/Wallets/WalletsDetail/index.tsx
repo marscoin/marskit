@@ -1,4 +1,4 @@
-import React, { memo, PropsWithChildren, ReactElement } from 'react';
+import React, { memo, PropsWithChildren, ReactElement, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
@@ -19,11 +19,15 @@ import BitcoinBreakdown from './BitcoinBreakdown';
 import Button from '../../../components/Button';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { EActivityTypes } from '../../../store/types/activity';
+import Send from '../Send';
+import Receive from '../Receive';
+import { TAssetType } from '../../../store/types/wallet';
+import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
 		params: {
-			assetType: 'bitcoin' | 'tether';
+			assetType: TAssetType;
 		};
 	};
 }
@@ -62,6 +66,9 @@ const WalletsDetail = (props: Props): ReactElement => {
 			break;
 		}
 	}
+
+	const sendRef = useRef(null);
+	const receiveRef = useRef(null);
 
 	return (
 		<View style={styles.container}>
@@ -107,15 +114,27 @@ const WalletsDetail = (props: Props): ReactElement => {
 						style={styles.button}
 						icon={<SendIcon color={'gray1'} />}
 						text={'Send'}
+						//@ts-ignore
+						onPress={(): void => sendRef.current.expand()}
 					/>
 					<Button
 						color={'surface'}
 						style={styles.button}
 						icon={<ReceiveIcon color={'gray1'} />}
 						text={'Receive'}
+						//@ts-ignore
+						onPress={(): void => receiveRef.current.snapToIndex(1)}
 					/>
 				</View>
 			</View>
+
+			<BottomSheetWrapper ref={sendRef}>
+				<Send assetType={assetType} />
+			</BottomSheetWrapper>
+
+			<BottomSheetWrapper ref={receiveRef} snapPoints={['55%']}>
+				<Receive assetType={assetType} />
+			</BottomSheetWrapper>
 
 			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
 		</View>
