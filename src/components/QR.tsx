@@ -148,9 +148,7 @@ const QR = ({
 							<AnimatedView
 								color="transparent"
 								style={[styles.copiedContainer, { opacity: textOpacity }]}>
-								<View
-									color={header ? 'background' : 'surface'}
-									style={styles.copySuccessContainer}>
+								<View color={'background'} style={styles.copySuccessContainer}>
 									<View color="transparent" style={styles.copied}>
 										<Text style={styles.copiedText}>{onCopySuccessText}</Text>
 									</View>
