@@ -10,6 +10,7 @@ export type TKeyDerivationCoinType = '0' | '1' | string; //"mainnet" | "testnet"
 export type TKeyDerivationAccount = '0' | '2' | '3' | string; //"On-Chain Wallet" | "RGB" | "Omnibolt";
 export type TKeyDerivationChange = '0' | '1' | string; //"Receiving Address" | "Change Address";
 export type TKeyDerivationAddressIndex = string;
+export type TAssetType = 'bitcoin' | 'tether';
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
