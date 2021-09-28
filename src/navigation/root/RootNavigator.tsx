@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -29,159 +29,102 @@ import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 
 const Stack = createNativeStackNavigator();
 
-const navOptionHandler = {
+const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
 
-export type TInitialRoutes = 'Drawer' | 'AuthCheck';
+export type TInitialRoutes = 'Drawer' | 'RootAuthCheck';
 const RootNavigator = (): ReactElement => {
 	const hasPin = useSelector((state: Store) => state.settings.pin);
 	const hasBiometrics = useSelector(
 		(state: Store) => state.settings.biometrics,
 	);
-	let initialRouteName: TInitialRoutes = 'Drawer';
-	if (hasPin || hasBiometrics) {
-		initialRouteName = 'AuthCheck';
-	}
+	const initialRouteName = useMemo(
+		() => (hasPin || hasBiometrics ? 'RootAuthCheck' : 'Drawer'),
+		[hasBiometrics, hasPin],
+	);
+
 	return (
 		<NavigationContainer>
-			<Stack.Navigator initialRouteName={initialRouteName}>
-				<Stack.Screen name="AuthCheck" options={navOptionHandler}>
-					{({ navigation }): ReactElement => (
-						<AuthCheck
-							onSuccess={(): void => {
-								navigation.replace('Drawer');
-							}}
-						/>
-					)}
-				</Stack.Screen>
-				<Stack.Screen
-					name="Drawer"
-					component={DrawerNavigator}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="TempSettings"
-					component={TempSettings}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen name="StartPin" options={navOptionHandler}>
-					{({ navigation }): ReactElement => (
-						<PinPad
-							onSuccess={(): void => {
-								if (hasBiometrics) {
-									navigation.navigate('Biometrics');
-								} else {
+			<Stack.Navigator
+				screenOptions={navOptions}
+				initialRouteName={initialRouteName}>
+				<Stack.Group screenOptions={navOptions}>
+					<Stack.Screen name="RootAuthCheck">
+						{({ navigation }): ReactElement => (
+							<AuthCheck
+								onSuccess={(): void => {
 									navigation.replace('Drawer');
-								}
-							}}
-							pinSetup={false}
-							displayBackButton={false}
-						/>
-					)}
-				</Stack.Screen>
-				<Stack.Screen
-					name="Pin"
-					component={PinPad}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="ExchangeRateSettings"
-					component={ExchangeRateSettings}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="ElectrumConfig"
-					component={ElectrumConfig}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen name="Biometrics" options={navOptionHandler}>
-					{({ navigation }): ReactElement => (
-						<Biometrics
-							onSuccess={(): void => {
-								navigation.replace('Drawer');
-							}}
-						/>
-					)}
-				</Stack.Screen>
-				<Stack.Screen
-					name="CoinSelectPreference"
-					component={CoinSelectPreference}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="AddressTypePreference"
-					component={AddressTypePreference}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="BackupSettings"
-					component={BackupSettings}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="ExportBackups"
-					component={ExportBackups}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="LightningChannels"
-					component={LightningChannels}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="LightningChannelDetails"
-					component={LightningChannelDetails}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="LightningNodeInfo"
-					component={LightningNodeInfo}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="LndLogs"
-					component={LndLogs}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="ManageSeedPhrase"
-					component={ManageSeedPhrase}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="Blocktank"
-					component={Blocktank}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="BlocktankOrder"
-					component={BlocktankOrder}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="BlocktankPayment"
-					component={BlocktankPayment}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="ActivityDetail"
-					component={ActivityDetail}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="Scanner"
-					component={ScannerScreen}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="WalletsDetail"
-					component={WalletsDetail}
-					options={navOptionHandler}
-				/>
+								}}
+							/>
+						)}
+					</Stack.Screen>
+					<Stack.Screen name="Drawer" component={DrawerNavigator} />
+					<Stack.Screen name="TempSettings" component={TempSettings} />
+					<Stack.Screen name="StartPin">
+						{({ navigation }): ReactElement => (
+							<PinPad
+								onSuccess={(): void => {
+									if (hasBiometrics) {
+										navigation.navigate('Biometrics');
+									} else {
+										navigation.replace('Drawer');
+									}
+								}}
+								pinSetup={false}
+								displayBackButton={false}
+							/>
+						)}
+					</Stack.Screen>
+					<Stack.Screen name="Pin" component={PinPad} />
+					<Stack.Screen
+						name="ExchangeRateSettings"
+						component={ExchangeRateSettings}
+					/>
+					<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
+					<Stack.Screen name="Biometrics">
+						{({ navigation }): ReactElement => (
+							<Biometrics
+								onSuccess={(): void => {
+									navigation.replace('Drawer');
+								}}
+							/>
+						)}
+					</Stack.Screen>
+					<Stack.Screen
+						name="CoinSelectPreference"
+						component={CoinSelectPreference}
+					/>
+					<Stack.Screen
+						name="AddressTypePreference"
+						component={AddressTypePreference}
+					/>
+					<Stack.Screen name="BackupSettings" component={BackupSettings} />
+					<Stack.Screen name="ExportBackups" component={ExportBackups} />
+					<Stack.Screen
+						name="LightningChannels"
+						component={LightningChannels}
+					/>
+					<Stack.Screen
+						name="LightningChannelDetails"
+						component={LightningChannelDetails}
+					/>
+					<Stack.Screen
+						name="LightningNodeInfo"
+						component={LightningNodeInfo}
+					/>
+					<Stack.Screen name="LndLogs" component={LndLogs} />
+					<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
+					<Stack.Screen name="Blocktank" component={Blocktank} />
+					<Stack.Screen name="BlocktankOrder" component={BlocktankOrder} />
+					<Stack.Screen name="BlocktankPayment" component={BlocktankPayment} />
+					<Stack.Screen name="ActivityDetail" component={ActivityDetail} />
+					<Stack.Screen name="Scanner" component={ScannerScreen} />
+					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
+				</Stack.Group>
 			</Stack.Navigator>
 		</NavigationContainer>
 	);
