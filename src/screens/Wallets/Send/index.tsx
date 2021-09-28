@@ -36,6 +36,7 @@ const Send = ({
 			refreshWallet().then();
 		}, 4000);
 		onComplete();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedWallet, selectedNetwork]);
 
 	return (
