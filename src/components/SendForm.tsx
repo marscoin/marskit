@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { AnimatedView, TextInput, View } from '../styles/components';
+import { TextInput, View } from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
 import AdjustValue from './AdjustValue';
 import { useSelector } from 'react-redux';
@@ -189,100 +189,98 @@ const SendForm = ({
 	}, [selectedNetwork, selectedWallet]);
 
 	return (
-		<View color={'transparent'}>
-			<AnimatedView color="transparent" style={styles.container}>
-				<TextInput
-					multiline={true}
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					style={styles.multilineTextInput}
-					placeholder="Address"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						updateOnChainTransaction({
-							selectedWallet,
-							selectedNetwork,
-							transaction: {
-								outputs: [{ address: txt, value, index }],
-							},
-						}).then();
-					}}
-					value={address}
-					onSubmitEditing={(): void => {}}
-				/>
-				<View color={'transparent'} style={styles.row}>
-					<View style={styles.amountContainer}>
-						<TextInput
-							editable={!max}
-							underlineColorAndroid="transparent"
-							style={[
-								styles.textInput,
-								// eslint-disable-next-line react-native/no-inline-styles
-								{ backgroundColor: max ? '#E1E1E4' : 'white' },
-							]}
-							placeholder="Amount (sats)"
-							keyboardType="number-pad"
-							autoCapitalize="none"
-							autoCompleteType="off"
-							autoCorrect={false}
-							onChangeText={(txt): void => {
-								updateAmount({
-									amount: txt,
-									selectedWallet,
-									selectedNetwork,
-									index,
-								});
-							}}
-							value={Number(value) ? value.toString() : ''}
-							onSubmitEditing={(): void => {}}
-						/>
-					</View>
-					<Button
-						color={max ? 'surface' : 'onSurface'}
-						text="Max"
-						disabled={balance <= 0}
-						onPress={sendMax}
-					/>
-				</View>
-				{!!displayMessage && (
+		<View color="transparent" style={styles.container}>
+			<TextInput
+				multiline={true}
+				textAlignVertical={'center'}
+				underlineColorAndroid="transparent"
+				style={styles.multilineTextInput}
+				placeholder="Address"
+				autoCapitalize="none"
+				autoCompleteType="off"
+				autoCorrect={false}
+				onChangeText={(txt): void => {
+					updateOnChainTransaction({
+						selectedWallet,
+						selectedNetwork,
+						transaction: {
+							outputs: [{ address: txt, value, index }],
+						},
+					}).then();
+				}}
+				value={address}
+				onSubmitEditing={(): void => {}}
+			/>
+			<View color={'transparent'} style={styles.row}>
+				<View style={styles.amountContainer}>
 					<TextInput
-						multiline
+						editable={!max}
 						underlineColorAndroid="transparent"
-						style={styles.multilineTextInput}
-						placeholder="Message (OP_RETURN)"
+						style={[
+							styles.textInput,
+							// eslint-disable-next-line react-native/no-inline-styles
+							{ backgroundColor: max ? '#E1E1E4' : 'white' },
+						]}
+						placeholder="Amount (sats)"
+						keyboardType="number-pad"
 						autoCapitalize="none"
 						autoCompleteType="off"
 						autoCorrect={false}
 						onChangeText={(txt): void => {
-							updateMessage({
-								message: txt,
+							updateAmount({
+								amount: txt,
 								selectedWallet,
 								selectedNetwork,
 								index,
 							});
 						}}
-						value={message}
+						value={Number(value) ? value.toString() : ''}
 						onSubmitEditing={(): void => {}}
 					/>
-				)}
+				</View>
+				<Button
+					color={max ? 'surface' : 'onSurface'}
+					text="Max"
+					disabled={balance <= 0}
+					onPress={sendMax}
+				/>
+			</View>
+			{!!displayMessage && (
+				<TextInput
+					multiline
+					underlineColorAndroid="transparent"
+					style={styles.multilineTextInput}
+					placeholder="Message (OP_RETURN)"
+					autoCapitalize="none"
+					autoCompleteType="off"
+					autoCorrect={false}
+					onChangeText={(txt): void => {
+						updateMessage({
+							message: txt,
+							selectedWallet,
+							selectedNetwork,
+							index,
+						});
+					}}
+					value={message}
+					onSubmitEditing={(): void => {}}
+				/>
+			)}
 
-				{!!displayFee && (
-					<AdjustValue
-						value={`${satsPerByte} sats/byte`}
-						decreaseValue={decreaseFee}
-						increaseValue={increaseFee}
-					/>
-				)}
-			</AnimatedView>
+			{!!displayFee && (
+				<AdjustValue
+					value={`${satsPerByte} sats/byte`}
+					decreaseValue={decreaseFee}
+					increaseValue={increaseFee}
+				/>
+			)}
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		flex: 0,
 	},
 	textInput: {
 		minHeight: 50,
