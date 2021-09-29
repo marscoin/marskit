@@ -13,7 +13,6 @@ import {
 	TetherCircleIcon,
 } from '../../styles/components';
 import Header from './Header';
-import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
 import DetectSwipe from '../../components/DetectSwipe';
@@ -77,7 +76,6 @@ const Wallets = ({ navigation }): ReactElement => {
 
 						{/*TODO remove the below cards when not needed anymore*/}
 						<Subtitle style={styles.assetsTitle}>OLD Assets</Subtitle>
-						<BitcoinCard />
 						<LightningCard />
 						<OmniboltCard />
 						<ActivityList />

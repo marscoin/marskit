@@ -7,13 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
-import {
-	View,
-	AnimatedView,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
-import Animated, { Easing } from 'react-native-reanimated';
+import { View, Text, TouchableOpacity } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
@@ -44,31 +38,14 @@ import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 import UTXOList from './UTXOList';
 
-const updateOpacity = ({
-	opacity = new Animated.Value(0),
-	toValue = 0,
-	duration = 1000,
-}): void => {
-	try {
-		Animated.timing(opacity, {
-			toValue,
-			duration,
-			easing: Easing.inOut(Easing.ease),
-		}).start();
-	} catch {}
-};
-
 interface ISendOnChainTransaction {
-	animate?: boolean;
 	header?: boolean;
 	onComplete?: Function;
 }
 const SendOnChainTransaction = ({
-	animate = true,
 	header = true,
 	onComplete = (): null => null,
 }: ISendOnChainTransaction): ReactElement => {
-	const [opacity] = useState(new Animated.Value(0));
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [rawTx, setRawTx] = useState('');
 	const [displayUtxoList, setDisplayUtxoList] = useState(false);
@@ -113,19 +90,11 @@ const SendOnChainTransaction = ({
 		if (transaction?.rbf) {
 			return;
 		}
-		if (animate) {
-			setTimeout(() => {
-				updateOpacity({ opacity, toValue: 1 });
-			}, 100);
-		}
 		setupOnChainTransaction({
 			selectedWallet,
 			selectedNetwork,
 		});
 		return (): void => {
-			if (animate) {
-				updateOpacity({ opacity, toValue: 0, duration: 0 });
-			}
 			if (transaction?.rbf) {
 				return;
 			}
@@ -237,6 +206,11 @@ const SendOnChainTransaction = ({
 							});
 							//Successful Broadcast
 							if (response.isOk()) {
+								setRawTx('');
+								resetOnChainTransaction({
+									selectedNetwork,
+									selectedWallet,
+								});
 								showSuccessNotification({
 									title: `Sent ${transactionTotal} sats`,
 									message,
@@ -264,35 +238,30 @@ const SendOnChainTransaction = ({
 	}
 
 	return (
-		<View
-			color={header ? 'background' : 'transparent'}
-			//eslint-disable-next-line react-native/no-inline-styles
-			style={{ flex: header ? 1 : 0 }}>
+		<View style={styles.container}>
 			{header && <NavigationHeader title="Send Transaction" />}
-			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
-				<View color={'transparent'} style={styles.amountAvailable}>
-					<Text>Amount Available: {txInputValue}</Text>
-				</View>
-				<SendForm />
-				<Button
-					color={'onSurface'}
-					text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
-						utxos?.length ?? '0'
-					})`}
-					onPress={(): void => setDisplayUtxoList(true)}
-				/>
-				<UTXOList
-					isVisible={displayUtxoList}
-					closeList={(): void => setDisplayUtxoList(false)}
-				/>
-				<FeeSummary />
-				<Button
-					disabled={balance < transactionTotal}
-					color="onSurface"
-					text="Create"
-					onPress={_createTransaction}
-				/>
-			</AnimatedView>
+			<View color={'transparent'} style={styles.amountAvailable}>
+				<Text>Amount Available: {txInputValue}</Text>
+			</View>
+			<SendForm />
+			<Button
+				color={'onSurface'}
+				text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
+					utxos?.length ?? '0'
+				})`}
+				onPress={(): void => setDisplayUtxoList(true)}
+			/>
+			<UTXOList
+				isVisible={displayUtxoList}
+				closeList={(): void => setDisplayUtxoList(false)}
+			/>
+			<FeeSummary />
+			<Button
+				disabled={balance < transactionTotal}
+				color="onSurface"
+				text="Create"
+				onPress={_createTransaction}
+			/>
 		</View>
 	);
 };
@@ -301,7 +270,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		marginVertical: 20,
-		justifyContent: 'space-between',
+		justifyContent: 'space-evenly',
 	},
 	title: {
 		...systemWeights.bold,

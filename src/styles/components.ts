@@ -19,6 +19,7 @@ import {
 	transferIcon,
 } from '../assets/icons/wallet';
 import { sanFranciscoWeights } from 'react-native-typography';
+import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 
 export const DismissIcon = styled(SvgXml).attrs((props) => ({
 	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
@@ -355,3 +356,8 @@ export const Ionicons = styled(_Ionicons).attrs((props) => ({
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 }))``;
+
+export const SafeAreaProvider = styled(_SafeAreaProvider)`
+	flex: 1;
+	background-color: ${(props): string => props.theme.colors.background};
+`;

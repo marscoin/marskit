@@ -5,7 +5,7 @@ import React, { memo, ReactElement, useMemo, useEffect } from 'react';
 import { Platform, UIManager, useColorScheme } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from './styles/components';
 import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
