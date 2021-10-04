@@ -4,19 +4,52 @@ import React, {
 	forwardRef,
 	useImperativeHandle,
 	useRef,
+	useEffect,
+	useCallback,
 } from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from '../styles/components';
 import BottomSheet from 'reanimated-bottom-sheet';
+import { useSelector } from 'react-redux';
+import Store from '../store/types';
+import { toggleView } from '../store/actions/user';
 
 const snapPoints = ['95%', '55%', 0];
 export interface IModalProps {
 	children: ReactElement;
-	snapPoints?: string[];
+	view?: 'send' | 'receive';
+	onOpen?: () => any;
+	onClose?: () => any;
 }
 const BottomSheetWrapper = forwardRef(
-	({ children }: IModalProps, ref): ReactElement => {
+	(
+		{
+			children,
+			view,
+			onOpen = (): null => null,
+			onClose = (): null => null,
+		}: IModalProps,
+		ref,
+	): ReactElement => {
+		const data = useSelector((state: Store) =>
+			view ? state.user?.viewController[view] : undefined,
+		);
 		const modalRef = useRef<BottomSheet>(null);
+
+		useEffect(() => {
+			try {
+				if (view && data?.isOpen) {
+					if (data.snapPoint) {
+						// @ts-ignore
+						modalRef.current.snapTo(data.snapPoint);
+					} else {
+						// @ts-ignore
+						modalRef.current.snapTo(0);
+					}
+				}
+			} catch {}
+		}, [data?.id, data?.isOpen, data?.snapPoint, view]);
+
 		useImperativeHandle(ref, () => ({
 			snapToIndex(index: number = 0): void {
 				// @ts-ignore
@@ -32,11 +65,29 @@ const BottomSheetWrapper = forwardRef(
 			},
 		}));
 
+		const _onOpen = useCallback(() => {
+			onOpen();
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, []);
+
+		const _onClose = useCallback(() => {
+			if (view) {
+				toggleView({
+					view,
+					data: { isOpen: false, snapPoint: 2, id: '' },
+				}).then();
+			}
+			onClose();
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [view]);
+
 		return (
 			<BottomSheet
 				ref={modalRef}
 				initialSnap={2}
 				snapPoints={snapPoints}
+				onOpenStart={_onOpen}
+				onCloseEnd={_onClose}
 				renderContent={(): ReactElement => {
 					return (
 						<View style={styles.container}>
