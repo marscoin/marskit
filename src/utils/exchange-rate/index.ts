@@ -85,6 +85,7 @@ export interface IDisplayValues {
 	bitcoinFormatted: string;
 	bitcoinSymbol: string; //₿, m₿, μ₿, ⚡,
 	bitcoinTicker: string; //BTC, mBTC, μBTC, Sats
+	satoshis: number;
 }
 
 export const defaultDisplayValues: IDisplayValues = {
@@ -97,6 +98,7 @@ export const defaultDisplayValues: IDisplayValues = {
 	bitcoinFormatted: '-',
 	bitcoinSymbol: '',
 	bitcoinTicker: '',
+	satoshis: 0,
 };
 
 export const getDisplayValues = ({
@@ -194,6 +196,7 @@ export const getDisplayValues = ({
 			bitcoinFormatted,
 			bitcoinSymbol,
 			bitcoinTicker,
+			satoshis,
 		};
 	} catch (e) {
 		console.error(e);
