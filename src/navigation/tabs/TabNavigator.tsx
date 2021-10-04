@@ -1,8 +1,7 @@
-import React, { ReactElement, useMemo, useRef } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTranslation } from 'react-i18next';
 import WalletsScreen from '../../screens/Wallets';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
@@ -14,7 +13,6 @@ import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransactio
 import { View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
 import { SvgXml } from 'react-native-svg';
-import Receive from '../../screens/Wallets/Receive';
 import {
 	profileIcon,
 	receiveIcon,
@@ -23,8 +21,7 @@ import {
 } from '../../assets/icons/tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
-import Send from '../../screens/Wallets/Send';
-import BottomSheetWrapper from '../../components/BottomSheetWrapper';
+import { toggleView } from '../../store/actions/user';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -82,15 +79,12 @@ const ProfileStack = (): ReactElement => {
 
 const activeTintColor = '#E94D27';
 const TabNavigator = (): ReactElement => {
-	const sendRef = useRef(null);
-	const receiveRef = useRef(null);
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = useMemo(() => themes[settings.theme], [settings.theme]);
 	const tabBackground = useMemo(
 		() => theme.colors.tabBackground,
 		[theme.colors.tabBackground],
 	);
-	const { t } = useTranslation();
 	const insets = useSafeAreaInsets();
 	const tabScreenOptions = useMemo(() => {
 		return {
@@ -114,74 +108,123 @@ const TabNavigator = (): ReactElement => {
 		};
 	}, [insets.bottom, tabBackground]);
 
+	const WalletIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={walletIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const walletOptions = useMemo(() => {
+		return {
+			tabBarIcon: WalletIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const SendIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={sendIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const sendOptions = useMemo(() => {
+		return {
+			tabBarIcon: SendIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const ReceiveIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={receiveIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const receiveOptions = useMemo(() => {
+		return {
+			tabBarIcon: ReceiveIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const ProfileIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={profileIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const profileOptions = useMemo(() => {
+		return {
+			tabBarIcon: ProfileIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const onReceivePress = useCallback((event) => {
+		toggleView({
+			view: 'receive',
+			data: { isOpen: true, snapPoint: 1, id: 'bitcoin' },
+		}).then();
+		event.preventDefault();
+	}, []);
+
+	const receiveListeners = useCallback(
+		(): { tabPress } => ({
+			tabPress: onReceivePress,
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
+
+	const onSendPress = useCallback((event) => {
+		toggleView({
+			view: 'send',
+			data: { isOpen: true, snapPoint: 0, id: 'bitcoin' },
+		}).then();
+		event.preventDefault();
+	}, []);
+
+	const sendListeners = useCallback(
+		(): { tabPress } => ({
+			tabPress: onSendPress,
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
+
 	return (
 		<>
 			<Tab.Navigator>
 				{/*@ts-ignore*/}
 				<Tab.Group screenOptions={tabScreenOptions}>
 					<Tab.Screen
-						name={t('wallets')}
+						name={'WalletsStack'}
 						component={WalletsStack}
-						options={{
-							tabBarIcon: ({ size, color }): ReactElement => (
-								<SvgXml xml={walletIcon(color)} width={size} height={size} />
-							),
-						}}
+						options={walletOptions}
 					/>
 					<Tab.Screen
-						name={t('send')}
+						name={'Send'}
 						component={View}
-						options={{
-							tabBarIcon: ({ size, color }): ReactElement => (
-								<SvgXml xml={sendIcon(color)} width={size} height={size} />
-							),
-						}}
-						listeners={(): { tabPress } => ({
-							tabPress: (event): void => {
-								// @ts-ignore
-								sendRef.current.expand();
-								event.preventDefault();
-							},
-						})}
+						options={sendOptions}
+						listeners={sendListeners}
 					/>
 					<Tab.Screen
-						name={t('receive')}
+						name={'Receive'}
 						component={View}
-						options={{
-							tabBarIcon: ({ size, color }): ReactElement => (
-								<SvgXml xml={receiveIcon(color)} width={size} height={size} />
-							),
-						}}
-						listeners={(): { tabPress } => ({
-							tabPress: (event): void => {
-								// @ts-ignore
-								receiveRef.current.snapToIndex(1);
-								event.preventDefault();
-							},
-						})}
+						options={receiveOptions}
+						listeners={receiveListeners}
 					/>
 					<Tab.Screen
-						name={t('profile')}
+						name={'ProfileStack'}
 						component={ProfileStack}
-						options={{
-							tabBarIcon: ({ size, color }): ReactElement => (
-								<SvgXml xml={profileIcon(color)} width={size} height={size} />
-							),
-						}}
+						options={profileOptions}
 					/>
 				</Tab.Group>
 			</Tab.Navigator>
-			<BottomSheetWrapper ref={sendRef}>
-				<Send
-					onComplete={(): void => {
-						//@ts-ignore
-						sendRef.current.close();
-					}}
-				/>
-			</BottomSheetWrapper>
-			<BottomSheetWrapper ref={receiveRef}>
-				<Receive />
-			</BottomSheetWrapper>
 		</>
 	);
 };
