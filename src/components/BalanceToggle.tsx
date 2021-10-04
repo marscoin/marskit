@@ -111,13 +111,18 @@ const BalanceToggle = ({
 		return arr;
 	}, [displayValues, fiatIsPrimary]);
 
+	const BalanceComponents = useMemo(() => {
+		return getBalanceComponents().map((Component, i) => (
+			<View key={i}>{Component}</View>
+		));
+	}, [getBalanceComponents]);
 	const onTogglePress = useCallback(() => {
 		setPrimary(primary === 'asset' ? 'fiat' : 'asset');
 	}, [primary]);
 
 	return (
 		<Pressable onPress={onTogglePress} style={styles.row}>
-			<View>{getBalanceComponents().map((Component) => Component)}</View>
+			<View>{BalanceComponents}</View>
 			<View style={styles.switchIcon}>
 				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
 			</View>
