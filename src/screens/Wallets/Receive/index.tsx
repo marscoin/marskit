@@ -8,10 +8,10 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import QR from '../../../components/QR';
 
-const Receive = ({ assetType }: { assetType?: TAssetType }): ReactElement => {
+const Receive = ({ asset }: { asset?: TAssetType | string }): ReactElement => {
 	const header = useMemo(
-		(): string => (assetType ? `Receive ${capitalize(assetType)}` : 'Receive'),
-		[assetType],
+		(): string => (asset ? `Receive ${capitalize(asset)}` : 'Receive'),
+		[asset],
 	);
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
