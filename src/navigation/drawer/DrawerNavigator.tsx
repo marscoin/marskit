@@ -5,34 +5,24 @@ import {
 	createDrawerNavigator,
 	DrawerNavigationOptions,
 } from '@react-navigation/drawer';
-import { StyleSheet } from 'react-native';
-
 const Drawer = createDrawerNavigator();
 
 const screenOptions: DrawerNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
 	drawerPosition: 'left',
+	drawerStyle: { width: '100%' },
 };
 
 const DrawerNavigator = (): ReactElement => {
 	return (
 		<Drawer.Navigator
-			screenOptions={{
-				...screenOptions,
-				drawerStyle: styles.drawer,
-			}}
-			initialRouteName="Wallets"
+			screenOptions={screenOptions}
+			initialRouteName="TabNavigator"
 			drawerContent={(props): ReactElement => <Settings {...props} />}>
-			<Drawer.Screen name="Wallets" component={TabNavigator} />
+			<Drawer.Screen name="TabNavigator" component={TabNavigator} />
 		</Drawer.Navigator>
 	);
 };
-
-const styles = StyleSheet.create({
-	drawer: {
-		width: '100%',
-	},
-});
 
 export default DrawerNavigator;
