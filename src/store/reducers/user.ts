@@ -10,6 +10,19 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 				...action.payload,
 			};
 
+		case actions.TOGGLE_VIEW:
+			return {
+				...state,
+				viewController: {
+					...state.viewController,
+					[action.payload.view]: {
+						isOpen: action.payload.data.isOpen,
+						snapPoint: action?.payload?.data?.snapPoint,
+						id: action.payload.data.id,
+					},
+				},
+			};
+
 		case actions.RESET_USER_STORE:
 		case actions.WIPE_WALLET:
 			return { ...defaultUserShape };
