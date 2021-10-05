@@ -1,3 +1,12 @@
+import { IViewControllerData } from '../types/user';
+
+export const defaultViewController: IViewControllerData = {
+	assetNetwork: undefined,
+	assetName: undefined,
+	isOpen: false,
+	snapPoint: 2,
+};
+
 export const defaultUserShape = {
 	loading: false,
 	error: false,
@@ -5,15 +14,7 @@ export const defaultUserShape = {
 	isOnline: true,
 	// Used to control various views throughout the app. (Modals, bottom-sheets, etc.)
 	viewController: {
-		send: {
-			id: '',
-			isOpen: false,
-			snapPoint: 2,
-		},
-		receive: {
-			id: '',
-			isOpen: false,
-			snapPoint: 2,
-		},
+		send: { ...defaultViewController },
+		receive: { ...defaultViewController },
 	},
 };
