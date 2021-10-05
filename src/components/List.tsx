@@ -1,14 +1,22 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { SectionList, StyleSheet, Switch } from 'react-native';
-import { Text, TouchableOpacity, View } from '../styles/components';
+import {
+	Text,
+	Text01S,
+	Caption13Up,
+	TouchableOpacity,
+	View,
+	ChevronRight,
+} from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
+import Card from './Card';
 
 const _ItemHeader = memo(
 	({ title }: { title: string }): ReactElement => (
-		<View style={styles.itemHeader}>
-			<Text color="white" style={styles.header}>
-				{title}
-			</Text>
+		<View color={'transparent'} style={styles.itemHeader}>
+			<Caption13Up color="gray1" style={styles.header}>
+				{title.toUpperCase()}
+			</Caption13Up>
 		</View>
 	),
 );
@@ -20,6 +28,7 @@ type TItemType = 'switch' | 'button';
 
 type ItemData = {
 	title: string;
+	value?: string;
 	type: TItemType;
 	onPress: Function;
 	enabled?: boolean;
@@ -35,6 +44,7 @@ const _Item = memo(
 	({
 		type,
 		title,
+		value,
 		onPress,
 		navigation,
 		enabled = true,
@@ -47,34 +57,47 @@ const _Item = memo(
 		if (type === 'switch') {
 			return (
 				<TouchableOpacity
+					color="transparent"
 					activeOpacity={0.7}
-					onPress={_onPress}
-					style={styles.row}>
+					onPress={_onPress}>
+					<Card style={styles.card}>
+						<View color="transparent" style={styles.leftColumn}>
+							<Text color="white" style={styles.title}>
+								{title}
+							</Text>
+						</View>
+						<View color="transparent" style={styles.rightColumn}>
+							<Switch
+								trackColor={{ false: '#767577', true: '#81b0ff' }}
+								thumbColor={'#f4f3f4'}
+								ios_backgroundColor="#3e3e3e"
+								onValueChange={_onPress}
+								value={enabled}
+							/>
+						</View>
+					</Card>
+				</TouchableOpacity>
+			);
+		}
+		return (
+			<TouchableOpacity
+				color="transparent"
+				activeOpacity={0.7}
+				onPress={enabled ? _onPress : null}
+				style={styles.row}>
+				<Card style={styles.card}>
 					<View color="transparent" style={styles.leftColumn}>
 						<Text color="white" style={styles.title}>
 							{title}
 						</Text>
 					</View>
 					<View color="transparent" style={styles.rightColumn}>
-						<Switch
-							trackColor={{ false: '#767577', true: '#81b0ff' }}
-							thumbColor={'#f4f3f4'}
-							ios_backgroundColor="#3e3e3e"
-							onValueChange={_onPress}
-							value={enabled}
-						/>
+						<Text01S color={'gray2'} style={styles.valueText}>
+							{value}
+						</Text01S>
+						<ChevronRight color={'gray2'} />
 					</View>
-				</TouchableOpacity>
-			);
-		}
-		return (
-			<TouchableOpacity
-				activeOpacity={0.7}
-				onPress={enabled ? _onPress : null}
-				style={styles.row}>
-				<Text color="white" style={styles.title}>
-					{title}
-				</Text>
+				</Card>
 			</TouchableOpacity>
 		);
 	},
@@ -112,15 +135,6 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 				return null;
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
-			ItemSeparatorComponent={useCallback(
-				({ leadingItem: { hide } }): ReactElement | null => {
-					if (!hide) {
-						return <View style={styles.separator} />;
-					}
-					return null;
-				},
-				[],
-			)}
 			stickySectionHeadersEnabled={true}
 		/>
 	);
@@ -128,17 +142,19 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 
 const styles = StyleSheet.create({
 	row: {
+		height: 55,
+	},
+	card: {
 		flexDirection: 'row',
-		backgroundColor: '#333333',
-		height: 60,
 		alignItems: 'center',
-		paddingLeft: 10,
+		justifyContent: 'space-between',
+		paddingHorizontal: 16,
+		paddingVertical: 14,
+		minHeight: 51,
 	},
 	itemHeader: {
-		backgroundColor: '#4C4C4C',
-		height: 60,
+		marginTop: 27,
 		justifyContent: 'center',
-		paddingLeft: 10,
 	},
 	header: {
 		fontSize: 18,
@@ -147,20 +163,15 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: 14,
 	},
-	separator: {
-		width: '100%',
-		height: 1,
-		backgroundColor: 'white',
+	valueText: {
+		marginRight: 15,
 	},
 	leftColumn: {
-		flex: 1,
 		justifyContent: 'center',
 	},
 	rightColumn: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'flex-end',
-		paddingRight: 10,
+		alignItems: 'center',
+		flexDirection: 'row',
 	},
 });
 

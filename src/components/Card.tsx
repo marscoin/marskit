@@ -4,7 +4,7 @@ import { View } from '../styles/components';
 
 interface ICard {
 	style?: {};
-	children?: ReactElement;
+	children?: ReactElement | ReactElement[];
 	color?: string;
 }
 const Card = ({
