@@ -600,18 +600,18 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 };
 
 export const setupOnChainTransaction = async ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 	addressType,
 	rbf = true,
 	submitDispatch = true,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-	addressType?: TAddressType | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: TAddressType;
 	rbf?: boolean;
 	submitDispatch?: boolean; //Should we dispatch this and update the store.
-}): Promise<Result<IOnChainTransactionData>> => {
+} = {}): Promise<Result<IOnChainTransactionData>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -627,6 +627,11 @@ export const setupOnChainTransaction = async ({
 			selectedWallet,
 			selectedNetwork,
 		});
+
+		const isRbf = currentWallet.transaction[selectedNetwork].rbf;
+		if (isRbf) {
+			return ok(currentWallet.transaction[selectedNetwork]);
+		}
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 
@@ -748,12 +753,12 @@ export const updateOnChainTransaction = async ({
 };
 
 export const resetOnChainTransaction = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-}): void => {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+} = {}): void => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();

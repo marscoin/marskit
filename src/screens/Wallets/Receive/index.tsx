@@ -1,17 +1,16 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { View, Text01M } from '../../../styles/components';
 import { StyleSheet } from 'react-native';
-import { TAssetType } from '../../../store/types/wallet';
 import { capitalize } from '../../../utils/helpers';
 import { getReceiveAddress } from '../../../utils/wallet';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import QR from '../../../components/QR';
 
-const Receive = ({ assetType }: { assetType?: TAssetType }): ReactElement => {
+const Receive = ({ asset }: { asset?: string }): ReactElement => {
 	const header = useMemo(
-		(): string => (assetType ? `Receive ${capitalize(assetType)}` : 'Receive'),
-		[assetType],
+		(): string => (asset ? `Receive ${capitalize(asset)}` : 'Receive'),
+		[asset],
 	);
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,

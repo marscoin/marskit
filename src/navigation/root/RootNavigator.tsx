@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -26,6 +26,8 @@ import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
+import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
+import ReceiveBottomSheet from '../../screens/Wallets/Receive/ReceiveBottomSheet';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,53 +49,62 @@ const RootNavigator = (): ReactElement => {
 		[hasBiometrics, hasPin],
 	);
 
+	const AuthCheckComponent = useCallback(({ navigation }): ReactElement => {
+		return (
+			<AuthCheck
+				onSuccess={(): void => {
+					navigation.replace('Drawer');
+				}}
+			/>
+		);
+	}, []);
+
+	const StartPinComponent = useCallback(
+		({ navigation }): ReactElement => {
+			return (
+				<PinPad
+					onSuccess={(): void => {
+						if (hasBiometrics) {
+							navigation.navigate('Biometrics');
+						} else {
+							navigation.replace('Drawer');
+						}
+					}}
+					pinSetup={false}
+					displayBackButton={false}
+				/>
+			);
+		},
+		[hasBiometrics],
+	);
+
+	const BiometricsComponent = useCallback(({ navigation }): ReactElement => {
+		return (
+			<Biometrics
+				onSuccess={(): void => {
+					navigation.replace('Drawer');
+				}}
+			/>
+		);
+	}, []);
+
 	return (
 		<NavigationContainer>
 			<Stack.Navigator
 				screenOptions={navOptions}
 				initialRouteName={initialRouteName}>
 				<Stack.Group screenOptions={navOptions}>
-					<Stack.Screen name="RootAuthCheck">
-						{({ navigation }): ReactElement => (
-							<AuthCheck
-								onSuccess={(): void => {
-									navigation.replace('Drawer');
-								}}
-							/>
-						)}
-					</Stack.Screen>
+					<Stack.Screen name="RootAuthCheck" component={AuthCheckComponent} />
 					<Stack.Screen name="Drawer" component={DrawerNavigator} />
 					<Stack.Screen name="TempSettings" component={TempSettings} />
-					<Stack.Screen name="StartPin">
-						{({ navigation }): ReactElement => (
-							<PinPad
-								onSuccess={(): void => {
-									if (hasBiometrics) {
-										navigation.navigate('Biometrics');
-									} else {
-										navigation.replace('Drawer');
-									}
-								}}
-								pinSetup={false}
-								displayBackButton={false}
-							/>
-						)}
-					</Stack.Screen>
+					<Stack.Screen name="StartPin" component={StartPinComponent} />
 					<Stack.Screen name="Pin" component={PinPad} />
 					<Stack.Screen
 						name="ExchangeRateSettings"
 						component={ExchangeRateSettings}
 					/>
 					<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
-					<Stack.Screen name="Biometrics">
-						{({ navigation }): ReactElement => (
-							<Biometrics
-								onSuccess={(): void => {
-									navigation.replace('Drawer');
-								}}
-							/>
-						)}
-					</Stack.Screen>
+					<Stack.Screen name="Biometrics" component={BiometricsComponent} />
 					<Stack.Screen
 						name="CoinSelectPreference"
 						component={CoinSelectPreference}
@@ -126,6 +137,8 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 				</Stack.Group>
 			</Stack.Navigator>
+			<SendBottomSheet />
+			<ReceiveBottomSheet />
 		</NavigationContainer>
 	);
 };

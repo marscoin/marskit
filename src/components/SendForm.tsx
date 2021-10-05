@@ -5,8 +5,13 @@ import React, {
 	useEffect,
 	useMemo,
 } from 'react';
-import { Platform, StyleSheet } from 'react-native';
-import { TextInput, View } from '../styles/components';
+import { StyleSheet } from 'react-native';
+import {
+	Text02M,
+	TextInput,
+	TouchableOpacity,
+	View,
+} from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
 import AdjustValue from './AdjustValue';
 import { useSelector } from 'react-redux';
@@ -24,8 +29,11 @@ import {
 	updateAmount,
 	updateMessage,
 } from '../utils/wallet/transactions';
-import Button from './Button';
 import { useBalance, useTransactionDetails } from '../hooks/transaction';
+import Card from './Card';
+import { pasteIcon } from '../assets/icons/wallet';
+import { SvgXml } from 'react-native-svg';
+import colors from '../styles/colors';
 
 const SendForm = ({
 	index = 0,
@@ -190,81 +198,118 @@ const SendForm = ({
 
 	return (
 		<View color="transparent" style={styles.container}>
-			<TextInput
-				multiline={true}
-				textAlignVertical={'center'}
-				underlineColorAndroid="transparent"
-				style={styles.multilineTextInput}
-				placeholder="Address"
-				autoCapitalize="none"
-				autoCompleteType="off"
-				autoCorrect={false}
-				onChangeText={(txt): void => {
-					updateOnChainTransaction({
-						selectedWallet,
-						selectedNetwork,
-						transaction: {
-							outputs: [{ address: txt, value, index }],
-						},
-					}).then();
-				}}
-				value={address}
-				onSubmitEditing={(): void => {}}
-			/>
-			<View color={'transparent'} style={styles.row}>
-				<View style={styles.amountContainer}>
-					<TextInput
-						editable={!max}
-						underlineColorAndroid="transparent"
-						style={[
-							styles.textInput,
-							// eslint-disable-next-line react-native/no-inline-styles
-							{ backgroundColor: max ? '#E1E1E4' : 'white' },
-						]}
-						placeholder="Amount (sats)"
-						keyboardType="number-pad"
-						autoCapitalize="none"
-						autoCompleteType="off"
-						autoCorrect={false}
-						onChangeText={(txt): void => {
-							updateAmount({
-								amount: txt,
-								selectedWallet,
-								selectedNetwork,
-								index,
-							});
-						}}
-						value={Number(value) ? value.toString() : ''}
-						onSubmitEditing={(): void => {}}
-					/>
-				</View>
-				<Button
-					color={max ? 'surface' : 'onSurface'}
-					text="Max"
-					disabled={balance <= 0}
-					onPress={sendMax}
-				/>
-			</View>
+			<Card style={styles.card} color={'gray336'}>
+				<>
+					<View style={styles.col1}>
+						<View color="transparent" style={styles.titleContainer}>
+							<Text02M>To</Text02M>
+							<TextInput
+								style={styles.textInput}
+								multiline={true}
+								textAlignVertical={'center'}
+								underlineColorAndroid="transparent"
+								placeholder="Address"
+								placeholderTextColor={colors.gray2}
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								onChangeText={(txt): void => {
+									updateOnChainTransaction({
+										selectedWallet,
+										selectedNetwork,
+										transaction: {
+											outputs: [{ address: txt, value, index }],
+										},
+									}).then();
+								}}
+								value={address}
+								onSubmitEditing={(): void => {}}
+							/>
+						</View>
+					</View>
+
+					<View color="transparent" style={styles.col2}>
+						<SvgXml xml={pasteIcon()} width={20} height={20} />
+					</View>
+				</>
+			</Card>
+
+			<Card style={styles.card} color={'gray336'}>
+				<>
+					<View style={styles.col1}>
+						<View color="transparent" style={styles.titleContainer}>
+							<Text02M>Amount</Text02M>
+							<TextInput
+								style={styles.textInput}
+								multiline={true}
+								textAlignVertical={'center'}
+								underlineColorAndroid="transparent"
+								placeholderTextColor={colors.gray2}
+								editable={!max}
+								placeholder="Amount (sats)"
+								keyboardType="number-pad"
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								onChangeText={(txt): void => {
+									updateAmount({
+										amount: txt,
+										selectedWallet,
+										selectedNetwork,
+										index,
+									});
+								}}
+								value={Number(value) ? value.toString() : ''}
+								onSubmitEditing={(): void => {}}
+							/>
+						</View>
+					</View>
+
+					<View color="transparent" style={styles.col2}>
+						<TouchableOpacity
+							style={styles.button}
+							color={max ? 'surface' : 'onSurface'}
+							text="Max"
+							disabled={balance <= 0}
+							onPress={sendMax}>
+							<Text02M>Max</Text02M>
+						</TouchableOpacity>
+					</View>
+				</>
+			</Card>
+
 			{!!displayMessage && (
-				<TextInput
-					multiline
-					underlineColorAndroid="transparent"
-					style={styles.multilineTextInput}
-					placeholder="Message (OP_RETURN)"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						updateMessage({
-							message: txt,
-							selectedWallet,
-							selectedNetwork,
-							index,
-						});
-					}}
-					value={message}
-					onSubmitEditing={(): void => {}}
-				/>
+				<Card style={styles.card} color={'gray336'}>
+					<>
+						<View style={styles.col1}>
+							<View color="transparent" style={styles.titleContainer}>
+								<Text02M>Add Note</Text02M>
+								<TextInput
+									style={styles.textInput}
+									textAlignVertical={'center'}
+									placeholderTextColor={colors.gray2}
+									editable={!max}
+									multiline
+									underlineColorAndroid="transparent"
+									placeholder="Message (OP_RETURN)"
+									autoCapitalize="none"
+									autoCompleteType="off"
+									autoCorrect={false}
+									onChangeText={(txt): void => {
+										updateMessage({
+											message: txt,
+											selectedWallet,
+											selectedNetwork,
+											index,
+										});
+									}}
+									value={message}
+									onSubmitEditing={(): void => {}}
+								/>
+							</View>
+						</View>
+					</>
+				</Card>
 			)}
 
 			{!!displayFee && (
@@ -283,37 +328,37 @@ const styles = StyleSheet.create({
 		flex: 0,
 	},
 	textInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
+		backgroundColor: 'transparent',
 	},
-	multilineTextInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-		paddingTop: Platform.OS === 'ios' ? 15 : 10,
-	},
-	row: {
+	card: {
+		height: 58,
+		marginBottom: 8,
+		borderRadius: 20,
+		paddingHorizontal: 16,
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		flexDirection: 'row',
 	},
-	amountContainer: {
+	col1: {
 		flex: 1,
+		alignItems: 'center',
+		flexDirection: 'row',
+		backgroundColor: 'transparent',
+	},
+	col2: {
+		alignContent: 'flex-end',
+		right: 4,
+		backgroundColor: 'transparent',
+	},
+	titleContainer: {
+		flex: 1,
+		marginHorizontal: 12,
+	},
+	button: {
+		paddingVertical: 2,
+		paddingHorizontal: 5,
+		borderRadius: 20,
+		right: -7,
 	},
 });
 

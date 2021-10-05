@@ -69,7 +69,7 @@ const dark: ITheme = {
 		background: '#121212',
 		surface: '#333333',
 		onBackground: '#FFFFFF',
-		onSurface: '#5C5C5C',
+		onSurface: colors.gray6,
 		logText: '#16ff00',
 		refreshControl: '#FFFFFF',
 		tabBackground: '#1C1C1F',

@@ -22,7 +22,7 @@ const AssetCard = ({
 	onPress: Function;
 }): ReactElement => {
 	return (
-		<Pressable style={styles.container} onPress={onPress} color="gray6">
+		<Pressable style={styles.container} onPress={onPress} color="onSurface">
 			<View color="transparent" style={styles.col1}>
 				{icon}
 				<View color="transparent" style={styles.titleContainer}>

@@ -1,4 +1,9 @@
-import React, { memo, PropsWithChildren, ReactElement, useRef } from 'react';
+import React, {
+	memo,
+	PropsWithChildren,
+	ReactElement,
+	useCallback,
+} from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
@@ -19,10 +24,8 @@ import BitcoinBreakdown from './BitcoinBreakdown';
 import Button from '../../../components/Button';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { EActivityTypes } from '../../../store/types/activity';
-import Send from '../Send';
-import Receive from '../Receive';
 import { TAssetType } from '../../../store/types/wallet';
-import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
+import { toggleView } from '../../../store/actions/user';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -67,8 +70,19 @@ const WalletsDetail = (props: Props): ReactElement => {
 		}
 	}
 
-	const sendRef = useRef(null);
-	const receiveRef = useRef(null);
+	const onSendPress = useCallback(() => {
+		toggleView({
+			view: 'send',
+			data: { isOpen: true, snapPoint: 0, id: 'bitcoin' },
+		}).then();
+	}, []);
+
+	const onReceivePress = useCallback(() => {
+		toggleView({
+			view: 'receive',
+			data: { isOpen: true, snapPoint: 1, id: 'bitcoin' },
+		}).then();
+	}, []);
 
 	return (
 		<View style={styles.container}>
@@ -115,7 +129,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 						icon={<SendIcon color={'gray1'} />}
 						text={'Send'}
 						//@ts-ignore
-						onPress={(): void => sendRef.current.expand()}
+						onPress={onSendPress}
 					/>
 					<Button
 						color={'surface'}
@@ -123,19 +137,10 @@ const WalletsDetail = (props: Props): ReactElement => {
 						icon={<ReceiveIcon color={'gray1'} />}
 						text={'Receive'}
 						//@ts-ignore
-						onPress={(): void => receiveRef.current.snapToIndex(1)}
+						onPress={onReceivePress}
 					/>
 				</View>
 			</View>
-
-			<BottomSheetWrapper ref={sendRef}>
-				<Send assetType={assetType} />
-			</BottomSheetWrapper>
-
-			<BottomSheetWrapper ref={receiveRef} snapPoints={['55%']}>
-				<Receive assetType={assetType} />
-			</BottomSheetWrapper>
-
 			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
 		</View>
 	);

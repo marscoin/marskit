@@ -37,6 +37,8 @@ import FeeSummary from './FeeSummary';
 import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 import UTXOList from './UTXOList';
+import BalanceToggle from '../../../components/BalanceToggle';
+import AssetPicker from '../../../components/AssetPicker';
 
 interface ISendOnChainTransaction {
 	header?: boolean;
@@ -240,28 +242,28 @@ const SendOnChainTransaction = ({
 	return (
 		<View style={styles.container}>
 			{header && <NavigationHeader title="Send Transaction" />}
-			<View color={'transparent'} style={styles.amountAvailable}>
-				<Text>Amount Available: {txInputValue}</Text>
+			<BalanceToggle sats={txInputValue} />
+			<View style={styles.content}>
+				<AssetPicker />
+				<SendForm />
+				<Button
+					color={'onSurface'}
+					text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
+						utxos?.length ?? '0'
+					})`}
+					onPress={(): void => setDisplayUtxoList(true)}
+				/>
+				<UTXOList
+					isVisible={displayUtxoList}
+					closeList={(): void => setDisplayUtxoList(false)}
+				/>
+				<Button
+					disabled={balance < transactionTotal}
+					color="onSurface"
+					text="Create"
+					onPress={_createTransaction}
+				/>
 			</View>
-			<SendForm />
-			<Button
-				color={'onSurface'}
-				text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
-					utxos?.length ?? '0'
-				})`}
-				onPress={(): void => setDisplayUtxoList(true)}
-			/>
-			<UTXOList
-				isVisible={displayUtxoList}
-				closeList={(): void => setDisplayUtxoList(false)}
-			/>
-			<FeeSummary />
-			<Button
-				disabled={balance < transactionTotal}
-				color="onSurface"
-				text="Create"
-				onPress={_createTransaction}
-			/>
 		</View>
 	);
 };
@@ -269,8 +271,11 @@ const SendOnChainTransaction = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginVertical: 20,
+		marginBottom: 20,
 		justifyContent: 'space-evenly',
+	},
+	content: {
+		marginHorizontal: 10,
 	},
 	title: {
 		...systemWeights.bold,
@@ -287,9 +292,6 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		alignSelf: 'center',
 		paddingVertical: 5,
-	},
-	amountAvailable: {
-		alignItems: 'center',
 	},
 });
 

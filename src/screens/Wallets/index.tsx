@@ -19,7 +19,6 @@ import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
 import BoostCards from './BoostCards';
-import ActivityList from '../Activity/ActivityList';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import { useBalance } from '../../hooks/wallet';
@@ -78,7 +77,6 @@ const Wallets = ({ navigation }): ReactElement => {
 						<Subtitle style={styles.assetsTitle}>OLD Assets</Subtitle>
 						<LightningCard />
 						<OmniboltCard />
-						<ActivityList />
 					</View>
 				</DetectSwipe>
 			</ScrollView>
