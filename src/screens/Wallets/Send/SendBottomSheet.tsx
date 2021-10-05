@@ -15,8 +15,8 @@ const SendBottomSheet = (): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
-	const assetType = useSelector(
-		(state: Store) => state.user.viewController.send.id,
+	const assetName = useSelector(
+		(state: Store) => state.user.viewController.send.assetName ?? '',
 	);
 
 	const onClose = useCallback(() => {
@@ -28,7 +28,7 @@ const SendBottomSheet = (): ReactElement => {
 			view="send"
 			onOpen={setupOnChainTransaction}
 			onClose={onClose}>
-			<Send asset={assetType} />
+			<Send asset={assetName} />
 		</BottomSheetWrapper>
 	);
 };
