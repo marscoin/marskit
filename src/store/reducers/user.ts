@@ -17,8 +17,9 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 					...state.viewController,
 					[action.payload.view]: {
 						isOpen: action.payload.data.isOpen,
-						snapPoint: action?.payload?.data?.snapPoint,
-						id: action.payload.data.id,
+						snapPoint: action?.payload.data?.snapPoint,
+						assetNetwork: action.payload.data?.assetNetwork,
+						assetName: action.payload.data?.assetName,
 					},
 				},
 			};
