@@ -1,3 +1,5 @@
+import { TAssetNetwork } from './wallet';
+
 export type TViewController = 'send' | 'receive';
 
 export type TUserViewController = {
@@ -10,9 +12,10 @@ export interface IUserViewController {
 }
 
 export interface IViewControllerData {
-	id: string;
 	isOpen: boolean;
-	snapPoint: number;
+	assetNetwork?: TAssetNetwork;
+	assetName?: string;
+	snapPoint?: number;
 }
 
 export interface IUser {
