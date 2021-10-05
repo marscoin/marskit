@@ -73,14 +73,22 @@ const WalletsDetail = (props: Props): ReactElement => {
 	const onSendPress = useCallback(() => {
 		toggleView({
 			view: 'send',
-			data: { isOpen: true, snapPoint: 0, id: 'bitcoin' },
+			data: {
+				isOpen: true,
+				snapPoint: 0,
+				assetName: 'bitcoin',
+			},
 		}).then();
 	}, []);
 
 	const onReceivePress = useCallback(() => {
 		toggleView({
 			view: 'receive',
-			data: { isOpen: true, snapPoint: 1, id: 'bitcoin' },
+			data: {
+				isOpen: true,
+				snapPoint: 1,
+				assetName: 'bitcoin',
+			},
 		}).then();
 	}, []);
 
