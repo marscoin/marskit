@@ -11,6 +11,7 @@ export type TKeyDerivationAccount = '0' | '2' | '3' | string; //"On-Chain Wallet
 export type TKeyDerivationChange = '0' | '1' | string; //"Receiving Address" | "Change Address";
 export type TKeyDerivationAddressIndex = string;
 export type TAssetType = 'bitcoin' | 'tether';
+export type TAssetNetwork = 'bitcoin' | 'lightning' | 'omnibolt';
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 

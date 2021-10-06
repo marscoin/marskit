@@ -13,11 +13,12 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { toggleView } from '../store/actions/user';
+import { TViewController } from '../store/types/user';
 
 const snapPoints = ['95%', '55%', 0];
 export interface IModalProps {
 	children: ReactElement;
-	view?: 'send' | 'receive';
+	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
 }
@@ -48,7 +49,7 @@ const BottomSheetWrapper = forwardRef(
 					}
 				}
 			} catch {}
-		}, [data?.id, data?.isOpen, data?.snapPoint, view]);
+		}, [data?.isOpen, data?.snapPoint, view]);
 
 		useImperativeHandle(ref, () => ({
 			snapToIndex(index: number = 0): void {
@@ -74,7 +75,7 @@ const BottomSheetWrapper = forwardRef(
 			if (view) {
 				toggleView({
 					view,
-					data: { isOpen: false, snapPoint: 2, id: '' },
+					data: { isOpen: false },
 				}).then();
 			}
 			onClose();

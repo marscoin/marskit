@@ -24,6 +24,7 @@ import {
 	IKeyDerivationPathData,
 	ETransactionDefaults,
 	IFormattedTransactionContent,
+	TAssetNetwork,
 } from '../../store/types/wallet';
 import { err, ok, Result } from '../result';
 import {
@@ -2292,5 +2293,21 @@ export const getReceiveAddress = ({
 		return ok(receiveAddress);
 	} catch (e) {
 		return err(e);
+	}
+};
+
+/**
+ * Determines the asset network based on the provided asset name.
+ * @param {string} assetName
+ * @return {TAssetNetwork}
+ */
+export const getAssetNetwork = (assetName: string): TAssetNetwork => {
+	switch (assetName) {
+		case 'bitcoin':
+			return 'bitcoin';
+		case 'lightning':
+			return 'lightning';
+		default:
+			return 'omnibolt';
 	}
 };
