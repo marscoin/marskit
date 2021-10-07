@@ -8,13 +8,13 @@ import {
 	Text01M,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const Header = (): ReactElement => {
-	const navigation = useNavigation<DrawerNavigationProp<any>>();
+	const navigation = useNavigation();
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const openScanner = useCallback(() => navigation.navigate('Scanner'), []);
+	const openSettings = useCallback(() => navigation.navigate('Settings'), []);
 
 	return (
 		<View style={styles.container}>
@@ -22,7 +22,7 @@ const Header = (): ReactElement => {
 				<TouchableOpacity
 					style={styles.leftIcon}
 					activeOpacity={1}
-					onPress={navigation.openDrawer}>
+					onPress={openSettings}>
 					<SettingsIcon />
 				</TouchableOpacity>
 			</View>

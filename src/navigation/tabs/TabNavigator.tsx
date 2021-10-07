@@ -197,35 +197,33 @@ const TabNavigator = (): ReactElement => {
 	);
 
 	return (
-		<>
-			<Tab.Navigator>
-				{/*@ts-ignore*/}
-				<Tab.Group screenOptions={tabScreenOptions}>
-					<Tab.Screen
-						name={'WalletsStack'}
-						component={WalletsStack}
-						options={walletOptions}
-					/>
-					<Tab.Screen
-						name={'Send'}
-						component={View}
-						options={sendOptions}
-						listeners={sendListeners}
-					/>
-					<Tab.Screen
-						name={'Receive'}
-						component={View}
-						options={receiveOptions}
-						listeners={receiveListeners}
-					/>
-					<Tab.Screen
-						name={'ProfileStack'}
-						component={ProfileStack}
-						options={profileOptions}
-					/>
-				</Tab.Group>
-			</Tab.Navigator>
-		</>
+		<Tab.Navigator>
+			{/*@ts-ignore*/}
+			<Tab.Group screenOptions={tabScreenOptions}>
+				<Tab.Screen
+					name={'WalletsStack'}
+					component={WalletsStack}
+					options={walletOptions}
+				/>
+				<Tab.Screen
+					name={'Send'}
+					component={View}
+					options={sendOptions}
+					listeners={sendListeners}
+				/>
+				<Tab.Screen
+					name={'Receive'}
+					component={View}
+					options={receiveOptions}
+					listeners={receiveListeners}
+				/>
+				<Tab.Screen
+					name={'ProfileStack'}
+					component={ProfileStack}
+					options={profileOptions}
+				/>
+			</Tab.Group>
+		</Tab.Navigator>
 	);
 };
 
