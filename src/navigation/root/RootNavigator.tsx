@@ -95,7 +95,6 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Scanner" component={ScannerScreen} />
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 				</Stack.Group>
-
 				<Stack.Group screenOptions={{ ...navOptions, presentation: 'modal' }}>
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
 				</Stack.Group>

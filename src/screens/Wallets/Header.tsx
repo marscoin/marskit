@@ -12,9 +12,14 @@ import { useNavigation } from '@react-navigation/native';
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const openScanner = useCallback(() => navigation.navigate('Scanner'), []);
-	const openSettings = useCallback(() => navigation.navigate('Settings'), []);
+	const openScanner = useCallback(
+		() => navigation.navigate('Scanner'),
+		[navigation],
+	);
+	const openSettings = useCallback(
+		() => navigation.navigate('Settings'),
+		[navigation],
+	);
 
 	return (
 		<View style={styles.container}>

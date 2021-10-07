@@ -135,7 +135,7 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 				return null;
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
-			stickySectionHeadersEnabled={true}
+			stickySectionHeadersEnabled={false}
 		/>
 	);
 };

@@ -38,7 +38,10 @@ const NavigationHeader = ({
 	isHome?: boolean;
 }): ReactElement => {
 	const navigation = useNavigation();
-	const openSettings = useCallback(() => navigation.navigate('Settings'), []);
+	const openSettings = useCallback(
+		() => navigation.navigate('Settings'),
+		[navigation],
+	);
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>

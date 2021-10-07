@@ -1,13 +1,6 @@
-import React, {
-	memo,
-	ReactElement,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
 import { Alert, Linking, Platform, StyleSheet } from 'react-native';
-import { Feather, Text, Title, View } from '../../styles/components';
+import { Title, View } from '../../styles/components';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -30,12 +23,10 @@ import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
-import SafeAreaView from '../../components/SafeAreaView';
 import { capitalize } from '../../utils/helpers';
-import Clipboard from '@react-native-community/clipboard';
 import { Result } from '../../utils/result';
 
-const Settings = ({ navigation }): ReactElement => {
+const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
@@ -446,4 +437,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(Settings);
+export default memo(SettingsMenu);
