@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import {
@@ -8,7 +8,6 @@ import {
 	TouchableOpacity,
 	Text,
 } from '../styles/components';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const BackButton = ({
 	onPress = (): null => null,
@@ -38,7 +37,8 @@ const NavigationHeader = ({
 	title?: string;
 	isHome?: boolean;
 }): ReactElement => {
-	const navigation = useNavigation<DrawerNavigationProp<any>>();
+	const navigation = useNavigation();
+	const openSettings = useCallback(() => navigation.navigate('Settings'), []);
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
@@ -51,7 +51,7 @@ const NavigationHeader = ({
 				{isHome && (
 					<Feather
 						style={styles.rightIcon}
-						onPress={navigation.openDrawer}
+						onPress={openSettings}
 						name="menu"
 						size={30}
 					/>
