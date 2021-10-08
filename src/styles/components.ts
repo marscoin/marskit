@@ -18,6 +18,7 @@ import {
 	sentIcon,
 	transferIcon,
 } from '../assets/icons/wallet';
+import { chevronRightIcon } from '../assets/icons/settings';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -91,6 +92,14 @@ export const ReceiveIcon = styled(SvgXml).attrs((props) => ({
 	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
+}))``;
+
+export const ChevronRight = styled(SvgXml).attrs((props) => ({
+	xml: chevronRightIcon(
+		props?.color ? props.theme.colors[props.color] : 'white',
+	),
+	height: props?.height ?? '12px',
+	width: props?.width ?? '12px',
 }))``;
 
 export const Display = styled.Text`
@@ -212,6 +221,17 @@ export const Caption13S = styled.Text`
 		props.font
 			? props.theme.fonts[props.font].fontFamily
 			: sanFranciscoWeights.regular.fontFamily};
+	font-size: ${(props): string => (props.size ? props.size : '13px')};
+`;
+
+export const Caption13Up = styled.Text`
+	${sanFranciscoWeights.semibold};
+	color: ${(props): string =>
+		props.color ? props.theme.colors[props.color] : '#636366'};
+	font-family: ${(props): string =>
+		props.font
+			? props.theme.fonts[props.font].fontFamily
+			: sanFranciscoWeights.semibold.fontFamily};
 	font-size: ${(props): string => (props.size ? props.size : '13px')};
 `;
 

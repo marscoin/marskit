@@ -1,13 +1,6 @@
-import React, {
-	memo,
-	ReactElement,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import { Linking, Platform, StyleSheet } from 'react-native';
-import { Feather, Text, TouchableOpacity } from '../../styles/components';
+import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
+import { Alert, Linking, Platform, StyleSheet } from 'react-native';
+import { Title, View } from '../../styles/components';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -30,9 +23,10 @@ import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
-import SafeAreaView from '../../components/SafeAreaView';
+import { capitalize } from '../../utils/helpers';
+import { Result } from '../../utils/result';
 
-const Settings = ({ navigation }): ReactElement => {
+const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
@@ -56,12 +50,24 @@ const Settings = ({ navigation }): ReactElement => {
 		})();
 	}, []);
 
-	const updateTheme = useCallback((): void => {
-		try {
-			const theme = settingsTheme === 'dark' ? 'light' : 'dark';
-			updateSettings({ theme });
-		} catch {}
-	}, [settingsTheme]);
+	//TODO remove once settings bottom slider is ready
+	const updateTheme = (): void => {
+		Alert.alert('Theme', '', [
+			{
+				text: 'Dark',
+				onPress: (): Result<string> => updateSettings({ theme: 'dark' }),
+			},
+			{
+				text: 'Light',
+				onPress: (): Result<string> => updateSettings({ theme: 'light' }),
+			},
+			{
+				text: 'Cancel',
+				onPress: (): void => {},
+				style: 'cancel',
+			},
+		]);
+	};
 
 	const hasPin = useSelector((state: Store) => state.settings.pin);
 	const hasBiometrics = useSelector(
@@ -71,19 +77,30 @@ const Settings = ({ navigation }): ReactElement => {
 	const SettingsListData: IListData[] = useMemo(
 		() => [
 			{
-				title: 'Settings',
+				title: 'General',
 				data: [
 					{
-						title: 'Dark Mode',
-						type: 'switch',
-						enabled: settingsTheme === 'dark',
+						title: 'Theme',
+						value: capitalize(settingsTheme),
+						type: 'button',
 						onPress: updateTheme,
 						hide: false,
 					},
 					{
+						title: 'Fiat Currency Selection',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ExchangeRateSettings'),
+						hide: false,
+					},
+				],
+			},
+			{
+				title: 'Security',
+				data: [
+					{
 						title: 'Pin',
-						type: 'switch',
-						enabled: hasPin,
+						value: hasPin ? 'Enabled' : 'Disabled',
+						type: 'button',
 						onPress: (): void => {
 							if (hasPin) {
 								removePin().then();
@@ -106,11 +123,43 @@ const Settings = ({ navigation }): ReactElement => {
 						hide: !biometryData?.available && !biometryData?.biometryType,
 					},
 					{
-						title: 'Fiat Currency Selection',
+						title: 'App Permissions',
 						type: 'button',
-						onPress: (): void => navigation.navigate('ExchangeRateSettings'),
+						onPress: (): void => {
+							if (Platform.OS === 'ios') {
+								Linking.openURL('App-Prefs:Privacy');
+							} else {
+								Linking.openSettings();
+							}
+						},
 						hide: false,
 					},
+				],
+			},
+			{
+				title: 'Backups',
+				data: [
+					{
+						title: 'Remote backup',
+						value: `${remoteBackupSynced ? 'Synced' : 'Not synced'}`,
+						type: 'button',
+						onPress: (): void => navigation.navigate('BackupSettings'),
+						enabled: true,
+						hide: false,
+					},
+
+					{
+						title: 'Export Backups',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ExportBackups'),
+						enabled: true,
+						hide: false,
+					},
+				],
+			},
+			{
+				title: 'Advanced',
+				data: [
 					{
 						title: 'Coin-Select Preference',
 						type: 'button',
@@ -124,53 +173,9 @@ const Settings = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Security',
-						type: 'button',
-						onPress: (): void => navigation.navigate('TempSettings'),
-						hide: false,
-					},
-					{
-						title: 'Two-Factor Authentication',
-						type: 'button',
-						onPress: (): void => navigation.navigate('TempSettings'),
-						hide: false,
-					},
-					{
-						title: 'App Permissions',
-						type: 'button',
-						onPress: (): void => {
-							if (Platform.OS === 'ios') {
-								Linking.openURL('App-Prefs:Privacy');
-							} else {
-								Linking.openSettings();
-							}
-						},
-						hide: false,
-					},
-					{
 						title: 'Electrum Config',
 						type: 'button',
 						onPress: (): void => navigation.navigate('ElectrumConfig'),
-						hide: false,
-					},
-				],
-			},
-			{
-				title: 'Backup',
-				data: [
-					{
-						title: `${remoteBackupSynced ? 'Synced ✅' : 'Requires backup ❌'}`,
-						type: 'button',
-						onPress: (): void => navigation.navigate('BackupSettings'),
-						enabled: true,
-						hide: false,
-					},
-
-					{
-						title: 'Export Backups',
-						type: 'button',
-						onPress: (): void => navigation.navigate('ExportBackups'),
-						enabled: true,
 						hide: false,
 					},
 				],
@@ -418,29 +423,18 @@ const Settings = ({ navigation }): ReactElement => {
 	);
 
 	return (
-		<SafeAreaView>
-			<TouchableOpacity
-				activeOpacity={0.7}
-				onPress={navigation.goBack}
-				style={styles.row}>
-				<Feather style={{}} name="arrow-left" size={30} />
-				<Text style={styles.backText}>Settings</Text>
-			</TouchableOpacity>
+		<View style={styles.container} color={'onSurface'}>
+			<Title>Settings</Title>
 			<List data={SettingsListData} />
-		</SafeAreaView>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	row: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingLeft: 10,
-		paddingVertical: 8,
-	},
-	backText: {
-		fontSize: 20,
+	container: {
+		padding: 16,
+		flex: 1,
 	},
 });
 
-export default memo(Settings);
+export default memo(SettingsMenu);
