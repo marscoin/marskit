@@ -185,7 +185,7 @@ const TabNavigator = (): ReactElement => {
 	);
 
 	const onSendPress = useCallback((event) => {
-		const snapPoint = 0;
+		const snapPoint = 1;
 		toggleView({
 			view: 'sendAssetPicker',
 			data: {
