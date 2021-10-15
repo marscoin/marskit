@@ -5,6 +5,8 @@ import {
 	Text,
 	AnimatedView,
 	TouchableOpacity,
+	Feather,
+	AntDesign,
 } from '../styles/components';
 import QRCode from 'react-native-qrcode-svg';
 import Animated, { Easing } from 'react-native-reanimated';
@@ -135,9 +137,9 @@ const QR = ({
 			<AnimatedView style={[styles.container, { opacity }]}>
 				<View color={header ? 'background' : 'surface'} style={styles.content}>
 					<TouchableOpacity
+						color="text"
 						activeOpacity={1}
 						onPress={onCopyPress}
-						color="onSurface"
 						style={styles.qrCode}>
 						{!!data && <QRCode value={data} size={200} />}
 					</TouchableOpacity>
@@ -148,7 +150,7 @@ const QR = ({
 							<AnimatedView
 								color="transparent"
 								style={[styles.copiedContainer, { opacity: textOpacity }]}>
-								<View color={'background'} style={styles.copySuccessContainer}>
+								<View color={'onSurface'} style={styles.copySuccessContainer}>
 									<View color="transparent" style={styles.copied}>
 										<Text style={styles.copiedText}>{onCopySuccessText}</Text>
 									</View>
@@ -158,16 +160,18 @@ const QR = ({
 					)}
 					<View style={styles.row}>
 						<Button
+							icon={<Feather name={'copy'} size={18} color="text" />}
 							color={header ? 'onSurface' : 'background'}
-							text="Share"
-							onPress={onSharePress}
+							text="Copy"
+							onPress={onCopyPress}
 							disabled={!data || disabled}
 						/>
 						<View style={styles.buttonSpacer} />
 						<Button
+							icon={<AntDesign name={'arrowup'} size={20} color="text" />}
 							color={header ? 'onSurface' : 'background'}
-							text="Copy"
-							onPress={onCopyPress}
+							text="Share"
+							onPress={onSharePress}
 							disabled={!data || disabled}
 						/>
 					</View>
@@ -179,7 +183,6 @@ const QR = ({
 
 const styles = StyleSheet.create({
 	container: {
-		marginVertical: 20,
 		backgroundColor: 'transparent',
 	},
 	content: {
@@ -187,7 +190,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	qrCode: {
-		padding: 12,
+		padding: 10,
 		borderRadius: 15,
 	},
 
@@ -196,6 +199,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: 10,
+		marginVertical: 20,
 	},
 	text: {
 		...systemWeights.semibold,
@@ -225,7 +229,6 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	row: {
-		marginTop: 5,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',

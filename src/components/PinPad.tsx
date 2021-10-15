@@ -389,7 +389,7 @@ const PinPad = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingVertical: 40,
+		paddingBottom: 40,
 		zIndex: 300,
 	},
 	centerItems: {
