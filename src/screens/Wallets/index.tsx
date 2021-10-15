@@ -6,12 +6,7 @@
 import React, { memo, ReactElement } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-	View,
-	Subtitle,
-	BitcoinCircleIcon,
-	TetherCircleIcon,
-} from '../../styles/components';
+import { View, Subtitle, BitcoinCircleIcon } from '../../styles/components';
 import Header from './Header';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
@@ -32,7 +27,6 @@ const Wallets = ({ navigation }): ReactElement => {
 	};
 
 	const bitcoinBalances = useBalance({ onchain: true, lightning: true });
-	const tetherBalances = useBalance({ tether: true });
 
 	return (
 		<SafeAreaView>
@@ -60,16 +54,6 @@ const Wallets = ({ navigation }): ReactElement => {
 							icon={<BitcoinCircleIcon />}
 							onPress={(): void =>
 								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
-							}
-						/>
-
-						<AssetCard
-							name={'Tether'}
-							ticker={'USDT'}
-							icon={<TetherCircleIcon />}
-							balances={tetherBalances}
-							onPress={(): void =>
-								navigation.navigate('WalletsDetail', { assetType: 'tether' })
 							}
 						/>
 
