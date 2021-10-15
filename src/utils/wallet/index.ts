@@ -1,6 +1,7 @@
 import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import {
+	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
 } from '../../store/shapes/wallet';
@@ -70,6 +71,10 @@ import {
 	subscribeToHeader,
 	TTxResult,
 } from './electrum';
+import { getDisplayValues, IDisplayValues } from '../exchange-rate';
+import { IncludeBalances } from '../../hooks/wallet';
+import { BitcoinCircleIcon, LightningIcon } from '../../styles/components';
+import { ReactElement } from 'react';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -2298,16 +2303,113 @@ export const getReceiveAddress = ({
 
 /**
  * Determines the asset network based on the provided asset name.
- * @param {string} assetName
+ * @param {string} asset
  * @return {TAssetNetwork}
  */
-export const getAssetNetwork = (assetName: string): TAssetNetwork => {
-	switch (assetName) {
+export const getAssetNetwork = (asset: string): TAssetNetwork => {
+	switch (asset) {
 		case 'bitcoin':
 			return 'bitcoin';
 		case 'lightning':
 			return 'lightning';
 		default:
 			return 'omnibolt';
+	}
+};
+
+/**
+ * This method returns all available asset names (bitcoin, lightning, and any available omnibolt assets).
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {string[]>}
+ */
+export const getAssetNames = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const assetNames: string[] = assetNetworks.filter((a) => a !== 'omnibolt');
+	try {
+		// Grab available omni assets.
+		const omniboltAssetData = getStore().omnibolt.assetData;
+		const channels = Object.values(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		channels.map((channel) => {
+			if (channel.property_id in omniboltAssetData) {
+				assetNames.push(omniboltAssetData[channel.property_id].name);
+			}
+		});
+	} catch {}
+	return assetNames;
+};
+
+interface IGetBalanceProps extends IncludeBalances {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}
+/**
+ * Retrieves the total wallet display values for the currently selected wallet and network.
+ */
+export const getBalance = ({
+	onchain = false,
+	lightning = false,
+	omnibolt,
+	selectedWallet,
+	selectedNetwork,
+}: IGetBalanceProps): IDisplayValues => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	let balance = 0;
+
+	if (onchain) {
+		balance +=
+			getStore().wallet?.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
+	}
+
+	if (lightning) {
+		balance += Number(getStore().lightning.channelBalance.balance);
+	}
+
+	if (omnibolt) {
+		/*
+		TODO: We'll need to implement a method that resolves the usd->sat value
+		      of a given omni token before adding it to the balance.
+		 */
+		/*const channels = Object.keys(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		omnibolt.map((id) => {
+			if (id in channels) {
+				balance += channels[id].balance_a;
+			}
+		});*/
+	}
+
+	return getDisplayValues({ satoshis: balance });
+};
+
+export const getAssetIcon = (asset: TAssetNetwork | string): ReactElement => {
+	switch (asset) {
+		case 'bitcoin':
+			return BitcoinCircleIcon;
+		case 'lightning':
+			return LightningIcon;
+		case 'omnibolt':
+			return BitcoinCircleIcon;
+		default:
+			return BitcoinCircleIcon;
 	}
 };
