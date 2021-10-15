@@ -92,6 +92,12 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => navigation.navigate('CurrenciesSettings'),
 						hide: false,
 					},
+					{
+						title: 'Bitcoin',
+						type: 'button',
+						onPress: (): void => navigation.navigate('BitcoinSettings'),
+						hide: false,
+					},
 				],
 			},
 			{

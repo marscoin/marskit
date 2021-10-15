@@ -14,6 +14,7 @@ import LightningChannels from '../../screens/Settings/Lightning/LightningChannel
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
+import BitcoinSettings from '../../screens/Settings/Currencies/Bitcoin';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const SettingsNavigator = (): ReactElement => {
 					name="CurrenciesSettings"
 					component={CurrenciesSettings}
 				/>
+				<Stack.Screen name="BitcoinSettings" component={BitcoinSettings} />
 				<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
 				<Stack.Screen name="TempSettings" component={TempSettings} />
 

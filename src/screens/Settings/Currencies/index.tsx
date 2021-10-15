@@ -13,7 +13,7 @@ import {
 import { updateSettings } from '../../../store/actions/settings';
 import { updateExchangeRates } from '../../../store/actions/wallet';
 
-const Currencies = ({ navigation }): ReactElement => {
+const Currencies = (): ReactElement => {
 	const exchangeRateServicesKeys = Object.keys(EExchangeRateService).filter(
 		(key) => isNaN(Number(EExchangeRateService[key])),
 	);
@@ -87,7 +87,6 @@ const Currencies = ({ navigation }): ReactElement => {
 			selectedExchangeRateService,
 			onSetExchangeRateService,
 			exchangeRateServicesKeys,
-			navigation,
 		],
 	);
 
