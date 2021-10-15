@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	View,
 	ChevronRight,
+	Checkmark,
 } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import Card from './Card';
@@ -25,7 +26,7 @@ type TItemType = 'switch' | 'button';
 
 type ItemData = {
 	title: string;
-	value?: string;
+	value?: string | boolean;
 	type: TItemType;
 	onPress: Function;
 	enabled?: boolean;
@@ -50,6 +51,9 @@ const _Item = memo(
 		if (hide) {
 			return <View />;
 		}
+
+		const useCheckmark = value === true || value === false;
+
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
 			return (
@@ -85,10 +89,18 @@ const _Item = memo(
 						<Text01S color="white">{title}</Text01S>
 					</View>
 					<View color="transparent" style={styles.rightColumn}>
-						<Text01S color={'gray2'} style={styles.valueText}>
-							{value}
-						</Text01S>
-						<ChevronRight color={'gray2'} />
+						{useCheckmark ? (
+							value ? (
+								<Checkmark />
+							) : null
+						) : (
+							<>
+								<Text01S color={'gray2'} style={styles.valueText}>
+									{value}
+								</Text01S>
+								<ChevronRight color={'gray2'} />
+							</>
+						)}
 					</View>
 				</Card>
 			</TouchableOpacity>
@@ -98,6 +110,7 @@ const _Item = memo(
 const Item = memo(_Item, (prevProps, nextProps) => {
 	return (
 		prevProps.title === nextProps.title &&
+		prevProps.value === nextProps.value &&
 		prevProps.type === nextProps.type &&
 		prevProps.enabled === nextProps.enabled
 	);

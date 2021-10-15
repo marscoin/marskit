@@ -6,6 +6,7 @@ export interface IColors {
 	darkGray: string;
 	white: string;
 	green: string;
+	green2: string;
 	red: string;
 	brand: string;
 	blue: string;
@@ -39,6 +40,7 @@ const colors: IColors = {
 	// Accents
 	blue: '#0085FF',
 	green: '#75BF72',
+	green2: '#33CE59',
 	yellow: '#FFD200',
 	orange: '#ED8452',
 	red: '#E95164',

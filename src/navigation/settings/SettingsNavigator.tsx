@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import SettingsMenu from '../../screens/Settings';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
-import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
+import CurrenciesSettings from '../../screens/Settings/Currencies';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
@@ -32,8 +32,8 @@ const SettingsNavigator = (): ReactElement => {
 			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
 				<Stack.Screen
-					name="ExchangeRateSettings"
-					component={ExchangeRateSettings}
+					name="CurrenciesSettings"
+					component={CurrenciesSettings}
 				/>
 				<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
 				<Stack.Screen name="TempSettings" component={TempSettings} />

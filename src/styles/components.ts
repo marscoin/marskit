@@ -18,7 +18,11 @@ import {
 	sentIcon,
 	transferIcon,
 } from '../assets/icons/wallet';
-import { chevronRightIcon } from '../assets/icons/settings';
+import {
+	chevronRightIcon,
+	leftArrowIcon,
+	checkmarkIcon,
+} from '../assets/icons/settings';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -100,6 +104,18 @@ export const ChevronRight = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '12px',
 	width: props?.width ?? '12px',
+}))``;
+
+export const LeftArrow = styled(SvgXml).attrs((props) => ({
+	xml: leftArrowIcon(props?.color ? props.theme.colors[props.color] : 'gray2'),
+	height: props?.height ?? '16.04px',
+	width: props?.width ?? '20px',
+}))``;
+
+export const Checkmark = styled(SvgXml).attrs((props) => ({
+	xml: checkmarkIcon(props?.color ? props.theme.colors[props.color] : 'green2'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
 }))``;
 
 export const Display = styled.Text`

@@ -6,6 +6,7 @@ import {
 	View,
 	TouchableOpacity,
 	Title,
+	LeftArrow,
 } from '../styles/components';
 import colors from '../styles/colors';
 
@@ -20,11 +21,7 @@ const BackButton = ({
 				color={'transparent'}
 				onPress={onPress}
 				style={styles.backIconContainer}>
-				<MaterialIcons
-					style={styles.backIcon}
-					name="arrow-back-ios"
-					size={30}
-				/>
+				<LeftArrow />
 			</TouchableOpacity>
 		);
 	} catch {
@@ -53,9 +50,7 @@ const SettingsHeader = ({
 					<View style={styles.handle} />
 				</View>
 				<View color={backgroundColor} style={styles.bottomRow}>
-					<View color={backgroundColor} style={styles.backIconContainer}>
-						{showBackNavigation && <BackButton onPress={navigation.goBack} />}
-					</View>
+					{showBackNavigation && <BackButton onPress={navigation.goBack} />}
 					<View color={backgroundColor} style={styles.titleContainer}>
 						<Title>{title}</Title>
 					</View>
@@ -70,6 +65,8 @@ const styles = StyleSheet.create({
 		minHeight: 82,
 		paddingHorizontal: 16,
 		zIndex: 9999,
+		display: 'flex',
+		justifyContent: 'space-between',
 	},
 	containerShadow: {
 		shadowColor: colors.black,
@@ -89,8 +86,7 @@ const styles = StyleSheet.create({
 	bottomRow: {
 		display: 'flex',
 		flexDirection: 'row',
-		flex: 1,
-		alignItems: 'flex-end',
+		alignItems: 'center',
 		paddingBottom: 18,
 	},
 	handle: {
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
 		borderRadius: 32,
 		backgroundColor: '#3B3B3B',
 	},
-	backIconContainer: {},
+	backIconContainer: { marginRight: 18 },
 	backIcon: {},
 	titleContainer: {},
 });

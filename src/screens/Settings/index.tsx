@@ -87,9 +87,9 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Fiat Currency Selection',
+						title: 'Currencies',
 						type: 'button',
-						onPress: (): void => navigation.navigate('ExchangeRateSettings'),
+						onPress: (): void => navigation.navigate('CurrenciesSettings'),
 						hide: false,
 					},
 				],
