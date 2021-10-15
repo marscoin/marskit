@@ -8,7 +8,14 @@ import {
 	defaultOnChainTransactionData,
 	IKeyDerivationPath,
 	IAddressType,
+	TAssetNetwork,
 } from '../types/wallet';
+
+export const assetNetworks: TAssetNetwork[] = [
+	'bitcoin',
+	'lightning',
+	'omnibolt',
+];
 
 export const addressTypes: IAddressType = {
 	p2pkh: {
