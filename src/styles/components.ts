@@ -4,6 +4,7 @@ import _Feather from 'react-native-vector-icons/Feather';
 import _EvilIcon from 'react-native-vector-icons/EvilIcons';
 import _Ionicons from 'react-native-vector-icons/Ionicons';
 import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import _AntDesign from 'react-native-vector-icons/AntDesign';
 import Animated from 'react-native-reanimated';
 import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
@@ -21,6 +22,7 @@ import {
 import { chevronRightIcon } from '../assets/icons/settings';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
+import _SafeAreaView from '../components/SafeAreaView';
 
 export const DismissIcon = styled(SvgXml).attrs((props) => ({
 	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
@@ -257,7 +259,7 @@ export const Text13UP = styled.Text`
 	font-size: ${(props): string => (props.size ? props.size : '13px')};
 `;
 
-export const SafeAreaView = styled.SafeAreaView`
+export const SafeAreaView = styled(_SafeAreaView)`
 	flex: 1;
 	background-color: ${(props): string => props.theme.colors.background};
 `;
@@ -360,6 +362,12 @@ export const Feather = styled(_Feather).attrs((props) => ({
 }))``;
 
 export const MaterialIcons = styled(_MaterialIcons).attrs((props) => ({
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+}))``;
+
+export const AntDesign = styled(_AntDesign).attrs((props) => ({
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
