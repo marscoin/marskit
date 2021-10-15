@@ -14,8 +14,9 @@ import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { toggleView } from '../store/actions/user';
 import { TViewController } from '../store/types/user';
+import { usePrevious } from '../hooks/helpers';
 
-const snapPoints = ['95%', '55%', 0];
+const snapPoints = ['95%', '65%', 0];
 export interface IModalProps {
 	children: ReactElement;
 	view?: TViewController;
@@ -35,20 +36,18 @@ const BottomSheetWrapper = forwardRef(
 		const data = useSelector((state: Store) =>
 			view ? state.user?.viewController[view] : undefined,
 		);
+		const previousData = usePrevious(data);
 		const modalRef = useRef<BottomSheet>(null);
 
 		useEffect(() => {
 			try {
-				if (view && data?.isOpen) {
-					if (data.snapPoint) {
-						// @ts-ignore
-						modalRef.current.snapTo(data.snapPoint);
-					} else {
-						// @ts-ignore
-						modalRef.current.snapTo(0);
-					}
+				// @ts-ignore
+				if (view && data?.snapPoint !== previousData?.snapPoint) {
+					// @ts-ignore
+					modalRef.current.snapTo(data?.snapPoint);
 				}
 			} catch {}
+			//eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [data?.isOpen, data?.snapPoint, view]);
 
 		useImperativeHandle(ref, () => ({
@@ -75,7 +74,7 @@ const BottomSheetWrapper = forwardRef(
 			if (view) {
 				toggleView({
 					view,
-					data: { isOpen: false },
+					data: { isOpen: false, id: data?.id },
 				}).then();
 			}
 			onClose();
@@ -91,7 +90,7 @@ const BottomSheetWrapper = forwardRef(
 				onCloseEnd={_onClose}
 				renderContent={(): ReactElement => {
 					return (
-						<View style={styles.container}>
+						<View style={styles.container} color="onSurface">
 							<View style={styles.spacer} />
 							{children}
 						</View>
