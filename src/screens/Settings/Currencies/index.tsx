@@ -7,6 +7,7 @@ import Store from '../../../store/types';
 import {
 	EExchangeRateService,
 	exchangeRateServices,
+	mostUsedExchangeTickers,
 	supportedExchangeTickers,
 } from '../../../utils/exchange-rate';
 import { updateSettings } from '../../../store/actions/settings';
@@ -25,19 +26,20 @@ const Currencies = ({ navigation }): ReactElement => {
 		(state: Store) => state.settings.selectedCurrency,
 	);
 
+	const onSetCurrency = (currency: String): void => {
+		updateSettings({ selectedCurrency: currency });
+	};
+
 	const onSetExchangeRateService = useCallback(
 		(provider: EExchangeRateService): void => {
-			updateSettings({ exchangeRateService: provider });
+			updateSettings({
+				exchangeRateService: provider,
+				selectedCurrency:
+					supportedExchangeTickers[EExchangeRateService[provider]][0],
+			});
 
 			setTimeout(() => {
 				updateExchangeRates().then();
-
-				//Check if we support the current currency on this provider
-				const availableTickers =
-					supportedExchangeTickers[EExchangeRateService[provider]];
-				if (!availableTickers.includes(selectedCurrency)) {
-					updateSettings({ selectedCurrency: availableTickers[0] });
-				}
 			}, 250);
 		},
 		[selectedCurrency],
@@ -58,15 +60,27 @@ const Currencies = ({ navigation }): ReactElement => {
 			},
 			{
 				title: 'Most Used',
-				data: [
-					{
-						title: 'USD',
-						value: '',
+				data: mostUsedExchangeTickers[selectedExchangeRateService].map(
+					(ticker) => ({
+						title: ticker,
+						value: selectedCurrency === ticker,
 						type: 'button',
-						onPress: () => alert('USD'),
+						onPress: (): void => onSetCurrency(ticker),
 						hide: false,
-					},
-				],
+					}),
+				),
+			},
+			{
+				title: 'All',
+				data: supportedExchangeTickers[selectedExchangeRateService].map(
+					(ticker) => ({
+						title: ticker,
+						value: selectedCurrency === ticker,
+						type: 'button',
+						onPress: (): void => onSetCurrency(ticker),
+						hide: false,
+					}),
+				),
 			},
 		],
 		[

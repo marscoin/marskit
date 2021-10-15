@@ -52,7 +52,7 @@ const _Item = memo(
 			return <View />;
 		}
 
-		const useCheckmark = value === true || value === false;
+		const useCheckmark = typeof value === 'boolean';
 
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
