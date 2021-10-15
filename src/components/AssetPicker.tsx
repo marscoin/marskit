@@ -1,39 +1,69 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import {
 	View,
-	BitcoinCircleIcon,
 	Text02M,
 	Caption13M,
 	EvilIcon,
+	TouchableOpacity,
 } from '../styles/components';
 import { StyleSheet } from 'react-native';
-import { useBalance } from '../hooks/transaction';
 import useDisplayValues from '../hooks/displayValues';
 import Card from './Card';
+import { getAssetIcon } from '../utils/wallet';
+import { TAssetNetwork } from '../store/types/wallet';
+import { capitalize } from '../utils/helpers';
 
-const AssetPicker = (): ReactElement => {
-	const sats = useBalance();
+const AssetPicker = ({
+	assetName = 'Bitcoin',
+	sats = 0,
+	onPress = (): null => null,
+	hideArrow = false,
+}: {
+	assetName?: TAssetNetwork | string;
+	sats?: number;
+	onPress?: Function;
+	hideArrow?: boolean;
+}): ReactElement => {
 	const balances = useDisplayValues(sats);
+	const handleOnPress = useCallback(() => {
+		onPress(assetName);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [assetName]);
 
+	const AssetIcon: ReactElement = useMemo(
+		() => getAssetIcon(assetName),
+		[assetName],
+	);
+	const asset = useMemo(() => {
+		return capitalize(assetName);
+	}, [assetName]);
 	return (
-		<Card style={styles.container} color={'gray336'}>
-			<>
-				<View style={styles.col1}>
-					<BitcoinCircleIcon />
-					<View color="transparent" style={styles.titleContainer}>
-						<Text02M>Bitcoin</Text02M>
-						<Caption13M color={'gray1'}>
-							Balance: {balances.fiatSymbol}
-							{balances.fiatFormatted}
-						</Caption13M>
+		<TouchableOpacity
+			color="transparent"
+			onPress={handleOnPress}
+			activeOpacity={0.7}>
+			<Card style={styles.container} color={'gray336'}>
+				<>
+					<View style={styles.col1}>
+						{/*@ts-ignore*/}
+						<AssetIcon />
+						<View color="transparent" style={styles.titleContainer}>
+							<Text02M>{asset}</Text02M>
+							<Caption13M color={'gray1'}>
+								Balance: {balances.fiatSymbol}
+								{balances.fiatFormatted}
+							</Caption13M>
+						</View>
 					</View>
-				</View>
 
-				<View color="transparent" style={styles.col2}>
-					<EvilIcon name={'chevron-down'} size={30} color="onBackground" />
-				</View>
-			</>
-		</Card>
+					{hideArrow && (
+						<View color="transparent" style={styles.col2}>
+							<EvilIcon name={'chevron-down'} size={30} color="onBackground" />
+						</View>
+					)}
+				</>
+			</Card>
+		</TouchableOpacity>
 	);
 };
 
