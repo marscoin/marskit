@@ -1,6 +1,5 @@
 import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
-import { Alert, Linking, Platform, StyleSheet } from 'react-native';
-import { Title, View } from '../../styles/components';
+import { Alert, Linking, Platform } from 'react-native';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -8,7 +7,7 @@ import {
 	updateSettings,
 	wipeWallet,
 } from '../../store/actions/settings';
-import List, { IListData } from '../../components/List';
+import { IListData } from '../../components/List';
 import {
 	resetSelectedWallet,
 	resetWalletStore,
@@ -25,6 +24,7 @@ import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
 import { capitalize } from '../../utils/helpers';
 import { Result } from '../../utils/result';
+import SettingsView from './SettingsView';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -423,18 +423,12 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	);
 
 	return (
-		<View style={styles.container} color={'onSurface'}>
-			<Title>Settings</Title>
-			<List data={SettingsListData} />
-		</View>
+		<SettingsView
+			title={'Settings'}
+			data={SettingsListData}
+			showBackNavigation={false}
+		/>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		padding: 16,
-		flex: 1,
-	},
-});
 
 export default memo(SettingsMenu);

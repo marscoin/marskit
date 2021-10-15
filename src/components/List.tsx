@@ -1,7 +1,6 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { SectionList, StyleSheet, Switch } from 'react-native';
 import {
-	Text,
 	Text01S,
 	Caption13Up,
 	TouchableOpacity,
@@ -14,9 +13,7 @@ import Card from './Card';
 const _ItemHeader = memo(
 	({ title }: { title: string }): ReactElement => (
 		<View color={'transparent'} style={styles.itemHeader}>
-			<Caption13Up color="gray1" style={styles.header}>
-				{title.toUpperCase()}
-			</Caption13Up>
+			<Caption13Up color="gray1">{title.toUpperCase()}</Caption13Up>
 		</View>
 	),
 );
@@ -62,9 +59,7 @@ const _Item = memo(
 					onPress={_onPress}>
 					<Card style={styles.card}>
 						<View color="transparent" style={styles.leftColumn}>
-							<Text color="white" style={styles.title}>
-								{title}
-							</Text>
+							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
 							<Switch
@@ -87,9 +82,7 @@ const _Item = memo(
 				style={styles.row}>
 				<Card style={styles.card}>
 					<View color="transparent" style={styles.leftColumn}>
-						<Text color="white" style={styles.title}>
-							{title}
-						</Text>
+						<Text01S color="white">{title}</Text01S>
 					</View>
 					<View color="transparent" style={styles.rightColumn}>
 						<Text01S color={'gray2'} style={styles.valueText}>
@@ -115,10 +108,21 @@ export interface IListData {
 	data: ItemData[];
 }
 
-const List = ({ data }: { data: IListData[] }): ReactElement => {
+const List = ({
+	data,
+	onScrollDownChange,
+}: {
+	data: IListData[];
+	onScrollDownChange?: (boolean) => void;
+}): ReactElement => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
+			onScroll={
+				onScrollDownChange
+					? (e): void => onScrollDownChange(e.nativeEvent.contentOffset.y > 15)
+					: undefined
+			}
 			sections={data}
 			extraData={data}
 			keyExtractor={(item): string => item.title}
@@ -155,13 +159,6 @@ const styles = StyleSheet.create({
 	itemHeader: {
 		marginTop: 27,
 		justifyContent: 'center',
-	},
-	header: {
-		fontSize: 18,
-		fontWeight: 'bold',
-	},
-	title: {
-		fontSize: 14,
 	},
 	valueText: {
 		marginRight: 15,
