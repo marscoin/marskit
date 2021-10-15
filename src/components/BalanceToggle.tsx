@@ -123,7 +123,7 @@ const BalanceToggle = ({
 	}, [primary]);
 
 	return (
-		<Pressable color="transparent" onPress={onTogglePress} style={styles.row}>
+		<Pressable onPress={onTogglePress} style={styles.row}>
 			<View color="transparent">{BalanceComponents}</View>
 			<View style={styles.switchIcon}>
 				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
+		backgroundColor: 'transparent',
 	},
 	switchIcon: {
 		backgroundColor: 'rgba(37, 39, 43, 0.92);',
