@@ -73,8 +73,6 @@ import {
 } from './electrum';
 import { getDisplayValues, IDisplayValues } from '../exchange-rate';
 import { IncludeBalances } from '../../hooks/wallet';
-import { BitcoinCircleIcon, LightningIcon } from '../../styles/components';
-import { ReactElement } from 'react';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -2399,17 +2397,4 @@ export const getBalance = ({
 	}
 
 	return getDisplayValues({ satoshis: balance });
-};
-
-export const getAssetIcon = (asset: TAssetNetwork | string): ReactElement => {
-	switch (asset) {
-		case 'bitcoin':
-			return BitcoinCircleIcon;
-		case 'lightning':
-			return LightningIcon;
-		case 'omnibolt':
-			return BitcoinCircleIcon;
-		default:
-			return BitcoinCircleIcon;
-	}
 };

@@ -9,9 +9,9 @@ import {
 import { StyleSheet } from 'react-native';
 import useDisplayValues from '../hooks/displayValues';
 import Card from './Card';
-import { getAssetIcon } from '../utils/wallet';
 import { TAssetNetwork } from '../store/types/wallet';
 import { capitalize } from '../utils/helpers';
+import { BitcoinCircleIcon, LightningIcon } from '../styles/components';
 
 const AssetPicker = ({
 	assetName = 'Bitcoin',
@@ -30,10 +30,19 @@ const AssetPicker = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [assetName]);
 
-	const AssetIcon: ReactElement = useMemo(
-		() => getAssetIcon(assetName),
-		[assetName],
-	);
+	const AssetIcon: ReactElement = useMemo(() => {
+		switch (assetName) {
+			case 'bitcoin':
+				return BitcoinCircleIcon;
+			case 'lightning':
+				return LightningIcon;
+			case 'omnibolt':
+				return BitcoinCircleIcon;
+			default:
+				return BitcoinCircleIcon;
+		}
+	}, [assetName]);
+
 	const asset = useMemo(() => {
 		return capitalize(assetName);
 	}, [assetName]);
