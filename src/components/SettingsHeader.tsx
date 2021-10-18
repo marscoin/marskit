@@ -1,13 +1,7 @@
 import React, { memo, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
-import {
-	MaterialIcons,
-	View,
-	TouchableOpacity,
-	Title,
-	LeftArrow,
-} from '../styles/components';
+import { View, TouchableOpacity, Title, LeftArrow } from '../styles/components';
 import colors from '../styles/colors';
 
 const BackButton = ({
@@ -96,7 +90,6 @@ const styles = StyleSheet.create({
 		backgroundColor: '#3B3B3B',
 	},
 	backIconContainer: { marginRight: 18 },
-	backIcon: {},
 	titleContainer: {},
 });
 
