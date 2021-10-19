@@ -1334,7 +1334,9 @@ export const getInputData = async ({
 		}
 		getTransactionsResponse.value.data.map(({ data, result }) => {
 			const vout = result.vout[data.vout];
-			const addresses = vout.scriptPubKey.addresses;
+			const addresses = vout.scriptPubKey?.addresses
+				? vout.scriptPubKey?.addresses
+				: [vout.scriptPubKey.address];
 			const value = vout.value;
 			const key = data.tx_hash;
 			inputData[key] = { addresses, value };
@@ -1451,7 +1453,9 @@ export const formatTransactions = async ({
 		//Iterate over each output
 		const vout = result?.vout || [];
 		vout.map(({ scriptPubKey, value }) => {
-			const _addresses = scriptPubKey.addresses;
+			const _addresses = scriptPubKey?.addresses
+				? scriptPubKey.addresses
+				: [scriptPubKey.address];
 			totalOutputValue = totalOutputValue + value;
 			Array.isArray(_addresses) &&
 				_addresses.map((address) => {
@@ -1556,6 +1560,7 @@ export interface IVout {
 	n: 0;
 	scriptPubKey: {
 		addresses: string[];
+		address?: string;
 		asm: string;
 		hex: string;
 		reqSigs: number;
