@@ -39,8 +39,9 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	);
 	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
 
-	const [biometryData, setBiometricData] =
-		useState<IsSensorAvailableResult | undefined>(undefined);
+	const [biometryData, setBiometricData] = useState<
+		IsSensorAvailableResult | undefined
+	>(undefined);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
