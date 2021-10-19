@@ -74,6 +74,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 		toggleView({
 			view: 'send',
 			data: {
+				id: 'bitcoin',
 				isOpen: true,
 				snapPoint: 0,
 				assetName: 'bitcoin',
