@@ -105,6 +105,13 @@ const SendOnChainTransaction = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const Header = useCallback((): ReactElement | null => {
+		if (header) {
+			return <NavigationHeader title="Send Transaction" />;
+		}
+		return null;
+	}, [header]);
+
 	const { outputs, message } = transaction;
 	const totalFee = transaction.fee;
 
@@ -181,6 +188,7 @@ const SendOnChainTransaction = ({
 	if (rawTx) {
 		return (
 			<>
+				<Header />
 				<OutputSummary outputs={outputs} changeAddress={changeAddress}>
 					<FeeSummary />
 				</OutputSummary>
@@ -240,11 +248,11 @@ const SendOnChainTransaction = ({
 	}
 
 	return (
-		<View style={styles.container}>
-			{header && <NavigationHeader title="Send Transaction" />}
+		<View color="onSurface" style={styles.container}>
+			<Header />
 			<BalanceToggle sats={txInputValue} />
 			<View style={styles.content}>
-				<AssetPicker />
+				<AssetPicker assetName="Bitcoin" sats={balance} />
 				<SendForm />
 				<Button
 					color={'onSurface'}
@@ -276,6 +284,7 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		marginHorizontal: 10,
+		backgroundColor: 'transparent',
 	},
 	title: {
 		...systemWeights.bold,

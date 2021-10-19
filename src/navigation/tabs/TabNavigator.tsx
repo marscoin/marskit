@@ -166,11 +166,11 @@ const TabNavigator = (): ReactElement => {
 
 	const onReceivePress = useCallback((event) => {
 		toggleView({
-			view: 'receive',
+			view: 'receiveAssetPicker',
 			data: {
+				id: 'receive',
 				isOpen: true,
 				snapPoint: 1,
-				assetName: 'bitcoin',
 			},
 		}).then();
 		event.preventDefault();
@@ -185,12 +185,13 @@ const TabNavigator = (): ReactElement => {
 	);
 
 	const onSendPress = useCallback((event) => {
+		const snapPoint = 1;
 		toggleView({
-			view: 'send',
+			view: 'sendAssetPicker',
 			data: {
+				id: 'send',
 				isOpen: true,
-				snapPoint: 0,
-				assetName: 'bitcoin',
+				snapPoint,
 			},
 		}).then();
 		event.preventDefault();

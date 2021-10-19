@@ -1,9 +1,11 @@
 import { IViewControllerData } from '../types/user';
 
 export const defaultViewController: IViewControllerData = {
+	isOpen: false,
+	id: '',
+	asset: '',
 	assetNetwork: undefined,
 	assetName: undefined,
-	isOpen: false,
 	snapPoint: 2,
 };
 
@@ -16,5 +18,7 @@ export const defaultUserShape = {
 	viewController: {
 		send: { ...defaultViewController },
 		receive: { ...defaultViewController },
+		sendAssetPicker: { ...defaultViewController },
+		receiveAssetPicker: { ...defaultViewController },
 	},
 };

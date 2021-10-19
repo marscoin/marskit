@@ -17,6 +17,8 @@ import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import ReceiveBottomSheet from '../../screens/Wallets/Receive/ReceiveBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
+import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
+import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 
 const Stack = createNativeStackNavigator();
 
@@ -78,7 +80,7 @@ const RootNavigator = (): ReactElement => {
 	}, []);
 
 	return (
-		<NavigationContainer>
+		<NavigationContainer independent={true}>
 			<Stack.Navigator
 				screenOptions={navOptions}
 				initialRouteName={initialRouteName}>
@@ -86,7 +88,6 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="RootAuthCheck" component={AuthCheckComponent} />
 					<Stack.Screen name="Tabs" component={TabNavigator} />
 					<Stack.Screen name="StartPin" component={StartPinComponent} />
-					<Stack.Screen name="Pin" component={PinPad} />
 					<Stack.Screen name="Biometrics" component={BiometricsComponent} />
 					<Stack.Screen name="Blocktank" component={Blocktank} />
 					<Stack.Screen name="BlocktankOrder" component={BlocktankOrder} />
@@ -101,6 +102,9 @@ const RootNavigator = (): ReactElement => {
 			</Stack.Navigator>
 			<SendBottomSheet />
 			<ReceiveBottomSheet />
+
+			<ReceiveAssetPicker />
+			<SendAssetPicker />
 		</NavigationContainer>
 	);
 };

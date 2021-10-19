@@ -42,7 +42,7 @@ const Currencies = (): ReactElement => {
 				updateExchangeRates().then();
 			}, 250);
 		},
-		[selectedCurrency],
+		[],
 	);
 
 	const CurrencyListData: IListData[] = useMemo(
@@ -83,6 +83,7 @@ const Currencies = (): ReactElement => {
 				),
 			},
 		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			selectedExchangeRateService,
 			onSetExchangeRateService,
