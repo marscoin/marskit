@@ -65,8 +65,8 @@ const App = (): ReactElement => {
 			<SafeAreaProvider>
 				<StatusBar />
 				<RootComponent />
-				<Toast ref={ToastRef} />
 			</SafeAreaProvider>
+			<Toast ref={ToastRef} />
 		</ThemeProvider>
 	);
 };

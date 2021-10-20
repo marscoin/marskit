@@ -39,6 +39,8 @@ import { hasEnabledAuthentication } from '../../../utils/settings';
 import UTXOList from './UTXOList';
 import BalanceToggle from '../../../components/BalanceToggle';
 import AssetPicker from '../../../components/AssetPicker';
+import { toggleView } from '../../../store/actions/user';
+import { getStore } from '../../../store/helpers';
 
 interface ISendOnChainTransaction {
 	header?: boolean;
@@ -148,7 +150,13 @@ const SendOnChainTransaction = ({
 		[selectedNetwork, selectedWallet, transaction?.inputs],
 	);
 
-	const _createTransaction = async (): Promise<void> => {
+	const utxoButtonText = useMemo(() => {
+		return `UTXO List (${transaction.inputs?.length ?? '0'}/${
+			utxos?.length ?? '0'
+		})`;
+	}, [transaction.inputs?.length, utxos?.length]);
+
+	const _createTransaction = useCallback(async (): Promise<void> => {
 		try {
 			const transactionIsValid = validateTransaction(transaction);
 			if (transactionIsValid.isErr()) {
@@ -181,7 +189,50 @@ const SendOnChainTransaction = ({
 				}
 			}
 		} catch {}
-	};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedNetwork, selectedWallet, transaction]);
+
+	const broadcast = useCallback(async () => {
+		const response = await broadcastTransaction({
+			rawTx,
+			selectedNetwork,
+		});
+		if (response.isErr()) {
+			showErrorNotification({
+				title: 'Error: Unable to Broadcast Transaction',
+				message: 'Please check your connection and try again.',
+			});
+		}
+		//Successful Broadcast
+		setRawTx('');
+		resetOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+		});
+		showSuccessNotification({
+			title: `Sent ${transactionTotal} sats`,
+			message,
+		});
+		//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
+		updateWalletBalance({
+			balance: balance - transactionTotal,
+			selectedWallet,
+			selectedNetwork,
+		});
+		const currentView = getStore().user.viewController.sendAssetPicker.isOpen
+			? 'sendAssetPicker'
+			: 'send';
+		toggleView({ view: currentView, data: { isOpen: false } }).then();
+		onComplete(response.value);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		balance,
+		message,
+		rawTx,
+		selectedNetwork,
+		selectedWallet,
+		transactionTotal,
+	]);
 
 	LayoutAnimation.easeInEaseOut();
 
@@ -209,37 +260,7 @@ const SendOnChainTransaction = ({
 					<TouchableOpacity
 						style={styles.broadcastButton}
 						color={'onSurface'}
-						onPress={async (): Promise<void> => {
-							const response = await broadcastTransaction({
-								rawTx,
-								selectedNetwork,
-							});
-							//Successful Broadcast
-							if (response.isOk()) {
-								setRawTx('');
-								resetOnChainTransaction({
-									selectedNetwork,
-									selectedWallet,
-								});
-								showSuccessNotification({
-									title: `Sent ${transactionTotal} sats`,
-									message,
-								});
-								//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
-								updateWalletBalance({
-									balance: balance - transactionTotal,
-									selectedWallet,
-									selectedNetwork,
-								});
-								onComplete(response.value);
-								return;
-							}
-
-							showErrorNotification({
-								title: 'Error: Unable to Broadcast Transaction',
-								message: 'Please check your connection and try again.',
-							});
-						}}>
+						onPress={broadcast}>
 						<Text style={styles.title}>Broadcast</Text>
 					</TouchableOpacity>
 				</View>
@@ -256,9 +277,7 @@ const SendOnChainTransaction = ({
 				<SendForm />
 				<Button
 					color={'onSurface'}
-					text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
-						utxos?.length ?? '0'
-					})`}
+					text={utxoButtonText}
 					onPress={(): void => setDisplayUtxoList(true)}
 				/>
 				<UTXOList

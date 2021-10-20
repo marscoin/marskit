@@ -3,7 +3,6 @@ import { View } from '../../../styles/components';
 import { StyleSheet } from 'react-native';
 import { capitalize } from '../../../utils/helpers';
 import { resetOnChainTransaction } from '../../../store/actions/wallet';
-import { refreshWallet } from '../../../utils/wallet';
 import SendOnChainTransaction from '../SendOnChainTransaction';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
@@ -48,9 +47,6 @@ const Send = (props: ISendProps): ReactElement => {
 			});
 		}
 		onComplete();
-		setTimeout(() => {
-			refreshWallet().then();
-		}, 4000);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedWallet, selectedNetwork]);
 
