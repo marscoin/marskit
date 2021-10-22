@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-swiper';
-// import LottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import {
 	View,
 	Text01M,
@@ -10,6 +10,7 @@ import {
 	Text01S,
 	Caption13S,
 	Logo,
+	Title,
 } from '../../styles/components';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
@@ -23,11 +24,11 @@ const BoostCard = (): ReactElement => {
 		<Card color={'onSurface'} style={styles.boostCard}>
 			<View style={styles.boostCol1} color={'transparent'}>
 				<View color={'surface'} style={styles.boostIcon}>
-					{/*<LottieView*/}
-					{/*	autoPlay*/}
-					{/*	loop*/}
-					{/*	source={require('../../assets/animations/boost.json')}*/}
-					{/*/>*/}
+					<LottieView
+						autoPlay
+						loop
+						source={require('../../assets/animations/boost.json')}
+					/>
 				</View>
 				<View style={styles.boostTextContainer} color={'transparent'}>
 					<Text02M style={styles.boostTitle}>Receiving: ₿0.2846</Text02M>
@@ -51,6 +52,11 @@ const OnboardingWelcomeScreen = ({
 }: {
 	navigation: any;
 }): ReactElement => {
+	const [showSlash, setShowSplash] = useState(true);
+	useEffect(() => {
+		setTimeout(() => setShowSplash(false), 1000);
+	}, []);
+
 	const onSkip = async (): Promise<void> => {
 		const res = await createNewWallet();
 		if (res.isErr()) {
@@ -81,91 +87,116 @@ const OnboardingWelcomeScreen = ({
 		]);
 	};
 
+	const Splash = (): ReactElement => {
+		return (
+			<View color={'transparent'} style={styles.splashContent}>
+				<Logo width={82} height={82} />
+				<Title style={styles.splashTitle}>keyspace</Title>
+			</View>
+		);
+	};
+
+	const Content = (): ReactElement => {
+		return (
+			<>
+				<View color={'transparent'} style={styles.content}>
+					<View color={'transparent'} style={styles.header}>
+						<Logo />
+					</View>
+
+					<View color={'transparent'} style={styles.headerButtonContainer}>
+						<TouchableOpacity style={styles.skipButton} onPress={onSkip}>
+							<Text01M color={'gray1'}>Skip</Text01M>
+						</TouchableOpacity>
+					</View>
+
+					<Swiper dot={<Dot />} activeDot={<Dot active />} loop={false}>
+						<View color={'transparent'} style={styles.slide}>
+							<View color={'transparent'} style={styles.imageContainer1}>
+								<Image
+									style={styles.image1}
+									resizeMode={'contain'}
+									source={require('../../assets/onboarding1.png')}
+								/>
+							</View>
+							<View color={'transparent'} style={styles.textContent}>
+								<Headline style={styles.headline}>
+									Welcome to the{'\n'}Atomic Economy.
+								</Headline>
+								<Text01S style={styles.text}>
+									Spectrum Wallet is your toolbelt for a new economy, where
+									everything is based on Bitcoin.
+								</Text01S>
+							</View>
+						</View>
+
+						<View color={'transparent'} style={styles.slide}>
+							<View color={'transparent'} style={styles.imageContainer2}>
+								<Image
+									style={styles.image2}
+									width={120}
+									resizeMode={'contain'}
+									source={require('../../assets/onboarding2.png')}
+								/>
+
+								<BoostCard />
+							</View>
+
+							<View color={'transparent'} style={styles.textContent}>
+								<Headline style={styles.headline}>
+									Lightning fast.{'\n'}Boost any transaction.
+								</Headline>
+								<Text01S style={styles.text}>
+									Take advantage of ⚡ instant transactions, and transaction
+									acceleration features.
+								</Text01S>
+							</View>
+						</View>
+					</Swiper>
+
+					<View style={styles.buttonsContainer} color={'transparent'}>
+						<TouchableOpacity
+							style={{ ...styles.button, ...styles.restoreButton }}
+							onPress={onRestore}>
+							<Text02M>Restore wallet</Text02M>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={{ ...styles.button, ...styles.newButton }}
+							onPress={onCreateAccount}>
+							<Text02M color={'brand'}>New Account</Text02M>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</>
+		);
+	};
+
 	return (
 		<OnboardingBackground>
 			<SafeAreaInsets type={'top'} />
-			<View color={'transparent'} style={styles.content}>
-				<View color={'transparent'} style={styles.header}>
-					<Logo />
-				</View>
-
-				<View color={'transparent'} style={styles.headerButtonContainer}>
-					<TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-						<Text01M color={'gray1'}>Skip</Text01M>
-					</TouchableOpacity>
-				</View>
-
-				<Swiper dot={<Dot />} activeDot={<Dot active />} loop={false}>
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer1}>
-							<Image
-								style={styles.image1}
-								resizeMode={'contain'}
-								source={require('../../assets/onboarding1.png')}
-							/>
-						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<Headline style={styles.headline}>
-								Welcome to the{'\n'}Atomic Economy.
-							</Headline>
-							<Text01S style={styles.text}>
-								Spectrum Wallet is your toolbelt for a new economy, where
-								everything is based on Bitcoin.
-							</Text01S>
-						</View>
-					</View>
-
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer2}>
-							<Image
-								style={styles.image2}
-								width={120}
-								resizeMode={'contain'}
-								source={require('../../assets/onboarding2.png')}
-							/>
-
-							<BoostCard />
-						</View>
-
-						<View color={'transparent'} style={styles.textContent}>
-							<Headline style={styles.headline}>
-								Lightning fast.{'\n'}Boost any transaction.
-							</Headline>
-							<Text01S style={styles.text}>
-								Take advantage of ⚡ instant transactions, and transaction
-								acceleration features.
-							</Text01S>
-						</View>
-					</View>
-				</Swiper>
-
-				<View style={styles.buttonsContainer} color={'transparent'}>
-					<TouchableOpacity
-						style={{ ...styles.button, ...styles.restoreButton }}
-						onPress={onRestore}>
-						<Text02M>Restore wallet</Text02M>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						style={{ ...styles.button, ...styles.newButton }}
-						onPress={onCreateAccount}>
-						<Text02M color={'brand'}>New Account</Text02M>
-					</TouchableOpacity>
-				</View>
-			</View>
+			{showSlash ? <Splash /> : <Content />}
 			<SafeAreaInsets type={'bottom'} />
 		</OnboardingBackground>
 	);
 };
 
 const styles = StyleSheet.create({
+	splashContent: {
+		flex: 1,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	splashTitle: {
+		marginTop: 24,
+	},
 	content: {
 		flex: 1,
 		display: 'flex',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 	},
-
 	header: {
 		display: 'flex',
 		flexDirection: 'row',
