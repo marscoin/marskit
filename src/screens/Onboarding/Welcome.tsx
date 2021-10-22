@@ -14,35 +14,37 @@ import {
 	Text02M,
 	Headline,
 	Text01S,
+	Caption13S,
 	Logo,
+	BoostIcon,
 } from '../../styles/components';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
 import OnboardingBackground from '../../components/OnboardingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
+import Card from '../../components/Card';
+
+//TODO use actual boost card once UI is ready
+const BoostCard = (): ReactElement => {
+	return (
+		<Card color={'onSurface'} style={styles.boostCard}>
+			<View style={styles.boostCol1} color={'transparent'}>
+				<BoostIcon />
+				<View style={styles.boostTextContainer} color={'transparent'}>
+					<Text02M style={styles.boostTitle}>Receiving: ₿0.2846</Text02M>
+					<Caption13S>Confirms in 20-40min</Caption13S>
+				</View>
+			</View>
+
+			<View color={'surface'} style={styles.boostButton}>
+				<Text02M color={'brand'}>Boost</Text02M>
+			</View>
+		</Card>
+	);
+};
 
 const Dot = ({ active }: { active?: boolean }): ReactElement => {
 	return <View color={active ? 'white' : 'gray2'} style={styles.pageDot} />;
-};
-
-const Slide = ({
-	heading,
-	text,
-	image,
-}: {
-	heading: string;
-	text: string;
-	image: ReactElement;
-}): ReactElement => {
-	return (
-		<View color={'transparent'} style={styles.slide}>
-			{image}
-			<View color={'transparent'} style={styles.textContent}>
-				<Headline style={styles.headline}>{heading}</Headline>
-				<Text01S style={styles.text}>{text}</Text01S>
-			</View>
-		</View>
-	);
 };
 
 const OnboardingWelcomeScreen = ({
@@ -95,37 +97,47 @@ const OnboardingWelcomeScreen = ({
 				</View>
 
 				<Swiper dot={<Dot />} activeDot={<Dot active />} loop={false}>
-					<Slide
-						heading={'Welcome to the\nAtomic Economy.'}
-						text={
-							'Spectrum Wallet is your toolbelt for a new economy, where everything is based on Bitcoin.'
-						}
-						image={
-							<View color={'transparent'} style={styles.imageContainer1}>
-								<Image
-									style={styles.image1}
-									resizeMode={'contain'}
-									source={require('../../assets/onboarding1.png')}
-								/>
-							</View>
-						}
-					/>
+					<View color={'transparent'} style={styles.slide}>
+						<View color={'transparent'} style={styles.imageContainer1}>
+							<Image
+								style={styles.image1}
+								resizeMode={'contain'}
+								source={require('../../assets/onboarding1.png')}
+							/>
+						</View>
+						<View color={'transparent'} style={styles.textContent}>
+							<Headline style={styles.headline}>
+								Welcome to the{'\n'}Atomic Economy.
+							</Headline>
+							<Text01S style={styles.text}>
+								Spectrum Wallet is your toolbelt for a new economy, where
+								everything is based on Bitcoin.
+							</Text01S>
+						</View>
+					</View>
 
-					<Slide
-						heading={'️Lightning fast.\nBoost any transaction.'}
-						text={
-							'Take advantage of ⚡ instant transactions, and transaction acceleration features.'
-						}
-						image={
-							<View color={'transparent'} style={styles.imageContainer2}>
-								<Image
-									style={styles.image2}
-									resizeMode={'contain'}
-									source={require('../../assets/onboarding2.png')}
-								/>
-							</View>
-						}
-					/>
+					<View color={'transparent'} style={styles.slide}>
+						<View color={'transparent'} style={styles.imageContainer2}>
+							<Image
+								style={styles.image2}
+								width={120}
+								resizeMode={'contain'}
+								source={require('../../assets/onboarding2.png')}
+							/>
+
+							<BoostCard />
+						</View>
+
+						<View color={'transparent'} style={styles.textContent}>
+							<Headline style={styles.headline}>
+								Lightning fast.{'\n'}Boost any transaction.
+							</Headline>
+							<Text01S style={styles.text}>
+								Take advantage of ⚡ instant transactions, and transaction
+								acceleration features.
+							</Text01S>
+						</View>
+					</View>
 				</Swiper>
 
 				<View style={styles.buttonsContainer} color={'transparent'}>
@@ -217,6 +229,7 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flex: 4,
 		paddingTop: 20,
+		// paddingHorizontal: 33,
 		justifyContent: 'center',
 		alignItems: 'flex-start',
 		width: '100%',
@@ -247,6 +260,33 @@ const styles = StyleSheet.create({
 	text: {
 		marginTop: 16,
 		textAlign: 'center',
+	},
+	boostCard: {
+		position: 'absolute',
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingVertical: 17,
+		paddingHorizontal: 9,
+		top: '50%',
+		maxWidth: 300,
+	},
+	boostCol1: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	boostButton: {
+		paddingHorizontal: 16,
+		paddingVertical: 5.5,
+		borderRadius: 10,
+	},
+	boostTitle: {
+		marginBottom: 2,
+	},
+	boostTextContainer: {
+		marginLeft: 10,
 	},
 });
 
