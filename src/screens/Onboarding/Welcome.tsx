@@ -1,13 +1,7 @@
 import React, { ReactElement } from 'react';
-import {
-	Alert,
-	Image,
-	StyleSheet,
-	TouchableOpacity,
-	Dimensions,
-} from 'react-native';
+import { Alert, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-swiper';
-
+// import LottieView from 'lottie-react-native';
 import {
 	View,
 	Text01M,
@@ -16,7 +10,6 @@ import {
 	Text01S,
 	Caption13S,
 	Logo,
-	BoostIcon,
 } from '../../styles/components';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
@@ -29,7 +22,13 @@ const BoostCard = (): ReactElement => {
 	return (
 		<Card color={'onSurface'} style={styles.boostCard}>
 			<View style={styles.boostCol1} color={'transparent'}>
-				<BoostIcon />
+				<View color={'surface'} style={styles.boostIcon}>
+					{/*<LottieView*/}
+					{/*	autoPlay*/}
+					{/*	loop*/}
+					{/*	source={require('../../assets/animations/boost.json')}*/}
+					{/*/>*/}
+				</View>
 				<View style={styles.boostTextContainer} color={'transparent'}>
 					<Text02M style={styles.boostTitle}>Receiving: ₿0.2846</Text02M>
 					<Caption13S>Confirms in 20-40min</Caption13S>
@@ -276,6 +275,12 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
+	},
+	boostIcon: {
+		width: 40,
+		height: 40,
+		borderRadius: 13,
+		paddingRight: 4,
 	},
 	boostButton: {
 		paddingHorizontal: 16,
