@@ -91,7 +91,7 @@
     "styled-components": "^5.3.1",
     "url-parse": "^1.5.1",
     "uuid": "^8.3.2",
-    "v8-android-jit-nointl": "^9.93.0",
+    "v8-android-jit-nointl": "9.88.0",
     "vm-browserify": "^1.1.2"
   },
   "devDependencies": {

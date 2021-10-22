@@ -9521,10 +9521,10 @@ uuid@^8.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
-v8-android-jit-nointl@^9.93.0:
-  version "9.93.0"
-  resolved "https://registry.yarnpkg.com/v8-android-jit-nointl/-/v8-android-jit-nointl-9.93.0.tgz#1e20f1fbfece01ca9207956751f90a0e6171188c"
-  integrity sha512-qBJZ63ioKwt7ziPEIkTSCOo1VAVhP4ECxJycP6x9jcVw+GsAzZCnti+EDqQsd4PnmB8FCGfVcJ530gD/GfLEuQ==
+v8-android-jit-nointl@9.88.0:
+  version "9.88.0"
+  resolved "https://registry.yarnpkg.com/v8-android-jit-nointl/-/v8-android-jit-nointl-9.88.0.tgz#3f8bcf884212c30ccea7a659bcf007e2c5902af6"
+  integrity sha512-sXl67ZRelKXPuN28nk/i05voVVlmnY3lc6Ynd+9aeQZsWgWgyQIThLn1GS2tM0mVWRZ85NHtDTRSOunYNJF0iw==
 
 v8-android@~9.88.0:
   version "9.88.0"
