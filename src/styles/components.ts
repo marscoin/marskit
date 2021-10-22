@@ -24,6 +24,7 @@ import {
 	leftArrowIcon,
 	checkmarkIcon,
 } from '../assets/icons/settings';
+import { logo } from '../assets/icons/onboarding';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 import _SafeAreaView from '../components/SafeAreaView';
@@ -109,15 +110,27 @@ export const ChevronRight = styled(SvgXml).attrs((props) => ({
 }))``;
 
 export const LeftArrow = styled(SvgXml).attrs((props) => ({
-	xml: leftArrowIcon(props?.color ? props.theme.colors[props.color] : 'gray2'),
+	xml: leftArrowIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.gray2,
+	),
 	height: props?.height ?? '16.04px',
 	width: props?.width ?? '20px',
 }))``;
 
 export const Checkmark = styled(SvgXml).attrs((props) => ({
-	xml: checkmarkIcon(props?.color ? props.theme.colors[props.color] : 'green2'),
+	xml: checkmarkIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.green2,
+	),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
+}))``;
+
+export const Logo = styled(SvgXml).attrs((props) => ({
+	xml: logo(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
+	),
+	height: props?.height ?? '46px',
+	width: props?.width ?? '46px',
 }))``;
 
 export const Display = styled.Text`

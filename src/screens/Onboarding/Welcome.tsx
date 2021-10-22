@@ -1,16 +1,68 @@
 import React, { ReactElement } from 'react';
-import { Text, View } from '../../styles/components';
-import { Alert, StyleSheet } from 'react-native';
-import Button from '../../components/Button';
+import {
+	Alert,
+	Image,
+	StyleSheet,
+	TouchableOpacity,
+	Dimensions,
+} from 'react-native';
+import Swiper from 'react-native-swiper';
+
+import {
+	View,
+	Text01M,
+	Text02M,
+	Headline,
+	Text01S,
+	Logo,
+} from '../../styles/components';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
+import OnboardingBackground from '../../components/OnboardingBackground';
+import SafeAreaInsets from '../../components/SafeAreaInsets';
+
+const Dot = ({ active }: { active?: boolean }): ReactElement => {
+	return <View color={active ? 'white' : 'gray2'} style={styles.pageDot} />;
+};
+
+const Slide = ({
+	heading,
+	text,
+	image,
+}: {
+	heading: string;
+	text: string;
+	image: ReactElement;
+}): ReactElement => {
+	return (
+		<View color={'transparent'} style={styles.slide}>
+			{image}
+			<View color={'transparent'} style={styles.textContent}>
+				<Headline style={styles.headline}>{heading}</Headline>
+				<Text01S style={styles.text}>{text}</Text01S>
+			</View>
+		</View>
+	);
+};
 
 const OnboardingWelcomeScreen = ({
 	navigation,
 }: {
 	navigation: any;
 }): ReactElement => {
-	const onRestorePress = (): void => {
+	const onSkip = async (): Promise<void> => {
+		const res = await createNewWallet();
+		if (res.isErr()) {
+			showErrorNotification({
+				title: 'Wallet creation failed',
+				message: res.error.message,
+			});
+		}
+	};
+
+	const onCreateAccount = (): void => navigation.navigate('CreateAccount');
+
+	const onRestore = (): void => {
 		Alert.alert('Restore', '', [
 			{
 				text: 'From backup server',
@@ -29,54 +81,172 @@ const OnboardingWelcomeScreen = ({
 	};
 
 	return (
-		<View style={styles.container}>
-			<View style={styles.content}>
-				<Text style={styles.title}>Welcome</Text>
+		<OnboardingBackground>
+			<SafeAreaInsets type={'top'} />
+			<View color={'transparent'} style={styles.content}>
+				<View color={'transparent'} style={styles.header}>
+					<Logo />
+				</View>
 
-				<Button
-					style={styles.button}
-					text={'Create new account'}
-					onPress={(): void => {
-						navigation.navigate('CreateAccount');
-					}}
-				/>
-				<Button
-					style={styles.button}
-					text={'Restore'}
-					onPress={onRestorePress}
-				/>
-				<Button
-					style={styles.button}
-					text={'Skip (no automated backups)'}
-					onPress={async (): Promise<void> => {
-						const res = await createNewWallet();
-						if (res.isErr()) {
-							showErrorNotification({
-								title: 'Wallet creation failed',
-								message: res.error.message,
-							});
+				<View color={'transparent'} style={styles.headerButtonContainer}>
+					<TouchableOpacity style={styles.skipButton} onPress={onSkip}>
+						<Text01M color={'gray1'}>Skip</Text01M>
+					</TouchableOpacity>
+				</View>
+
+				<Swiper dot={<Dot />} activeDot={<Dot active />} loop={false}>
+					<Slide
+						heading={'Welcome to the\nAtomic Economy.'}
+						text={
+							'Spectrum Wallet is your toolbelt for a new economy, where everything is based on Bitcoin.'
 						}
-					}}
-				/>
+						image={
+							<View color={'transparent'} style={styles.imageContainer1}>
+								<Image
+									style={styles.image1}
+									resizeMode={'contain'}
+									source={require('../../assets/onboarding1.png')}
+								/>
+							</View>
+						}
+					/>
+
+					<Slide
+						heading={'️Lightning fast.\nBoost any transaction.'}
+						text={
+							'Take advantage of ⚡ instant transactions, and transaction acceleration features.'
+						}
+						image={
+							<View color={'transparent'} style={styles.imageContainer2}>
+								<Image
+									style={styles.image2}
+									resizeMode={'contain'}
+									source={require('../../assets/onboarding2.png')}
+								/>
+							</View>
+						}
+					/>
+				</Swiper>
+
+				<View style={styles.buttonsContainer} color={'transparent'}>
+					<TouchableOpacity
+						style={{ ...styles.button, ...styles.restoreButton }}
+						onPress={onRestore}>
+						<Text02M>Restore wallet</Text02M>
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						style={{ ...styles.button, ...styles.newButton }}
+						onPress={onCreateAccount}>
+						<Text02M color={'brand'}>New Account</Text02M>
+					</TouchableOpacity>
+				</View>
 			</View>
-		</View>
+			<SafeAreaInsets type={'bottom'} />
+		</OnboardingBackground>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		flex: 1,
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 	},
-	title: {
-		fontSize: 24,
-		marginBottom: 50,
-		textAlign: 'center',
+
+	header: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		width: '100%',
+		alignContent: 'flex-end',
+		justifyContent: 'center',
+	},
+	headerButtonContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		width: '100%',
+		justifyContent: 'flex-end',
+		paddingHorizontal: 28,
+		position: 'absolute',
+	},
+	skipButton: {
+		backgroundColor: 'transparent',
+	},
+	buttonsContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		marginTop: 50,
+		marginHorizontal: 23,
 	},
 	button: {
-		marginTop: 10,
+		flex: 1,
+		backgroundColor: 'rgba(255, 255, 255, 0.06)',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		height: 56,
+		borderRadius: 76,
+	},
+	restoreButton: {
+		marginRight: 6,
+	},
+	newButton: {
+		marginLeft: 6,
+	},
+
+	//TODO
+	slide: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		display: 'flex',
+
+		// width: Dimensions.get('screen').width,
+	},
+	imageContainer1: {
+		display: 'flex',
+		flex: 4,
+		paddingTop: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: '100%',
+	},
+	imageContainer2: {
+		display: 'flex',
+		flex: 4,
+		paddingTop: 20,
+		justifyContent: 'center',
+		alignItems: 'flex-start',
+		width: '100%',
+	},
+	image1: {
+		flex: 1,
+		left: -10,
+	},
+	image2: {
+		flex: 1,
+	},
+	textContent: {
+		flex: 5,
+		display: 'flex',
+		justifyContent: 'center',
+		paddingHorizontal: 20,
+	},
+	pageDot: {
+		width: 7,
+		height: 7,
+		borderRadius: 4,
+		marginLeft: 4,
+		marginRight: 4,
+	},
+	headline: {
+		textAlign: 'center',
+	},
+	text: {
+		marginTop: 16,
+		textAlign: 'center',
 	},
 });
 

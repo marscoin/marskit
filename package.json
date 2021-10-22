@@ -68,6 +68,7 @@
     "react-native-share": "^6.2.1",
     "react-native-snap-carousel": "github:meliorence/react-native-snap-carousel#59fa8950eeb8446124454ab3e2711038066115bb",
     "react-native-svg": "^12.1.1",
+    "react-native-swiper": "^1.6.0",
     "react-native-tcp-socket": "^5.2.1",
     "react-native-toast-message": "^1.4.9",
     "react-native-touch-id": "^4.4.1",
