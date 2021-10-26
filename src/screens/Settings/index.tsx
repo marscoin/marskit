@@ -147,19 +147,33 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				title: 'Backups',
 				data: [
 					{
-						title: 'Remote backup',
+						title: 'Connect',
 						value: `${remoteBackupSynced ? 'Synced' : 'Not synced'}`,
 						type: 'button',
 						onPress: (): void => navigation.navigate('BackupSettings'),
 						enabled: true,
 						hide: false,
 					},
-
 					{
-						title: 'Export Backups',
+						title: 'Import',
+						type: 'button',
+						onPress: (): void => {},
+						enabled: true,
+						hide: false,
+					},
+					{
+						title: 'Export',
 						type: 'button',
 						onPress: (): void => navigation.navigate('ExportBackups'),
 						enabled: true,
+						hide: false,
+					},
+					{
+						title: 'Display Seeds',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							navigation.navigate('Seeds');
+						},
 						hide: false,
 					},
 				],
@@ -232,14 +246,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 							updateWallet({ selectedNetwork: network }).then(() => {
 								refreshWallet().then();
 							});
-						},
-						hide: false,
-					},
-					{
-						title: 'Manage Seed Phrase',
-						type: 'button',
-						onPress: async (): Promise<void> => {
-							navigation.navigate('ManageSeedPhrase');
 						},
 						hide: false,
 					},

@@ -11,13 +11,18 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import Card from './Card';
 
-const _ItemHeader = memo(
-	({ title }: { title: string }): ReactElement => (
+const _ItemHeader = memo(({ title }: { title?: string }): ReactElement => {
+	if (!title) {
+		return <View />;
+	}
+
+	return (
 		<View color={'transparent'} style={styles.itemHeader}>
 			<Caption13Up color="gray1">{title.toUpperCase()}</Caption13Up>
 		</View>
-	),
-);
+	);
+});
+
 const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 	return prevProps.title === nextProps.title;
 });
@@ -117,7 +122,7 @@ const Item = memo(_Item, (prevProps, nextProps) => {
 });
 
 export interface IListData {
-	title: string;
+	title?: string;
 	data: ItemData[];
 }
 
