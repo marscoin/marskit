@@ -475,6 +475,25 @@ export const getMnemonicPhrase = async (
 };
 
 /**
+ * Generate a mnemonic phrase using a string as entropy.
+ * @param {string} str
+ * @return {string}
+ */
+export const getMnemonicPhraseFromEntropy = (str: string): string => {
+	const hash = getSha256(str);
+	return bip39.entropyToMnemonic(hash);
+};
+
+/**
+ * Returns sha256 hash of string.
+ * @param {string} str
+ * @return {string}
+ */
+export const getSha256 = (str = ''): string => {
+	return bitcoin.crypto.sha256(str);
+};
+
+/**
  *.Returns any previously stored aezeed passphrase.
  * @async
  * @return {{error: boolean, data: string}}
