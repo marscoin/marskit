@@ -14,6 +14,8 @@ import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
+import { getKeychainValue, setKeychainValue } from '../helpers';
+import { CipherSeed } from 'aezeed';
 
 const packageJson = require('../../../package.json');
 
@@ -236,4 +238,55 @@ export const debugLightningStatusMessage = (lightning: ILightning): string => {
 	}
 
 	return '';
+};
+
+/**
+ * Attempt to retrieve an existing lightning seed. Creates a new one otherwise.
+ * @return {Promise<Result<string[]>>}
+ */
+export const getLightningSeed = async (): Promise<Result<string[]>> => {
+	try {
+		let lndSeed: string[] = [];
+		// Check if seed already exists.
+		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data; //Set if wallet is being restored from a backup
+		// Set and return existing seed.
+		if (seedStr) {
+			lndSeed = seedStr.split(' ');
+		} else {
+			// Create a new lightning seed.
+			const seedRes: string[] = await CipherSeed.random()
+				.toMnemonic()
+				.split(' ');
+			if (!seedRes) {
+				return err(seedRes);
+			}
+			lndSeed = seedRes;
+		}
+		return ok(lndSeed);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Saves the provided lightning seed to keychain storage.
+ * Returns the current (if set) or new lightning seed if none was provided.
+ * @param {string[]} [lndSeed]
+ * @return {string[]}
+ */
+export const setupLightningSeed = async (
+	lndSeed?: string[],
+): Promise<Result<string[]>> => {
+	if (!lndSeed) {
+		const lndSeedRes = await getLightningSeed();
+		if (lndSeedRes.isErr()) {
+			return err(lndSeedRes.error.message);
+		}
+		lndSeed = lndSeedRes.value;
+	}
+	await setKeychainValue({
+		key: 'lndMnemonic',
+		value: lndSeed.join(' '),
+	});
+	return ok(lndSeed);
 };

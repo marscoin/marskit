@@ -28,10 +28,10 @@ import {
 } from 'omnibolt-js/lib/types/types';
 import {
 	generateAddresses,
-	generateMnemonic,
 	getCurrentWallet,
 	getKeyDerivationPath,
 	getMnemonicPhrase,
+	getMnemonicPhraseFromEntropy,
 	getPrivateKey,
 	getSelectedNetwork,
 	getSelectedWallet,
@@ -599,7 +599,12 @@ export const createOmniboltId = async ({
 			if (!response.error) {
 				return ok(response.data);
 			}
-			const id = await generateMnemonic();
+			const seedStr = await getMnemonicPhrase(selectedWallet); //Set if wallet is being restored from a backup
+			if (seedStr.isErr()) {
+				return err("On-Chain wallet doesn't exist.");
+			}
+			// Derive the omnibolt login id from the sha256 hash of on-chain wallet's mnemonic.
+			const id = await getMnemonicPhraseFromEntropy(seedStr.value);
 			const keychainResponse = await setKeychainValue({ key, value: id });
 			if (keychainResponse.error) {
 				return err(keychainResponse.data);

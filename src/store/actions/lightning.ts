@@ -7,14 +7,18 @@ import lnd, {
 	ICachedNeutrinoDBDownloadState,
 	ss_lnrpc,
 } from '@synonymdev/react-native-lightning';
-import { connectToDefaultPeer, getCustomLndConf } from '../../utils/lightning';
+import {
+	connectToDefaultPeer,
+	getCustomLndConf,
+	getLightningSeed,
+	setupLightningSeed,
+} from '../../utils/lightning';
 import { err, ok, Result } from '../../utils/result';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { updateLightingActivityList } from './activity';
-import { getKeychainValue, setKeychainValue } from '../../utils/helpers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { performFullBackup } from './backup';
 import { LNURLChannelParams } from 'js-lnurl';
@@ -108,29 +112,22 @@ const onLightningStateUpdate = async (
 
 /**
  * Creates a new LND wallet
- * @param password
- * @param mnemonic
- * @param network
- * @returns {Promise<unknown>}
+ * @param {string[]} [lndSeed]
+ * @returns {Promise<Result<string>>}
  */
-export const createLightningWallet = (): Promise<Result<string>> => {
+export const createLightningWallet = (
+	lndSeed?: string[],
+): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		let lndSeed: string[] = [];
-
-		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data; //Set if wallet is being restored from a backup
-		if (seedStr) {
-			lndSeed = seedStr.split(' ');
-		} else {
-			const seedRes = await lnd.walletUnlocker.genSeed();
-			if (seedRes.isErr()) {
-				return resolve(err(seedRes.error));
+		if (!lndSeed) {
+			const lndSeedRes = await getLightningSeed();
+			if (lndSeedRes.isErr()) {
+				return resolve(err(lndSeedRes.error.message));
 			}
-
-			lndSeed = seedRes.value;
+			lndSeed = lndSeedRes.value;
 		}
 
-		//Generate Mnemonic if none was provided
-		await setKeychainValue({ key: 'lndMnemonic', value: lndSeed.join(' ') });
+		await setupLightningSeed(lndSeed);
 
 		//If we have this in storage still it means we need to restore funds from a backed up channel
 		const multiChanBackup = await AsyncStorage.getItem(
