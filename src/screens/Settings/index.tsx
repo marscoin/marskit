@@ -438,7 +438,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	return (
 		<SettingsView
 			title={'Settings'}
-			data={SettingsListData}
+			listData={SettingsListData}
 			showBackNavigation={false}
 		/>
 	);

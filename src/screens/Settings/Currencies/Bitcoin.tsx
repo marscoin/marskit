@@ -35,7 +35,7 @@ const BitcoinSettings = (): ReactElement => {
 	return (
 		<SettingsView
 			title={'Bitcoin'}
-			data={CurrencyListData}
+			listData={CurrencyListData}
 			showBackNavigation
 		/>
 	);
