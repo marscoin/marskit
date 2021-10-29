@@ -16,12 +16,14 @@ import SettingsHeader from '../../components/SettingsHeader';
  */
 const SettingsView = ({
 	title,
-	data,
+	listData,
 	showBackNavigation = true,
+	children,
 }: {
 	title: string;
-	data: IListData[];
+	listData?: IListData[];
 	showBackNavigation: boolean;
+	children?: ReactElement | ReactElement[] | undefined;
 }): ReactElement => {
 	const [hideHeaderShadow, setHideHeaderShadow] = useState(false);
 
@@ -32,9 +34,18 @@ const SettingsView = ({
 				showBackNavigation={showBackNavigation}
 				showShadow={hideHeaderShadow}
 			/>
-			<View style={styles.content} color={'onSurface'}>
-				<List data={data} onScrollDownChange={setHideHeaderShadow} />
-			</View>
+
+			{listData ? (
+				<View style={styles.listContent} color={'onSurface'}>
+					<List data={listData} onScrollDownChange={setHideHeaderShadow} />
+				</View>
+			) : null}
+
+			{children ? (
+				<View style={styles.childrenContent} color={'onSurface'}>
+					{children}
+				</View>
+			) : null}
 		</View>
 	);
 };
@@ -43,8 +54,11 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	content: {
+	listContent: {
 		paddingHorizontal: 16,
+		flex: 1,
+	},
+	childrenContent: {
 		flex: 1,
 	},
 });

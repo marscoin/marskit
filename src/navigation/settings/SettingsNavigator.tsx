@@ -10,6 +10,8 @@ import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import BackupSettings from '../../screens/Settings/Backup';
 import ExportBackups from '../../screens/Settings/Backup/Export';
+import Seeds from '../../screens/Settings/Backup/Seeds';
+import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
 import LightningChannels from '../../screens/Settings/Lightning/LightningChannels';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
@@ -51,6 +53,8 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="BackupSettings" component={BackupSettings} />
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
+				<Stack.Screen name="Seeds" component={Seeds} />
+				<Stack.Screen name="ViewSeed" component={ViewSeed} />
 				<Stack.Screen name="LightningChannels" component={LightningChannels} />
 				<Stack.Screen
 					name="LightningChannelDetails"

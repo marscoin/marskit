@@ -23,6 +23,7 @@ import {
 	chevronRightIcon,
 	leftArrowIcon,
 	checkmarkIcon,
+	copyIcon,
 } from '../assets/icons/settings';
 import { logo } from '../assets/icons/onboarding';
 import { sanFranciscoWeights } from 'react-native-typography';
@@ -120,6 +121,14 @@ export const LeftArrow = styled(SvgXml).attrs((props) => ({
 export const Checkmark = styled(SvgXml).attrs((props) => ({
 	xml: checkmarkIcon(
 		props?.color ? props.theme.colors[props.color] : props.theme.colors.green2,
+	),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+}))``;
+
+export const Copy = styled(SvgXml).attrs((props) => ({
+	xml: copyIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
 	),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
