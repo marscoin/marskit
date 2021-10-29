@@ -13,7 +13,6 @@ import { Alert, Linking, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from './result';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { number } from 'bitcoinjs-lib/types/script';
 
 export const promiseTimeout = (
 	ms: number,

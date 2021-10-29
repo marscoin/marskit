@@ -21,7 +21,7 @@ export const checkmarkIcon = (
 
 export const copyIcon = (
 	color = '#F75C1A',
-) => `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+): string => `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M8.25 9H0.75C0.33525 9 0 8.66475 0 8.25V0.75C0 0.336 0.33525 0 0.75 0H8.25C8.66475 0 9 0.336 9 0.75V8.25C9 8.66475 8.66475 9 8.25 9Z" fill="${color}"/>
 <path d="M11.25 12H3V10.5H10.5V3H12V11.25C12 11.6647 11.6647 12 11.25 12Z" fill="${color}"/>
 </svg>`;

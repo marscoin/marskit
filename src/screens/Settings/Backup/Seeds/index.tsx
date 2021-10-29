@@ -42,7 +42,6 @@ const Seeds = ({ navigation }): ReactElement => {
 
 	useEffect(() => {
 		setupComponent().then();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

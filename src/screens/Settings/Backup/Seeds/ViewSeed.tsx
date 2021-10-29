@@ -25,16 +25,21 @@ interface Props extends PropsWithChildren<any> {
 const WordItem = ({
 	index,
 	word,
+	compact,
 }: {
 	index: number;
 	word: string;
+	compact: boolean;
 }): ReactElement => {
+	const TextComponent = compact ? Text02S : Text01M;
 	return (
-		<View color={'transparent'} style={styles.wordContainer}>
-			<Text01M color={'brand'} style={styles.wordIndex}>
+		<View
+			color={'transparent'}
+			style={compact ? styles.wordContainerCompact : styles.wordContainer}>
+			<TextComponent color={'brand'} style={styles.wordIndex}>
 				{index}.
-			</Text01M>
-			<Text01M>{word}</Text01M>
+			</TextComponent>
+			<TextComponent>{word}</TextComponent>
 		</View>
 	);
 };
@@ -70,6 +75,9 @@ const splitWords = (words: string[], columns: number): WordCol[][] => {
 
 const ViewSeed = (props: Props): ReactElement => {
 	const { title, words: allWords } = props.route.params;
+
+	const compactLayout = allWords.length > 12;
+
 	const wordColumns = splitWords(allWords, 2);
 
 	const defaultCopyText = 'Copy seed';
@@ -114,9 +122,17 @@ const ViewSeed = (props: Props): ReactElement => {
 					]}>
 					<View color={'transparent'} style={styles.wordsContainer}>
 						{wordColumns.map((words, col) => (
-							<View key={col} color={'transparent'} style={styles.wordCol}>
+							<View
+								key={col}
+								color={'transparent'}
+								style={compactLayout ? styles.wordColCompact : styles.wordCol}>
 								{words.map(({ word, index }) => (
-									<WordItem key={index} word={word} index={index} />
+									<WordItem
+										key={index}
+										word={word}
+										index={index}
+										compact={compactLayout}
+									/>
 								))}
 							</View>
 						))}
@@ -176,10 +192,19 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingLeft: 10,
 	},
+	wordColCompact: {
+		flex: 1,
+		paddingLeft: 0,
+	},
 	wordContainer: {
 		display: 'flex',
 		flexDirection: 'row',
 		marginBottom: 12,
+	},
+	wordContainerCompact: {
+		display: 'flex',
+		flexDirection: 'row',
+		marginBottom: 8,
 	},
 	wordIndex: {
 		width: 34,
