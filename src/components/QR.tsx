@@ -15,6 +15,7 @@ import Button from './Button';
 import { systemWeights } from 'react-native-typography';
 import Clipboard from '@react-native-community/clipboard';
 import { RouteProp } from '@react-navigation/native';
+import { showErrorNotification } from '../utils/notifications';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -122,9 +123,10 @@ const QR = ({
 			});
 		} catch (e) {
 			console.log(e);
-			console.log(
-				"Unable to copy item to clipboard. Please try again or check your phone's permissions.",
-			);
+			showErrorNotification({
+				title: 'Unable to copy item to clipboard.',
+				message: "Please try again or check your phone's permissions.",
+			});
 		}
 	};
 

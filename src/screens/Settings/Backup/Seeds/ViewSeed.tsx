@@ -1,4 +1,5 @@
-import React, { memo, PropsWithChildren, ReactElement } from 'react';
+import React, { memo, PropsWithChildren, ReactElement, useState } from 'react';
+import Clipboard from '@react-native-community/clipboard';
 import {
 	Text01M,
 	View,
@@ -6,6 +7,7 @@ import {
 	Text02S,
 	TouchableOpacity,
 	Caption13M,
+	Copy,
 } from '../../../../styles/components';
 import SettingsView from '../../SettingsView';
 import { StyleSheet } from 'react-native';
@@ -14,6 +16,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../../../store/types';
 import themes from '../../../../styles/themes';
 import SafeAreaInsets from '../../../../components/SafeAreaInsets';
+import { showErrorNotification } from '../../../../utils/notifications';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { title: string; words: string[] } };
@@ -69,9 +72,29 @@ const ViewSeed = (props: Props): ReactElement => {
 	const { title, words: allWords } = props.route.params;
 	const wordColumns = splitWords(allWords, 2);
 
+	const defaultCopyText = 'Copy seed';
+
+	const [copyButtonText, setCopyButtonText] = useState(defaultCopyText);
+
 	const themeColors = useSelector(
 		(state: Store) => themes[state.settings.theme].colors,
 	);
+
+	const onCopyPress = (): void => {
+		try {
+			Clipboard.setString(allWords.join(' '));
+			setCopyButtonText('Copied!');
+			setTimeout(() => {
+				setCopyButtonText(defaultCopyText);
+			}, 1000);
+		} catch (e) {
+			console.log(e);
+			showErrorNotification({
+				title: 'Unable to copy item to clipboard.',
+				message: "Please try again or check your phone's permissions.",
+			});
+		}
+	};
 
 	return (
 		<SettingsView title={`${title} Seed`} showBackNavigation>
@@ -85,10 +108,10 @@ const ViewSeed = (props: Props): ReactElement => {
 				</View>
 
 				<View
-					style={{
-						...styles.block,
-						backgroundColor: applyAlpha(themeColors.gray3, 0.1),
-					}}>
+					style={[
+						styles.block,
+						{ backgroundColor: applyAlpha(themeColors.gray3, 0.1) },
+					]}>
 					<View color={'transparent'} style={styles.wordsContainer}>
 						{wordColumns.map((words, col) => (
 							<View key={col} color={'transparent'} style={styles.wordCol}>
@@ -100,13 +123,15 @@ const ViewSeed = (props: Props): ReactElement => {
 					</View>
 					<TouchableOpacity
 						color={'transparent'}
-						style={styles.copyButtonContainer}>
+						style={styles.copyButtonContainer}
+						onPress={onCopyPress}>
 						<View
-							style={{
-								...styles.copyButton,
-								backgroundColor: applyAlpha(themeColors.white, 0.08),
-							}}>
-							<Caption13M color={'brand'}>Copy passphrase</Caption13M>
+							style={[
+								styles.copyButton,
+								{ backgroundColor: applyAlpha(themeColors.white, 0.08) },
+							]}>
+							<Copy style={styles.copyIcon} />
+							<Caption13M color={'brand'}>{copyButtonText}</Caption13M>
 						</View>
 					</TouchableOpacity>
 				</View>
@@ -168,10 +193,15 @@ const styles = StyleSheet.create({
 		paddingTop: 5,
 	},
 	copyButton: {
+		display: 'flex',
+		flexDirection: 'row',
+		justifyContent: 'center',
 		borderRadius: 10,
-		backgroundColor: 'green',
 		paddingHorizontal: 8,
 		paddingVertical: 5,
+	},
+	copyIcon: {
+		marginRight: 4,
 	},
 	footer: {
 		flex: 1,
