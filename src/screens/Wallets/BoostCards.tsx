@@ -17,6 +17,7 @@ import {
 import { btcToSats } from '../../utils/helpers';
 import { getDisplayValues } from '../../utils/exchange-rate';
 import { canBoost } from '../../utils/wallet/transactions';
+import { useNavigation } from '@react-navigation/native';
 
 /**
  * Returns the appropriate text for the boost card.
@@ -43,27 +44,39 @@ const getBoostText = ({
 };
 
 const BoostCard = memo(
-	({ text = '', txid = '' }: { text: string; txid: string }): ReactElement => (
-		<View style={styles.row}>
-			<View style={styles.col1}>
-				<BoostIcon />
+	({ text = '', txid = '' }: { text: string; txid: string }): ReactElement => {
+		const navigation = useNavigation();
+		const activityItems = useSelector((store: Store) => store.activity.items);
+		const activityItem = useMemo(
+			() => activityItems.filter((item) => item.id === txid),
+			[activityItems, txid],
+		);
+		return (
+			<View style={styles.row}>
+				<View style={styles.col1}>
+					<BoostIcon />
+				</View>
+				<View style={styles.col2}>
+					<Text02M>{text}</Text02M>
+					{/*
+					 * Todo: Implement transaction time estimate method
+					 */}
+					<Caption13S>Confirms in 20-40min</Caption13S>
+				</View>
+				<View style={styles.col3}>
+					<Pressable
+						onPress={(): void =>
+							navigation.navigate('ActivityDetail', {
+								activityItem: activityItem[0],
+							})
+						}
+						style={styles.boostButton}>
+						<SubHeadM color="orange">Boost</SubHeadM>
+					</Pressable>
+				</View>
 			</View>
-			<View style={styles.col2}>
-				<Text02M>{text}</Text02M>
-				{/*
-				 * Todo: Implement transaction time estimate method
-				 */}
-				<Caption13S>Confirms in 20-40min</Caption13S>
-			</View>
-			<View style={styles.col3}>
-				<Pressable
-					onPress={(): void => console.log(txid)}
-					style={styles.boostButton}>
-					<SubHeadM color="orange">Boost</SubHeadM>
-				</Pressable>
-			</View>
-		</View>
-	),
+		);
+	},
 	() => true,
 );
 
@@ -80,6 +93,13 @@ const BoostCards = (): ReactElement | null => {
 			[],
 	);
 
+	const boostedTransactions = useSelector(
+		(state: Store) =>
+			state.wallet?.wallets[selectedWallet]?.boostedTransactions[
+				selectedNetwork
+			],
+	);
+
 	const balance: number = useSelector(
 		(state: Store) =>
 			state.wallet?.wallets[selectedWallet]?.balance[selectedNetwork] || 0,
@@ -91,7 +111,7 @@ const BoostCards = (): ReactElement | null => {
 	);
 
 	const hasEnoughToBoost = useCallback(
-		(txid): boolean => canBoost(txid),
+		(txid): boolean => canBoost(txid).canBoost,
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 		[balance],
 	);
@@ -112,7 +132,15 @@ const BoostCards = (): ReactElement | null => {
 					type: tx.type,
 					amount: satoshis,
 				});
-				if (tx.height < 1 && hasEnoughToBoost(tx.txid)) {
+				const isCpfp =
+					tx.matchedInputValue.toFixed(8) ===
+					(tx.matchedOutputValue + tx.fee).toFixed(8);
+				if (
+					tx.height < 1 &&
+					hasEnoughToBoost(tx.txid) &&
+					!boostedTransactions.includes(tx.txid) &&
+					!isCpfp
+				) {
 					return (
 						<BoostCard key={`${tx.txid}${i}`} text={boostText} txid={tx.txid} />
 					);

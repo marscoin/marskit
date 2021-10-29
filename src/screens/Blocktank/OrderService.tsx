@@ -21,6 +21,7 @@ import { claimChannel } from '../../store/actions/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import Clipboard from '@react-native-community/clipboard';
+import SafeAreaView from '../../components/SafeAreaView';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -135,8 +136,11 @@ const Order = (props: Props): ReactElement => {
 		onRefreshOrder().catch();
 	}, [onRefreshOrder]);
 
+	const showPayButton = order && order?.state === 0;
+	const showClaimButton = order && order?.state === 100;
+
 	return (
-		<View style={styles.container}>
+		<SafeAreaView>
 			<NavigationHeader title={description} />
 			<View style={styles.content}>
 				{order ? (
@@ -198,26 +202,11 @@ const Order = (props: Props): ReactElement => {
 					<Divider />
 
 					{orderId ? (
-						<>
-							<Button
-								text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
-								disabled={isRefreshing}
-								onPress={onRefreshOrder}
-							/>
-							{order?.state === 0 ? (
-								<Button
-									text={'Pay'}
-									disabled={isProcessing}
-									onPress={goToPayment}
-								/>
-							) : (
-								<Button
-									text={isProcessing ? 'Claiming...' : 'Claim channel'}
-									disabled={isProcessing}
-									onPress={onClaimChannel}
-								/>
-							)}
-						</>
+						<Button
+							text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
+							disabled={isRefreshing}
+							onPress={onRefreshOrder}
+						/>
 					) : (
 						<Button
 							text={isProcessing ? 'Ordering...' : 'Order'}
@@ -225,16 +214,28 @@ const Order = (props: Props): ReactElement => {
 							onPress={onOrder}
 						/>
 					)}
+
+					{showPayButton ? (
+						<Button
+							text={'Pay'}
+							disabled={isProcessing}
+							onPress={goToPayment}
+						/>
+					) : null}
+					{showClaimButton ? (
+						<Button
+							text={isProcessing ? 'Claiming...' : 'Claim channel'}
+							disabled={isProcessing}
+							onPress={onClaimChannel}
+						/>
+					) : null}
 				</View>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		paddingLeft: 20,
 		paddingRight: 20,

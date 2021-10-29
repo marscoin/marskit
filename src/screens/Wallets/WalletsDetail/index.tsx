@@ -1,19 +1,36 @@
-import React, { memo, PropsWithChildren, ReactElement } from 'react';
+import React, {
+	memo,
+	PropsWithChildren,
+	ReactElement,
+	useCallback,
+} from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
-import { Title, Caption13M, Headline, View } from '../../../styles/components';
+import {
+	Title,
+	Caption13M,
+	Headline,
+	View,
+	ReceiveIcon,
+	SendIcon,
+} from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
 import ActivityList from '../../Activity/ActivityList';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';
 import BitcoinBreakdown from './BitcoinBreakdown';
+import Button from '../../../components/Button';
+import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import { EActivityTypes } from '../../../store/types/activity';
+import { TAssetType } from '../../../store/types/wallet';
+import { toggleView } from '../../../store/actions/user';
 
 interface Props extends PropsWithChildren<any> {
 	route: {
 		params: {
-			assetType: 'bitcoin' | 'tether';
+			assetType: TAssetType;
 		};
 	};
 }
@@ -32,8 +49,49 @@ const WalletsDetail = (props: Props): ReactElement => {
 		fiatSymbol,
 	} = useBalance({ onchain: true, lightning: true });
 
-	const theme = useSelector((state: Store) => state.settings.theme);
-	const { colors } = themes[theme];
+	const colors = useSelector(
+		(state: Store) => themes[state.settings.theme].colors,
+	);
+
+	let title = '';
+	let assetFilter: EActivityTypes[] = [];
+	let gradientRadius = 450;
+	switch (assetType) {
+		case 'bitcoin': {
+			title = 'Bitcoin';
+			assetFilter = [EActivityTypes.onChain, EActivityTypes.lightning];
+			gradientRadius = 600;
+			break;
+		}
+		case 'tether': {
+			title = 'Tether';
+			assetFilter = [EActivityTypes.tether];
+			break;
+		}
+	}
+
+	const onSendPress = useCallback(() => {
+		toggleView({
+			view: 'send',
+			data: {
+				id: 'bitcoin',
+				isOpen: true,
+				snapPoint: 0,
+				assetName: 'bitcoin',
+			},
+		}).then();
+	}, []);
+
+	const onReceivePress = useCallback(() => {
+		toggleView({
+			view: 'receive',
+			data: {
+				isOpen: true,
+				snapPoint: 1,
+				assetName: 'bitcoin',
+			},
+		}).then();
+	}, []);
 
 	return (
 		<View style={styles.container}>
@@ -42,11 +100,13 @@ const WalletsDetail = (props: Props): ReactElement => {
 				colors={['rgb(52,34,10)', colors.gray6]}
 				stops={[0.1, 0.4]}
 				center={[50, 50]}
-				radius={600}>
+				radius={gradientRadius}>
+				<SafeAreaInsets type={'top'} />
+
 				<NavigationHeader />
 
 				<View color={'transparent'} style={styles.header}>
-					<Title>Bitcoin</Title>
+					<Title>{title}</Title>
 					<View color={'transparent'} style={styles.balanceContainer}>
 						<Caption13M color={'gray'}>
 							{bitcoinSymbol}
@@ -63,15 +123,34 @@ const WalletsDetail = (props: Props): ReactElement => {
 						</View>
 					</View>
 					{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
-					{/*<View color={'transparent'} style={styles.txButtonsContainer}>*/}
-					{/*	<Button color={'surface'} style={styles.txButton} text={'Send'} />*/}
-					{/*	<Button color={'surface'} text={'Receive'} />*/}
-					{/*</View>*/}
 				</View>
 			</RadialGradient>
 			<View color={'gray6'} style={styles.radiusFooter} />
 
-			<ActivityList />
+			<View color={'transparent'} style={styles.transactionsContainer}>
+				<View color={'transparent'} style={styles.listContainer}>
+					<ActivityList assetFilter={assetFilter} />
+				</View>
+				<View color={'transparent'} style={styles.buttons}>
+					<Button
+						color={'surface'}
+						style={styles.button}
+						icon={<SendIcon color={'gray1'} />}
+						text={'Send'}
+						//@ts-ignore
+						onPress={onSendPress}
+					/>
+					<Button
+						color={'surface'}
+						style={styles.button}
+						icon={<ReceiveIcon color={'gray1'} />}
+						text={'Receive'}
+						//@ts-ignore
+						onPress={onReceivePress}
+					/>
+				</View>
+			</View>
+			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
 		</View>
 	);
 };
@@ -92,17 +171,29 @@ const styles = StyleSheet.create({
 	balanceContainer: {
 		marginVertical: 18,
 	},
-	// txButton: {
-	// 	marginRight: 16,
-	// },
-	// txButtonsContainer: {
-	// 	display: 'flex',
-	// 	flexDirection: 'row',
-	// 	marginVertical: 20,
-	// },
 	largeValueContainer: {
 		display: 'flex',
 		flexDirection: 'row',
+	},
+	transactionsContainer: {
+		flex: 1,
+	},
+	listContainer: {
+		paddingHorizontal: 20,
+		flex: 1,
+	},
+	buttons: {
+		position: 'absolute',
+		display: 'flex',
+		flexDirection: 'row',
+		bottom: 0,
+		paddingHorizontal: 23,
+	},
+	button: {
+		flex: 1,
+		marginHorizontal: 8,
+		height: 56,
+		borderRadius: 64,
 	},
 });
 

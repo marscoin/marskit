@@ -4,10 +4,14 @@ import React, {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
 } from 'react';
-import { Platform, StyleSheet } from 'react-native';
-import { AnimatedView, TextInput, View } from '../styles/components';
+import { StyleSheet } from 'react-native';
+import {
+	Text02M,
+	TextInput,
+	TouchableOpacity,
+	View,
+} from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
 import AdjustValue from './AdjustValue';
 import { useSelector } from 'react-redux';
@@ -18,37 +22,35 @@ import {
 	IOutput,
 } from '../store/types/wallet';
 import {
+	adjustFee,
 	getTotalFee,
 	getTransactionOutputValue,
-	updateFee,
+	sendMax,
+	updateAmount,
+	updateMessage,
 } from '../utils/wallet/transactions';
-import Button from './Button';
 import { useBalance, useTransactionDetails } from '../hooks/transaction';
-import { autoCoinSelect } from '../utils/wallet';
-import { getStore } from '../store/helpers';
+import Card from './Card';
+import { pasteIcon } from '../assets/icons/wallet';
+import { SvgXml } from 'react-native-svg';
+import colors from '../styles/colors';
+import Clipboard from '@react-native-community/clipboard';
+import { showErrorNotification } from '../utils/notifications';
+import { validate } from 'bitcoin-address-validation';
 
 const SendForm = ({
 	index = 0,
 	displayMessage = true,
 	displayFee = true,
 }): ReactElement => {
-	const [max, setMax] = useState(false); //Determines whether the user is sending the max amount.
-
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-	const coinSelectPreference = useSelector(
-		(store: Store) => store.settings.coinSelectPreference,
-	);
-	const utxos = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet].utxos[selectedNetwork],
-	);
-
 	const transaction = useTransactionDetails();
+	const max = useMemo(() => transaction.max, [transaction?.max]);
 
 	const balance = useBalance();
 
@@ -67,15 +69,28 @@ const SendForm = ({
 
 	// Handles balance changes from UTXO updates.
 	useEffect(() => {
+		if (transaction?.rbf) {
+			return;
+		}
 		const fee = transaction?.fee ?? 256;
 
 		if (value) {
 			const newValue =
 				balance > 0 && value + getFee > balance ? balance - fee : 0;
 			if (newValue + getFee > balance && max) {
-				setMax(false);
+				// Disable max.
+				updateOnChainTransaction({
+					selectedNetwork,
+					selectedWallet,
+					transaction: { max: false },
+				});
 			}
-			updateAmount(newValue.toString());
+			updateAmount({
+				amount: newValue.toString(),
+				selectedNetwork,
+				selectedWallet,
+				index,
+			});
 		}
 
 		if (max) {
@@ -177,335 +192,207 @@ const SendForm = ({
 		return totalFee || 256;
 	}, [message, satsPerByte, selectedWallet, selectedNetwork]);
 
-	/**
-	 * Increases the fee by 1 sat per byte.
-	 */
-	const increaseFee = (): void => {
-		try {
-			if (max) {
-				//Check that the user has enough funds
-				const newSatsPerByte = Number(satsPerByte) + 1;
-				const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
-				//Return if the new fee exceeds half of the user's balance
-				if (Number(newFee) >= balance / 2) {
-					return;
-				}
-				const _transaction: IOnChainTransactionData = {
-					satsPerByte: newSatsPerByte,
-					fee: newFee,
-				};
-				//Update the tx value with the new fee to continue sending the max amount.
-				_transaction.outputs = [{ address, value: balance - newFee, index }];
-				updateOnChainTransaction({
-					selectedNetwork,
-					selectedWallet,
-					transaction: _transaction,
-				}).then();
-			} else {
-				updateFee({
-					selectedWallet,
-					selectedNetwork,
-					satsPerByte: Number(satsPerByte) + 1,
-				});
-				if (address && coinSelectPreference !== 'consolidate') {
-					runCoinSelect();
-				}
-			}
-		} catch (e) {
-			console.log(e);
-		}
-	};
+	const increaseFee = useCallback(() => {
+		adjustFee({ selectedWallet, selectedNetwork, adjustBy: 1 });
+	}, [selectedNetwork, selectedWallet]);
+	const decreaseFee = useCallback(() => {
+		adjustFee({ selectedWallet, selectedNetwork, adjustBy: -1 });
+	}, [selectedNetwork, selectedWallet]);
 
-	/**
-	 * Decreases the fee by 1 sat per byte.
-	 */
-	const decreaseFee = (): void => {
-		try {
-			if (satsPerByte <= 1) {
-				return;
-			}
-			if (max) {
-				const newSatsPerByte = Number(satsPerByte) - 1;
-				const newFee = getTotalFee({ satsPerByte: newSatsPerByte, message });
-				const _transaction: IOnChainTransactionData = {
-					satsPerByte: newSatsPerByte,
-					fee: newFee,
-				};
-				//Update the tx value with the new fee to continue sending the max amount.
-				_transaction.outputs = [{ address, value: balance - newFee, index }];
-				updateOnChainTransaction({
-					selectedNetwork,
-					selectedWallet,
-					transaction: _transaction,
-				}).then();
-			} else {
-				updateFee({
-					selectedWallet,
-					selectedNetwork,
-					satsPerByte: Number(satsPerByte) - 1,
-				});
-				if (address && coinSelectPreference !== 'consolidate') {
-					runCoinSelect();
-				}
-			}
-		} catch {}
-	};
-
-	/**
-	 * Runs & Applies the autoCoinSelect method to the current transaction.
-	 */
-	const runCoinSelect = (): void => {
-		try {
-			const outputs =
-				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-					.outputs;
-			const amountToSend =
-				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-					.value;
-			const newSatsPerByte =
-				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-					.satsPerByte;
-			autoCoinSelect({
-				amountToSend,
-				inputs: utxos,
-				outputs,
-				satsPerByte: newSatsPerByte,
-				sortMethod: coinSelectPreference,
-			}).then((response) => {
-				if (response.isErr()) {
-					console.log(response.error.message);
-					return;
-				}
-				if (transaction?.inputs?.length !== response.value.inputs.length) {
-					const updatedTx: IOnChainTransactionData = {
-						fee: response.value.fee,
-						inputs: response.value.inputs,
-					};
-					updateOnChainTransaction({
-						selectedWallet,
-						selectedNetwork,
-						transaction: updatedTx,
-					}).then();
-				}
+	const handlePaste = useCallback(async () => {
+		const data = await Clipboard.getString();
+		if (!data) {
+			showErrorNotification({
+				title: 'Clipboard is empty',
+				message: 'No address data available.',
 			});
-		} catch (e) {
-			console.log(e);
-		}
-	};
-
-	/**
-	 * Updates the amount to send for the currently selected output.
-	 * @param {string} txt
-	 */
-	const updateAmount = async (txt = ''): Promise<void> => {
-		let newAmount = Number(txt) ?? 0;
-		let totalNewAmount = 0;
-		if (newAmount !== 0) {
-			totalNewAmount = newAmount + getFee;
-			if (totalNewAmount > balance && balance - getFee < 0) {
-				newAmount = 0;
-			}
-		}
-		//Return if the new amount exceeds the current balance or there is no change detected.
-		if (
-			newAmount === value ||
-			newAmount > balance ||
-			totalNewAmount > balance
-		) {
 			return;
 		}
-		await updateOnChainTransaction({
+		data.replace('bitcoinTestnet:', '');
+		data.replace('bitcoin:', '');
+		const addressIsValid = await validate(data);
+		if (!addressIsValid) {
+			showErrorNotification({
+				title: 'Address is not valid.',
+				message: 'No address data available.',
+			});
+			return;
+		}
+		updateOnChainTransaction({
 			selectedWallet,
 			selectedNetwork,
 			transaction: {
-				outputs: [{ address, value: newAmount, index }],
+				outputs: [{ address: data, value, index }],
 			},
-		});
-		if (address && coinSelectPreference !== 'consolidate') {
-			runCoinSelect();
-		}
-	};
-
-	const updateMessage = async (txt = ''): Promise<void> => {
-		const newFee = getTotalFee({ satsPerByte, message: txt });
-		const totalTransactionValue = getOutputsValue();
-		const totalNewAmount = totalTransactionValue + newFee;
-
-		const _transaction: IOnChainTransactionData = {
-			message: txt,
-			fee: newFee,
-		};
-		if (max) {
-			_transaction.outputs = [{ address, value: balance - newFee, index }];
-			//Update the tx value with the new fee to continue sending the max amount.
-			updateOnChainTransaction({
-				selectedNetwork,
-				selectedWallet,
-				transaction: _transaction,
-			}).then();
-			return;
-		}
-		if (totalNewAmount <= balance) {
-			await updateOnChainTransaction({
-				selectedNetwork,
-				selectedWallet,
-				transaction: _transaction,
-			});
-			if (address && coinSelectPreference !== 'consolidate') {
-				runCoinSelect();
-			}
-		}
-	};
-
-	/**
-	 * Toggles whether to send the max balance.
-	 */
-	const sendMax = (): void => {
-		try {
-			if (
-				!max &&
-				balance > 0 &&
-				transaction?.fee &&
-				balance / 2 > transaction.fee
-			) {
-				const newFee = getTotalFee({ satsPerByte, message });
-				const totalTransactionValue = getOutputsValue();
-				const totalNewAmount = totalTransactionValue + newFee;
-
-				if (totalNewAmount <= balance) {
-					const _transaction: IOnChainTransactionData = {
-						fee: newFee,
-						outputs: [{ address, value: balance - newFee, index }],
-					};
-					updateOnChainTransaction({
-						selectedWallet,
-						selectedNetwork,
-						transaction: _transaction,
-					}).then();
-				}
-			}
-			setMax(!max);
-		} catch {}
-	};
+		}).then();
+	}, [index, selectedNetwork, selectedWallet, value]);
 
 	return (
-		<View color={'transparent'}>
-			<AnimatedView color="transparent" style={styles.container}>
-				<TextInput
-					multiline={true}
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					style={styles.multilineTextInput}
-					placeholder="Address"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					autoCorrect={false}
-					onChangeText={(txt): void => {
-						updateOnChainTransaction({
-							selectedWallet,
-							selectedNetwork,
-							transaction: {
-								outputs: [{ address: txt, value, index }],
-							},
-						}).then();
-					}}
-					value={address}
-					onSubmitEditing={(): void => {}}
-				/>
-				<View color={'transparent'} style={styles.row}>
-					<View style={styles.amountContainer}>
-						<TextInput
-							editable={!max}
-							underlineColorAndroid="transparent"
-							style={[
-								styles.textInput,
-								// eslint-disable-next-line react-native/no-inline-styles
-								{ backgroundColor: max ? '#E1E1E4' : 'white' },
-							]}
-							placeholder="Amount (sats)"
-							keyboardType="number-pad"
-							autoCapitalize="none"
-							autoCompleteType="off"
-							autoCorrect={false}
-							onChangeText={(txt): void => {
-								updateAmount(txt);
-							}}
-							value={Number(value) ? value.toString() : ''}
-							onSubmitEditing={(): void => {}}
-						/>
+		<View color="transparent" style={styles.container}>
+			<Card style={styles.card} color={'gray336'}>
+				<>
+					<View style={styles.col1}>
+						<View color="transparent" style={styles.titleContainer}>
+							<Text02M>To</Text02M>
+							<TextInput
+								style={styles.textInput}
+								multiline={true}
+								textAlignVertical={'center'}
+								underlineColorAndroid="transparent"
+								placeholder="Address"
+								placeholderTextColor={colors.gray2}
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								onChangeText={(txt): void => {
+									updateOnChainTransaction({
+										selectedWallet,
+										selectedNetwork,
+										transaction: {
+											outputs: [{ address: txt, value, index }],
+										},
+									}).then();
+								}}
+								value={address}
+								onSubmitEditing={(): void => {}}
+							/>
+						</View>
 					</View>
-					<Button
-						color={max ? 'surface' : 'onSurface'}
-						text="Max"
-						disabled={balance <= 0}
-						onPress={sendMax}
-					/>
-				</View>
-				{!!displayMessage && (
-					<TextInput
-						multiline
-						underlineColorAndroid="transparent"
-						style={styles.multilineTextInput}
-						placeholder="Message (OP_RETURN)"
-						autoCapitalize="none"
-						autoCompleteType="off"
-						autoCorrect={false}
-						onChangeText={(txt): void => {
-							updateMessage(txt);
-						}}
-						value={message}
-						onSubmitEditing={(): void => {}}
-					/>
-				)}
 
-				{!!displayFee && (
-					<AdjustValue
-						value={`${satsPerByte} sats/byte`}
-						decreaseValue={decreaseFee}
-						increaseValue={increaseFee}
-					/>
-				)}
-			</AnimatedView>
+					<TouchableOpacity
+						onPress={handlePaste}
+						color="transparent"
+						style={styles.col2}>
+						<SvgXml xml={pasteIcon()} width={20} height={20} />
+					</TouchableOpacity>
+				</>
+			</Card>
+
+			<Card style={styles.card} color={'gray336'}>
+				<>
+					<View style={styles.col1}>
+						<View color="transparent" style={styles.titleContainer}>
+							<Text02M>Amount</Text02M>
+							<TextInput
+								style={styles.textInput}
+								multiline={true}
+								textAlignVertical={'center'}
+								underlineColorAndroid="transparent"
+								placeholderTextColor={colors.gray2}
+								editable={!max}
+								placeholder="Amount (sats)"
+								keyboardType="number-pad"
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								onChangeText={(txt): void => {
+									updateAmount({
+										amount: txt,
+										selectedWallet,
+										selectedNetwork,
+										index,
+									});
+								}}
+								value={Number(value) ? value.toString() : ''}
+								onSubmitEditing={(): void => {}}
+							/>
+						</View>
+					</View>
+
+					<View color="transparent" style={styles.col2}>
+						<TouchableOpacity
+							style={styles.button}
+							color={max ? 'surface' : 'onSurface'}
+							text="Max"
+							disabled={balance <= 0}
+							onPress={sendMax}>
+							<Text02M>Max</Text02M>
+						</TouchableOpacity>
+					</View>
+				</>
+			</Card>
+
+			{!!displayMessage && (
+				<Card style={styles.card} color={'gray336'}>
+					<>
+						<View style={styles.col1}>
+							<View color="transparent" style={styles.titleContainer}>
+								<Text02M>Add Note</Text02M>
+								<TextInput
+									style={styles.textInput}
+									textAlignVertical={'center'}
+									placeholderTextColor={colors.gray2}
+									editable={!max}
+									multiline
+									underlineColorAndroid="transparent"
+									placeholder="Message (OP_RETURN)"
+									autoCapitalize="none"
+									autoCompleteType="off"
+									autoCorrect={false}
+									onChangeText={(txt): void => {
+										updateMessage({
+											message: txt,
+											selectedWallet,
+											selectedNetwork,
+											index,
+										});
+									}}
+									value={message}
+									onSubmitEditing={(): void => {}}
+								/>
+							</View>
+						</View>
+					</>
+				</Card>
+			)}
+
+			{!!displayFee && (
+				<AdjustValue
+					value={`${satsPerByte} sats/byte`}
+					decreaseValue={decreaseFee}
+					increaseValue={increaseFee}
+				/>
+			)}
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		flex: 0,
 	},
 	textInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
+		backgroundColor: 'transparent',
 	},
-	multilineTextInput: {
-		minHeight: 50,
-		borderRadius: 5,
-		fontWeight: 'bold',
-		fontSize: 18,
-		textAlign: 'center',
-		color: 'gray',
-		borderBottomWidth: 1,
-		borderColor: 'gray',
-		paddingHorizontal: 10,
-		backgroundColor: 'white',
-		marginVertical: 5,
-		paddingTop: Platform.OS === 'ios' ? 15 : 10,
-	},
-	row: {
+	card: {
+		height: 58,
+		marginBottom: 8,
+		borderRadius: 20,
+		paddingHorizontal: 16,
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		flexDirection: 'row',
 	},
-	amountContainer: {
+	col1: {
 		flex: 1,
+		alignItems: 'center',
+		flexDirection: 'row',
+		backgroundColor: 'transparent',
+	},
+	col2: {
+		alignContent: 'flex-end',
+		right: 4,
+		backgroundColor: 'transparent',
+	},
+	titleContainer: {
+		flex: 1,
+		marginHorizontal: 12,
+	},
+	button: {
+		paddingVertical: 2,
+		paddingHorizontal: 5,
+		borderRadius: 20,
+		right: -7,
 	},
 });
 

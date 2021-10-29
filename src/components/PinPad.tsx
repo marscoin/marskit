@@ -12,7 +12,6 @@ import { Text, TouchableOpacity, EvilIcon, View } from '../styles/components';
 import { updateSettings, wipeWallet } from '../store/actions/settings';
 import NavigationHeader from './NavigationHeader';
 import { RouteProp, useNavigation } from '@react-navigation/native';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 
@@ -70,7 +69,7 @@ const PinPad = ({
 	children = <></>,
 	route,
 }: PinComponent): ReactElement => {
-	const navigation = useNavigation<DrawerNavigationProp<any>>();
+	const navigation = useNavigation();
 	try {
 		if (route?.params?.pinSetup) {
 			pinSetup = route.params.pinSetup;
@@ -390,7 +389,7 @@ const PinPad = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingVertical: 40,
+		paddingBottom: 40,
 		zIndex: 300,
 	},
 	centerItems: {

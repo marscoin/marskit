@@ -1,13 +1,7 @@
-import React, { ReactElement } from 'react';
-import {
-	BottomTabNavigationOptions,
-	createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
-import {
-	createStackNavigator,
-	TransitionPresets,
-} from '@react-navigation/stack';
-import { useTranslation } from 'react-i18next';
+import React, { ReactElement, useCallback, useMemo } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { TransitionPresets } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WalletsScreen from '../../screens/Wallets';
 import ProfileScreen from '../../screens/Profile';
 import ProfileDetail from '../../screens/Profile/ProfileDetail';
@@ -15,7 +9,6 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
 import QR from '../../components/QR';
-import SendOnChainTransaction from '../../screens/Wallets/SendOnChainTransaction';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import { View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
@@ -26,59 +19,49 @@ import {
 	sendIcon,
 	walletIcon,
 } from '../../assets/icons/tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
+import { toggleView } from '../../store/actions/user';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
+const transitionPreset =
+	Platform.OS === 'ios'
+		? TransitionPresets.SlideFromRightIOS
+		: TransitionPresets.DefaultTransition;
 
-const navOptionHandler = {
+const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
+	...transitionPreset,
 	detachInactiveScreens: true,
+};
+
+const screenOptions = {
+	...navOptions,
+};
+
+const modalOptions = {
+	...navOptions,
+	...TransitionPresets.ModalSlideFromBottomIOS,
 };
 
 const WalletsStack = (): ReactElement => {
 	return (
-		<Stack.Navigator
-			initialRouteName="Wallets"
-			screenOptions={{ headerShown: false }}>
+		<Stack.Navigator initialRouteName="Wallets" screenOptions={navOptions}>
 			<Stack.Screen
 				name="Wallets"
 				component={WalletsScreen}
-				options={navOptionHandler}
+				options={screenOptions}
 			/>
-			<Stack.Screen
-				name="SendOnChainTransaction"
-				component={SendOnChainTransaction}
-				options={{
-					...navOptionHandler,
-					...TransitionPresets.ModalSlideFromBottomIOS,
-				}}
-			/>
-			<Stack.Screen
-				name="BitcoinToLightning"
-				component={BitcoinToLightningModal}
-				options={{
-					...navOptionHandler,
-					...TransitionPresets.ModalSlideFromBottomIOS,
-				}}
-			/>
-			<Stack.Screen
-				name="QR"
-				component={QR}
-				options={{
-					...navOptionHandler,
-					...TransitionPresets.ModalSlideFromBottomIOS,
-				}}
-			/>
-			<Stack.Screen
-				name="AuthCheck"
-				component={AuthCheck}
-				options={{
-					...navOptionHandler,
-					...TransitionPresets.ModalSlideFromBottomIOS,
-				}}
-			/>
+			<Stack.Group screenOptions={modalOptions}>
+				<Stack.Screen
+					name="BitcoinToLightning"
+					component={BitcoinToLightningModal}
+				/>
+				<Stack.Screen name="QR" component={QR} />
+				<Stack.Screen name="AuthCheck" component={AuthCheck} />
+			</Stack.Group>
 		</Stack.Navigator>
 	);
 };
@@ -86,90 +69,169 @@ const WalletsStack = (): ReactElement => {
 const ProfileStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Profile">
-			<Stack.Screen
-				name="Profile"
-				component={ProfileScreen}
-				options={navOptionHandler}
-			/>
-			<Stack.Screen
-				name="ProfileDetail"
-				component={ProfileDetail}
-				options={navOptionHandler}
-			/>
+			<Stack.Group screenOptions={screenOptions}>
+				<Stack.Screen name="Profile" component={ProfileScreen} />
+				<Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+			</Stack.Group>
 		</Stack.Navigator>
 	);
 };
 
+const activeTintColor = '#E94D27';
 const TabNavigator = (): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
-	const theme = themes[settings.theme];
-	const activeTintColor = '#E94D27';
-	const tabBackground = theme.colors.tabBackground;
-	const { t } = useTranslation();
+	const theme = useMemo(() => themes[settings.theme], [settings.theme]);
+	const tabBackground = useMemo(
+		() => theme.colors.tabBackground,
+		[theme.colors.tabBackground],
+	);
+	const insets = useSafeAreaInsets();
+	const tabScreenOptions = useMemo(() => {
+		return {
+			tabBarShowLabel: false,
+			tabBarHideOnKeyboard: true,
+			headerShown: false,
+			tabBarActiveTintColor: activeTintColor,
+			tabBarInactiveTintColor: '#636366',
+			tabBarStyle: {
+				height: 60,
+				position: 'absolute',
+				bottom: Math.max(insets.bottom, 18),
+				left: 48,
+				right: 48,
+				backgroundColor: tabBackground,
+				borderRadius: 44,
+				borderTopWidth: 0,
+				elevation: 0,
+				paddingTop: insets.bottom - 5,
+			},
+		};
+	}, [insets.bottom, tabBackground]);
 
-	const options: BottomTabNavigationOptions = {
-		tabBarShowLabel: false,
-		tabBarHideOnKeyboard: true,
-		headerShown: false,
-		tabBarActiveTintColor: activeTintColor,
-		tabBarInactiveTintColor: '#636366',
-		//activeBackgroundColor: backgroundColor,
-		//inactiveBackgroundColor: backgroundColor,
-		tabBarStyle: {
-			height: 60,
-			position: 'absolute',
-			bottom: 18,
-			left: 28,
-			right: 28,
-			backgroundColor: tabBackground,
-			borderRadius: 44,
-			borderTopWidth: 0,
-			elevation: 0,
-		},
-	};
+	const WalletIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={walletIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const walletOptions = useMemo(() => {
+		return {
+			tabBarIcon: WalletIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const SendIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={sendIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const sendOptions = useMemo(() => {
+		return {
+			tabBarIcon: SendIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const ReceiveIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={receiveIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const receiveOptions = useMemo(() => {
+		return {
+			tabBarIcon: ReceiveIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const ProfileIcon = useCallback(
+		({ size, color }): ReactElement => (
+			<SvgXml xml={profileIcon(color)} width={size} height={size} />
+		),
+		[],
+	);
+
+	const profileOptions = useMemo(() => {
+		return {
+			tabBarIcon: ProfileIcon,
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const onReceivePress = useCallback((event) => {
+		toggleView({
+			view: 'receiveAssetPicker',
+			data: {
+				id: 'receive',
+				isOpen: true,
+				snapPoint: 1,
+			},
+		}).then();
+		event.preventDefault();
+	}, []);
+
+	const receiveListeners = useCallback(
+		(): { tabPress } => ({
+			tabPress: onReceivePress,
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
+
+	const onSendPress = useCallback((event) => {
+		const snapPoint = 1;
+		toggleView({
+			view: 'sendAssetPicker',
+			data: {
+				id: 'send',
+				isOpen: true,
+				snapPoint,
+			},
+		}).then();
+		event.preventDefault();
+	}, []);
+
+	const sendListeners = useCallback(
+		(): { tabPress } => ({
+			tabPress: onSendPress,
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
 
 	return (
 		<Tab.Navigator>
-			<Tab.Screen
-				name={t('wallets')}
-				component={WalletsStack}
-				options={{
-					...options,
-					tabBarIcon: ({ size, color }): ReactElement => (
-						<SvgXml xml={walletIcon(color)} width={size} height={size} />
-					),
-				}}
-			/>
-			<Tab.Screen
-				name={t('send')}
-				component={View}
-				options={{
-					...options,
-					tabBarIcon: ({ size, color }): ReactElement => (
-						<SvgXml xml={sendIcon(color)} width={size} height={size} />
-					),
-				}}
-			/>
-			<Tab.Screen
-				name={t('receive')}
-				component={View}
-				options={{
-					...options,
-					tabBarIcon: ({ size, color }): ReactElement => (
-						<SvgXml xml={receiveIcon(color)} width={size} height={size} />
-					),
-				}}
-			/>
-			<Tab.Screen
-				name={t('profile')}
-				component={ProfileStack}
-				options={{
-					...options,
-					tabBarIcon: ({ size, color }): ReactElement => (
-						<SvgXml xml={profileIcon(color)} width={size} height={size} />
-					),
-				}}
-			/>
+			{/*@ts-ignore*/}
+			<Tab.Group screenOptions={tabScreenOptions}>
+				<Tab.Screen
+					name={'WalletsStack'}
+					component={WalletsStack}
+					options={walletOptions}
+				/>
+				<Tab.Screen
+					name={'Send'}
+					component={View}
+					options={sendOptions}
+					listeners={sendListeners}
+				/>
+				<Tab.Screen
+					name={'Receive'}
+					component={View}
+					options={receiveOptions}
+					listeners={receiveListeners}
+				/>
+				<Tab.Screen
+					name={'ProfileStack'}
+					component={ProfileStack}
+					options={profileOptions}
+				/>
+			</Tab.Group>
 		</Tab.Navigator>
 	);
 };

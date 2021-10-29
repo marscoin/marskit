@@ -7,13 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
-import {
-	View,
-	AnimatedView,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
-import Animated, { Easing } from 'react-native-reanimated';
+import { View, Text, TouchableOpacity } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
@@ -43,32 +37,19 @@ import FeeSummary from './FeeSummary';
 import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 import UTXOList from './UTXOList';
-
-const updateOpacity = ({
-	opacity = new Animated.Value(0),
-	toValue = 0,
-	duration = 1000,
-}): void => {
-	try {
-		Animated.timing(opacity, {
-			toValue,
-			duration,
-			easing: Easing.inOut(Easing.ease),
-		}).start();
-	} catch {}
-};
+import BalanceToggle from '../../../components/BalanceToggle';
+import AssetPicker from '../../../components/AssetPicker';
+import { toggleView } from '../../../store/actions/user';
+import { getStore } from '../../../store/helpers';
 
 interface ISendOnChainTransaction {
-	animate?: boolean;
 	header?: boolean;
 	onComplete?: Function;
 }
 const SendOnChainTransaction = ({
-	animate = true,
 	header = true,
 	onComplete = (): null => null,
 }: ISendOnChainTransaction): ReactElement => {
-	const [opacity] = useState(new Animated.Value(0));
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [rawTx, setRawTx] = useState('');
 	const [displayUtxoList, setDisplayUtxoList] = useState(false);
@@ -110,23 +91,28 @@ const SendOnChainTransaction = ({
 	);
 
 	useEffect(() => {
-		if (animate) {
-			setTimeout(() => {
-				updateOpacity({ opacity, toValue: 1 });
-			}, 100);
+		if (transaction?.rbf) {
+			return;
 		}
 		setupOnChainTransaction({
 			selectedWallet,
 			selectedNetwork,
 		});
 		return (): void => {
-			if (animate) {
-				updateOpacity({ opacity, toValue: 0, duration: 0 });
+			if (transaction?.rbf) {
+				return;
 			}
 			resetOnChainTransaction({ selectedNetwork, selectedWallet });
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	const Header = useCallback((): ReactElement | null => {
+		if (header) {
+			return <NavigationHeader title="Send Transaction" />;
+		}
+		return null;
+	}, [header]);
 
 	const { outputs, message } = transaction;
 	const totalFee = transaction.fee;
@@ -164,7 +150,13 @@ const SendOnChainTransaction = ({
 		[selectedNetwork, selectedWallet, transaction?.inputs],
 	);
 
-	const _createTransaction = async (): Promise<void> => {
+	const utxoButtonText = useMemo(() => {
+		return `UTXO List (${transaction.inputs?.length ?? '0'}/${
+			utxos?.length ?? '0'
+		})`;
+	}, [transaction.inputs?.length, utxos?.length]);
+
+	const _createTransaction = useCallback(async (): Promise<void> => {
 		try {
 			const transactionIsValid = validateTransaction(transaction);
 			if (transactionIsValid.isErr()) {
@@ -197,13 +189,57 @@ const SendOnChainTransaction = ({
 				}
 			}
 		} catch {}
-	};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedNetwork, selectedWallet, transaction]);
+
+	const broadcast = useCallback(async () => {
+		const response = await broadcastTransaction({
+			rawTx,
+			selectedNetwork,
+		});
+		if (response.isErr()) {
+			showErrorNotification({
+				title: 'Error: Unable to Broadcast Transaction',
+				message: 'Please check your connection and try again.',
+			});
+		}
+		//Successful Broadcast
+		setRawTx('');
+		resetOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+		});
+		showSuccessNotification({
+			title: `Sent ${transactionTotal} sats`,
+			message,
+		});
+		//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
+		updateWalletBalance({
+			balance: balance - transactionTotal,
+			selectedWallet,
+			selectedNetwork,
+		});
+		const currentView = getStore().user.viewController.sendAssetPicker.isOpen
+			? 'sendAssetPicker'
+			: 'send';
+		toggleView({ view: currentView, data: { isOpen: false } }).then();
+		onComplete(response.value);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		balance,
+		message,
+		rawTx,
+		selectedNetwork,
+		selectedWallet,
+		transactionTotal,
+	]);
 
 	LayoutAnimation.easeInEaseOut();
 
 	if (rawTx) {
 		return (
 			<>
+				<Header />
 				<OutputSummary outputs={outputs} changeAddress={changeAddress}>
 					<FeeSummary />
 				</OutputSummary>
@@ -224,32 +260,7 @@ const SendOnChainTransaction = ({
 					<TouchableOpacity
 						style={styles.broadcastButton}
 						color={'onSurface'}
-						onPress={async (): Promise<void> => {
-							const response = await broadcastTransaction({
-								rawTx,
-								selectedNetwork,
-							});
-							//Successful Broadcast
-							if (response.isOk()) {
-								showSuccessNotification({
-									title: `Sent ${transactionTotal} sats`,
-									message,
-								});
-								//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
-								updateWalletBalance({
-									balance: balance - transactionTotal,
-									selectedWallet,
-									selectedNetwork,
-								});
-								onComplete(response.value);
-								return;
-							}
-
-							showErrorNotification({
-								title: 'Error: Unable to Broadcast Transaction',
-								message: 'Please check your connection and try again.',
-							});
-						}}>
+						onPress={broadcast}>
 						<Text style={styles.title}>Broadcast</Text>
 					</TouchableOpacity>
 				</View>
@@ -258,35 +269,28 @@ const SendOnChainTransaction = ({
 	}
 
 	return (
-		<View
-			color={header ? 'background' : 'transparent'}
-			//eslint-disable-next-line react-native/no-inline-styles
-			style={{ flex: header ? 1 : 0 }}>
-			{header && <NavigationHeader title="Send Transaction" />}
-			<AnimatedView color="transparent" style={[styles.container, { opacity }]}>
-				<View color={'transparent'} style={styles.amountAvailable}>
-					<Text>Amount Available: {txInputValue}</Text>
-				</View>
+		<View color="onSurface" style={styles.container}>
+			<Header />
+			<BalanceToggle sats={txInputValue} />
+			<View style={styles.content}>
+				<AssetPicker assetName="Bitcoin" sats={balance} />
 				<SendForm />
 				<Button
 					color={'onSurface'}
-					text={`UTXO List (${transaction.inputs?.length ?? '0'}/${
-						utxos?.length ?? '0'
-					})`}
+					text={utxoButtonText}
 					onPress={(): void => setDisplayUtxoList(true)}
 				/>
 				<UTXOList
 					isVisible={displayUtxoList}
 					closeList={(): void => setDisplayUtxoList(false)}
 				/>
-				<FeeSummary />
 				<Button
 					disabled={balance < transactionTotal}
 					color="onSurface"
 					text="Create"
 					onPress={_createTransaction}
 				/>
-			</AnimatedView>
+			</View>
 		</View>
 	);
 };
@@ -294,8 +298,12 @@ const SendOnChainTransaction = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginVertical: 20,
-		justifyContent: 'space-between',
+		marginBottom: 20,
+		justifyContent: 'space-evenly',
+	},
+	content: {
+		marginHorizontal: 10,
+		backgroundColor: 'transparent',
 	},
 	title: {
 		...systemWeights.bold,
@@ -312,9 +320,6 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		alignSelf: 'center',
 		paddingVertical: 5,
-	},
-	amountAvailable: {
-		alignItems: 'center',
 	},
 });
 

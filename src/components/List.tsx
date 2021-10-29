@@ -1,14 +1,20 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { SectionList, StyleSheet, Switch } from 'react-native';
-import { Text, TouchableOpacity, View } from '../styles/components';
+import {
+	Text01S,
+	Caption13Up,
+	TouchableOpacity,
+	View,
+	ChevronRight,
+	Checkmark,
+} from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
+import Card from './Card';
 
 const _ItemHeader = memo(
 	({ title }: { title: string }): ReactElement => (
-		<View style={styles.itemHeader}>
-			<Text color="white" style={styles.header}>
-				{title}
-			</Text>
+		<View color={'transparent'} style={styles.itemHeader}>
+			<Caption13Up color="gray1">{title.toUpperCase()}</Caption13Up>
 		</View>
 	),
 );
@@ -19,8 +25,9 @@ const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 type TItemType = 'switch' | 'button';
 
 type ItemData = {
-	title: TItemType;
-	type: string;
+	title: string;
+	value?: string | boolean;
+	type: TItemType;
 	onPress: Function;
 	enabled?: boolean;
 	hide?: boolean;
@@ -28,13 +35,14 @@ type ItemData = {
 
 interface IItem extends ItemData {
 	navigation: Object;
-	type: string;
+	type: TItemType;
 }
 
 const _Item = memo(
 	({
 		type,
 		title,
+		value,
 		onPress,
 		navigation,
 		enabled = true,
@@ -43,38 +51,58 @@ const _Item = memo(
 		if (hide) {
 			return <View />;
 		}
+
+		const useCheckmark = typeof value === 'boolean';
+
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
 			return (
 				<TouchableOpacity
+					color="transparent"
 					activeOpacity={0.7}
-					onPress={_onPress}
-					style={styles.row}>
-					<View color="transparent" style={styles.leftColumn}>
-						<Text color="white" style={styles.title}>
-							{title}
-						</Text>
-					</View>
-					<View color="transparent" style={styles.rightColumn}>
-						<Switch
-							trackColor={{ false: '#767577', true: '#81b0ff' }}
-							thumbColor={'#f4f3f4'}
-							ios_backgroundColor="#3e3e3e"
-							onValueChange={_onPress}
-							value={enabled}
-						/>
-					</View>
+					onPress={_onPress}>
+					<Card style={styles.card}>
+						<View color="transparent" style={styles.leftColumn}>
+							<Text01S color="white">{title}</Text01S>
+						</View>
+						<View color="transparent" style={styles.rightColumn}>
+							<Switch
+								trackColor={{ false: '#767577', true: '#81b0ff' }}
+								thumbColor={'#f4f3f4'}
+								ios_backgroundColor="#3e3e3e"
+								onValueChange={_onPress}
+								value={enabled}
+							/>
+						</View>
+					</Card>
 				</TouchableOpacity>
 			);
 		}
 		return (
 			<TouchableOpacity
+				color="transparent"
 				activeOpacity={0.7}
 				onPress={enabled ? _onPress : null}
 				style={styles.row}>
-				<Text color="white" style={styles.title}>
-					{title}
-				</Text>
+				<Card style={styles.card}>
+					<View color="transparent" style={styles.leftColumn}>
+						<Text01S color="white">{title}</Text01S>
+					</View>
+					<View color="transparent" style={styles.rightColumn}>
+						{useCheckmark ? (
+							value ? (
+								<Checkmark />
+							) : null
+						) : (
+							<>
+								<Text01S color={'gray2'} style={styles.valueText}>
+									{value}
+								</Text01S>
+								<ChevronRight color={'gray2'} />
+							</>
+						)}
+					</View>
+				</Card>
 			</TouchableOpacity>
 		);
 	},
@@ -82,20 +110,32 @@ const _Item = memo(
 const Item = memo(_Item, (prevProps, nextProps) => {
 	return (
 		prevProps.title === nextProps.title &&
+		prevProps.value === nextProps.value &&
 		prevProps.type === nextProps.type &&
 		prevProps.enabled === nextProps.enabled
 	);
 });
 
-interface IListData {
+export interface IListData {
 	title: string;
 	data: ItemData[];
 }
 
-const List = ({ data }: { data: IListData[] }): ReactElement => {
+const List = ({
+	data,
+	onScrollDownChange,
+}: {
+	data: IListData[];
+	onScrollDownChange?: (boolean) => void;
+}): ReactElement => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
+			onScroll={
+				onScrollDownChange
+					? (e): void => onScrollDownChange(e.nativeEvent.contentOffset.y > 15)
+					: undefined
+			}
 			sections={data}
 			extraData={data}
 			keyExtractor={(item): string => item.title}
@@ -112,55 +152,40 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 				return null;
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
-			ItemSeparatorComponent={useCallback(
-				({ leadingItem: { hide } }): ReactElement | null => {
-					if (!hide) {
-						return <View style={styles.separator} />;
-					}
-					return null;
-				},
-				[],
-			)}
-			stickySectionHeadersEnabled={true}
+			stickySectionHeadersEnabled={false}
+			contentContainerStyle={styles.contentContainerStyle}
 		/>
 	);
 };
 
 const styles = StyleSheet.create({
+	contentContainerStyle: {
+		paddingBottom: 55,
+	},
 	row: {
+		height: 55,
+	},
+	card: {
 		flexDirection: 'row',
-		backgroundColor: '#333333',
-		height: 60,
 		alignItems: 'center',
-		paddingLeft: 10,
+		justifyContent: 'space-between',
+		paddingHorizontal: 16,
+		paddingVertical: 14,
+		minHeight: 51,
 	},
 	itemHeader: {
-		backgroundColor: '#4C4C4C',
-		height: 60,
+		marginTop: 27,
 		justifyContent: 'center',
-		paddingLeft: 10,
 	},
-	header: {
-		fontSize: 18,
-		fontWeight: 'bold',
-	},
-	title: {
-		fontSize: 14,
-	},
-	separator: {
-		width: '100%',
-		height: 1,
-		backgroundColor: 'white',
+	valueText: {
+		marginRight: 15,
 	},
 	leftColumn: {
-		flex: 1,
 		justifyContent: 'center',
 	},
 	rightColumn: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'flex-end',
-		paddingRight: 10,
+		alignItems: 'center',
+		flexDirection: 'row',
 	},
 });
 

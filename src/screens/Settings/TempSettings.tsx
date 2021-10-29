@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 
 const TempSettings = (): ReactElement => {
 	return (
-		<View style={styles.container}>
+		<View color={'surface'} style={styles.container}>
 			<NavigationHeader title="Nested Settings" />
 			<View style={styles.content}>
 				<Text>Temporary Nested Settings Screen</Text>

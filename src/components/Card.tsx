@@ -4,10 +4,15 @@ import { View } from '../styles/components';
 
 interface ICard {
 	style?: {};
-	children?: ReactElement;
+	children?: ReactElement | ReactElement[];
+	color?: string;
 }
-const Card = ({ style = {}, children = <View /> }: ICard): ReactElement => (
-	<View color="surface" style={[styles.container, style]}>
+const Card = ({
+	style = {},
+	children = <View />,
+	color = 'surface',
+}: ICard): ReactElement => (
+	<View color={color} style={[styles.container, style]}>
 		{children}
 	</View>
 );

@@ -3,10 +3,10 @@ import Store from '../store/types';
 import { IDisplayValues } from '../utils/exchange-rate';
 import useDisplayValues from './displayValues';
 
-interface IncludeBalances {
+export interface IncludeBalances {
 	onchain?: boolean;
 	lightning?: boolean;
-	omnibolt?: boolean;
+	omnibolt?: string[];
 }
 
 /**
@@ -15,7 +15,7 @@ interface IncludeBalances {
 export function useBalance({
 	onchain = false,
 	lightning = false,
-	omnibolt = false,
+	omnibolt,
 }: IncludeBalances): IDisplayValues {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -39,7 +39,18 @@ export function useBalance({
 		}
 
 		if (omnibolt) {
-			//TODO
+			/*
+				TODO: We'll need to implement a method that resolves the usd->sat value
+				      of a given omni token before adding it to the balance.
+		 */
+			/*const channels = Object.keys(
+				store.omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+			);
+			omnibolt.map((id) => {
+				if (id in channels) {
+					balance += channels[id].balance_a;
+				}
+			});*/
 		}
 
 		return balance;

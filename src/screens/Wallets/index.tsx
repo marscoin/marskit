@@ -6,16 +6,17 @@
 import React, { memo, ReactElement } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { View } from '../../styles/components';
+import { View, Subtitle, BitcoinCircleIcon } from '../../styles/components';
 import Header from './Header';
-import BitcoinCard from './BitcoinCard';
 import LightningCard from './LightningCard';
 import OmniboltCard from './OmniboltCard';
-import ActivitySwipeUpPanel from '../Activity/ActivitySwipeUpPanel';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
 import BoostCards from './BoostCards';
+import SafeAreaView from '../../components/SafeAreaView';
+import AssetCard from '../../components/AssetCard';
+import { useBalance } from '../../hooks/wallet';
 
 const Wallets = ({ navigation }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
@@ -25,46 +26,58 @@ const Wallets = ({ navigation }): ReactElement => {
 		navigation.navigate('Scanner');
 	};
 
+	const bitcoinBalances = useBalance({ onchain: true, lightning: true });
+
 	return (
-		<View style={styles.container}>
-			<View>
-				<Header />
-				<ScrollView
-					contentContainerStyle={styles.scrollview}
-					disableScrollViewPanResponder={true}
-					showsVerticalScrollIndicator={false}>
-					<DetectSwipe onSwipeLeft={onSwipeLeft}>
-						<View>
-							<BalanceHeader />
-						</View>
-					</DetectSwipe>
-					<View style={styles.content}>
-						<BoostCards />
+		<SafeAreaView>
+			<Header />
+			<ScrollView
+				contentContainerStyle={styles.scrollview}
+				disableScrollViewPanResponder={true}
+				showsVerticalScrollIndicator={false}>
+				<DetectSwipe onSwipeLeft={onSwipeLeft}>
+					<View>
+						<BalanceHeader />
 					</View>
-					<TodoCarousel />
-					<DetectSwipe onSwipeLeft={onSwipeLeft}>
-						<View style={styles.content}>
-							<BitcoinCard />
-							<LightningCard />
-							<OmniboltCard />
-						</View>
-					</DetectSwipe>
-				</ScrollView>
-			</View>
-			<ActivitySwipeUpPanel />
-		</View>
+				</DetectSwipe>
+				<View style={styles.content}>
+					<BoostCards />
+				</View>
+				<TodoCarousel />
+				<DetectSwipe onSwipeLeft={onSwipeLeft}>
+					<View style={styles.content}>
+						<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
+						<AssetCard
+							name={'Bitcoin'}
+							ticker={'BTC'}
+							balances={bitcoinBalances}
+							icon={<BitcoinCircleIcon />}
+							onPress={(): void =>
+								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
+							}
+						/>
+
+						{/*TODO remove the below cards when not needed anymore*/}
+						<Subtitle style={styles.assetsTitle}>OLD Assets</Subtitle>
+						<LightningCard />
+						<OmniboltCard />
+					</View>
+				</DetectSwipe>
+			</ScrollView>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	content: {
 		paddingHorizontal: 20,
 	},
 	scrollview: {
 		paddingBottom: 400,
+	},
+	assetsTitle: {
+		marginBottom: 8,
+		marginTop: 10,
 	},
 });
 

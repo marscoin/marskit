@@ -418,6 +418,20 @@ export const updateTransactions = ({
 
 		const storedTransactions = currentWallet.transactions[selectedNetwork];
 
+		const boostedTransactions =
+			currentWallet.boostedTransactions[selectedNetwork];
+		await Promise.all(
+			boostedTransactions.map((boostedTx) => {
+				if (boostedTx in storedTransactions) {
+					deleteOnChainTransactionById({
+						txid: boostedTx,
+						selectedWallet,
+						selectedNetwork,
+					});
+				}
+			}),
+		);
+
 		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
 			//If the tx is new or the tx now has a block height (state changed to confirmed)
 			if (
@@ -446,6 +460,108 @@ export const updateTransactions = ({
 
 		return resolve(ok(formattedTransactions));
 	});
+};
+
+/**
+ * Deletes a given on-chain trnsaction by id.
+ * @param {string} txid
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const deleteOnChainTransactionById = async ({
+	txid,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const payload = {
+			txid,
+			selectedNetwork,
+			selectedWallet,
+		};
+		await dispatch({
+			type: actions.DELETE_ON_CHAIN_TRANSACTION,
+			payload,
+		});
+	} catch (e) {}
+};
+
+/**
+ * Adds a boosted transaction id (typically via RBF) to the boostedTransactions array.
+ * @param {string} txid
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const addBoostedTransaction = async ({
+	txid,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const payload = {
+			txid,
+			selectedNetwork,
+			selectedWallet,
+		};
+		await dispatch({
+			type: actions.ADD_BOOSTED_TRANSACTION,
+			payload,
+		});
+	} catch (e) {}
+};
+
+/**
+ * Deletes a given txid from the boostedTransactions array.
+ * @param {string} txid
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const deleteBoostedTransaction = async ({
+	txid,
+	selectedWallet = undefined,
+	selectedNetwork = undefined,
+}: {
+	txid: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const payload = {
+			txid,
+			selectedNetwork,
+			selectedWallet,
+		};
+		await dispatch({
+			type: actions.DELETE_BOOSTED_TRANSACTION,
+			payload,
+		});
+	} catch (e) {}
 };
 
 /**
@@ -484,14 +600,18 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 };
 
 export const setupOnChainTransaction = async ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 	addressType,
+	rbf = true,
+	submitDispatch = true,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-	addressType?: TAddressType | undefined;
-}): Promise<void> => {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: TAddressType;
+	rbf?: boolean;
+	submitDispatch?: boolean; //Should we dispatch this and update the store.
+} = {}): Promise<Result<IOnChainTransactionData>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -507,6 +627,11 @@ export const setupOnChainTransaction = async ({
 			selectedWallet,
 			selectedNetwork,
 		});
+
+		const isRbf = currentWallet.transaction[selectedNetwork].rbf;
+		if (isRbf) {
+			return ok(currentWallet.transaction[selectedNetwork]);
+		}
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 
@@ -545,12 +670,19 @@ export const setupOnChainTransaction = async ({
 			changeAddress,
 			fee,
 			outputs: newOutputs,
+			rbf,
 		};
-		dispatch({
-			type: actions.SETUP_ON_CHAIN_TRANSACTION,
-			payload,
-		});
-	} catch {}
+
+		if (submitDispatch) {
+			dispatch({
+				type: actions.SETUP_ON_CHAIN_TRANSACTION,
+				payload,
+			});
+		}
+		return ok(payload);
+	} catch (e) {
+		return err(e);
+	}
 };
 
 export interface IUpdateOutput extends IOutput {
@@ -621,12 +753,12 @@ export const updateOnChainTransaction = async ({
 };
 
 export const resetOnChainTransaction = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
-}): void => {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+} = {}): void => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();

@@ -3,6 +3,7 @@ import { TTransactionType } from './wallet';
 export enum EActivityTypes {
 	lightning = 'lightning',
 	onChain = 'onChain',
+	tether = 'tether',
 	//TODO add all other activity types as we support them
 }
 

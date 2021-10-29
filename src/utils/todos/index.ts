@@ -33,8 +33,9 @@ export const setupTodos = (): void => {
 	 */
 	const backupTodo = todos.filter((todo) => todo.type === 'activateBackup');
 	const backupStatus = !!getStore().backup.username;
+	const activateBackupIsDismissed = 'activateBackup' in dismissedTodos;
 	// Add backupTodo if status is false and is not included in the todos array.
-	if (!backupStatus && !backupTodo?.length) {
+	if (!backupStatus && !backupTodo?.length && activateBackupIsDismissed) {
 		addTodo(todoPresets.activateBackup);
 	}
 	// Remove backupTodo if status is true and hasn't been removed from the todos array.

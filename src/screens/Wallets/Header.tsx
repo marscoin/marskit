@@ -5,36 +5,44 @@ import {
 	CameraIcon,
 	SettingsIcon,
 	TouchableOpacity,
-	Text01M,
+	Title,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 
 const Header = (): ReactElement => {
-	const navigation = useNavigation<DrawerNavigationProp<any>>();
+	const navigation = useNavigation();
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const openScanner = useCallback(() => navigation.navigate('Scanner'), []);
+	const openScanner = useCallback(
+		// @ts-ignore
+		() => navigation.navigate('Scanner'),
+		[navigation],
+	);
+	const openSettings = useCallback(
+		// @ts-ignore
+		() => navigation.navigate('Settings'),
+		[navigation],
+	);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				<TouchableOpacity
-					style={styles.leftIcon}
-					activeOpacity={1}
-					onPress={navigation.openDrawer}>
-					<SettingsIcon />
-				</TouchableOpacity>
+				<Title>Wallet</Title>
 			</View>
-			<View style={styles.middleColumn}>
-				<Text01M>Wallet</Text01M>
-			</View>
+			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<TouchableOpacity
-					style={styles.rightIcon}
+					color="onSurface"
+					style={styles.cogIcon}
+					activeOpacity={1}
+					onPress={openSettings}>
+					<SettingsIcon width={25} height={25} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					color="onSurface"
+					style={styles.cameraIcon}
 					activeOpacity={1}
 					onPress={openScanner}>
-					<CameraIcon />
+					<CameraIcon width={23} height={23} />
 				</TouchableOpacity>
 			</View>
 		</View>
@@ -49,11 +57,22 @@ const styles = StyleSheet.create({
 		marginHorizontal: 10,
 		marginBottom: 20,
 	},
-	leftIcon: {
-		left: '8.7%',
+	cogIcon: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: 100,
+		padding: 5,
+		marginRight: 10,
+		minHeight: 40,
+		minWidth: 40,
 	},
-	rightIcon: {
-		right: '8.7%',
+	cameraIcon: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: 100,
+		padding: 5,
+		minHeight: 40,
+		minWidth: 40,
 	},
 	leftColumn: {
 		flex: 1,
@@ -66,8 +85,9 @@ const styles = StyleSheet.create({
 	},
 	rightColumn: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'flex-end',
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
 	},
 });
 

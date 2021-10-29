@@ -8,7 +8,7 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View, Text } from '../../styles/components';
 import QR from '../../components/QR';
 import Button from '../../components/Button';
-import AssetCard from '../../components/AssetCard';
+import AssetCard from '../../components/AssetCard_deprecated';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -91,6 +91,7 @@ const LightningCard = (): ReactElement => {
 									color="onSurface"
 									style={styles.sendButton}
 									onPress={(): void => {
+										// @ts-ignore
 										navigation.navigate('Scanner');
 									}}
 									text={t('common:send')}
@@ -125,6 +126,7 @@ const LightningCard = (): ReactElement => {
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
 									connectToDefaultPeer().then();
+									// @ts-ignore
 									navigation.navigate('Blocktank');
 								}}
 								text="Buy Channel"

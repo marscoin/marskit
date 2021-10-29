@@ -1,12 +1,7 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import {
-	View,
-	Feather,
-	Text,
-	TouchableOpacity,
-} from '../../../styles/components';
+import { Feather, Text, TouchableOpacity } from '../../../styles/components';
 import Button from '../../../components/Button';
 import {
 	showErrorNotification,
@@ -15,6 +10,7 @@ import {
 import Store from '../../../store/types';
 import BackupRegisterForm from './RegisterForm';
 import { backupSetup, performFullBackup } from '../../../store/actions/backup';
+import SafeAreaView from '../../../components/SafeAreaView';
 
 const BackupSettings = ({ navigation }): ReactElement => {
 	const backupState = useSelector((state: Store) => state.backup);
@@ -51,7 +47,7 @@ const BackupSettings = ({ navigation }): ReactElement => {
 	};
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={styles.container}>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={navigation.goBack}
@@ -99,13 +95,13 @@ const BackupSettings = ({ navigation }): ReactElement => {
 					</>
 				) : null}
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		paddingHorizontal: 20,
 	},
 	row: {
 		flexDirection: 'row',

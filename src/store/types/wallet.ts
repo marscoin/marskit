@@ -10,6 +10,8 @@ export type TKeyDerivationCoinType = '0' | '1' | string; //"mainnet" | "testnet"
 export type TKeyDerivationAccount = '0' | '2' | '3' | string; //"On-Chain Wallet" | "RGB" | "Omnibolt";
 export type TKeyDerivationChange = '0' | '1' | string; //"Receiving Address" | "Change Address";
 export type TKeyDerivationAddressIndex = string;
+export type TAssetType = 'bitcoin' | 'tether';
+export type TAssetNetwork = 'bitcoin' | 'lightning' | 'omnibolt';
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
@@ -187,6 +189,7 @@ export interface IOnChainTransactionData {
 	label?: string; // User set label for a given transaction.
 	rbf?: boolean;
 	minFee?: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
+	max?: boolean; // If the user intends to send the max amount.
 }
 
 export const defaultOnChainTransactionData: IOnChainTransactionData = {
@@ -202,6 +205,7 @@ export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	label: '',
 	rbf: false,
 	minFee: 1,
+	max: false,
 };
 
 export interface IDefaultWalletShape {
@@ -213,6 +217,7 @@ export interface IDefaultWalletShape {
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	changeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	utxos: IWalletItem<IUtxo[]>;
+	boostedTransactions: IWalletItem<string[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;

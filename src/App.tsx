@@ -1,11 +1,18 @@
 import '../shim';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import React, { memo, ReactElement, useMemo, useEffect } from 'react';
-import { Platform, StyleSheet, UIManager, useColorScheme } from 'react-native';
+import React, {
+	memo,
+	ReactElement,
+	useMemo,
+	useEffect,
+	useCallback,
+} from 'react';
+import { Platform, UIManager, useColorScheme } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
-import { StatusBar, SafeAreaView } from './styles/components';
+import { SafeAreaProvider } from './styles/components';
+import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
 import themes from './styles/themes';
@@ -45,21 +52,23 @@ const App = (): ReactElement => {
 		return themes[theme];
 	}, [theme]);
 
+	const RootComponent = useCallback((): ReactElement => {
+		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
+	}, [walletExists]);
+
+	const ToastRef = useCallback((ref): Toast | null => {
+		return Toast.setRef(ref);
+	}, []);
+
 	return (
 		<ThemeProvider theme={currentTheme}>
-			<StatusBar />
-			<SafeAreaView style={styles.container}>
-				{walletExists ? <RootNavigator /> : <OnboardingNavigator />}
-			</SafeAreaView>
-			<Toast ref={(ref): Toast | null => Toast.setRef(ref)} />
+			<SafeAreaProvider>
+				<StatusBar />
+				<RootComponent />
+			</SafeAreaProvider>
+			<Toast ref={ToastRef} />
 		</ThemeProvider>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-});
 
 export default memo(App);

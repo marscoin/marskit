@@ -4,7 +4,7 @@
  */
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet, ActivityIndicator } from 'react-native';
-import { Text, TouchableOpacity, View } from '../styles/components';
+import { Text01M, TouchableOpacity, View } from '../styles/components';
 
 interface IButton {
 	text: string;
@@ -13,6 +13,7 @@ interface IButton {
 	onLongPress?: Function;
 	disabled?: boolean;
 	loading?: boolean;
+	icon?: ReactElement;
 	style?: Object;
 }
 const Button = ({
@@ -22,6 +23,7 @@ const Button = ({
 	onLongPress = (): null => null,
 	disabled = false,
 	loading = false,
+	icon = undefined,
 	style = {},
 }: IButton): ReactElement => {
 	return (
@@ -32,7 +34,12 @@ const Button = ({
 			onPress={onPress}
 			onLongPress={onLongPress}
 			disabled={disabled}>
-			<Text style={styles.text}>{text}</Text>
+			{icon ? (
+				<View style={styles.iconContainer} color={'transparent'}>
+					{icon}
+				</View>
+			) : null}
+			<Text01M style={styles.text}>{text}</Text01M>
 			{loading && (
 				<View color="onSurface" style={styles.loading}>
 					<ActivityIndicator size="small" />
@@ -57,12 +64,17 @@ const styles = StyleSheet.create({
 		minWidth: 110,
 		marginVertical: 5,
 		paddingHorizontal: 10,
+		display: 'flex',
+		flexDirection: 'row',
 	},
 	text: {
 		fontSize: 14,
 		fontWeight: 'bold',
 		textAlign: 'center',
 		paddingVertical: 8,
+	},
+	iconContainer: {
+		marginRight: 6,
 	},
 	loading: {
 		...StyleSheet.absoluteFillObject,

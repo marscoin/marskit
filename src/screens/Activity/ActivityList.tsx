@@ -1,10 +1,10 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement, useCallback, useState } from 'react';
 import {
 	View,
 	TouchableOpacity,
 	RefreshControl,
-	SentIcon,
-	ReceivedIcon,
+	SendIcon,
+	ReceiveIcon,
 	Text02S,
 	Caption13S,
 	Subtitle,
@@ -12,7 +12,7 @@ import {
 import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { IActivityItem } from '../../store/types/activity';
+import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { refreshWallet } from '../../utils/wallet';
 import { refreshLightningTransactions } from '../../store/actions/lightning';
 import { useNavigation } from '@react-navigation/native';
@@ -21,74 +21,91 @@ import { updateActivityList } from '../../store/actions/activity';
 import useDisplayValues from '../../hooks/displayValues';
 import { timeAgo } from '../../utils/helpers';
 
-const ListItem = ({
-	item,
-	onPress,
-}: {
-	item: IActivityItem;
-	onPress: () => void;
-}): ReactElement => {
-	const { value, txType, confirmed, timestamp } = item;
+const ListItem = memo(
+	({
+		item,
+		onPress,
+	}: {
+		item: IActivityItem;
+		onPress: () => void;
+	}): ReactElement => {
+		const { value, txType, confirmed, timestamp } = item;
 
-	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-		useDisplayValues(value);
+		const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
+			useDisplayValues(value);
 
-	return (
-		<TouchableOpacity style={styles.item} onPress={onPress}>
-			<View style={styles.col1} color={'transparent'}>
-				<View color={'gray6'} style={styles.iconCircle}>
-					{txType === 'sent' ? <SentIcon /> : <ReceivedIcon />}
+		return (
+			<TouchableOpacity style={styles.item} onPress={onPress}>
+				<View style={styles.col1} color={'transparent'}>
+					<View color={'gray6'} style={styles.iconCircle}>
+						{txType === 'sent' ? <SendIcon /> : <ReceiveIcon />}
+					</View>
+					<View color={'transparent'}>
+						<Text02S style={styles.note}>
+							{txType === 'sent' ? 'Sent' : 'Received'}{' '}
+							{!confirmed ? '(Unconfirmed)' : ''}
+						</Text02S>
+						<Caption13S color={'gray'} style={styles.date}>
+							{timeAgo(timestamp)}
+						</Caption13S>
+					</View>
 				</View>
-				<View color={'transparent'}>
-					<Text02S style={styles.note}>
-						{txType === 'sent' ? 'Sent' : 'Received'}{' '}
-						{!confirmed ? '(Unconfirmed)' : ''}
+				<View style={styles.col2} color={'transparent'}>
+					<Text02S style={styles.value}>
+						{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
+						{bitcoinFormatted.replace('-', '')}
 					</Text02S>
-					<Caption13S color={'gray'} style={styles.date}>
-						{timeAgo(timestamp)}
+					<Caption13S color={'gray'} style={styles.value}>
+						{fiatSymbol}
+						{fiatFormatted.replace('-', '')}
 					</Caption13S>
 				</View>
-			</View>
-			<View style={styles.col2} color={'transparent'}>
-				<Text02S style={styles.value}>
-					{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
-					{bitcoinFormatted.replace('-', '')}
-				</Text02S>
-				<Caption13S color={'gray'} style={styles.value}>
-					{fiatSymbol}
-					{fiatFormatted.replace('-', '')}
-				</Caption13S>
-			</View>
-		</TouchableOpacity>
-	);
-};
+			</TouchableOpacity>
+		);
+	},
+);
 
-const ListHeaderComponent = (): ReactElement => {
-	return (
-		<View style={styles.header} color={'transparent'}>
-			<Subtitle>Transactions</Subtitle>
-		</View>
-	);
-};
+const ListHeaderComponent = memo(
+	(): ReactElement => {
+		return (
+			<View style={styles.header} color={'transparent'}>
+				<Subtitle>Transactions</Subtitle>
+			</View>
+		);
+	},
+	() => true,
+);
 
-const ActivityList = (): ReactElement => {
+const ActivityList = ({
+	assetFilter,
+}: {
+	assetFilter?: EActivityTypes[];
+}): ReactElement => {
 	const navigation = useNavigation();
-	const activityItems = useSelector(
-		(state: Store) => state.activity.itemsFiltered,
+
+	const activityItems = useSelector((state: Store) =>
+		state.activity.itemsFiltered.filter(
+			(v) => !assetFilter || assetFilter.indexOf(v.activityType) > -1,
+		),
 	);
+
 	const [refreshing, setRefreshing] = useState(false);
 
-	const renderItem = ({ item }): ReactElement => {
-		return (
-			<ListItem
-				key={item.id}
-				item={item}
-				onPress={(): void =>
-					navigation.navigate('ActivityDetail', { activityItem: item })
-				}
-			/>
-		);
-	};
+	const renderItem = useCallback(
+		({ item }): ReactElement => {
+			return (
+				<ListItem
+					key={item.id}
+					item={item}
+					onPress={(): void =>
+						navigation.navigate('ActivityDetail', { activityItem: item })
+					}
+				/>
+			);
+		},
+		//eslint-disable-next-line react-hooks/exhaustive-deps
+		[activityItems],
+	);
 
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
@@ -114,7 +131,8 @@ const ActivityList = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		padding: 20,
+		paddingTop: 20,
+		paddingBottom: 100,
 	},
 	item: {
 		display: 'flex',

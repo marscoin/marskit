@@ -1,6 +1,7 @@
 import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import {
+	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
 } from '../../store/shapes/wallet';
@@ -24,6 +25,7 @@ import {
 	IKeyDerivationPathData,
 	ETransactionDefaults,
 	IFormattedTransactionContent,
+	TAssetNetwork,
 } from '../../store/types/wallet';
 import { err, ok, Result } from '../result';
 import {
@@ -42,6 +44,8 @@ import {
 import { getStore } from '../../store/helpers';
 import {
 	addAddresses,
+	deleteBoostedTransaction,
+	deleteOnChainTransactionById,
 	updateAddressIndexes,
 	updateExchangeRates,
 	updateTransactions,
@@ -67,6 +71,8 @@ import {
 	subscribeToHeader,
 	TTxResult,
 } from './electrum';
+import { getDisplayValues, IDisplayValues } from '../exchange-rate';
+import { IncludeBalances } from '../../hooks/wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -92,6 +98,10 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 				selectedWallet,
 				selectedNetwork,
 			}),
+			deleteBoostedTransactions({
+				selectedWallet,
+				selectedNetwork,
+			}),
 		]);
 
 		await updateOnChainActivityList();
@@ -99,6 +109,53 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 		return ok('');
 	} catch (e) {
 		return err(e);
+	}
+};
+
+/**
+ * Iterates over the boosted transactions array and removes all matching txid's from the transactions object.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {Promise<string[]>}
+ */
+export const deleteBoostedTransactions = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<string[]> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const wallet = getStore().wallet.wallets[selectedWallet];
+		const boostedTransactions = wallet.boostedTransactions[selectedNetwork];
+		const transactionIds = Object.keys(wallet.transactions[selectedNetwork]);
+		let deletedTransactions: string[] = [];
+		await Promise.all(
+			boostedTransactions.map((boostedTx) => {
+				if (transactionIds.includes(boostedTx)) {
+					deletedTransactions.push(boostedTx);
+					deleteBoostedTransaction({
+						txid: boostedTx,
+						selectedNetwork,
+						selectedWallet,
+					});
+					deleteOnChainTransactionById({
+						txid: boostedTx,
+						selectedNetwork,
+						selectedWallet,
+					});
+				}
+			}),
+		);
+		return deletedTransactions;
+	} catch (e) {
+		return e;
 	}
 };
 
@@ -418,6 +475,25 @@ export const getMnemonicPhrase = async (
 };
 
 /**
+ * Generate a mnemonic phrase using a string as entropy.
+ * @param {string} str
+ * @return {string}
+ */
+export const getMnemonicPhraseFromEntropy = (str: string): string => {
+	const hash = getSha256(str);
+	return bip39.entropyToMnemonic(hash);
+};
+
+/**
+ * Returns sha256 hash of string.
+ * @param {string} str
+ * @return {string}
+ */
+export const getSha256 = (str = ''): string => {
+	return bitcoin.crypto.sha256(str);
+};
+
+/**
  *.Returns any previously stored aezeed passphrase.
  * @async
  * @return {{error: boolean, data: string}}
@@ -613,7 +689,9 @@ export const getOnChainBalance = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	return getStore().wallet[selectedWallet]?.balance[selectedNetwork] ?? 0;
+	return (
+		getStore().wallet.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0
+	);
 };
 
 /**
@@ -1275,7 +1353,9 @@ export const getInputData = async ({
 		}
 		getTransactionsResponse.value.data.map(({ data, result }) => {
 			const vout = result.vout[data.vout];
-			const addresses = vout.scriptPubKey.addresses;
+			const addresses = vout.scriptPubKey?.addresses
+				? vout.scriptPubKey?.addresses
+				: [vout.scriptPubKey.address];
 			const value = vout.value;
 			const key = data.tx_hash;
 			inputData[key] = { addresses, value };
@@ -1392,7 +1472,9 @@ export const formatTransactions = async ({
 		//Iterate over each output
 		const vout = result?.vout || [];
 		vout.map(({ scriptPubKey, value }) => {
-			const _addresses = scriptPubKey.addresses;
+			const _addresses = scriptPubKey?.addresses
+				? scriptPubKey.addresses
+				: [scriptPubKey.address];
 			totalOutputValue = totalOutputValue + value;
 			Array.isArray(_addresses) &&
 				_addresses.map((address) => {
@@ -1497,6 +1579,7 @@ export interface IVout {
 	n: 0;
 	scriptPubKey: {
 		addresses: string[];
+		address?: string;
 		asm: string;
 		hex: string;
 		reqSigs: number;
@@ -1557,8 +1640,27 @@ export const getRbfData = async ({
 	const changeAddresses =
 		getStore().wallet.wallets[selectedWallet].changeAddresses[selectedNetwork];
 
-	const allAddress = { ...addresses, ...changeAddresses };
-
+	const allAddressTypes = Object.keys(getAddressTypes());
+	let allAddresses = {};
+	let allChangeAddresses = {};
+	await Promise.all(
+		allAddressTypes.map((addressType) => {
+			allAddresses = {
+				...allAddresses,
+				...addresses[addressType],
+				...changeAddresses[addressType],
+			};
+			allChangeAddresses = {
+				...allChangeAddresses,
+				...changeAddresses[addressType],
+			};
+		}),
+	);
+	let changeAddressData: IOutput = {
+		address: '',
+		value: 0,
+		index: 0,
+	};
 	let inputs: IUtxo[] = [];
 	let address: string = '';
 	let scriptHash = '';
@@ -1588,10 +1690,13 @@ export const getRbfData = async ({
 			if (tx.isErr()) {
 				return err(tx.error.message);
 			}
+			if (tx.value.data[0].data.height > 0) {
+				return err('Transaction is already confirmed. Unable to RBF.');
+			}
 			const txVout = tx.value.data[0].result.vout[input.vout];
 			address = txVout.scriptPubKey.addresses[0];
 			scriptHash = getScriptHash(address, selectedNetwork);
-			path = allAddress[scriptHash].path;
+			path = allAddresses[scriptHash].path;
 			value = btcToSats(txVout.value);
 			inputs.push({
 				tx_hash: input.txid,
@@ -1620,18 +1725,41 @@ export const getRbfData = async ({
 		} else {
 			address = vout.scriptPubKey.addresses[0];
 		}
-		outputs.push({
-			address,
-			value: voutValue,
-		});
-		outputTotal = outputTotal + voutValue;
+		const changeAddressScriptHash = getScriptHash(address, selectedNetwork);
+
+		// If the address scripthash matches one of our change address scripthashes, add it accordingly. Otherwise, add it as another output.
+		if (Object.keys(allChangeAddresses).includes(changeAddressScriptHash)) {
+			changeAddressData = {
+				address,
+				value: voutValue,
+				index: i,
+			};
+		} else {
+			const index = outputs?.length ?? 0;
+			outputs.push({
+				address,
+				value: voutValue,
+				index,
+			});
+			outputTotal = outputTotal + voutValue;
+		}
 	}
+
+	if (!changeAddressData?.address && outputs.length >= 2) {
+		return err(
+			'Unable to determine change address. Performing an RBF could divert funds from the incorrect output. Consider CPFP instead.',
+		);
+	}
+
 	if (outputTotal > inputTotal) {
 		return err('Outputs should not be greater than the inputs.');
 	}
-	fee = Number((inputTotal - outputTotal).toFixed(8));
+	fee = Number(inputTotal - (changeAddressData?.value ?? 0) - outputTotal);
+	//outputs = outputs.filter((o) => o);
+
 	return ok({
 		selectedWallet,
+		changeAddress: changeAddressData.address,
 		inputs,
 		balance: inputTotal,
 		outputs,
@@ -1639,6 +1767,7 @@ export const getRbfData = async ({
 		selectedNetwork,
 		message,
 		addressType,
+		rbf: true,
 	});
 };
 
@@ -2154,4 +2283,142 @@ export const getAddressTypePath = ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Returns the next available receive address for the given network and wallet.
+ * @param {TAddressType} [addressType]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @return {Result<string>}
+ */
+export const getReceiveAddress = ({
+	addressType,
+	selectedNetwork,
+	selectedWallet,
+}: {
+	addressType?: TAddressType;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Result<string> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!addressType) {
+			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
+		}
+		const wallet = getStore().wallet?.wallets[selectedWallet];
+		const addressIndex = wallet?.addressIndex[selectedNetwork];
+		const receiveAddress = addressIndex[addressType]?.address;
+		if (!receiveAddress) {
+			return err('No receive address available.');
+		}
+		return ok(receiveAddress);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Determines the asset network based on the provided asset name.
+ * @param {string} asset
+ * @return {TAssetNetwork}
+ */
+export const getAssetNetwork = (asset: string): TAssetNetwork => {
+	switch (asset) {
+		case 'bitcoin':
+			return 'bitcoin';
+		case 'lightning':
+			return 'lightning';
+		default:
+			return 'omnibolt';
+	}
+};
+
+/**
+ * This method returns all available asset names (bitcoin, lightning, and any available omnibolt assets).
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {string[]>}
+ */
+export const getAssetNames = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const assetNames: string[] = assetNetworks.filter((a) => a !== 'omnibolt');
+	try {
+		// Grab available omni assets.
+		const omniboltAssetData = getStore().omnibolt.assetData;
+		const channels = Object.values(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		channels.map((channel) => {
+			if (channel.property_id in omniboltAssetData) {
+				assetNames.push(omniboltAssetData[channel.property_id].name);
+			}
+		});
+	} catch {}
+	return assetNames;
+};
+
+interface IGetBalanceProps extends IncludeBalances {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}
+/**
+ * Retrieves the total wallet display values for the currently selected wallet and network.
+ */
+export const getBalance = ({
+	onchain = false,
+	lightning = false,
+	omnibolt,
+	selectedWallet,
+	selectedNetwork,
+}: IGetBalanceProps): IDisplayValues => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	let balance = 0;
+
+	if (onchain) {
+		balance +=
+			getStore().wallet?.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
+	}
+
+	if (lightning) {
+		balance += Number(getStore().lightning.channelBalance.balance);
+	}
+
+	if (omnibolt) {
+		/*
+		TODO: We'll need to implement a method that resolves the usd->sat value
+		      of a given omni token before adding it to the balance.
+		 */
+		/*const channels = Object.keys(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		omnibolt.map((id) => {
+			if (id in channels) {
+				balance += channels[id].balance_a;
+			}
+		});*/
+	}
+
+	return getDisplayValues({ satoshis: balance });
 };
