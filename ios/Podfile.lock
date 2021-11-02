@@ -627,7 +627,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: b8cc03e2feec0c04403d0998e37cf519d8fd4c6f
   react-native-document-picker: 226068006be4c52f8ef7f32d855ee025a12e9e64
-  react-native-libsodium: 605739edeee166bfa4c57c51609a2096973c85f3
+  react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
   react-native-lightning: fb1148d8a352d2580b4082e7075cb79adbcee2ad
   react-native-netinfo: 92e6e4476eb8bf6fc2d7c0a6ca0a1406f663d73a
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846

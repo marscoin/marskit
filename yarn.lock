@@ -2253,7 +2253,7 @@ babel-eslint@^10.1.0:
     eslint-visitor-keys "^1.0.0"
     resolve "^1.12.0"
 
-babel-jest@^27.0.0, babel-jest@^27.3.1:
+babel-jest@^27.0.6, babel-jest@^27.3.1:
   version "27.3.1"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.3.1.tgz#0636a3404c68e07001e434ac4956d82da8a80022"
   integrity sha512-SjIF8hh/ir0peae2D6S6ZKRhUy7q/DnpH7k/V6fT4Bgs/LXXUztOpX4G2tCgq8mLo5HA9mN6NmlFMeYtKmIsTQ==
@@ -2408,12 +2408,14 @@ babel@^6.23.0:
   resolved "https://registry.yarnpkg.com/babel/-/babel-6.23.0.tgz#d0d1e7d803e974765beea3232d4e153c0efb90f4"
   integrity sha1-0NHn2APpdHZb7qMjLU4VPA77kPQ=
 
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446":
+"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#promises":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#58204ce051bd80273b0218f57d1cda9e1b3393b9"
   dependencies:
     bint8array "^1.1.2"
     handshake-peer "^0.1.0"
+    secret-blob "github:chm-diederichs/secret-blob"
+    sodium-native "^3.2.1"
     spake2-ee "^0.1.0"
 
 balanced-match@^1.0.0:
@@ -2478,7 +2480,7 @@ bindings@^1.3.0, bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bint8array@^1.1.1, bint8array@^1.1.2:
+bint8array@^1.1.2:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/bint8array/-/bint8array-1.1.3.tgz#0ad122b5848ce268ffdd010709411f521d9189fc"
   integrity sha512-1RCt3TnM06m4Dolu3BW8WYx7DH/idJrsfuh2/bnFuY9r8YXgEZQ8WMFf/6UnrXa6DjHUJhx/SnZwnM5LV9QdOA==
@@ -7885,11 +7887,9 @@ react-native-keychain@^7.0.0:
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-7.0.0.tgz#11fd559fe86ae89f934b8c75ae228247deed5494"
   integrity sha512-tH26sgW4OxB/llXmhO+DajFISEUoF1Ip2+WSDMIgCt8SP1xRE81m2qFzgIOc/7StYsUERxHhDPkxvq2H0/Goig==
 
-"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#5fbaf14525e8c872618b53a58a44a22a32eec4a1":
+"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#20810e645df0ed914c1a179cf9fca52b21d736b9":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#5fbaf14525e8c872618b53a58a44a22a32eec4a1"
-  dependencies:
-    bint8array "^1.1.1"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#20810e645df0ed914c1a179cf9fca52b21d736b9"
 
 react-native-modal@^11.10.0:
   version "11.10.0"
@@ -8503,6 +8503,13 @@ secp256k1@^4.0.2:
     node-addon-api "^2.0.0"
     node-gyp-build "^4.2.0"
 
+"secret-blob@github:chm-diederichs/secret-blob":
+  version "1.1.0"
+  resolved "https://codeload.github.com/chm-diederichs/secret-blob/tar.gz/74ab9fa8128c6e8f6ba27e9a7e8fe9ec7c14d1c1"
+  dependencies:
+    nanoassert "^2.0.0"
+    sodium-native "^3.1.1"
+
 "secretstream-stream@git+ssh://git@github.com/emilbayes/secretstream-stream.git", "secretstream-stream@git+ssh://git@github.com/emilbayes/secretstream-stream.git#59eababc2a1d8346da80bc5b9e05740d3b0b57b9":
   version "2.0.0"
   resolved "git+ssh://git@github.com/emilbayes/secretstream-stream.git#59eababc2a1d8346da80bc5b9e05740d3b0b57b9"
@@ -8762,7 +8769,7 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-sodium-native@^3.1.1, sodium-native@^3.2.0:
+sodium-native@^3.1.1, sodium-native@^3.2.0, sodium-native@^3.2.1:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/sodium-native/-/sodium-native-3.3.0.tgz#50ee52ac843315866cce3d0c08ab03eb78f22361"
   integrity sha512-rg6lCDM/qa3p07YGqaVD+ciAbUqm6SoO4xmlcfkbU5r1zIGrguXztLiEtaLYTV5U6k8KSIUFmnU3yQUSKmf6DA==
