@@ -128,7 +128,7 @@
     "prettier": "^2.3.0",
     "protobufjs": "^6.11.2",
     "punycode": "^2.1.1",
-    "react-native-libsodium": "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#20810e645df0ed914c1a179cf9fca52b21d736b9",
+    "react-native-libsodium": "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#177fc04e403a52103e9cfe24e792c95629385a9d",
     "react-native-svg-transformer": "^0.14.3",
     "react-test-renderer": "^17.0.2",
     "rn-nodeify": "^10.3.0",

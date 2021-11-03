@@ -7887,9 +7887,9 @@ react-native-keychain@^7.0.0:
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-7.0.0.tgz#11fd559fe86ae89f934b8c75ae228247deed5494"
   integrity sha512-tH26sgW4OxB/llXmhO+DajFISEUoF1Ip2+WSDMIgCt8SP1xRE81m2qFzgIOc/7StYsUERxHhDPkxvq2H0/Goig==
 
-"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#20810e645df0ed914c1a179cf9fca52b21d736b9":
+"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#177fc04e403a52103e9cfe24e792c95629385a9d":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#20810e645df0ed914c1a179cf9fca52b21d736b9"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#177fc04e403a52103e9cfe24e792c95629385a9d"
 
 react-native-modal@^11.10.0:
   version "11.10.0"
