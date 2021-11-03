@@ -63,7 +63,10 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 		},
 	);
 
-	await client.init();
+	await client.init({
+		memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
+		opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
+	});
 
 	return client;
 };
@@ -142,6 +145,7 @@ export const backpackRegister = async (
 
 		return ok('Registered');
 	} catch (e) {
+		console.error(JSON.stringify(e));
 		return err(e);
 	}
 };

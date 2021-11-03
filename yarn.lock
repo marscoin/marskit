@@ -2408,9 +2408,9 @@ babel@^6.23.0:
   resolved "https://registry.yarnpkg.com/babel/-/babel-6.23.0.tgz#d0d1e7d803e974765beea3232d4e153c0efb90f4"
   integrity sha1-0NHn2APpdHZb7qMjLU4VPA77kPQ=
 
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#promises":
+"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#4e4f46133f7c14549c056834a75adecaa2f8cffd":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#58204ce051bd80273b0218f57d1cda9e1b3393b9"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#4e4f46133f7c14549c056834a75adecaa2f8cffd"
   dependencies:
     bint8array "^1.1.2"
     handshake-peer "^0.1.0"
@@ -7887,9 +7887,9 @@ react-native-keychain@^7.0.0:
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-7.0.0.tgz#11fd559fe86ae89f934b8c75ae228247deed5494"
   integrity sha512-tH26sgW4OxB/llXmhO+DajFISEUoF1Ip2+WSDMIgCt8SP1xRE81m2qFzgIOc/7StYsUERxHhDPkxvq2H0/Goig==
 
-"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#177fc04e403a52103e9cfe24e792c95629385a9d":
+"react-native-libsodium@git+ssh://git@github.com/synonymdev/react-native-libsodium.git#d4b05501239ce14ca80caa261522f36c34c01a5d":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#177fc04e403a52103e9cfe24e792c95629385a9d"
+  resolved "git+ssh://git@github.com/synonymdev/react-native-libsodium.git#d4b05501239ce14ca80caa261522f36c34c01a5d"
 
 react-native-modal@^11.10.0:
   version "11.10.0"
