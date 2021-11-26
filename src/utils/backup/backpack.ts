@@ -50,23 +50,26 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 	const client = new Client(
 		bint.fromString(username),
 		bint.fromString(password),
-		{
-			connect: (info, cb): void => {
-				const socket = new WebSocket(info.url);
-				socket.onerror = (socketErr): void => cb(socketErr);
+		function connect(info, cb) {
+			const socket = new WebSocket(info.url);
+			socket.onerror = (socketErr): void => cb(socketErr);
 
-				// socket must have stream api
-				const ws = new WSStream(socket, {
-					onconnect: (): void => cb(null, ws),
-				});
-			},
+			// socket must have stream api
+			const ws = new WSStream(socket, {
+				onconnect: (): void => cb(null, ws),
+			});
 		},
 	);
 
-	await client.init({
-		memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
-		opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
-	});
+	try {
+		await client.init({
+			memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
+			opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
+		});
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 
 	return client;
 };
@@ -145,7 +148,7 @@ export const backpackRegister = async (
 
 		return ok('Registered');
 	} catch (e) {
-		console.error(JSON.stringify(e));
+		console.error(e);
 		return err(e);
 	}
 };
