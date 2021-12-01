@@ -422,8 +422,8 @@ export const formatKeyDerivationPath = ({
  * @return {string}
  */
 export const getKeyDerivationPath = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
@@ -458,7 +458,7 @@ export const getKeyDerivationPath = ({
  * @return {Promise<Result<string>>}
  */
 export const getMnemonicPhrase = async (
-	selectedWallet: string | undefined = undefined,
+	selectedWallet?: string,
 ): Promise<Result<string>> => {
 	try {
 		if (!selectedWallet) {

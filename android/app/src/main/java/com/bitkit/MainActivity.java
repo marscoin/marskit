@@ -1,4 +1,4 @@
-package com.backpack;
+package com.bitkit;
 
 import android.os.Bundle;
 
@@ -12,7 +12,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "backpack";
+    return "bitkit";
   }
   @Override
   protected void onCreate(Bundle savedInstanceState) {
