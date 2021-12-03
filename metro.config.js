@@ -24,10 +24,10 @@ module.exports = (async () => {
       babelTransformerPath: require.resolve('react-native-svg-transformer'),
     },
     resolver: {
-      // blacklistRE: blacklist([/nodejs-assets\/.*/, /android\/.*/, /ios\/.*/]),
       assetExts: assetExts.filter((ext) => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg'],
       extraNodeModules: {
+        ...require('node-libs-react-native'),
         "sodium-native": path.resolve(__dirname, './node_modules/react-native-libsodium'),
       },
       blacklistRE: exclusionList([/node_modules\/sodium-native\/.*/])
