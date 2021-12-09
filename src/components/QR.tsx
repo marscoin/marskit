@@ -9,7 +9,7 @@ import {
 	AntDesign,
 } from '../styles/components';
 import QRCode from 'react-native-qrcode-svg';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import NavigationHeader from './NavigationHeader';
 import Button from './Button';
 import { systemWeights } from 'react-native-typography';
@@ -26,7 +26,7 @@ const updateOpacity = ({
 		Animated.timing(opacity, {
 			toValue,
 			duration,
-			easing: Easing.inOut(Easing.ease),
+			easing: EasingNode.inOut(EasingNode.ease),
 		}).start();
 	} catch {}
 };
@@ -111,13 +111,13 @@ const QR = ({
 			Animated.timing(textOpacity, {
 				toValue: 1,
 				duration: 500,
-				easing: Easing.inOut(Easing.ease),
+				easing: EasingNode.inOut(EasingNode.ease),
 			}).start(async () => {
 				setTimeout(() => {
 					Animated.timing(textOpacity, {
 						toValue: 0,
 						duration,
-						easing: Easing.inOut(Easing.ease),
+						easing: EasingNode.inOut(EasingNode.ease),
 					}).start();
 				}, duration / 4);
 			});

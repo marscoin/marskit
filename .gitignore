@@ -28,6 +28,9 @@ build/
 .gradle
 local.properties
 *.iml
+*.hprof
+debug/
+release/
 
 # node.js
 #
