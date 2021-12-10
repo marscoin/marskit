@@ -390,13 +390,13 @@ PODS:
     - React-Core
   - RNFS (2.18.0):
     - React-Core
-  - RNGestureHandler (1.10.3):
+  - RNGestureHandler (2.1.0):
     - React-Core
   - RNKeychain (8.0.0):
     - React-Core
   - RNReactNativeHapticFeedback (1.13.0):
     - React-Core
-  - RNReanimated (2.3.0-beta.4):
+  - RNReanimated (2.3.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -424,7 +424,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.10.0):
+  - RNScreens (3.10.1):
     - React-Core
     - React-RCTImage
   - RNShare (7.3.2):
@@ -724,11 +724,11 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: ea6b5c280997b2b32a587793163b1f10e580c4f7
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNFS: 7bdbd2472eac73a7f266b43da1d1bd68b3ed7bf5
-  RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
+  RNGestureHandler: e5c7cab5f214503dcefd6b2b0cefb050e1f51c4a
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNReactNativeHapticFeedback: b83bfb4b537bdd78eb4f6ffe63c6884f7b049ead
-  RNReanimated: 7444b78bb258a81ddb10fbf5578f5a4389d1a87b
-  RNScreens: 03ba504f8c98607ad1f07808e71040e0afa335ec
+  RNReanimated: 569c269480a76e39196aa17a5df08ef1561db5ff
+  RNScreens: 522705f2e5c9d27efb17f24aceb2bf8335bc7b8e
   RNShare: d76b8c9c6e6ffb38fc18f40b4338c9d867592ed3
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 4143ba35feebab8fdbe6bc43d1e776b393d47ac8

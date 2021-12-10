@@ -3,9 +3,10 @@ import { View, StyleSheet } from 'react-native';
 import App from './src/App';
 import store from './src/store';
 import { PersistGate } from 'redux-persist/integration/react';
-import { enableScreens } from 'react-native-screens';
+import { enableScreens, enableFreeze } from 'react-native-screens';
 
 enableScreens(true);
+enableFreeze(true);
 
 const Provider = require('react-redux').Provider;
 const { persistStore } = require('redux-persist');
