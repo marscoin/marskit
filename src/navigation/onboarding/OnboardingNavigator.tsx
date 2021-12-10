@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
@@ -10,7 +9,11 @@ import PinPad from '../../components/PinPad';
 import Biometrics, {
 	IsSensorAvailableResult,
 } from '../../components/Biometrics';
-import { Text, TouchableOpacity } from '../../styles/components';
+import {
+	Text,
+	TouchableOpacity,
+	NavigationContainer,
+} from '../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import ReactNativeBiometrics from 'react-native-biometrics';

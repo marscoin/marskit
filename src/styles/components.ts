@@ -29,6 +29,10 @@ import { logo } from '../assets/icons/onboarding';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 import _SafeAreaView from '../components/SafeAreaView';
+import {
+	DefaultTheme,
+	NavigationContainer as _NavigationContainer,
+} from '@react-navigation/native';
 
 export const DismissIcon = styled(SvgXml).attrs((props) => ({
 	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
@@ -427,3 +431,20 @@ export const SafeAreaProvider = styled(_SafeAreaProvider)`
 	flex: 1;
 	background-color: ${(props): string => props.theme.colors.background};
 `;
+
+export const NavigationContainer = styled(_NavigationContainer).attrs(
+	(props) => ({
+		independent: true,
+		theme: {
+			...DefaultTheme,
+			colors: {
+				...DefaultTheme.colors,
+				card: 'transparent',
+				text: props.theme.colors.text,
+				background: 'transparent',
+				primary: 'transparent',
+				border: 'transparent',
+			},
+		},
+	}),
+)``;

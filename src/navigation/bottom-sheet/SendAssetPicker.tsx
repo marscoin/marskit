@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 import Send from '../../screens/Wallets/Send';
 import Receive from '../../screens/Wallets/Receive';
 import SendAssetPickerList from '../../screens/Wallets/Send/SendAssetPickerList';
+import { NavigationContainer } from '../../styles/components';
 
 const Stack = createNativeStackNavigator();
 const navOptions = {
@@ -17,7 +17,7 @@ const navOptions = {
 const SendAssetPicker = (): ReactElement => {
 	return (
 		<BottomSheetWrapper view="sendAssetPicker">
-			<NavigationContainer independent={true}>
+			<NavigationContainer>
 				<Stack.Navigator
 					screenOptions={navOptions}
 					initialRouteName={'sendAssetPickerList'}>
