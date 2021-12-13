@@ -2414,11 +2414,6 @@ babel-preset-jest@^27.4.0:
     babel-plugin-jest-hoist "^27.4.0"
     babel-preset-current-node-syntax "^1.0.0"
 
-babel@^6.23.0:
-  version "6.23.0"
-  resolved "https://registry.yarnpkg.com/babel/-/babel-6.23.0.tgz#d0d1e7d803e974765beea3232d4e153c0efb90f4"
-  integrity sha1-0NHn2APpdHZb7qMjLU4VPA77kPQ=
-
 "backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446":
   version "0.0.0"
   resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446"
@@ -6877,11 +6872,10 @@ object.values@^1.1.0, object.values@^1.1.5:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-"omnibolt-js@git+ssh://git@github.com/synonymdev/omnibolt-js#6eb3b4843e04181c340e564164c4db26a6e47467":
+"omnibolt-js@git+ssh://git@github.com/synonymdev/omnibolt-js#d8e816825844459d5aa848e323c26e9d39520b01":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#6eb3b4843e04181c340e564164c4db26a6e47467"
+  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#d8e816825844459d5aa848e323c26e9d39520b01"
   dependencies:
-    babel "^6.23.0"
     bip32 "^2.0.6"
     bip39 "^3.0.4"
     bitcoinjs-lib "^5.2.0"
@@ -9001,10 +8995,10 @@ typeforce@^1.11.3, typeforce@^1.11.5:
   resolved "https://registry.yarnpkg.com/typeforce/-/typeforce-1.18.0.tgz#d7416a2c5845e085034d70fcc5b6cc4a90edbfdc"
   integrity sha512-7uc1O8h1M1g0rArakJdf0uLRSSgFcYexrVoKo+bzJd32gd4gDy2L/Z+8/FjPnU9ydY3pEnVPtr9FyscYY60K1g==
 
-typescript@^4.5.2:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
-  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
+typescript@^3.9.7:
+  version "3.9.10"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
+  integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
 
 ua-parser-js@^0.7.30:
   version "0.7.31"

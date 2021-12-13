@@ -22,6 +22,10 @@ export interface IOmniBolt {
 	};
 }
 
+export type TFundingAddresses = {
+	[key: string]: IAddressContent;
+};
+
 export interface IOmniBoltWallet {
 	userData: IWalletItem<IOmniBoltUserData>;
 	connectData: IWalletItem<IOmniboltConnectData>;
@@ -31,6 +35,7 @@ export interface IOmniBoltWallet {
 	checkpoints: IWalletItem<ICheckpoints>;
 	addressIndex: IWalletItem<IAddressContent>; //The next available address index for signing.
 	signingData: IWalletItem<IChannelSigningData> | IWalletItem<{}>; //A key-value index of the most recently used signing address per channel.
+	fundingAddresses: IWalletItem<TFundingAddresses> | IWalletItem<{}>;
 	[key: string]: any;
 }
 
