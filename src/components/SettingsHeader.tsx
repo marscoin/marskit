@@ -1,7 +1,12 @@
 import React, { memo, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
-import { View, TouchableOpacity, Title, LeftArrow } from '../styles/components';
+import {
+	View,
+	TouchableOpacity,
+	Subtitle,
+	LeftArrow,
+} from '../styles/components';
 import colors from '../styles/colors';
 
 const BackButton = ({
@@ -44,9 +49,11 @@ const SettingsHeader = ({
 					<View style={styles.handle} />
 				</View>
 				<View color={backgroundColor} style={styles.bottomRow}>
-					{showBackNavigation && <BackButton onPress={navigation.goBack} />}
 					<View color={backgroundColor} style={styles.titleContainer}>
-						<Title>{title}</Title>
+						{showBackNavigation && <BackButton onPress={navigation.goBack} />}
+						<Subtitle style={showBackNavigation ? styles.titleCentered : {}}>
+							{title}
+						</Subtitle>
 					</View>
 				</View>
 			</View>
@@ -56,9 +63,9 @@ const SettingsHeader = ({
 
 const styles = StyleSheet.create({
 	container: {
-		minHeight: 82,
+		height: 82,
 		paddingHorizontal: 16,
-		zIndex: 9999,
+		zIndex: 98,
 		display: 'flex',
 		justifyContent: 'space-between',
 	},
@@ -81,7 +88,6 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
-		paddingBottom: 18,
 	},
 	handle: {
 		height: 4,
@@ -89,8 +95,21 @@ const styles = StyleSheet.create({
 		borderRadius: 32,
 		backgroundColor: '#3B3B3B',
 	},
-	backIconContainer: { marginRight: 18 },
-	titleContainer: {},
+	backIconContainer: {
+		marginRight: 18,
+		position: 'absolute',
+		height: '100%',
+		display: 'flex',
+		justifyContent: 'center',
+		zIndex: 99,
+	},
+	titleContainer: {
+		flex: 1,
+		paddingBottom: 18,
+	},
+	titleCentered: {
+		textAlign: 'center',
+	},
 });
 
 const containerShadowStyle = StyleSheet.flatten([

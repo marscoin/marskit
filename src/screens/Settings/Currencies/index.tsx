@@ -94,7 +94,7 @@ const Currencies = (): ReactElement => {
 	return (
 		<SettingsView
 			title={'Currencies'}
-			data={CurrencyListData}
+			listData={CurrencyListData}
 			showBackNavigation
 		/>
 	);

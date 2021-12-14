@@ -7,11 +7,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface backpackTests : XCTestCase
+@interface bitkitTests : XCTestCase
 
 @end
 
-@implementation backpackTests
+@implementation bitkitTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL(^)(UIView *view))test
 {

@@ -413,3 +413,17 @@ export const openURL = async (link: string): Promise<void> => {
 		await Linking.openURL(link);
 	}
 };
+
+/**
+ * Applies an alpha opacity to a hex color
+ * @param hexColor
+ * @param alpha
+ * @returns {string}
+ */
+export const applyAlpha = (hexColor: string, alpha: number): string => {
+	const alpha256 = (alpha * 255).toFixed();
+	const alphaBase16 = Number(alpha256).toString(16);
+	const paddedAlpha =
+		alphaBase16.length === 1 ? alphaBase16.padStart(1, '0') : alphaBase16;
+	return hexColor.concat('', paddedAlpha);
+};
