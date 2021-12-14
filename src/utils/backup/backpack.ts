@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-unused-vars */
 import { Client } from 'backpack-host';
 import bint from 'bint8array';
 import WSStream from 'webnet/websocket';

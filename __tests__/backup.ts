@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-unused-vars */
 import { createWallet } from '../src/store/actions/wallet';
 import {
 	backpackRegister,
