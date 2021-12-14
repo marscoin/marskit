@@ -44,7 +44,7 @@
     "intl": "^1.2.5",
     "lottie-ios": "^3.2.3",
     "lottie-react-native": "^5.0.0",
-    "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js#6eb3b4843e04181c340e564164c4db26a6e47467",
+    "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js#d5ebfff77fd9e998855c25e00c071d9ca5fdb469",
     "process": "^0.11.10",
     "radio-buttons-react-native": "^1.0.4",
     "react": "17.0.2",
@@ -129,7 +129,7 @@
     "react-test-renderer": "^17.0.2",
     "rn-nodeify": "^10.3.0",
     "secretstream-stream": "git+ssh://git@github.com/emilbayes/secretstream-stream.git#59eababc2a1d8346da80bc5b9e05740d3b0b57b9",
-    "typescript": "^4.5.2",
+    "typescript": "^3.9.7",
     "webnet": "git+ssh://git@github.com/chm-diederichs/webnet.git#d3b3535537dffb9efa045e6cecea8a244ec5387d"
   },
   "jest": {

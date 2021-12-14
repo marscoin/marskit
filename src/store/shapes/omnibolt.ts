@@ -7,8 +7,8 @@ import {
 	ISigningData,
 	TOmniboltCheckpoints,
 } from '../types/omnibolt';
-import { addressContent, addressIndex, arrayTypeItems } from './wallet';
-import { IWalletItem } from '../types/wallet';
+import { addressContent, arrayTypeItems, objectTypeItems } from './wallet';
+import { IAddressContent, IWalletItem } from '../types/wallet';
 import { IGetMyChannelsData } from 'omnibolt-js/lib/types/types';
 
 const connectData = {
@@ -70,14 +70,21 @@ export const signingData: IWalletItem<IChannelSigningData> = {
 	bitcoinTestnet: {},
 };
 
+const addressIndexTemplate: IWalletItem<IAddressContent> = {
+	bitcoin: { ...addressContent },
+	bitcoinTestnet: { ...addressContent },
+	timestamp: null,
+};
+
 export const defaultOmniboltWalletShape: IOmniBoltWallet = {
 	userData,
 	connectData,
 	channels,
 	tempChannels,
 	peers: { ...arrayTypeItems },
-	addressIndex: { ...addressIndex },
+	addressIndex: { ...addressIndexTemplate },
 	signingData,
+	fundingAddresses: { ...objectTypeItems },
 	checkpoints,
 };
 

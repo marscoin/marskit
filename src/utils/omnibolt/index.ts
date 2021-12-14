@@ -25,6 +25,8 @@ import {
 	IGetProperty,
 	IListenerParams,
 	ISendSignedHex100364Response,
+	ISaveData,
+	IListeners,
 } from 'omnibolt-js/lib/types/types';
 import {
 	generateAddresses,
@@ -72,8 +74,12 @@ import {
 import { IAddressContent } from '../../store/types/wallet';
 import { IMyChannelsData } from '../../store/shapes/omnibolt';
 import { showSuccessNotification } from '../notifications';
-import { ISendSignedHex100362Response } from 'omnibolt-js/src/types';
+import {
+	IOpenChannel,
+	ISendSignedHex100362Response,
+} from 'omnibolt-js/src/types';
 
+// @ts-ignore
 const obdapi = new ObdApi({});
 
 /**
@@ -98,34 +104,36 @@ export const connect = async ({
 	if (mnemonic.isErr()) {
 		return err(mnemonic.error.message);
 	}
-	const signingData =
-		getStore().omnibolt.wallets[selectedWallet].signingData[selectedNetwork];
-	const nextAddressIndex =
-		getStore().omnibolt.wallets[selectedWallet].addressIndex[selectedNetwork];
-	const checkpoints =
-		getStore().omnibolt.wallets[selectedWallet].checkpoints[selectedNetwork];
+	const omniboltWallet = getStore().omnibolt.wallets[selectedWallet];
+	const signingData = omniboltWallet.signingData[selectedNetwork];
+	const nextAddressIndex = omniboltWallet.addressIndex[selectedNetwork];
+	const checkpoints = omniboltWallet.checkpoints[selectedNetwork];
+	const fundingAddresses = omniboltWallet.fundingAddresses[selectedNetwork];
+	const obdapiData: ISaveData = {
+		nextAddressIndex,
+		signingData,
+		checkpoints,
+		fundingAddresses,
+	};
+	const listeners: IListeners = {
+		onChannelOpenAttempt,
+		onAcceptChannel,
+		onBitcoinFundingCreated,
+		onAssetFundingCreated,
+		sendSignedHex101035,
+		onCommitmentTransactionCreated,
+		on110352,
+		on110353,
+		sendSignedHex100363,
+	};
 	return await obdapi.connect({
 		url,
-		data: {
-			nextAddressIndex,
-			signingData,
-			checkpoints,
-		},
+		data: obdapiData,
 		saveData: saveSigningData,
 		loginPhrase: loginId.value,
 		mnemonic: mnemonic.value,
 		selectedNetwork,
-		listeners: {
-			onChannelOpenAttempt,
-			onAcceptChannel,
-			onBitcoinFundingCreated,
-			onAssetFundingCreated,
-			sendSignedHex101035,
-			onCommitmentTransactionCreated,
-			on110352,
-			on110353,
-			sendSignedHex100363,
-		},
+		listeners,
 		onMessage: console.log,
 		onAddHTLC: (data: TOnCommitmentTransactionCreated): any => {
 			console.log('onAddHTLC', data);
@@ -848,7 +856,7 @@ export const openOmniboltChannel = async ({
 }: {
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
-}): Promise<Result<string>> => {
+}): Promise<Result<IOpenChannel>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}

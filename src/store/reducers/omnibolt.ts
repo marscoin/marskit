@@ -166,6 +166,10 @@ const omnibolt = (state = defaultOmniBoltShape, action): IOmniBolt => {
 							...state.wallets[selectedWallet]?.checkpoints,
 							[selectedNetwork]: action.payload.data.checkpoints,
 						},
+						fundingAddresses: {
+							...state.wallets[selectedWallet]?.fundingAddresses,
+							[selectedNetwork]: action.payload.data.fundingAddresses,
+						},
 					},
 				},
 			};
