@@ -74,10 +74,13 @@ import {
 import { IAddressContent } from '../../store/types/wallet';
 import { IMyChannelsData } from '../../store/shapes/omnibolt';
 import { showSuccessNotification } from '../notifications';
-import { ISendSignedHex100362Response } from 'omnibolt-js/src/types';
+import {
+	IOpenChannel,
+	ISendSignedHex100362Response,
+} from 'omnibolt-js/src/types';
 
 // @ts-ignore
-const obdapi = new ObdApi({ websocket: WebSocket });
+const obdapi = new ObdApi({});
 
 /**
  * Connect to a specified omnibolt server.
@@ -853,7 +856,7 @@ export const openOmniboltChannel = async ({
 }: {
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
-}): Promise<Result<string>> => {
+}): Promise<Result<IOpenChannel>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
