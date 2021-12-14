@@ -1,5 +1,5 @@
 import React, { memo, ReactElement } from 'react';
-import { View, Text01M } from '../styles/components';
+import { View, Caption13Up } from '../styles/components';
 import { useBalance } from '../hooks/wallet';
 import { StyleSheet } from 'react-native';
 import Balance from './Balance';
@@ -11,11 +11,10 @@ const BalanceHeader = (): ReactElement => {
 	const { satoshis } = useBalance({
 		onchain: true,
 		lightning: true,
-		tether: true,
 	});
 	return (
 		<View style={styles.container}>
-			<Text01M color="gray">Total Balance</Text01M>
+			<Caption13Up color="gray">TOTAL BALANCE</Caption13Up>
 			<Balance sats={satoshis} />
 		</View>
 	);
@@ -26,7 +25,6 @@ export default memo(BalanceHeader);
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		alignItems: 'center',
 		justifyContent: 'flex-start',
 		marginVertical: 30,
 		marginHorizontal: 10,

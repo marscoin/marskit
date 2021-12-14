@@ -1,5 +1,4 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from '../tabs/TabNavigator';
@@ -17,6 +16,9 @@ import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import ReceiveBottomSheet from '../../screens/Wallets/Receive/ReceiveBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
+import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
+import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
+import { NavigationContainer } from '../../styles/components';
 
 const Stack = createNativeStackNavigator();
 
@@ -86,7 +88,6 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="RootAuthCheck" component={AuthCheckComponent} />
 					<Stack.Screen name="Tabs" component={TabNavigator} />
 					<Stack.Screen name="StartPin" component={StartPinComponent} />
-					<Stack.Screen name="Pin" component={PinPad} />
 					<Stack.Screen name="Biometrics" component={BiometricsComponent} />
 					<Stack.Screen name="Blocktank" component={Blocktank} />
 					<Stack.Screen name="BlocktankOrder" component={BlocktankOrder} />
@@ -101,6 +102,9 @@ const RootNavigator = (): ReactElement => {
 			</Stack.Navigator>
 			<SendBottomSheet />
 			<ReceiveBottomSheet />
+
+			<ReceiveAssetPicker />
+			<SendAssetPicker />
 		</NavigationContainer>
 	);
 };

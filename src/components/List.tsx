@@ -1,25 +1,28 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { SectionList, StyleSheet, Switch } from 'react-native';
 import {
-	Text,
 	Text01S,
 	Caption13Up,
 	TouchableOpacity,
 	View,
 	ChevronRight,
+	Checkmark,
 } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import Card from './Card';
 
-const _ItemHeader = memo(
-	({ title }: { title: string }): ReactElement => (
+const _ItemHeader = memo(({ title }: { title?: string }): ReactElement => {
+	if (!title) {
+		return <View />;
+	}
+
+	return (
 		<View color={'transparent'} style={styles.itemHeader}>
-			<Caption13Up color="gray1" style={styles.header}>
-				{title.toUpperCase()}
-			</Caption13Up>
+			<Caption13Up color="gray1">{title.toUpperCase()}</Caption13Up>
 		</View>
-	),
-);
+	);
+});
+
 const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 	return prevProps.title === nextProps.title;
 });
@@ -28,7 +31,7 @@ type TItemType = 'switch' | 'button';
 
 type ItemData = {
 	title: string;
-	value?: string;
+	value?: string | boolean;
 	type: TItemType;
 	onPress: Function;
 	enabled?: boolean;
@@ -53,6 +56,9 @@ const _Item = memo(
 		if (hide) {
 			return <View />;
 		}
+
+		const useCheckmark = typeof value === 'boolean';
+
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
 			return (
@@ -62,9 +68,7 @@ const _Item = memo(
 					onPress={_onPress}>
 					<Card style={styles.card}>
 						<View color="transparent" style={styles.leftColumn}>
-							<Text color="white" style={styles.title}>
-								{title}
-							</Text>
+							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
 							<Switch
@@ -87,15 +91,21 @@ const _Item = memo(
 				style={styles.row}>
 				<Card style={styles.card}>
 					<View color="transparent" style={styles.leftColumn}>
-						<Text color="white" style={styles.title}>
-							{title}
-						</Text>
+						<Text01S color="white">{title}</Text01S>
 					</View>
 					<View color="transparent" style={styles.rightColumn}>
-						<Text01S color={'gray2'} style={styles.valueText}>
-							{value}
-						</Text01S>
-						<ChevronRight color={'gray2'} />
+						{useCheckmark ? (
+							value ? (
+								<Checkmark />
+							) : null
+						) : (
+							<>
+								<Text01S color={'gray2'} style={styles.valueText}>
+									{value}
+								</Text01S>
+								<ChevronRight color={'gray2'} />
+							</>
+						)}
 					</View>
 				</Card>
 			</TouchableOpacity>
@@ -105,20 +115,32 @@ const _Item = memo(
 const Item = memo(_Item, (prevProps, nextProps) => {
 	return (
 		prevProps.title === nextProps.title &&
+		prevProps.value === nextProps.value &&
 		prevProps.type === nextProps.type &&
 		prevProps.enabled === nextProps.enabled
 	);
 });
 
 export interface IListData {
-	title: string;
+	title?: string;
 	data: ItemData[];
 }
 
-const List = ({ data }: { data: IListData[] }): ReactElement => {
+const List = ({
+	data,
+	onScrollDownChange,
+}: {
+	data: IListData[];
+	onScrollDownChange?: (boolean) => void;
+}): ReactElement => {
 	const navigation = useNavigation();
 	return (
 		<SectionList
+			onScroll={
+				onScrollDownChange
+					? (e): void => onScrollDownChange(e.nativeEvent.contentOffset.y > 15)
+					: undefined
+			}
 			sections={data}
 			extraData={data}
 			keyExtractor={(item): string => item.title}
@@ -136,11 +158,15 @@ const List = ({ data }: { data: IListData[] }): ReactElement => {
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
 			stickySectionHeadersEnabled={false}
+			contentContainerStyle={styles.contentContainerStyle}
 		/>
 	);
 };
 
 const styles = StyleSheet.create({
+	contentContainerStyle: {
+		paddingBottom: 55,
+	},
 	row: {
 		height: 55,
 	},
@@ -155,13 +181,6 @@ const styles = StyleSheet.create({
 	itemHeader: {
 		marginTop: 27,
 		justifyContent: 'center',
-	},
-	header: {
-		fontSize: 18,
-		fontWeight: 'bold',
-	},
-	title: {
-		fontSize: 14,
 	},
 	valueText: {
 		marginRight: 15,

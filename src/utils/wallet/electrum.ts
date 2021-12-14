@@ -110,40 +110,61 @@ export interface ISubscribeToAddress {
  * Subscribes to the next available addressScriptHash.
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
+ * @param scriptHashes
+ * @param showNotification
+ * @param onReceive
  * @return {Promise<Result<string>>}
  */
 export const subscribeToAddresses = async ({
 	selectedNetwork,
 	selectedWallet,
+	scriptHashes = [],
+	showNotification = true,
+	onReceive = (): null => null,
 }: {
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
+	scriptHashes?: string[];
+	showNotification?: boolean;
+	onReceive?: Function;
 }): Promise<Result<string>> => {
 	const addressTypes = getAddressTypes();
 	const { currentWallet } = getCurrentWallet({
 		selectedNetwork,
 		selectedWallet,
 	});
+	// Gather the receiving address scripthash for each address type if no scripthashes were provided.
+	if (!scriptHashes?.length) {
+		await Promise.all(
+			Object.keys(addressTypes).map(async (addressType) => {
+				if (!selectedNetwork) {
+					selectedNetwork = getSelectedNetwork();
+				}
+				if (!selectedWallet) {
+					selectedWallet = getSelectedWallet();
+				}
+				scriptHashes.push(
+					currentWallet.addressIndex[selectedNetwork][addressType].scriptHash,
+				);
+			}),
+		);
+	}
+	// Subscribe to all provided scriphashes.
 	await Promise.all(
-		Object.keys(addressTypes).map(async (addressType) => {
-			if (!selectedNetwork) {
-				selectedNetwork = getSelectedNetwork();
-			}
-			if (!selectedWallet) {
-				selectedWallet = getSelectedWallet();
-			}
-			const addressScriptHash =
-				currentWallet.addressIndex[selectedNetwork][addressType].scriptHash;
+		scriptHashes?.map(async (addressScriptHash) => {
 			const subscribeAddressResponse: ISubscribeToAddress =
 				await electrum.subscribeAddress({
 					scriptHash: addressScriptHash,
 					network: selectedNetwork,
 					onReceive: (data): void => {
-						showSuccessNotification({
-							title: 'Received BTC',
-							message: data[1], //TODO: Include amount received as the message.
-						});
+						if (showNotification) {
+							showSuccessNotification({
+								title: 'Received BTC',
+								message: data[1], //TODO: Include amount received as the message.
+							});
+						}
 						refreshWallet();
+						onReceive();
 					},
 				});
 			if (subscribeAddressResponse.error) {

@@ -60,8 +60,9 @@ const Biometrics = ({
 	style = {},
 	children = <></>,
 }: BiometricsComponent): ReactElement => {
-	const [biometryData, setBiometricData] =
-		useState<IsSensorAvailableResult | undefined>(undefined);
+	const [biometryData, setBiometricData] = useState<
+		IsSensorAvailableResult | undefined
+	>(undefined);
 
 	useEffect(() => {
 		(async (): Promise<void> => {

@@ -34,9 +34,11 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginVertical: 5,
+		backgroundColor: 'transparent',
 	},
 	fee: {
 		flex: 1.5,
+		backgroundColor: 'transparent',
 	},
 	icon: {
 		flex: 1,

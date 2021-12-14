@@ -34,6 +34,9 @@ import Card from './Card';
 import { pasteIcon } from '../assets/icons/wallet';
 import { SvgXml } from 'react-native-svg';
 import colors from '../styles/colors';
+import Clipboard from '@react-native-community/clipboard';
+import { showErrorNotification } from '../utils/notifications';
+import { validate } from 'bitcoin-address-validation';
 
 const SendForm = ({
 	index = 0,
@@ -196,6 +199,34 @@ const SendForm = ({
 		adjustFee({ selectedWallet, selectedNetwork, adjustBy: -1 });
 	}, [selectedNetwork, selectedWallet]);
 
+	const handlePaste = useCallback(async () => {
+		const data = await Clipboard.getString();
+		if (!data) {
+			showErrorNotification({
+				title: 'Clipboard is empty',
+				message: 'No address data available.',
+			});
+			return;
+		}
+		data.replace('bitcoinTestnet:', '');
+		data.replace('bitcoin:', '');
+		const addressIsValid = await validate(data);
+		if (!addressIsValid) {
+			showErrorNotification({
+				title: 'Address is not valid.',
+				message: 'No address data available.',
+			});
+			return;
+		}
+		updateOnChainTransaction({
+			selectedWallet,
+			selectedNetwork,
+			transaction: {
+				outputs: [{ address: data, value, index }],
+			},
+		}).then();
+	}, [index, selectedNetwork, selectedWallet, value]);
+
 	return (
 		<View color="transparent" style={styles.container}>
 			<Card style={styles.card} color={'gray336'}>
@@ -228,9 +259,12 @@ const SendForm = ({
 						</View>
 					</View>
 
-					<View color="transparent" style={styles.col2}>
+					<TouchableOpacity
+						onPress={handlePaste}
+						color="transparent"
+						style={styles.col2}>
 						<SvgXml xml={pasteIcon()} width={20} height={20} />
-					</View>
+					</TouchableOpacity>
 				</>
 			</Card>
 

@@ -17,7 +17,7 @@ export const dismiss = (color = 'white'): string => `
 `;
 
 export const boost = (): string => `
-<svg width="39" height="39" viewBox="0 0 39 39" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="39" height="39" viewBox="0 0 39 39" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g style="mix-blend-mode:lighten">
 <rect width="39" height="39" fill="url(#pattern0)"/>
 </g>

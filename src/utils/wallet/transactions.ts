@@ -19,6 +19,7 @@ import {
 	getOnChainBalance,
 	getRbfData,
 	getReceiveAddress,
+	getScriptHash,
 	getSelectedNetwork,
 	getSelectedWallet,
 	getTransactionById,
@@ -38,7 +39,7 @@ import {
 } from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
 import { showErrorNotification } from '../notifications';
-import { getTransactions } from './electrum';
+import { getTransactions, subscribeToAddresses } from './electrum';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { replaceActivityItemById } from '../../store/actions/activity';
 
@@ -809,13 +810,44 @@ export const addInput = async ({
 
 export const broadcastTransaction = async ({
 	rawTx = '',
-	selectedNetwork = undefined,
+	selectedNetwork,
+	selectedWallet,
+	subscribeToOutputAddress = true,
 }: {
 	rawTx: string;
-	selectedNetwork?: undefined | TAvailableNetworks;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+	subscribeToOutputAddress?: boolean;
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
+	}
+
+	/**
+	 * Subscribe to the output address and refresh the wallet when the Electrum server detects it.
+	 * This prevents updating the wallet prior to the Electrum server detecting the new tx in the mempool.
+	 */
+	if (subscribeToOutputAddress) {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const transaction = await getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (transaction.isErr()) {
+			return err(transaction.error.message);
+		}
+		// @ts-ignore
+		const address = transaction?.value?.outputs[0]?.address;
+		if (address) {
+			const scriptHash = getScriptHash(address, selectedNetwork);
+			await subscribeToAddresses({
+				selectedNetwork,
+				showNotification: false,
+				scriptHashes: [scriptHash],
+			});
+		}
 	}
 
 	const broadcastResponse = await electrum.broadcastTransaction({
@@ -2004,7 +2036,6 @@ export const broadcastBoost = async ({
 		if (broadcastResult.isErr()) {
 			return err(broadcastResult.error.message);
 		}
-		await refreshWallet();
 		const newTxId = broadcastResult.value;
 		let transactions =
 			getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork];

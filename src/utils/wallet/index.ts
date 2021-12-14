@@ -1,6 +1,7 @@
 import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import {
+	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
 } from '../../store/shapes/wallet';
@@ -70,6 +71,8 @@ import {
 	subscribeToHeader,
 	TTxResult,
 } from './electrum';
+import { getDisplayValues, IDisplayValues } from '../exchange-rate';
+import { IncludeBalances } from '../../hooks/wallet';
 
 const bitcoin = require('bitcoinjs-lib');
 const { CipherSeed } = require('aezeed');
@@ -419,8 +422,8 @@ export const formatKeyDerivationPath = ({
  * @return {string}
  */
 export const getKeyDerivationPath = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
@@ -455,7 +458,7 @@ export const getKeyDerivationPath = ({
  * @return {Promise<Result<string>>}
  */
 export const getMnemonicPhrase = async (
-	selectedWallet: string | undefined = undefined,
+	selectedWallet?: string,
 ): Promise<Result<string>> => {
 	try {
 		if (!selectedWallet) {
@@ -469,6 +472,25 @@ export const getMnemonicPhrase = async (
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Generate a mnemonic phrase using a string as entropy.
+ * @param {string} str
+ * @return {string}
+ */
+export const getMnemonicPhraseFromEntropy = (str: string): string => {
+	const hash = getSha256(str);
+	return bip39.entropyToMnemonic(hash);
+};
+
+/**
+ * Returns sha256 hash of string.
+ * @param {string} str
+ * @return {string}
+ */
+export const getSha256 = (str = ''): string => {
+	return bitcoin.crypto.sha256(str);
 };
 
 /**
@@ -1331,7 +1353,9 @@ export const getInputData = async ({
 		}
 		getTransactionsResponse.value.data.map(({ data, result }) => {
 			const vout = result.vout[data.vout];
-			const addresses = vout.scriptPubKey.addresses;
+			const addresses = vout.scriptPubKey?.addresses
+				? vout.scriptPubKey?.addresses
+				: [vout.scriptPubKey.address];
 			const value = vout.value;
 			const key = data.tx_hash;
 			inputData[key] = { addresses, value };
@@ -1448,7 +1472,9 @@ export const formatTransactions = async ({
 		//Iterate over each output
 		const vout = result?.vout || [];
 		vout.map(({ scriptPubKey, value }) => {
-			const _addresses = scriptPubKey.addresses;
+			const _addresses = scriptPubKey?.addresses
+				? scriptPubKey.addresses
+				: [scriptPubKey.address];
 			totalOutputValue = totalOutputValue + value;
 			Array.isArray(_addresses) &&
 				_addresses.map((address) => {
@@ -1553,6 +1579,7 @@ export interface IVout {
 	n: 0;
 	scriptPubKey: {
 		addresses: string[];
+		address?: string;
 		asm: string;
 		hex: string;
 		reqSigs: number;
@@ -2298,11 +2325,11 @@ export const getReceiveAddress = ({
 
 /**
  * Determines the asset network based on the provided asset name.
- * @param {string} assetName
+ * @param {string} asset
  * @return {TAssetNetwork}
  */
-export const getAssetNetwork = (assetName: string): TAssetNetwork => {
-	switch (assetName) {
+export const getAssetNetwork = (asset: string): TAssetNetwork => {
+	switch (asset) {
 		case 'bitcoin':
 			return 'bitcoin';
 		case 'lightning':
@@ -2310,4 +2337,88 @@ export const getAssetNetwork = (assetName: string): TAssetNetwork => {
 		default:
 			return 'omnibolt';
 	}
+};
+
+/**
+ * This method returns all available asset names (bitcoin, lightning, and any available omnibolt assets).
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @return {string[]>}
+ */
+export const getAssetNames = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const assetNames: string[] = assetNetworks.filter((a) => a !== 'omnibolt');
+	try {
+		// Grab available omni assets.
+		const omniboltAssetData = getStore().omnibolt.assetData;
+		const channels = Object.values(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		channels.map((channel) => {
+			if (channel.property_id in omniboltAssetData) {
+				assetNames.push(omniboltAssetData[channel.property_id].name);
+			}
+		});
+	} catch {}
+	return assetNames;
+};
+
+interface IGetBalanceProps extends IncludeBalances {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}
+/**
+ * Retrieves the total wallet display values for the currently selected wallet and network.
+ */
+export const getBalance = ({
+	onchain = false,
+	lightning = false,
+	omnibolt,
+	selectedWallet,
+	selectedNetwork,
+}: IGetBalanceProps): IDisplayValues => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	let balance = 0;
+
+	if (onchain) {
+		balance +=
+			getStore().wallet?.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
+	}
+
+	if (lightning) {
+		balance += Number(getStore().lightning.channelBalance.balance);
+	}
+
+	if (omnibolt) {
+		/*
+		TODO: We'll need to implement a method that resolves the usd->sat value
+		      of a given omni token before adding it to the balance.
+		 */
+		/*const channels = Object.keys(
+			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
+		);
+		omnibolt.map((id) => {
+			if (id in channels) {
+				balance += channels[id].balance_a;
+			}
+		});*/
+	}
+
+	return getDisplayValues({ satoshis: balance });
 };

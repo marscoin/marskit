@@ -1,6 +1,5 @@
 import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
-import { Alert, Linking, Platform, StyleSheet } from 'react-native';
-import { Title, View } from '../../styles/components';
+import { Alert, Linking, Platform } from 'react-native';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -8,7 +7,7 @@ import {
 	updateSettings,
 	wipeWallet,
 } from '../../store/actions/settings';
-import List, { IListData } from '../../components/List';
+import { IListData } from '../../components/List';
 import {
 	resetSelectedWallet,
 	resetWalletStore,
@@ -25,6 +24,7 @@ import { IsSensorAvailableResult } from '../../components/Biometrics';
 import { resetBlocktankStore } from '../../store/actions/blocktank';
 import { capitalize } from '../../utils/helpers';
 import { Result } from '../../utils/result';
+import SettingsView from './SettingsView';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -39,8 +39,9 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	);
 	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
 
-	const [biometryData, setBiometricData] =
-		useState<IsSensorAvailableResult | undefined>(undefined);
+	const [biometryData, setBiometricData] = useState<
+		IsSensorAvailableResult | undefined
+	>(undefined);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -87,9 +88,15 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Fiat Currency Selection',
+						title: 'Currencies',
 						type: 'button',
-						onPress: (): void => navigation.navigate('ExchangeRateSettings'),
+						onPress: (): void => navigation.navigate('CurrenciesSettings'),
+						hide: false,
+					},
+					{
+						title: 'Bitcoin',
+						type: 'button',
+						onPress: (): void => navigation.navigate('BitcoinSettings'),
 						hide: false,
 					},
 				],
@@ -140,19 +147,33 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				title: 'Backups',
 				data: [
 					{
-						title: 'Remote backup',
+						title: 'Connect',
 						value: `${remoteBackupSynced ? 'Synced' : 'Not synced'}`,
 						type: 'button',
 						onPress: (): void => navigation.navigate('BackupSettings'),
 						enabled: true,
 						hide: false,
 					},
-
 					{
-						title: 'Export Backups',
+						title: 'Import',
+						type: 'button',
+						onPress: (): void => {},
+						enabled: true,
+						hide: false,
+					},
+					{
+						title: 'Export',
 						type: 'button',
 						onPress: (): void => navigation.navigate('ExportBackups'),
 						enabled: true,
+						hide: false,
+					},
+					{
+						title: 'Display Seeds',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							navigation.navigate('Seeds');
+						},
 						hide: false,
 					},
 				],
@@ -225,14 +246,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 							updateWallet({ selectedNetwork: network }).then(() => {
 								refreshWallet().then();
 							});
-						},
-						hide: false,
-					},
-					{
-						title: 'Manage Seed Phrase',
-						type: 'button',
-						onPress: async (): Promise<void> => {
-							navigation.navigate('ManageSeedPhrase');
 						},
 						hide: false,
 					},
@@ -423,18 +436,12 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	);
 
 	return (
-		<View style={styles.container} color={'onSurface'}>
-			<Title>Settings</Title>
-			<List data={SettingsListData} />
-		</View>
+		<SettingsView
+			title={'Settings'}
+			listData={SettingsListData}
+			showBackNavigation={false}
+		/>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		padding: 16,
-		flex: 1,
-	},
-});
 
 export default memo(SettingsMenu);

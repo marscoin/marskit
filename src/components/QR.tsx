@@ -5,14 +5,17 @@ import {
 	Text,
 	AnimatedView,
 	TouchableOpacity,
+	Feather,
+	AntDesign,
 } from '../styles/components';
 import QRCode from 'react-native-qrcode-svg';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import NavigationHeader from './NavigationHeader';
 import Button from './Button';
 import { systemWeights } from 'react-native-typography';
 import Clipboard from '@react-native-community/clipboard';
 import { RouteProp } from '@react-navigation/native';
+import { showErrorNotification } from '../utils/notifications';
 
 const updateOpacity = ({
 	opacity = new Animated.Value(0),
@@ -23,7 +26,7 @@ const updateOpacity = ({
 		Animated.timing(opacity, {
 			toValue,
 			duration,
-			easing: Easing.inOut(Easing.ease),
+			easing: EasingNode.inOut(EasingNode.ease),
 		}).start();
 	} catch {}
 };
@@ -108,21 +111,22 @@ const QR = ({
 			Animated.timing(textOpacity, {
 				toValue: 1,
 				duration: 500,
-				easing: Easing.inOut(Easing.ease),
+				easing: EasingNode.inOut(EasingNode.ease),
 			}).start(async () => {
 				setTimeout(() => {
 					Animated.timing(textOpacity, {
 						toValue: 0,
 						duration,
-						easing: Easing.inOut(Easing.ease),
+						easing: EasingNode.inOut(EasingNode.ease),
 					}).start();
 				}, duration / 4);
 			});
 		} catch (e) {
 			console.log(e);
-			console.log(
-				"Unable to copy item to clipboard. Please try again or check your phone's permissions.",
-			);
+			showErrorNotification({
+				title: 'Unable to copy item to clipboard.',
+				message: "Please try again or check your phone's permissions.",
+			});
 		}
 	};
 
@@ -135,9 +139,9 @@ const QR = ({
 			<AnimatedView style={[styles.container, { opacity }]}>
 				<View color={header ? 'background' : 'surface'} style={styles.content}>
 					<TouchableOpacity
+						color="text"
 						activeOpacity={1}
 						onPress={onCopyPress}
-						color="onSurface"
 						style={styles.qrCode}>
 						{!!data && <QRCode value={data} size={200} />}
 					</TouchableOpacity>
@@ -148,7 +152,7 @@ const QR = ({
 							<AnimatedView
 								color="transparent"
 								style={[styles.copiedContainer, { opacity: textOpacity }]}>
-								<View color={'background'} style={styles.copySuccessContainer}>
+								<View color={'onSurface'} style={styles.copySuccessContainer}>
 									<View color="transparent" style={styles.copied}>
 										<Text style={styles.copiedText}>{onCopySuccessText}</Text>
 									</View>
@@ -158,16 +162,18 @@ const QR = ({
 					)}
 					<View style={styles.row}>
 						<Button
+							icon={<Feather name={'copy'} size={18} color="text" />}
 							color={header ? 'onSurface' : 'background'}
-							text="Share"
-							onPress={onSharePress}
+							text="Copy"
+							onPress={onCopyPress}
 							disabled={!data || disabled}
 						/>
 						<View style={styles.buttonSpacer} />
 						<Button
+							icon={<AntDesign name={'arrowup'} size={20} color="text" />}
 							color={header ? 'onSurface' : 'background'}
-							text="Copy"
-							onPress={onCopyPress}
+							text="Share"
+							onPress={onSharePress}
 							disabled={!data || disabled}
 						/>
 					</View>
@@ -179,7 +185,6 @@ const QR = ({
 
 const styles = StyleSheet.create({
 	container: {
-		marginVertical: 20,
 		backgroundColor: 'transparent',
 	},
 	content: {
@@ -187,7 +192,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	qrCode: {
-		padding: 12,
+		padding: 10,
 		borderRadius: 15,
 	},
 
@@ -196,6 +201,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: 10,
+		marginVertical: 20,
 	},
 	text: {
 		...systemWeights.semibold,
@@ -225,7 +231,6 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	row: {
-		marginTop: 5,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',

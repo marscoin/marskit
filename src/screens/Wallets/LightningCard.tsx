@@ -91,6 +91,7 @@ const LightningCard = (): ReactElement => {
 									color="onSurface"
 									style={styles.sendButton}
 									onPress={(): void => {
+										// @ts-ignore
 										navigation.navigate('Scanner');
 									}}
 									text={t('common:send')}
@@ -125,6 +126,7 @@ const LightningCard = (): ReactElement => {
 								style={styles.fundButton}
 								onPress={async (): Promise<void> => {
 									connectToDefaultPeer().then();
+									// @ts-ignore
 									navigation.navigate('Blocktank');
 								}}
 								text="Buy Channel"

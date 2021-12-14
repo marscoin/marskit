@@ -15,7 +15,20 @@ export const exchangeRateServices = {
 
 export const supportedExchangeTickers = {
 	[EExchangeRateService.bitfinex]: ['USD', 'EUR', 'JPY', 'GBP'],
-	[EExchangeRateService.cryptoCompare]: ['USD', 'EUR', 'JPY', 'GBP', 'ZAR'],
+	[EExchangeRateService.cryptoCompare]: [
+		'USD',
+		'EUR',
+		'JPY',
+		'GBP',
+		'ZAR',
+		'CAD',
+		'CNY',
+	],
+};
+
+export const mostUsedExchangeTickers = {
+	[EExchangeRateService.bitfinex]: ['USD', 'EUR', 'GBP'],
+	[EExchangeRateService.cryptoCompare]: ['USD', 'EUR', 'GBP'],
 };
 
 export interface IExchangeRates {
@@ -119,7 +132,7 @@ export const getDisplayValues = ({
 			currency = getStore().settings.selectedCurrency;
 		}
 		if (!exchangeRate) {
-			const exchangeRates = getStore().wallet.exchangeRates[currency];
+			const exchangeRates = getStore().wallet.exchangeRates[currency] || {};
 			exchangeRate = exchangeRates[currency];
 		}
 		if (!bitcoinUnit) {

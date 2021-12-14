@@ -1,11 +1,6 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import {
-	Feather,
-	Text,
-	TouchableOpacity,
-	RadioButtonRN,
-} from '../../../styles/components';
+import { Text, RadioButtonRN } from '../../../styles/components';
 import { updateSettings } from '../../../store/actions/settings';
 import {
 	RadioButtonItem,
@@ -13,7 +8,8 @@ import {
 } from '../../../store/types/settings';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import SafeAreaView from '../../../components/SafeAreaView';
+import { View } from '../../../styles/components';
+import NavigationHeader from '../../../components/NavigationHeader';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: "Small: Use smallest UTXO's first.", value: 'small' },
@@ -28,7 +24,7 @@ const setCoinSelectPreference = (preference: TCoinSelectPreference): void => {
 	updateSettings({ coinSelectPreference: preference });
 };
 
-const CoinSelect = ({ navigation }): ReactElement => {
+const CoinSelect = (): ReactElement => {
 	const coinSelectPreference = useSelector(
 		(state: Store) => state.settings.coinSelectPreference,
 	);
@@ -48,16 +44,9 @@ const CoinSelect = ({ navigation }): ReactElement => {
 	}, [coinSelectPreference]);
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<TouchableOpacity
-				activeOpacity={0.7}
-				onPress={navigation.goBack}
-				style={styles.row}>
-				<Feather style={{}} name="arrow-left" size={30} />
-				<Text style={styles.backText}>Settings</Text>
-			</TouchableOpacity>
-
-			<ScrollView>
+		<View style={styles.container}>
+			<NavigationHeader title="Coin Select Preference" />
+			<ScrollView style={styles.content}>
 				<Text style={styles.titleText}>Coin-Select Preference</Text>
 				<RadioButtonRN
 					data={radioButtons}
@@ -65,23 +54,16 @@ const CoinSelect = ({ navigation }): ReactElement => {
 					initial={initialIndex}
 				/>
 			</ScrollView>
-		</SafeAreaView>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		paddingRight: 20,
-		paddingLeft: 20,
+		flex: 1,
 	},
-	row: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingLeft: 10,
-		paddingVertical: 8,
-	},
-	backText: {
-		fontSize: 20,
+	content: {
+		paddingHorizontal: 20,
 	},
 	titleText: {
 		marginTop: 30,

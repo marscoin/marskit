@@ -4,16 +4,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import SettingsMenu from '../../screens/Settings';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
-import ExchangeRateSettings from '../../screens/Settings/ExchangeRate';
+import CurrenciesSettings from '../../screens/Settings/Currencies';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import BackupSettings from '../../screens/Settings/Backup';
 import ExportBackups from '../../screens/Settings/Backup/Export';
+import Seeds from '../../screens/Settings/Backup/Seeds';
+import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
 import LightningChannels from '../../screens/Settings/Lightning/LightningChannels';
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
+import PinPad from '../../components/PinPad';
+import BitcoinSettings from '../../screens/Settings/Currencies/Bitcoin';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,9 +36,10 @@ const SettingsNavigator = (): ReactElement => {
 			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
 				<Stack.Screen
-					name="ExchangeRateSettings"
-					component={ExchangeRateSettings}
+					name="CurrenciesSettings"
+					component={CurrenciesSettings}
 				/>
+				<Stack.Screen name="BitcoinSettings" component={BitcoinSettings} />
 				<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
 				<Stack.Screen name="TempSettings" component={TempSettings} />
 
@@ -48,6 +53,8 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="BackupSettings" component={BackupSettings} />
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
+				<Stack.Screen name="Seeds" component={Seeds} />
+				<Stack.Screen name="ViewSeed" component={ViewSeed} />
 				<Stack.Screen name="LightningChannels" component={LightningChannels} />
 				<Stack.Screen
 					name="LightningChannelDetails"
@@ -56,6 +63,7 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
 				<Stack.Screen name="LndLogs" component={LndLogs} />
+				<Stack.Screen name="Pin" component={PinPad} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);

@@ -113,7 +113,9 @@ const BalanceToggle = ({
 
 	const BalanceComponents = useMemo(() => {
 		return getBalanceComponents().map((Component, i) => (
-			<View key={i}>{Component}</View>
+			<View color="transparent" key={i}>
+				{Component}
+			</View>
 		));
 	}, [getBalanceComponents]);
 	const onTogglePress = useCallback(() => {
@@ -122,7 +124,7 @@ const BalanceToggle = ({
 
 	return (
 		<Pressable onPress={onTogglePress} style={styles.row}>
-			<View>{BalanceComponents}</View>
+			<View color="transparent">{BalanceComponents}</View>
 			<View style={styles.switchIcon}>
 				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
 			</View>
@@ -135,6 +137,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
+		backgroundColor: 'transparent',
 	},
 	switchIcon: {
 		backgroundColor: 'rgba(37, 39, 43, 0.92);',
