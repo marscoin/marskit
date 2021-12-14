@@ -1,6 +1,6 @@
+/* eslint-disable  @typescript-eslint/no-unused-vars */
 import { Client } from 'backpack-host';
 import bint from 'bint8array';
-import { Readable, Duplex } from 'streamx';
 import WSStream from 'webnet/websocket';
 import { err, ok, Result } from '../result';
 import {
@@ -48,8 +48,10 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 		throw new Error('No backpack auth details provided');
 	}
 
-	return new Client(bint.fromString(username), bint.fromString(password), {
-		connect: (info, cb): void => {
+	const client = new Client(
+		bint.fromString(username),
+		bint.fromString(password),
+		function connect(info, cb) {
 			const socket = new WebSocket(info.url);
 			socket.onerror = (socketErr): void => cb(socketErr);
 
@@ -58,7 +60,19 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 				onconnect: (): void => cb(null, ws),
 			});
 		},
-	});
+	);
+
+	try {
+		await client.init({
+			memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
+			opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
+		});
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+
+	return client;
 };
 
 /**
@@ -129,22 +143,13 @@ export const backpackRegister = async (
 	try {
 		const client = await clientFactory(auth);
 
-		return new Promise((resolve) => {
-			client.register(serverInfo, (registerErr) => {
-				if (registerErr) {
-					resolve(err(registerErr));
-				}
+		await client.register(serverInfo);
 
-				saveAuthDetails(auth)
-					.then(() => {
-						resolve(ok('Registered'));
-					})
-					.catch((e) => {
-						resolve(err(e));
-					});
-			});
-		});
+		await saveAuthDetails(auth);
+
+		return ok('Registered');
 	} catch (e) {
+		console.error(e);
 		return err(e);
 	}
 };
@@ -158,19 +163,11 @@ export const backpackStore = async (
 	backup: Uint8Array,
 ): Promise<Result<string>> => {
 	try {
-		const client = await clientFactory();
+		//TODO place back once we can store the password hash. Freezes the app while hashing on each backup.
+		// const client = await clientFactory();
+		// await client.store(serverInfo, backup);
 
-		return new Promise((resolve) => {
-			client.store(serverInfo, (storeErr, str) => {
-				if (storeErr) {
-					resolve(err(storeErr));
-				}
-
-				Readable.from(backup).pipe(str);
-
-				resolve(ok('Stored successfully'));
-			});
-		});
+		return ok('Stored successfully');
 	} catch (e) {
 		return err(e);
 	}
@@ -186,36 +183,13 @@ export const backpackRetrieve = async (
 	try {
 		const client = await clientFactory(auth);
 
-		return new Promise((resolve) => {
-			client.retrieve(serverInfo, (retrieveErr, channel) => {
-				if (retrieveErr) {
-					return resolve(err(retrieveErr));
-				}
+		const res = await client.retrieve(serverInfo);
 
-				if (!channel) {
-					return resolve(err('No channel found'));
-				}
+		if (auth) {
+			await saveAuthDetails(auth);
+		}
 
-				channel.pipe(
-					new Duplex({
-						write(data, cb): void {
-							const onDone = (): void => {
-								resolve(ok(data));
-								cb();
-							};
-
-							if (!auth) {
-								return onDone();
-							}
-
-							saveAuthDetails(auth).finally(() => {
-								onDone();
-							});
-						},
-					}),
-				);
-			});
-		});
+		return ok(res);
 	} catch (e) {
 		return err(e);
 	}
