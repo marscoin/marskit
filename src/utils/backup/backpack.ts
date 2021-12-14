@@ -162,9 +162,9 @@ export const backpackStore = async (
 	backup: Uint8Array,
 ): Promise<Result<string>> => {
 	try {
-		const client = await clientFactory();
-
-		await client.store(serverInfo, backup);
+		//TODO place back once we can store the password hash. Freezes the app while hashing on each backup.
+		// const client = await clientFactory();
+		// await client.store(serverInfo, backup);
 
 		return ok('Stored successfully');
 	} catch (e) {

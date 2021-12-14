@@ -2419,12 +2419,14 @@ babel@^6.23.0:
   resolved "https://registry.yarnpkg.com/babel/-/babel-6.23.0.tgz#d0d1e7d803e974765beea3232d4e153c0efb90f4"
   integrity sha1-0NHn2APpdHZb7qMjLU4VPA77kPQ=
 
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446":
+"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#08f4e73a69d97362fa7f9261c1c4a739a884c446"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93"
   dependencies:
     bint8array "^1.1.2"
     handshake-peer "^0.1.0"
+    secret-blob "github:chm-diederichs/secret-blob"
+    sodium-native "^3.2.1"
     spake2-ee "^0.1.0"
 
 balanced-match@^1.0.0:
@@ -7566,9 +7568,9 @@ react-native-keychain@^8.0.0:
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-8.0.0.tgz#ff708e4dc2a5440df717179bf9b7cd50f78b61d7"
   integrity sha512-c7Cs+YQN26UaQsRG1dmlXL7VL2ctnXwH/dl0IOMEQ7ZaL2NdN313YSAI8ZEZZjrVhNmPsyWEuvTFqWrdpItqQg==
 
-"react-native-libsodium@https://github.com/sodium-friends/react-native-libsodium#6fbfee572fdfde7e7eec7a1956951d106b342145":
+"react-native-libsodium@https://github.com/sodium-friends/react-native-libsodium#191a444f7fad92c0e825a8bd9ac357dea72793d4":
   version "0.0.1"
-  resolved "https://github.com/sodium-friends/react-native-libsodium#6fbfee572fdfde7e7eec7a1956951d106b342145"
+  resolved "https://github.com/sodium-friends/react-native-libsodium#191a444f7fad92c0e825a8bd9ac357dea72793d4"
 
 react-native-modal@^13.0.0:
   version "13.0.0"
@@ -8187,6 +8189,13 @@ secp256k1@^4.0.2:
     node-addon-api "^2.0.0"
     node-gyp-build "^4.2.0"
 
+"secret-blob@github:chm-diederichs/secret-blob":
+  version "1.1.0"
+  resolved "https://codeload.github.com/chm-diederichs/secret-blob/tar.gz/74ab9fa8128c6e8f6ba27e9a7e8fe9ec7c14d1c1"
+  dependencies:
+    nanoassert "^2.0.0"
+    sodium-native "^3.1.1"
+
 "secretstream-stream@git+ssh://git@github.com/emilbayes/secretstream-stream.git", "secretstream-stream@git+ssh://git@github.com/emilbayes/secretstream-stream.git#59eababc2a1d8346da80bc5b9e05740d3b0b57b9":
   version "2.0.0"
   resolved "git+ssh://git@github.com/emilbayes/secretstream-stream.git#59eababc2a1d8346da80bc5b9e05740d3b0b57b9"
@@ -8437,7 +8446,7 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-sodium-native@^3.1.1, sodium-native@^3.2.0:
+sodium-native@^3.1.1, sodium-native@^3.2.0, sodium-native@^3.2.1:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/sodium-native/-/sodium-native-3.3.0.tgz#50ee52ac843315866cce3d0c08ab03eb78f22361"
   integrity sha512-rg6lCDM/qa3p07YGqaVD+ciAbUqm6SoO4xmlcfkbU5r1zIGrguXztLiEtaLYTV5U6k8KSIUFmnU3yQUSKmf6DA==
