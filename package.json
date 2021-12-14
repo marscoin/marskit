@@ -44,7 +44,7 @@
     "intl": "^1.2.5",
     "lottie-ios": "^3.2.3",
     "lottie-react-native": "^5.0.0",
-    "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js#00b955c41b32cc2f82911f511ab7b3f5ea13092b",
+    "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js#d5ebfff77fd9e998855c25e00c071d9ca5fdb469",
     "process": "^0.11.10",
     "radio-buttons-react-native": "^1.0.4",
     "react": "17.0.2",
