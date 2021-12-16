@@ -287,6 +287,9 @@ const styles = StyleSheet.create({
 	},
 	footerButton: {
 		marginTop: 20,
+		borderRadius: 76,
+		width: '75%',
+		paddingVertical: 10,
 	},
 });
 
