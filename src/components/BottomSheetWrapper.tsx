@@ -22,6 +22,7 @@ export interface IModalProps {
 	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
+	headerColor?: string;
 }
 const BottomSheetWrapper = forwardRef(
 	(
@@ -30,6 +31,7 @@ const BottomSheetWrapper = forwardRef(
 			view,
 			onOpen = (): null => null,
 			onClose = (): null => null,
+			headerColor = 'onSurface',
 		}: IModalProps,
 		ref,
 	): ReactElement => {
@@ -90,7 +92,7 @@ const BottomSheetWrapper = forwardRef(
 				onCloseEnd={_onClose}
 				renderContent={(): ReactElement => {
 					return (
-						<View style={styles.container} color="onSurface">
+						<View style={styles.container} color={headerColor}>
 							<View style={styles.spacer} />
 							{children}
 						</View>
