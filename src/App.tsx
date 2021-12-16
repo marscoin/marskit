@@ -56,17 +56,13 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
-	const ToastRef = useCallback((ref): Toast | null => {
-		return Toast.setRef(ref);
-	}, []);
-
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
 				<StatusBar />
 				<RootComponent />
 			</SafeAreaProvider>
-			<Toast ref={ToastRef} />
+			<Toast />
 		</ThemeProvider>
 	);
 };
