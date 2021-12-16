@@ -160,7 +160,7 @@ const SendOnChainTransaction = ({
 	);
 
 	const coinSelectionButtonText = useMemo(() => {
-		return `UTXO List (${transaction.inputs?.length ?? '0'}/${
+		return `Coin Selection (${transaction.inputs?.length ?? '0'}/${
 			utxos?.length ?? '0'
 		})`;
 	}, [transaction.inputs?.length, utxos?.length]);
