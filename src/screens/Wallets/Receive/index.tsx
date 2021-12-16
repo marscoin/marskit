@@ -9,9 +9,6 @@ import QR from '../../../components/QR';
 import NavigationHeader from '../../../components/NavigationHeader';
 
 const Receive = ({ asset }: { asset?: string }): ReactElement => {
-	const displayBackButton = useSelector(
-		(state: Store) => state.user.viewController.receiveAssetPicker.isOpen,
-	);
 	const header = useMemo(
 		(): string => (asset ? `Receive ${capitalize(asset)}` : 'Receive'),
 		[asset],
@@ -31,7 +28,7 @@ const Receive = ({ asset }: { asset?: string }): ReactElement => {
 	}, [selectedNetwork, selectedWallet]);
 	return (
 		<View color={'onSurface'} style={styles.container}>
-			<NavigationHeader title={header} displayBackButton={displayBackButton} />
+			<NavigationHeader title={header} />
 			<View color={'onSurface'} style={styles.content}>
 				<QR data={receiveAddress} header={false} />
 			</View>

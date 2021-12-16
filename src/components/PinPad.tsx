@@ -35,7 +35,6 @@ const makeDots = (num): string => {
 
 interface PinComponent {
 	onSuccess: Function;
-	displayBackButton?: boolean;
 	onFailure?: Function;
 	pinSetup?: boolean; //true pushes the user through the pin setup process.
 	style?: object;
@@ -62,7 +61,6 @@ const PinPadButton = memo(
 
 const PinPad = ({
 	onSuccess = (): null => null,
-	displayBackButton = true,
 	onFailure = (): null => null,
 	pinSetup = false,
 	style = {},
@@ -299,7 +297,7 @@ const PinPad = ({
 
 	return (
 		<View color={'background'} style={[styles.container, { ...style }]}>
-			{displayBackButton && <NavigationHeader title="Pin Authentication" />}
+			<NavigationHeader title="Pin Authentication" />
 			<View style={styles.wideRow}>{getHeaderText()}</View>
 
 			<View style={styles.wideRow}>

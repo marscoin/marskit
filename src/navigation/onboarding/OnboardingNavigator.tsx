@@ -40,8 +40,7 @@ const OnboardingNavigator = (): ReactElement => {
 							onSuccess={(): void => {
 								navigation.navigate('Welcome');
 							}}
-							pinSetup={!hasPin}
-							displayBackButton={false}>
+							pinSetup={!hasPin}>
 							<TouchableOpacity
 								//eslint-disable-next-line react-native/no-inline-styles
 								style={{ alignItems: 'center' }}

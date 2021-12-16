@@ -81,13 +81,7 @@ const AuthCheck = ({
 	};
 
 	if (displayPin) {
-		return (
-			<PinPad
-				onSuccess={bioMetricCheck}
-				pinSetup={false}
-				displayBackButton={false}
-			/>
-		);
+		return <PinPad onSuccess={bioMetricCheck} pinSetup={false} />;
 	}
 
 	if (displayBiometrics) {
