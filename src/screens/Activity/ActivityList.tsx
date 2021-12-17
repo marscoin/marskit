@@ -9,7 +9,14 @@ import {
 	Caption13S,
 	Subtitle,
 } from '../../styles/components';
-import { FlatList, StyleSheet } from 'react-native';
+import {
+	FlatList,
+	NativeScrollEvent,
+	NativeSyntheticEvent,
+	StyleProp,
+	StyleSheet,
+	ViewStyle,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
@@ -78,8 +85,16 @@ const ListHeaderComponent = memo(
 
 const ActivityList = ({
 	assetFilter,
+	onScroll,
+	style,
+	contentContainerStyle,
+	progressViewOffset,
 }: {
 	assetFilter?: EActivityTypes[];
+	onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+	style?: StyleProp<ViewStyle> | undefined;
+	contentContainerStyle?: StyleProp<ViewStyle> | undefined;
+	progressViewOffset?: number | undefined;
 }): ReactElement => {
 	const navigation = useNavigation();
 
@@ -115,14 +130,27 @@ const ActivityList = ({
 		setRefreshing(false);
 	};
 
+	let fakeItems: IActivityItem[] = [];
+	for (let index = 0; index < 20; index++) {
+		activityItems.forEach((item, tempIndex) => {
+			fakeItems.push({ ...item, id: `${item.id}-${index}-${tempIndex}` });
+		});
+	}
+
 	return (
 		<FlatList
-			style={styles.content}
-			data={activityItems}
+			onScroll={onScroll}
+			style={[styles.content, style]}
+			contentContainerStyle={contentContainerStyle}
+			data={fakeItems}
 			renderItem={renderItem}
 			keyExtractor={(item): string => item.id}
 			refreshControl={
-				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				<RefreshControl
+					refreshing={refreshing}
+					onRefresh={onRefresh}
+					progressViewOffset={progressViewOffset}
+				/>
 			}
 			ListHeaderComponent={ListHeaderComponent}
 		/>

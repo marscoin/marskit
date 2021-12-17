@@ -3,14 +3,18 @@ import React, {
 	PropsWithChildren,
 	ReactElement,
 	useCallback,
+	useEffect,
+	useState,
 } from 'react';
 import {
+	LayoutAnimation,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
 	StyleSheet,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import {
 	Title,
 	Caption13M,
@@ -18,6 +22,7 @@ import {
 	View,
 	ReceiveIcon,
 	SendIcon,
+	AnimatedView,
 } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
@@ -30,6 +35,34 @@ import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { EActivityTypes } from '../../../store/types/activity';
 import { TAssetType } from '../../../store/types/wallet';
 import { toggleView } from '../../../store/actions/user';
+
+const updateOpacity = ({
+	opacity = new Animated.Value(0),
+	toValue = 0,
+	duration = 250,
+}): void => {
+	try {
+		Animated.timing(opacity, {
+			toValue,
+			duration,
+			easing: EasingNode.inOut(EasingNode.ease),
+		}).start();
+	} catch {}
+};
+
+const updateHeight = ({
+	height = new Animated.Value(0),
+	toValue = 0,
+	duration = 250,
+}): void => {
+	try {
+		Animated.timing(height, {
+			toValue,
+			duration,
+			easing: EasingNode.inOut(EasingNode.ease),
+		}).start();
+	} catch {}
+};
 
 interface Props extends PropsWithChildren<any> {
 	route: {
@@ -97,69 +130,143 @@ const WalletsDetail = (props: Props): ReactElement => {
 		}).then();
 	}, []);
 
-	const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
-		console.log(e.nativeEvent.contentOffset.y);
-	}, []);
+	const [showDetails, setShowDetails] = useState(true);
+	const [opacity] = useState(new Animated.Value(0));
+	const [height] = useState(new Animated.Value(0));
+
+	useEffect(() => {
+		updateOpacity({ opacity, toValue: 1 });
+		updateHeight({ height, toValue: 230 });
+		return (): void => updateOpacity({ opacity, toValue: 0, duration: 0 });
+	}, [opacity]);
+
+	// const onScroll = useDebounce<NativeSyntheticEvent<NativeScrollEvent>>((e) => {
+	// 	console.log('Hey!');
+	// 	console.log(JSON.stringify(e));
+	// }, 100);
+	//
+	// // const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+	// // 	// const { y } = e.nativeEvent.contentOffset;
+	// // 	// console.log(Object.keys(e));
+	// // 	// console.log(e.nativeEvent);
+	// //
+	// // 	d().then();
+	// // };
+
+	const onScroll = useCallback(
+		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+			const { y } = e.nativeEvent.contentOffset;
+			if (y > 200 && showDetails) {
+				//Shrink the detail view
+				LayoutAnimation.easeInEaseOut(() => console.log('closed'));
+
+				// LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+				updateOpacity({ opacity, toValue: 0 });
+
+				updateHeight({ height, toValue: 30, duration: 500 });
+
+				setTimeout(() => {
+					setShowDetails(false);
+				}, 250);
+			}
+
+			if (y < 150 && !showDetails) {
+				//They scrolled up so show more details now
+
+				LayoutAnimation.easeInEaseOut(() =>
+					updateOpacity({ opacity, toValue: 1 }),
+				);
+
+				updateHeight({ height, toValue: 230 });
+
+				setShowDetails(true);
+
+				setTimeout(() => {
+					// updateOpacity({ opacity, toValue: 1 });
+				}, 500);
+			}
+			// console.log(e.nativeEvent.contentOffset.y);
+		},
+		[showDetails],
+	);
+
+	console.log(showDetails);
 
 	return (
-		<View style={styles.container}>
-			<RadialGradient
-				style={styles.content}
-				colors={['rgb(52,34,10)', colors.gray6]}
-				stops={[0.1, 0.4]}
-				center={[50, 50]}
-				radius={gradientRadius}>
-				<SafeAreaInsets type={'top'} />
+		<AnimatedView style={styles.container}>
+			<View style={styles.radiusContainer}>
+				<RadialGradient
+					style={styles.assetDetailContainer}
+					colors={['rgb(52,34,10)', colors.gray6]}
+					stops={[0.1, 0.4]}
+					center={[10, 50]}
+					radius={gradientRadius}>
+					<SafeAreaInsets type={'top'} />
 
-				<NavigationHeader />
+					<NavigationHeader />
 
-				<View color={'transparent'} style={styles.header}>
-					<Title>{title}</Title>
-					<View color={'transparent'} style={styles.balanceContainer}>
-						<View color={'transparent'} style={styles.largeValueContainer}>
-							<Headline color={'gray'}>{fiatSymbol}</Headline>
-							<Headline>{fiatWhole}</Headline>
-							<Headline color={'gray'}>
-								{fiatDecimal}
-								{fiatDecimalValue}
-							</Headline>
-						</View>
+					<AnimatedView
+						color={'transparent'}
+						style={[styles.header, { minHeight: height }]}>
+						<Title>{title}</Title>
 
-						<Caption13M color={'gray'}>
-							{bitcoinSymbol}
-							{bitcoinFormatted}
-						</Caption13M>
-					</View>
-					{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
-				</View>
-			</RadialGradient>
-			<View color={'gray6'} style={styles.radiusFooter} />
+						{showDetails ? (
+							<AnimatedView color={'transparent'} style={{ opacity }}>
+								<View color={'transparent'} style={styles.balanceContainer}>
+									<View
+										color={'transparent'}
+										style={styles.largeValueContainer}>
+										<Headline color={'gray'}>{fiatSymbol}</Headline>
+										<Headline>{fiatWhole}</Headline>
+										<Headline color={'gray'}>
+											{fiatDecimal}
+											{fiatDecimalValue}
+										</Headline>
+									</View>
 
-			<View color={'transparent'} style={styles.transactionsContainer}>
-				<View color={'transparent'} style={styles.listContainer}>
-					<ActivityList assetFilter={assetFilter} onScroll={onScroll} />
-				</View>
-				<View color={'transparent'} style={styles.buttons}>
-					<Button
-						color={'surface'}
-						style={styles.button}
-						icon={<SendIcon color={'gray1'} />}
-						text={'Send'}
-						//@ts-ignore
-						onPress={onSendPress}
-					/>
-					<Button
-						color={'surface'}
-						style={styles.button}
-						icon={<ReceiveIcon color={'gray1'} />}
-						text={'Receive'}
-						//@ts-ignore
-						onPress={onReceivePress}
-					/>
-				</View>
+									<Caption13M color={'gray'}>
+										{bitcoinSymbol}
+										{bitcoinFormatted}
+									</Caption13M>
+								</View>
+								{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
+							</AnimatedView>
+						) : null}
+					</AnimatedView>
+				</RadialGradient>
+			</View>
+			{/*<View color={'gray6'} style={styles.radiusFooter} />*/}
+
+			<View color={'transparent'} style={styles.txListContainer}>
+				<ActivityList
+					assetFilter={assetFilter}
+					onScroll={onScroll}
+					style={styles.txList}
+					contentContainerStyle={styles.scrollContent}
+					progressViewOffset={350}
+				/>
+			</View>
+			<View color={'transparent'} style={styles.buttons}>
+				<Button
+					color={'surface'}
+					style={styles.button}
+					icon={<SendIcon color={'gray1'} />}
+					text={'Send'}
+					//@ts-ignore
+					onPress={onSendPress}
+				/>
+				<Button
+					color={'surface'}
+					style={styles.button}
+					icon={<ReceiveIcon color={'gray1'} />}
+					text={'Receive'}
+					//@ts-ignore
+					onPress={onReceivePress}
+				/>
 			</View>
 			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
-		</View>
+		</AnimatedView>
 	);
 };
 
@@ -167,11 +274,12 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	content: {},
-	radiusFooter: {
-		height: 20,
+	assetDetailContainer: { paddingBottom: 20 },
+	radiusContainer: {
+		overflow: 'hidden',
 		borderBottomRightRadius: 16,
 		borderBottomLeftRadius: 16,
+		zIndex: 99,
 	},
 	header: {
 		paddingHorizontal: 20,
@@ -183,12 +291,18 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 	},
-	transactionsContainer: {
+	txListContainer: {
 		flex: 1,
+
+		position: 'absolute',
+		width: '100%',
+		height: '100%',
 	},
-	listContainer: {
+	txList: {
 		paddingHorizontal: 20,
-		flex: 1,
+	},
+	scrollContent: {
+		paddingTop: 350,
 	},
 	buttons: {
 		position: 'absolute',
