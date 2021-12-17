@@ -1,17 +1,17 @@
-# Backpack
+# BitKit
 
-[![Test status](https://github.com/synonymdev/backpack/workflows/tests/badge.svg)](https://github.com/synonymdev/backpack/actions)
+[![Test status](https://github.com/synonymdev/bitkit/workflows/tests/badge.svg)](https://github.com/synonymdev/bitkit/actions)
 
 ### Installation
-1. Clone Backpack:
-    - `git clone git@github.com:synonymdev/backpack.git`
-   
+1. Clone BitKit:
+   - `git clone git@github.com:synonymdev/bitkit.git`
+
 2. Install Dependencies:
    - `yarn install`
-   
+
 3. Start the project:
-    - iOS: `react-native run-ios`
-    - Android: `react-native run-android`
+   - iOS: `npx react-native run-ios`
+   - Android: `npx react-native run-android`
 
 ### Download APK
- - APK's can be located for download in the `backpack-wallet` Slack channel as PR's are merged.
+- APK's can be located for download in the `bitkit-mobile` Slack channel as PR's are merged.

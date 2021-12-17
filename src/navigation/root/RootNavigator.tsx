@@ -19,6 +19,7 @@ import SettingsNavigator from '../settings/SettingsNavigator';
 import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import { NavigationContainer } from '../../styles/components';
+import CoinSelection from '../../screens/Wallets/SendOnChainTransaction/CoinSelection';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,7 +63,6 @@ const RootNavigator = (): ReactElement => {
 						}
 					}}
 					pinSetup={false}
-					displayBackButton={false}
 				/>
 			);
 		},
@@ -105,6 +105,7 @@ const RootNavigator = (): ReactElement => {
 
 			<ReceiveAssetPicker />
 			<SendAssetPicker />
+			<CoinSelection />
 		</NavigationContainer>
 	);
 };

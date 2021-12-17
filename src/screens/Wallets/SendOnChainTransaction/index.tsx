@@ -36,7 +36,6 @@ import OutputSummary from './OutputSummary';
 import FeeSummary from './FeeSummary';
 import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
-import UTXOList from './UTXOList';
 import BalanceToggle from '../../../components/BalanceToggle';
 import AssetPicker from '../../../components/AssetPicker';
 import { toggleView } from '../../../store/actions/user';
@@ -46,13 +45,23 @@ interface ISendOnChainTransaction {
 	header?: boolean;
 	onComplete?: Function;
 }
+
+const onCoinSelectionPress = (): void => {
+	toggleView({
+		view: 'coinSelection',
+		data: {
+			isOpen: true,
+			snapPoint: 0,
+		},
+	}).then();
+};
+
 const SendOnChainTransaction = ({
 	header = true,
 	onComplete = (): null => null,
 }: ISendOnChainTransaction): ReactElement => {
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [rawTx, setRawTx] = useState('');
-	const [displayUtxoList, setDisplayUtxoList] = useState(false);
 	const navigation = useNavigation();
 
 	const selectedWallet = useSelector(
@@ -150,8 +159,8 @@ const SendOnChainTransaction = ({
 		[selectedNetwork, selectedWallet, transaction?.inputs],
 	);
 
-	const utxoButtonText = useMemo(() => {
-		return `UTXO List (${transaction.inputs?.length ?? '0'}/${
+	const coinSelectionButtonText = useMemo(() => {
+		return `Coin Selection (${transaction.inputs?.length ?? '0'}/${
 			utxos?.length ?? '0'
 		})`;
 	}, [transaction.inputs?.length, utxos?.length]);
@@ -202,6 +211,7 @@ const SendOnChainTransaction = ({
 				title: 'Error: Unable to Broadcast Transaction',
 				message: 'Please check your connection and try again.',
 			});
+			return;
 		}
 		//Successful Broadcast
 		setRawTx('');
@@ -269,21 +279,19 @@ const SendOnChainTransaction = ({
 	}
 
 	return (
-		<View color="onSurface" style={styles.container}>
+		<View style={styles.container}>
 			<Header />
 			<BalanceToggle sats={txInputValue} />
 			<View style={styles.content}>
 				<AssetPicker assetName="Bitcoin" sats={balance} />
 				<SendForm />
-				<Button
-					color={'onSurface'}
-					text={utxoButtonText}
-					onPress={(): void => setDisplayUtxoList(true)}
-				/>
-				<UTXOList
-					isVisible={displayUtxoList}
-					closeList={(): void => setDisplayUtxoList(false)}
-				/>
+				{utxos?.length > 0 && (
+					<Button
+						color={'onSurface'}
+						text={coinSelectionButtonText}
+						onPress={onCoinSelectionPress}
+					/>
+				)}
 				<Button
 					disabled={balance < transactionTotal}
 					color="onSurface"

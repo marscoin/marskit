@@ -1,9 +1,10 @@
-import React, { memo, ReactElement, useCallback } from 'react';
+import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { View, TouchableOpacity, Text01M } from '../styles/components';
 import { SvgXml } from 'react-native-svg';
 import { backIcon } from '../assets/icons/wallet';
+import { useNavigationState } from '@react-navigation/native';
 
 const _backIcon = backIcon();
 
@@ -33,6 +34,7 @@ const NavigationHeader = ({
 	navigateBack?: boolean;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
+	const routes = useNavigationState((state) => state?.routes);
 
 	const handleBackPress = useCallback(() => {
 		onBackPress();
@@ -42,10 +44,14 @@ const NavigationHeader = ({
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const _displayBackButton = useMemo(() => {
+		return routes?.length > 1 && displayBackButton;
+	}, [displayBackButton, routes?.length]);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				{displayBackButton && <BackButton onPress={handleBackPress} />}
+				{_displayBackButton && <BackButton onPress={handleBackPress} />}
 			</View>
 			<View style={styles.middleColumn}>
 				<Text01M style={styles.title}>{title}</Text01M>

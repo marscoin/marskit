@@ -35,9 +35,6 @@ const Send = (props: ISendProps): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
-	const displayBackButton = useSelector(
-		(state: Store) => state.user.viewController.sendAssetPicker.isOpen,
-	);
 
 	const _onComplete = useCallback(() => {
 		if (asset === 'bitcoin') {
@@ -51,12 +48,8 @@ const Send = (props: ISendProps): ReactElement => {
 	}, [selectedWallet, selectedNetwork]);
 
 	return (
-		<View color="onSurface" style={styles.container}>
-			<NavigationHeader
-				title={headerText}
-				displayBackButton={displayBackButton}
-				onBackPress={onBackPress}
-			/>
+		<View style={styles.container}>
+			<NavigationHeader title={headerText} onBackPress={onBackPress} />
 			<SendOnChainTransaction
 				{...props}
 				header={false}
