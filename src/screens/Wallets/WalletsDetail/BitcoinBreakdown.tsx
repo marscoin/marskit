@@ -77,7 +77,7 @@ const BitcoinBreakdown = (): ReactElement => {
 				values={onchainBalance}
 			/>
 			<View color={'transparent'} style={styles.transferRow}>
-				<View color={'onSurface'} style={styles.line} />
+				<View color={'gray2'} style={styles.line} />
 				<TouchableOpacity>
 					<View style={styles.transferButton} color={'surface'}>
 						<TransferIcon />
@@ -86,7 +86,7 @@ const BitcoinBreakdown = (): ReactElement => {
 						</Caption13M>
 					</View>
 				</TouchableOpacity>
-				<View color={'onSurface'} style={styles.line} />
+				<View color={'gray2'} style={styles.line} />
 			</View>
 			<NetworkRow
 				title={'Lightning Network'}
@@ -112,11 +112,12 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
-		paddingVertical: 18.3,
+		paddingVertical: 5.36,
 	},
 	line: {
 		flex: 1,
 		height: 1,
+		marginHorizontal: 5,
 	},
 	networkIconContainer: {
 		backgroundColor: 'green',

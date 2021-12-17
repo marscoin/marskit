@@ -4,7 +4,11 @@ import React, {
 	ReactElement,
 	useCallback,
 } from 'react';
-import { StyleSheet } from 'react-native';
+import {
+	NativeScrollEvent,
+	NativeSyntheticEvent,
+	StyleSheet,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import RadialGradient from 'react-native-radial-gradient';
 import {
@@ -93,6 +97,10 @@ const WalletsDetail = (props: Props): ReactElement => {
 		}).then();
 	}, []);
 
+	const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+		console.log(e.nativeEvent.contentOffset.y);
+	}, []);
+
 	return (
 		<View style={styles.container}>
 			<RadialGradient
@@ -108,11 +116,6 @@ const WalletsDetail = (props: Props): ReactElement => {
 				<View color={'transparent'} style={styles.header}>
 					<Title>{title}</Title>
 					<View color={'transparent'} style={styles.balanceContainer}>
-						<Caption13M color={'gray'}>
-							{bitcoinSymbol}
-							{bitcoinFormatted}
-						</Caption13M>
-
 						<View color={'transparent'} style={styles.largeValueContainer}>
 							<Headline color={'gray'}>{fiatSymbol}</Headline>
 							<Headline>{fiatWhole}</Headline>
@@ -121,6 +124,11 @@ const WalletsDetail = (props: Props): ReactElement => {
 								{fiatDecimalValue}
 							</Headline>
 						</View>
+
+						<Caption13M color={'gray'}>
+							{bitcoinSymbol}
+							{bitcoinFormatted}
+						</Caption13M>
 					</View>
 					{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
 				</View>
@@ -129,7 +137,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 
 			<View color={'transparent'} style={styles.transactionsContainer}>
 				<View color={'transparent'} style={styles.listContainer}>
-					<ActivityList assetFilter={assetFilter} />
+					<ActivityList assetFilter={assetFilter} onScroll={onScroll} />
 				</View>
 				<View color={'transparent'} style={styles.buttons}>
 					<Button
