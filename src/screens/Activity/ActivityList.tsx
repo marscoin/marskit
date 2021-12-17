@@ -130,19 +130,12 @@ const ActivityList = ({
 		setRefreshing(false);
 	};
 
-	let fakeItems: IActivityItem[] = [];
-	for (let index = 0; index < 20; index++) {
-		activityItems.forEach((item, tempIndex) => {
-			fakeItems.push({ ...item, id: `${item.id}-${index}-${tempIndex}` });
-		});
-	}
-
 	return (
 		<FlatList
 			onScroll={onScroll}
 			style={[styles.content, style]}
 			contentContainerStyle={contentContainerStyle}
-			data={fakeItems}
+			data={activityItems}
 			renderItem={renderItem}
 			keyExtractor={(item): string => item.id}
 			refreshControl={

@@ -137,43 +137,27 @@ const WalletsDetail = (props: Props): ReactElement => {
 	useEffect(() => {
 		updateOpacity({ opacity, toValue: 1 });
 		updateHeight({ height, toValue: 230 });
-		return (): void => updateOpacity({ opacity, toValue: 0, duration: 0 });
-	}, [opacity]);
-
-	// const onScroll = useDebounce<NativeSyntheticEvent<NativeScrollEvent>>((e) => {
-	// 	console.log('Hey!');
-	// 	console.log(JSON.stringify(e));
-	// }, 100);
-	//
-	// // const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-	// // 	// const { y } = e.nativeEvent.contentOffset;
-	// // 	// console.log(Object.keys(e));
-	// // 	// console.log(e.nativeEvent);
-	// //
-	// // 	d().then();
-	// // };
+	}, [opacity, height]);
 
 	const onScroll = useCallback(
 		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
 			const { y } = e.nativeEvent.contentOffset;
+
+			//HIDE
 			if (y > 200 && showDetails) {
 				//Shrink the detail view
-				LayoutAnimation.easeInEaseOut(() => console.log('closed'));
-
-				// LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
+				LayoutAnimation.easeInEaseOut();
 				updateOpacity({ opacity, toValue: 0 });
-
-				updateHeight({ height, toValue: 30, duration: 500 });
 
 				setTimeout(() => {
 					setShowDetails(false);
+					updateHeight({ height, toValue: 30 });
 				}, 250);
 			}
 
+			//SHOW
 			if (y < 150 && !showDetails) {
 				//They scrolled up so show more details now
-
 				LayoutAnimation.easeInEaseOut(() =>
 					updateOpacity({ opacity, toValue: 1 }),
 				);
@@ -181,17 +165,10 @@ const WalletsDetail = (props: Props): ReactElement => {
 				updateHeight({ height, toValue: 230 });
 
 				setShowDetails(true);
-
-				setTimeout(() => {
-					// updateOpacity({ opacity, toValue: 1 });
-				}, 500);
 			}
-			// console.log(e.nativeEvent.contentOffset.y);
 		},
-		[showDetails],
+		[showDetails, height, opacity],
 	);
-
-	console.log(showDetails);
 
 	return (
 		<AnimatedView style={styles.container}>
