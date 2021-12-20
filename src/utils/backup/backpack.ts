@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-unused-vars */
 import { Client } from 'backpack-host';
 import bint from 'bint8array';
 import WSStream from 'webnet/websocket';
@@ -164,8 +163,8 @@ export const backpackStore = async (
 ): Promise<Result<string>> => {
 	try {
 		//TODO place back once we can store the password hash. Freezes the app while hashing on each backup.
-		// const client = await clientFactory();
-		// await client.store(serverInfo, backup);
+		const client = await clientFactory();
+		await client.store(serverInfo, backup);
 
 		return ok('Stored successfully');
 	} catch (e) {

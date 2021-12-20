@@ -2414,9 +2414,9 @@ babel-preset-jest@^27.4.0:
     babel-plugin-jest-hoist "^27.4.0"
     babel-preset-current-node-syntax "^1.0.0"
 
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93":
+"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#reuse-key":
   version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#80860766e137795fa1735b2f74b9ea49642bce71"
   dependencies:
     bint8array "^1.1.2"
     handshake-peer "^0.1.0"

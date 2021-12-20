@@ -105,7 +105,7 @@
     "@typescript-eslint/parser": "^5.4.0",
     "babel-jest": "^27.0.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "backpack-host": "git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93",
+    "backpack-host": "git+ssh://git@github.com/synonymdev/backpack-host.git#reuse-key",
     "browserify-zlib": "^0.2.0",
     "dns.js": "^1.0.1",
     "eslint": "^7.26.0",
