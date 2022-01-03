@@ -42,7 +42,7 @@ const colors: IColors = {
 	green: '#75BF72',
 	green2: '#33CE59',
 	yellow: '#FFD200',
-	orange: '#ED8452',
+	orange: '#F75C1A',
 	red: '#E95164',
 	indigo: '#2D5BFF',
 	purple: '#B95CE8',
