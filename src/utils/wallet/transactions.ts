@@ -18,14 +18,13 @@ import {
 	getMnemonicPhrase,
 	getOnChainBalance,
 	getRbfData,
-	getReceiveAddress,
 	getScriptHash,
 	getSelectedNetwork,
 	getSelectedWallet,
 	getTransactionById,
 	refreshWallet,
 } from './index';
-import { BIP32Interface, Psbt } from 'bitcoinjs-lib';
+import { Psbt } from 'bitcoinjs-lib';
 import { getStore } from '../../store/helpers';
 import validate, {
 	AddressInfo,
@@ -42,11 +41,11 @@ import { showErrorNotification } from '../notifications';
 import { getTransactions, subscribeToAddresses } from './electrum';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { replaceActivityItemById } from '../../store/actions/activity';
-
-const bitcoin = require('bitcoinjs-lib');
-const bip21 = require('bip21');
-const bip39 = require('bip39');
-const bip32 = require('bip32');
+import { BIP32Interface } from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
+import * as bip21 from 'bip21';
+import * as bip32 from 'bip32';
+import * as bip39 from 'bip39';
 
 /*
  * Attempts to parse any given string as an on-chain payment request.
@@ -409,7 +408,7 @@ const getBip32Interface = async (
 	} catch {}
 
 	const mnemonic = getMnemonicPhraseResult.value;
-	const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
+	const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
 	const root = bip32.fromSeed(seed, network);
 
 	return ok(root);
@@ -530,7 +529,7 @@ const createPsbtFromTransactionData = async ({
 				if (target?.script) {
 					psbt.addOutput({
 						script: target.script,
-						value: target.value,
+						value: target.value ?? 0,
 					});
 				}
 			} else {
@@ -759,6 +758,9 @@ export const addInput = async ({
 				pubkey: keyPair.publicKey,
 				network,
 			});
+			if (!p2wpkh?.output) {
+				return err('p2wpkh.output is undefined.');
+			}
 			psbt.addInput({
 				hash: input.tx_hash,
 				index: input.tx_pos,
@@ -775,6 +777,12 @@ export const addInput = async ({
 				network,
 			});
 			const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
+			if (!p2sh?.output) {
+				return err('p2sh.output is undefined.');
+			}
+			if (!p2sh?.redeem) {
+				return err('p2sh.redeem.output is undefined.');
+			}
 			psbt.addInput({
 				hash: input.tx_hash,
 				index: input.tx_pos,
@@ -1430,18 +1438,6 @@ export const sendMax = ({
 			address = outputs[index]?.address;
 		}
 
-		// No address specified in the output index. Add next available receiving address.
-		if (!address) {
-			const receiveAddressResponse = getReceiveAddress({
-				selectedNetwork,
-				selectedWallet,
-			});
-			if (receiveAddressResponse.isErr()) {
-				return err(receiveAddressResponse.error.message);
-			}
-			address = receiveAddressResponse.value;
-		}
-
 		const inputTotal = getTransactionInputValue({
 			selectedNetwork,
 			selectedWallet,
@@ -1595,6 +1591,7 @@ export const adjustFee = ({
  * @param {IOnChainTransactionData} [transaction]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
+ * @param {boolean} [max]
  */
 export const updateAmount = async ({
 	amount = '',
@@ -1602,12 +1599,14 @@ export const updateAmount = async ({
 	transaction,
 	selectedNetwork,
 	selectedWallet,
+	max = false,
 }: {
 	amount: string;
 	index?: number;
 	transaction?: IOnChainTransactionData;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
+	max?: boolean;
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
@@ -1670,12 +1669,17 @@ export const updateAmount = async ({
 		return err('New amount exceeds the current balance.');
 	}
 
+	if (totalNewAmount === inputTotal) {
+		max = true;
+	}
+
 	const output = { address, value: newAmount, index };
 	await updateOnChainTransaction({
 		selectedWallet,
 		selectedNetwork,
 		transaction: {
 			outputs: [output],
+			max,
 		},
 	});
 	return ok('');
