@@ -92,9 +92,11 @@ const AssetBalance = memo(
 const BalanceToggle = ({
 	sats = 0,
 	initialPrimary = 'fiat',
+	style,
 }: {
 	sats: number;
 	initialPrimary?: 'fiat' | 'asset';
+	style?: object;
 }): ReactElement => {
 	const [primary, setPrimary] = useState(initialPrimary);
 	const displayValues = useDisplayValues(sats);
@@ -123,7 +125,7 @@ const BalanceToggle = ({
 	}, [primary]);
 
 	return (
-		<Pressable onPress={onTogglePress} style={styles.row}>
+		<Pressable onPress={onTogglePress} style={[styles.row, style]}>
 			<View color="transparent">{BalanceComponents}</View>
 			<View style={styles.switchIcon}>
 				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
