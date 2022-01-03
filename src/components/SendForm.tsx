@@ -25,9 +25,7 @@ import {
 	adjustFee,
 	getTotalFee,
 	getTransactionOutputValue,
-	sendMax,
 	updateAmount,
-	updateMessage,
 } from '../utils/wallet/transactions';
 import { useBalance, useTransactionDetails } from '../hooks/transaction';
 import Card from './Card';
@@ -38,11 +36,7 @@ import Clipboard from '@react-native-community/clipboard';
 import { showErrorNotification } from '../utils/notifications';
 import { validate } from 'bitcoin-address-validation';
 
-const SendForm = ({
-	index = 0,
-	displayMessage = true,
-	displayFee = true,
-}): ReactElement => {
+const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -236,6 +230,7 @@ const SendForm = ({
 							<Text02M>To</Text02M>
 							<TextInput
 								style={styles.textInput}
+								selectTextOnFocus={true}
 								multiline={true}
 								textAlignVertical={'center'}
 								underlineColorAndroid="transparent"
@@ -269,82 +264,26 @@ const SendForm = ({
 			</Card>
 
 			<Card style={styles.card} color={'gray336'}>
-				<>
-					<View style={styles.col1}>
-						<View color="transparent" style={styles.titleContainer}>
-							<Text02M>Amount</Text02M>
-							<TextInput
-								style={styles.textInput}
-								multiline={true}
-								textAlignVertical={'center'}
-								underlineColorAndroid="transparent"
-								placeholderTextColor={colors.gray2}
-								editable={!max}
-								placeholder="Amount (sats)"
-								keyboardType="number-pad"
-								autoCapitalize="none"
-								autoCompleteType="off"
-								autoCorrect={false}
-								onChangeText={(txt): void => {
-									updateAmount({
-										amount: txt,
-										selectedWallet,
-										selectedNetwork,
-										index,
-									});
-								}}
-								value={Number(value) ? value.toString() : ''}
-								onSubmitEditing={(): void => {}}
-							/>
-						</View>
+				<View style={styles.col1}>
+					<View color="transparent" style={styles.titleContainer}>
+						<Text02M>Add Note</Text02M>
+						<TextInput
+							style={styles.textInput}
+							textAlignVertical={'center'}
+							placeholderTextColor={colors.gray2}
+							editable={!max}
+							multiline
+							underlineColorAndroid="transparent"
+							placeholder="This is a transaction note"
+							autoCapitalize="none"
+							autoCompleteType="off"
+							autoCorrect={false}
+							value={message}
+							onSubmitEditing={(): void => {}}
+						/>
 					</View>
-
-					<View color="transparent" style={styles.col2}>
-						<TouchableOpacity
-							style={styles.button}
-							color={max ? 'surface' : 'onSurface'}
-							text="Max"
-							disabled={balance <= 0}
-							onPress={sendMax}>
-							<Text02M>Max</Text02M>
-						</TouchableOpacity>
-					</View>
-				</>
+				</View>
 			</Card>
-
-			{!!displayMessage && (
-				<Card style={styles.card} color={'gray336'}>
-					<>
-						<View style={styles.col1}>
-							<View color="transparent" style={styles.titleContainer}>
-								<Text02M>Add Note</Text02M>
-								<TextInput
-									style={styles.textInput}
-									textAlignVertical={'center'}
-									placeholderTextColor={colors.gray2}
-									editable={!max}
-									multiline
-									underlineColorAndroid="transparent"
-									placeholder="Message (OP_RETURN)"
-									autoCapitalize="none"
-									autoCompleteType="off"
-									autoCorrect={false}
-									onChangeText={(txt): void => {
-										updateMessage({
-											message: txt,
-											selectedWallet,
-											selectedNetwork,
-											index,
-										});
-									}}
-									value={message}
-									onSubmitEditing={(): void => {}}
-								/>
-							</View>
-						</View>
-					</>
-				</Card>
-			)}
 
 			{!!displayFee && (
 				<AdjustValue
@@ -365,7 +304,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	card: {
-		height: 58,
+		minHeight: 62,
 		marginBottom: 8,
 		borderRadius: 20,
 		paddingHorizontal: 16,
@@ -387,12 +326,6 @@ const styles = StyleSheet.create({
 	titleContainer: {
 		flex: 1,
 		marginHorizontal: 12,
-	},
-	button: {
-		paddingVertical: 2,
-		paddingHorizontal: 5,
-		borderRadius: 20,
-		right: -7,
 	},
 });
 

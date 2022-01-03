@@ -73,11 +73,10 @@ import {
 } from './electrum';
 import { getDisplayValues, IDisplayValues } from '../exchange-rate';
 import { IncludeBalances } from '../../hooks/wallet';
-
-const bitcoin = require('bitcoinjs-lib');
-const { CipherSeed } = require('aezeed');
-const bip39 = require('bip39');
-const bip32 = require('bip32');
+import * as bitcoin from 'bitcoinjs-lib';
+import { CipherSeed } from 'aezeed';
+import * as bip39 from 'bip39';
+import * as bip32 from 'bip32';
 
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
@@ -205,7 +204,7 @@ export const generateAddresses = async ({
 		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
 
 		const mnemonic = getMnemonicPhraseResponse.value;
-		const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
+		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
 		const root = bip32.fromSeed(seed, network);
 
 		//Generate Addresses
@@ -320,7 +319,7 @@ export const getPrivateKey = async ({
 		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
 
 		const mnemonic = getMnemonicPhraseResponse.value;
-		const seed = bip39.mnemonicToSeedSync(mnemonic, bip39Passphrase);
+		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
 		const root = bip32.fromSeed(seed, network);
 
 		const addressPath = addressData.path;
@@ -479,18 +478,18 @@ export const getMnemonicPhrase = async (
  * @param {string} str
  * @return {string}
  */
-export const getMnemonicPhraseFromEntropy = (str: string): string => {
+export const getMnemonicPhraseFromEntropy = (str: Buffer): string => {
 	const hash = getSha256(str);
 	return bip39.entropyToMnemonic(hash);
 };
 
 /**
  * Returns sha256 hash of string.
- * @param {string} str
- * @return {string}
+ * @param {Buffer} buff
+ * @return {Buffer}
  */
-export const getSha256 = (str = ''): string => {
-	return bitcoin.crypto.sha256(str);
+export const getSha256 = (buff: Buffer): Buffer => {
+	return bitcoin.crypto.sha256(buff);
 };
 
 /**
@@ -568,16 +567,21 @@ export const getBip39Passphrase = async (wallet = ''): Promise<string> => {
  */
 export const getScriptHash = (
 	address = '',
-	network: INetwork | string = networks.bitcoin,
+	network: INetwork | string,
 ): string => {
 	try {
 		if (!address || !network) {
 			return '';
 		}
-		if (typeof network === 'string' && network in networks) {
-			network = networks[network];
+		let _network = networks.bitcoin;
+		if (network && typeof network !== 'string') {
+			_network = network;
 		}
-		const script = bitcoin.address.toOutputScript(address, network);
+		if (typeof network === 'string' && network in networks) {
+			_network = networks[network];
+		}
+
+		const script = bitcoin.address.toOutputScript(address, _network);
 		let hash = bitcoin.crypto.sha256(script);
 		const reversedHash = new Buffer(hash.reverse());
 		return reversedHash.toString('hex');
@@ -605,21 +609,27 @@ export const getAddress = ({
 		switch (type) {
 			case 'p2wpkh':
 				//Get Native Bech32 (bc1) addresses
-				return bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network })
-					.address;
+				return (
+					bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network })
+						.address ?? ''
+				);
 			case 'p2sh':
 				//Get Segwit P2SH Address (3)
-				return bitcoin.payments.p2sh({
-					redeem: bitcoin.payments.p2wpkh({
-						pubkey: keyPair.publicKey,
+				return (
+					bitcoin.payments.p2sh({
+						redeem: bitcoin.payments.p2wpkh({
+							pubkey: keyPair.publicKey,
+							network,
+						}),
 						network,
-					}),
-					network,
-				}).address;
+					}).address ?? ''
+				);
 			//Get Legacy Address (1)
 			case 'p2pkh':
-				return bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network })
-					.address;
+				return (
+					bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network })
+						.address ?? ''
+				);
 		}
 		return '';
 	} catch {

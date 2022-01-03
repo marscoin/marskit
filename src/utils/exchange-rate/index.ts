@@ -114,6 +114,33 @@ export const defaultDisplayValues: IDisplayValues = {
 	satoshis: 0,
 };
 
+export const fiatToBitcoinUnit = ({
+	fiatValue,
+	exchangeRate,
+	currency,
+	bitcoinUnit,
+}: {
+	fiatValue: string;
+	exchangeRate?: number;
+	currency?: string;
+	bitcoinUnit?: TBitcoinUnit;
+}): number => {
+	if (!currency) {
+		currency = getStore().settings.selectedCurrency;
+	}
+	if (!exchangeRate) {
+		exchangeRate = getStore().wallet.exchangeRates[currency] || 0;
+	}
+	if (!bitcoinUnit) {
+		bitcoinUnit = getStore().settings.bitcoinUnit;
+	}
+	bitcoinUnits.setFiat(currency, exchangeRate);
+	return bitcoinUnits(Number(fiatValue), currency)
+		.to(bitcoinUnit)
+		.value()
+		.toFixed(8);
+};
+
 export const getDisplayValues = ({
 	satoshis,
 	exchangeRate,
@@ -132,8 +159,7 @@ export const getDisplayValues = ({
 			currency = getStore().settings.selectedCurrency;
 		}
 		if (!exchangeRate) {
-			const exchangeRates = getStore().wallet.exchangeRates[currency] || {};
-			exchangeRate = exchangeRates[currency];
+			exchangeRate = getStore().wallet.exchangeRates[currency] || 0;
 		}
 		if (!bitcoinUnit) {
 			bitcoinUnit = getStore().settings.bitcoinUnit;
@@ -179,6 +205,7 @@ export const getDisplayValues = ({
 		const bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')
 			.to(bitcoinUnit)
 			.value()
+			.toFixed(bitcoinUnit === 'satoshi' ? 0 : 8)
 			.toString();
 
 		let { bitcoinSymbol } = defaultDisplayValues;

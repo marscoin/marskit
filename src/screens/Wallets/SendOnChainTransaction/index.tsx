@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { View, Text, TouchableOpacity } from '../../../styles/components';
-import NavigationHeader from '../../../components/NavigationHeader';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import Button from '../../../components/Button';
@@ -16,7 +15,6 @@ import { systemWeights } from 'react-native-typography';
 import {
 	broadcastTransaction,
 	createTransaction,
-	getTransactionInputValue,
 	getTransactionOutputValue,
 	validateTransaction,
 } from '../../../utils/wallet/transactions';
@@ -36,13 +34,14 @@ import OutputSummary from './OutputSummary';
 import FeeSummary from './FeeSummary';
 import { useNavigation } from '@react-navigation/native';
 import { hasEnabledAuthentication } from '../../../utils/settings';
-import BalanceToggle from '../../../components/BalanceToggle';
 import AssetPicker from '../../../components/AssetPicker';
 import { toggleView } from '../../../store/actions/user';
 import { getStore } from '../../../store/helpers';
+import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
+import AmountToggle from '../../../components/AmountToggle';
+import OnChainNumberPad from './OnChainNumberPad';
 
 interface ISendOnChainTransaction {
-	header?: boolean;
 	onComplete?: Function;
 }
 
@@ -57,10 +56,10 @@ const onCoinSelectionPress = (): void => {
 };
 
 const SendOnChainTransaction = ({
-	header = true,
 	onComplete = (): null => null,
 }: ISendOnChainTransaction): ReactElement => {
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
+	const [isCreatingTransaction, setIsCreatingTransaction] = useState(false);
 	const [rawTx, setRawTx] = useState('');
 	const navigation = useNavigation();
 
@@ -116,13 +115,6 @@ const SendOnChainTransaction = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const Header = useCallback((): ReactElement | null => {
-		if (header) {
-			return <NavigationHeader title="Send Transaction" />;
-		}
-		return null;
-	}, [header]);
-
 	const { outputs, message } = transaction;
 	const totalFee = transaction.fee;
 
@@ -153,12 +145,6 @@ const SendOnChainTransaction = ({
 
 	const transactionTotal = getTransactionTotal();
 
-	const txInputValue = useMemo(
-		() => getTransactionInputValue({ selectedWallet, selectedNetwork }),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[selectedNetwork, selectedWallet, transaction?.inputs],
-	);
-
 	const coinSelectionButtonText = useMemo(() => {
 		return `Coin Selection (${transaction.inputs?.length ?? '0'}/${
 			utxos?.length ?? '0'
@@ -167,6 +153,7 @@ const SendOnChainTransaction = ({
 
 	const _createTransaction = useCallback(async (): Promise<void> => {
 		try {
+			setIsCreatingTransaction(true);
 			const transactionIsValid = validateTransaction(transaction);
 			if (transactionIsValid.isErr()) {
 				showErrorNotification({
@@ -197,7 +184,10 @@ const SendOnChainTransaction = ({
 					setRawTx(response.value);
 				}
 			}
-		} catch {}
+			setIsCreatingTransaction(false);
+		} catch {
+			setIsCreatingTransaction(false);
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedNetwork, selectedWallet, transaction]);
 
@@ -249,7 +239,6 @@ const SendOnChainTransaction = ({
 	if (rawTx) {
 		return (
 			<>
-				<Header />
 				<OutputSummary outputs={outputs} changeAddress={changeAddress}>
 					<FeeSummary />
 				</OutputSummary>
@@ -280,25 +269,37 @@ const SendOnChainTransaction = ({
 
 	return (
 		<View style={styles.container}>
-			<Header />
-			<BalanceToggle sats={txInputValue} />
+			<AmountToggle sats={amount} style={styles.amountToggle} />
 			<View style={styles.content}>
 				<AssetPicker assetName="Bitcoin" sats={balance} />
 				<SendForm />
-				{utxos?.length > 0 && (
+				{utxos?.length > 1 && (
 					<Button
 						color={'onSurface'}
 						text={coinSelectionButtonText}
 						onPress={onCoinSelectionPress}
+						disabled={isCreatingTransaction}
 					/>
 				)}
 				<Button
-					disabled={balance < transactionTotal}
+					disabled={balance < transactionTotal || isCreatingTransaction}
 					color="onSurface"
 					text="Create"
 					onPress={_createTransaction}
+					loading={isCreatingTransaction}
 				/>
 			</View>
+			<BottomSheetWrapper
+				view="numberPad"
+				displayHeader={false}
+				snapPoints={['50%', 0, 0]}>
+				<OnChainNumberPad />
+			</BottomSheetWrapper>
+			<BottomSheetWrapper view="feePicker">
+				<TouchableOpacity>
+					<Text>Button A</Text>
+				</TouchableOpacity>
+			</BottomSheetWrapper>
 		</View>
 	);
 };
@@ -307,7 +308,6 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		marginBottom: 20,
-		justifyContent: 'space-evenly',
 	},
 	content: {
 		marginHorizontal: 10,
@@ -328,6 +328,10 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		alignSelf: 'center',
 		paddingVertical: 5,
+	},
+	amountToggle: {
+		paddingTop: 20,
+		paddingVertical: 25,
 	},
 });
 

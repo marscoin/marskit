@@ -3,8 +3,8 @@ import { Text, View } from '../../../styles/components';
 import { StyleSheet } from 'react-native';
 
 const Summary = ({
-	leftText = '',
-	rightText = '',
+	leftText = ' ',
+	rightText = ' ',
 }: {
 	leftText: string;
 	rightText: string;

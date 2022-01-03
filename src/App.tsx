@@ -8,7 +8,7 @@ import React, {
 	useEffect,
 	useCallback,
 } from 'react';
-import { Platform, UIManager, useColorScheme } from 'react-native';
+import { Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { SafeAreaProvider } from './styles/components';
@@ -20,7 +20,6 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
-import { updateSettings } from './store/actions/settings';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -31,21 +30,14 @@ if (Platform.OS === 'android') {
 const App = (): ReactElement => {
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
-	const colorScheme = useColorScheme();
 
 	useEffect(() => {
 		(async (): Promise<void> => {
 			const _walletExists = await checkWalletExists();
-			if (!_walletExists) {
-				//Set theme based on device preference.
-				const userPreference = colorScheme === 'light' ? 'light' : 'dark';
-				updateSettings({ theme: userPreference });
-			}
 			if (_walletExists) {
 				await startWalletServices({});
 			}
 		})();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const currentTheme = useMemo(() => {

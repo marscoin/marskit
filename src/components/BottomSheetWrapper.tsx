@@ -1,3 +1,20 @@
+/***********************************************************************************
+ * This component wraps the reanimated-bottom-sheet library
+ * to more easily take advantage of it throughout the app.
+ *
+ * Implementation:
+ * <BottomSheetWrapper view="viewName">
+ *   <View>...</View>
+ * </BottomSheetWrapper>
+ *
+ * Usage Throughout App:
+ * toggleView({ view: 'viewName', data: { isOpen: true, snapPoint: 1 }});
+ * toggleView({ view: 'viewName', data: { isOpen: false }});
+ *
+ * Check if a given view is open:
+ * getStore().user.viewController['viewName'].isOpen;
+ ***********************************************************************************/
+
 import React, {
 	memo,
 	ReactElement,
@@ -16,13 +33,14 @@ import { toggleView } from '../store/actions/user';
 import { TViewController } from '../store/types/user';
 import { usePrevious } from '../hooks/helpers';
 
-const snapPoints = ['95%', '65%', 0];
 export interface IModalProps {
 	children: ReactElement;
 	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
 	headerColor?: string;
+	displayHeader?: boolean;
+	snapPoints?: any[];
 }
 const BottomSheetWrapper = forwardRef(
 	(
@@ -32,6 +50,8 @@ const BottomSheetWrapper = forwardRef(
 			onOpen = (): null => null,
 			onClose = (): null => null,
 			headerColor = 'onSurface',
+			displayHeader = true,
+			snapPoints = ['95%', '65%', 0],
 		}: IModalProps,
 		ref,
 	): ReactElement => {
@@ -93,7 +113,7 @@ const BottomSheetWrapper = forwardRef(
 				renderContent={(): ReactElement => {
 					return (
 						<View style={styles.container} color={headerColor}>
-							<View style={styles.spacer} />
+							{displayHeader && <View style={styles.spacer} />}
 							{children}
 						</View>
 					);

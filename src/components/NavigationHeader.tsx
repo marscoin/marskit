@@ -23,7 +23,7 @@ const BackButton = memo(
 );
 
 const NavigationHeader = ({
-	title = '',
+	title = ' ',
 	displayBackButton = true,
 	onBackPress = (): null => null,
 	navigateBack = true,

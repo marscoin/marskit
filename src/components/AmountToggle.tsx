@@ -1,10 +1,4 @@
-import React, {
-	memo,
-	ReactElement,
-	useCallback,
-	useMemo,
-	useState,
-} from 'react';
+import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import {
 	Display,
 	Title,
@@ -16,10 +10,9 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
 import { IDisplayValues } from '../utils/exchange-rate';
-import { SvgXml } from 'react-native-svg';
-import { switchIcon } from '../assets/icons/wallet';
-
-const switchIconXml = switchIcon();
+import { toggleView } from '../store/actions/user';
+import { useSelector } from 'react-redux';
+import Store from '../store/types';
 
 const FiatBalance = memo(
 	({
@@ -87,18 +80,16 @@ const AssetBalance = memo(
 );
 
 /**
- * Displays the total available balance for the current wallet & network.
+ * Displays the total amount of sats specified and it's corresponding fiat value.
  */
-const BalanceToggle = ({
+const AmountToggle = ({
 	sats = 0,
-	initialPrimary = 'fiat',
 	style,
 }: {
 	sats: number;
-	initialPrimary?: 'fiat' | 'asset';
 	style?: object;
 }): ReactElement => {
-	const [primary, setPrimary] = useState(initialPrimary);
+	const primary = useSelector((state: Store) => state.settings.unitPreference);
 	const displayValues = useDisplayValues(sats);
 	const fiatIsPrimary = useMemo(() => primary === 'fiat', [primary]);
 
@@ -121,15 +112,18 @@ const BalanceToggle = ({
 		));
 	}, [getBalanceComponents]);
 	const onTogglePress = useCallback(() => {
-		setPrimary(primary === 'asset' ? 'fiat' : 'asset');
-	}, [primary]);
+		toggleView({
+			view: 'numberPad',
+			data: {
+				isOpen: true,
+				snapPoint: 0,
+			},
+		}).then();
+	}, []);
 
 	return (
 		<Pressable onPress={onTogglePress} style={[styles.row, style]}>
 			<View color="transparent">{BalanceComponents}</View>
-			<View style={styles.switchIcon}>
-				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
-			</View>
 		</Pressable>
 	);
 };
@@ -141,16 +135,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		backgroundColor: 'transparent',
 	},
-	switchIcon: {
-		backgroundColor: 'rgba(37, 39, 43, 0.92);',
-		borderRadius: 100,
-		height: 35,
-		width: 35,
-		alignItems: 'center',
-		justifyContent: 'center',
-		position: 'absolute',
-		right: 20,
-	},
 });
 
-export default memo(BalanceToggle);
+export default memo(AmountToggle);

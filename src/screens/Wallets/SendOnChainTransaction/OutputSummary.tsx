@@ -15,7 +15,7 @@ const OutputSummary = ({
 	return (
 		<View color="transparent">
 			{outputs &&
-				outputs.map(({ address, value }, index) => {
+				outputs.map(({ address = ' ', value }, index) => {
 					if (changeAddress !== address) {
 						return (
 							<View key={`${index}${value}`} color="transparent">
