@@ -19,8 +19,7 @@ import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { resetSelectedWallet } from '../../store/actions/wallet';
 import SafeAreaView from '../../components/SafeAreaView';
-
-const bip39 = require('bip39');
+import * as bip39 from 'bip39';
 
 const ManageSeedPhrase = (): ReactElement => {
 	const selectedWallet = useSelector(
@@ -33,7 +32,7 @@ const ManageSeedPhrase = (): ReactElement => {
 	const [mnemonic, setMnemonic] = useState('');
 	const [currentMnemonic, setCurrentMnemonic] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [suggestedWords, setSuggestedWords] = useState([]);
+	const [suggestedWords, setSuggestedWords] = useState<string[]>([]);
 
 	const setupComponent = async (): Promise<void> => {
 		const response = await getMnemonicPhrase();
