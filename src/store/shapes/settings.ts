@@ -15,4 +15,5 @@ export const defaultSettingsShape: ISettings = {
 	selectedLanguage: 'english',
 	customElectrumPeers: { ...arrayTypeItems },
 	coinSelectPreference: 'small',
+	unitPreference: 'asset',
 };
