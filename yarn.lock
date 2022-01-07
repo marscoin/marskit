@@ -1479,6 +1479,18 @@
     merge-deep "^3.0.2"
     svgo "^1.2.2"
 
+"@synonymdev/backpack-client@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@synonymdev/backpack-client/-/backpack-client-1.0.6.tgz#514b1488b7366ddcf3cd2340e25fc08634650814"
+  integrity sha512-3pBGHWAhvO/Y83Bs/WjrPUZTfDukiZpDOyTl4TN0wBAC/ZKGmqFc9ugWCMy4G2lAsa9MkqHIDBO3mZClisE/uQ==
+  dependencies:
+    bint8array "^1.1.2"
+    handshake-peer "^0.1.0"
+    secret-blob "github:chm-diederichs/secret-blob"
+    sodium-native "^3.2.1"
+    spake2-ee "^0.1.0"
+    webnet "git+ssh://git@github.com/chm-diederichs/webnet.git#d3b3535537dffb9efa045e6cecea8a244ec5387d"
+
 "@synonymdev/blocktank-client@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@synonymdev/blocktank-client/-/blocktank-client-0.0.4.tgz#9e33fd957ee855161f919840021bccad76057773"
@@ -2413,16 +2425,6 @@ babel-preset-jest@^27.4.0:
   dependencies:
     babel-plugin-jest-hoist "^27.4.0"
     babel-preset-current-node-syntax "^1.0.0"
-
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#reuse-key":
-  version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#80860766e137795fa1735b2f74b9ea49642bce71"
-  dependencies:
-    bint8array "^1.1.2"
-    handshake-peer "^0.1.0"
-    secret-blob "github:chm-diederichs/secret-blob"
-    sodium-native "^3.2.1"
-    spake2-ee "^0.1.0"
 
 balanced-match@^1.0.0:
   version "1.0.2"
