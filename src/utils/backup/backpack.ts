@@ -63,19 +63,29 @@ const clientFactory = async (auth?: IBackpackAuth): Promise<Client> => {
 			opts,
 			padding,
 		);
-
-		if (!keyHex) {
-			try {
-				keyHex = await clientSingleton.createKey();
-				await saveEncryptionKey(keyHex);
-			} catch (e) {
-				console.error(e);
-				throw e;
-			}
-		}
 	}
 
 	return clientSingleton;
+};
+
+/**
+ * This function can be time consuming
+ * @returns {Promise<void>}
+ */
+const createKeyIfMissing = async (client: Client) => {
+	let keyHex = await backpackKey();
+	if (keyHex) {
+		return client.setKey(keyHex, opts);
+	}
+
+	//No cached key found then hash a new one
+	try {
+		keyHex = await client.createKey();
+		await saveEncryptionKey(keyHex);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
 };
 
 /**
@@ -194,6 +204,7 @@ export const backpackStore = async (
 	try {
 		//TODO place back once we can store the password hash. Freezes the app while hashing on each backup.
 		const client = await clientFactory();
+		await createKeyIfMissing(client);
 		await client.store(backup);
 
 		return ok('Stored successfully');
@@ -211,6 +222,7 @@ export const backpackRetrieve = async (
 ): Promise<Result<Uint8Array>> => {
 	try {
 		const client = await clientFactory(auth);
+		await createKeyIfMissing(client);
 		const res = await client.retrieve();
 
 		if (auth) {
