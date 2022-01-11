@@ -75,11 +75,6 @@ const BackupRegisterForm = ({
 								message: registrationResult.error.message,
 							});
 						} else {
-							showSuccessNotification({
-								title: 'Success',
-								message: 'Backup registered',
-							});
-
 							onRegister();
 						}
 
