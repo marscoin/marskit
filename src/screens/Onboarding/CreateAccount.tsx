@@ -6,7 +6,7 @@ import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
 
 const OnboardingCreateAccountScreen = (): ReactElement => {
-	const [isCreatingWallet, setIsCreatingWallet] = useState(true);
+	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 
 	return (
 		<View style={styles.container}>

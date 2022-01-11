@@ -69,6 +69,8 @@ const BackupRegisterForm = ({
 							password,
 						});
 
+						setIsSubmitting(false);
+
 						if (registrationResult.isErr()) {
 							showErrorNotification({
 								title: 'Failed to register',
@@ -77,8 +79,6 @@ const BackupRegisterForm = ({
 						} else {
 							onRegister();
 						}
-
-						setIsSubmitting(false);
 					}}
 				/>
 			) : null}
