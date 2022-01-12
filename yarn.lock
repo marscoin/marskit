@@ -1479,10 +1479,10 @@
     merge-deep "^3.0.2"
     svgo "^1.2.2"
 
-"@synonymdev/backpack-client@1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@synonymdev/backpack-client/-/backpack-client-1.0.7.tgz#fce123d20dab5c66a1589fd5c774834be1b2830f"
-  integrity sha512-kQH8cMwpD9ffNuhivVX0nc0exCFK/r0L45+8msEYnzSTYIich+C1KQxbOnxkWFO79Cap+GDxwjOGRDgwxqL17w==
+"@synonymdev/backpack-client@1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@synonymdev/backpack-client/-/backpack-client-1.0.11.tgz#7571ac59d74b57c0d646ce8a60dcd557b5b88bab"
+  integrity sha512-GQjVriYQjsc/0Y7vCXxRBj1ungypc4lDdI0AXy7OaVP4KBNZsvvyERLCm64f3OGrYltzEDWaEQxjQUpReoHxFQ==
   dependencies:
     bint8array "^1.1.2"
     handshake-peer "^0.1.0"

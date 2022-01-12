@@ -72,7 +72,7 @@ const clientFactory = async (auth?: IBackpackAuth): Promise<Client> => {
  * This function can be time consuming
  * @returns {Promise<void>}
  */
-const createKeyIfMissing = async (client: Client) => {
+const createKeyIfMissing = async (client: Client): Promise<void> => {
 	let keyHex = await backpackKey();
 	if (keyHex) {
 		return client.setKey(keyHex, opts);
@@ -128,6 +128,9 @@ export const wipeAuthDetails = async (): Promise<void> => {
 		}),
 		resetKeychainValue({
 			key: BackpackKeychainKeys.password,
+		}),
+		resetKeychainValue({
+			key: BackpackKeychainKeys.key,
 		}),
 	]);
 };

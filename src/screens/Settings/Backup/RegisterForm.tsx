@@ -4,10 +4,7 @@ import { useSelector } from 'react-redux';
 import { TextInput } from '../../../styles/components';
 import Button from '../../../components/Button';
 import { registerBackpack } from '../../../store/actions/backup';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../../../utils/notifications';
+import { showErrorNotification } from '../../../utils/notifications';
 import Store from '../../../store/types';
 import { IBackpackAuth } from '../../../utils/backup/backpack';
 
