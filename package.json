@@ -12,9 +12,8 @@
     "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf node_modules ios/Pods && yarn install",
-    "postinstall": "node postinstall.js && yarn backpack:protobuff",
-    "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon",
-    "backpack:protobuff": "pbjs -t static-module -w commonjs -o src/utils/backup/protos/scheme.js src/utils/backup/protos/scheme.proto && pbjs -t static-module src/utils/backup/protos/scheme.proto | pbts -o src/utils/backup/protos/scheme.d.ts -"
+    "postinstall": "node postinstall.js",
+    "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.11",
@@ -24,6 +23,7 @@
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^6.0.11",
+    "@synonymdev/backpack-client": "1.0.11",
     "@synonymdev/blocktank-client": "^0.0.4",
     "@synonymdev/react-native-lightning": "^0.0.37",
     "@synonymdev/react-native-lnurl": "0.0.3",
@@ -105,7 +105,6 @@
     "@typescript-eslint/parser": "^5.4.0",
     "babel-jest": "^27.0.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
-    "backpack-host": "git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93",
     "browserify-zlib": "^0.2.0",
     "dns.js": "^1.0.1",
     "eslint": "^7.26.0",
@@ -122,7 +121,6 @@
     "node-fetch": "^2.6.1",
     "node-libs-react-native": "^1.2.1",
     "prettier": "^2.4.1",
-    "protobufjs": "^6.11.2",
     "punycode": "^2.1.1",
     "react-native-libsodium": "https://github.com/sodium-friends/react-native-libsodium#191a444f7fad92c0e825a8bd9ac357dea72793d4",
     "react-native-svg-transformer": "^0.14.3",

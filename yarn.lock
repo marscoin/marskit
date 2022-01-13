@@ -1479,6 +1479,18 @@
     merge-deep "^3.0.2"
     svgo "^1.2.2"
 
+"@synonymdev/backpack-client@1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@synonymdev/backpack-client/-/backpack-client-1.0.11.tgz#7571ac59d74b57c0d646ce8a60dcd557b5b88bab"
+  integrity sha512-GQjVriYQjsc/0Y7vCXxRBj1ungypc4lDdI0AXy7OaVP4KBNZsvvyERLCm64f3OGrYltzEDWaEQxjQUpReoHxFQ==
+  dependencies:
+    bint8array "^1.1.2"
+    handshake-peer "^0.1.0"
+    secret-blob "github:chm-diederichs/secret-blob"
+    sodium-native "^3.2.1"
+    spake2-ee "^0.1.0"
+    webnet "git+ssh://git@github.com/chm-diederichs/webnet.git#d3b3535537dffb9efa045e6cecea8a244ec5387d"
+
 "@synonymdev/blocktank-client@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@synonymdev/blocktank-client/-/blocktank-client-0.0.4.tgz#9e33fd957ee855161f919840021bccad76057773"
@@ -2413,16 +2425,6 @@ babel-preset-jest@^27.4.0:
   dependencies:
     babel-plugin-jest-hoist "^27.4.0"
     babel-preset-current-node-syntax "^1.0.0"
-
-"backpack-host@git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93":
-  version "0.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-host.git#00f1eec23d2ba07756ddbe87423705accc792e93"
-  dependencies:
-    bint8array "^1.1.2"
-    handshake-peer "^0.1.0"
-    secret-blob "github:chm-diederichs/secret-blob"
-    sodium-native "^3.2.1"
-    spake2-ee "^0.1.0"
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -7291,7 +7293,7 @@ prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2:
     object-assign "^4.1.1"
     react-is "^16.8.1"
 
-protobufjs@^6.10.2, protobufjs@^6.11.2:
+protobufjs@^6.10.2:
   version "6.11.2"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
   integrity sha512-4BQJoPooKJl2G9j3XftkIXjoC9C0Av2NOrWmbLWT1vH32GcSUHjM0Arra6UfTsVyfMAuFzaLucXn1sadxJydAw==

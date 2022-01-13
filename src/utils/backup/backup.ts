@@ -1,4 +1,4 @@
-import Scheme from './protos/scheme';
+import { Bitkit as Scheme } from '@synonymdev/backpack-client';
 import { err, ok, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { getKeychainValue, setKeychainValue } from '../helpers';

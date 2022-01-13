@@ -1,7 +1,4 @@
-/* eslint-disable  @typescript-eslint/no-unused-vars */
-import { Client } from 'backpack-host';
-import bint from 'bint8array';
-import WSStream from 'webnet/websocket';
+import Client from '@synonymdev/backpack-client';
 import { err, ok, Result } from '../result';
 import {
 	getKeychainValue,
@@ -10,20 +7,27 @@ import {
 } from '../helpers';
 
 //TODO move to config or .env
-const serverInfo = {
-	id: bint.fromString('test123'),
+const server = {
+	id: 'test123',
 	url: 'wss://backpack.synonym.to',
 };
+const padding = 1024;
 
 enum BackpackKeychainKeys {
 	username = 'backpackUsername',
 	password = 'backpackPassword',
+	key = 'backpackKey',
 }
 
 export interface IBackpackAuth {
 	username: string;
 	password: string;
 }
+
+const opts = {
+	memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
+	opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
+};
 
 /**
  * Username and password should be supplied on registration.
@@ -32,7 +36,9 @@ export interface IBackpackAuth {
  * @param auth
  * @returns Client
  */
-const clientFactory = async (auth?: IBackpackAuth): Client => {
+let clientSingleton: Client | undefined;
+
+const clientFactory = async (auth?: IBackpackAuth): Promise<Client> => {
 	let username = '';
 	let password = '';
 	if (auth) {
@@ -48,31 +54,38 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
 		throw new Error('No backpack auth details provided');
 	}
 
-	const client = new Client(
-		bint.fromString(username),
-		bint.fromString(password),
-		function connect(info, cb) {
-			const socket = new WebSocket(info.url);
-			socket.onerror = (socketErr): void => cb(socketErr);
+	if (!clientSingleton) {
+		let keyHex = await backpackKey();
 
-			// socket must have stream api
-			const ws = new WSStream(socket, {
-				onconnect: (): void => cb(null, ws),
-			});
-		},
-	);
+		clientSingleton = new Client(
+			{ username, password, keyHex },
+			server,
+			opts,
+			padding,
+		);
+	}
 
+	return clientSingleton;
+};
+
+/**
+ * This function can be time consuming
+ * @returns {Promise<void>}
+ */
+const createKeyIfMissing = async (client: Client): Promise<void> => {
+	let keyHex = await backpackKey();
+	if (keyHex) {
+		return client.setKey(keyHex, opts);
+	}
+
+	//No cached key found then hash a new one
 	try {
-		await client.init({
-			memlimit: 16777216, // crypto_pwhash_MEMLIMIT_MIN
-			opslimit: 2, // crypto_pwhash_OPSLIMIT_MIN
-		});
+		keyHex = await client.createKey();
+		await saveEncryptionKey(keyHex);
 	} catch (e) {
 		console.error(e);
 		throw e;
 	}
-
-	return client;
 };
 
 /**
@@ -81,6 +94,7 @@ const clientFactory = async (auth?: IBackpackAuth): Client => {
  * @returns {Promise<void>}
  */
 const saveAuthDetails = async (auth: IBackpackAuth): Promise<void> => {
+	//TODO replace with just key
 	await setKeychainValue({
 		key: BackpackKeychainKeys.username,
 		value: auth.username,
@@ -88,6 +102,18 @@ const saveAuthDetails = async (auth: IBackpackAuth): Promise<void> => {
 	await setKeychainValue({
 		key: BackpackKeychainKeys.password,
 		value: auth.password,
+	});
+};
+
+/**
+ * Saved backpack encryption key details to keychain
+ * @param auth
+ * @returns {Promise<void>}
+ */
+const saveEncryptionKey = async (key: string): Promise<void> => {
+	await setKeychainValue({
+		key: BackpackKeychainKeys.key,
+		value: key,
 	});
 };
 
@@ -103,9 +129,13 @@ export const wipeAuthDetails = async (): Promise<void> => {
 		resetKeychainValue({
 			key: BackpackKeychainKeys.password,
 		}),
+		resetKeychainValue({
+			key: BackpackKeychainKeys.key,
+		}),
 	]);
 };
 
+//TODO remove username/password as we should only store the encryption key
 /**
  * Gets backpack username. Returns empty string if not registered.
  * @return {Promise<string>}
@@ -133,6 +163,18 @@ export const backpackPassword = async (): Promise<string> => {
 };
 
 /**
+ * Gets backpack encryption key. Returns empty string if not registered.
+ * @return {Promise<string>}
+ */
+export const backpackKey = async (): Promise<string> => {
+	try {
+		return (await getKeychainValue({ key: BackpackKeychainKeys.key })).data;
+	} catch (e) {
+		return '';
+	}
+};
+
+/**
  * Registers a new user on the Backpack server
  * @param auth
  * @returns {Promise<Ok<string> | Err<string>>}
@@ -143,7 +185,7 @@ export const backpackRegister = async (
 	try {
 		const client = await clientFactory(auth);
 
-		await client.register(serverInfo);
+		await client.register();
 
 		await saveAuthDetails(auth);
 
@@ -164,8 +206,9 @@ export const backpackStore = async (
 ): Promise<Result<string>> => {
 	try {
 		//TODO place back once we can store the password hash. Freezes the app while hashing on each backup.
-		// const client = await clientFactory();
-		// await client.store(serverInfo, backup);
+		const client = await clientFactory();
+		await createKeyIfMissing(client);
+		await client.store(backup);
 
 		return ok('Stored successfully');
 	} catch (e) {
@@ -182,8 +225,8 @@ export const backpackRetrieve = async (
 ): Promise<Result<Uint8Array>> => {
 	try {
 		const client = await clientFactory(auth);
-
-		const res = await client.retrieve(serverInfo);
+		await createKeyIfMissing(client);
+		const res = await client.retrieve();
 
 		if (auth) {
 			await saveAuthDetails(auth);
