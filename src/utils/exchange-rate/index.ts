@@ -70,7 +70,7 @@ const getBitfinexRates = async (): Promise<Result<IExchangeRates>> => {
 
 	const jsonResponse = (await response.json()) as Array<Array<string>>;
 	jsonResponse.forEach((a) => {
-		rates[a[0].replace('tBTC', '')] = Math.round(Number(a[10]) * 100) / 100;
+		rates[a[0].replace('tBTC', '')] = Math.round(Number(a[1]) * 100) / 100;
 	});
 
 	return ok(rates);
