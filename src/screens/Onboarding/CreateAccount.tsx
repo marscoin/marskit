@@ -49,14 +49,6 @@ const styles = StyleSheet.create({
 		marginBottom: 50,
 		textAlign: 'center',
 	},
-	loadingContent: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	loadingText: {
-		marginBottom: 20,
-	},
 });
 
 export default OnboardingCreateAccountScreen;

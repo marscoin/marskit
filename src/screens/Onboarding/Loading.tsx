@@ -1,16 +1,21 @@
 import React, { ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 const LoadingWalletScreen = (): ReactElement => {
 	return (
 		<View style={styles.container}>
-			<View style={styles.content}>
-				<View style={styles.loadingContent}>
-					<Text style={styles.loadingText}>
-						Setting up wallet. This can take a few moments.
-					</Text>
-					<ActivityIndicator />
+			<View style={styles.loadingContent}>
+				<View style={styles.loadingText}>
+					<Text>Setting up wallet. This can take a few moments.</Text>
+				</View>
+				<View style={styles.loadingAnimation}>
+					<LottieView
+						autoPlay
+						loop
+						source={require('../../assets/animations/loading.json')}
+					/>
 				</View>
 			</View>
 		</View>
@@ -21,17 +26,16 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	content: {
-		flex: 1,
-		margin: 20,
-	},
 	loadingContent: {
 		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
 	},
 	loadingText: {
-		marginBottom: 20,
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	loadingAnimation: {
+		flex: 2,
 	},
 });
 
