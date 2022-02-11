@@ -6876,9 +6876,9 @@ object.values@^1.1.0, object.values@^1.1.5:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-"omnibolt-js@git+ssh://git@github.com/synonymdev/omnibolt-js#d5ebfff77fd9e998855c25e00c071d9ca5fdb469":
+"omnibolt-js@git+ssh://git@github.com/synonymdev/omnibolt-js#e9232089bdfb1394bf7f6c51f1831eb68813e008":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#d5ebfff77fd9e998855c25e00c071d9ca5fdb469"
+  resolved "git+ssh://git@github.com/synonymdev/omnibolt-js#e9232089bdfb1394bf7f6c51f1831eb68813e008"
   dependencies:
     bip32 "^2.0.6"
     bip39 "^3.0.4"
