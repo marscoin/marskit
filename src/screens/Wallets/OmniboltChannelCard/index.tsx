@@ -141,7 +141,7 @@ const OmniboltChannelCard = ({
 			setLoading(false);
 			showErrorNotification({
 				title: 'Error: Peer is offline.',
-				message: '',
+				message: response.error.message,
 			});
 			return;
 		}
