@@ -1,4 +1,4 @@
-import { availableNetworks, INetwork, TAvailableNetworks } from '../networks';
+import { INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import {
 	assetNetworks,
@@ -330,14 +330,12 @@ export const getPrivateKey = async ({
 	}
 };
 
-export const keyDerivationAccounTypes: {
+export const keyDerivationAccountTypes: {
 	onchain: TKeyDerivationAccount;
-	rgb: TKeyDerivationAccount;
 	omnibolt: TKeyDerivationAccount;
 } = {
 	onchain: '0',
-	rgb: '2',
-	omnibolt: '3',
+	omnibolt: '2',
 };
 
 /**
@@ -348,7 +346,7 @@ export const keyDerivationAccounTypes: {
 export const getKeyDerivationAccount = (
 	accountType: TKeyDerivationAccountType = 'onchain',
 ): TKeyDerivationAccount => {
-	return keyDerivationAccounTypes[accountType];
+	return keyDerivationAccountTypes[accountType];
 };
 /**
  * Formats and returns the provided derivation path string and object.
@@ -451,7 +449,7 @@ export const getKeyDerivationPath = ({
 };
 
 /**
- * Get onchain mnemonic phrase for a given wallet.
+ * Get onchain mnemonic phrase for a given wallet from storage.
  * @async
  * @param {string} [selectedWallet]
  * @return {Promise<Result<string>>}
@@ -1586,14 +1584,14 @@ export interface IVin {
 }
 
 export interface IVout {
-	n: 0;
+	n: number; //0
 	scriptPubKey: {
-		addresses: string[];
+		addresses?: string[];
 		address?: string;
 		asm: string;
 		hex: string;
-		reqSigs: number;
-		type: string;
+		reqSigs?: number;
+		type?: string;
 	};
 	value: number;
 }
@@ -1856,14 +1854,22 @@ export const formatRbfData = async (
  */
 export const createDefaultWallet = async ({
 	walletName = 'wallet0',
-	addressAmount = 2,
-	changeAddressAmount = 2,
+	addressAmount = 1,
+	changeAddressAmount = 1,
 	mnemonic = '',
 	addressTypes,
+	selectedNetwork,
 }: ICreateWallet): Promise<Result<IDefaultWallet>> => {
 	try {
 		if (!addressTypes) {
-			addressTypes = getAddressTypes();
+			//addressTypes = getAddressTypes().p2wpkh;
+			addressTypes = {
+				p2wpkh: {
+					label: 'bech32',
+					path: "m/84'/0'/0'/0/0",
+					type: 'p2wpkh',
+				},
+			};
 		}
 		const selectedAddressType = getSelectedAddressType({});
 		const getMnemonicPhraseResponse = await getMnemonicPhrase(walletName);
@@ -1893,38 +1899,37 @@ export const createDefaultWallet = async ({
 		const addressIndex = { ...defaultWalletShape.addressIndex };
 		const changeAddressIndex = { ...defaultWalletShape.changeAddressIndex };
 		await Promise.all(
-			availableNetworks().map(async (network) => {
-				if (!addressTypes) {
-					addressTypes = getAddressTypes();
+			Object.values(addressTypes).map(async ({ type, path }) => {
+				if (!selectedNetwork) {
+					selectedNetwork = getSelectedNetwork();
 				}
-				await Promise.all(
-					Object.values(addressTypes).map(async ({ type, path }) => {
-						const pathObject = getKeyDerivationPathObject({
-							path,
-							selectedNetwork: network,
-						});
-						if (pathObject.isErr()) {
-							return err(pathObject.error.message);
-						}
-						const generatedAddresses = await generateAddresses({
-							selectedWallet: walletName,
-							selectedNetwork: network,
-							addressAmount,
-							changeAddressAmount,
-							keyDerivationPath: pathObject.value,
-							addressType: type,
-						});
-						if (generatedAddresses.isErr()) {
-							return err(generatedAddresses.error);
-						}
-						const { addresses, changeAddresses } = generatedAddresses.value;
-						addressIndex[network][type] = Object.values(addresses)[0];
-						changeAddressIndex[network][type] =
-							Object.values(changeAddresses)[0];
-						addressesObj[network][type] = { ...addresses };
-						changeAddressesObj[network][type] = { ...changeAddresses };
-					}),
-				);
+				if (selectedAddressType !== type) {
+					return;
+				}
+				const pathObject = getKeyDerivationPathObject({
+					path,
+					selectedNetwork,
+				});
+				if (pathObject.isErr()) {
+					return err(pathObject.error.message);
+				}
+				const generatedAddresses = await generateAddresses({
+					selectedWallet: walletName,
+					selectedNetwork,
+					addressAmount,
+					changeAddressAmount,
+					keyDerivationPath: pathObject.value,
+					addressType: type,
+				});
+				if (generatedAddresses.isErr()) {
+					return err(generatedAddresses.error);
+				}
+				const { addresses, changeAddresses } = generatedAddresses.value;
+				addressIndex[selectedNetwork][type] = Object.values(addresses)[0];
+				changeAddressIndex[selectedNetwork][type] =
+					Object.values(changeAddresses)[0];
+				addressesObj[selectedNetwork][type] = { ...addresses };
+				changeAddressesObj[selectedNetwork][type] = { ...changeAddresses };
 			}),
 		);
 		const payload: IDefaultWallet = {
