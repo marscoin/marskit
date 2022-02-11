@@ -4,8 +4,7 @@ import { View } from '../../styles/components';
 import QR from '../../components/QR';
 import Button from '../../components/Button';
 import AssetCard from '../../components/AssetCard_deprecated';
-import { useNavigation } from '@react-navigation/native';
-import { getConnectPeerInfo } from '../../utils/omnibolt';
+import { getConnectUri } from '../../utils/omnibolt';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import OmniboltChannelCard from './OmniboltChannelCard';
@@ -32,22 +31,12 @@ const OmniboltCard = (): ReactElement => {
 			state.omnibolt.wallets[selectedWallet].tempChannels[selectedNetwork],
 	);
 
-	const navigation = useNavigation();
-
 	LayoutAnimation.easeInEaseOut();
 
-	const connectId = getConnectPeerInfo({ selectedWallet });
+	const connectId = getConnectUri();
 
 	const toggleReceiveTransaction = async (): Promise<void> => {
 		setDisplayReceive(!displayReceive);
-	};
-
-	const shouldDisplayButtons = (): boolean => {
-		try {
-			return displayButtonRow;
-		} catch {
-			return false;
-		}
 	};
 
 	const toggleCard = (): void => {
@@ -95,19 +84,13 @@ const OmniboltCard = (): ReactElement => {
 			fiatBalanceLabel={''}
 			asset="omnibolt"
 			onPress={toggleCard}>
-			{shouldDisplayButtons() && (
+			{displayButtonRow && (
 				<>
 					<View color="transparent" style={styles.buttonRow}>
 						<Button
 							color="onSurface"
-							style={styles.receiveButton}
+							style={styles.button}
 							onPress={toggleReceiveTransaction}
-							onLongPress={(): void =>
-								navigation.navigate('QR', {
-									data: connectId,
-									headerTitle: 'Connect',
-								})
-							}
 							text={'Connect'}
 						/>
 					</View>
@@ -133,7 +116,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		marginTop: 10,
 	},
-	receiveButton: {
+	button: {
 		flex: 1,
 		marginLeft: 5,
 	},
