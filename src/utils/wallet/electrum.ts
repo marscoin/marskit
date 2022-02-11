@@ -9,6 +9,7 @@ import {
 	getAddressTypes,
 	getCurrentWallet,
 	getCustomElectrumPeers,
+	getScriptHash,
 	getSelectedNetwork,
 	getSelectedWallet,
 	ITransaction,
@@ -528,4 +529,49 @@ export const connectToElectrum = async ({
 		}
 	}
 	return ok('Successfully connected.');
+};
+
+/**
+ * Returns combined balance of provided addresses.
+ * @param {string[]} addresses
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getAddressBalance = async ({
+	addresses = [],
+	selectedNetwork,
+}: {
+	addresses: string[];
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<number>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const scriptHashes = await Promise.all(
+			addresses.map((address) => {
+				if (!selectedNetwork) {
+					selectedNetwork = getSelectedNetwork();
+				}
+				return getScriptHash(address, selectedNetwork);
+			}),
+		);
+		const res = await electrum.getAddressScriptHashBalances({
+			scriptHashes,
+			network: selectedNetwork,
+		});
+		if (res.error) {
+			return err(res.data);
+		}
+		return ok(
+			res.data.reduce((acc, cur) => {
+				return (
+					acc +
+					Number(cur.result?.confirmed ?? 0) +
+					Number(cur.result?.unconfirmed ?? 0)
+				);
+			}, 0) || 0,
+		);
+	} catch (e) {
+		return err(e);
+	}
 };
