@@ -17,6 +17,7 @@ import { showErrorNotification } from '../../utils/notifications';
 import OnboardingBackground from '../../components/OnboardingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import Card from '../../components/Card';
+import LoadingWalletScreen from './Loading';
 
 //TODO use actual boost card once UI is ready
 const BoostCard = (): ReactElement => {
@@ -53,13 +54,17 @@ const OnboardingWelcomeScreen = ({
 	navigation: any;
 }): ReactElement => {
 	const [showSlash, setShowSplash] = useState(true);
+	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
+
 	useEffect(() => {
 		setTimeout(() => setShowSplash(false), 1000);
 	}, []);
 
 	const onSkip = async (): Promise<void> => {
+		setIsCreatingWallet(true);
 		const res = await createNewWallet();
 		if (res.isErr()) {
+			setIsCreatingWallet(false);
 			showErrorNotification({
 				title: 'Wallet creation failed',
 				message: res.error.message,
@@ -86,6 +91,10 @@ const OnboardingWelcomeScreen = ({
 			},
 		]);
 	};
+
+	if (isCreatingWallet) {
+		return <LoadingWalletScreen />;
+	}
 
 	const Splash = (): ReactElement => {
 		return (
