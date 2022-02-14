@@ -60,7 +60,7 @@ const SendOnChainTransaction = ({
 }: ISendOnChainTransaction): ReactElement => {
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [isCreatingTransaction, setIsCreatingTransaction] = useState(false);
-	const [rawTx, setRawTx] = useState('');
+	const [rawTx, setRawTx] = useState<string | undefined>(undefined);
 	const navigation = useNavigation();
 
 	const selectedWallet = useSelector(
@@ -193,7 +193,7 @@ const SendOnChainTransaction = ({
 
 	const broadcast = useCallback(async () => {
 		const response = await broadcastTransaction({
-			rawTx,
+			rawTx: rawTx ?? '',
 			selectedNetwork,
 		});
 		if (response.isErr()) {
@@ -203,8 +203,8 @@ const SendOnChainTransaction = ({
 			});
 			return;
 		}
-		//Successful Broadcast
-		setRawTx('');
+		//Successful broadcast, reset rawTx.
+		setRawTx(undefined);
 		resetOnChainTransaction({
 			selectedNetwork,
 			selectedWallet,
@@ -252,7 +252,7 @@ const SendOnChainTransaction = ({
 								selectedWallet,
 								selectedNetwork,
 							});
-							setRawTx('');
+							setRawTx(undefined);
 						}}>
 						<Text style={styles.title}>Cancel</Text>
 					</TouchableOpacity>

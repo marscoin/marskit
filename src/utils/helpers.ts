@@ -427,3 +427,11 @@ export const applyAlpha = (hexColor: string, alpha: number): string => {
 		alphaBase16.length === 1 ? alphaBase16.padStart(1, '0') : alphaBase16;
 	return hexColor.concat('', paddedAlpha);
 };
+
+/**
+ * Pauses execution of a function.
+ * @param {number} [ms]
+ */
+export const sleep = (ms = 1000): Promise<void> => {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+};

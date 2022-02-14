@@ -28,6 +28,7 @@ import lnd from '@synonymdev/react-native-lightning';
 import { LNURLWithdrawParams } from 'js-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
+import { parseOmniboltConnectData } from '../../utils/omnibolt';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -102,8 +103,12 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.omniboltConnect: {
+				const connectData = await parseOmniboltConnectData(data?.message);
+				if (connectData.isErr()) {
+					return;
+				}
 				updateOmniboltConnectData({
-					data,
+					data: connectData.value.data,
 					selectedNetwork,
 					selectedWallet,
 				});

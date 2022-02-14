@@ -227,7 +227,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 			foundNetworksInQR.push({
 				qrDataType: EQRDataType.omniboltConnect,
 				network: omniboltNetwork,
-				...omniboltConnectResponse.value,
+				message: data,
 			});
 		}
 	} catch {}

@@ -14,7 +14,7 @@ import RNFS from 'react-native-fs';
 import { ILightning } from '../../store/types/lightning';
 import { getStore } from '../../store/helpers';
 import { err, ok, Result } from '../result';
-import { getKeychainValue, setKeychainValue } from '../helpers';
+import { getKeychainValue, setKeychainValue, sleep } from '../helpers';
 import { CipherSeed } from 'aezeed';
 
 const packageJson = require('../../../package.json');
@@ -126,7 +126,7 @@ export const wipeLndDir = async (): Promise<Result<string>> => {
 		await lnd.stop();
 
 		//Takes a few seconds to stop the daemon
-		await new Promise((resolve) => setTimeout(resolve, 5000));
+		await sleep(5000);
 	}
 
 	const existingLndDir = `${RNFS.DocumentDirectoryPath}/lnd`;

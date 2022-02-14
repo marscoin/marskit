@@ -22,6 +22,8 @@ import {
 	getSelectedNetwork,
 	getSelectedWallet,
 	getTransactionById,
+	IVin,
+	IVout,
 	refreshWallet,
 } from './index';
 import { Psbt } from 'bitcoinjs-lib';
@@ -367,8 +369,9 @@ export const getTotalFee = ({
 };
 
 export interface ICreateTransaction {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	transactionData?: IOnChainTransactionData;
 }
 
 export interface ICreatePsbt {
@@ -620,11 +623,13 @@ export const signPsbt = ({
  * Creates complete signed transaction using the transaction data store
  * @param selectedWallet
  * @param selectedNetwork
+ * @param {IOnChainTransactionData} [transactionData]
  * @returns {Promise<Ok<string> | Err<string>>}
  */
 export const createTransaction = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	transactionData,
 }: ICreateTransaction): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedWallet) {
@@ -633,17 +638,17 @@ export const createTransaction = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-
-		const transactionDataRes = getOnchainTransactionData({
-			selectedWallet,
-			selectedNetwork,
-		});
-
-		if (transactionDataRes.isErr()) {
-			return err(transactionDataRes.error.message);
+		// If no transaction data is provided, use the stored transaction object from storage.
+		if (!transactionData) {
+			const transactionDataRes = getOnchainTransactionData({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (transactionDataRes.isErr()) {
+				return err(transactionDataRes.error.message);
+			}
+			transactionData = transactionDataRes.value;
 		}
-
-		const transactionData = transactionDataRes.value;
 
 		const inputValue = getTransactionInputValue({
 			selectedNetwork,
@@ -2086,6 +2091,71 @@ export const broadcastBoost = async ({
 		await refreshWallet();
 		setupBoost({ txid: newTxId, selectedNetwork, selectedWallet });
 		return ok(newActivityItem);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Attempts to decode a tx hex.
+ * Source: https://github.com/bitcoinjs/bitcoinjs-lib/issues/1606#issuecomment-664740672
+ * @param {string} hex
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const decodeRawTransaction = (
+	hex: string,
+	selectedNetwork?: TAvailableNetworks,
+): Result<{
+	txid: string;
+	tx_hash: string;
+	size: number;
+	vsize: number;
+	weight: number;
+	version: number;
+	locktime: number;
+	vin: IVin[];
+	vout: IVout[];
+}> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const network = networks[selectedNetwork];
+		const tx = bitcoin.Transaction.fromHex(hex);
+		return ok({
+			txid: tx.getId(),
+			tx_hash: tx.getHash(true).toString('hex'),
+			size: tx.byteLength(),
+			vsize: tx.virtualSize(),
+			weight: tx.weight(),
+			version: tx.version,
+			locktime: tx.locktime,
+			vin: tx.ins.map((input) => ({
+				txid: Buffer.from(input.hash).reverse().toString('hex'),
+				vout: input.index,
+				scriptSig: {
+					asm: bitcoin.script.toASM(input.script),
+					hex: input.script.toString('hex'),
+				},
+				txinwitness: input.witness.map((b) => b.toString('hex')),
+				sequence: input.sequence,
+			})),
+			vout: tx.outs.map((output, i) => {
+				let address;
+				try {
+					address = bitcoin.address.fromOutputScript(output.script, network);
+				} catch (e) {}
+				return {
+					value: output.value,
+					n: i,
+					scriptPubKey: {
+						asm: bitcoin.script.toASM(output.script),
+						hex: output.script.toString('hex'),
+						address,
+					},
+				};
+			}),
+		});
 	} catch (e) {
 		return err(e);
 	}

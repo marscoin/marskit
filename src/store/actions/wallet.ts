@@ -67,8 +67,8 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  */
 export const createWallet = async ({
 	walletName = 'wallet0',
-	addressAmount = 2,
-	changeAddressAmount = 2,
+	addressAmount = 1,
+	changeAddressAmount = 1,
 	mnemonic = '',
 	addressTypes,
 }: ICreateWallet): Promise<Result<string>> => {
@@ -608,8 +608,8 @@ export const setupOnChainTransaction = async ({
 }: {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-	addressType?: TAddressType;
-	rbf?: boolean;
+	addressType?: TAddressType; // Preferred address type for change address.
+	rbf?: boolean; // Enable or disable rbf.
 	submitDispatch?: boolean; //Should we dispatch this and update the store.
 } = {}): Promise<Result<IOnChainTransactionData>> => {
 	try {
@@ -628,10 +628,6 @@ export const setupOnChainTransaction = async ({
 			selectedNetwork,
 		});
 
-		const isRbf = currentWallet.transaction[selectedNetwork].rbf;
-		if (isRbf) {
-			return ok(currentWallet.transaction[selectedNetwork]);
-		}
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 

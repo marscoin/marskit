@@ -12,6 +12,7 @@ import {
 } from 'omnibolt-js/lib/types/types';
 import { IAddressContent, IWalletItem } from './wallet';
 import { IMyChannels } from '../shapes/omnibolt';
+import { TAvailableNetworks } from '../../utils/networks';
 
 export interface IOmniBolt {
 	wallets: {
@@ -55,9 +56,8 @@ export enum EOmniBoltUserData {
 }
 
 export enum EOmniBoltConnectData {
-	nodeAddress = '',
-	nodePeerId = '',
-	userPeerId = '',
+	remote_node_address = '',
+	recipient_user_peer_id = '',
 }
 
 export type TSigningDataKey = keyof ISigningData;
@@ -88,9 +88,8 @@ export interface IAddressIndex {
 }
 
 export interface IOmniboltConnectData {
-	nodeAddress?: string;
-	nodePeerId?: string;
-	userPeerId?: string;
+	remote_node_address?: string;
+	recipient_user_peer_id?: string;
 }
 
 export type TOmniboltCheckpoints =
@@ -135,4 +134,13 @@ export interface IUpdateOmniboltChannelSigningData {
 	channelId: string;
 	signingDataKey: string;
 	signingData: IAddressContent | string;
+}
+
+export interface IFundTempChannel {
+	tempChannelId: string;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+	nodePeerId: string;
+	userPeerId: string;
+	nodeAddress: string;
 }
