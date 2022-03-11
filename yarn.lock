@@ -6944,9 +6944,9 @@ object.values@^1.1.0, object.values@^1.1.5:
     define-properties "^1.1.3"
     es-abstract "^1.19.1"
 
-"omni-tracker-api@git+ssh://git@github.com/synonymdev/omni-tracker-api#68edbc840e3677ad38ba98e7c5f32311a63a298c":
+"omni-tracker-api@git+ssh://git@github.com/synonymdev/omni-tracker-api#7ede407d825a339451a88ad0ae489a91a4a6507b":
   version "0.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/omni-tracker-api#68edbc840e3677ad38ba98e7c5f32311a63a298c"
+  resolved "git+ssh://git@github.com/synonymdev/omni-tracker-api#7ede407d825a339451a88ad0ae489a91a4a6507b"
   dependencies:
     node-fetch "2.6.7"
 
