@@ -76,7 +76,8 @@ import { IncludeBalances } from '../../hooks/wallet';
 import * as bitcoin from 'bitcoinjs-lib';
 import { CipherSeed } from 'aezeed';
 import * as bip39 from 'bip39';
-import * as bip32 from 'bip32';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
@@ -205,6 +206,7 @@ export const generateAddresses = async ({
 
 		const mnemonic = getMnemonicPhraseResponse.value;
 		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+		const bip32 = BIP32Factory(ecc);
 		const root = bip32.fromSeed(seed, network);
 
 		//Generate Addresses
@@ -320,6 +322,7 @@ export const getPrivateKey = async ({
 
 		const mnemonic = getMnemonicPhraseResponse.value;
 		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+		const bip32 = BIP32Factory(ecc);
 		const root = bip32.fromSeed(seed, network);
 
 		const addressPath = addressData.path;

@@ -46,8 +46,9 @@ import { replaceActivityItemById } from '../../store/actions/activity';
 import { BIP32Interface } from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip21 from 'bip21';
-import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 
 /*
  * Attempts to parse any given string as an on-chain payment request.
@@ -412,6 +413,7 @@ const getBip32Interface = async (
 
 	const mnemonic = getMnemonicPhraseResult.value;
 	const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+	const bip32 = BIP32Factory(ecc);
 	const root = bip32.fromSeed(seed, network);
 
 	return ok(root);
