@@ -6,12 +6,12 @@ import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore, IBackpackAuth } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
 import lnd from '@synonymdev/react-native-lightning';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateOmnibolt } from '../../store/actions/omnibolt';
 import RNFS from 'react-native-fs';
 import { unzipWithPassword, zipWithPassword } from 'react-native-zip-archive';
 import { getOmniboltKey } from '../omnibolt';
 import { IOmniBoltWallet } from '../../store/types/omnibolt';
+import mmkvStorage from '../../store/mmkv-storage';
 
 const backupFilePrefix = 'backpack_wallet_';
 
@@ -256,7 +256,7 @@ export const restoreFromBackupObject = async (
 		//Cache static channel state backup for funds to be swept when creating LND wallet
 		const multiChanBackup = backup.lnd?.multiChanBackup;
 		if (multiChanBackup) {
-			await AsyncStorage.setItem('multiChanBackupRestore', multiChanBackup);
+			await mmkvStorage.setItem('multiChanBackupRestore', multiChanBackup);
 		}
 
 		//Omni mnemonics

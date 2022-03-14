@@ -2,8 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import reducers from './reducers';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import mmkvStorage from './mmkv-storage';
 const { persistReducer } = require('redux-persist');
 
 //Switch off logging for unit tests and prod env
@@ -15,7 +14,7 @@ const createStoreWithMiddleware = (
 
 const persistConfig = {
 	key: 'root',
-	storage: AsyncStorage,
+	storage: mmkvStorage,
 };
 const persistedReducer = persistReducer(persistConfig, reducers);
 const store = createStoreWithMiddleware(persistedReducer);

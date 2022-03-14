@@ -19,10 +19,10 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { updateLightingActivityList } from './activity';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { performFullBackup } from './backup';
 import { LNURLChannelParams } from 'js-lnurl';
 import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
+import mmkvStorage from '../mmkv-storage';
 
 const dispatch = getDispatch();
 
@@ -130,9 +130,7 @@ export const createLightningWallet = (
 		await setupLightningSeed(lndSeed);
 
 		//If we have this in storage still it means we need to restore funds from a backed up channel
-		const multiChanBackup = await AsyncStorage.getItem(
-			'multiChanBackupRestore',
-		);
+		const multiChanBackup = await mmkvStorage.getItem('multiChanBackupRestore');
 
 		const createRes = await lnd.walletUnlocker.initWallet(
 			password,
