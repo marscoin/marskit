@@ -3,7 +3,7 @@ import { Storage } from 'redux-persist';
 
 const storage = new MMKV();
 
-export const mmkvStorage: Storage = {
+const mmkvStorage: Storage = {
 	setItem: (key, value) => {
 		storage.set(key, value);
 		return Promise.resolve(true);
