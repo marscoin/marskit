@@ -11,19 +11,26 @@ import {
 } from '../src/store/actions/omnibolt';
 import { resetLightningStore } from '../src/store/actions/lightning';
 import { createOmniboltId } from '../src/utils/omnibolt';
-
+import { IAddressData, TAddressFormat } from '../src/store/types/wallet';
+import { TAvailableNetworks } from '../src/utils/networks';
 global.WebSocket = WebSocket;
 
 /**
  * Gets first bitcoin address for a wallet
  * @param walletKey
+ * @param type
+ * @param addressFormat
+ * @param selectedNetwork
  */
 const getFirstAddress = (
 	walletKey: string,
 	type: 'addresses' | 'changeAddresses',
+	addressFormat: TAddressFormat = 'p2wpkh',
+	selectedNetwork: TAvailableNetworks = 'bitcoinTestnet',
 ): string => {
-	const addresses = getStore().wallet.wallets[walletKey][type].bitcoin;
-	return addresses[Object.keys(addresses)[0]].address;
+	const addresses: IAddressData =
+		getStore().wallet.wallets[walletKey][type][selectedNetwork][addressFormat];
+	return Object.values(addresses)[0].address;
 };
 
 jest.setTimeout(150000);
@@ -103,6 +110,7 @@ describe('Backup', () => {
 		expect(restoredOmniMnemonic).not.toEqual('');
 		expect(restoredOmniMnemonic).toEqual(originalOmniMnemonic);
 
+		expect(firstChangeAddressBeforeBackup).not.toEqual(undefined);
 		expect(getFirstAddress(walletKey, 'changeAddresses')).toEqual(
 			firstChangeAddressBeforeBackup,
 		);
