@@ -16,7 +16,6 @@
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.16.1",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/netinfo": "^8.1.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
