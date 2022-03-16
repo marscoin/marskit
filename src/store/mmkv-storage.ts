@@ -1,9 +1,7 @@
 import { MMKV } from 'react-native-mmkv';
 import { Storage } from 'redux-persist';
 
-const storage = process?.env?.JEST_WORKER_ID
-	? require('../../__mocks__/react-native-mmkv/react-native-mmkv')
-	: new MMKV();
+const storage = new MMKV();
 
 const mmkvStorage: Storage = {
 	setItem: (key, value) => {
