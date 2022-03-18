@@ -1,10 +1,12 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { View, TouchableOpacity, Text01M } from '../styles/components';
 import { SvgXml } from 'react-native-svg';
 import { backIcon } from '../assets/icons/wallet';
-import { useNavigationState } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import Store from '../store/types';
+import { TViewController } from '../store/types/user';
 
 const _backIcon = backIcon();
 
@@ -27,11 +29,13 @@ const NavigationHeader = ({
 	displayBackButton = true,
 	onBackPress = (): null => null,
 	navigateBack = true,
+	view = '',
 }: {
 	title?: string;
 	displayBackButton?: boolean;
 	onBackPress?: Function;
 	navigateBack?: boolean;
+	view?: TViewController | string;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 	const routes = useNavigationState((state) => state?.routes);
@@ -44,9 +48,27 @@ const NavigationHeader = ({
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const sendIsOpen = useSelector(
+		(store: Store) => store.user.viewController?.send?.isOpen,
+	);
+
+	const receiveIsOpen = useSelector(
+		(store: Store) => store.user.viewController?.receive?.isOpen,
+	);
+
 	const _displayBackButton = useMemo(() => {
+		/*
+		 * Ensure the back button is not rendered for the send and receive views.
+		 * Otherwise, the navigation.goBack() function will fallback to and affect the parent view.
+		 */
+		if (sendIsOpen && view === 'send') {
+			return false;
+		}
+		if (receiveIsOpen && view === 'receive') {
+			return false;
+		}
 		return routes?.length > 1 && displayBackButton;
-	}, [displayBackButton, routes?.length]);
+	}, [sendIsOpen, view, receiveIsOpen, routes?.length, displayBackButton]);
 
 	return (
 		<View style={styles.container}>
