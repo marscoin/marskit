@@ -3,7 +3,6 @@ import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 import Send from '../../screens/Wallets/Send';
-import Receive from '../../screens/Wallets/Receive';
 import SendAssetPickerList from '../../screens/Wallets/Send/SendAssetPickerList';
 import { NavigationContainer } from '../../styles/components';
 
@@ -27,7 +26,6 @@ const SendAssetPicker = (): ReactElement => {
 							component={SendAssetPickerList}
 						/>
 						<Stack.Screen name="send" component={Send} />
-						<Stack.Screen name="receive" component={Receive} />
 					</Stack.Group>
 				</Stack.Navigator>
 			</NavigationContainer>
