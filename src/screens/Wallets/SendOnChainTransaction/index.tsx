@@ -268,26 +268,28 @@ const SendOnChainTransaction = ({
 	}
 
 	return (
-		<View style={styles.container}>
-			<AmountToggle sats={amount} style={styles.amountToggle} />
-			<View style={styles.content}>
-				<AssetPicker assetName="Bitcoin" sats={balance} />
-				<SendForm />
-				{utxos?.length > 1 && (
+		<>
+			<View color={'onSurface'} style={styles.container}>
+				<AmountToggle sats={amount} style={styles.amountToggle} />
+				<View style={styles.content}>
+					<AssetPicker assetName="Bitcoin" sats={balance} />
+					<SendForm />
+					{utxos?.length > 1 && (
+						<Button
+							color={'gray4'}
+							text={coinSelectionButtonText}
+							onPress={onCoinSelectionPress}
+							disabled={isCreatingTransaction}
+						/>
+					)}
 					<Button
-						color={'onSurface'}
-						text={coinSelectionButtonText}
-						onPress={onCoinSelectionPress}
-						disabled={isCreatingTransaction}
+						disabled={balance < transactionTotal || isCreatingTransaction}
+						color={'gray4'}
+						text="Create"
+						onPress={_createTransaction}
+						loading={isCreatingTransaction}
 					/>
-				)}
-				<Button
-					disabled={balance < transactionTotal || isCreatingTransaction}
-					color="onSurface"
-					text="Create"
-					onPress={_createTransaction}
-					loading={isCreatingTransaction}
-				/>
+				</View>
 			</View>
 			<BottomSheetWrapper
 				view="numberPad"
@@ -297,10 +299,10 @@ const SendOnChainTransaction = ({
 			</BottomSheetWrapper>
 			<BottomSheetWrapper view="feePicker">
 				<TouchableOpacity>
-					<Text>Button A</Text>
+					<Text>Future Fee Picker</Text>
 				</TouchableOpacity>
 			</BottomSheetWrapper>
-		</View>
+		</>
 	);
 };
 
