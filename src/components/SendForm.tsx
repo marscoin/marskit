@@ -280,12 +280,12 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 							autoCompleteType="off"
 							autoCorrect={false}
 							value={message}
-							onChangeText={(msg) => {
+							onChangeText={(msg): void => {
 								updateMessage({
 									message: msg,
 									selectedWallet,
 									selectedNetwork,
-								});
+								}).then();
 							}}
 							onSubmitEditing={(): void => {}}
 						/>
