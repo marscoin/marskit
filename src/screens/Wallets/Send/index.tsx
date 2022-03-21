@@ -48,13 +48,13 @@ const Send = (props: ISendProps): ReactElement => {
 	}, [selectedWallet, selectedNetwork]);
 
 	return (
-		<View style={styles.container}>
-			<NavigationHeader title={headerText} onBackPress={onBackPress} />
-			<SendOnChainTransaction
-				{...props}
-				header={false}
-				onComplete={_onComplete}
+		<View color="onSurface" style={styles.container}>
+			<NavigationHeader
+				view={'send'}
+				title={headerText}
+				onBackPress={onBackPress}
 			/>
+			<SendOnChainTransaction {...props} onComplete={_onComplete} />
 		</View>
 	);
 };

@@ -25,7 +25,6 @@ const SendBottomSheet = (): ReactElement => {
 
 	return (
 		<BottomSheetWrapper
-			headerColor={'background'}
 			view="send"
 			onOpen={setupOnChainTransaction}
 			onClose={onClose}>

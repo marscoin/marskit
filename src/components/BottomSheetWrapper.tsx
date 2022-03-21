@@ -23,6 +23,7 @@ import React, {
 	useRef,
 	useEffect,
 	useCallback,
+	useMemo,
 } from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from '../styles/components';
@@ -32,13 +33,14 @@ import Store from '../store/types';
 import { toggleView } from '../store/actions/user';
 import { TViewController } from '../store/types/user';
 import { usePrevious } from '../hooks/helpers';
+import { IThemeColors } from '../styles/themes';
 
 export interface IModalProps {
 	children: ReactElement;
 	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
-	headerColor?: string;
+	headerColor?: IThemeColors;
 	displayHeader?: boolean;
 	snapPoints?: any[];
 }
@@ -49,7 +51,7 @@ const BottomSheetWrapper = forwardRef(
 			view,
 			onOpen = (): null => null,
 			onClose = (): null => null,
-			headerColor = 'onSurface',
+			headerColor = undefined,
 			displayHeader = true,
 			snapPoints = ['95%', '65%', 0],
 		}: IModalProps,
@@ -60,6 +62,13 @@ const BottomSheetWrapper = forwardRef(
 		);
 		const previousData = usePrevious(data);
 		const modalRef = useRef<BottomSheet>(null);
+
+		const backgroundColor = useMemo(() => {
+			if (headerColor) {
+				return headerColor;
+			}
+			return 'tabBackground';
+		}, [headerColor]);
 
 		useEffect(() => {
 			try {
@@ -103,6 +112,14 @@ const BottomSheetWrapper = forwardRef(
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [view]);
 
+		const Header = useCallback(() => {
+			return displayHeader ? (
+				<View style={styles.handleContainer} color="onSurface">
+					<View style={styles.handle} />
+				</View>
+			) : null;
+		}, [displayHeader]);
+
 		return (
 			<BottomSheet
 				ref={modalRef}
@@ -110,10 +127,10 @@ const BottomSheetWrapper = forwardRef(
 				snapPoints={snapPoints}
 				onOpenStart={_onOpen}
 				onCloseEnd={_onClose}
+				renderHeader={Header}
 				renderContent={(): ReactElement => {
 					return (
-						<View style={styles.container} color={headerColor}>
-							{displayHeader && <View style={styles.spacer} />}
+						<View style={styles.container} color={backgroundColor}>
 							{children}
 						</View>
 					);
@@ -129,13 +146,17 @@ const styles = StyleSheet.create({
 		borderTopRightRadius: 10,
 		height: '100%',
 	},
-	spacer: {
+	handleContainer: {
+		borderTopLeftRadius: 10,
+		borderTopRightRadius: 10,
+	},
+	handle: {
 		alignSelf: 'center',
 		height: 4,
 		width: 32,
 		borderRadius: 32,
 		backgroundColor: '#636366',
-		marginTop: 7,
+		marginTop: 12,
 		marginBottom: 11,
 	},
 });

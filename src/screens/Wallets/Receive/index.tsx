@@ -28,7 +28,7 @@ const Receive = ({ asset }: { asset?: string }): ReactElement => {
 	}, [selectedNetwork, selectedWallet]);
 	return (
 		<View color={'onSurface'} style={styles.container}>
-			<NavigationHeader title={header} />
+			<NavigationHeader view={'receive'} title={header} />
 			<View color={'onSurface'} style={styles.content}>
 				<QR data={receiveAddress} header={false} />
 			</View>
