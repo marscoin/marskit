@@ -1727,9 +1727,8 @@ export const updateMessage = async ({
 		}
 		transaction = transactionDataResponse.value;
 	}
-	const max =
-		getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork].max;
-	const satsPerByte = transaction.satsPerByte ?? 1;
+	const max = transaction?.max;
+	const satsPerByte = transaction?.satsPerByte ?? 1;
 	const outputs = transaction?.outputs ?? [];
 	const inputs = transaction?.inputs ?? [];
 

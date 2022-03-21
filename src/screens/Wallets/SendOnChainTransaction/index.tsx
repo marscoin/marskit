@@ -156,6 +156,7 @@ const SendOnChainTransaction = ({
 			setIsCreatingTransaction(true);
 			const transactionIsValid = validateTransaction(transaction);
 			if (transactionIsValid.isErr()) {
+				setIsCreatingTransaction(false);
 				showErrorNotification({
 					title: 'Error creating transaction.',
 					message: transactionIsValid.error.message,
@@ -203,27 +204,30 @@ const SendOnChainTransaction = ({
 			});
 			return;
 		}
-		//Successful broadcast, reset rawTx.
-		setRawTx(undefined);
-		resetOnChainTransaction({
-			selectedNetwork,
-			selectedWallet,
-		});
 		showSuccessNotification({
-			title: `Sent ${transactionTotal} sats`,
-			message,
+			title: 'Successfully Broadcast',
+			message: `Sent ${transactionTotal} sats`,
 		});
+
 		//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
 		updateWalletBalance({
 			balance: balance - transactionTotal,
 			selectedWallet,
 			selectedNetwork,
 		});
-		const currentView = getStore().user.viewController.sendAssetPicker.isOpen
+
+		resetOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+		});
+
+		const currentView = getStore().user?.viewController?.sendAssetPicker?.isOpen
 			? 'sendAssetPicker'
 			: 'send';
 		toggleView({ view: currentView, data: { isOpen: false } }).then();
-		onComplete(response.value);
+		//Successful broadcast, reset rawTx.
+		setRawTx(undefined);
+		onComplete(response?.value);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		balance,
