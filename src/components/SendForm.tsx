@@ -26,6 +26,7 @@ import {
 	getTotalFee,
 	getTransactionOutputValue,
 	updateAmount,
+	updateMessage,
 } from '../utils/wallet/transactions';
 import { useBalance, useTransactionDetails } from '../hooks/transaction';
 import Card from './Card';
@@ -279,6 +280,13 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 							autoCompleteType="off"
 							autoCorrect={false}
 							value={message}
+							onChangeText={(msg) => {
+								updateMessage({
+									message: msg,
+									selectedWallet,
+									selectedNetwork,
+								});
+							}}
 							onSubmitEditing={(): void => {}}
 						/>
 					</View>
