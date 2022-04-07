@@ -157,6 +157,11 @@ export const Display = styled.Text((props) => ({
 	fontSize: props.size ? props.size : '48px',
 }));
 
+export const DisplayOnboarding = styled(Display)`
+	font-family: 'NHaasGroteskDSW02-65Md';
+	line-height: 48px;
+`;
+
 export const Headline = styled.Text((props) => ({
 	...sanFranciscoWeights.medium,
 	color: props.color

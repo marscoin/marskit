@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
+import SlideshowScreen from '../../screens/Onboarding/Slideshow';
 import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
 import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
 import OnboardingRestoreFromFileScreen from '../../screens/Onboarding/RestoreFromFile';
@@ -73,6 +74,11 @@ const OnboardingNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="Welcome"
 					component={WelcomeScreen}
+					options={navOptionHandler}
+				/>
+				<Stack.Screen
+					name="Slideshow"
+					component={SlideshowScreen}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
