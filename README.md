@@ -1,4 +1,7 @@
-# BitKit
+# Bitkit - Mobile
+Bitkit is a mobile keychain and wallet application that supports self-custodial features Bitcoin, Lightning Network, Omni Layer, OmniBOLT, and Slashtags. 
+
+Bitkit includes backup and restore features utilizing [Backpack](https://github.com/synonymdev/backpack-client), and supports [Blocktank](https://github.com/synonymdev/blocktank-client) LSP services.
 
 [![Test status](https://github.com/synonymdev/bitkit/workflows/tests/badge.svg)](https://github.com/synonymdev/bitkit/actions)
 
