@@ -63,10 +63,6 @@ const Slideshow = ({
 		]);
 	};
 
-	const onScroll = (i): void => setIndex(i);
-
-	const onSkip = (): void => swiperRef.current?.scrollBy(slides.length);
-
 	const slides = useMemo(
 		() => [
 			{
@@ -96,6 +92,7 @@ const Slideshow = ({
 					</View>
 				),
 			},
+
 			{
 				topLeftColor: '#B95CE8',
 				slide: (): ReactElement => (
@@ -252,6 +249,19 @@ const Slideshow = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[],
 	);
+
+	const onScroll = (i): void => {
+		if (i > slides.length - 1) {
+			// react-native-swiper bug. on Andoid
+			// If you Skip to last slide and then try to swipe back
+			// it calls onScroll with index more that number of slides you have
+			i = slides.length - 2;
+		}
+		setIndex(i);
+	};
+	const onSkip = (): void => {
+		swiperRef.current?.scrollBy(slides.length - 1 - index);
+	};
 
 	const [index, setIndex] = useState(skipIntro ? slides.length - 1 : 0);
 
