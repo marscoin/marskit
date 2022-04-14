@@ -6,6 +6,7 @@ import SlideshowScreen from '../../screens/Onboarding/Slideshow';
 import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
 import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
 import OnboardingRestoreFromFileScreen from '../../screens/Onboarding/RestoreFromFile';
+import RestoreFromSeed from '../../screens/Onboarding/RestoreFromSeed';
 import PinPad from '../../components/PinPad';
 import Biometrics, {
 	IsSensorAvailableResult,
@@ -96,6 +97,12 @@ const OnboardingNavigator = (): ReactElement => {
 					component={OnboardingRestoreFromFileScreen}
 					options={navOptionHandler}
 				/>
+				<Stack.Screen
+					name="RestoreFromSeed"
+					component={RestoreFromSeed}
+					options={navOptionHandler}
+				/>
+
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

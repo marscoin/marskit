@@ -56,6 +56,10 @@ const Slideshow = ({
 				onPress: (): void => navigation.navigate('RestoreAccountFromFile'),
 			},
 			{
+				text: 'From seed',
+				onPress: (): void => navigation.navigate('RestoreFromSeed'),
+			},
+			{
 				text: 'Cancel',
 				onPress: (): void => {},
 				style: 'cancel',
