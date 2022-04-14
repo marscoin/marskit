@@ -12,8 +12,14 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		170E066EC68172D968D1BE78 /* libPods-bitkit-bitkitTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C05F527989702E84612DF2FE /* libPods-bitkit-bitkitTests.a */; };
+		426EAB9055544B888C303AFA /* NHaasGroteskDSW02-15UltTh.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B73556A918404E3C9839DEFA /* NHaasGroteskDSW02-15UltTh.ttf */; };
+		7CC862AD01C34B5AB2F7C294 /* NHaasGroteskDSW02-45Lt.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B7235AB0748040C09EB30312 /* NHaasGroteskDSW02-45Lt.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		83365B69171B453DB97C6EB2 /* NHaasGroteskDSW02-95Blk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05DEAFC78AF642A095CFA4E3 /* NHaasGroteskDSW02-95Blk.ttf */; };
 		99F41DD1F78904B4A3FFEA6D /* libPods-bitkit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E300AABCBAEFAFA37D35E376 /* libPods-bitkit.a */; };
+		ACF875A6074D4945BAB022FE /* NHaasGroteskDSW02-55Rg.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3280785920DC49E795F5A7B8 /* NHaasGroteskDSW02-55Rg.ttf */; };
+		D7C98CA5EDAC4F448F2F5B41 /* NHaasGroteskDSW02-75Bd.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4E4046DFCDCD48A1A4D5ABD1 /* NHaasGroteskDSW02-75Bd.ttf */; };
+		DAB04F9FD3F74E318902999A /* NHaasGroteskDSW02-65Md.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9DCF18E491A44FA1B73D9EF6 /* NHaasGroteskDSW02-65Md.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,15 +52,21 @@
 		049DA794275A7518008DE037 /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
 		049DA795275A7518008DE037 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		049DA796275A7518008DE037 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
+		05DEAFC78AF642A095CFA4E3 /* NHaasGroteskDSW02-95Blk.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-95Blk.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-95Blk.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* bitkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bitkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = bitkit/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = bitkit/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = bitkit/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = bitkit/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = bitkit/main.m; sourceTree = "<group>"; };
+		3280785920DC49E795F5A7B8 /* NHaasGroteskDSW02-55Rg.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-55Rg.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-55Rg.ttf"; sourceTree = "<group>"; };
 		34A9B67B95C7103DDBAF68C5 /* Pods-bitkit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bitkit.debug.xcconfig"; path = "Target Support Files/Pods-bitkit/Pods-bitkit.debug.xcconfig"; sourceTree = "<group>"; };
+		4E4046DFCDCD48A1A4D5ABD1 /* NHaasGroteskDSW02-75Bd.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-75Bd.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-75Bd.ttf"; sourceTree = "<group>"; };
 		75E57CB5D4875738A5A8AFD8 /* Pods-bitkit-bitkitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bitkit-bitkitTests.release.xcconfig"; path = "Target Support Files/Pods-bitkit-bitkitTests/Pods-bitkit-bitkitTests.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = bitkit/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9DCF18E491A44FA1B73D9EF6 /* NHaasGroteskDSW02-65Md.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-65Md.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-65Md.ttf"; sourceTree = "<group>"; };
+		B7235AB0748040C09EB30312 /* NHaasGroteskDSW02-45Lt.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-45Lt.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-45Lt.ttf"; sourceTree = "<group>"; };
+		B73556A918404E3C9839DEFA /* NHaasGroteskDSW02-15UltTh.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "NHaasGroteskDSW02-15UltTh.ttf"; path = "../src/assets/fonts/NHaasGroteskDSW02-15UltTh.ttf"; sourceTree = "<group>"; };
 		C05F527989702E84612DF2FE /* libPods-bitkit-bitkitTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-bitkit-bitkitTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4287A75DB127A03448693AC /* Pods-bitkit-bitkitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bitkit-bitkitTests.debug.xcconfig"; path = "Target Support Files/Pods-bitkit-bitkitTests/Pods-bitkit-bitkitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D91F2F02FFFC80AAAB5AE389 /* Pods-bitkit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bitkit.release.xcconfig"; path = "Target Support Files/Pods-bitkit/Pods-bitkit.release.xcconfig"; sourceTree = "<group>"; };
@@ -157,6 +169,20 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		799DC96E5BF0431B9468B66F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B73556A918404E3C9839DEFA /* NHaasGroteskDSW02-15UltTh.ttf */,
+				B7235AB0748040C09EB30312 /* NHaasGroteskDSW02-45Lt.ttf */,
+				3280785920DC49E795F5A7B8 /* NHaasGroteskDSW02-55Rg.ttf */,
+				9DCF18E491A44FA1B73D9EF6 /* NHaasGroteskDSW02-65Md.ttf */,
+				4E4046DFCDCD48A1A4D5ABD1 /* NHaasGroteskDSW02-75Bd.ttf */,
+				05DEAFC78AF642A095CFA4E3 /* NHaasGroteskDSW02-95Blk.ttf */,
+			);
+			name = Resources;
+			path = "";
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -174,6 +200,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				3639B20E0515938DB9BAAAF2 /* Pods */,
+				799DC96E5BF0431B9468B66F /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -285,6 +312,12 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				426EAB9055544B888C303AFA /* NHaasGroteskDSW02-15UltTh.ttf in Resources */,
+				7CC862AD01C34B5AB2F7C294 /* NHaasGroteskDSW02-45Lt.ttf in Resources */,
+				ACF875A6074D4945BAB022FE /* NHaasGroteskDSW02-55Rg.ttf in Resources */,
+				DAB04F9FD3F74E318902999A /* NHaasGroteskDSW02-65Md.ttf in Resources */,
+				D7C98CA5EDAC4F448F2F5B41 /* NHaasGroteskDSW02-75Bd.ttf in Resources */,
+				83365B69171B453DB97C6EB2 /* NHaasGroteskDSW02-95Blk.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
