@@ -8,6 +8,7 @@ import activity from './activity';
 import backup from './backup';
 import blocktank from './blocktank';
 import todos from './todos';
+import fees from './fees';
 
 const appReducers = combineReducers({
 	user,
@@ -19,6 +20,7 @@ const appReducers = combineReducers({
 	backup,
 	blocktank,
 	todos,
+	fees,
 });
 
 export default appReducers;
