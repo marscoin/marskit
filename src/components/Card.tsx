@@ -1,20 +1,26 @@
 import React, { ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { View } from '../styles/components';
+import { View, TouchableOpacity } from '../styles/components';
 
 interface ICard {
 	style?: {};
 	children?: ReactElement | ReactElement[];
 	color?: string;
+	onPress?: Function;
 }
 const Card = ({
 	style = {},
 	children = <View />,
 	color = 'surface',
+	onPress,
 }: ICard): ReactElement => (
-	<View color={color} style={[styles.container, style]}>
+	<TouchableOpacity
+		onPress={onPress}
+		activeOpacity={onPress ? 0.6 : 1}
+		color={color}
+		style={[styles.container, style]}>
 		{children}
-	</View>
+	</TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
