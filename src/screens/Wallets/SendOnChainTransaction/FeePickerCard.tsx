@@ -72,6 +72,7 @@ const FeePickerCard = ({
 			onPress={onPress}
 			style={[
 				styles.card,
+				/*eslint-disable-next-line react-native/no-inline-styles*/
 				{ borderColor: isSelected ? colors.orange : 'transparent' },
 			]}
 			color={'gray336'}>

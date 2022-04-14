@@ -32,7 +32,12 @@ const Button = ({
 		<TouchableOpacity
 			activeOpacity={0.6}
 			color={color}
-			style={[styles.button, style, { opacity: disabled ? 0.2 : 1 }]}
+			style={[
+				styles.button,
+				style,
+				/*eslint-disable-next-line react-native/no-inline-styles*/
+				{ opacity: disabled ? 0.2 : 1 },
+			]}
 			onPress={onPress}
 			onLongPress={onLongPress}
 			disabled={disabled}>
