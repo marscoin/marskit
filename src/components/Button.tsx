@@ -15,6 +15,7 @@ interface IButton {
 	loading?: boolean;
 	icon?: ReactElement;
 	style?: Object;
+	textStyle?: Object;
 }
 const Button = ({
 	text = '',
@@ -25,12 +26,13 @@ const Button = ({
 	loading = false,
 	icon = undefined,
 	style = {},
+	textStyle = {},
 }: IButton): ReactElement => {
 	return (
 		<TouchableOpacity
 			activeOpacity={0.6}
 			color={color}
-			style={[styles.button, style]}
+			style={[styles.button, style, { opacity: disabled ? 0.2 : 1 }]}
 			onPress={onPress}
 			onLongPress={onLongPress}
 			disabled={disabled}>
@@ -39,7 +41,7 @@ const Button = ({
 					{icon}
 				</View>
 			) : null}
-			<Text01M style={styles.text}>{text}</Text01M>
+			<Text01M style={[styles.text, textStyle]}>{text}</Text01M>
 			{loading && (
 				<View color="onSurface" style={styles.loading}>
 					<ActivityIndicator size="small" />
@@ -53,7 +55,6 @@ const styles = StyleSheet.create({
 	button: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		alignSelf: 'center',
 		borderRadius: 10,
 		paddingVertical: 5,
 		shadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -67,12 +68,7 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 	},
-	text: {
-		fontSize: 14,
-		fontWeight: 'bold',
-		textAlign: 'center',
-		paddingVertical: 8,
-	},
+	text: {},
 	iconContainer: {
 		marginRight: 6,
 	},
