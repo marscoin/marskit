@@ -13,7 +13,6 @@ import {
 	View,
 } from '../styles/components';
 import { updateOnChainTransaction } from '../store/actions/wallet';
-import AdjustValue from './AdjustValue';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import {
@@ -22,13 +21,16 @@ import {
 	IOutput,
 } from '../store/types/wallet';
 import {
-	adjustFee,
 	getTotalFee,
 	getTransactionOutputValue,
 	updateAmount,
 	updateMessage,
 } from '../utils/wallet/transactions';
-import { useBalance, useTransactionDetails } from '../hooks/transaction';
+import {
+	useBalance,
+	useSelectedFeeId,
+	useTransactionDetails,
+} from '../hooks/transaction';
 import Card from './Card';
 import { pasteIcon } from '../assets/icons/wallet';
 import { SvgXml } from 'react-native-svg';
@@ -36,8 +38,11 @@ import colors from '../styles/colors';
 import Clipboard from '@react-native-community/clipboard';
 import { showErrorNotification } from '../utils/notifications';
 import { validate } from 'bitcoin-address-validation';
+import FeePickerCard from '../screens/Wallets/SendOnChainTransaction/FeePickerCard';
+import { toggleView } from '../store/actions/user';
+import { FeeText } from '../store/shapes/fees';
 
-const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
+const SendForm = ({ index = 0 }): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -45,6 +50,8 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 	const transaction = useTransactionDetails();
+
+	const selectedFeeId = useSelectedFeeId();
 	const max = useMemo(() => transaction.max, [transaction?.max]);
 
 	const balance = useBalance();
@@ -78,14 +85,14 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 					selectedNetwork,
 					selectedWallet,
 					transaction: { max: false },
-				});
+				}).then();
 			}
 			updateAmount({
 				amount: newValue.toString(),
 				selectedNetwork,
 				selectedWallet,
 				index,
-			});
+			}).then();
 		}
 
 		if (max) {
@@ -187,13 +194,6 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 		return totalFee || 256;
 	}, [message, satsPerByte, selectedWallet, selectedNetwork]);
 
-	const increaseFee = useCallback(() => {
-		adjustFee({ selectedWallet, selectedNetwork, adjustBy: 1 });
-	}, [selectedNetwork, selectedWallet]);
-	const decreaseFee = useCallback(() => {
-		adjustFee({ selectedWallet, selectedNetwork, adjustBy: -1 });
-	}, [selectedNetwork, selectedWallet]);
-
 	const handlePaste = useCallback(async () => {
 		const data = await Clipboard.getString();
 		if (!data) {
@@ -221,6 +221,17 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 			},
 		}).then();
 	}, [index, selectedNetwork, selectedWallet, value]);
+
+	const feeCardTitle = useMemo((): string => {
+		return FeeText[selectedFeeId]?.title ?? '';
+	}, [selectedFeeId]);
+
+	const feeCardDescription = useMemo((): string => {
+		if (selectedFeeId === 'custom') {
+			return `${satsPerByte} sats/byte`;
+		}
+		return FeeText[selectedFeeId]?.description ?? '';
+	}, [satsPerByte, selectedFeeId]);
 
 	return (
 		<View color="transparent" style={styles.container}>
@@ -293,13 +304,21 @@ const SendForm = ({ index = 0, displayFee = true }): ReactElement => {
 				</View>
 			</Card>
 
-			{!!displayFee && (
-				<AdjustValue
-					value={`${satsPerByte} sats/byte`}
-					decreaseValue={decreaseFee}
-					increaseValue={increaseFee}
-				/>
-			)}
+			<FeePickerCard
+				id={selectedFeeId}
+				onPress={(): void => {
+					toggleView({
+						view: 'feePicker',
+						data: {
+							isOpen: true,
+							snapPoint: 0,
+						},
+					}).then();
+				}}
+				title={feeCardTitle}
+				description={feeCardDescription}
+				sats={getFee}
+			/>
 		</View>
 	);
 };
