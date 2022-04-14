@@ -5,6 +5,7 @@ import {
 	IOnChainTransactionData,
 } from '../store/types/wallet';
 import { reduceValue } from '../utils/helpers';
+import { EFeeIds } from '../store/types/fees';
 
 /**
  * Current transaction object of the selectedWallet/Network.
@@ -65,4 +66,21 @@ export function useChangeAddress(): string {
 	);
 
 	return changeAddress;
+}
+
+/**
+ * Returns the selected fee id from the fee picker for the current transaction.
+ */
+export function useSelectedFeeId(): EFeeIds {
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+	return useSelector(
+		(store: Store) =>
+			store?.wallet?.wallets[selectedWallet]?.transaction[selectedNetwork]
+				?.selectedFeeId ?? EFeeIds.none,
+	);
 }
