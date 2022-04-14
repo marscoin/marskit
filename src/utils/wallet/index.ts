@@ -77,6 +77,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { CipherSeed } from 'aezeed';
 import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
+import { EFeeIds } from '../../store/types/fees';
 
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
@@ -1791,7 +1792,7 @@ export const formatRbfData = async (
 
 	let changeAddress: undefined | string;
 	let satsPerByte = 1;
-	let recommendedFee = ETransactionDefaults.recommendedBaseFee; //Total recommended fee in sats
+	let selectedFeeId = EFeeIds.none;
 	let transactionSize = ETransactionDefaults.baseTransactionSize; //In bytes (250 is about normal)
 	let label = ''; // User set label for a given transaction.
 
@@ -1838,7 +1839,7 @@ export const formatRbfData = async (
 		fee: newFee,
 		satsPerByte: newSatsPerByte,
 		fiatAmount: newFiatAmount,
-		recommendedFee,
+		selectedFeeId,
 		transactionSize,
 	};
 };
