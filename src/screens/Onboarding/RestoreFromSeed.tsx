@@ -43,7 +43,7 @@ const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
 	};
 
 	return (
-		<GlowingBackground topLeft="#FF6600" bottomRight="#0085FF">
+		<GlowingBackground topLeft="#FF6600" bottomRight="rgba(0, 133, 255, 0.3)">
 			<KeyboardAvoidingView
 				style={styles.root}
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
