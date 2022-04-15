@@ -14,6 +14,7 @@ import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SeedInput from '../../components/SeedInput';
 import SeedInputAccessory from '../../components/SeedInputAccessory';
+import VerticalShadow from '../../components/VerticalShadow';
 import { validateMnemonic } from '../../utils/wallet';
 
 const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
@@ -49,11 +50,13 @@ const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
 				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 				keyboardVerticalOffset={0}>
 				<ScrollView
-					style={styles.scollview}
 					contentContainerStyle={styles.content}
-					centerContent={true}
-					showsVerticalScrollIndicator={false}>
-					<View style={styles.shadow} />
+					showsVerticalScrollIndicator={false}
+					bounces={false}
+					stickyHeaderIndices={[0]}>
+					<View style={styles.shadowContainer}>
+						<VerticalShadow />
+					</View>
 					<DisplayOnboarding>Restore your wallet</DisplayOnboarding>
 					<Text01S>
 						Please type in your 12 seed words from any (paper) backup.
@@ -75,7 +78,12 @@ const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
 					</View>
 
 					<TouchableOpacity style={styles.button} onPress={() => {}}>
-						<Text02M style={!validMnemonic && styles.buttonDisabledText}>
+						<Text02M
+							style={
+								validMnemonic
+									? styles.buttonEnabledText
+									: styles.buttonDisabledText
+							}>
 							Get started
 						</Text02M>
 					</TouchableOpacity>
@@ -106,9 +114,9 @@ const styles = StyleSheet.create({
 	root: {
 		flex: 1,
 	},
-	scollview: {},
-	shadow: {
+	shadowContainer: {
 		height: 110,
+		marginHorizontal: -50,
 	},
 	content: {
 		paddingHorizontal: 48,
@@ -133,6 +141,9 @@ const styles = StyleSheet.create({
 	},
 	buttonDisabledText: {
 		opacity: 0.3,
+	},
+	buttonEnabledText: {
+		opacity: 1,
 	},
 });
 

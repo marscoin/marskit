@@ -1,9 +1,9 @@
 import React, { memo, ReactElement, useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import {
 	Canvas,
-	Paint,
 	RadialGradient,
 	Rect,
 	runTiming,
@@ -38,28 +38,28 @@ const Glow = memo(
 		}, [opacity, fadeout]);
 
 		return (
-			<>
-				<Paint>
-					{top ? (
-						<RadialGradient
-							c={vec(-270, 100)}
-							r={600}
-							colors={[color, 'transparent']}
-						/>
-					) : (
-						<RadialGradient
-							c={vec(width, height)}
-							r={width}
-							colors={[color, 'transparent']}
-						/>
-					)}
-				</Paint>
-				<Rect x={0} y={0} width={width} height={height} opacity={opacity} />
-			</>
+			<Rect x={0} y={0} width={width} height={height} opacity={opacity}>
+				{top ? (
+					<RadialGradient
+						c={vec(-270, 100)}
+						r={600}
+						colors={[color, 'transparent']}
+					/>
+				) : (
+					<RadialGradient
+						c={vec(width, height)}
+						r={width}
+						colors={[color, 'transparent']}
+					/>
+				)}
+			</Rect>
 		);
 	},
 );
 
+/**
+ * Draws radial gradients. When color changes, shows opacity animation
+ */
 const GlowingBackground = ({
 	children,
 	topLeft,
@@ -74,18 +74,12 @@ const GlowingBackground = ({
 	);
 	topLeft = topLeft ?? colors.background;
 	bottomRight = bottomRight ?? colors.background;
-	const [size, setSize] = useState({ width: 0, height: 0 });
 	const [topLeftItems, setTopLeftItems] = useState([{ color: topLeft, id: 0 }]);
 	const [bottomRightItems, setBottomRightItems] = useState([
 		{ color: bottomRight, id: 0 },
 	]);
 
-	const onLayout = (event): void => {
-		setSize({
-			width: event.nativeEvent.layout.width,
-			height: event.nativeEvent.layout.height,
-		});
-	};
+	const { height, width } = useWindowDimensions();
 
 	useEffect(() => {
 		setTopLeftItems((items) => {
@@ -109,16 +103,16 @@ const GlowingBackground = ({
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.overlay} onLayout={onLayout}>
-				<Canvas style={styles.container}>
+			<View style={styles.overlay}>
+				<Canvas style={{ width, height }}>
 					{topLeftItems.map(({ id, color }, index, arr) => (
 						<Glow
 							key={id}
 							top={true}
 							color={color}
 							fadeout={index !== arr.length - 1}
-							width={size.width}
-							height={size.height}
+							width={width}
+							height={height}
 						/>
 					))}
 
@@ -127,8 +121,8 @@ const GlowingBackground = ({
 							key={id}
 							color={color}
 							fadeout={index !== arr.length - 1}
-							width={size.width}
-							height={size.height}
+							width={width}
+							height={height}
 						/>
 					))}
 				</Canvas>

@@ -17,6 +17,9 @@ const Word = ({ text, ...props }: { text: string }): ReactElement => {
 	);
 };
 
+/**
+ * Show keyboad accessory with seed suggestions
+ */
 const SeedInputAccessory = ({ word, setWord }): ReactElement => {
 	const [suggestions, setSuggestions] = useState([]);
 

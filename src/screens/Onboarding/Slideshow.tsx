@@ -21,6 +21,9 @@ const Dot = ({ active }: { active?: boolean }): ReactElement => {
 	return <View color={active ? 'white' : 'gray2'} style={styles.pageDot} />;
 };
 
+/**
+ * Slideshow for Welcome screen
+ */
 const Slideshow = ({
 	navigation,
 	route,

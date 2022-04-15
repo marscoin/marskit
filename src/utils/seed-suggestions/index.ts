@@ -3,6 +3,12 @@ import { patienceDiff } from './PatienceDiff';
 
 let cache = {};
 
+/**
+ * Suggests options to complete the seed word. Steps:
+ * 1. simple .startsWith() function
+ * 2. fuzzysort
+ * 3. custom patienceSort() function based on patienceDiff
+ */
 export default function seedSuggestions(
 	origWord,
 	wordlist,
