@@ -322,32 +322,32 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
-  - react-native-skia (0.1.109):
+  - react-native-skia (0.1.120):
     - React
     - React-callinvoker
     - React-Core
-    - react-native-skia/Api (= 0.1.109)
-    - react-native-skia/Jsi (= 0.1.109)
-    - react-native-skia/RNSkia (= 0.1.109)
-    - react-native-skia/SkiaHeaders (= 0.1.109)
-    - react-native-skia/Utils (= 0.1.109)
-  - react-native-skia/Api (0.1.109):
+    - react-native-skia/Api (= 0.1.120)
+    - react-native-skia/Jsi (= 0.1.120)
+    - react-native-skia/RNSkia (= 0.1.120)
+    - react-native-skia/SkiaHeaders (= 0.1.120)
+    - react-native-skia/Utils (= 0.1.120)
+  - react-native-skia/Api (0.1.120):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/Jsi (0.1.109):
+  - react-native-skia/Jsi (0.1.120):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/RNSkia (0.1.109):
+  - react-native-skia/RNSkia (0.1.120):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/SkiaHeaders (0.1.109):
+  - react-native-skia/SkiaHeaders (0.1.120):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/Utils (0.1.109):
+  - react-native-skia/Utils (0.1.120):
     - React
     - React-callinvoker
     - React-Core
@@ -750,7 +750,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: 379ba2af7d2abcec0c062267abe1c9a977c72bf9
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
-  react-native-skia: 99a3870390a04bc1008cc1e5dd29fa84d0b75cdd
+  react-native-skia: cceac213a23bc5923fb84dfa25ba90e421d4c030
   react-native-tcp-socket: 3bd5b9e374380e78258639c00ec20ca3d049002b
   React-perflogger: 93d3f142d6d9a46e635f09ba0518027215a41098
   React-RCTActionSheet: 87327c3722203cc79cf79d02fb83e7332aeedd18

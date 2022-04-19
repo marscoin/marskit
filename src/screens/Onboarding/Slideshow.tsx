@@ -21,6 +21,9 @@ const Dot = ({ active }: { active?: boolean }): ReactElement => {
 	return <View color={active ? 'white' : 'gray2'} style={styles.pageDot} />;
 };
 
+/**
+ * Slideshow for Welcome screen
+ */
 const Slideshow = ({
 	navigation,
 	route,
@@ -54,6 +57,10 @@ const Slideshow = ({
 			{
 				text: 'From file',
 				onPress: (): void => navigation.navigate('RestoreAccountFromFile'),
+			},
+			{
+				text: 'From seed',
+				onPress: (): void => navigation.navigate('RestoreFromSeed'),
 			},
 			{
 				text: 'Cancel',
