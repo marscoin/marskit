@@ -242,15 +242,6 @@ export const getTransactions = async ({
 				data: [],
 			});
 		}
-		let paths: string[] = [];
-		txHashes = txHashes.filter((txHash) => {
-			// @ts-ignore
-			if (!paths.includes(txHash?.path)) {
-				// @ts-ignore
-				paths.push(txHash.path);
-				return txHash;
-			}
-		});
 		const data = {
 			key: 'tx_hash',
 			data: txHashes,
