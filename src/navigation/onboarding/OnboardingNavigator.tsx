@@ -102,7 +102,6 @@ const OnboardingNavigator = (): ReactElement => {
 					component={RestoreFromSeed}
 					options={navOptionHandler}
 				/>
-
 			</Stack.Navigator>
 		</NavigationContainer>
 	);

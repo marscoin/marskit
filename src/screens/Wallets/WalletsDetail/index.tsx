@@ -1,54 +1,51 @@
 import React, {
-	memo,
 	PropsWithChildren,
 	ReactElement,
+	memo,
 	useCallback,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import {
 	LayoutAnimation,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
+	Platform,
 	StyleSheet,
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import RadialGradient from 'react-native-radial-gradient';
-import Animated, { EasingNode } from 'react-native-reanimated';
+import Animated, { EasingNode, FadeIn, FadeOut } from 'react-native-reanimated';
+import { BlurView } from '@react-native-community/blur';
 import {
-	Title,
-	Caption13M,
-	Headline,
-	View,
+	Canvas,
+	RadialGradient,
+	Rect,
+	rect,
+	useCanvasSize,
+	useDerivedValue,
+	vec,
+} from '@shopify/react-native-skia';
+import {
+	AnimatedView,
+	DisplayHaas,
 	ReceiveIcon,
 	SendIcon,
-	AnimatedView,
+	TitleHaas,
+	View,
 } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
+import useColors from '../../../hooks/colors';
 import ActivityList from '../../Activity/ActivityList';
-import Store from '../../../store/types';
-import themes from '../../../styles/themes';
 import BitcoinBreakdown from './BitcoinBreakdown';
 import Button from '../../../components/Button';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { EActivityTypes } from '../../../store/types/activity';
 import { TAssetType } from '../../../store/types/wallet';
 import { toggleView } from '../../../store/actions/user';
+import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 
-const updateOpacity = ({
-	opacity = new Animated.Value(0),
-	toValue = 0,
-	duration = 250,
-}): void => {
-	try {
-		Animated.timing(opacity, {
-			toValue,
-			duration,
-			easing: EasingNode.inOut(EasingNode.ease),
-		}).start();
-	} catch {}
-};
+const Blur = Platform.OS === 'ios' ? BlurView : View;
 
 const updateHeight = ({
 	height = new Animated.Value(0),
@@ -72,32 +69,42 @@ interface Props extends PropsWithChildren<any> {
 	};
 }
 
+const Glow = ({ colors }): ReactElement => {
+	const canvas = useCanvasSize();
+	const rct = useDerivedValue(
+		() => rect(0, 0, canvas.current.width, canvas.current.height),
+		[canvas],
+	);
+
+	return (
+		<Rect rect={rct}>
+			<RadialGradient
+				c={vec(-250, 100)}
+				r={600}
+				colors={[colors.brand, 'transparent']}
+			/>
+		</Rect>
+	);
+};
+
 const WalletsDetail = (props: Props): ReactElement => {
 	const { route } = props;
 
 	const { assetType } = route.params;
 
-	const {
-		bitcoinFormatted,
-		bitcoinSymbol,
-		fiatWhole,
-		fiatDecimal,
-		fiatDecimalValue,
-		fiatSymbol,
-	} = useBalance({ onchain: true, lightning: true });
+	const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } = useBalance({
+		onchain: true,
+		lightning: true,
+	});
 
-	const colors = useSelector(
-		(state: Store) => themes[state.settings.theme].colors,
-	);
+	const colors = useColors();
 
 	let title = '';
 	let assetFilter: EActivityTypes[] = [];
-	let gradientRadius = 450;
 	switch (assetType) {
 		case 'bitcoin': {
 			title = 'Bitcoin';
 			assetFilter = [EActivityTypes.onChain, EActivityTypes.lightning];
-			gradientRadius = 600;
 			break;
 		}
 		case 'tether': {
@@ -131,99 +138,106 @@ const WalletsDetail = (props: Props): ReactElement => {
 	}, []);
 
 	const [showDetails, setShowDetails] = useState(true);
-	const [opacity] = useState(new Animated.Value(0));
+	const [radiusContainerHeight, setRadiusContainerHeight] = useState(400);
+	const [headerHeight, setHeaderHeight] = useState(0);
+
+	const activityPadding = useMemo(
+		() => ({ paddingTop: radiusContainerHeight, paddingBottom: 70 }),
+		[radiusContainerHeight],
+	);
 	const [height] = useState(new Animated.Value(0));
 
 	useEffect(() => {
-		updateOpacity({ opacity, toValue: 1 });
-		updateHeight({ height, toValue: 230 });
-	}, [opacity, height]);
+		updateHeight({ height, toValue: headerHeight });
+	}, [height, headerHeight]);
 
 	const onScroll = useCallback(
 		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
 			const { y } = e.nativeEvent.contentOffset;
 
 			//HIDE
-			if (y > 200 && showDetails) {
+			if (y > 150 && showDetails) {
 				//Shrink the detail view
 				LayoutAnimation.easeInEaseOut();
-				updateOpacity({ opacity, toValue: 0 });
-
-				setTimeout(() => {
-					setShowDetails(false);
-					updateHeight({ height, toValue: 30 });
-				}, 250);
+				setShowDetails(false);
+				updateHeight({ height, toValue: 30 });
 			}
 
 			//SHOW
-			if (y < 150 && !showDetails) {
+			if (y < 100 && !showDetails) {
 				//They scrolled up so show more details now
-				LayoutAnimation.easeInEaseOut(() =>
-					updateOpacity({ opacity, toValue: 1 }),
-				);
-
-				updateHeight({ height, toValue: 230 });
-
+				LayoutAnimation.easeInEaseOut();
 				setShowDetails(true);
+				updateHeight({ height, toValue: headerHeight });
 			}
 		},
-		[showDetails, height, opacity],
+		[showDetails, height, headerHeight],
 	);
 
 	return (
 		<AnimatedView style={styles.container}>
-			<View style={styles.radiusContainer}>
-				<RadialGradient
-					style={styles.assetDetailContainer}
-					colors={['rgb(52,34,10)', colors.gray6]}
-					stops={[0.1, 0.4]}
-					center={[10, 50]}
-					radius={gradientRadius}>
-					<SafeAreaInsets type={'top'} />
-
-					<NavigationHeader />
-
-					<AnimatedView
-						color={'transparent'}
-						style={[styles.header, { minHeight: height }]}>
-						<Title>{title}</Title>
-
-						{showDetails ? (
-							<AnimatedView color={'transparent'} style={{ opacity }}>
-								<View color={'transparent'} style={styles.balanceContainer}>
-									<View
-										color={'transparent'}
-										style={styles.largeValueContainer}>
-										<Headline color={'gray'}>{fiatSymbol}</Headline>
-										<Headline>{fiatWhole}</Headline>
-										<Headline color={'gray'}>
-											{fiatDecimal}
-											{fiatDecimalValue}
-										</Headline>
-									</View>
-
-									<Caption13M color={'gray'}>
-										{bitcoinSymbol}
-										{bitcoinFormatted}
-									</Caption13M>
-								</View>
-								{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
-							</AnimatedView>
-						) : null}
-					</AnimatedView>
-				</RadialGradient>
-			</View>
-			{/*<View color={'gray6'} style={styles.radiusFooter} />*/}
-
 			<View color={'transparent'} style={styles.txListContainer}>
 				<ActivityList
 					assetFilter={assetFilter}
 					onScroll={onScroll}
 					style={styles.txList}
-					contentContainerStyle={styles.scrollContent}
-					progressViewOffset={350}
+					contentContainerStyle={activityPadding}
+					progressViewOffset={radiusContainerHeight + 10}
 				/>
 			</View>
+			<View color={'transparent'} style={styles.radiusContainer}>
+				<Blur>
+					<Canvas style={styles.glowCanvas}>
+						<Glow colors={colors} />
+					</Canvas>
+					<View
+						style={styles.assetDetailContainer}
+						color="white01"
+						onLayout={(e): void => {
+							const hh = e.nativeEvent.layout.height;
+							setRadiusContainerHeight((h) => (h === 400 ? hh : h));
+						}}>
+						<SafeAreaInsets type={'top'} />
+
+						<NavigationHeader />
+
+						<AnimatedView
+							color={'transparent'}
+							style={[styles.header, { minHeight: height }]}
+							onLayout={(e): void => {
+								const hh = e.nativeEvent.layout.height;
+								setHeaderHeight((h) => (h === 0 ? hh : h));
+							}}>
+							<View color={'transparent'} style={styles.row}>
+								<BitcoinLogo viewBox="0 0 70 70" height={32} width={32} />
+								<TitleHaas style={styles.title}>{title}</TitleHaas>
+							</View>
+
+							{showDetails ? (
+								<AnimatedView
+									color={'transparent'}
+									entering={FadeIn}
+									exiting={FadeOut}>
+									<View color={'transparent'} style={styles.balanceContainer}>
+										<View
+											color={'transparent'}
+											style={styles.largeValueContainer}>
+											<DisplayHaas color={'gray'}>{fiatSymbol}</DisplayHaas>
+											<DisplayHaas>{fiatWhole}</DisplayHaas>
+											<DisplayHaas color={'gray'}>
+												{fiatDecimal}
+												{fiatDecimalValue}
+											</DisplayHaas>
+										</View>
+									</View>
+									{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
+								</AnimatedView>
+							) : null}
+						</AnimatedView>
+					</View>
+				</Blur>
+			</View>
+
 			<View color={'transparent'} style={styles.buttons}>
 				<Button
 					color={'surface'}
@@ -251,18 +265,26 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	assetDetailContainer: { paddingBottom: 20 },
+	assetDetailContainer: {
+		paddingBottom: 20,
+	},
 	radiusContainer: {
 		overflow: 'hidden',
 		borderBottomRightRadius: 16,
 		borderBottomLeftRadius: 16,
-		zIndex: 99,
+		position: 'relative',
+	},
+	glowCanvas: {
+		width: '100%',
+		height: 500, // it needs to be static, otherwise android lagging
+		position: 'absolute',
 	},
 	header: {
-		paddingHorizontal: 20,
+		paddingHorizontal: 16,
 	},
 	balanceContainer: {
-		marginVertical: 18,
+		marginTop: 20,
+		marginBottom: 30,
 	},
 	largeValueContainer: {
 		display: 'flex',
@@ -270,16 +292,12 @@ const styles = StyleSheet.create({
 	},
 	txListContainer: {
 		flex: 1,
-
 		position: 'absolute',
 		width: '100%',
 		height: '100%',
 	},
 	txList: {
-		paddingHorizontal: 20,
-	},
-	scrollContent: {
-		paddingTop: 350,
+		paddingHorizontal: 16,
 	},
 	buttons: {
 		position: 'absolute',
@@ -293,6 +311,13 @@ const styles = StyleSheet.create({
 		marginHorizontal: 8,
 		height: 56,
 		borderRadius: 64,
+	},
+	row: {
+		alignItems: 'center',
+		flexDirection: 'row',
+	},
+	title: {
+		marginLeft: 16,
 	},
 });
 

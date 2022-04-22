@@ -1,26 +1,20 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
+import { Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import WalletsScreen from '../../screens/Wallets';
-import ProfileScreen from '../../screens/Profile';
-import ProfileDetail from '../../screens/Profile/ProfileDetail';
+import { SvgXml } from 'react-native-svg';
 import { useSelector } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur';
+import WalletsScreen from '../../screens/Wallets';
 import Store from '../../store/types';
 import themes from '../../styles/themes';
 import QR from '../../components/QR';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
-import { View } from '../../styles/components';
+import { CameraIcon, Text02M, View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
-import { SvgXml } from 'react-native-svg';
-import {
-	profileIcon,
-	receiveIcon,
-	sendIcon,
-	walletIcon,
-} from '../../assets/icons/tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Platform } from 'react-native';
+import { receiveIcon, sendIcon } from '../../assets/icons/tabs';
 import { toggleView } from '../../store/actions/user';
 
 const Tab = createBottomTabNavigator();
@@ -46,6 +40,21 @@ const modalOptions = {
 	...TransitionPresets.ModalSlideFromBottomIOS,
 };
 
+// BlurView + bottomtabsnavigation doesn't work on android
+// so we use regular View for it https://github.com/software-mansion/react-native-screens/issues/1287
+const BlurAndroid = ({ children, style }): ReactElement => {
+	const settings = useSelector((state: Store) => state.settings);
+	const theme = useMemo(() => themes[settings.theme], [settings.theme]);
+	const { tabBackground } = theme.colors;
+	const s = useMemo(
+		() => ({ ...style, backgroundColor: tabBackground }),
+		[style, tabBackground],
+	);
+
+	return <View style={s}>{children}</View>;
+};
+const Blur = Platform.OS === 'ios' ? BlurView : BlurAndroid;
+
 const WalletsStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Wallets" screenOptions={navOptions}>
@@ -66,105 +75,13 @@ const WalletsStack = (): ReactElement => {
 	);
 };
 
-const ProfileStack = (): ReactElement => {
-	return (
-		<Stack.Navigator initialRouteName="Profile">
-			<Stack.Group screenOptions={screenOptions}>
-				<Stack.Screen name="Profile" component={ProfileScreen} />
-				<Stack.Screen name="ProfileDetail" component={ProfileDetail} />
-			</Stack.Group>
-		</Stack.Navigator>
-	);
-};
-
-const activeTintColor = '#E94D27';
-const TabNavigator = (): ReactElement => {
+export const TabBar = ({ navigation }): ReactElement => {
 	const settings = useSelector((state: Store) => state.settings);
 	const theme = useMemo(() => themes[settings.theme], [settings.theme]);
-	const tabBackground = useMemo(
-		() => theme.colors.tabBackground,
-		[theme.colors.tabBackground],
-	);
+	const { white08 } = theme.colors;
 	const insets = useSafeAreaInsets();
-	const tabScreenOptions = useMemo(() => {
-		return {
-			tabBarShowLabel: false,
-			tabBarHideOnKeyboard: true,
-			headerShown: false,
-			tabBarActiveTintColor: activeTintColor,
-			tabBarInactiveTintColor: '#636366',
-			tabBarStyle: {
-				height: 60,
-				position: 'absolute',
-				bottom: Math.max(insets.bottom, 18),
-				left: 48,
-				right: 48,
-				backgroundColor: tabBackground,
-				borderRadius: 44,
-				borderTopWidth: 0,
-				elevation: 0,
-				paddingTop: insets.bottom - 5,
-			},
-		};
-	}, [insets.bottom, tabBackground]);
 
-	const WalletIcon = useCallback(
-		({ size, color }): ReactElement => (
-			<SvgXml xml={walletIcon(color)} width={size} height={size} />
-		),
-		[],
-	);
-
-	const walletOptions = useMemo(() => {
-		return {
-			tabBarIcon: WalletIcon,
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const SendIcon = useCallback(
-		({ size, color }): ReactElement => (
-			<SvgXml xml={sendIcon(color)} width={size} height={size} />
-		),
-		[],
-	);
-
-	const sendOptions = useMemo(() => {
-		return {
-			tabBarIcon: SendIcon,
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const ReceiveIcon = useCallback(
-		({ size, color }): ReactElement => (
-			<SvgXml xml={receiveIcon(color)} width={size} height={size} />
-		),
-		[],
-	);
-
-	const receiveOptions = useMemo(() => {
-		return {
-			tabBarIcon: ReceiveIcon,
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const ProfileIcon = useCallback(
-		({ size, color }): ReactElement => (
-			<SvgXml xml={profileIcon(color)} width={size} height={size} />
-		),
-		[],
-	);
-
-	const profileOptions = useMemo(() => {
-		return {
-			tabBarIcon: ProfileIcon,
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const onReceivePress = useCallback((event) => {
+	const onReceivePress = (): void => {
 		toggleView({
 			view: 'receiveAssetPicker',
 			data: {
@@ -172,68 +89,109 @@ const TabNavigator = (): ReactElement => {
 				isOpen: true,
 				snapPoint: 1,
 			},
-		}).then();
-		event.preventDefault();
-	}, []);
-
-	const receiveListeners = useCallback(
-		(): { tabPress } => ({
-			tabPress: onReceivePress,
-		}),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
-	);
-
-	const onSendPress = useCallback((event) => {
-		const snapPoint = 1;
+		});
+	};
+	const onSendPress = (): void => {
 		toggleView({
 			view: 'sendAssetPicker',
 			data: {
 				id: 'send',
 				isOpen: true,
-				snapPoint,
+				snapPoint: 1,
 			},
-		}).then();
-		event.preventDefault();
-	}, []);
+		});
+	};
+	const openScanner = useCallback(
+		() => navigation.navigate('Scanner'),
+		[navigation],
+	);
 
-	const sendListeners = useCallback(
-		(): { tabPress } => ({
-			tabPress: onSendPress,
+	return (
+		<View style={[styles.tabRoot, { bottom: Math.max(insets.bottom, 18) }]}>
+			<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
+				<Blur style={styles.tabSend}>
+					<SvgXml xml={sendIcon('white')} width={15} height={15} />
+					<Text02M style={styles.tabText}>Send</Text02M>
+				</Blur>
+			</TouchableOpacity>
+			<TouchableOpacity
+				onPress={openScanner}
+				activeOpacity={0.8}
+				style={[styles.tabScan, { borderColor: white08 }]}>
+				<CameraIcon width={32} height={32} />
+			</TouchableOpacity>
+			<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
+				<Blur style={styles.tabRecieve}>
+					<SvgXml xml={receiveIcon('white')} width={15} height={15} />
+					<Text02M style={styles.tabText}>Recieve</Text02M>
+				</Blur>
+			</TouchableOpacity>
+		</View>
+	);
+};
+
+const TabNavigator = (): ReactElement => {
+	const tabScreenOptions = useMemo(
+		() => ({
+			tabBarHideOnKeyboard: true,
+			headerShown: false,
 		}),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[],
 	);
 
 	return (
-		<Tab.Navigator>
-			{/*@ts-ignore*/}
+		<Tab.Navigator tabBar={(props): ReactElement => <TabBar {...props} />}>
 			<Tab.Group screenOptions={tabScreenOptions}>
-				<Tab.Screen
-					name={'WalletsStack'}
-					component={WalletsStack}
-					options={walletOptions}
-				/>
-				<Tab.Screen
-					name={'Send'}
-					component={View}
-					options={sendOptions}
-					listeners={sendListeners}
-				/>
-				<Tab.Screen
-					name={'Receive'}
-					component={View}
-					options={receiveOptions}
-					listeners={receiveListeners}
-				/>
-				<Tab.Screen
-					name={'ProfileStack'}
-					component={ProfileStack}
-					options={profileOptions}
-				/>
+				<Tab.Screen name="WalletsStack" component={WalletsStack} />
 			</Tab.Group>
 		</Tab.Navigator>
 	);
 };
+
+const styles = StyleSheet.create({
+	tabRoot: {
+		left: 10,
+		right: 10,
+		height: 80,
+		position: 'absolute',
+		backgroundColor: 'transparent',
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	blurContainer: {
+		height: 56,
+		flex: 1,
+	},
+	tabSend: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		flexDirection: 'row',
+		paddingRight: 30,
+		borderRadius: 30,
+	},
+	tabRecieve: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		flexDirection: 'row',
+		paddingLeft: 30,
+		borderRadius: 30,
+	},
+	tabScan: {
+		height: 80,
+		width: 80,
+		borderRadius: 40,
+		backgroundColor: '#101010',
+		marginHorizontal: -40,
+		alignItems: 'center',
+		justifyContent: 'center',
+		zIndex: 1,
+		borderWidth: 2,
+	},
+	tabText: {
+		marginLeft: 10,
+	},
+});
 
 export default TabNavigator;

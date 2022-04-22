@@ -1,5 +1,5 @@
 import React, { memo, ReactElement } from 'react';
-import { Headline, View } from '../styles/components';
+import { DisplayHaas, View } from '../styles/components';
 import { StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
@@ -14,26 +14,20 @@ const Balance = ({ sats = 0 }): ReactElement => {
 		const { newValue, abbreviation } = abbreviateNumber(fiatWhole);
 		return (
 			<View style={styles.row}>
-				<Headline size={'34px'} color="gray">
-					{fiatSymbol}
-				</Headline>
-				<Headline size={'34px'}>{newValue}</Headline>
-				<Headline size={'34px'} color="gray">
-					{abbreviation}
-				</Headline>
+				<DisplayHaas color="gray">{fiatSymbol}</DisplayHaas>
+				<DisplayHaas>{newValue}</DisplayHaas>
+				<DisplayHaas color="gray">{abbreviation}</DisplayHaas>
 			</View>
 		);
 	}
 	return (
 		<View style={styles.row}>
-			<Headline size={'34px'} color="gray">
-				{fiatSymbol}
-			</Headline>
-			<Headline size={'34px'}>{fiatWhole}</Headline>
-			<Headline size={'34px'} color="gray">
+			<DisplayHaas color="gray">{fiatSymbol}</DisplayHaas>
+			<DisplayHaas>{fiatWhole}</DisplayHaas>
+			<DisplayHaas color="gray">
 				{fiatDecimal}
 				{fiatDecimalValue}
-			</Headline>
+			</DisplayHaas>
 		</View>
 	);
 };
@@ -41,6 +35,7 @@ const Balance = ({ sats = 0 }): ReactElement => {
 const styles = StyleSheet.create({
 	row: {
 		flexDirection: 'row',
+		marginTop: 5,
 	},
 });
 

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { FadeIn } from 'react-native-reanimated';
 import {
-	DisplayOnboarding,
+	DisplayHaas,
 	Text01S,
 	Text02M,
 	View,
@@ -36,7 +36,7 @@ const OnboardingWelcomeScreen = ({
 						<BitKitRoundLogo width="450" />
 					</AnimatedView>
 					<View color={'transparent'} style={styles.textContent}>
-						<DisplayOnboarding>Bitkit</DisplayOnboarding>
+						<DisplayHaas>Bitkit</DisplayHaas>
 						<Text01S style={styles.text}>
 							Regain control over your money and your life with Bitkit Wallet.
 						</Text01S>

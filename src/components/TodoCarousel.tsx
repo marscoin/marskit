@@ -10,7 +10,6 @@ import { handleOnPress } from '../utils/todos';
 
 const TodoCarousel = (): ReactElement => {
 	const navigation = useNavigation();
-	//const [activeIndex, setActiveIndex] = useState(0);
 	const ref = useRef(null);
 	const todos = useSelector((state: Store) => state.todos.todos);
 
@@ -31,16 +30,17 @@ const TodoCarousel = (): ReactElement => {
 	}
 	return (
 		<>
-			<Subtitle style={styles.content}>To Do:</Subtitle>
+			<Subtitle style={styles.content}>Suggestions:</Subtitle>
 			<View style={styles.container}>
 				<Carousel
 					layout="default"
 					ref={ref}
 					data={todos}
-					sliderWidth={316}
-					itemWidth={276}
+					sliderWidth={180}
+					itemWidth={170}
 					renderItem={renderItem}
-					//onSnapToItem={(index) => setActiveIndex(index)}
+					inactiveSlideScale={1}
+					inactiveSlideOpacity={1}
 				/>
 			</View>
 		</>

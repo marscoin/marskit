@@ -15,7 +15,7 @@ const BackButton = memo(
 		try {
 			return (
 				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
-					<SvgXml xml={_backIcon} width={16} height={14} />
+					<SvgXml xml={_backIcon} width={23} height={23} />
 				</TouchableOpacity>
 			);
 		} catch {

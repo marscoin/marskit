@@ -1108,6 +1108,13 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
+"@react-native-community/blur@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@react-native-community/blur/-/blur-3.6.0.tgz#31c9e0f2770519c9b5c4f99418f192246f0d4db8"
+  integrity sha512-GtDBhpX2pQcjl4VopOC8FktrVufrEfYRwVeMQ2WWckqKIv2BdwvlvWvj88L1WmEdBr9UNcm3rtgz+d+YXkmirA==
+  dependencies:
+    prop-types "^15.5.10"
+
 "@react-native-community/cli-debugger-ui@^6.0.0-rc.0":
   version "6.0.0-rc.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-6.0.0-rc.0.tgz#774378626e4b70f5e1e2e54910472dcbaffa1536"
@@ -1354,9 +1361,9 @@
     warn-once "^0.1.0"
 
 "@shopify/react-native-skia@^0.1.120":
-  version "0.1.120"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.120.tgz#547b6e9aa98bce892fcd3cebcafd09a10d678a07"
-  integrity sha512-g9IN47kk8lTxs4Ow2Nyu96goAu7B3n5cWeZ4DWx/XrEbfVZw12JgnT3IDsIpS9ooE/aiV7QG5fVo++QAzER5YA==
+  version "0.1.121"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.121.tgz#1617a45b451a7e2fe595d0206e3bb0cf963129ff"
+  integrity sha512-RDSOee2bZw5DcfEsbdLC4kgJxxIHsWtdSBJ4LSg1we5Ghq5962AC0KaQc8svgwlr1h74qviafm8E10IihM6uqQ==
   dependencies:
     react-reconciler "^0.26.2"
 
@@ -7648,11 +7655,6 @@ react-native-qrcode-svg@^6.1.1:
   dependencies:
     prop-types "^15.7.2"
     qrcode "^1.4.4"
-
-react-native-radial-gradient@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/react-native-radial-gradient/-/react-native-radial-gradient-1.0.9.tgz#de18106d4ba491f1ffb5e8bb9e17cb06ce2f4050"
-  integrity sha512-yGib/8t0Da35FYKOSuQf6fB02+OAjN55Dg93eN8ks35NreLHC0M+SZCJRjHlxO3zGE2E+m/90NJy0UZlSboCaQ==
 
 react-native-randombytes@^3.5.1, react-native-randombytes@^3.6.1:
   version "3.6.1"

@@ -2,19 +2,19 @@ import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import {
 	View,
-	CameraIcon,
 	SettingsIcon,
 	TouchableOpacity,
-	Title,
+	TitleHaas,
+	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
 
-	const openScanner = useCallback(
+	const openProfile = useCallback(
 		// @ts-ignore
-		() => navigation.navigate('Scanner'),
+		() => navigation.navigate('ProfileRoot'),
 		[navigation],
 	);
 	const openSettings = useCallback(
@@ -26,23 +26,21 @@ const Header = (): ReactElement => {
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
-				<Title>Wallet</Title>
+				<TitleHaas>Wallet</TitleHaas>
 			</View>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<TouchableOpacity
-					color="onSurface"
+					style={styles.profileIcon}
+					activeOpacity={1}
+					onPress={openProfile}>
+					<ProfileIcon width={23} height={23} />
+				</TouchableOpacity>
+				<TouchableOpacity
 					style={styles.cogIcon}
 					activeOpacity={1}
 					onPress={openSettings}>
 					<SettingsIcon width={25} height={25} />
-				</TouchableOpacity>
-				<TouchableOpacity
-					color="onSurface"
-					style={styles.cameraIcon}
-					activeOpacity={1}
-					onPress={openScanner}>
-					<CameraIcon width={23} height={23} />
 				</TouchableOpacity>
 			</View>
 		</View>
@@ -60,19 +58,15 @@ const styles = StyleSheet.create({
 	cogIcon: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderRadius: 100,
-		padding: 5,
-		marginRight: 10,
-		minHeight: 40,
-		minWidth: 40,
+		minHeight: 30,
+		minWidth: 30,
 	},
-	cameraIcon: {
+	profileIcon: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderRadius: 100,
-		padding: 5,
-		minHeight: 40,
-		minWidth: 40,
+		marginRight: 10,
+		minHeight: 30,
+		minWidth: 30,
 	},
 	leftColumn: {
 		flex: 1,

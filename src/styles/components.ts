@@ -9,7 +9,13 @@ import Animated from 'react-native-reanimated';
 import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
-import { camera, settings, dismiss, boost } from '../assets/icons/header';
+import {
+	camera,
+	settings,
+	dismiss,
+	boost,
+	profileIcon,
+} from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
@@ -18,6 +24,7 @@ import {
 	receivedIcon,
 	sentIcon,
 	transferIcon,
+	coinsIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -56,6 +63,12 @@ export const TransferIcon = styled(SvgXml).attrs((props) => ({
 	xml: transferIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+}))({});
+
+export const CoinsIcon = styled(SvgXml).attrs((props) => ({
+	xml: coinsIcon(props?.color ? props.theme.colors[props.color] : '#F7931A'),
+	height: props?.height ?? '12.8',
+	width: props?.width ?? '12.8',
 }))({});
 
 export const BoostIcon = styled(SvgXml).attrs((props) => ({
@@ -146,6 +159,12 @@ export const Logo = styled(SvgXml).attrs((props) => ({
 	width: props?.width ?? '46px',
 }))({});
 
+export const ProfileIcon = styled(SvgXml).attrs((props) => ({
+	xml: profileIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
+	width: props?.width ?? '20.54px',
+	height: props?.height ?? '20.53px',
+}))({});
+
 export const Display = styled.Text((props) => ({
 	...sanFranciscoWeights.medium,
 	color: props.color
@@ -157,7 +176,7 @@ export const Display = styled.Text((props) => ({
 	fontSize: props.size ? props.size : '48px',
 }));
 
-export const DisplayOnboarding = styled(Display)`
+export const DisplayHaas = styled(Display)`
 	font-family: 'NHaasGroteskDSW02-65Md';
 	line-height: 48px;
 `;
@@ -183,6 +202,10 @@ export const Title = styled.Text((props) => ({
 		: sanFranciscoWeights.medium.fontFamily,
 	fontSize: props.size ? props.size : '22px',
 }));
+
+export const TitleHaas = styled(Title)`
+	font-family: 'NHaasGroteskDSW02-65Md';
+`;
 
 export const Subtitle = styled.Text((props) => ({
 	...sanFranciscoWeights.bold,
