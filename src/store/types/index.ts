@@ -7,6 +7,7 @@ import { IActivity } from './activity';
 import { IBackup } from './backup';
 import { IBlocktank } from './blocktank';
 import { ITodos } from './todos';
+import { IFees } from './fees';
 
 export default interface Store {
 	user: IUser;
@@ -18,4 +19,5 @@ export default interface Store {
 	backup: IBackup;
 	blocktank: IBlocktank;
 	todos: ITodos;
+	fees: IFees;
 }

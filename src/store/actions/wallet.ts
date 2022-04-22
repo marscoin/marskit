@@ -43,6 +43,7 @@ import {
 	getTransactions,
 	getUtxos,
 } from '../../utils/wallet/electrum';
+import { EFeeIds } from '../types/fees';
 
 const dispatch = getDispatch();
 
@@ -745,6 +746,35 @@ export const updateOnChainTransaction = async ({
 			type: actions.UPDATE_ON_CHAIN_TRANSACTION,
 			payload,
 		});
+	} catch {}
+};
+
+export const updateSelectedFeeId = async ({
+	feeId = EFeeIds.none,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	feeId?: EFeeIds;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		const transactionResponse = getOnchainTransactionData({
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (transactionResponse.isErr()) {
+			return;
+		}
+		const transaction = transactionResponse.value;
+		transaction.selectedFeeId = feeId;
+		return await updateOnChainTransaction({ transaction });
 	} catch {}
 };
 

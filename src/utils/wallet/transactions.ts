@@ -48,6 +48,8 @@ import * as bitcoin from 'bitcoinjs-lib';
 import * as bip21 from 'bip21';
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
+import { EFeeIds, IOnchainFees } from '../../store/types/fees';
+import { defaultFeesShape } from '../../store/shapes/fees';
 
 /*
  * Attempts to parse any given string as an on-chain payment request.
@@ -362,7 +364,7 @@ export const getTotalFee = ({
 		const totalFee = transactionByteCount * Number(satsPerByte);
 		return totalFee > fallBackFee || Number.isNaN(totalFee)
 			? totalFee
-			: fallBackFee * Number(satsPerByte);
+			: fallBackFee;
 	} catch {
 		return Number(satsPerByte) * fallBackFee || fallBackFee;
 	}
@@ -1000,17 +1002,20 @@ export const getTransactionInputs = ({
 /**
  * Updates the fee for the current transaction by the specified amount.
  * @param {number} [satsPerByte]
+ * @param {EFeeIds} [selectedFeeId]
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {IOnChainTransactionData} [transaction]
  */
 export const updateFee = ({
 	satsPerByte = 1,
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedFeeId = EFeeIds.custom,
+	selectedWallet,
+	selectedNetwork,
 	transaction,
 }: {
 	satsPerByte?: number;
+	selectedFeeId?: EFeeIds;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 	transaction?: IOnChainTransactionData;
@@ -1035,11 +1040,6 @@ export const updateFee = ({
 		transaction =
 			transactionDataResponse?.value ?? defaultOnChainTransactionData;
 	}
-	const previousSatsPerByte = transaction?.satsPerByte;
-	//Return if no update needs to be applied.
-	if (previousSatsPerByte === satsPerByte) {
-		return ok('No update needs to occur.');
-	}
 	const inputTotal = getTransactionInputValue({
 		selectedNetwork,
 		selectedWallet,
@@ -1061,6 +1061,7 @@ export const updateFee = ({
 	const _transaction: IOnChainTransactionData = {
 		satsPerByte,
 		fee: newFee,
+		selectedFeeId,
 	};
 	if (newTotalAmount <= inputTotal) {
 		updateOnChainTransaction({
@@ -1546,12 +1547,12 @@ export const adjustFee = ({
 		if (outputs?.length > index) {
 			address = outputs[index]?.address ?? '';
 		}
-		if (Number(satsPerByte) + adjustBy <= 1) {
+		const newSatsPerByte = Number(satsPerByte) + adjustBy;
+		if (newSatsPerByte < 1) {
 			return ok('This is the lowest we can go. Returning...');
 		}
 		if (max) {
 			//Check that the user has enough funds
-			const newSatsPerByte = Number(satsPerByte) + adjustBy;
 			const newFee = getTotalFee({
 				satsPerByte: newSatsPerByte,
 				message,
@@ -1564,6 +1565,7 @@ export const adjustFee = ({
 			}
 			const _transaction: IOnChainTransactionData = {
 				satsPerByte: newSatsPerByte,
+				selectedFeeId: EFeeIds.custom,
 				fee: newFee,
 			};
 			//Update the tx value with the new fee to continue sending the max amount.
@@ -1578,6 +1580,7 @@ export const adjustFee = ({
 				selectedWallet,
 				selectedNetwork,
 				satsPerByte: Number(satsPerByte) + adjustBy,
+				selectedFeeId: EFeeIds.custom,
 			});
 			/*if (address && coinSelectPreference !== 'consolidate') {
 				runCoinSelect({ selectedWallet, selectedNetwork });
@@ -2158,4 +2161,72 @@ export const decodeRawTransaction = (
 	} catch (e) {
 		return err(e);
 	}
+};
+
+export interface IGetFeeEstimatesResponse {
+	fastestFee: number;
+	halfHourFee: number;
+	hourFee: number;
+	minimumFee: number;
+}
+
+/**
+ * Returns the current fee estimates for the provided network.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<IOnchainFees>}
+ */
+export const getFeeEstimates = async (
+	selectedNetwork?: TAvailableNetworks,
+): Promise<IOnchainFees> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+
+		if (__DEV__ && selectedNetwork === 'bitcoinTestnet') {
+			return defaultFeesShape.onchain;
+		}
+
+		const urlModifier = selectedNetwork === 'bitcoin' ? '' : 'testnet/';
+		const response = await fetch(
+			`https://mempool.space/${urlModifier}api/v1/fees/recommended`,
+		);
+		const res: IGetFeeEstimatesResponse = await response.json();
+		return {
+			fast: res.fastestFee,
+			normal: res.halfHourFee,
+			slow: res.hourFee,
+			minimum: res.minimumFee,
+			timestamp: Date.now(),
+		};
+	} catch {
+		return defaultFeesShape.onchain;
+	}
+};
+
+/**
+ * Returns the currently selected on-chain fee id (Ex: 'normal').
+ * @returns {EFeeIds}
+ */
+export const getSelectedFeeId = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): EFeeIds => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const transaction = getOnchainTransactionData({
+		selectedWallet,
+		selectedNetwork,
+	});
+	if (transaction.isErr()) {
+		return EFeeIds.none;
+	}
+	return transaction?.value?.selectedFeeId ?? EFeeIds.none;
 };

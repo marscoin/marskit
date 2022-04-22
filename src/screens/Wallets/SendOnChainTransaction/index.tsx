@@ -40,6 +40,8 @@ import { getStore } from '../../../store/helpers';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import AmountToggle from '../../../components/AmountToggle';
 import OnChainNumberPad from './OnChainNumberPad';
+import FeePicker from './FeePicker';
+import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 
 interface ISendOnChainTransaction {
 	onComplete?: Function;
@@ -286,25 +288,29 @@ const SendOnChainTransaction = ({
 							disabled={isCreatingTransaction}
 						/>
 					)}
-					<Button
-						disabled={balance < transactionTotal || isCreatingTransaction}
-						color={'gray4'}
-						text="Create"
-						onPress={_createTransaction}
-						loading={isCreatingTransaction}
-					/>
 				</View>
 			</View>
+			<Button
+				style={styles.nextButton}
+				disabled={balance < transactionTotal || isCreatingTransaction}
+				color={'surface'}
+				text="Next"
+				onPress={_createTransaction}
+				loading={isCreatingTransaction}
+			/>
 			<BottomSheetWrapper
 				view="numberPad"
 				displayHeader={false}
 				snapPoints={['50%', 0, 0]}>
 				<OnChainNumberPad />
 			</BottomSheetWrapper>
-			<BottomSheetWrapper view="feePicker">
-				<TouchableOpacity>
-					<Text>Future Fee Picker</Text>
-				</TouchableOpacity>
+			<BottomSheetWrapper
+				onOpen={(): Promise<void> =>
+					updateOnchainFeeEstimates({ selectedNetwork }).then()
+				}
+				view="feePicker"
+				snapPoints={['75%', 0, 0]}>
+				<FeePicker />
 			</BottomSheetWrapper>
 		</>
 	);
@@ -314,6 +320,13 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		marginBottom: 20,
+	},
+	nextButton: {
+		borderRadius: 50,
+		marginHorizontal: 17,
+		paddingVertical: 13,
+		marginBottom: 40,
+		alignItems: 'center',
 	},
 	content: {
 		marginHorizontal: 10,

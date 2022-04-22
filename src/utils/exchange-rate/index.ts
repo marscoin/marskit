@@ -222,7 +222,7 @@ export const getDisplayValues = ({
 				break;
 			case 'satoshi':
 				bitcoinSymbol = '⚡';
-				bitcoinTicker = 'Sats';
+				bitcoinTicker = 'sats';
 				break;
 		}
 

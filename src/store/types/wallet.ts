@@ -1,6 +1,7 @@
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate';
 import { IAddressTypeContent } from '../shapes/wallet';
+import { EFeeIds } from './fees';
 
 export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
 export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
@@ -184,7 +185,7 @@ export interface IOnChainTransactionData {
 	fiatAmount?: number;
 	fee?: number; //Total fee in sats
 	satsPerByte?: number;
-	recommendedFee?: number; //Total recommended fee in sats
+	selectedFeeId?: EFeeIds;
 	transactionSize?: number; //In bytes (250 is about normal)
 	message?: string; // OP_RETURN data for a given transaction.
 	label?: string; // User set label for a given transaction.
@@ -200,7 +201,7 @@ export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	fiatAmount: 0,
 	fee: 256,
 	satsPerByte: 1,
-	recommendedFee: 1,
+	selectedFeeId: EFeeIds.none,
 	transactionSize: ETransactionDefaults.baseTransactionSize,
 	message: '',
 	label: '',

@@ -24,6 +24,7 @@ import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
 import { connectToElectrum } from '../wallet/electrum';
 import { setupLightningSeed } from '../lightning';
+import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -102,6 +103,7 @@ export const startWalletServices = async ({
 			}
 
 			if (onchain) {
+				updateOnchainFeeEstimates({ selectedNetwork }).then();
 				const electrumResponse = await connectToElectrum({ selectedNetwork });
 				if (electrumResponse.isOk()) {
 					refreshWallet().then();
