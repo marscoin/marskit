@@ -17,7 +17,7 @@ import {
 	LightningIcon,
 } from '../../../styles/components';
 import { useBalance } from '../../../hooks/wallet';
-import { IDisplayValues } from '../../../utils/exchange-rate';
+import { IDisplayValues } from '../../../utils/exchange-rate/types';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import themes from '../../../styles/themes';

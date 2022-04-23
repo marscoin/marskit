@@ -1,6 +1,6 @@
 import { ISettings } from '../types/settings';
 import { arrayTypeItems } from './wallet';
-import { EExchangeRateService } from '../../utils/exchange-rate';
+import { EExchangeRateService } from '../../utils/exchange-rate/types';
 
 export const defaultSettingsShape: ISettings = {
 	loading: false,

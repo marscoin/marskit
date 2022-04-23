@@ -1497,16 +1497,6 @@
   resolved "https://registry.yarnpkg.com/@synonymdev/blocktank-client/-/blocktank-client-0.0.4.tgz#9e33fd957ee855161f919840021bccad76057773"
   integrity sha512-3gmqX3Dkg2aO7Pvb/PJ1oMNpGOpJy8cj2Vnj2827ePh5Uz8jhJOuYIK5U01R6Y68ZDZdjAf8317GpVIXM3Ux3A==
 
-"@synonymdev/react-native-lightning@^0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-lightning/-/react-native-lightning-0.0.37.tgz#d9fa5d09a160af2096b809f81522c9bc14b3f238"
-  integrity sha512-iTWMZVfoFplXVPZI/g7NW4AxTWWoEpx+/Y90+dS4IHHdG4K28rxLMKK2OqdVv/Y3iusbd2Hi+Jhcu/dXk6vjgA==
-  dependencies:
-    base64-js "^1.5.1"
-    protobufjs "^6.10.2"
-    react-native-fs "https://github.com/synonymdev/react-native-fs"
-    react-native-zip-archive "^6.0.3"
-
 "@synonymdev/react-native-lnurl@0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@synonymdev/react-native-lnurl/-/react-native-lnurl-0.0.3.tgz#ee8da8d1ad1b18e220fd49bf7cf303ddf4db56f8"
@@ -1644,7 +1634,7 @@
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.1.tgz#459c65fa1867dafe6a8f322c4c51695663cc55e9"
   integrity sha512-5tXH6Bx/kNGd3MgffdmP4dy2Z+G4eaXw0SE81Tq3BNadtnMR5/ySMzX4SLEzHJzSmPNn4HIdpQsBvXMUykr58w==
 
-"@types/node@*", "@types/node@>=13.7.0":
+"@types/node@*":
   version "16.11.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
   integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
@@ -1658,6 +1648,11 @@
   version "11.11.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
   integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
+
+"@types/node@>=13.7.0":
+  version "17.0.25"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.25.tgz#527051f3c2f77aa52e5dc74e45a3da5fb2301448"
+  integrity sha512-wANk6fBrUwdpY4isjWrKTufkrXdu1D2YHCot2fD/DfWxF5sMrVSA+KN7ydckvaTCh0HiqX9IVl0L5/ZoXg5M7w==
 
 "@types/prettier@^2.1.5":
   version "2.4.2"
@@ -7348,7 +7343,7 @@ prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2:
     object-assign "^4.1.1"
     react-is "^16.8.1"
 
-protobufjs@^6.10.2:
+protobufjs@^6.11.2:
   version "6.11.2"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
   integrity sha512-4BQJoPooKJl2G9j3XftkIXjoC9C0Av2NOrWmbLWT1vH32GcSUHjM0Arra6UfTsVyfMAuFzaLucXn1sadxJydAw==

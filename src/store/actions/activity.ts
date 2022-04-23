@@ -2,12 +2,7 @@ import actions from './actions';
 import { ok, Result } from '../../utils/result';
 import { EActivityTypes, IActivityItem } from '../types/activity';
 import { getDispatch, getStore } from '../helpers';
-import lnd from '@synonymdev/react-native-lightning';
-import {
-	lightningInvoiceToActivityItem,
-	lightningPaymentToActivityItem,
-	onChainTransactionsToActivityItems,
-} from '../../utils/activity';
+import { onChainTransactionsToActivityItems } from '../../utils/activity';
 import { getCurrentWallet } from '../../utils/wallet';
 
 const dispatch = getDispatch();
@@ -52,54 +47,9 @@ export const updateTypesFilter = (
  */
 export const updateActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		await Promise.all([
-			updateLightingActivityList(),
-			updateOnChainActivityList(),
-		]);
+		await Promise.all([updateOnChainActivityList()]);
 
 		resolve(ok('Activity items updated'));
-	});
-};
-
-/**
- * Updates activity list store with just lightning invoices and payments stores
- * @returns {Promise<Ok<string> | Err<string>>}
- */
-export const updateLightingActivityList = (): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		//Add all invoices
-		let entries: IActivityItem[] = [];
-		const invoices = getStore().lightning.invoiceList?.invoices;
-		if (invoices) {
-			invoices.forEach((invoice) =>
-				entries.push(lightningInvoiceToActivityItem(invoice)),
-			);
-		}
-
-		const payments = getStore().lightning?.paymentList?.payments || [];
-		const paymentsLength = payments.length;
-		for (let index = 0; index < paymentsLength; index++) {
-			//Payment description isn't returned in the response so we need to decode the original payment request
-			//If this becomes slow we should consider caching these in another store
-			const payment = payments[index];
-			const decodedPayment = await lnd.decodeInvoice(
-				payment.paymentRequest ?? '',
-			);
-
-			entries.push(
-				lightningPaymentToActivityItem(
-					payment,
-					decodedPayment.isOk() ? decodedPayment.value.description : '',
-				),
-			);
-		}
-
-		await dispatch({
-			type: actions.UPDATE_ACTIVITY_ENTRIES,
-			payload: entries,
-		});
-
-		resolve(ok('Lightning transactions activity items updated'));
 	});
 };
 

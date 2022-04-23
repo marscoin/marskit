@@ -6,7 +6,7 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Pressable, Text02M, Caption13M } from '../styles/components';
-import { IDisplayValues } from '../utils/exchange-rate';
+import { IDisplayValues } from '../utils/exchange-rate/types';
 
 const AssetCard = ({
 	name,

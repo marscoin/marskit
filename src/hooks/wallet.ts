@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
-import { IDisplayValues } from '../utils/exchange-rate';
+import { IDisplayValues } from '../utils/exchange-rate/types';
 import useDisplayValues from './displayValues';
 
 export interface IncludeBalances {
@@ -33,9 +33,7 @@ export function useBalance({
 		}
 
 		if (lightning) {
-			balance +=
-				Number(store.lightning.channelBalance.balance) +
-				Number(store.lightning.channelBalance.pendingOpenBalance);
+			//TODO: Iterate over each lightning channel and acquire the total balance.
 		}
 
 		if (omnibolt) {

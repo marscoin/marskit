@@ -9,7 +9,7 @@ import {
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
-import { IDisplayValues } from '../utils/exchange-rate';
+import { IDisplayValues } from '../utils/exchange-rate/types';
 import { toggleView } from '../store/actions/user';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';

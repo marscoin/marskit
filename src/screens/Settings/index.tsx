@@ -216,12 +216,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => navigation.navigate('LightningChannels'),
 						hide: false,
 					},
-					{
-						title: 'LND Logs',
-						type: 'button',
-						onPress: (): void => navigation.navigate('LndLogs'),
-						hide: false,
-					},
 				],
 			},
 			{

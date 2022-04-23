@@ -2,7 +2,6 @@
  * Helper functions that allow for any possible bitcoin related QR to be scanned
  */
 
-import lnd from '@synonymdev/react-native-lightning';
 import bip21 from 'bip21';
 import { err, ok, Result } from './result';
 import {
@@ -182,30 +181,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	} catch (e) {}
 
 	if (lightningInvoice) {
-		const lightningRes = await lnd.decodeInvoice(lightningInvoice);
-
-		let lightningData: QRData = {
-			lightningPaymentRequest: lightningInvoice,
-			network: lightningInvoice.startsWith('lntb')
-				? EAvailableNetworks.bitcoinTestnet
-				: EAvailableNetworks.bitcoin,
-			qrDataType: EQRDataType.lightningPaymentRequest,
-		};
-
-		if (lightningRes.isOk()) {
-			const { numSatoshis, description } = lightningRes.value;
-
-			lightningData.sats = Number(numSatoshis);
-			lightningData.message = description;
-			foundNetworksInQR.push(lightningData);
-		} else if (
-			lightningRes.error.message.indexOf(
-				'invoice not for current active network',
-			) > -1
-		) {
-			//Still add the data even if it's not for this network. So the error can be handled in the UI for the user.
-			foundNetworksInQR.push(lightningData);
-		}
+		// TODO: Decode Lightning Invoice
 	}
 
 	// If we've found any of the above bitcoin QR data don't decode for other networks

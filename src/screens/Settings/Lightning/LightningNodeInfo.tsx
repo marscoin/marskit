@@ -8,13 +8,12 @@ import {
 } from '../../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import lnd from '@synonymdev/react-native-lightning';
 import SafeAreaView from '../../../components/SafeAreaView';
 
 const LightningNodeInfo = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
 
-	const { state, info } = lightning;
+	const { info } = lightning;
 
 	const {
 		blockHeight,
@@ -30,7 +29,7 @@ const LightningNodeInfo = ({ navigation }): ReactElement => {
 	} = info;
 
 	let output = [['Version', version]];
-	output.push(['State', lnd.stateService.readableState(state)]);
+	output.push(['State', 'NON_EXISTING']);
 	output.push(['Synced', `${syncedToChain ? '✅' : '❌'}`]);
 	output.push(['Block Height', blockHeight.toString()]);
 	output.push(['Identity Pubkey', identityPubkey]);

@@ -17,7 +17,8 @@ import { TAvailableNetworks } from '../../../utils/networks';
 import { addTxInput, removeTxInput } from '../../../store/actions/wallet';
 import Button from '../../../components/Button';
 import { toggleView } from '../../../store/actions/user';
-import { getDisplayValues, IDisplayValues } from '../../../utils/exchange-rate';
+import { getDisplayValues } from '../../../utils/exchange-rate';
+import { IDisplayValues } from '../../../utils/exchange-rate/types';
 import SwitchRow from '../../../components/SwitchRow';
 const preferences = {
 	small: "Small: Use smallest UTXO's first.",

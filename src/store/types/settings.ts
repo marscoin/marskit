@@ -1,5 +1,5 @@
 import { IWalletItem, TBitcoinUnit } from './wallet';
-import { EExchangeRateService } from '../../utils/exchange-rate';
+import { EExchangeRateService } from '../../utils/exchange-rate/types';
 
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
