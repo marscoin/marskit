@@ -1,5 +1,9 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { StyleSheet, ActivityIndicator } from 'react-native';
+import {
+	StyleSheet,
+	ActivityIndicator,
+	TouchableOpacityProps,
+} from 'react-native';
 import {
 	Caption13M,
 	Text02M,
@@ -8,7 +12,7 @@ import {
 } from '../styles/components';
 import useColors from '../hooks/colors';
 
-interface IButton {
+interface IButton extends TouchableOpacityProps {
 	text: string;
 	color?: string;
 	variant?: string;
@@ -16,7 +20,6 @@ interface IButton {
 	disabled?: boolean;
 	loading?: boolean;
 	icon?: ReactElement;
-	style?: Object;
 	textStyle?: Object;
 }
 const Button = ({
