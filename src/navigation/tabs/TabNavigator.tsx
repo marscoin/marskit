@@ -136,8 +136,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	}, [screen, params]);
 
 	const openScanner = useCallback(
-		// () => navigation.navigate('Scanner'),
-		() => navigation.navigate('BitcoinToLightning'),
+		() => navigation.navigate('Scanner'),
 		[navigation],
 	);
 
