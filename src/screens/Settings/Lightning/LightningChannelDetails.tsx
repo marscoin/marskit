@@ -1,16 +1,12 @@
 import React, { memo, PropsWithChildren, ReactElement } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
-import lnd from '@synonymdev/react-native-lightning';
 import { View, Text } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
-import { lnrpc } from '@synonymdev/react-native-lightning';
 import useDisplayValues from '../../../hooks/displayValues';
 import Button from '../../../components/Button';
-import { showErrorNotification } from '../../../utils/notifications';
 
 interface Props extends PropsWithChildren<any> {
-	route: { params: { channel: lnrpc.IChannel } };
-	navigation: any;
+	route: { params: { channel: any } };
 }
 
 const LightningChannelDetails = (props: Props): ReactElement => {
@@ -74,20 +70,7 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 				{
 					text: 'Yes, close',
 					onPress: (): void => {
-						lnd.closeChannelStream(
-							channel,
-							(res) => {
-								if (res.isOk()) {
-									return props.navigation.goBack();
-								} else {
-									showErrorNotification({
-										title: 'Failed to close channel',
-										message: res.error.message,
-									});
-								}
-							},
-							() => {},
-						);
+						//TODO: Close Channel
 					},
 				},
 				{

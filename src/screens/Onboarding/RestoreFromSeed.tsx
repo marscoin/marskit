@@ -17,7 +17,7 @@ import SeedInputAccessory from '../../components/SeedInputAccessory';
 import VerticalShadow from '../../components/VerticalShadow';
 import { validateMnemonic } from '../../utils/wallet';
 
-const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
+const RestoreFromSeed = (): ReactElement => {
 	const numberOfWords = 12;
 	const [seed, setSeed] = useState(Array(numberOfWords).fill(''));
 	const [focused, setFocused] = useState(null);
@@ -77,7 +77,7 @@ const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
 						))}
 					</View>
 
-					<TouchableOpacity style={styles.button} onPress={() => {}}>
+					<TouchableOpacity style={styles.button} onPress={(): void => {}}>
 						<Text02M
 							style={
 								validMnemonic

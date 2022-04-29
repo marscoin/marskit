@@ -71,7 +71,8 @@ import {
 	subscribeToHeader,
 	TTxResult,
 } from './electrum';
-import { getDisplayValues, IDisplayValues } from '../exchange-rate';
+import { getDisplayValues } from '../exchange-rate';
+import { IDisplayValues } from '../exchange-rate/types';
 import { IncludeBalances } from '../../hooks/wallet';
 import * as bitcoin from 'bitcoinjs-lib';
 import { CipherSeed } from 'aezeed';
@@ -531,9 +532,9 @@ export const generateAezeedMnemonic = async ({
  * @param {number} strength
  * @return {Promise<string>}
  */
-export const generateMnemonic = async (strength = 256): Promise<string> => {
+export const generateMnemonic = async (strength = 128): Promise<string> => {
 	try {
-		return await bip39.generateMnemonic(strength);
+		return bip39.generateMnemonic(strength);
 	} catch (e) {
 		return '';
 	}
@@ -2418,7 +2419,7 @@ export const getBalance = ({
 	}
 
 	if (lightning) {
-		balance += Number(getStore().lightning.channelBalance.balance);
+		// TODO: Get LDK channel balance.
 	}
 
 	if (omnibolt) {

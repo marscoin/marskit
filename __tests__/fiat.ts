@@ -1,10 +1,10 @@
 import { getStore } from '../src/store/helpers';
 import { updateExchangeRates } from '../src/store/actions/wallet';
+import { getDisplayValues } from '../src/utils/exchange-rate';
 import {
 	EExchangeRateService,
-	getDisplayValues,
 	supportedExchangeTickers,
-} from '../src/utils/exchange-rate';
+} from '../src/utils/exchange-rate/types';
 import { updateSettings } from '../src/store/actions/settings';
 
 global.fetch = require('node-fetch');

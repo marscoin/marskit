@@ -8,8 +8,6 @@ import { LayoutAnimation, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View, Subtitle, BitcoinCircleIcon } from '../../styles/components';
 import Header from './Header';
-import LightningCard from './LightningCard';
-import OmniboltCard from './OmniboltCard';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
@@ -56,11 +54,6 @@ const Wallets = ({ navigation }): ReactElement => {
 								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
 							}
 						/>
-
-						{/*TODO remove the below cards when not needed anymore*/}
-						<Subtitle style={styles.assetsTitle}>OLD Assets</Subtitle>
-						<LightningCard />
-						<OmniboltCard />
 					</View>
 				</DetectSwipe>
 			</ScrollView>

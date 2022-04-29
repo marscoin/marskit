@@ -1,65 +1,23 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import lnd from '@synonymdev/react-native-lightning';
 import { Feather, Text, TouchableOpacity } from '../../../styles/components';
 import List from '../../../components/List';
 import { defaultNodePubKey } from '../../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import { showErrorNotification } from '../../../utils/notifications';
-import { lnrpc } from '@synonymdev/react-native-lightning';
 import { truncate } from '../../../utils/helpers';
 import SafeAreaView from '../../../components/SafeAreaView';
 
 const LightningChannels = ({ navigation }): ReactElement => {
 	const lightning = useSelector((state: Store) => state.lightning);
-	const [channelList, setChannelList] = useState<lnrpc.IChannel[]>([]);
+	const [channelList] = useState<any[]>([]);
 
-	const [peerList, setPeerList] = useState<lnrpc.IPeer[]>([]);
+	const [peerList] = useState<any[]>([]);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
-			const channelRes = await lnd.listChannels();
-			if (channelRes.isErr()) {
-				showErrorNotification({
-					title: 'Failed to load channels',
-					message: channelRes.error.message,
-				});
-				return;
-			}
-
-			setChannelList(
-				channelRes.value.channels.sort((a, b) => {
-					if (`${a.chanId}` < `${b.chanId}`) {
-						return -1;
-					}
-					if (`${a.chanId}` > `${b.chanId}`) {
-						return 1;
-					}
-					return 0;
-				}),
-			);
-
-			const peerRes = await lnd.listPeers();
-			if (peerRes.isErr()) {
-				showErrorNotification({
-					title: 'Failed to load peers',
-					message: peerRes.error.message,
-				});
-				return;
-			}
-
-			setPeerList(
-				peerRes.value.peers.sort((a, b) => {
-					if (`${a.pubKey}` < `${b.pubKey}`) {
-						return -1;
-					}
-					if (`${a.pubKey}` > `${b.pubKey}`) {
-						return 1;
-					}
-					return 0;
-				}),
-			);
+			//TODO: Get & Set Channels
+			//TODO: Get & Set Peers
 		})();
 	}, [lightning]);
 
@@ -103,6 +61,7 @@ const LightningChannels = ({ navigation }): ReactElement => {
 				<Feather style={{}} name="arrow-left" size={30} />
 				<Text style={styles.backText}>Lightning channels</Text>
 			</TouchableOpacity>
+			{/* @ts-ignore */}
 			<List data={ListData} />
 		</SafeAreaView>
 	);

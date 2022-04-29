@@ -21,7 +21,6 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { refreshWallet } from '../../utils/wallet';
-import { refreshLightningTransactions } from '../../store/actions/lightning';
 import { useNavigation } from '@react-navigation/native';
 
 import { updateActivityList } from '../../store/actions/activity';
@@ -120,6 +119,7 @@ const ActivityList = ({
 					key={item.id}
 					item={item}
 					onPress={(): void =>
+						// @ts-ignore
 						navigation.navigate('ActivityDetail', { activityItem: item })
 					}
 				/>
@@ -132,7 +132,7 @@ const ActivityList = ({
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
-		await Promise.all([refreshWallet(), refreshLightningTransactions()]);
+		await Promise.all([refreshWallet()]);
 		await updateActivityList();
 		setRefreshing(false);
 	};

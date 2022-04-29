@@ -9,7 +9,7 @@ import {
 	CoinsIcon,
 } from '../../../styles/components';
 import { useBalance } from '../../../hooks/wallet';
-import { IDisplayValues } from '../../../utils/exchange-rate';
+import { IDisplayValues } from '../../../utils/exchange-rate/types';
 
 const NetworkRow = ({
 	title,

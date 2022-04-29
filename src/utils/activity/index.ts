@@ -1,61 +1,8 @@
-import { lnrpc } from '@synonymdev/react-native-lightning';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import {
 	IFormattedTransaction,
 	IFormattedTransactionContent,
 } from '../../store/types/wallet';
-
-/**
- * Converts lightning invoice to activity item
- * @param rHash
- * @param settled
- * @param value
- * @param memo
- * @returns {{fee: number, id: string, txType: "received", activityType: EActivityTypes, message: string, confirmed: boolean, value: number, timestamp: number}}
- * @param creationDate
- */
-export const lightningInvoiceToActivityItem = ({
-	rHash,
-	settled,
-	value,
-	memo,
-	creationDate,
-}: lnrpc.IInvoice): IActivityItem => ({
-	id: Buffer.from(rHash ?? [0]).toString('hex'),
-	activityType: EActivityTypes.lightning,
-	txType: 'received',
-	confirmed: settled ?? false,
-	value: Number(value),
-	fee: 0,
-	message: memo ?? '',
-	timestamp: Number(creationDate) * 1000,
-});
-
-/**
- * Converts lightning payment to activity item
- * @returns {{fee: number, id: string, txType: "sent", activityType: EActivityTypes, message: string, confirmed: boolean, value: number, timestamp: number}}
- * @param memo
- * @param paymentHash
- * @param status
- * @param value
- * @param fee
- * @param creationDate
- */
-export const lightningPaymentToActivityItem = (
-	{ paymentHash, status, value, fee, creationDate }: lnrpc.IPayment,
-	memo: string,
-): IActivityItem => {
-	return {
-		id: paymentHash ?? '',
-		activityType: EActivityTypes.lightning,
-		txType: 'sent',
-		confirmed: status === 'SUCCEEDED',
-		value: Number(value),
-		fee: Number(fee),
-		message: memo,
-		timestamp: Number(creationDate) * 1000,
-	};
-};
 
 /**
  * Converts list of formatted transactions to array of activity items

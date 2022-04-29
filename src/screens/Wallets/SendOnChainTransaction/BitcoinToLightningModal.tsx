@@ -17,23 +17,15 @@ import { Feather, TextInput, View, Text } from '../../../styles/components';
 import {
 	resetOnChainTransaction,
 	setupOnChainTransaction,
-	updateOnChainTransaction,
-	updateWalletBalance,
 } from '../../../store/actions/wallet';
 import { useBalance, useTransactionDetails } from '../../../hooks/transaction';
 import Button from '../../../components/Button';
 import {
-	createFundedPsbtTransaction,
 	getTotalFee,
 	signPsbt,
 	updateFee,
 } from '../../../utils/wallet/transactions';
-import { openChannelStream } from '../../../utils/lightning';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../../../utils/notifications';
-import lnd, { lnrpc } from '@synonymdev/react-native-lightning';
+import { showErrorNotification } from '../../../utils/notifications';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useNavigation } from '@react-navigation/native';
@@ -45,7 +37,7 @@ import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
-	const [psbt, setPsbt] = useState(new Psbt());
+	const [psbt] = useState(new Psbt());
 	const [channelID, setChannelID] = useState(new Uint8Array());
 	const navigation = useNavigation();
 
@@ -65,7 +57,7 @@ const BitcoinToLightning = (): ReactElement => {
 		setupOnChainTransaction({
 			selectedWallet,
 			selectedNetwork,
-		});
+		}).then();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -95,60 +87,6 @@ const BitcoinToLightning = (): ReactElement => {
 	};
 
 	/**
-	 * Channel open state has progressed
-	 * @param channelState
-	 */
-	const onStateUpdate = async (
-		channelState: lnrpc.OpenStatusUpdate,
-	): Promise<void> => {
-		const { psbtFund, update, pendingChanId } = channelState;
-
-		switch (update) {
-			//Channel funding TX fully confirmed
-			case 'chanOpen': {
-				showSuccessNotification({
-					title: 'Lightning channel opened',
-					message: 'Lightning payments can now be made',
-				});
-				return;
-			}
-			//Channel funding finalized now the user just needs to wait 2 confs
-			case 'chanPending': {
-				showSuccessNotification({
-					title: 'Success',
-					message: 'Lightning channel opening...',
-				});
-				onClose();
-				return;
-			}
-			//A funded (not yet signed) PSBT can now be created using the returned output
-			case 'psbtFund': {
-				const { fundingAddress, fundingAmount } = psbtFund!;
-				if (fundingAddress && fundingAmount) {
-					let outputValue = Number(fundingAmount);
-
-					await updateOnChainTransaction({
-						selectedNetwork,
-						selectedWallet,
-						transaction: {
-							outputs: [
-								{
-									address: fundingAddress,
-									value: outputValue,
-									index: 0,
-								},
-							],
-						},
-					});
-
-					await onPsbtFund(pendingChanId);
-				}
-				return;
-			}
-		}
-	};
-
-	/**
 	 * Starts the channel opening process
 	 * @returns {Promise<void>}
 	 */
@@ -170,7 +108,7 @@ const BitcoinToLightning = (): ReactElement => {
 			});
 		}
 
-		const totalFee = await getTotalFee({
+		const totalFee = getTotalFee({
 			selectedNetwork,
 			selectedWallet,
 			satsPerByte,
@@ -178,43 +116,18 @@ const BitcoinToLightning = (): ReactElement => {
 		});
 
 		if (fundingAmount + totalFee > balance) {
-			fundingAmount = fundingAmount - totalFee;
+			//fundingAmount = fundingAmount - totalFee;
 		}
 
-		const id = openChannelStream(
-			fundingAmount,
-			(channelStateRes) => {
-				if (channelStateRes.isErr()) {
-					//Don't show if the user triggered this error on purpose
-					if (
-						channelStateRes.error.message.indexOf('user canceled funding') > -1
-					) {
-						return;
-					}
-
-					return showErrorNotification({
-						title: 'Channel open failed',
-						message: channelStateRes.error.message,
-					});
-				}
-
-				onStateUpdate(channelStateRes.value);
-			},
-			() => {
-				showSuccessNotification({
-					title: 'Channel opened',
-					message: 'Lightning channel ready to use',
-				});
-			},
-		);
-
-		setChannelID(id);
+		//TODO: Initiate Channel Opening
+		const channelId = new Uint8Array();
+		setChannelID(channelId);
 	};
 
 	/**
 	 * Creates a PSBT from our on chain wallet
 	 */
-	const onPsbtFund = async (id: Uint8Array): Promise<void> => {
+	/*const onPsbtFund = async (id: Uint8Array): Promise<void> => {
 		const fundedPsbtRes = await createFundedPsbtTransaction({
 			selectedWallet,
 			selectedNetwork,
@@ -227,21 +140,9 @@ const BitcoinToLightning = (): ReactElement => {
 
 		setPsbt(fundedPsbtRes.value);
 
-		const verifyRes = await lnd.fundingStateStep(
-			id,
-			fundedPsbtRes.value.toBase64(),
-			'verify',
-		);
-
-		if (verifyRes.isErr()) {
-			showErrorNotification({
-				title: 'Failed to verify PSBT',
-				message: verifyRes.error.message,
-			});
-			await onCancel();
-			return;
-		}
-	};
+		//TODO: Initiate Channel Funding
+		console.log(id);
+	};*/
 
 	const onChannelFund = async (): Promise<void> => {
 		const signedPsbtRes = await signPsbt({
@@ -255,27 +156,13 @@ const BitcoinToLightning = (): ReactElement => {
 			return;
 		}
 
-		const finalizeRes = await lnd.fundingStateStep(
-			channelID,
-			signedPsbtRes.value.toBase64(),
-			'finalize',
-		);
+		//TODO: Initiate Channel Funding
 
-		if (finalizeRes.isErr()) {
-			showErrorNotification({
-				title: 'Failed to finalize PSBT',
-				message: finalizeRes.error.message,
-			});
-			await onCancel();
-			await resetStore();
-			return;
-		}
-
-		updateWalletBalance({
+		/*updateWalletBalance({
 			balance: balance - Number(value),
 			selectedWallet,
 			selectedNetwork,
-		});
+		});*/
 
 		await resetStore();
 
@@ -292,11 +179,7 @@ const BitcoinToLightning = (): ReactElement => {
 	/**
 	 * Cancels our channel opening and closes the modal
 	 */
-	const onCancel = async (): Promise<void> => {
-		if (channelID.length > 0) {
-			await lnd.fundingStateStep(channelID, '', 'cancel');
-		}
-	};
+	const onCancel = async (): Promise<void> => {};
 
 	const onClose = (): void => {
 		navigation.goBack();
@@ -309,6 +192,7 @@ const BitcoinToLightning = (): ReactElement => {
 	const authCheck = (): void => {
 		const { pin, biometrics } = hasEnabledAuthentication();
 		if (pin || biometrics) {
+			// @ts-ignore
 			navigation.navigate('AuthCheck', {
 				onSuccess: () => {
 					// @ts-ignore

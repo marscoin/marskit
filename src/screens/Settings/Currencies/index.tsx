@@ -9,7 +9,7 @@ import {
 	exchangeRateServices,
 	mostUsedExchangeTickers,
 	supportedExchangeTickers,
-} from '../../../utils/exchange-rate';
+} from '../../../utils/exchange-rate/types';
 import { updateSettings } from '../../../store/actions/settings';
 import { updateExchangeRates } from '../../../store/actions/wallet';
 

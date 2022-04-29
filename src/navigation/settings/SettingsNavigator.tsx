@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LndLogs from '../../screens/Settings/Lightning/LndLogs';
 import SettingsMenu from '../../screens/Settings';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 import CurrenciesSettings from '../../screens/Settings/Currencies';
@@ -62,7 +61,6 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
-				<Stack.Screen name="LndLogs" component={LndLogs} />
 				<Stack.Screen name="Pin" component={PinPad} />
 			</Stack.Group>
 		</Stack.Navigator>

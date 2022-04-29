@@ -60,8 +60,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-ios/backpack/lightning/Lndmobile.framework/
-android/Lndmobile/Lndmobile.aar
 coverage
 
 # Generated backup scheme

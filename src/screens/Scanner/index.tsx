@@ -11,7 +11,6 @@ import {
 import { decodeQRData, EQRDataType, QRData } from '../../utils/scanner';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { payLightningRequest } from '../../store/actions/lightning';
 import Button from '../../components/Button';
 import {
 	updateOnChainTransaction,
@@ -19,13 +18,7 @@ import {
 } from '../../store/actions/wallet';
 import { getMnemonicPhrase, refreshWallet } from '../../utils/wallet';
 import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
-import {
-	lnurlAuth,
-	LNURLAuthParams,
-	lnurlWithdraw,
-} from '@synonymdev/react-native-lnurl';
-import lnd from '@synonymdev/react-native-lightning';
-import { LNURLWithdrawParams } from 'js-lnurl';
+import { lnurlAuth, LNURLAuthParams } from '@synonymdev/react-native-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
 import { parseOmniboltConnectData } from '../../utils/omnibolt';
@@ -64,7 +57,8 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					{
 						text: 'Pay',
 						onPress: async (): Promise<void> => {
-							const payRes = await payLightningRequest(
+							//TODO: Attempt to pay lightning request.
+							/*const payRes = await payLightningRequest(
 								data.lightningPaymentRequest ?? '',
 							);
 							if (payRes.isErr()) {
@@ -78,7 +72,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 							showSuccessNotification({
 								title: 'Paid!',
 								message: `${data.sats} sats`,
-							});
+							});*/
 						},
 					},
 				],
@@ -159,38 +153,10 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				break;
 			}
 			case EQRDataType.lnurlWithdraw: {
-				let params = data.lnUrlParams as LNURLWithdrawParams;
-				const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
-
-				const invRes = await lnd.createInvoice(sats, params.defaultDescription);
-				if (invRes.isErr()) {
-					showErrorNotification({
-						title: 'LNURL-Withdraw failed generating invoice',
-						message: invRes.error.message,
-					});
-					return;
-				}
-
-				let withdrawRes = await lnurlWithdraw(
-					params,
-					invRes.value.paymentRequest,
-				);
-				if (withdrawRes.isErr()) {
-					showErrorNotification({
-						title: 'LNURL-Withdraw failed',
-						message: withdrawRes.error.message,
-					});
-
-					console.log(`Tried to withdraw ${sats} sats`);
-					return;
-				}
-
-				showSuccessNotification({
-					title: 'Success!',
-					message: `Withdrew ${sats} sats from ${params.domain}`,
-				});
-
-				break;
+				//let params = data.lnUrlParams as LNURLWithdrawParams;
+				//const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
+				//TODO: Create invoice
+				return;
 			}
 		}
 	};

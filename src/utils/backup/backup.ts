@@ -5,7 +5,6 @@ import { getKeychainValue, setKeychainValue } from '../helpers';
 import { IDefaultWalletShape, TAddressType } from '../../store/types/wallet';
 import { backpackRetrieve, backpackStore, IBackpackAuth } from './backpack';
 import { createWallet } from '../../store/actions/wallet';
-import lnd from '@synonymdev/react-native-lightning';
 import { updateOmnibolt } from '../../store/actions/omnibolt';
 import RNFS from 'react-native-fs';
 import { unzipWithPassword, zipWithPassword } from 'react-native-zip-archive';
@@ -59,20 +58,6 @@ const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 			);
 		}
 
-		//LND multi channel backup and seed required to decrypt backup
-		const lndScheme = new Scheme.LND();
-		let lndSeed = (await getKeychainValue({ key: 'lndMnemonic' })).data;
-		if (lndSeed) {
-			lndScheme.seed = lndSeed;
-		}
-
-		const lndBackupRes = await lnd.exportAllChannelBackups();
-		if (lndBackupRes.isErr()) {
-			return err(lndBackupRes.error);
-		}
-
-		lndScheme.multiChanBackup = lndBackupRes.value;
-
 		const omniBoltScheme = new Scheme.OmniBolt();
 
 		//All omnibolt mnemonics
@@ -91,7 +76,6 @@ const createBackupObject = async (): Promise<Result<Scheme.Backup>> => {
 
 		const backup = new Scheme.Backup({
 			wallets,
-			lnd: lndScheme,
 			omniBolt: omniBoltScheme,
 			timestampUtc: new Date().getTime(),
 		});
@@ -155,13 +139,6 @@ export const verifyFromBackpackServer = async (): Promise<Result<Date>> => {
 
 		//Verify with LND daemon that mutliChannelBackup is correct
 		const remoteBackupDecoded = Scheme.Backup.decode(remoteBackup.value);
-		const lndBackupVerifyRes = await lnd.verifyMultiChannelBackup(
-			remoteBackupDecoded.lnd?.multiChanBackup ?? '',
-		);
-
-		if (lndBackupVerifyRes.isErr()) {
-			return err(lndBackupVerifyRes.error);
-		}
 
 		return ok(new Date(Number(remoteBackupDecoded.timestampUtc)));
 	} catch (e) {
