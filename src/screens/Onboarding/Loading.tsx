@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, useEffect } from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { Keyframe, FadeOut } from 'react-native-reanimated';
-import { AnimatedView, DisplayOnboarding, View } from '../../styles/components';
+import { AnimatedView, DisplayHaas, View } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 
 const DURATION = 40_000;
@@ -48,13 +48,10 @@ const LoadingWalletScreen = (): ReactElement => {
 		<View color={'transparent'} style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<View color={'transparent'} style={styles.loadingText}>
-				<DisplayOnboarding>
+				<DisplayHaas>
 					Setting up
-					<DisplayOnboarding style={styles.header}>
-						{' '}
-						your wallet.
-					</DisplayOnboarding>
-				</DisplayOnboarding>
+					<DisplayHaas style={styles.header}> your wallet.</DisplayHaas>
+				</DisplayHaas>
 			</View>
 			<View color={'transparent'} style={styles.animationContainer}>
 				<AnimatedView

@@ -1,10 +1,9 @@
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { LayoutAnimation, StyleSheet, Image } from 'react-native';
 import {
 	View,
 	Pressable,
-	Text02M,
-	Text02S,
+	Caption13Up,
 	DismissIcon,
 } from '../styles/components';
 import Card from './Card';
@@ -14,6 +13,12 @@ import { dismissTodo } from '../store/actions/todos';
 const Icon = memo(({ id }: { id: string }): ReactElement => {
 	//TODO: Swap out BitcoinLogo with the relevant image based on the provided id.
 	switch (id) {
+		case 'lightning':
+			return <Image source={require('../assets/todo/ln.png')} />;
+		case 'pin':
+			return <Image source={require('../assets/todo/shield.png')} />;
+		case 'backupSeedPhrase':
+			return <Image source={require('../assets/todo/book.png')} />;
 		case 'activateBackup':
 			return (
 				<BitcoinLogo viewBox="0 0 70 70" height={'32.54px'} width={'45.52px'} />
@@ -30,74 +35,54 @@ const CarouselCard = ({
 	title = '',
 	description = '',
 	onPress = (): null => null,
-	children = <View />,
 }: {
 	id: string;
 	title: string;
-	description?: string;
+	description: string;
 	onPress?: Function;
-	children?: ReactElement | false;
 }): ReactElement => {
 	LayoutAnimation.easeInEaseOut();
 
 	return (
 		<Card style={styles.container}>
-			<>
-				<Pressable onPress={onPress} color="transparent" style={styles.row}>
-					<View color="transparent" style={styles.col1}>
-						<Icon id={id} />
-					</View>
-					<View color="transparent" style={styles.col2}>
-						<>
-							<Text02M>{title}</Text02M>
-							{description ? (
-								<Text02S color="lightGray" style={styles.description}>
-									{description}
-								</Text02S>
-							) : null}
-						</>
-						<Pressable
-							color={'transparent'}
-							style={styles.dismiss}
-							onPress={(): any => dismissTodo(id)}>
-							<DismissIcon />
-						</Pressable>
-					</View>
-				</Pressable>
-				{children}
-			</>
+			<Pressable onPress={onPress} color="transparent" style={styles.pressable}>
+				<View color="transparent" style={styles.iconContainer}>
+					<Icon id={id} />
+				</View>
+				<View color="transparent">
+					<Caption13Up color="brand">{title}</Caption13Up>
+					<Caption13Up color="lightGray">{description}</Caption13Up>
+				</View>
+			</Pressable>
+			<Pressable
+				color={'transparent'}
+				style={styles.dismiss}
+				onPress={(): any => dismissTodo(id)}>
+				<DismissIcon />
+			</Pressable>
 		</Card>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
-		width: 276,
-		height: 74,
+		width: 160,
+		height: 160,
 		borderRadius: 10,
+		paddingHorizontal: 16,
 	},
-	description: {
-		fontSize: 12,
+	pressable: {
+		flex: 1,
 	},
-	col1: {
+	iconContainer: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	col2: {
-		flex: 4,
-		justifyContent: 'center',
-		alignItems: 'flex-start',
-		left: 20,
-	},
-	row: {
-		flex: 1,
-		flexDirection: 'row',
 	},
 	dismiss: {
 		position: 'absolute',
-		top: 0,
-		right: 13,
+		top: 3,
+		right: 3,
+		padding: 10,
 	},
 });
 

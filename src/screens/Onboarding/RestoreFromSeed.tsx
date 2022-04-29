@@ -9,7 +9,7 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import { DisplayOnboarding, Text01S, Text02M } from '../../styles/components';
+import { DisplayHaas, Text01S, Text02M } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SeedInput from '../../components/SeedInput';
@@ -57,7 +57,7 @@ const RestoreFromSeed = ({ navigation }: { navigation: any }): ReactElement => {
 					<View style={styles.shadowContainer}>
 						<VerticalShadow />
 					</View>
-					<DisplayOnboarding>Restore your wallet</DisplayOnboarding>
+					<DisplayHaas>Restore your wallet</DisplayHaas>
 					<Text01S>
 						Please type in your 12 seed words from any (paper) backup.
 					</Text01S>

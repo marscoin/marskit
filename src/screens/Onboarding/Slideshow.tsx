@@ -4,7 +4,7 @@ import Swiper from 'react-native-swiper';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
 	AnimatedView,
-	DisplayOnboarding,
+	DisplayHaas,
 	Text01M,
 	Text01S,
 	Text02M,
@@ -83,13 +83,13 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								Welcome to the
-								<DisplayOnboarding style={styles.headline1}>
+								<DisplayHaas style={styles.headline1}>
 									{' '}
 									Atomic Economy.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Bitkit Wallet is your toolkit for a new economy, where
 								everything is based on Bitcoin.
@@ -111,13 +111,13 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								Bitcoin,
-								<DisplayOnboarding style={styles.headline2}>
+								<DisplayHaas style={styles.headline2}>
 									{' '}
 									Lightning fast.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Send Bitcoin faster than ever. Set up an instant connection and
 								pay anyone, anywhere.
@@ -139,13 +139,13 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								Send & receive instantly
-								<DisplayOnboarding style={styles.headline3}>
+								<DisplayHaas style={styles.headline3}>
 									{' '}
 									with Tether.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Use your Bitkit wallet to save and spend traditional currency,
 								gifts, rewards, and digital assets.
@@ -167,13 +167,13 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								An open and free web,
-								<DisplayOnboarding style={styles.headline4}>
+								<DisplayHaas style={styles.headline4}>
 									{' '}
 									for Everyone.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Interact with friends or online services by using passwordless
 								accounts that you control.
@@ -195,13 +195,10 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								Money gets
-								<DisplayOnboarding style={styles.headline5}>
-									{' '}
-									Personal.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								<DisplayHaas style={styles.headline5}> Personal.</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Paying or tipping someone takes on a new meaning. Attach
 								personal messages to any of your payments.
@@ -223,13 +220,10 @@ const Slideshow = ({
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayOnboarding>
+							<DisplayHaas>
 								Money needs
-								<DisplayOnboarding style={styles.headline6}>
-									{' '}
-									a Wallet.
-								</DisplayOnboarding>
-							</DisplayOnboarding>
+								<DisplayHaas style={styles.headline6}> a Wallet.</DisplayHaas>
+							</DisplayHaas>
 							<Text01S style={styles.text}>
 								Time to set up your Bitkit Wallet!
 							</Text01S>

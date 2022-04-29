@@ -33,6 +33,7 @@ allprojects {
         }
 
         google()
+        jcenter() // needed for @react-native-community/blur
         maven { url 'https://www.jitpack.io' }
     }
 }

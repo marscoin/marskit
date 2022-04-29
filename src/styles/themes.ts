@@ -67,12 +67,12 @@ const dark: ITheme = {
 		text: '#FFFFFF',
 		primary: '#FFFFFF',
 		background: colors.black,
-		surface: '#333333',
+		surface: '#101010',
 		onBackground: '#FFFFFF',
 		onSurface: colors.gray6,
 		logText: '#16ff00',
 		refreshControl: '#FFFFFF',
-		tabBackground: '#1C1C1F',
+		tabBackground: '#101010',
 	},
 };
 
