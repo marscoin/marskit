@@ -16,6 +16,7 @@
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
+    "@react-native-community/blur": "^3.6.0",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/netinfo": "^8.1.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
@@ -64,7 +65,6 @@
     "react-native-mmkv": "^2.2.0",
     "react-native-modal": "^13.0.1",
     "react-native-qrcode-svg": "^6.1.1",
-    "react-native-radial-gradient": "^1.0.9",
     "react-native-randombytes": "^3.6.1",
     "react-native-reanimated": "^2.4.1",
     "react-native-safe-area-context": "^3.3.2",

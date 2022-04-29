@@ -25,6 +25,11 @@ export interface IColors {
 	gray324: string;
 	gray308: string;
 	white84: string;
+	white08: string;
+	white05: string;
+	white01: string;
+	red16: string;
+	green16: string;
 }
 
 const colors: IColors = {
@@ -68,6 +73,11 @@ const colors: IColors = {
 	gray324: 'rgba(72, 72, 74, 0.24)',
 	gray308: 'rgba(72, 72, 74, 0.08)',
 	white84: 'rgba(255, 255, 255, 0.84)',
+	white08: 'rgba(255, 255, 255, 0.08)',
+	white05: 'rgba(255, 255, 255, 0.05)',
+	white01: 'rgba(255, 255, 255, 0.01)',
+	red16: 'rgba(233, 81, 100, 0.16)',
+	green16: 'rgba(117, 191, 114, 0.16)',
 };
 
 export default colors;

@@ -16,10 +16,12 @@ import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import ReceiveBottomSheet from '../../screens/Wallets/Receive/ReceiveBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
+import ProfileNavigator from '../profile/ProfileNavigator';
 import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import { NavigationContainer } from '../../styles/components';
 import CoinSelection from '../../screens/Wallets/SendOnChainTransaction/CoinSelection';
+import LightningNavigator from '../lightning/LightningNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -95,9 +97,11 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="ActivityDetail" component={ActivityDetail} />
 					<Stack.Screen name="Scanner" component={ScannerScreen} />
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
+					<Stack.Screen name="LightningRoot" component={LightningNavigator} />
 				</Stack.Group>
 				<Stack.Group screenOptions={{ ...navOptions, presentation: 'modal' }}>
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
+					<Stack.Screen name="ProfileRoot" component={ProfileNavigator} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />

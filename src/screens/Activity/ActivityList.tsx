@@ -1,13 +1,13 @@
 import React, { memo, ReactElement, useCallback, useState } from 'react';
 import {
-	View,
-	TouchableOpacity,
+	Caption13M,
+	ReceiveIcon,
 	RefreshControl,
 	SendIcon,
-	ReceiveIcon,
-	Text02S,
-	Caption13S,
 	Subtitle,
+	Text01M,
+	TouchableOpacity,
+	View,
 } from '../../styles/components';
 import {
 	FlatList,
@@ -43,28 +43,35 @@ const ListItem = memo(
 		return (
 			<TouchableOpacity style={styles.item} onPress={onPress}>
 				<View style={styles.col1} color={'transparent'}>
-					<View color={'gray6'} style={styles.iconCircle}>
-						{txType === 'sent' ? <SendIcon /> : <ReceiveIcon />}
+					<View
+						color={txType === 'sent' ? 'red16' : 'green16'}
+						style={styles.iconCircle}>
+						{txType === 'sent' ? (
+							<SendIcon height={13} color="red" />
+						) : (
+							<ReceiveIcon height={13} color="green" />
+						)}
 					</View>
 					<View color={'transparent'}>
-						<Text02S style={styles.note}>
+						<Text01M>
 							{txType === 'sent' ? 'Sent' : 'Received'}{' '}
 							{!confirmed ? '(Unconfirmed)' : ''}
-						</Text02S>
-						<Caption13S color={'gray'} style={styles.date}>
+						</Text01M>
+						<Caption13M color={'gray1'} style={styles.date}>
 							{timeAgo(timestamp)}
-						</Caption13S>
+						</Caption13M>
 					</View>
 				</View>
 				<View style={styles.col2} color={'transparent'}>
-					<Text02S style={styles.value}>
-						{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
+					<Text01M style={styles.value}>
+						<Text01M color={'gray1'}>
+							{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
+						</Text01M>
 						{bitcoinFormatted.replace('-', '')}
-					</Text02S>
-					<Caption13S color={'gray'} style={styles.value}>
-						{fiatSymbol}
-						{fiatFormatted.replace('-', '')}
-					</Caption13S>
+					</Text01M>
+					<Caption13M color={'gray1'} style={styles.value}>
+						{fiatSymbol} {fiatFormatted.replace('-', '')}
+					</Caption13M>
 				</View>
 			</TouchableOpacity>
 		);
@@ -75,7 +82,7 @@ const ListHeaderComponent = memo(
 	(): ReactElement => {
 		return (
 			<View style={styles.header} color={'transparent'}>
-				<Subtitle>Transactions</Subtitle>
+				<Subtitle>Activity</Subtitle>
 			</View>
 		);
 	},
@@ -161,11 +168,12 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		backgroundColor: 'transparent',
-		marginBottom: 24,
+		marginBottom: 16,
 	},
 	col1: {
 		display: 'flex',
 		flexDirection: 'row',
+		alignItems: 'center',
 		flex: 5,
 	},
 	col2: {
@@ -176,8 +184,8 @@ const styles = StyleSheet.create({
 	},
 	iconCircle: {
 		borderRadius: 20,
-		width: 36,
-		height: 36,
+		width: 32,
+		height: 32,
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -186,7 +194,6 @@ const styles = StyleSheet.create({
 	value: {
 		textAlign: 'right',
 	},
-	note: {},
 	date: {
 		marginTop: 4,
 	},

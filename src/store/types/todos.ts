@@ -1,4 +1,9 @@
-export type TTodoType = 'activateBackup' | 'backupSeedPhrase' | 'boost';
+export type TTodoType =
+	| 'activateBackup'
+	| 'backupSeedPhrase'
+	| 'boost'
+	| 'pin'
+	| 'lightning';
 
 export interface ITodo {
 	id: string;
