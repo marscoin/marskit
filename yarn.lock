@@ -1360,10 +1360,10 @@
     color "^3.1.3"
     warn-once "^0.1.0"
 
-"@shopify/react-native-skia@^0.1.120":
-  version "0.1.121"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.121.tgz#1617a45b451a7e2fe595d0206e3bb0cf963129ff"
-  integrity sha512-RDSOee2bZw5DcfEsbdLC4kgJxxIHsWtdSBJ4LSg1we5Ghq5962AC0KaQc8svgwlr1h74qviafm8E10IihM6uqQ==
+"@shopify/react-native-skia@^0.1.122":
+  version "0.1.122"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.122.tgz#bc40ec7d2fdf31ff7db59f9035611b27045a7c9e"
+  integrity sha512-YJ8n1yvKPPwXiMbna0CL87ivNl5V1n92Nw9RpOY7aFOlniVcaCW25EscfVSFZVy6+L7g6cE+AJv3RCl89Zw6/Q==
   dependencies:
     react-reconciler "^0.26.2"
 

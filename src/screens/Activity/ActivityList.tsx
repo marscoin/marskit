@@ -1,4 +1,15 @@
 import React, { memo, ReactElement, useCallback, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import {
+	FlatList,
+	NativeScrollEvent,
+	NativeSyntheticEvent,
+	StyleProp,
+	StyleSheet,
+	ViewStyle,
+} from 'react-native';
+import { useSelector } from 'react-redux';
+
 import {
 	Caption13M,
 	ReceiveIcon,
@@ -9,22 +20,12 @@ import {
 	TouchableOpacity,
 	View,
 } from '../../styles/components';
-import {
-	FlatList,
-	NativeScrollEvent,
-	NativeSyntheticEvent,
-	StyleProp,
-	StyleSheet,
-	ViewStyle,
-} from 'react-native';
-import { useSelector } from 'react-redux';
+import Button from '../../components/Button';
 import Store from '../../store/types';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
-import { refreshWallet } from '../../utils/wallet';
-import { useNavigation } from '@react-navigation/native';
-
 import { updateActivityList } from '../../store/actions/activity';
 import useDisplayValues from '../../hooks/displayValues';
+import { refreshWallet } from '../../utils/wallet';
 import { timeAgo } from '../../utils/helpers';
 
 const ListItem = memo(
@@ -83,6 +84,17 @@ const ListHeaderComponent = memo(
 		return (
 			<View style={styles.header} color={'transparent'}>
 				<Subtitle>Activity</Subtitle>
+			</View>
+		);
+	},
+	() => true,
+);
+
+const ListFooterComponent = memo(
+	(): ReactElement => {
+		return (
+			<View style={styles.footer} color={'transparent'}>
+				<Button text="Show all activity" size="large" />
 			</View>
 		);
 	},
@@ -153,6 +165,7 @@ const ActivityList = ({
 				/>
 			}
 			ListHeaderComponent={ListHeaderComponent}
+			ListFooterComponent={ListFooterComponent}
 		/>
 	);
 };
@@ -200,6 +213,7 @@ const styles = StyleSheet.create({
 	header: {
 		marginBottom: 23,
 	},
+	footer: {},
 });
 
 export default memo(ActivityList);

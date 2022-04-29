@@ -28,8 +28,6 @@ import {
 import {
 	AnimatedView,
 	DisplayHaas,
-	ReceiveIcon,
-	SendIcon,
 	TitleHaas,
 	View,
 } from '../../../styles/components';
@@ -38,11 +36,9 @@ import { useBalance } from '../../../hooks/wallet';
 import useColors from '../../../hooks/colors';
 import ActivityList from '../../Activity/ActivityList';
 import BitcoinBreakdown from './BitcoinBreakdown';
-import Button from '../../../components/Button';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { EActivityTypes } from '../../../store/types/activity';
 import { TAssetType } from '../../../store/types/wallet';
-import { toggleView } from '../../../store/actions/user';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 
 const Blur = Platform.OS === 'ios' ? BlurView : View;
@@ -114,35 +110,12 @@ const WalletsDetail = (props: Props): ReactElement => {
 		}
 	}
 
-	const onSendPress = useCallback(() => {
-		toggleView({
-			view: 'send',
-			data: {
-				id: 'bitcoin',
-				isOpen: true,
-				snapPoint: 0,
-				assetName: 'bitcoin',
-			},
-		}).then();
-	}, []);
-
-	const onReceivePress = useCallback(() => {
-		toggleView({
-			view: 'receive',
-			data: {
-				isOpen: true,
-				snapPoint: 1,
-				assetName: 'bitcoin',
-			},
-		}).then();
-	}, []);
-
 	const [showDetails, setShowDetails] = useState(true);
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(400);
 	const [headerHeight, setHeaderHeight] = useState(0);
 
 	const activityPadding = useMemo(
-		() => ({ paddingTop: radiusContainerHeight, paddingBottom: 70 }),
+		() => ({ paddingTop: radiusContainerHeight, paddingBottom: 230 }),
 		[radiusContainerHeight],
 	);
 	const [height] = useState(new Animated.Value(0));
@@ -209,8 +182,24 @@ const WalletsDetail = (props: Props): ReactElement => {
 								setHeaderHeight((h) => (h === 0 ? hh : h));
 							}}>
 							<View color={'transparent'} style={styles.row}>
-								<BitcoinLogo viewBox="0 0 70 70" height={32} width={32} />
-								<TitleHaas style={styles.title}>{title}</TitleHaas>
+								<View color={'transparent'} style={styles.cell}>
+									<BitcoinLogo viewBox="0 0 70 70" height={32} width={32} />
+									<TitleHaas style={styles.title}>{title}</TitleHaas>
+								</View>
+								{!showDetails ? (
+									<AnimatedView
+										color={'transparent'}
+										style={styles.cell}
+										entering={FadeIn}
+										exiting={FadeOut}>
+										<TitleHaas color={'gray'}>{fiatSymbol} </TitleHaas>
+										<TitleHaas>{fiatWhole}</TitleHaas>
+										<TitleHaas color={'gray'}>
+											{fiatDecimal}
+											{fiatDecimalValue}
+										</TitleHaas>
+									</AnimatedView>
+								) : null}
 							</View>
 
 							{showDetails ? (
@@ -236,25 +225,6 @@ const WalletsDetail = (props: Props): ReactElement => {
 						</AnimatedView>
 					</View>
 				</Blur>
-			</View>
-
-			<View color={'transparent'} style={styles.buttons}>
-				<Button
-					color={'surface'}
-					style={styles.button}
-					icon={<SendIcon color={'gray1'} />}
-					text={'Send'}
-					//@ts-ignore
-					onPress={onSendPress}
-				/>
-				<Button
-					color={'surface'}
-					style={styles.button}
-					icon={<ReceiveIcon color={'gray1'} />}
-					text={'Receive'}
-					//@ts-ignore
-					onPress={onReceivePress}
-				/>
 			</View>
 			<SafeAreaInsets type={'bottom'} maxPaddingBottom={20} />
 		</AnimatedView>
@@ -299,20 +269,12 @@ const styles = StyleSheet.create({
 	txList: {
 		paddingHorizontal: 16,
 	},
-	buttons: {
-		position: 'absolute',
-		display: 'flex',
-		flexDirection: 'row',
-		bottom: 0,
-		paddingHorizontal: 23,
-	},
-	button: {
-		flex: 1,
-		marginHorizontal: 8,
-		height: 56,
-		borderRadius: 64,
-	},
 	row: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+	cell: {
 		alignItems: 'center',
 		flexDirection: 'row',
 	},

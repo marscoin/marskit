@@ -10,6 +10,13 @@ import colors from './colors';
 import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
 import {
+	DefaultTheme,
+	NavigationContainer as _NavigationContainer,
+} from '@react-navigation/native';
+import { sanFranciscoWeights } from 'react-native-typography';
+import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
+
+import {
 	camera,
 	settings,
 	dismiss,
@@ -25,6 +32,9 @@ import {
 	sentIcon,
 	transferIcon,
 	coinsIcon,
+	userIcon,
+	gitBranchIcon,
+	noteIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -33,47 +43,70 @@ import {
 	copyIcon,
 } from '../assets/icons/settings';
 import { logo } from '../assets/icons/onboarding';
-import { sanFranciscoWeights } from 'react-native-typography';
-import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 import _SafeAreaView from '../components/SafeAreaView';
-import {
-	DefaultTheme,
-	NavigationContainer as _NavigationContainer,
-} from '@react-navigation/native';
 
 export const DismissIcon = styled(SvgXml).attrs((props) => ({
 	xml: dismiss(props?.color ? props.theme.colors[props.color] : 'white'),
-	width: props?.width ?? '14px',
 	height: props?.height ?? '16px',
+	width: props?.width ?? '14px',
+	color: undefined,
 }))({});
 
 export const CameraIcon = styled(SvgXml).attrs((props) => ({
 	xml: camera(props?.color ? props.theme.colors[props.color] : '#636366'),
-	width: props?.width ?? '20.54px',
 	height: props?.height ?? '20.53px',
+	width: props?.width ?? '20.54px',
+	color: undefined,
 }))({});
 
 export const SettingsIcon = styled(SvgXml).attrs((props) => ({
 	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
-	width: props?.width ?? '21.6px',
 	height: props?.height ?? '19.8px',
+	width: props?.width ?? '21.6px',
+	color: undefined,
 }))({});
 
 export const TransferIcon = styled(SvgXml).attrs((props) => ({
 	xml: transferIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+	color: undefined,
 }))({});
 
 export const CoinsIcon = styled(SvgXml).attrs((props) => ({
 	xml: coinsIcon(props?.color ? props.theme.colors[props.color] : '#F7931A'),
 	height: props?.height ?? '12.8',
 	width: props?.width ?? '12.8',
+	color: undefined,
+}))({});
+
+export const UserIcon = styled(SvgXml).attrs((props) => ({
+	xml: userIcon(props?.color ? props.theme.colors[props.color] : '#F75C1A'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const GitBranchIcon = styled(SvgXml).attrs((props) => ({
+	xml: gitBranchIcon(
+		props?.color ? props.theme.colors[props.color] : '#F75C1A',
+	),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const NoteIcon = styled(SvgXml).attrs((props) => ({
+	xml: noteIcon(props?.color ? props.theme.colors[props.color] : '#F75C1A'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
 }))({});
 
 export const BoostIcon = styled(SvgXml).attrs((props) => ({
 	xml: boost(),
 	width: props?.width ?? '39px',
+	color: undefined,
 	height: props?.height ?? '39px',
 }))({});
 
@@ -81,6 +114,7 @@ export const BitcoinIcon = styled(SvgXml).attrs((props) => ({
 	xml: bitcoinIcon(props?.color ? props.theme.colors[props.color] : '#ED8452'),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+	color: undefined,
 }))({});
 
 export const BitcoinCircleIcon = styled(SvgXml).attrs((props) => ({
@@ -89,6 +123,7 @@ export const BitcoinCircleIcon = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
+	color: undefined,
 }))({});
 
 export const TetherCircleIcon = styled(SvgXml).attrs((props) => ({
@@ -97,6 +132,7 @@ export const TetherCircleIcon = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
+	color: undefined,
 }))({});
 
 export const LightningIcon = styled(SvgXml).attrs((props) => ({
@@ -105,18 +141,21 @@ export const LightningIcon = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '19.8px',
 	width: props?.width ?? '21.6px',
+	color: undefined,
 }))({});
 
 export const SendIcon = styled(SvgXml).attrs((props) => ({
 	xml: sentIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
+	color: undefined,
 }))({});
 
 export const ReceiveIcon = styled(SvgXml).attrs((props) => ({
 	xml: receivedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
 	width: props?.width ?? '17px',
+	color: undefined,
 }))({});
 
 export const ChevronRight = styled(SvgXml).attrs((props) => ({
@@ -125,6 +164,7 @@ export const ChevronRight = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '12px',
 	width: props?.width ?? '12px',
+	color: undefined,
 }))({});
 
 export const LeftArrow = styled(SvgXml).attrs((props) => ({
@@ -133,6 +173,7 @@ export const LeftArrow = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '16.04px',
 	width: props?.width ?? '20px',
+	color: undefined,
 }))({});
 
 export const Checkmark = styled(SvgXml).attrs((props) => ({
@@ -141,6 +182,7 @@ export const Checkmark = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
+	color: undefined,
 }))({});
 
 export const Copy = styled(SvgXml).attrs((props) => ({
@@ -149,6 +191,7 @@ export const Copy = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
+	color: undefined,
 }))({});
 
 export const Logo = styled(SvgXml).attrs((props) => ({
@@ -157,12 +200,14 @@ export const Logo = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '46px',
 	width: props?.width ?? '46px',
+	color: undefined,
 }))({});
 
 export const ProfileIcon = styled(SvgXml).attrs((props) => ({
 	xml: profileIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
-	width: props?.width ?? '20.54px',
 	height: props?.height ?? '20.53px',
+	width: props?.width ?? '20.54px',
+	color: undefined,
 }))({});
 
 export const Display = styled.Text((props) => ({
@@ -174,11 +219,11 @@ export const Display = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.medium.fontFamily,
 	fontSize: props.size ? props.size : '48px',
+	lineHeight: props.lineHeight,
 }));
 
 export const DisplayHaas = styled(Display)`
 	font-family: 'NHaasGroteskDSW02-65Md';
-	line-height: 48px;
 `;
 
 export const Headline = styled.Text((props) => ({
@@ -237,6 +282,17 @@ export const Text01S = styled.Text((props) => ({
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.regular.fontFamily,
+	fontSize: props.size ? props.size : '17px',
+}));
+
+export const Text01B = styled.Text((props) => ({
+	...sanFranciscoWeights.bold,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	fontFamily: props.font
+		? props.theme.fonts[props.font].fontFamily
+		: sanFranciscoWeights.bold.fontFamily,
 	fontSize: props.size ? props.size : '17px',
 }));
 

@@ -1,5 +1,11 @@
 import React, { ReactElement, useState, useRef, useMemo } from 'react';
-import { Alert, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+	Alert,
+	Image,
+	StyleSheet,
+	TouchableOpacity,
+	useWindowDimensions,
+} from 'react-native';
 import Swiper from 'react-native-swiper';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
@@ -7,14 +13,15 @@ import {
 	DisplayHaas,
 	Text01M,
 	Text01S,
-	Text02M,
 	View,
 } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
+import Button from '../../components/Button';
 import { createNewWallet } from '../../utils/startup';
 import { showErrorNotification } from '../../utils/notifications';
 import { sleep } from '../../utils/helpers';
+import useColors from '../../hooks/colors';
 import LoadingWalletScreen from './Loading';
 
 const Dot = ({ active }: { active?: boolean }): ReactElement => {
@@ -34,6 +41,17 @@ const Slideshow = ({
 	const skipIntro = route?.params?.skipIntro;
 	const swiperRef = useRef(null);
 	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
+	const colors = useColors();
+	// because we can't properly scala image inside the <Swiper let's calculate with by hand
+	const dimensions = useWindowDimensions();
+	const illustrationStyles = useMemo(
+		() => ({
+			...styles.illustration,
+			width: dimensions.width * 0.75,
+			height: dimensions.width * 0.8,
+		}),
+		[dimensions.width],
+	);
 
 	const onNewWallet = async (): Promise<void> => {
 		setIsCreatingWallet(true);
@@ -73,26 +91,54 @@ const Slideshow = ({
 	const slides = useMemo(
 		() => [
 			{
-				topLeftColor: '#FF6600',
+				topLeftColor: colors.brand,
 				slide: (): ReactElement => (
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image1}
-								source={require('../../assets/onboarding1.png')}
+								style={styles.floatIllustraion}
+								source={require('../../assets/illustrations/figures.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
+							<DisplayHaas lineHeight="48px">
 								Welcome to the
-								<DisplayHaas style={styles.headline1}>
+								<DisplayHaas lineHeight="48px" color="brand">
 									{' '}
 									Atomic Economy.
 								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
-								Bitkit Wallet is your toolkit for a new economy, where
-								everything is based on Bitcoin.
+							<Text01S color="gray1" style={styles.text}>
+								Bitkit is your toolkit for a new economy, where everything is
+								based on Bitcoin.
+							</Text01S>
+						</View>
+						<SafeAreaInsets type={'bottom'} />
+					</View>
+				),
+			},
+
+			{
+				topLeftColor: colors.orange,
+				slide: (): ReactElement => (
+					<View color={'transparent'} style={styles.slide}>
+						<View color={'transparent'} style={styles.imageContainer}>
+							<Image
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/bitcoin.png')}
+							/>
+						</View>
+						<View color={'transparent'} style={styles.textContent}>
+							<DisplayHaas lineHeight="48px">
+								Money,
+								<DisplayHaas lineHeight="48px" color="orange">
+									{' '}
+									Owned by You.
+								</DisplayHaas>
+							</DisplayHaas>
+							<Text01S color="gray1" style={styles.text}>
+								Be in charge of your own money. Spend your Bitcoin on the things
+								that you value in life.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type={'bottom'} />
@@ -106,19 +152,19 @@ const Slideshow = ({
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image2}
-								source={require('../../assets/onboarding2.png')}
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/lightning.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
+							<DisplayHaas lineHeight="48px">
 								Bitcoin,
-								<DisplayHaas style={styles.headline2}>
+								<DisplayHaas lineHeight="48px" style={styles.headline2}>
 									{' '}
 									Lightning fast.
 								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
+							<Text01S color="gray1" style={styles.text}>
 								Send Bitcoin faster than ever. Set up an instant connection and
 								pay anyone, anywhere.
 							</Text01S>
@@ -129,26 +175,25 @@ const Slideshow = ({
 			},
 
 			{
-				topLeftColor: '#0085FF',
+				topLeftColor: colors.green,
 				slide: (): ReactElement => (
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image2}
-								source={require('../../assets/onboarding3.png')}
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/coins.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
-								Send & receive instantly
-								<DisplayHaas style={styles.headline3}>
-									{' '}
-									with Tether.
+							<DisplayHaas lineHeight="48px">
+								Instant{' '}
+								<DisplayHaas lineHeight="48px" style={styles.headline3}>
+									Tether.
 								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
-								Use your Bitkit wallet to save and spend traditional currency,
-								gifts, rewards, and digital assets.
+							<Text01S color="gray1" style={styles.text}>
+								Save and spend traditional currency, gifts, rewards, and digital
+								assets instantly and borderless.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type={'bottom'} />
@@ -157,26 +202,26 @@ const Slideshow = ({
 			},
 
 			{
-				topLeftColor: '#F7931A',
+				topLeftColor: colors.blue,
 				slide: (): ReactElement => (
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image2}
-								source={require('../../assets/onboarding4.png')}
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/padlock.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
-								An open and free web,
-								<DisplayHaas style={styles.headline4}>
+							<DisplayHaas lineHeight="48px">
+								Log in with
+								<DisplayHaas lineHeight="48px" color="blue">
 									{' '}
-									for Everyone.
+									just a Tap.
 								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
-								Interact with friends or online services by using passwordless
-								accounts that you control.
+							<Text01S color="gray1" style={styles.text}>
+								Experience the web without passwords. Use Slashtags to take
+								control of your accounts & contacts.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type={'bottom'} />
@@ -185,23 +230,26 @@ const Slideshow = ({
 			},
 
 			{
-				topLeftColor: '#FFD200',
+				topLeftColor: colors.yellow,
 				slide: (): ReactElement => (
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image2}
-								source={require('../../assets/onboarding5.png')}
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/gift.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
+							<DisplayHaas lineHeight="48px">
 								Money gets
-								<DisplayHaas style={styles.headline5}> Personal.</DisplayHaas>
+								<DisplayHaas lineHeight="48px" color="yellow">
+									{' '}
+									Personal.
+								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
-								Paying or tipping someone takes on a new meaning. Attach
-								personal messages to any of your payments.
+							<Text01S color="gray1" style={styles.text}>
+								Pay, tip or gift your friends & family Bitcoin, Tether and other
+								tokens and attach a personal note.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type={'bottom'} />
@@ -210,36 +258,42 @@ const Slideshow = ({
 			},
 
 			{
-				topLeftColor: '#FF6600',
+				topLeftColor: colors.brand,
 				slide: (): ReactElement => (
 					<View color={'transparent'} style={styles.slide}>
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
-								style={styles.image2}
-								source={require('../../assets/onboarding6.png')}
+								style={illustrationStyles}
+								source={require('../../assets/illustrations/wallet.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas>
+							<DisplayHaas lineHeight="48px">
 								Money needs
-								<DisplayHaas style={styles.headline6}> a Wallet.</DisplayHaas>
+								<DisplayHaas lineHeight="48px" color="brand">
+									{' '}
+									a Wallet.
+								</DisplayHaas>
 							</DisplayHaas>
-							<Text01S style={styles.text}>
-								Time to set up your Bitkit Wallet!
+							<Text01S color="gray1" style={styles.text}>
+								Time to set up your Bitkit Wallet
 							</Text01S>
 
 							<View color={'transparent'} style={styles.buttonsContainer}>
-								<TouchableOpacity
+								<Button
+									size="large"
 									style={[styles.button, styles.restoreButton]}
-									onPress={onNewWallet}>
-									<Text02M>New wallet</Text02M>
-								</TouchableOpacity>
+									onPress={onNewWallet}
+									text="New wallet"
+								/>
 
-								<TouchableOpacity
+								<Button
+									size="large"
+									variant="secondary"
 									style={[styles.button, styles.newButton]}
-									onPress={onRestore}>
-									<Text02M>Restore</Text02M>
-								</TouchableOpacity>
+									onPress={onRestore}
+									text="Restore"
+								/>
 							</View>
 						</View>
 						<SafeAreaInsets type={'bottom'} />
@@ -275,9 +329,7 @@ const Slideshow = ({
 	}
 
 	return (
-		<GlowingBackground
-			topLeft={slides[index].topLeftColor}
-			bottomRight="rgba(0, 133, 255, 0.3)">
+		<GlowingBackground topLeft={slides[index].topLeftColor}>
 			<>
 				<Swiper
 					ref={swiperRef}
@@ -310,7 +362,6 @@ const Slideshow = ({
 
 const styles = StyleSheet.create({
 	headerButtonContainer: {
-		display: 'flex',
 		flexDirection: 'row',
 		width: '100%',
 		justifyContent: 'flex-end',
@@ -322,53 +373,40 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	buttonsContainer: {
-		display: 'flex',
 		flexDirection: 'row',
-		marginTop: 30,
-		// marginHorizontal: 23,
+		marginTop: 70,
 	},
 	button: {
 		flex: 1,
-		backgroundColor: 'rgba(255, 255, 255, 0.06)',
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		height: 56,
-		borderRadius: 76,
 	},
 	restoreButton: {
 		marginRight: 6,
 	},
 	newButton: {
 		marginLeft: 6,
-		backgroundColor: 'transparent',
-		borderColor: 'rgba(255, 255, 255, 0.08)',
-		borderWidth: 2,
 	},
 
 	slide: {
 		flex: 1,
-		display: 'flex',
 		justifyContent: 'space-between',
 		alignItems: 'stretch',
 	},
 	imageContainer: {
-		display: 'flex',
-		flex: 1,
+		flex: 4,
 		alignItems: 'center',
 		paddingVertical: 25,
 		justifyContent: 'flex-end',
-		width: '100%',
 		position: 'relative', // for first slide background image
 	},
-	image1: {
+	floatIllustraion: {
 		position: 'absolute',
 		top: 10,
 	},
-	image2: {},
+	illustration: {
+		resizeMode: 'contain',
+	},
 	textContent: {
-		flex: 1,
-		display: 'flex',
+		flex: 3,
 		paddingHorizontal: 48,
 	},
 	pageDot: {
@@ -377,33 +415,17 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 		marginLeft: 4,
 		marginRight: 4,
-	},
-	headline1: {
-		color: 'rgba(238, 111, 45, 1)',
-		fontWeight: 'bold',
+		marginBottom: 30, // lift dot's up
 	},
 	headline2: {
 		color: 'rgba(172, 101, 225, 1)',
-		fontWeight: 'bold',
+		lineHeight: 48,
 	},
 	headline3: {
-		color: 'rgba(50, 134, 247, 1)',
-		fontWeight: 'bold',
-	},
-	headline4: {
-		color: 'rgba(234, 151, 61, 1)',
-		fontWeight: 'bold',
-	},
-	headline5: {
-		color: 'rgba(249, 210, 71, 1)',
-		fontWeight: 'bold',
-	},
-	headline6: {
-		color: 'rgba(238, 111, 45, 1)',
-		fontWeight: 'bold',
+		color: 'rgba(134, 188, 122, 1)',
 	},
 	text: {
-		marginTop: 16,
+		marginTop: 8,
 	},
 });
 
