@@ -29,12 +29,11 @@ const Seeds = ({ navigation }): ReactElement => {
 			});
 		}
 
-		//TODO OmniBolt and Slashtag seeds
+		//TODO: Slashtag seeds
 		let dummyWords: string[] = [];
 		for (let index = 1; index <= 12; index++) {
 			dummyWords.push('todo');
 		}
-		seedTypes.push({ title: 'OmniBOLT', words: dummyWords });
 		seedTypes.push({ title: 'Slashtags', words: dummyWords });
 
 		setSeeds(seedTypes);

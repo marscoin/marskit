@@ -8,7 +8,6 @@ import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
 import { backupSetup, performFullBackup } from '../../store/actions/backup';
-import { startOmnibolt } from '../omnibolt';
 import { showErrorNotification } from '../notifications';
 import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
@@ -69,16 +68,14 @@ const ENABLE_SERVICES = true;
 export const startWalletServices = async ({
 	onchain = ENABLE_SERVICES,
 	lightning = ENABLE_SERVICES,
-	omnibolt = ENABLE_SERVICES,
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
-	omnibolt?: boolean;
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
 			//Create wallet if none exists.
-			let { wallets, selectedNetwork, selectedWallet } = getStore().wallet;
+			let { wallets, selectedNetwork } = getStore().wallet;
 
 			const walletExists = await checkWalletExists();
 			const walletKeys = Object.keys(wallets);
@@ -107,11 +104,6 @@ export const startWalletServices = async ({
 							'Unable to connect to Electrum Server',
 					});
 				}
-			}
-
-			if (omnibolt) {
-				//Create and start omnibolt.
-				startOmnibolt({ selectedWallet }).then();
 			}
 
 			if (lightning) {

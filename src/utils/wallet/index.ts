@@ -170,7 +170,7 @@ export const deleteBoostedTransactions = async ({
  * @param {number} [changeAddressIndex] - What index to start generating changeAddresses at.
  * @param {string} [selectedNetwork] - What network to generate addresses for (bitcoin or bitcoinTestnet).
  * @param {string} [keyDerivationPath] - The path to generate addresses from.
- * @param [TKeyDerivationAccountType] - Specifies which account to generate an address from (onchain, rgb, omnibolt).
+ * @param [TKeyDerivationAccountType] - Specifies which account to generate an address from (onchain).
  * @param {string} [addressType] - Determines what type of address to generate (p2pkh, p2sh, p2wpkh).
  */
 export const generateAddresses = async ({
@@ -334,10 +334,8 @@ export const getPrivateKey = async ({
 
 export const keyDerivationAccountTypes: {
 	onchain: TKeyDerivationAccount;
-	omnibolt: TKeyDerivationAccount;
 } = {
 	onchain: '0',
-	omnibolt: '2',
 };
 
 /**
@@ -2149,9 +2147,6 @@ export const getKeyDerivationPathString = ({
 		if (!path) {
 			return err('No path specified.');
 		}
-		if (accountType === 'omnibolt') {
-			path.purpose = '44'; //TODO: Remove once omnibolt supports native segwit.
-		}
 		//Specifically specifying purpose will override the default accountType purpose value.
 		if (purpose) {
 			path.purpose = purpose;
@@ -2204,10 +2199,6 @@ export const getKeyDerivationPathObject = ({
 	try {
 		const parsedPath = path.replace(/'/g, '').split('/');
 
-		//Specifically specifying purpose will override the default accountType purpose value.
-		if (!purpose && accountType === 'omnibolt') {
-			purpose = '44'; //TODO: Remove once omnibolt supports native segwit.
-		}
 		if (!purpose) {
 			purpose = parsedPath[1];
 		}
@@ -2352,12 +2343,12 @@ export const getAssetNetwork = (asset: string): TAssetNetwork => {
 		case 'lightning':
 			return 'lightning';
 		default:
-			return 'omnibolt';
+			return 'bitcoin';
 	}
 };
 
 /**
- * This method returns all available asset names (bitcoin, lightning, and any available omnibolt assets).
+ * This method returns all available asset names (bitcoin, lightning, tokens).
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @return {string[]>}
@@ -2375,18 +2366,9 @@ export const getAssetNames = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	const assetNames: string[] = assetNetworks.filter((a) => a !== 'omnibolt');
+	const assetNames: string[] = assetNetworks;
 	try {
-		// Grab available omni assets.
-		const omniboltAssetData = getStore().omnibolt.assetData;
-		const channels = Object.values(
-			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
-		);
-		channels.map((channel) => {
-			if (channel.property_id in omniboltAssetData) {
-				assetNames.push(omniboltAssetData[channel.property_id].name);
-			}
-		});
+		// TODO: Grab available tokens/assets.
 	} catch {}
 	return assetNames;
 };
@@ -2401,7 +2383,6 @@ interface IGetBalanceProps extends IncludeBalances {
 export const getBalance = ({
 	onchain = false,
 	lightning = false,
-	omnibolt,
 	selectedWallet,
 	selectedNetwork,
 }: IGetBalanceProps): IDisplayValues => {
@@ -2420,21 +2401,6 @@ export const getBalance = ({
 
 	if (lightning) {
 		// TODO: Get LDK channel balance.
-	}
-
-	if (omnibolt) {
-		/*
-		TODO: We'll need to implement a method that resolves the usd->sat value
-		      of a given omni token before adding it to the balance.
-		 */
-		/*const channels = Object.keys(
-			getStore().omnibolt.wallets[selectedWallet].channels[selectedNetwork],
-		);
-		omnibolt.map((id) => {
-			if (id in channels) {
-				balance += channels[id].balance_a;
-			}
-		});*/
 	}
 
 	return getDisplayValues({ satoshis: balance });

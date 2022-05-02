@@ -5,14 +5,14 @@ import { EFeeIds } from './fees';
 
 export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
 export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
-export type TKeyDerivationAccountType = 'onchain' | 'rgb' | 'omnibolt';
+export type TKeyDerivationAccountType = 'onchain';
 export type TKeyDerivationPurpose = '84' | '49' | '44' | string; //"p2wpkh" | "p2sh" | "p2pkh";
 export type TKeyDerivationCoinType = '0' | '1' | string; //"mainnet" | "testnet";
-export type TKeyDerivationAccount = '0' | '2' | string; //"On-Chain Wallet" | "Omnibolt";
+export type TKeyDerivationAccount = '0' | string; //"On-Chain Wallet";
 export type TKeyDerivationChange = '0' | '1' | string; //"Receiving Address" | "Change Address";
 export type TKeyDerivationAddressIndex = string;
 export type TAssetType = 'bitcoin' | 'tether';
-export type TAssetNetwork = 'bitcoin' | 'lightning' | 'omnibolt';
+export type TAssetNetwork = 'bitcoin' | 'lightning';
 
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
@@ -75,8 +75,6 @@ export enum ETransactionDefaults {
 
 export enum EKeyDerivationAccount {
 	onchain = 0,
-	rgb = 2,
-	omnibolt = 3,
 }
 
 export interface IAddressData {

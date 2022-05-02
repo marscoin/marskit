@@ -45,8 +45,6 @@
     "intl": "^1.2.5",
     "lottie-ios": "^3.2.3",
     "lottie-react-native": "^5.0.0",
-    "omni-tracker-api": "git+ssh://git@github.com/synonymdev/omni-tracker-api#7ede407d825a339451a88ad0ae489a91a4a6507b",
-    "omnibolt-js": "git+ssh://git@github.com/synonymdev/omnibolt-js#e9232089bdfb1394bf7f6c51f1831eb68813e008",
     "process": "^0.11.10",
     "protobufjs": "^6.11.2",
     "radio-buttons-react-native": "^1.0.4",

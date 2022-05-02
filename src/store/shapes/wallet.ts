@@ -11,11 +11,7 @@ import {
 	TAssetNetwork,
 } from '../types/wallet';
 
-export const assetNetworks: TAssetNetwork[] = [
-	'bitcoin',
-	'lightning',
-	'omnibolt',
-];
+export const assetNetworks: TAssetNetwork[] = ['bitcoin', 'lightning'];
 
 export const addressTypes: IAddressType = {
 	p2pkh: {

@@ -17,11 +17,9 @@ import {
 	updateWallet,
 } from '../../store/actions/wallet';
 import { getMnemonicPhrase, refreshWallet } from '../../utils/wallet';
-import { updateOmniboltConnectData } from '../../store/actions/omnibolt';
 import { lnurlAuth, LNURLAuthParams } from '@synonymdev/react-native-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
-import { parseOmniboltConnectData } from '../../utils/omnibolt';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -94,18 +92,6 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					await updateWallet({ selectedNetwork: network });
 				}
 				refreshWallet().then();
-				break;
-			}
-			case EQRDataType.omniboltConnect: {
-				const connectData = await parseOmniboltConnectData(data?.message);
-				if (connectData.isErr()) {
-					return;
-				}
-				updateOmniboltConnectData({
-					data: connectData.value.data,
-					selectedNetwork,
-					selectedWallet,
-				});
 				break;
 			}
 			case EQRDataType.lightningPaymentRequest: {

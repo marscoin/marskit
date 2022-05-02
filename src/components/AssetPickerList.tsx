@@ -27,7 +27,6 @@ const AssetPickerList = ({
 				const sats = getBalance({
 					onchain: asset === 'bitcoin',
 					lightning: asset === 'lightning',
-					omnibolt: [asset],
 				}).satoshis;
 				return (
 					<AssetPicker
