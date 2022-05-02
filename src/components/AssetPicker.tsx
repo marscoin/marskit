@@ -36,8 +36,6 @@ const AssetPicker = ({
 				return BitcoinCircleIcon;
 			case 'lightning':
 				return LightningIcon;
-			case 'omnibolt':
-				return BitcoinCircleIcon;
 			default:
 				return BitcoinCircleIcon;
 		}

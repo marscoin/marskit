@@ -27,7 +27,6 @@ import {
 import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
 import { err, ok, Result } from '../../utils/result';
-import { createOmniboltWallet } from './omnibolt';
 import {
 	getOnchainTransactionData,
 	getTotalFee,
@@ -91,8 +90,6 @@ export const createWallet = async ({
 			type: actions.CREATE_WALLET,
 			payload: response.value,
 		});
-
-		await createOmniboltWallet({ selectedWallet: walletName });
 		return ok('');
 	} catch (e) {
 		return err(e);

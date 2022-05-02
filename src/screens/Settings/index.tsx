@@ -17,7 +17,6 @@ import { refreshWallet } from '../../utils/wallet';
 import { resetUserStore } from '../../store/actions/user';
 import { resetActivityStore } from '../../store/actions/activity';
 import { resetLightningStore } from '../../store/actions/lightning';
-import { resetOmniBoltStore } from '../../store/actions/omnibolt';
 import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
@@ -273,14 +272,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Reset Omnibolt Store',
-						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetOmniBoltStore();
-						},
-						hide: false,
-					},
-					{
 						title: 'Reset Settings Store',
 						type: 'button',
 						onPress: async (): Promise<void> => {
@@ -322,7 +313,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 								resetSettingsStore(),
 								resetActivityStore(),
 								resetUserStore(),
-								resetOmniBoltStore(),
 								resetBlocktankStore(),
 							]);
 						},

@@ -4,18 +4,10 @@
 
 import bip21 from 'bip21';
 import { err, ok, Result } from './result';
-import {
-	availableNetworks,
-	EAvailableNetworks,
-	networks,
-	TAvailableNetworks,
-} from './networks';
+import { availableNetworks, networks, TAvailableNetworks } from './networks';
 import { address as bitcoinJSAddress } from 'bitcoinjs-lib';
 import { parseOnChainPaymentRequest } from './wallet/transactions';
-import { IOmniboltConnectData } from '../store/types/omnibolt';
-import { parseOmniboltConnectData } from './omnibolt';
 import { getStore } from '../store/helpers';
-import { getSelectedNetwork, getSelectedWallet } from './wallet';
 import {
 	getLNURLParams,
 	LNURLAuthParams,
@@ -72,13 +64,12 @@ export const validateAddress = ({
 export enum EQRDataType {
 	bitcoinAddress = 'bitcoinAddress',
 	lightningPaymentRequest = 'lightningPaymentRequest',
-	omniboltConnect = 'omniboltConnect',
 	lnurlAuth = 'lnurlAuth',
 	lnurlWithdraw = 'lnurlWithdraw',
 	//TODO add rgb, xpub, lightning node peer etc
 }
 
-export interface QRData extends IOmniboltConnectData {
+export interface QRData {
 	network: TAvailableNetworks;
 	qrDataType: EQRDataType;
 	sats?: number;
@@ -188,25 +179,6 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	if (foundNetworksInQR.length > 0) {
 		return ok(foundNetworksInQR);
 	}
-
-	//Omnibolt connect request
-	try {
-		const omniboltConnectResponse = await parseOmniboltConnectData(data);
-		if (omniboltConnectResponse.isOk()) {
-			const selectedWallet = getSelectedWallet();
-			const selectedNetwork = getSelectedNetwork();
-			const omniboltNetwork =
-				getStore().omnibolt.wallets[selectedWallet].userData[selectedNetwork]
-					.chainNodeType === 'test'
-					? EAvailableNetworks.bitcoinTestnet
-					: EAvailableNetworks.bitcoin;
-			foundNetworksInQR.push({
-				qrDataType: EQRDataType.omniboltConnect,
-				network: omniboltNetwork,
-				message: data,
-			});
-		}
-	} catch {}
 
 	return ok(foundNetworksInQR);
 };
