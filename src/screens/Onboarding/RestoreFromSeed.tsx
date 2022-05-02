@@ -1,32 +1,77 @@
-import React, { ReactElement, useState, useRef, useEffect } from 'react';
+import React, {
+	ReactElement,
+	useState,
+	useRef,
+	useEffect,
+	useMemo,
+} from 'react';
 import {
+	Alert,
+	Image,
 	Keyboard,
-	KeyboardAvoidingView,
-	Platform,
 	ScrollView,
 	StyleSheet,
 	TextInput,
-	TouchableOpacity,
 	View,
 } from 'react-native';
-import { DisplayHaas, Text01S, Text02M } from '../../styles/components';
+import * as bip39 from 'bip39';
+
+import { DisplayHaas, Text01S } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SeedInput from '../../components/SeedInput';
 import SeedInputAccessory from '../../components/SeedInputAccessory';
 import VerticalShadow from '../../components/VerticalShadow';
+import Button from '../../components/Button';
 import { validateMnemonic } from '../../utils/wallet';
+import useColors from '../../hooks/colors';
+
+import {
+	Canvas,
+	RadialGradient,
+	Rect,
+	runTiming,
+	useValue,
+	vec,
+} from '@shopify/react-native-skia';
+
+const Glow = ({ color }: { color: string }): ReactElement => {
+	const opacity = useValue(0);
+
+	useEffect(() => {
+		runTiming(opacity, 0.4, { duration: 300 });
+	}, [opacity]);
+
+	return (
+		<Canvas style={styles.canvas}>
+			<Rect x={0} y={0} width={400} height={400} opacity={opacity}>
+				<RadialGradient
+					c={vec(200, 200)}
+					r={200}
+					colors={[color, 'transparent']}
+				/>
+			</Rect>
+		</Canvas>
+	);
+};
 
 const RestoreFromSeed = (): ReactElement => {
 	const numberOfWords = 12;
-	const [seed, setSeed] = useState(Array(numberOfWords).fill(''));
+	const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
+	const [validWords, setValidWords] = useState(Array(numberOfWords).fill(true));
 	const [focused, setFocused] = useState(null);
-	const [validMnemonic, setValidMnemonic] = useState(false);
 	const inputRefs = useRef<Array<TextInput>>([]);
-
-	useEffect(() => {
-		setValidMnemonic(validateMnemonic(seed.join(' ')));
-	}, [seed]);
+	const { blue, green, red } = useColors();
+	const showRestoreButton = useMemo(
+		() => !seed.includes(undefined) && !validWords.includes(false),
+		[seed, validWords],
+	);
+	const showRedExplanation = useMemo(
+		() => seed.some((word, index) => word !== undefined && !validWords[index]),
+		[seed, validWords],
+	);
+	const [showRestored, setShowRestored] = useState(false);
+	const [showFailed, setShowFailed] = useState(false);
 
 	const onSeedChange = (index, text): void => {
 		setSeed((items) => {
@@ -39,58 +84,124 @@ const RestoreFromSeed = (): ReactElement => {
 		setFocused(index);
 	};
 
-	const handleBlur = (): void => {
+	const handleBlur = (index): void => {
 		setFocused(null);
+		setValidWords((items) => {
+			items[index] = bip39.wordlists.english.includes(seed[index]);
+			return [...items];
+		});
 	};
 
+	const handleRestore = (): void => {
+		if (validateMnemonic(seed.join(' '))) {
+			setShowRestored(true);
+		} else {
+			setShowFailed(true);
+		}
+	};
+
+	const renderInput = (word, index): ReactElement => {
+		// input is incorrect when it has been touched
+		const invalid = word !== undefined && !validWords[index];
+		return (
+			<SeedInput
+				key={index}
+				ref={(el: TextInput): void => {
+					inputRefs.current[index] = el;
+				}}
+				index={index}
+				valid={!invalid}
+				value={word ?? ''}
+				onChangeText={(text): void => onSeedChange(index, text)}
+				onFocus={(): void => handleFocus(index)}
+				onBlur={(): void => handleBlur(index)}
+			/>
+		);
+	};
+
+	if (showRestored || showFailed) {
+		const color = showRestored ? green : red;
+		const title = showRestored ? 'Wallet restored.' : 'Failed to restore.';
+		const subtitle = showRestored
+			? 'You have successfully restored your wallet from backup. Enjoy Bitkit!'
+			: 'The checksum for the recovery phrase appears to be incorrect.';
+		const onPress = showRestored
+			? (): void => Alert.alert('TODO')
+			: (): void => setShowFailed(false);
+		const buttonText = showRestored ? 'Get started' : 'Try again';
+
+		return (
+			<GlowingBackground topLeft={color}>
+				<View style={styles.contentResult}>
+					<View>
+						<DisplayHaas style={styles.title}>{title}</DisplayHaas>
+						<Text01S color="white8">{subtitle}</Text01S>
+					</View>
+
+					<View style={styles.imageContainer}>
+						<View style={styles.canvasContainer}>
+							<Glow color={color} />
+						</View>
+						<Image
+							style={styles.image}
+							source={require('../../assets/illustrations/wallet.png')}
+						/>
+					</View>
+
+					<View>
+						<Button onPress={onPress} size="large" text={buttonText} />
+					</View>
+				</View>
+			</GlowingBackground>
+		);
+	}
+
 	return (
-		<GlowingBackground topLeft="#FF6600" bottomRight="rgba(0, 133, 255, 0.3)">
-			<KeyboardAvoidingView
-				style={styles.root}
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-				keyboardVerticalOffset={0}>
-				<ScrollView
-					contentContainerStyle={styles.content}
-					showsVerticalScrollIndicator={false}
-					bounces={false}
-					stickyHeaderIndices={[0]}>
-					<View style={styles.shadowContainer}>
-						<VerticalShadow />
+		<GlowingBackground topLeft={blue}>
+			<ScrollView
+				contentContainerStyle={styles.content}
+				showsVerticalScrollIndicator={false}
+				bounces={false}
+				stickyHeaderIndices={[0]}>
+				<View style={styles.shadowContainer}>
+					<VerticalShadow />
+				</View>
+				<DisplayHaas style={styles.title}>Restore your wallet</DisplayHaas>
+				<Text01S color="white8">
+					Please type in your 12 seed words from any (paper) backup.
+				</Text01S>
+				<View style={styles.inputsContainer}>
+					<View style={styles.inputsColumn}>
+						{seed.slice(0, seed.length / 2).map(renderInput)}
 					</View>
-					<DisplayHaas>Restore your wallet</DisplayHaas>
-					<Text01S>
-						Please type in your 12 seed words from any (paper) backup.
+
+					<View style={styles.inputsColumn}>
+						{seed
+							.slice(-seed.length / 2)
+							.map((word, index) => renderInput(word, index + seed.length / 2))}
+					</View>
+				</View>
+
+				{showRedExplanation ? (
+					<Text01S color="gray1" style={styles.redExplanation}>
+						If a word is shown in <Text01S color="red">red</Text01S>, it means
+						that it was not found in the recovery phrase dictionary. Check for
+						spelling errors.
 					</Text01S>
-					<View style={styles.inputsContainer}>
-						{seed.map((word, index) => (
-							<SeedInput
-								key={index}
-								ref={(el: TextInput): void => {
-									inputRefs.current[index] = el;
-								}}
-								index={index}
-								value={word}
-								onChangeText={(text): void => onSeedChange(index, text)}
-								onFocus={(): void => handleFocus(index)}
-								onBlur={handleBlur}
-							/>
-						))}
+				) : null}
+
+				{showRestoreButton ? (
+					<View style={styles.buttonContainer}>
+						<Button
+							size="large"
+							style={styles.button}
+							onPress={handleRestore}
+							text="Restore wallet"
+						/>
 					</View>
-
-					<TouchableOpacity style={styles.button} onPress={(): void => {}}>
-						<Text02M
-							style={
-								validMnemonic
-									? styles.buttonEnabledText
-									: styles.buttonDisabledText
-							}>
-							Get started
-						</Text02M>
-					</TouchableOpacity>
-					<SafeAreaInsets type="bottom" />
-				</ScrollView>
-			</KeyboardAvoidingView>
-
+				) : null}
+				<SafeAreaInsets type="bottom" />
+			</ScrollView>
 			<SeedInputAccessory
 				word={focused !== null ? seed[focused] : null}
 				setWord={(text): void => {
@@ -111,39 +222,59 @@ const RestoreFromSeed = (): ReactElement => {
 };
 
 const styles = StyleSheet.create({
-	root: {
-		flex: 1,
-	},
 	shadowContainer: {
-		height: 110,
+		height: 120,
 		marginHorizontal: -50,
 	},
 	content: {
 		paddingHorizontal: 48,
 	},
+	title: {
+		marginBottom: 8,
+	},
 	inputsContainer: {
 		flexWrap: 'wrap',
 		flexDirection: 'row',
-		width: '100%',
-		justifyContent: 'space-between',
 		paddingHorizontal: -2,
-		marginVertical: 38,
+		marginTop: 38,
 	},
-	button: {
+	inputsColumn: {
+		width: '50%',
+	},
+	redExplanation: {
+		marginTop: 16,
+	},
+	buttonContainer: {
+		marginTop: 38,
+	},
+
+	contentResult: {
+		paddingHorizontal: 48,
+		paddingTop: 120,
+		paddingBottom: 120,
 		flex: 1,
-		backgroundColor: 'rgba(255, 255, 255, 0.06)',
-		display: 'flex',
+	},
+	imageContainer: {
+		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		height: 56,
-		borderRadius: 64,
-		marginBottom: 30,
+		position: 'relative',
+		marginHorizontal: -50,
 	},
-	buttonDisabledText: {
-		opacity: 0.3,
+	image: {
+		width: 200,
+		height: 200,
 	},
-	buttonEnabledText: {
-		opacity: 1,
+	canvasContainer: {
+		position: 'absolute',
+		justifyContent: 'center',
+		alignItems: 'center',
+		width: '100%',
+		height: '100%',
+	},
+	canvas: {
+		width: 400,
+		height: 400,
 	},
 });
 

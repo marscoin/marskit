@@ -41,7 +41,7 @@ const NetworkRow = ({
 					{values.bitcoinFormatted}
 				</Text01M>
 				<Caption13M color={'gray1'} style={styles.value}>
-					{values.fiatFormatted} {values.fiatTicker}
+					{values.fiatSymbol} {values.fiatFormatted}
 				</Caption13M>
 			</View>
 		</View>

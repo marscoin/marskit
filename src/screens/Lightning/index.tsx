@@ -14,7 +14,7 @@ const Lightning = (): ReactElement => {
 				<View color={'transparent'} style={styles.imageContainer}>
 					<Image
 						style={styles.image2}
-						source={require('../../assets/onboarding2.png')}
+						source={require('../../assets/illustrations/lightning.png')}
 					/>
 				</View>
 				<View color={'transparent'} style={styles.textContent}>
@@ -48,7 +48,10 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		width: '100%',
 	},
-	image2: {},
+	image2: {
+		flex: 1,
+		resizeMode: 'contain',
+	},
 	textContent: {
 		flex: 1,
 		display: 'flex',

@@ -9,6 +9,7 @@ export interface IColors {
 	green2: string;
 	red: string;
 	brand: string;
+	tether: string;
 	blue: string;
 	yellow: string;
 	indigo: string;
@@ -28,8 +29,11 @@ export interface IColors {
 	white08: string;
 	white05: string;
 	white01: string;
+	white5: string;
+	white8: string;
 	red16: string;
 	green16: string;
+	blue03: string;
 }
 
 const colors: IColors = {
@@ -40,14 +44,15 @@ const colors: IColors = {
 	// Design Guide
 
 	// Brand
-	brand: '#F75C1A',
+	brand: '#FF6600',
+	tether: '#22C846',
 
 	// Accents
 	blue: '#0085FF',
 	green: '#75BF72',
-	green2: '#33CE59',
+	green2: '#22C846',
 	yellow: '#FFD200',
-	orange: '#F75C1A',
+	orange: '#F7931A',
 	red: '#E95164',
 	indigo: '#2D5BFF',
 	purple: '#B95CE8',
@@ -60,15 +65,15 @@ const colors: IColors = {
 	destructive: '#E43B44',
 
 	// Gray Base
-	gray6: '#1C1C1E',
-	gray5: '#25272B',
+	gray6: '#101010',
+	gray5: '#1C1C1D',
 	gray4: '#3A3A3C',
 	gray3: '#48484A',
 	gray2: '#636366',
 	gray1: '#8E8E93',
 
 	// Alpha
-	gray592: 'rgba(37, 39, 43, 0.92)',
+	gray592: 'rgba(28, 28, 29, 0.92)',
 	gray336: 'rgba(72, 72, 74, 0.36)',
 	gray324: 'rgba(72, 72, 74, 0.24)',
 	gray308: 'rgba(72, 72, 74, 0.08)',
@@ -76,8 +81,11 @@ const colors: IColors = {
 	white08: 'rgba(255, 255, 255, 0.08)',
 	white05: 'rgba(255, 255, 255, 0.05)',
 	white01: 'rgba(255, 255, 255, 0.01)',
+	white5: 'rgba(255, 255, 255, 0.5)',
+	white8: 'rgba(255, 255, 255, 0.8)',
 	red16: 'rgba(233, 81, 100, 0.16)',
 	green16: 'rgba(117, 191, 114, 0.16)',
+	blue03: 'rgba(0, 133, 255, 0.3)',
 };
 
 export default colors;

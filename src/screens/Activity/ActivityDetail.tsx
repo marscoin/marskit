@@ -1,80 +1,80 @@
 import React, {
-	memo,
 	PropsWithChildren,
 	ReactElement,
+	memo,
 	useCallback,
 	useEffect,
 	useMemo,
 	useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, Linking, TouchableOpacity } from 'react-native';
-import { Text, View } from '../../styles/components';
+import { Alert, Linking, ScrollView, StyleSheet } from 'react-native';
+import { Canvas, Path, Skia } from '@shopify/react-native-skia';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import {
+	Caption13M,
+	Caption13Up,
+	Checkmark,
+	DisplayHaas,
+	Display,
+	GitBranchIcon,
+	LightningIcon,
+	NoteIcon,
+	ReceiveIcon,
+	SendIcon,
+	Text01M,
+	Text02M,
+	TitleHaas,
+	UserIcon,
+	View,
+} from '../../styles/components';
 import Button from '../../components/Button';
 import NavigationHeader from '../../components/NavigationHeader';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
-import Divider from '../../components/Divider';
-import { btcToSats, truncate } from '../../utils/helpers';
 import {
-	adjustFee,
-	broadcastBoost,
 	canBoost,
 	getBlockExplorerLink,
 	setupBoost,
 } from '../../utils/wallet/transactions';
 import useDisplayValues from '../../hooks/displayValues';
 import SafeAreaView from '../../components/SafeAreaView';
-import AdjustValue from '../../components/AdjustValue';
 import Store from '../../store/types';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../../utils/notifications';
+import useColors from '../../hooks/colors';
 
-interface SectionProps extends PropsWithChildren<any> {
-	title: string;
-	description?: string;
-	value1: string;
-	value2?: string;
-	handleLink?: (event) => void;
-}
-
-const Section = memo(
-	({
-		title,
-		description,
-		value1,
-		value2,
-		handleLink,
-	}: SectionProps): ReactElement => {
-		const Col2 = ({ children }): ReactElement => {
-			if (handleLink) {
-				return (
-					<TouchableOpacity onPress={handleLink}>{children}</TouchableOpacity>
-				);
-			}
-
-			return <>{children}</>;
-		};
-
+const SectionNew = memo(
+	({ title, value }: { title?: string; value?: string }) => {
+		const { gray4 } = useColors();
 		return (
-			<View style={styles.sectionContent}>
-				<View style={styles.sectionColumn1}>
-					<Text>{title}</Text>
-					{description ? <Text>{description}</Text> : null}
+			<View
+				color={'transparent'}
+				style={[styles.sRoot, { borderBottomColor: gray4 }]}>
+				<View color={'transparent'} style={styles.sText}>
+					<Caption13Up color="brand">{title}</Caption13Up>
 				</View>
-
-				<Col2>
-					<View style={styles.sectionColumn2}>
-						<Text style={handleLink ? styles.linkText : {}}>{value1}</Text>
-						{value2 ? <Text>{value2}</Text> : null}
-					</View>
-				</Col2>
+				<View color={'transparent'} style={styles.sText}>
+					<Text02M>{value}</Text02M>
+				</View>
 			</View>
 		);
 	},
 );
+
+const ZigZag = ({ color }): ReactElement => {
+	const step = 12;
+	let n = 0;
+	const path = Skia.Path.Make();
+	path.moveTo(0, 0);
+	do {
+		path.lineTo((n + 1) * step, step);
+		path.lineTo((n + 2) * step, 0);
+		n += 2;
+	} while (n < 100);
+	path.close();
+
+	return <Path path={path} color={color} />;
+};
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { activityItem: IActivityItem } };
@@ -94,44 +94,18 @@ const emptyActivityItem: IActivityItem = {
 
 const ActivityDetail = (props: Props): ReactElement => {
 	const [
-		{
-			id,
-			message,
-			address,
-			activityType,
-			txType,
-			value,
-			confirmed,
-			fee: originalFee,
-			timestamp,
-		},
-		setActivityItem,
+		{ id, message, address, activityType, txType, value, confirmed, timestamp },
 	] = useState<IActivityItem>(
 		props.route.params?.activityItem ?? emptyActivityItem,
 	);
+	const { green16, gray5, background } = useColors();
+	const insets = useSafeAreaInsets();
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
-	const transaction = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork],
-	);
-	const satsPerByte =
-		useSelector(
-			(state: Store) =>
-				state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
-					?.satsPerByte,
-		) ?? 1;
-
-	const minFee =
-		useSelector(
-			(state: Store) =>
-				state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]
-					?.minFee,
-		) ?? 1;
 
 	const boostData = useMemo(() => canBoost(id), [id]);
 	useEffect(() => {
@@ -162,7 +136,6 @@ const ActivityDetail = (props: Props): ReactElement => {
 
 	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 		useDisplayValues(value);
-	const feeDisplay = useDisplayValues(Number(originalFee));
 
 	const blockExplorerUrl =
 		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
@@ -173,170 +146,201 @@ const ActivityDetail = (props: Props): ReactElement => {
 		}
 	}, [blockExplorerUrl]);
 
-	const _broadcastBoost = async (): Promise<void> => {
-		try {
-			const response = await broadcastBoost({
-				selectedWallet,
-				selectedNetwork,
-				oldTxid: id,
-				rbf: boostData.rbf,
-			});
-			if (response.isOk()) {
-				showSuccessNotification({
-					title: 'Boost Success',
-					message: 'Successfully boosted this transaction.',
-				});
-				if (boostData.rbf) {
-					setActivityItem(response.value);
-				}
-			} else {
-				showErrorNotification({
-					title: 'Boost Error',
-					message: 'Unable to boost this transaction.',
-				});
-			}
-		} catch (e) {
-			console.log(e);
-		}
-	};
-
-	const boostFee = useMemo(
-		() =>
-			boostData.canBoost
-				? boostData.rbf
-					? Math.abs(transaction.fee - (btcToSats(Number(originalFee)) ?? 0))
-					: transaction.fee
-				: 0,
-		[boostData.canBoost, boostData.rbf, transaction.fee, originalFee],
-	);
-
 	return (
 		<SafeAreaView>
 			<NavigationHeader />
-			<View style={styles.content}>
-				<View>
-					<Text style={styles.title}>Transaction detail</Text>
-					<Divider />
-					<Section
-						title={status}
-						description={confirmed ? 'Confirmed' : 'Unconfirmed'}
-						value1={new Date(timestamp).toLocaleString()}
-					/>
-					<Divider />
-					<Section
-						title={'Amount'}
-						value1={`${bitcoinSymbol}${bitcoinFormatted}`}
-						value2={`${fiatSymbol}${fiatFormatted}`}
-					/>
+			<ScrollView
+				contentContainerStyle={[
+					styles.scrollContent,
+					{ paddingBottom: insets.bottom + 80 },
+				]}
+				showsVerticalScrollIndicator={false}>
+				<View color={'transparent'} style={styles.title}>
+					<View color={'transparent'} style={styles.titleBlock}>
+						<View
+							color={'transparent'}
+							style={[styles.iconContainer, { backgroundColor: green16 }]}>
+							{txType === 'sent' ? (
+								<SendIcon height={13} color="red" />
+							) : (
+								<ReceiveIcon height={13} color="green" />
+							)}
+						</View>
+						<TitleHaas>{status}</TitleHaas>
+					</View>
 
-					{originalFee && txType === 'sent' ? (
-						<>
-							<Divider />
-							<Section
-								title={'Fees'}
-								value1={`${feeDisplay.bitcoinSymbol}${feeDisplay.bitcoinFormatted}`}
-								value2={`${feeDisplay.fiatSymbol}${feeDisplay.fiatFormatted}`}
-							/>
-						</>
-					) : null}
-
-					{message ? (
-						<>
-							<Divider />
-							<Section title={'Message'} value1={message} />
-						</>
-					) : null}
-
-					{address ? (
-						<>
-							<Divider />
-							<Section title={'Address'} value1={address} />
-						</>
-					) : null}
-					{boostData.canBoost && (
-						<>
-							<Divider />
-							<AdjustValue
-								value={`${transaction.satsPerByte} sat${
-									transaction?.satsPerByte > 1 ? 's' : ''
-								}/B\n+${boostFee.toFixed(0)} sats`}
-								decreaseValue={(): void => {
-									if (satsPerByte - 1 > minFee) {
-										adjustFee({
-											selectedNetwork,
-											selectedWallet,
-											adjustBy: -1,
-										});
-									}
-								}}
-								increaseValue={(): void => {
-									adjustFee({
-										selectedNetwork,
-										selectedWallet,
-										adjustBy: 1,
-									});
-								}}
-							/>
-							<Button
-								color="onSurface"
-								text={'Boost'}
-								onPress={_broadcastBoost}
-							/>
-						</>
-					)}
+					<View color={'transparent'} style={styles.titleBlock}>
+						{confirmed ? (
+							<>
+								<Checkmark height={14} style={styles.checkmarkIcon} />
+								<Caption13M color="green"> Confirmed</Caption13M>
+							</>
+						) : (
+							<Caption13M>Unconfirmed</Caption13M>
+						)}
+					</View>
 				</View>
 
-				<View style={styles.footer}>
-					<Divider />
+				<View color={'transparent'} style={styles.amount}>
+					<Display color="gray" style={styles.bitcoinSymbol}>
+						{bitcoinSymbol}
+					</Display>
+					<DisplayHaas>{bitcoinFormatted}</DisplayHaas>
+				</View>
 
-					<Section
-						title={'Transaction ID'}
-						value1={truncate(id, 16)}
-						handleLink={blockExplorerUrl ? handleBlockExplorerOpen : undefined}
+				<View color={'transparent'} style={styles.amountSmall}>
+					<Text01M color={'gray'}>
+						{fiatSymbol} {fiatFormatted}
+					</Text01M>
+				</View>
+
+				<View color={'transparent'} style={styles.sectionContainer}>
+					<SectionNew
+						title="DATE"
+						value={new Date(timestamp).toLocaleString(undefined, {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric',
+						})}
+					/>
+					<SectionNew
+						title="TIME"
+						value={new Date(timestamp).toLocaleString(undefined, {
+							hour: 'numeric',
+							minute: 'numeric',
+							hour12: false,
+						})}
 					/>
 				</View>
-			</View>
+
+				<View color={'transparent'} style={styles.sectionContainer}>
+					<SectionNew title="FROM" value="TODO" />
+					<SectionNew title="TO" value={address} />
+				</View>
+
+				{message ? (
+					<View color={'transparent'}>
+						<Caption13M color="brand" style={styles.sText}>
+							NOTE
+						</Caption13M>
+						<View color={'transparent'} style={{ backgroundColor: gray5 }}>
+							<Canvas style={styles.zRoot}>
+								<ZigZag color={background} />
+							</Canvas>
+
+							<View color={'transparent'} style={styles.note}>
+								<TitleHaas>{message}</TitleHaas>
+							</View>
+						</View>
+					</View>
+				) : null}
+
+				<View color={'transparent'} style={styles.buttonsContainer}>
+					<View color={'transparent'} style={styles.sectionContainer}>
+						<Button
+							style={styles.button}
+							text="Assign"
+							icon={<UserIcon />}
+							onPress={(): void => Alert.alert('TODO')}
+						/>
+						<Button
+							style={styles.button}
+							text="Explore"
+							icon={<GitBranchIcon />}
+							disabled={!blockExplorerUrl}
+							onPress={handleBlockExplorerOpen}
+						/>
+					</View>
+					<View color={'transparent'} style={styles.sectionContainer}>
+						<Button
+							style={styles.button}
+							text="Label"
+							icon={<NoteIcon />}
+							onPress={(): void => Alert.alert('TODO')}
+						/>
+						<Button
+							style={styles.button}
+							text="Boost"
+							icon={<LightningIcon color="brand" />}
+							disabled={!boostData.canBoost}
+							onPress={(): void => Alert.alert('TODO')}
+						/>
+					</View>
+				</View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
-	content: {
-		paddingLeft: 20,
-		paddingRight: 20,
-
-		flex: 1,
-
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'space-between',
-	},
-	footer: {
-		paddingBottom: 20,
+	scrollContent: {
+		paddingHorizontal: 16,
 	},
 	title: {
-		fontSize: 21,
-	},
-	sectionContent: {
 		display: 'flex',
-		justifyContent: 'space-between',
 		flexDirection: 'row',
-		minHeight: 60,
-		paddingVertical: 6,
+		alignItems: 'center',
+		justifyContent: 'space-between',
 	},
-	sectionColumn1: {
-		flex: 4,
+	titleBlock: {
 		display: 'flex',
-		justifyContent: 'space-around',
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
-	sectionColumn2: {
-		flex: 5,
-		display: 'flex',
-		justifyContent: 'space-around',
-		alignItems: 'flex-end',
+	iconContainer: {
+		backgroundColor: 'rgba(185, 92, 232, 0.16)',
+		borderRadius: 30,
+		overflow: 'hidden',
+		height: 32,
+		width: 32,
+		marginRight: 16,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
-	linkText: {
-		color: '#2D9CDB',
+	checkmarkIcon: {
+		marginRight: 8,
+	},
+	amount: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		marginTop: 32,
+	},
+	bitcoinSymbol: {
+		fontWeight: 'bold',
+	},
+	amountSmall: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		marginTop: 8,
+		marginBottom: 32,
+	},
+	sectionContainer: {
+		marginHorizontal: -4,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+	},
+	sRoot: {
+		marginHorizontal: 4,
+		marginBottom: 16,
+		borderBottomWidth: 1,
+		flex: 1,
+	},
+	sText: {
+		marginBottom: 8,
+	},
+	note: {
+		padding: 24,
+	},
+	buttonsContainer: {
+		marginVertical: 10,
+	},
+	button: {
+		marginHorizontal: 4,
+		marginVertical: 4,
+		flex: 1,
+	},
+	zRoot: {
+		height: 12,
 	},
 });
 

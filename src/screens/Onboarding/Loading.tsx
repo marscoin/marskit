@@ -59,7 +59,7 @@ const LoadingWalletScreen = (): ReactElement => {
 					entering={enteringAnimation}
 					exiting={FadeOut}
 					color={'transparent'}>
-					<Image source={require('../../assets/rocket.png')} />
+					<Image source={require('../../assets/illustrations/rocket.png')} />
 				</AnimatedView>
 			</View>
 		</View>

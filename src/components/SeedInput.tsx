@@ -2,35 +2,36 @@ import React, { forwardRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text01S, TextInput } from '../styles/components';
 
-const SeedInput = forwardRef(({ index, ...props }: { index: number }, ref) => {
-	return (
-		<View style={styles.inputWrapper}>
-			<TextInput
-				ref={ref}
-				style={styles.input}
-				autoCapitalize="none"
-				autoCorrect={false}
-				{...props}
-			/>
-			<View style={styles.index}>
-				{
-					<Text01S color="brand" style={styles.indexText}>
-						{index + 1}.
-					</Text01S>
-				}
+const SeedInput = forwardRef(
+	({ index, valid, ...props }: { index: number; valid: boolean }, ref) => {
+		return (
+			<View style={styles.inputWrapper}>
+				<TextInput
+					ref={ref}
+					style={styles.input}
+					color={valid ? 'white' : 'red'}
+					autoCapitalize="none"
+					autoCorrect={false}
+					{...props}
+				/>
+				<View style={styles.index}>
+					{
+						<Text01S color={valid ? 'white5' : 'red'} style={styles.indexText}>
+							{index + 1}.
+						</Text01S>
+					}
+				</View>
 			</View>
-		</View>
-	);
-});
+		);
+	},
+);
 
 const styles = StyleSheet.create({
 	inputWrapper: {
-		width: '45%',
 		position: 'relative',
 		marginHorizontal: 2,
 		marginBottom: 4,
 		minWidth: 100,
-		flexGrow: 1,
 	},
 	input: {
 		height: 46,

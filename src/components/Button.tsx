@@ -1,52 +1,77 @@
-/**
- * @format
- * @flow strict-local
- */
-import React, { memo, ReactElement } from 'react';
-import { StyleSheet, ActivityIndicator } from 'react-native';
-import { Text01M, TouchableOpacity, View } from '../styles/components';
+import React, { memo, ReactElement, useMemo } from 'react';
+import {
+	StyleSheet,
+	ActivityIndicator,
+	TouchableOpacityProps,
+} from 'react-native';
+import {
+	Caption13M,
+	Text02M,
+	TouchableOpacity,
+	View,
+} from '../styles/components';
+import useColors from '../hooks/colors';
 
-interface IButton {
+interface IButton extends TouchableOpacityProps {
 	text: string;
 	color?: string;
-	onPress?: Function;
-	onLongPress?: Function;
+	variant?: string;
+	size?: string;
 	disabled?: boolean;
 	loading?: boolean;
 	icon?: ReactElement;
-	style?: Object;
 	textStyle?: Object;
 }
 const Button = ({
 	text = '',
-	color = 'background',
-	onPress = (): null => null,
-	onLongPress = (): null => null,
+	color,
+	variant = 'primary',
+	size = 'small',
 	disabled = false,
 	loading = false,
-	icon = undefined,
-	style = {},
 	textStyle = {},
+	style,
+	icon,
+	...props
 }: IButton): ReactElement => {
+	const { white08 } = useColors();
+
+	const buttonStyle = useMemo(() => {
+		return StyleSheet.compose(
+			{
+				...styles.buttonBase,
+				...(size === 'small' ? styles.buttonSmall : styles.buttonLarge),
+				...(variant === 'primary'
+					? styles.buttonPrimary
+					: { ...styles.buttonSecondary, borderColor: white08 }),
+				opacity: disabled ? 0.5 : 1,
+			},
+			style,
+		);
+	}, [variant, size, disabled, white08, style]);
+
+	const buttonColor = useMemo(() => {
+		if (color) {
+			return color;
+		}
+		return variant === 'primary' ? 'white08' : 'transparent';
+	}, [color, variant]);
+
+	const Text = size === 'small' ? Caption13M : Text02M;
+
 	return (
 		<TouchableOpacity
 			activeOpacity={0.6}
-			color={color}
-			style={[
-				styles.button,
-				style,
-				/*eslint-disable-next-line react-native/no-inline-styles*/
-				{ opacity: disabled ? 0.2 : 1 },
-			]}
-			onPress={onPress}
-			onLongPress={onLongPress}
-			disabled={disabled}>
+			color={buttonColor}
+			style={buttonStyle}
+			disabled={disabled}
+			{...props}>
 			{icon ? (
 				<View style={styles.iconContainer} color={'transparent'}>
 					{icon}
 				</View>
 			) : null}
-			<Text01M style={[styles.text, textStyle]}>{text}</Text01M>
+			<Text style={textStyle}>{text}</Text>
 			{loading && (
 				<View color="onSurface" style={styles.loading}>
 					<ActivityIndicator size="small" />
@@ -57,23 +82,32 @@ const Button = ({
 };
 
 const styles = StyleSheet.create({
-	button: {
+	buttonBase: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderRadius: 10,
-		paddingVertical: 5,
+		flexDirection: 'row',
 		shadowColor: 'rgba(0, 0, 0, 0.1)',
 		shadowOpacity: 0.8,
 		elevation: 6,
 		shadowRadius: 15,
 		shadowOffset: { width: 1, height: 13 },
-		minWidth: 110,
-		marginVertical: 5,
-		paddingHorizontal: 10,
-		display: 'flex',
-		flexDirection: 'row',
 	},
-	text: {},
+	buttonSmall: {
+		height: 36,
+		borderRadius: 54,
+		paddingHorizontal: 16,
+		minWidth: 110,
+	},
+	buttonLarge: {
+		height: 56,
+		borderRadius: 64,
+		paddingHorizontal: 28,
+		minWidth: 110,
+	},
+	buttonPrimary: {},
+	buttonSecondary: {
+		borderWidth: 2,
+	},
 	iconContainer: {
 		marginRight: 6,
 	},
@@ -82,8 +116,9 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		alignSelf: 'center',
-		borderRadius: 10,
-		paddingVertical: 5,
+		borderRadius: 54,
+		paddingVertical: 12,
+		paddingHorizontal: 16,
 		shadowColor: 'rgba(0, 0, 0, 0.1)',
 		shadowOpacity: 0.8,
 		elevation: 6,
