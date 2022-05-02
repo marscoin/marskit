@@ -3,7 +3,6 @@ import { SectionList, StyleSheet, Switch } from 'react-native';
 import {
 	Text01S,
 	Caption13Up,
-	TouchableOpacity,
 	View,
 	ChevronRight,
 	Checkmark,
@@ -62,11 +61,8 @@ const _Item = memo(
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
 			return (
-				<TouchableOpacity
-					color="transparent"
-					activeOpacity={0.7}
-					onPress={_onPress}>
-					<Card style={styles.card}>
+				<View color="transparent">
+					<Card style={styles.card} onPress={_onPress}>
 						<View color="transparent" style={styles.leftColumn}>
 							<Text01S color="white">{title}</Text01S>
 						</View>
@@ -80,16 +76,12 @@ const _Item = memo(
 							/>
 						</View>
 					</Card>
-				</TouchableOpacity>
+				</View>
 			);
 		}
 		return (
-			<TouchableOpacity
-				color="transparent"
-				activeOpacity={0.7}
-				onPress={enabled ? _onPress : null}
-				style={styles.row}>
-				<Card style={styles.card}>
+			<View color="transparent" style={styles.row}>
+				<Card style={styles.card} onPress={enabled ? _onPress : undefined}>
 					<View color="transparent" style={styles.leftColumn}>
 						<Text01S color="white">{title}</Text01S>
 					</View>
@@ -108,7 +100,7 @@ const _Item = memo(
 						)}
 					</View>
 				</Card>
-			</TouchableOpacity>
+			</View>
 		);
 	},
 );
