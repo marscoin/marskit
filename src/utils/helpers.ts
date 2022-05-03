@@ -8,7 +8,7 @@ import {
 	TTicker,
 } from '../store/types/wallet';
 import { TAvailableNetworks } from './networks';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Linking, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from './result';

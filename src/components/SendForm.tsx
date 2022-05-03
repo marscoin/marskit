@@ -35,7 +35,7 @@ import Card from './Card';
 import { pasteIcon } from '../assets/icons/wallet';
 import { SvgXml } from 'react-native-svg';
 import colors from '../styles/colors';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { showErrorNotification } from '../utils/notifications';
 import { validate } from 'bitcoin-address-validation';
 import FeePickerCard from '../screens/Wallets/SendOnChainTransaction/FeePickerCard';

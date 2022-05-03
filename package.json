@@ -16,8 +16,8 @@
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
+    "@react-native-clipboard/clipboard": "^1.10.0",
     "@react-native-community/blur": "^3.6.0",
-    "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/netinfo": "^8.1.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
     "@react-navigation/native": "^6.0.8",
@@ -27,6 +27,7 @@
     "@synonymdev/backpack-client": "1.0.11",
     "@synonymdev/blocktank-client": "^0.0.4",
     "@synonymdev/react-native-lnurl": "0.0.3",
+    "@synonymdev/react-native-slashtags": "^0.0.9",
     "aezeed": "^0.0.5",
     "assert": "^2.0.0",
     "bip21": "^2.0.3",
@@ -76,6 +77,7 @@
     "react-native-touch-id": "^4.4.1",
     "react-native-typography": "^1.4.1",
     "react-native-vector-icons": "^9.0.0",
+    "react-native-webview": "^11.18.2",
     "react-native-zip-archive": "^6.0.3",
     "react-redux": "^7.2.6",
     "readable-stream": "^3.6.0",

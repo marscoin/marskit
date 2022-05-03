@@ -11,6 +11,7 @@ import React, {
 import { Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
+import SlashtagsProvider from '@synonymdev/react-native-slashtags';
 import { SafeAreaProvider } from './styles/components';
 import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
@@ -51,8 +52,10 @@ const App = (): ReactElement => {
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
-				<StatusBar />
-				<RootComponent />
+				<SlashtagsProvider>
+					<StatusBar />
+					<RootComponent />
+				</SlashtagsProvider>
 			</SafeAreaProvider>
 			<Toast />
 		</ThemeProvider>

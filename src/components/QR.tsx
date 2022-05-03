@@ -13,7 +13,7 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import NavigationHeader from './NavigationHeader';
 import Button from './Button';
 import { systemWeights } from 'react-native-typography';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp } from '@react-navigation/native';
 import { showErrorNotification } from '../utils/notifications';
 

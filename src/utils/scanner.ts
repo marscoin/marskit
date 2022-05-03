@@ -66,11 +66,12 @@ export enum EQRDataType {
 	lightningPaymentRequest = 'lightningPaymentRequest',
 	lnurlAuth = 'lnurlAuth',
 	lnurlWithdraw = 'lnurlWithdraw',
+	slashtagUrl = 'slashtagUrl',
 	//TODO add rgb, xpub, lightning node peer etc
 }
 
 export interface QRData {
-	network: TAvailableNetworks;
+	network?: TAvailableNetworks;
 	qrDataType: EQRDataType;
 	sats?: number;
 	address?: string;
@@ -82,6 +83,7 @@ export interface QRData {
 		| LNURLChannelParams
 		| LNURLPayParams
 		| LNURLResponse;
+	url?: string;
 }
 
 /**
@@ -170,6 +172,10 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 			lightningInvoice = options.lightning;
 		}
 	} catch (e) {}
+
+	if (data.startsWith('slashauth://')) {
+		return ok([{ qrDataType: 'slashtagUrl', url: data }]);
+	}
 
 	if (lightningInvoice) {
 		// TODO: Decode Lightning Invoice

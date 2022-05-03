@@ -20,7 +20,7 @@ import {
 import { claimChannel } from '../../store/actions/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import SafeAreaView from '../../components/SafeAreaView';
 
 interface Props extends PropsWithChildren<any> {
