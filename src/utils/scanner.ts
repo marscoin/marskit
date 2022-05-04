@@ -174,7 +174,7 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	} catch (e) {}
 
 	if (data.startsWith('slashauth://')) {
-		return ok([{ qrDataType: 'slashtagUrl', url: data }]);
+		return ok([{ qrDataType: EQRDataType.slashtagUrl, url: data }]);
 	}
 
 	if (lightningInvoice) {

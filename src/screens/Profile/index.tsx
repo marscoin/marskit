@@ -1,19 +1,22 @@
 import React, { ReactElement } from 'react';
-import { Text, TouchableOpacity, View } from '../../styles/components';
+import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
+import Button from '../../components/Button';
 
 const ProfileScreen = ({ navigation }): ReactElement => {
 	return (
 		<View style={styles.container}>
-			<NavigationHeader title="Profile" isHome={true} />
+			<NavigationHeader title="Connect" />
 			<View style={styles.content}>
-				<Text>Profile!</Text>
-				<TouchableOpacity
-					onPress={(): void => navigation.navigate('ProfileDetail')}
-					style={styles.button}>
-					<Text>Go To Nested Profile Screen</Text>
-				</TouchableOpacity>
+				<Text>Create your Slashtags Profile</Text>
+
+				<Text>TODO list of profiles</Text>
+
+				<Button
+					onPress={(): void => navigation.navigate('UpdateProfile')}
+					text={'Create profile'}
+				/>
 			</View>
 		</View>
 	);
@@ -25,11 +28,8 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	button: {
-		marginTop: 20,
+		justifyContent: 'space-between',
+		margin: 20,
 	},
 });
 

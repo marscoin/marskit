@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useContext } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { View } from '../../styles/components';
 import { Alert, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -20,7 +20,10 @@ import { getMnemonicPhrase, refreshWallet } from '../../utils/wallet';
 import { lnurlAuth, LNURLAuthParams } from '@synonymdev/react-native-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
-import { SlashtagsContext } from '@synonymdev/react-native-slashtags';
+import {
+	SlashtagsContext,
+	TUrlParseResult,
+} from '@synonymdev/react-native-slashtags';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const slashtags = useContext(SlashtagsContext);
@@ -57,31 +60,29 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		);
 	};
 
-	const onSlashAuth = async (url: string): Promise<void> => {
-		//TODO setup SDK and profiles first
-		const keyPair = await slashtags.current.generateSeedKeyPair(
-			`todo ${new Date().getTime()}`,
-		);
+	const onSlashAuth = async (
+		url: string,
+		parsed: TUrlParseResult,
+	): Promise<void> => {
+		if (!slashtags.current) {
+			return console.warn('Slashtags context not set');
+		}
 
 		try {
-			await slashtags.current.setupSDK({
-				primaryKey: keyPair.secretKey,
-				relays: ['ws://localhost:8888'],
-			});
+			//TODO setup SDK and profiles first
+			const state = await slashtags.current.state();
+			if (!state.sdkSetup || state.profiles === 0) {
+				return showErrorNotification({
+					title: 'Slashtags SDK not setup',
+					message: 'Got to profiles and create a slashtag',
+				});
+			}
 
-			const profileRes = await slashtags.current.setProfile({
-				name: 'my-first-profile',
-				basicProfile: {
-					name: 'BitKit Default Profile',
-					type: 'Person',
-				},
-			});
-
-			const authRes = await slashtags.current.slashUrl(url);
+			await slashtags.current.slashUrl(url);
 
 			showSuccessNotification({
 				title: 'Authenticated',
-				message: `Signed into ${'parsed.key'}`,
+				message: `Signed into ${parsed.key}`,
 			});
 		} catch (e) {
 			showErrorNotification({
@@ -172,8 +173,12 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				return;
 			}
 			case EQRDataType.slashtagUrl: {
+				if (!slashtags.current) {
+					return console.warn('Slashtags context not set');
+				}
+
 				try {
-					const parsed = await slashtags.current.parseUrl(url);
+					const parsed = await slashtags.current.parseUrl(url!);
 
 					if (parsed.protocol === 'slashauth') {
 						Alert.alert(
@@ -188,7 +193,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 								{
 									text: 'Auth',
 									onPress: async (): Promise<void> => {
-										await onSlashAuth(url!);
+										await onSlashAuth(url!, parsed);
 									},
 								},
 							],
