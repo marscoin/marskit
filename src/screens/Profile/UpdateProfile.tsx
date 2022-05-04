@@ -1,9 +1,13 @@
 import React, { ReactElement, useContext, useState } from 'react';
-import { Text, TextInput, View } from '../../styles/components';
+import { TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { SlashtagsContext } from '@synonymdev/react-native-slashtags';
+import {
+	SlashtagsContext,
+	TBasicProfile,
+} from '@synonymdev/react-native-slashtags';
+import { updateProfile } from '../../store/actions/slashtags';
 
 const UpdateProfile = (): ReactElement => {
 	const slashtags = useContext(SlashtagsContext);
@@ -32,13 +36,18 @@ const UpdateProfile = (): ReactElement => {
 				});
 			}
 
+			const basicProfile: TBasicProfile = {
+				name: name,
+				type: 'Person',
+			};
+
+			//Add to slashtags SDK first
 			const res = await slashtags.current.setProfile({
 				name,
-				basicProfile: {
-					name: name,
-					type: 'Person',
-				},
+				basicProfile,
 			});
+
+			updateProfile(name, basicProfile);
 
 			//TODO this might not be persistent
 			if (res.isNew) {
@@ -70,7 +79,7 @@ const UpdateProfile = (): ReactElement => {
 					/>
 				</View>
 
-				<Button onPress={onUpdate} text={'Create profile'} />
+				<Button onPress={onUpdate} text={'Save'} size={'lg'} />
 			</View>
 		</View>
 	);
