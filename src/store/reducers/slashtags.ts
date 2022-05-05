@@ -29,13 +29,12 @@ const slashtags = (
 						...action.payload.profile,
 					},
 				},
-				currentProfileName: action.payload.name,
 			};
 
 		case actions.SLASHTAGS_SET_ACTIVE_PROFILE: {
 			return {
 				...state,
-				currentProfileName: action.payload.name,
+				currentProfileName: action.payload.currentProfileName,
 			};
 		}
 		case actions.RESET_SLASHTAGS_STORE:

@@ -54,7 +54,7 @@ const App = (): ReactElement => {
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
-				<SlashtagsProvider onApiReady={() => setApiReady(true)}>
+				<SlashtagsProvider onApiReady={(): void => setApiReady(true)}>
 					<SlashtagsAutoSyncSDK />
 					<StatusBar />
 					<RootComponent />

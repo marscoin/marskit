@@ -27,6 +27,7 @@ import {
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const slashtags = useContext(SlashtagsContext);
+	const { currentProfileName } = useSelector((state: Store) => state.slashtags);
 
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
@@ -71,14 +72,17 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		try {
 			//TODO setup SDK and profiles first
 			const state = await slashtags.current.state();
-			if (!state.sdkSetup || state.profiles === 0) {
+			if (!state.sdkSetup || !currentProfileName) {
 				return showErrorNotification({
 					title: 'Slashtags SDK not setup',
 					message: 'Got to profiles and create a slashtag',
 				});
 			}
 
-			await slashtags.current.slashUrl(url);
+			await slashtags.current.slashUrl({
+				url,
+				profileName: currentProfileName,
+			});
 
 			showSuccessNotification({
 				title: 'Authenticated',

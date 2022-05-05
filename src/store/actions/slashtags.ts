@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { TBasicProfile, TSdkState } from '@synonymdev/react-native-slashtags';
+import { TSdkState } from '@synonymdev/react-native-slashtags';
 import { ok, Result } from '../../utils/result';
 import { defaultSlashtagsShape } from '../shapes/slashtags';
 import { ISlashtagProfile } from '../types/slashtags';
@@ -15,8 +15,6 @@ export const setApiReady = (apiReady: boolean): void => {
 	if (!apiReady) {
 		updateSdkState(defaultSlashtagsShape.sdkState);
 	}
-
-	console.info(`READY: ${apiReady}`);
 };
 
 export const updateSdkState = (sdkState: TSdkState): void => {
@@ -36,10 +34,10 @@ export const updateProfile = (
 	});
 };
 
-export const setActiveProfile = (name: string): void => {
+export const setActiveProfile = (currentProfileName: string): void => {
 	dispatch({
 		type: actions.SLASHTAGS_SET_ACTIVE_PROFILE,
-		payload: { name },
+		payload: { currentProfileName },
 	});
 };
 

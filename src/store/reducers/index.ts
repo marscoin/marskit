@@ -20,7 +20,7 @@ const appReducers = combineReducers({
 	blocktank,
 	todos,
 	fees,
-	slashtags
+	slashtags,
 });
 
 export default appReducers;

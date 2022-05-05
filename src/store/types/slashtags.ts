@@ -1,7 +1,7 @@
 import { TSdkState, TBasicProfile } from '@synonymdev/react-native-slashtags';
 
 export interface ISlashtagProfile {
-	profile: TBasicProfile;
+	basicProfile: TBasicProfile;
 	slashtag?: string;
 }
 

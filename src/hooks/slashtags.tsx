@@ -17,9 +17,7 @@ import { slashtagsNetworks } from '../utils/networks';
 export function SlashtagsAutoSyncSDK(): JSX.Element {
 	const slashtags = useContext(SlashtagsContext);
 
-	const { profiles, currentProfileName, sdkState, apiReady } = useSelector(
-		(store: Store) => store.slashtags,
-	);
+	const { profiles, apiReady } = useSelector((store: Store) => store.slashtags);
 
 	const syncProfiles = useCallback(async () => {
 		if (!slashtags.current) {
@@ -39,20 +37,16 @@ export function SlashtagsAutoSyncSDK(): JSX.Element {
 			const profileNames = Object.keys(profiles);
 			for (let index = 0; index < profileNames.length; index++) {
 				const name = profileNames[index];
-				const { profile, slashtag } = profiles[name];
+				const { basicProfile, slashtag } = profiles[name];
 
-				const res = await slashtags.current.setProfile({
+				const res = await slashtags.current.updateProfile({
 					name,
-					basicProfile: profile,
+					basicProfile,
 				});
 
 				if (!slashtag) {
-					updateProfile(name, { profile, slashtag: res.slashtag });
+					updateProfile(name, { basicProfile, slashtag: res.slashtag });
 				}
-				//
-				// res.slashtag
-
-				//TODO set slashtag forprofile
 			}
 
 			const newState = await slashtags.current.state();
@@ -121,11 +115,6 @@ export function SlashtagsAutoSyncSDK(): JSX.Element {
 			await syncProfiles();
 		})();
 	}, [slashtags, profiles, syncProfiles]);
-
-	//Sync current selected profile
-	useEffect(() => {
-		console.log(currentProfileName); //TODO after separating functions
-	}, [currentProfileName]);
 
 	return <></>;
 }

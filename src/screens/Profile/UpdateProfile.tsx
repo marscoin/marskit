@@ -4,7 +4,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { TBasicProfile } from '@synonymdev/react-native-slashtags';
-import { updateProfile } from '../../store/actions/slashtags';
+import { setActiveProfile, updateProfile } from '../../store/actions/slashtags';
 import { useNavigation } from '@react-navigation/native';
 
 const UpdateProfile = (): ReactElement => {
@@ -12,7 +12,7 @@ const UpdateProfile = (): ReactElement => {
 
 	const [name, setName] = useState('');
 
-	const onUpdate = async () => {
+	const onUpdate = async (): Promise<void> => {
 		if (!name) {
 			return;
 		}
@@ -22,7 +22,8 @@ const UpdateProfile = (): ReactElement => {
 			type: 'Person',
 		};
 
-		updateProfile(name, { profile: basicProfile });
+		updateProfile(name, { basicProfile });
+		setActiveProfile(name);
 
 		Alert.alert('Profile updated');
 		navigation.goBack();

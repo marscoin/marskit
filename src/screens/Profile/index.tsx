@@ -20,21 +20,21 @@ const ProfileScreen = ({ navigation }): ReactElement => {
 
 				<ScrollView>
 					{Object.keys(profiles).map((name) => {
-						const { profile, slashtag } = profiles[name];
+						const { basicProfile, slashtag } = profiles[name];
 						return (
 							<Pressable
 								style={styles.profileCard}
 								key={name}
-								onPress={() => setActiveProfile(name)}>
-								<View style={{ flex: 1 }} color={'transparent'}>
+								onPress={(): void => setActiveProfile(name)}>
+								<View style={styles.col1} color={'transparent'}>
 									<Text>{name}</Text>
-									<Text>Name: {profile.name}</Text>
-									<Text>Type: {profile.type}</Text>
+									<Text>Name: {basicProfile.name}</Text>
+									<Text>Type: {basicProfile.type}</Text>
 									<Text style={styles.slashtag}>{slashtag}</Text>
 								</View>
 								<View color={'transparent'}>
 									{name === currentProfileName ? (
-										<Text>Active profile</Text>
+										<Text>Active profile ✅</Text>
 									) : null}
 								</View>
 							</Pressable>
@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 	},
+	col1: { flex: 1 },
 	slashtag: {
 		fontSize: 10,
 	},
