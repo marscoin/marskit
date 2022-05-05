@@ -1,47 +1,16 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import {
-	SlashtagsContext,
-	TBasicProfile,
-} from '@synonymdev/react-native-slashtags';
 import { setActiveProfile } from '../../store/actions/slashtags';
 
 const ProfileScreen = ({ navigation }): ReactElement => {
-	const slashtags = useContext(SlashtagsContext);
-
-	const { profiles, currentProfileName, sdkState } = useSelector(
+	const { profiles, currentProfileName } = useSelector(
 		(state: Store) => state.slashtags,
 	);
-
-	const onSetActiveProfile = async (
-		name: string,
-		basicProfile: TBasicProfile,
-	): Promise<void> => {
-		if (!slashtags.current) {
-			return console.warn('Slashtags context not set');
-		}
-
-		const state = await slashtags.current.state();
-		if (!state.sdkSetup) {
-			//TODO get real seed
-			const seed = `todo ${new Date().getTime()}`;
-			const keyPair = await slashtags.current.generateSeedKeyPair(seed);
-
-			await slashtags.current.setupSDK({
-				primaryKey: keyPair.secretKey,
-				relays: ['ws://localhost:8888'],
-			});
-		}
-
-		const res = await slashtags.current.setProfile({ name, basicProfile });
-
-		setActiveProfile(name);
-	};
 
 	return (
 		<View style={styles.container}>
@@ -51,16 +20,17 @@ const ProfileScreen = ({ navigation }): ReactElement => {
 
 				<ScrollView>
 					{Object.keys(profiles).map((name) => {
-						const profile = profiles[name];
+						const { profile, slashtag } = profiles[name];
 						return (
 							<Pressable
 								style={styles.profileCard}
 								key={name}
-								onPress={() => onSetActiveProfile(name, profile)}>
-								<View color={'transparent'}>
+								onPress={() => setActiveProfile(name)}>
+								<View style={{ flex: 1 }} color={'transparent'}>
 									<Text>{name}</Text>
 									<Text>Name: {profile.name}</Text>
-									<Text>Name: {profile.type}</Text>
+									<Text>Type: {profile.type}</Text>
+									<Text style={styles.slashtag}>{slashtag}</Text>
 								</View>
 								<View color={'transparent'}>
 									{name === currentProfileName ? (
@@ -103,6 +73,9 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
+	},
+	slashtag: {
+		fontSize: 10,
 	},
 });
 

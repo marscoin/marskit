@@ -21,6 +21,8 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
+import { SlashtagsAutoSyncSDK } from './hooks/slashtags';
+import { setApiReady } from './store/actions/slashtags';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -52,7 +54,8 @@ const App = (): ReactElement => {
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
-				<SlashtagsProvider>
+				<SlashtagsProvider onApiReady={() => setApiReady(true)}>
+					<SlashtagsAutoSyncSDK />
 					<StatusBar />
 					<RootComponent />
 				</SlashtagsProvider>

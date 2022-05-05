@@ -24,6 +24,7 @@ import { resetBlocktankStore } from '../../store/actions/blocktank';
 import { capitalize } from '../../utils/helpers';
 import { Result } from '../../utils/result';
 import SettingsView from './SettingsView';
+import { resetSlashtagsStore } from '../../store/actions/slashtags';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -268,6 +269,14 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						type: 'button',
 						onPress: async (): Promise<void> => {
 							await resetLightningStore();
+						},
+						hide: false,
+					},
+					{
+						title: 'Reset Slashtags Store',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							await resetSlashtagsStore();
 						},
 						hide: false,
 					},

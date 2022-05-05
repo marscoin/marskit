@@ -1,16 +1,14 @@
-import React, { ReactElement, useContext, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import {
-	SlashtagsContext,
-	TBasicProfile,
-} from '@synonymdev/react-native-slashtags';
+import { TBasicProfile } from '@synonymdev/react-native-slashtags';
 import { updateProfile } from '../../store/actions/slashtags';
+import { useNavigation } from '@react-navigation/native';
 
 const UpdateProfile = (): ReactElement => {
-	const slashtags = useContext(SlashtagsContext);
+	const navigation = useNavigation();
 
 	const [name, setName] = useState('');
 
@@ -19,46 +17,15 @@ const UpdateProfile = (): ReactElement => {
 			return;
 		}
 
-		if (!slashtags.current) {
-			return console.warn('Slashtags context not set');
-		}
+		const basicProfile: TBasicProfile = {
+			name: name,
+			type: 'Person',
+		};
 
-		try {
-			const state = await slashtags.current.state();
-			if (!state.sdkSetup) {
-				//TODO get real seed
-				const seed = `todo ${new Date().getTime()}`;
-				const keyPair = await slashtags.current.generateSeedKeyPair(seed);
+		updateProfile(name, { profile: basicProfile });
 
-				await slashtags.current.setupSDK({
-					primaryKey: keyPair.secretKey,
-					relays: ['ws://localhost:8888'],
-				});
-			}
-
-			const basicProfile: TBasicProfile = {
-				name: name,
-				type: 'Person',
-			};
-
-			//Add to slashtags SDK first
-			const res = await slashtags.current.setProfile({
-				name,
-				basicProfile,
-			});
-
-			updateProfile(name, basicProfile);
-
-			//TODO this might not be persistent
-			if (res.isNew) {
-				Alert.alert('Profile added');
-			} else {
-				Alert.alert('Profile updated');
-			}
-		} catch (e) {
-			console.error(e);
-			Alert.alert('Profile update failed', e.toString());
-		}
+		Alert.alert('Profile updated');
+		navigation.goBack();
 	};
 
 	return (

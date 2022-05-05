@@ -1518,10 +1518,10 @@
     secp256k1 "^4.0.2"
     stream-browserify "^3.0.0"
 
-"@synonymdev/react-native-slashtags@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-slashtags/-/react-native-slashtags-0.0.14.tgz#ef316646475b43f6a83d86988e13dfdba94f2251"
-  integrity sha512-1Fcn9xG9oeuGr8GafGPoUXYMZxF58YdxDNXU77FkBm1iXl3/kiC3gRWam30Zf5zrFp6WKFh3WjSyNzeoq/Ik6w==
+"@synonymdev/react-native-slashtags@^0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-slashtags/-/react-native-slashtags-0.0.15.tgz#8e376f8b8a01e4bb6b18dfa662d87ae5190e9e2a"
+  integrity sha512-8EXyEzRv1A5fS3RDU4G4Ec2Q6mkmIU4bCPJldIKztx7JkBcepCZY3htOokMy95lK7/9/X9ewmpnvwaNlLtgVaw==
 
 "@tootallnate/once@1":
   version "1.1.2"

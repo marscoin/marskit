@@ -27,7 +27,7 @@
     "@synonymdev/backpack-client": "1.0.11",
     "@synonymdev/blocktank-client": "^0.0.4",
     "@synonymdev/react-native-lnurl": "0.0.3",
-    "@synonymdev/react-native-slashtags": "^0.0.14",
+    "@synonymdev/react-native-slashtags": "^0.0.15",
     "aezeed": "^0.0.5",
     "assert": "^2.0.0",
     "bip21": "^2.0.3",
