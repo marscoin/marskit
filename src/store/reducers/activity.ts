@@ -48,6 +48,17 @@ const activity = (
 			};
 		case actions.RESET_ACTIVITY_STORE:
 			return { ...defaultActivityShape };
+		case actions.RESET_ACTIVITY_FILTERS_STORE:
+			return {
+				...state,
+				searchFilter: defaultActivityShape.searchFilter,
+				typesFilter: defaultActivityShape.typesFilter,
+				itemsFiltered: filterActivityItems(
+					state.items,
+					defaultActivityShape.searchFilter,
+					defaultActivityShape.typesFilter,
+				),
+			};
 		default:
 			return state;
 	}

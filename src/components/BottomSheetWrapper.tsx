@@ -142,13 +142,13 @@ const BottomSheetWrapper = forwardRef(
 
 const styles = StyleSheet.create({
 	container: {
-		borderTopLeftRadius: 10,
-		borderTopRightRadius: 10,
+		borderTopLeftRadius: 32,
+		borderTopRightRadius: 32,
 		height: '100%',
 	},
 	handleContainer: {
-		borderTopLeftRadius: 10,
-		borderTopRightRadius: 10,
+		borderTopLeftRadius: 32,
+		borderTopRightRadius: 32,
 	},
 	handle: {
 		alignSelf: 'center',

@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import { Text02M, View } from '../styles/components';
+import { Caption13Up, View } from '../styles/components';
 import { StyleSheet } from 'react-native';
 import { getAssetNames, getBalance } from '../utils/wallet';
 import AssetPicker from './AssetPicker';
@@ -43,7 +43,7 @@ const AssetPickerList = ({
 	);
 
 	return (
-		<View style={styles.container} color={'onSurface'}>
+		<View style={styles.container} color="gray6">
 			{headerTitle && (
 				<NavigationHeader
 					title={headerTitle}
@@ -52,7 +52,9 @@ const AssetPickerList = ({
 				/>
 			)}
 			<View style={styles.content}>
-				<Text02M>Assets</Text02M>
+				<Caption13Up color="gray1" style={styles.title}>
+					ASSETS
+				</Caption13Up>
 				{assets}
 			</View>
 		</View>
@@ -67,6 +69,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingHorizontal: 15,
 		backgroundColor: 'transparent',
+	},
+	title: {
+		marginBottom: 10,
 	},
 });
 

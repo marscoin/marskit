@@ -4,7 +4,7 @@ import { TouchableOpacity, View } from '../../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { sendMax } from '../../../utils/wallet/transactions';
-import { Text02M } from '../../../styles/components';
+import { Text02B } from '../../../styles/components';
 import { getStore } from '../../../store/helpers';
 import { updateSettings } from '../../../store/actions/settings';
 import { SvgXml } from 'react-native-svg';
@@ -12,7 +12,7 @@ import { toggleView } from '../../../store/actions/user';
 import useDisplayValues from '../../../hooks/displayValues';
 import { switchIcon } from '../../../assets/icons/wallet';
 
-const switchIconXml = switchIcon();
+const switchIconXml = switchIcon('white');
 const AmountButtonRow = (): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -44,7 +44,7 @@ const AmountButtonRow = (): ReactElement => {
 				color={'onSurface'}
 				disabled={balance <= 0}
 				onPress={sendMax}>
-				<Text02M color={max ? 'orange' : 'white'}>Max</Text02M>
+				<Text02B color={max ? 'orange' : 'white'}>MAX</Text02B>
 			</TouchableOpacity>
 
 			<TouchableOpacity
@@ -56,11 +56,11 @@ const AmountButtonRow = (): ReactElement => {
 					updateSettings({ unitPreference: newUnitPreference });
 				}}>
 				<SvgXml xml={switchIconXml} width={16.44} height={13.22} />
-				<Text02M style={styles.middleButtonText} color="orange">
+				<Text02B style={styles.middleButtonText}>
 					{unitPreference === 'asset'
 						? displayValues.fiatTicker
-						: displayValues.bitcoinTicker.toLocaleLowerCase()}
-				</Text02M>
+						: displayValues.bitcoinTicker}
+				</Text02B>
 			</TouchableOpacity>
 
 			<TouchableOpacity
@@ -69,7 +69,7 @@ const AmountButtonRow = (): ReactElement => {
 				onPress={(): void => {
 					toggleView({ view: 'numberPad', data: { isOpen: false } }).then();
 				}}>
-				<Text02M>Done</Text02M>
+				<Text02B>DONE</Text02B>
 			</TouchableOpacity>
 		</View>
 	);
@@ -86,13 +86,13 @@ const styles = StyleSheet.create({
 	topRowButtons: {
 		paddingVertical: 5,
 		paddingHorizontal: 8,
-		borderRadius: 20,
+		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	middleButtonText: {
-		marginLeft: 8,
+		marginLeft: 11,
 	},
 });
 

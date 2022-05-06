@@ -1,6 +1,6 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { View, TouchableOpacity, Text01M } from '../styles/components';
+import { View, TouchableOpacity, TitleHaas } from '../styles/components';
 import { SvgXml } from 'react-native-svg';
 import { backIcon } from '../assets/icons/wallet';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
@@ -76,7 +76,7 @@ const NavigationHeader = ({
 				{_displayBackButton && <BackButton onPress={handleBackPress} />}
 			</View>
 			<View style={styles.middleColumn}>
-				<Text01M style={styles.title}>{title}</Text01M>
+				<TitleHaas style={styles.title}>{title}</TitleHaas>
 			</View>
 			<View style={styles.rightColumn} />
 		</View>

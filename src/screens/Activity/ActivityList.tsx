@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useCallback, useState } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useState,
+	useMemo,
+} from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
 	FlatList,
@@ -11,73 +17,17 @@ import {
 import { useSelector } from 'react-redux';
 
 import {
-	Caption13M,
-	ReceiveIcon,
+	Caption13Up,
 	RefreshControl,
-	SendIcon,
 	Subtitle,
-	Text01M,
-	TouchableOpacity,
 	View,
 } from '../../styles/components';
-import Button from '../../components/Button';
 import Store from '../../store/types';
-import { EActivityTypes, IActivityItem } from '../../store/types/activity';
+import { EActivityTypes } from '../../store/types/activity';
 import { updateActivityList } from '../../store/actions/activity';
-import useDisplayValues from '../../hooks/displayValues';
 import { refreshWallet } from '../../utils/wallet';
-import { timeAgo } from '../../utils/helpers';
-
-const ListItem = memo(
-	({
-		item,
-		onPress,
-	}: {
-		item: IActivityItem;
-		onPress: () => void;
-	}): ReactElement => {
-		const { value, txType, confirmed, timestamp } = item;
-
-		const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-			useDisplayValues(value);
-
-		return (
-			<TouchableOpacity style={styles.item} onPress={onPress}>
-				<View style={styles.col1} color={'transparent'}>
-					<View
-						color={txType === 'sent' ? 'red16' : 'green16'}
-						style={styles.iconCircle}>
-						{txType === 'sent' ? (
-							<SendIcon height={13} color="red" />
-						) : (
-							<ReceiveIcon height={13} color="green" />
-						)}
-					</View>
-					<View color={'transparent'}>
-						<Text01M>
-							{txType === 'sent' ? 'Sent' : 'Received'}{' '}
-							{!confirmed ? '(Unconfirmed)' : ''}
-						</Text01M>
-						<Caption13M color={'gray1'} style={styles.date}>
-							{timeAgo(timestamp)}
-						</Caption13M>
-					</View>
-				</View>
-				<View style={styles.col2} color={'transparent'}>
-					<Text01M style={styles.value}>
-						<Text01M color={'gray1'}>
-							{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
-						</Text01M>
-						{bitcoinFormatted.replace('-', '')}
-					</Text01M>
-					<Caption13M color={'gray1'} style={styles.value}>
-						{fiatSymbol} {fiatFormatted.replace('-', '')}
-					</Caption13M>
-				</View>
-			</TouchableOpacity>
-		);
-	},
-);
+import { groupActivityItems } from '../../utils/activity';
+import ListItem from './ListItem';
 
 const ListHeaderComponent = memo(
 	(): ReactElement => {
@@ -90,29 +40,20 @@ const ListHeaderComponent = memo(
 	() => true,
 );
 
-const ListFooterComponent = memo(
-	(): ReactElement => {
-		return (
-			<View style={styles.footer} color={'transparent'}>
-				<Button text="Show all activity" size="large" />
-			</View>
-		);
-	},
-	() => true,
-);
-
 const ActivityList = ({
 	assetFilter,
 	onScroll,
 	style,
 	contentContainerStyle,
 	progressViewOffset,
+	showTitle = true,
 }: {
 	assetFilter?: EActivityTypes[];
 	onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 	style?: StyleProp<ViewStyle> | undefined;
 	contentContainerStyle?: StyleProp<ViewStyle> | undefined;
 	progressViewOffset?: number | undefined;
+	showTitle: boolean;
 }): ReactElement => {
 	const navigation = useNavigation();
 
@@ -122,10 +63,25 @@ const ActivityList = ({
 		),
 	);
 
+	// group items by categories: today, yestarday, this month, this year, earlier
+	// and attach to them formattedDate
+	const groupedItems = useMemo(
+		() => groupActivityItems(activityItems),
+		[activityItems],
+	);
+
 	const [refreshing, setRefreshing] = useState(false);
 
 	const renderItem = useCallback(
 		({ item }): ReactElement => {
+			if (typeof item === 'string') {
+				return (
+					<Caption13Up color="gray1" style={styles.category} key={item}>
+						{item}
+					</Caption13Up>
+				);
+			}
+
 			return (
 				<ListItem
 					key={item.id}
@@ -154,9 +110,11 @@ const ActivityList = ({
 			onScroll={onScroll}
 			style={[styles.content, style]}
 			contentContainerStyle={contentContainerStyle}
-			data={activityItems}
+			data={groupedItems}
 			renderItem={renderItem}
-			keyExtractor={(item): string => item.id}
+			keyExtractor={(item): string =>
+				typeof item === 'string' ? item : item.id
+			}
 			refreshControl={
 				<RefreshControl
 					refreshing={refreshing}
@@ -164,8 +122,7 @@ const ActivityList = ({
 					progressViewOffset={progressViewOffset}
 				/>
 			}
-			ListHeaderComponent={ListHeaderComponent}
-			ListFooterComponent={ListFooterComponent}
+			ListHeaderComponent={showTitle ? ListHeaderComponent : undefined}
 		/>
 	);
 };
@@ -175,45 +132,12 @@ const styles = StyleSheet.create({
 		paddingTop: 20,
 		paddingBottom: 100,
 	},
-	item: {
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		backgroundColor: 'transparent',
+	category: {
 		marginBottom: 16,
-	},
-	col1: {
-		display: 'flex',
-		flexDirection: 'row',
-		alignItems: 'center',
-		flex: 5,
-	},
-	col2: {
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'flex-end',
-		flex: 3,
-	},
-	iconCircle: {
-		borderRadius: 20,
-		width: 32,
-		height: 32,
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginRight: 14,
-	},
-	value: {
-		textAlign: 'right',
-	},
-	date: {
-		marginTop: 4,
 	},
 	header: {
 		marginBottom: 23,
 	},
-	footer: {},
 });
 
 export default memo(ActivityList);

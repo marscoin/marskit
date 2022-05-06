@@ -1,10 +1,10 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import {
 	Display,
-	Title,
+	DisplayHaas,
 	View,
 	Pressable,
-	Headline,
+	Text01M,
 } from '../styles/components';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
@@ -23,32 +23,32 @@ const FiatBalance = memo(
 		primary: boolean;
 	}): ReactElement => {
 		LayoutAnimation.easeInEaseOut();
-		const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatTicker } =
+		const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } =
 			displayValues;
-		const size = useMemo(() => (primary ? '34px' : '18px'), [primary]);
+		const Text = useMemo(() => (primary ? DisplayHaas : Text01M), [primary]);
+
 		if (fiatWhole.length > 12) {
 			const { newValue, abbreviation } = abbreviateNumber(fiatWhole);
 			return (
 				<View style={styles.row}>
-					<Headline size={size} color={primary ? null : 'gray'}>
-						{newValue}
-					</Headline>
-					<Headline size={size} color="gray">
-						{abbreviation}
-					</Headline>
+					<Text style={styles.symbol} color="gray2">
+						{fiatSymbol}
+					</Text>
+					<Text color={primary ? null : 'gray2'}>{newValue}</Text>
+					<Text color="gray2">{abbreviation}</Text>
 				</View>
 			);
 		}
 		return (
 			<View style={styles.row}>
-				<Display size={size} color={primary ? null : 'gray'}>
+				<Text style={styles.symbol} color="gray2">
+					{fiatSymbol}
+				</Text>
+				<Text color={primary ? null : 'gray2'}>
 					{fiatWhole}
 					{fiatDecimal}
-					{fiatDecimalValue}{' '}
-				</Display>
-				<Title size={size} color="gray">
-					{fiatTicker}
-				</Title>
+					{fiatDecimalValue}
+				</Text>
 			</View>
 		);
 	},
@@ -63,17 +63,15 @@ const AssetBalance = memo(
 		primary: boolean;
 	}): ReactElement => {
 		LayoutAnimation.easeInEaseOut();
-		const size = useMemo(() => (primary ? '34px' : '18px'), [primary]);
-		const { bitcoinFormatted, bitcoinTicker } = displayValues;
+		const Text = useMemo(() => (primary ? DisplayHaas : Text01M), [primary]);
+		const TextSymbol = useMemo(() => (primary ? Display : Text01M), [primary]);
+		const { bitcoinFormatted, bitcoinSymbol } = displayValues;
 		return (
-			<View style={styles.row} size={size}>
-				<Headline size={size} color={primary ? null : 'gray'}>
-					{bitcoinFormatted}
-				</Headline>
-				<Headline size={size} color="gray">
-					{' '}
-					{bitcoinTicker.toLowerCase()}
-				</Headline>
+			<View style={styles.row}>
+				<TextSymbol style={styles.symbol} color="gray2">
+					{bitcoinSymbol}
+				</TextSymbol>
+				<Text color={primary ? null : 'gray2'}>{bitcoinFormatted}</Text>
 			</View>
 		);
 	},
@@ -132,8 +130,10 @@ const styles = StyleSheet.create({
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'center',
 		backgroundColor: 'transparent',
+	},
+	symbol: {
+		marginRight: 4,
 	},
 });
 

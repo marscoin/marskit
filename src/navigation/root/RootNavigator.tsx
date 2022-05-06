@@ -11,6 +11,7 @@ import Blocktank from '../../screens/Blocktank';
 import BlocktankOrder from '../../screens/Blocktank/OrderService';
 import BlocktankPayment from '../../screens/Blocktank/Payment';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
+import ActivityFiltered from '../../screens/Activity/ActivityFiltered';
 import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
@@ -95,6 +96,7 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="BlocktankOrder" component={BlocktankOrder} />
 					<Stack.Screen name="BlocktankPayment" component={BlocktankPayment} />
 					<Stack.Screen name="ActivityDetail" component={ActivityDetail} />
+					<Stack.Screen name="ActivityFiltered" component={ActivityFiltered} />
 					<Stack.Screen name="Scanner" component={ScannerScreen} />
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 					<Stack.Screen name="LightningRoot" component={LightningNavigator} />

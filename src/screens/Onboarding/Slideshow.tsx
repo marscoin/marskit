@@ -125,7 +125,7 @@ const Slideshow = ({
 						<View color={'transparent'} style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
-								source={require('../../assets/illustrations/bitcoin.png')}
+								source={require('../../assets/illustrations/shield-b.png')}
 							/>
 						</View>
 						<View color={'transparent'} style={styles.textContent}>
@@ -322,7 +322,7 @@ const Slideshow = ({
 
 	if (isCreatingWallet) {
 		return (
-			<GlowingBackground topLeft="#75BF72" bottomRight="rgba(0, 133, 255, 0.3)">
+			<GlowingBackground topLeft={colors.green}>
 				<LoadingWalletScreen />
 			</GlowingBackground>
 		);

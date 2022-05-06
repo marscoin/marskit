@@ -15,11 +15,9 @@ const SeedInput = forwardRef(
 					{...props}
 				/>
 				<View style={styles.index}>
-					{
-						<Text01S color={valid ? 'white5' : 'red'} style={styles.indexText}>
-							{index + 1}.
-						</Text01S>
-					}
+					<Text01S color={valid ? 'white5' : 'red'} style={styles.indexText}>
+						{index + 1}.
+					</Text01S>
 				</View>
 			</View>
 		);

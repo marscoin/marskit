@@ -14,6 +14,7 @@ import TodoCarousel from '../../components/TodoCarousel';
 import BoostCards from './BoostCards';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
+import ActivityListShort from '../../screens/Activity/ActivityListShort';
 import { useBalance } from '../../hooks/wallet';
 
 const Wallets = ({ navigation }): ReactElement => {
@@ -56,6 +57,9 @@ const Wallets = ({ navigation }): ReactElement => {
 						/>
 					</View>
 				</DetectSwipe>
+				<View style={styles.content}>
+					<ActivityListShort />
+				</View>
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -63,7 +67,7 @@ const Wallets = ({ navigation }): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		paddingHorizontal: 20,
+		paddingHorizontal: 16,
 	},
 	scrollview: {
 		paddingBottom: 400,
