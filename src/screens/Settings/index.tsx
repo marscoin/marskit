@@ -259,57 +259,43 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 					{
 						title: 'Reset Entire Wallet Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetWalletStore();
-						},
+						onPress: resetWalletStore,
 						hide: false,
 					},
 					{
 						title: 'Reset Lightning Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetLightningStore();
-						},
+						onPress: resetLightningStore,
 						hide: false,
 					},
 					{
 						title: 'Reset Slashtags Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetSlashtagsStore();
-						},
+						onPress: resetSlashtagsStore,
 						hide: false,
 					},
 					{
 						title: 'Reset Settings Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetSettingsStore();
-						},
+						onPress: resetSettingsStore,
 						hide: false,
 					},
 					{
 						title: 'Reset Activity Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetActivityStore();
-						},
+						onPress: resetActivityStore,
 						hide: false,
 					},
 					{
 						title: 'Reset User Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetUserStore();
-						},
+						onPress: resetUserStore,
 						hide: false,
 					},
 					{
 						title: 'Reset Blocktank Store',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetBlocktankStore();
-						},
+						onPress: resetBlocktankStore,
 						hide: false,
 					},
 					{

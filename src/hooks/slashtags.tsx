@@ -34,9 +34,8 @@ export function SlashtagsAutoSyncSDK(): JSX.Element {
 				return;
 			}
 
-			const profileNames = Object.keys(profiles);
-			for (let index = 0; index < profileNames.length; index++) {
-				const name = profileNames[index];
+			for (const i in Object.keys(profiles)) {
+				const name = Object.keys(profiles)[i];
 				const { basicProfile, slashtag } = profiles[name];
 
 				const res = await slashtags.current.updateProfile({
