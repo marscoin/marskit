@@ -1,7 +1,7 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { View } from '../../styles/components';
 import { Alert, StyleSheet } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import Camera from '../../components/Camera';
 import {
 	showErrorNotification,
@@ -20,8 +20,15 @@ import { getMnemonicPhrase, refreshWallet } from '../../utils/wallet';
 import { lnurlAuth, LNURLAuthParams } from '@synonymdev/react-native-lnurl';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
+import {
+	SlashtagsContext,
+	TUrlParseResult,
+} from '@synonymdev/react-native-slashtags';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
+	const slashtags = useContext(SlashtagsContext);
+	const { currentProfileName } = useSelector((state: Store) => state.slashtags);
+
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -29,8 +36,68 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		(state: Store) => state.wallet.selectedWallet,
 	);
 
+	const payLightningInvoicePrompt = (data: QRData): void => {
+		Alert.alert(
+			`Pay ${data.sats} sats?`,
+			data.message,
+			[
+				{
+					text: 'Cancel',
+					onPress: (): void => {},
+					style: 'cancel',
+				},
+				{
+					text: 'Pay',
+					onPress: async (): Promise<void> => {
+						//TODO: Attempt to pay lightning request.
+						showInfoNotification({
+							title: 'Coming soon',
+							message: 'Lightning currently unsupported',
+						});
+					},
+				},
+			],
+			{ cancelable: true },
+		);
+	};
+
+	const onSlashAuth = async (
+		url: string,
+		parsed: TUrlParseResult,
+	): Promise<void> => {
+		if (!slashtags.current) {
+			return console.warn('Slashtags context not set');
+		}
+
+		try {
+			//TODO setup SDK and profiles first
+			const state = await slashtags.current.state();
+			if (!state.sdkSetup || !currentProfileName) {
+				return showErrorNotification({
+					title: 'Slashtags SDK not setup',
+					message: 'Got to profiles and create a slashtag',
+				});
+			}
+
+			await slashtags.current.slashUrl({
+				url,
+				profileName: currentProfileName,
+			});
+
+			showSuccessNotification({
+				title: 'Authenticated',
+				message: `Signed into ${parsed.key}`,
+			});
+		} catch (e) {
+			showErrorNotification({
+				title: 'Failed to authenticate',
+				message: e.getString,
+			});
+		}
+	};
+
 	const handleData = async (data: QRData): Promise<void> => {
-		if (data.network !== selectedNetwork) {
+		if (data.network && data.network !== selectedNetwork) {
 			return showErrorNotification(
 				{
 					title: 'Unsupported network',
@@ -40,44 +107,9 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 			);
 		}
 
-		const { address, sats: amount, message, network } = data;
+		const { qrDataType, address, sats: amount, message, network, url } = data;
 
-		const payLightningInvoicePrompt = (): void => {
-			Alert.alert(
-				`Pay ${data.sats} sats?`,
-				data.message,
-				[
-					{
-						text: 'Cancel',
-						onPress: (): void => {},
-						style: 'cancel',
-					},
-					{
-						text: 'Pay',
-						onPress: async (): Promise<void> => {
-							//TODO: Attempt to pay lightning request.
-							/*const payRes = await payLightningRequest(
-								data.lightningPaymentRequest ?? '',
-							);
-							if (payRes.isErr()) {
-								showErrorNotification({
-									title: 'Payment failed',
-									message: payRes.error.message,
-								});
-								return;
-							}
-
-							showSuccessNotification({
-								title: 'Paid!',
-								message: `${data.sats} sats`,
-							});*/
-						},
-					},
-				],
-				{ cancelable: true },
-			);
-		};
-		switch (data.qrDataType) {
+		switch (qrDataType) {
 			case EQRDataType.bitcoinAddress: {
 				updateOnChainTransaction({
 					selectedWallet,
@@ -101,12 +133,12 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 						onSuccess: () => {
 							navigation.pop();
 							setTimeout(() => {
-								payLightningInvoicePrompt();
+								payLightningInvoicePrompt(data);
 							}, 500);
 						},
 					});
 				} else {
-					payLightningInvoicePrompt();
+					payLightningInvoicePrompt(data);
 				}
 				break;
 			}
@@ -143,6 +175,47 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 				//const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
 				//TODO: Create invoice
 				return;
+			}
+			case EQRDataType.slashtagUrl: {
+				if (!slashtags.current) {
+					return console.warn('Slashtags context not set');
+				}
+
+				try {
+					const parsed = await slashtags.current.parseUrl(url!);
+
+					if (parsed.protocol === 'slashauth') {
+						Alert.alert(
+							'Authenticate',
+							`Are you sure you want to authenticate with ${parsed.key}?`,
+							[
+								{
+									text: 'Cancel',
+									onPress: (): void => {},
+									style: 'cancel',
+								},
+								{
+									text: 'Auth',
+									onPress: async (): Promise<void> => {
+										await onSlashAuth(url!, parsed);
+									},
+								},
+							],
+							{ cancelable: true },
+						);
+					} else {
+						showErrorNotification({
+							title: 'Unsupported Slashtags feature',
+							message: `Protocol: ${parsed.protocol}`,
+						});
+					}
+				} catch (e) {
+					console.error(e);
+					showErrorNotification({
+						title: 'Authentication failed',
+						message: 'Could not parse Slashtags URL',
+					});
+				}
 			}
 		}
 	};
