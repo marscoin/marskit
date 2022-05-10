@@ -1,11 +1,5 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import {
-	View,
-	Text02M,
-	Caption13M,
-	EvilIcon,
-	TouchableOpacity,
-} from '../styles/components';
+import { View, Text02M, Caption13M, EvilIcon } from '../styles/components';
 import { StyleSheet } from 'react-native';
 import useDisplayValues from '../hooks/displayValues';
 import Card from './Card';
@@ -45,32 +39,27 @@ const AssetPicker = ({
 		return capitalize(assetName);
 	}, [assetName]);
 	return (
-		<TouchableOpacity
-			color="transparent"
-			onPress={handleOnPress}
-			activeOpacity={0.7}>
-			<Card style={styles.container} color={'gray336'}>
-				<>
-					<View style={styles.col1}>
-						{/*@ts-ignore*/}
-						<AssetIcon />
-						<View color="transparent" style={styles.titleContainer}>
-							<Text02M>{asset}</Text02M>
-							<Caption13M color={'gray1'}>
-								Balance: {balances.fiatSymbol}
-								{balances.fiatFormatted}
-							</Caption13M>
-						</View>
+		<Card onPress={handleOnPress} style={styles.container} color={'white05'}>
+			<>
+				<View style={styles.col1}>
+					{/*@ts-ignore*/}
+					<AssetIcon />
+					<View color="transparent" style={styles.titleContainer}>
+						<Text02M>{asset}</Text02M>
+						<Caption13M color={'gray1'}>
+							Balance: {balances.fiatSymbol}
+							{balances.fiatFormatted}
+						</Caption13M>
 					</View>
+				</View>
 
-					{hideArrow && (
-						<View color="transparent" style={styles.col2}>
-							<EvilIcon name={'chevron-down'} size={30} color="onBackground" />
-						</View>
-					)}
-				</>
-			</Card>
-		</TouchableOpacity>
+				{hideArrow && (
+					<View color="transparent" style={styles.col2}>
+						<EvilIcon name={'chevron-down'} size={30} color="onBackground" />
+					</View>
+				)}
+			</>
+		</Card>
 	);
 };
 

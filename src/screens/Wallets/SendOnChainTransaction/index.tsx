@@ -351,6 +351,7 @@ const styles = StyleSheet.create({
 	amountToggle: {
 		paddingTop: 20,
 		paddingVertical: 25,
+		paddingHorizontal: 16,
 	},
 });
 

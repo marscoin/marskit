@@ -88,6 +88,16 @@ export const resetActivityStore = (): Result<string> => {
 	return ok('');
 };
 
+/*
+ * This resets the activity filters store to defaut state
+ */
+export const resetActivityFilterStore = (): Result<string> => {
+	dispatch({
+		type: actions.RESET_ACTIVITY_FILTERS_STORE,
+	});
+	return ok('');
+};
+
 /**
  * @param {string} id
  * @param {IActivityItem} newActivityItem

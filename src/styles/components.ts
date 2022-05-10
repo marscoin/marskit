@@ -35,6 +35,10 @@ import {
 	userIcon,
 	gitBranchIcon,
 	noteIcon,
+	checkCircleIcon,
+	clockIcon,
+	timerIcon,
+	magnifyingGlassIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -100,6 +104,38 @@ export const NoteIcon = styled(SvgXml).attrs((props) => ({
 	xml: noteIcon(props?.color ? props.theme.colors[props.color] : '#F75C1A'),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const CheckCircleIcon = styled(SvgXml).attrs((props) => ({
+	xml: checkCircleIcon(
+		props?.color ? props.theme.colors[props.color] : 'white',
+	),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const ClockIcon = styled(SvgXml).attrs((props) => ({
+	xml: clockIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const TimerIcon = styled(SvgXml).attrs((props) => ({
+	xml: timerIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const MagnifyingGlassIcon = styled(SvgXml).attrs((props) => ({
+	xml: magnifyingGlassIcon(
+		props?.color ? props.theme.colors[props.color] : 'gray1',
+	),
+	height: props?.height ?? '20px',
+	width: props?.width ?? '20px',
 	color: undefined,
 }))({});
 
@@ -307,16 +343,15 @@ export const Text02M = styled.Text((props) => ({
 	fontSize: props.size ? props.size : '15px',
 }));
 
-export const SubHeadM = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+export const Text02B = styled.Text((props) => ({
+	...sanFranciscoWeights.bold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.medium.fontFamily,
-	fontWeight: 500,
-	fontSize: props.size ? props.size : '14px',
+	fontSize: props.size ? props.size : '15px',
 }));
 
 export const Text02S = styled.Text((props) => ({
@@ -328,6 +363,18 @@ export const Text02S = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.regular.fontFamily,
 	fontSize: props.size ? props.size : '15px',
+}));
+
+export const SubHeadM = styled.Text((props) => ({
+	...sanFranciscoWeights.medium,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	fontFamily: props.font
+		? props.theme.fonts[props.font].fontFamily
+		: sanFranciscoWeights.medium.fontFamily,
+	fontWeight: 500,
+	fontSize: props.size ? props.size : '14px',
 }));
 
 export const Caption13M = styled.Text((props) => ({
@@ -423,14 +470,14 @@ export const ScrollView = styled.ScrollView((props) => ({
 }));
 
 export const TextInput = styled.TextInput.attrs((props) => ({
-	selectionColor: colors.orange,
+	selectionColor: colors.brand,
 	placeholderTextColor: props?.placeholderTextColor
 		? props.placeholderTextColor
-		: 'gray',
+		: props.theme.colors.white5,
 }))((props) => ({
 	backgroundColor: props.backgroundColor
 		? props.theme.colors[props.color]
-		: props.theme.colors.onSurface,
+		: props.theme.colors.white08,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,

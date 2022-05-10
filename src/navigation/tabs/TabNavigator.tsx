@@ -9,7 +9,6 @@ import { BlurView } from '@react-native-community/blur';
 
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
-import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import QR from '../../components/QR';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import { CameraIcon, Text02M, View } from '../../styles/components';
@@ -63,7 +62,6 @@ const WalletsStack = (): ReactElement => {
 				options={screenOptions}
 			/>
 			<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
-			<Stack.Screen name="ActivityDetail" component={ActivityDetail} />
 			<Stack.Group screenOptions={modalOptions}>
 				<Stack.Screen
 					name="BitcoinToLightning"
@@ -184,8 +182,8 @@ const TabNavigator = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	tabRoot: {
-		left: 10,
-		right: 10,
+		left: 16,
+		right: 16,
 		height: 80,
 		position: 'absolute',
 		backgroundColor: 'transparent',

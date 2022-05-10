@@ -19,6 +19,10 @@ export interface IActivityItem {
 	timestamp: number;
 }
 
+export interface IActivityItemFormatted extends IActivityItem {
+	formattedDate: string;
+}
+
 export interface IActivity {
 	items: IActivityItem[];
 	itemsFiltered: IActivityItem[];

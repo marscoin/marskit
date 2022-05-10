@@ -1,4 +1,8 @@
-import { EActivityTypes, IActivityItem } from '../../store/types/activity';
+import {
+	EActivityTypes,
+	IActivityItem,
+	IActivityItemFormatted,
+} from '../../store/types/activity';
 import {
 	IFormattedTransaction,
 	IFormattedTransactionContent,
@@ -118,4 +122,107 @@ export const filterActivityItems = (
 	});
 
 	return filteredItems;
+};
+
+export const groupActivityItems = (
+	activityItems: IActivityItem[],
+): IActivityItemFormatted[] => {
+	const date = new Date();
+	const beginningOfDay = +new Date(
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate(),
+	);
+	const beginningOfYesterday = +new Date(
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate() - 1,
+	);
+	const beginningOfMonth = +new Date(date.getFullYear(), date.getMonth());
+	const beginningOfYear = +new Date(date.getFullYear());
+
+	const today: Array<any> = [];
+	const yesterday: Array<any> = [];
+	const month: Array<any> = [];
+	const year: Array<any> = [];
+	const earlier: Array<any> = [];
+
+	for (let item of activityItems) {
+		if (item.timestamp >= beginningOfDay) {
+			// today format as 22:40
+			today.push({
+				...item,
+				formattedDate: new Date(item.timestamp).toLocaleString(undefined, {
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				}),
+			});
+		} else if (item.timestamp >= beginningOfYesterday) {
+			// yesterday format as 22:40
+			yesterday.push({
+				...item,
+				formattedDate: new Date(item.timestamp).toLocaleString(undefined, {
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				}),
+			});
+		} else if (item.timestamp >= beginningOfMonth) {
+			// month, format as April 4, 08:29
+			month.push({
+				...item,
+				formattedDate: new Date(item.timestamp).toLocaleString(undefined, {
+					month: 'long',
+					day: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				}),
+			});
+		} else if (item.timestamp >= beginningOfYear) {
+			// year, format as April 4, 08:29
+			year.push({
+				...item,
+				formattedDate: new Date(item.timestamp).toLocaleString(undefined, {
+					month: 'long',
+					day: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				}),
+			});
+		} else {
+			// earlier, format as February 2, 2021, 09:14
+			earlier.push({
+				...item,
+				formattedDate: new Date(item.timestamp).toLocaleString(undefined, {
+					month: 'long',
+					day: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				}),
+			});
+		}
+	}
+
+	let result: Array<any> = [];
+	if (today.length > 0) {
+		result = [...result, 'TODAY', ...today];
+	}
+	if (yesterday.length > 0) {
+		result = [...result, 'YESTERDAY', ...yesterday];
+	}
+	if (month.length > 0) {
+		result = [...result, 'THIS MONTH', ...month];
+	}
+	if (year.length > 0) {
+		result = [...result, 'THIS YEAR', ...year];
+	}
+	if (earlier.length > 0) {
+		result = [...result, 'EARLIER', ...earlier];
+	}
+
+	return result;
 };
