@@ -1,8 +1,8 @@
 import RNFS from 'react-native-fs';
 import { err, ok, Result } from '../result';
 import {
+	deriveMnemonicPhrases,
 	getMnemonicPhrase,
-	getMnemonicPhraseFromEntropy,
 	getSelectedNetwork,
 	getSelectedWallet,
 } from '../wallet';
@@ -61,8 +61,11 @@ export const getLightningSeed = async (
 		if (mnemonic.isErr()) {
 			return err(mnemonic.error.message);
 		}
-		const lndSeed = getMnemonicPhraseFromEntropy(mnemonic.value);
-		return ok(lndSeed);
+		const lndSeed = await deriveMnemonicPhrases(mnemonic.value);
+		if (lndSeed.isErr()) {
+			return err(lndSeed.error.message);
+		}
+		return ok(lndSeed.value.lightning);
 	} catch (e) {
 		return err(e);
 	}
