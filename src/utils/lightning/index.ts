@@ -1,11 +1,6 @@
 import RNFS from 'react-native-fs';
 import { err, ok, Result } from '../result';
-import {
-	deriveMnemonicPhrases,
-	getMnemonicPhrase,
-	getSelectedNetwork,
-	getSelectedWallet,
-} from '../wallet';
+import { getSelectedNetwork, getSelectedWallet } from '../wallet';
 import { TAvailableNetworks } from '../networks';
 
 export const defaultNodePubKey =
@@ -44,31 +39,6 @@ export const wipeLndDir = async ({
 		return err(e);
 	}
 	return ok('LND directory wiped');
-};
-
-/**
- * Attempt to deterministically derive lightning seed from on-chain seed.
- * @return {Promise<Result<string[]>>}
- */
-export const getLightningSeed = async (
-	selectedWallet: string,
-): Promise<Result<string>> => {
-	try {
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const mnemonic = await getMnemonicPhrase(selectedWallet);
-		if (mnemonic.isErr()) {
-			return err(mnemonic.error.message);
-		}
-		const lndSeed = await deriveMnemonicPhrases(mnemonic.value);
-		if (lndSeed.isErr()) {
-			return err(lndSeed.error.message);
-		}
-		return ok(lndSeed.value.lightning);
-	} catch (e) {
-		return err(e);
-	}
 };
 
 export const getLightningDirectory = ({
