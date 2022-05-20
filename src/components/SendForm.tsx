@@ -262,6 +262,7 @@ const SendForm = ({ index = 0 }): ReactElement => {
 								}}
 								value={address}
 								onSubmitEditing={(): void => {}}
+								blurOnSubmit={true}
 							/>
 						</View>
 					</View>

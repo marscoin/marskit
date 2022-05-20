@@ -3,23 +3,23 @@ import { IFees } from '../types/fees';
 export const FeeText = {
 	instant: {
 		title: 'Instant',
-		description: '2 - 10 secs',
+		description: '2-10 seconds',
 	},
 	fast: {
 		title: 'Fast',
-		description: '10 - 20 mins',
+		description: '10-20 minutes',
 	},
 	normal: {
 		title: 'Normal',
-		description: '20 - 60 mins',
+		description: '20-60 minutes',
 	},
 	slow: {
 		title: 'Slow',
-		description: '1 - 2 hours',
+		description: '1-2 hours',
 	},
 	custom: {
 		title: 'Custom',
-		description: '',
+		description: 'Depends on the fee',
 	},
 	none: {
 		title: '',

@@ -923,3 +923,99 @@ export const addTxInput = ({
 		return err(e);
 	}
 };
+
+/**
+ * Adds a specified tag to the current transaction.
+ * @param {string} tag
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const addTxTag = ({
+	tag,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	tag: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<string> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+
+		let tags = [...(txData.value?.tags ?? []), tag];
+		tags = [...new Set(tags)]; // remove duplicates
+
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: {
+				...txData,
+				tags,
+			},
+		});
+		return ok('Tag successfully added');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * Removes a specified tag to the current transaction.
+ * @param {string} tag
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const removeTxTag = ({
+	tag,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	tag: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<string> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const txData = getOnchainTransactionData({
+			selectedNetwork,
+			selectedWallet,
+		});
+		if (txData.isErr()) {
+			return err(txData.error.message);
+		}
+
+		const tags = txData.value?.tags ?? [];
+		const newTags = tags.filter((t) => t !== tag);
+
+		updateOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			transaction: {
+				...txData,
+				tags: newTags,
+			},
+		});
+		return ok('Tag successfully added');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};

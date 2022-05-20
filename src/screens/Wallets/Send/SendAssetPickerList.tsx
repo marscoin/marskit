@@ -11,7 +11,7 @@ const SendAssetPickerList = (): ReactElement => {
 			view: 'sendAssetPicker',
 			data: {
 				isOpen: true,
-				snapPoint: 0,
+				snapPoint: 1,
 				asset,
 				assetName: capitalize(asset),
 			},

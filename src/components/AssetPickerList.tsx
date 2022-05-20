@@ -1,9 +1,11 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import { StyleSheet, Image } from 'react-native';
+
 import { Caption13Up, View } from '../styles/components';
-import { StyleSheet } from 'react-native';
 import { getAssetNames, getBalance } from '../utils/wallet';
 import AssetPicker from './AssetPicker';
 import NavigationHeader from './NavigationHeader';
+import Glow from './Glow';
 
 const AssetPickerList = ({
 	headerTitle,
@@ -49,6 +51,7 @@ const AssetPickerList = ({
 					title={headerTitle}
 					navigateBack={false}
 					displayBackButton={false}
+					size="sm"
 				/>
 			)}
 			<View style={styles.content}>
@@ -56,6 +59,13 @@ const AssetPickerList = ({
 					ASSETS
 				</Caption13Up>
 				{assets}
+			</View>
+			<View style={styles.imageContainer}>
+				<Glow style={styles.glow} size={300} color="white" />
+				<Image
+					source={require('../assets/illustrations/coins.png')}
+					style={styles.image}
+				/>
 			</View>
 		</View>
 	);
@@ -66,12 +76,27 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	content: {
-		flex: 1,
 		paddingHorizontal: 15,
 		backgroundColor: 'transparent',
 	},
 	title: {
 		marginBottom: 10,
+	},
+	glow: {
+		position: 'absolute',
+	},
+	imageContainer: {
+		position: 'relative',
+		alignSelf: 'center',
+		height: 300,
+		width: 300,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: 'transparent',
+	},
+	image: {
+		width: 150,
+		height: 150,
 	},
 });
 

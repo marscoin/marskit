@@ -16,8 +16,10 @@
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^4.2.2",
     "@react-native-clipboard/clipboard": "^1.10.0",
     "@react-native-community/blur": "^3.6.0",
+    "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/netinfo": "^8.1.0",
     "@react-navigation/bottom-tabs": "^6.2.0",
     "@react-navigation/native": "^6.0.8",
@@ -81,7 +83,6 @@
     "react-native-zip-archive": "^6.0.3",
     "react-redux": "^7.2.6",
     "readable-stream": "^3.6.0",
-    "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "redux": "^4.1.2",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",

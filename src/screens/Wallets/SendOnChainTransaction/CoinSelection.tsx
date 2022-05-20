@@ -56,7 +56,6 @@ const closeList = (): void => {
 		view: 'coinSelection',
 		data: {
 			isOpen: false,
-			snapPoint: 2,
 		},
 	}).then();
 };
@@ -291,6 +290,7 @@ const styles = StyleSheet.create({
 		borderRadius: 76,
 		width: '75%',
 		paddingVertical: 10,
+		alignSelf: 'center',
 	},
 });
 

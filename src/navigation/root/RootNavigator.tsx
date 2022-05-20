@@ -20,9 +20,12 @@ import SettingsNavigator from '../settings/SettingsNavigator';
 import ProfileNavigator from '../profile/ProfileNavigator';
 import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
+import SendNavigation from '../bottom-sheet/SendNavigation';
 import { NavigationContainer } from '../../styles/components';
 import CoinSelection from '../../screens/Wallets/SendOnChainTransaction/CoinSelection';
 import LightningNavigator from '../lightning/LightningNavigator';
+import BottomSheetWrapper from '../../components/BottomSheetWrapper';
+import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnChainNumberPad';
 
 const Stack = createNativeStackNavigator();
 
@@ -107,11 +110,19 @@ const RootNavigator = (): ReactElement => {
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />
+			<SendNavigation />
 			<ReceiveBottomSheet />
 
 			<ReceiveAssetPicker />
 			<SendAssetPicker />
 			<CoinSelection />
+			<BottomSheetWrapper
+				snapPoints={[375]}
+				headerColor={'background'}
+				backdrop={false}
+				view="numberPad">
+				<OnChainNumberPad />
+			</BottomSheetWrapper>
 		</NavigationContainer>
 	);
 };

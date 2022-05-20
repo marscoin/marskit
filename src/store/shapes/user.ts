@@ -6,7 +6,7 @@ export const defaultViewController: IViewControllerData = {
 	asset: '',
 	assetNetwork: undefined,
 	assetName: undefined,
-	snapPoint: 2,
+	snapPoint: -1,
 };
 
 export const defaultUserShape = {

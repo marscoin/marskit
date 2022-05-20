@@ -1049,7 +1049,7 @@ export const updateFee = ({
 	const newFee = getTotalFee({ satsPerByte });
 	//Return if the new fee exceeds half of the user's balance
 	if (Number(newFee) >= inputTotal / 2) {
-		return ok(
+		return err(
 			'Unable to increase the fee any further. Otherwise, it will exceed half the current balance.',
 		);
 	}

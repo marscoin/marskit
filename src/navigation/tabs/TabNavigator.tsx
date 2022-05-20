@@ -113,21 +113,28 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	const onSendPress = useCallback((): void => {
 		if (screen === 'WalletsDetail') {
 			toggleView({
-				view: 'send',
+				view: 'SendNavigation',
 				data: {
-					id: params.assetType,
 					isOpen: true,
 					snapPoint: 0,
-					assetName: params.assetType,
+					initial: 'AddressAndAmount',
 				},
 			});
+			// toggleView({
+			// 	view: 'send',
+			// 	data: {
+			// 		id: params.assetType,
+			// 		isOpen: true,
+			// 		snapPoint: 1,
+			// 		assetName: params.assetType,
+			// 	},
+			// });
 		} else {
 			toggleView({
-				view: 'sendAssetPicker',
+				view: 'SendNavigation',
 				data: {
-					id: 'send',
 					isOpen: true,
-					snapPoint: 1,
+					snapPoint: 0,
 				},
 			});
 		}
