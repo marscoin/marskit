@@ -2,7 +2,7 @@ import React, { memo, ReactElement, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { validate } from 'bitcoin-address-validation';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
