@@ -113,7 +113,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	const onSendPress = useCallback((): void => {
 		if (screen === 'WalletsDetail') {
 			toggleView({
-				view: 'SendNavigation',
+				view: 'sendNavigation',
 				data: {
 					isOpen: true,
 					snapPoint: 0,
@@ -131,7 +131,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 			// });
 		} else {
 			toggleView({
-				view: 'SendNavigation',
+				view: 'sendNavigation',
 				data: {
 					isOpen: true,
 					snapPoint: 0,

@@ -37,7 +37,7 @@ const SendNavigation = (): ReactElement => {
 
 	return (
 		<BottomSheetWrapper
-			view="SendNavigation"
+			view="sendNavigation"
 			onClose={resetOnChainTransaction}
 			onOpen={setupOnChainTransaction}
 			snapPoints={snapPoints}>

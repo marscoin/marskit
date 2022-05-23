@@ -7,9 +7,8 @@ export type TViewController =
 	| 'receiveAssetPicker'
 	| 'coinSelection'
 	| 'feePicker'
-	| 'SendNavigation'
-	| 'numberPad'
-	| 'test1';
+	| 'sendNavigation'
+	| 'numberPad';
 
 export type TUserViewController = {
 	[key in TViewController]: IViewControllerData;

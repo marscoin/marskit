@@ -47,7 +47,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 	const initial = useSelector(
-		(store: Store) => store.user.viewController?.SendNavigation?.initial,
+		(store: Store) => store.user.viewController?.sendNavigation?.initial,
 	);
 	const transaction = useTransactionDetails();
 	const displayBackButton = initial === 'SendAssetPickerList';

@@ -30,7 +30,7 @@ const Result = ({ navigation, route }): ReactElement => {
 	const handleButtonPress = (): void => {
 		if (success) {
 			toggleView({
-				view: 'SendNavigation',
+				view: 'sendNavigation',
 				data: {
 					isOpen: false,
 				},

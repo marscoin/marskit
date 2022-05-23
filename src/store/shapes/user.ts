@@ -20,5 +20,6 @@ export const defaultUserShape = {
 		receive: { ...defaultViewController },
 		sendAssetPicker: { ...defaultViewController },
 		receiveAssetPicker: { ...defaultViewController },
+		sendNavigation: { ...defaultViewController },
 	},
 };
