@@ -138,7 +138,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 				},
 			});
 		}
-	}, [screen, params]);
+	}, [screen]);
 
 	const openScanner = useCallback(
 		() => navigation.navigate('Scanner'),
