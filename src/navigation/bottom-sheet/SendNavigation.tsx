@@ -29,7 +29,7 @@ const navOptions = {
 
 const SendNavigation = (): ReactElement => {
 	const { isOpen, initial } = useSelector(
-		(store: Store) => store.user.viewController?.SendNavigation,
+		(store: Store) => store.user.viewController?.sendNavigation,
 	);
 	const snapPoints = useMemo(() => [600], []);
 
