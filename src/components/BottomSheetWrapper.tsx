@@ -1,5 +1,5 @@
 /***********************************************************************************
- * This component wraps the reanimated-bottom-sheet library
+ * This component wraps the @gorhom/bottom-sheet library
  * to more easily take advantage of it throughout the app.
  *
  * Implementation:
@@ -26,23 +26,25 @@ import React, {
 	useMemo,
 } from 'react';
 import { StyleSheet } from 'react-native';
-import { View } from '../styles/components';
-import BottomSheet from 'reanimated-bottom-sheet';
+import BottomSheet, {
+	useBottomSheetDynamicSnapPoints,
+} from '@gorhom/bottom-sheet';
+import { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
-import { toggleView } from '../store/actions/user';
 import { TViewController } from '../store/types/user';
-import { usePrevious } from '../hooks/helpers';
-import { IThemeColors } from '../styles/themes';
+import themes from '../styles/themes';
+import { toggleView } from '../store/actions/user';
+import { defaultViewController } from '../store/shapes/user';
 
 export interface IModalProps {
 	children: ReactElement;
 	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
-	headerColor?: IThemeColors;
-	displayHeader?: boolean;
-	snapPoints?: any[];
+	headerColor?: string;
+	snapPoints?: (string | number)[];
+	backdrop?: boolean;
 }
 const BottomSheetWrapper = forwardRef(
 	(
@@ -52,54 +54,58 @@ const BottomSheetWrapper = forwardRef(
 			onOpen = (): null => null,
 			onClose = (): null => null,
 			headerColor = undefined,
-			displayHeader = true,
-			snapPoints = ['95%', '65%', 0],
+			snapPoints = ['60%', '95%'],
+			backdrop = true,
 		}: IModalProps,
 		ref,
 	): ReactElement => {
 		const data = useSelector((state: Store) =>
-			view ? state.user?.viewController[view] : undefined,
+			view ? state.user?.viewController[view] : defaultViewController,
 		);
-		const previousData = usePrevious(data);
-		const modalRef = useRef<BottomSheet>(null);
+		const bottomSheetRef = useRef<BottomSheet>(null);
 
+		const settingsTheme = useSelector((state: Store) => state.settings.theme);
+		const theme = useMemo(() => themes[settingsTheme], [settingsTheme]);
 		const backgroundColor = useMemo(() => {
 			if (headerColor) {
-				return headerColor;
+				return theme.colors[headerColor];
 			}
-			return 'tabBackground';
-		}, [headerColor]);
+			return theme.colors.tabBackground;
+		}, [theme.colors, headerColor]);
 
 		useEffect(() => {
 			try {
-				// @ts-ignore
-				if (view && data?.snapPoint !== previousData?.snapPoint) {
-					// @ts-ignore
-					modalRef.current.snapTo(data?.snapPoint);
+				if (view) {
+					if (data?.isOpen) {
+						bottomSheetRef?.current?.snapToIndex(data?.snapPoint ?? -1);
+					} else {
+						bottomSheetRef?.current?.close();
+					}
 				}
 			} catch {}
-			//eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [data?.isOpen, data?.snapPoint, view]);
+		}, [data, data?.isOpen, data?.snapPoint, view]);
 
 		useImperativeHandle(ref, () => ({
 			snapToIndex(index: number = 0): void {
 				// @ts-ignore
-				modalRef.current.snapTo(index);
+				bottomSheetRef.current.snapToIndex(index);
 			},
 			expand(): void {
 				// @ts-ignore
-				modalRef.current.snapTo(0);
+				bottomSheetRef.current.snapToIndex(1);
 			},
 			close(): void {
 				// @ts-ignore
-				modalRef.current.close(-1);
+				bottomSheetRef.current.close();
 			},
 		}));
 
-		const _onOpen = useCallback(() => {
-			onOpen();
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, []);
+		const _snapPoints = useMemo(() => snapPoints, [snapPoints]);
+		const initialSnapPoints = useMemo(() => ['60%', '95%'], []);
+		const { animatedHandleHeight, handleContentLayout } =
+			useBottomSheetDynamicSnapPoints(initialSnapPoints);
+
+		const _onOpen = useCallback(() => onOpen(), [onOpen]);
 
 		const _onClose = useCallback(() => {
 			if (view) {
@@ -109,33 +115,61 @@ const BottomSheetWrapper = forwardRef(
 				}).then();
 			}
 			onClose();
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [view]);
+		}, [view, onClose, data?.id]);
 
-		const Header = useCallback(() => {
-			return displayHeader ? (
-				<View style={styles.handleContainer} color="onSurface">
-					<View style={styles.handle} />
-				</View>
-			) : null;
-		}, [displayHeader]);
+		// callbacks
+		const handleSheetChanges = useCallback(
+			(index: number) => {
+				if (index === -1) {
+					_onClose();
+				} else if (index >= 0) {
+					_onOpen();
+				}
+			},
+			[_onClose, _onOpen],
+		);
+
+		const renderBackdrop = useCallback(
+			(props) => {
+				if (!backdrop) {
+					return null;
+				}
+				return (
+					<BottomSheetBackdrop
+						{...props}
+						disappearsOnIndex={-1}
+						appearsOnIndex={0}
+					/>
+				);
+			},
+			[backdrop],
+		);
+
+		// Determine initial snapPoint index based on provided data.
+		let index = useMemo((): number => {
+			return data?.snapPoint && data?.snapPoint < 2 ? data.snapPoint : -1;
+		}, [data?.snapPoint]);
 
 		return (
 			<BottomSheet
-				ref={modalRef}
-				initialSnap={2}
-				snapPoints={snapPoints}
-				onOpenStart={_onOpen}
-				onCloseEnd={_onClose}
-				renderHeader={Header}
-				renderContent={(): ReactElement => {
-					return (
-						<View style={styles.container} color={backgroundColor}>
-							{children}
-						</View>
-					);
-				}}
-			/>
+				backgroundStyle={{ backgroundColor }}
+				handleIndicatorStyle={{ backgroundColor: theme.colors.gray2 }}
+				handleStyle={{ ...styles.handle, backgroundColor: backgroundColor }}
+				animateOnMount
+				enablePanDownToClose
+				keyboardBlurBehavior="restore"
+				ref={bottomSheetRef}
+				index={index}
+				onChange={handleSheetChanges}
+				backdropComponent={renderBackdrop}
+				handleHeight={animatedHandleHeight}
+				snapPoints={_snapPoints}>
+				<BottomSheetView
+					style={styles.container}
+					onLayout={handleContentLayout}>
+					{children}
+				</BottomSheetView>
+			</BottomSheet>
 		);
 	},
 );
@@ -155,7 +189,6 @@ const styles = StyleSheet.create({
 		height: 4,
 		width: 32,
 		borderRadius: 32,
-		backgroundColor: '#636366',
 		marginTop: 12,
 		marginBottom: 11,
 	},

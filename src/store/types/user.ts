@@ -7,6 +7,7 @@ export type TViewController =
 	| 'receiveAssetPicker'
 	| 'coinSelection'
 	| 'feePicker'
+	| 'sendNavigation'
 	| 'numberPad';
 
 export type TUserViewController = {
@@ -25,6 +26,7 @@ export interface IViewControllerData {
 	assetNetwork?: TAssetNetwork;
 	assetName?: string;
 	snapPoint?: number;
+	initial?: string;
 }
 
 export interface IUser {

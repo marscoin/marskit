@@ -17,7 +17,7 @@ import {
 	DisplayHaas,
 	Display,
 	GitBranchIcon,
-	TimerIcon,
+	TimerIconAlt,
 	NoteIcon,
 	ReceiveIcon,
 	SendIcon,
@@ -273,7 +273,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 								<Button
 									style={styles.button}
 									text="Boost transaction"
-									icon={<TimerIcon color="brand" />}
+									icon={<TimerIconAlt color="brand" />}
 									disabled={!boostData.canBoost}
 									onPress={(): void => Alert.alert('TODO')}
 								/>

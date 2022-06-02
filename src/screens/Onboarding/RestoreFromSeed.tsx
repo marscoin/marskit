@@ -15,6 +15,14 @@ import {
 	View,
 } from 'react-native';
 import * as bip39 from 'bip39';
+import {
+	Canvas,
+	RadialGradient,
+	Rect,
+	runTiming,
+	useValue,
+	vec,
+} from '@shopify/react-native-skia';
 
 import { DisplayHaas, Text01S } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
@@ -25,15 +33,6 @@ import VerticalShadow from '../../components/VerticalShadow';
 import Button from '../../components/Button';
 import { validateMnemonic } from '../../utils/wallet';
 import useColors from '../../hooks/colors';
-
-import {
-	Canvas,
-	RadialGradient,
-	Rect,
-	runTiming,
-	useValue,
-	vec,
-} from '@shopify/react-native-skia';
 
 const Glow = ({ color }: { color: string }): ReactElement => {
 	const opacity = useValue(0);

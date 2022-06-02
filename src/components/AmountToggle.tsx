@@ -6,7 +6,7 @@ import {
 	Pressable,
 	Text01M,
 } from '../styles/components';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { LayoutAnimation, StyleSheet, Keyboard } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
 import { IDisplayValues } from '../utils/exchange-rate/types';
@@ -110,6 +110,7 @@ const AmountToggle = ({
 		));
 	}, [getBalanceComponents]);
 	const onTogglePress = useCallback(() => {
+		Keyboard.dismiss(); // in case it was opened by Address input
 		toggleView({
 			view: 'numberPad',
 			data: {

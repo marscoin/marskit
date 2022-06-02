@@ -38,11 +38,21 @@ import {
 	checkCircleIcon,
 	clockIcon,
 	timerIcon,
+	timerIconAlt,
 	magnifyingGlassIcon,
+	clipboardTextIcon,
+	usersIcon,
+	carSimpleIcon,
+	bicycleIcon,
+	pedestrianIcon,
+	gearIcon,
+	xIcon,
+	tagIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
 	leftArrowIcon,
+	rightArrowIcon,
 	checkmarkIcon,
 	copyIcon,
 } from '../assets/icons/settings';
@@ -130,12 +140,77 @@ export const TimerIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
+export const TimerIconAlt = styled(SvgXml).attrs((props) => ({
+	xml: timerIconAlt(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
 export const MagnifyingGlassIcon = styled(SvgXml).attrs((props) => ({
 	xml: magnifyingGlassIcon(
 		props?.color ? props.theme.colors[props.color] : 'gray1',
 	),
 	height: props?.height ?? '20px',
 	width: props?.width ?? '20px',
+	color: undefined,
+}))({});
+
+export const ClipboardTextIcon = styled(SvgXml).attrs((props) => ({
+	xml: clipboardTextIcon(
+		props?.color ? props.theme.colors[props.color] : 'white',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const UsersIcon = styled(SvgXml).attrs((props) => ({
+	xml: usersIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const CarSimpleIcon = styled(SvgXml).attrs((props) => ({
+	xml: carSimpleIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const BicycleIcon = styled(SvgXml).attrs((props) => ({
+	xml: bicycleIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const PedestrianIcon = styled(SvgXml).attrs((props) => ({
+	xml: pedestrianIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const GearIcon = styled(SvgXml).attrs((props) => ({
+	xml: gearIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const XIcon = styled(SvgXml).attrs((props) => ({
+	xml: xIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const TagIcon = styled(SvgXml).attrs((props) => ({
+	xml: tagIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 	color: undefined,
 }))({});
 
@@ -209,6 +284,15 @@ export const LeftArrow = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '16.04px',
 	width: props?.width ?? '20px',
+	color: undefined,
+}))({});
+
+export const RightArrow = styled(SvgXml).attrs((props) => ({
+	xml: rightArrowIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.white,
+	),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
 	color: undefined,
 }))({});
 

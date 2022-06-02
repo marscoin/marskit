@@ -39,7 +39,6 @@ import { toggleView } from '../../../store/actions/user';
 import { getStore } from '../../../store/helpers';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import AmountToggle from '../../../components/AmountToggle';
-import OnChainNumberPad from './OnChainNumberPad';
 import FeePicker from './FeePicker';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 
@@ -52,7 +51,7 @@ const onCoinSelectionPress = (): void => {
 		view: 'coinSelection',
 		data: {
 			isOpen: true,
-			snapPoint: 0,
+			snapPoint: 1,
 		},
 	}).then();
 };
@@ -188,7 +187,7 @@ const SendOnChainTransaction = ({
 				}
 			}
 			setIsCreatingTransaction(false);
-		} catch {
+		} catch (e) {
 			setIsCreatingTransaction(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -299,17 +298,11 @@ const SendOnChainTransaction = ({
 				loading={isCreatingTransaction}
 			/>
 			<BottomSheetWrapper
-				view="numberPad"
-				displayHeader={false}
-				snapPoints={['50%', 0, 0]}>
-				<OnChainNumberPad />
-			</BottomSheetWrapper>
-			<BottomSheetWrapper
 				onOpen={(): Promise<void> =>
 					updateOnchainFeeEstimates({ selectedNetwork }).then()
 				}
 				view="feePicker"
-				snapPoints={['75%', 0, 0]}>
+				snapPoints={['75%', '75%']}>
 				<FeePicker />
 			</BottomSheetWrapper>
 		</>

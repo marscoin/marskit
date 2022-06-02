@@ -1,6 +1,11 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { View, TouchableOpacity, TitleHaas } from '../styles/components';
+import {
+	View,
+	TouchableOpacity,
+	TitleHaas,
+	Subtitle,
+} from '../styles/components';
 import { SvgXml } from 'react-native-svg';
 import { backIcon } from '../assets/icons/wallet';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
@@ -15,7 +20,7 @@ const BackButton = memo(
 		try {
 			return (
 				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
-					<SvgXml xml={_backIcon} width={23} height={23} />
+					<SvgXml xml={_backIcon} width={20} height={20} />
 				</TouchableOpacity>
 			);
 		} catch {
@@ -30,12 +35,14 @@ const NavigationHeader = ({
 	onBackPress = (): null => null,
 	navigateBack = true,
 	view = '',
+	size = 'lg',
 }: {
 	title?: string;
 	displayBackButton?: boolean;
 	onBackPress?: Function;
 	navigateBack?: boolean;
 	view?: TViewController | string;
+	size?: 'lg' | 'sm';
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 	const routes = useNavigationState((state) => state?.routes);
@@ -70,13 +77,15 @@ const NavigationHeader = ({
 		return routes?.length > 1 && displayBackButton;
 	}, [sendIsOpen, view, receiveIsOpen, routes?.length, displayBackButton]);
 
+	const Text = useMemo(() => (size === 'lg' ? TitleHaas : Subtitle), [size]);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.leftColumn}>
 				{_displayBackButton && <BackButton onPress={handleBackPress} />}
 			</View>
 			<View style={styles.middleColumn}>
-				<TitleHaas style={styles.title}>{title}</TitleHaas>
+				<Text style={styles.title}>{title}</Text>
 			</View>
 			<View style={styles.rightColumn} />
 		</View>

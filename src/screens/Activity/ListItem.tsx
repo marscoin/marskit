@@ -25,6 +25,13 @@ const ListItem = memo(
 		const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 			useDisplayValues(value);
 
+		let title;
+		if (txType === 'sent') {
+			title = confirmed ? 'Sent' : 'Sending...';
+		} else {
+			title = confirmed ? 'Received' : 'Receiving...';
+		}
+
 		return (
 			<TouchableOpacity style={styles.item} onPress={onPress}>
 				<View style={styles.col1} color={'transparent'}>
@@ -38,10 +45,7 @@ const ListItem = memo(
 						)}
 					</View>
 					<View color={'transparent'}>
-						<Text01M>
-							{txType === 'sent' ? 'Sent' : 'Received'}{' '}
-							{!confirmed ? '(Unconfirmed)' : ''}
-						</Text01M>
+						<Text01M>{title}</Text01M>
 						<Caption13M color={'gray1'} style={styles.date} numberOfLines={1}>
 							{formattedDate}
 						</Caption13M>
