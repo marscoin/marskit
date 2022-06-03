@@ -1378,9 +1378,9 @@
     warn-once "^0.1.0"
 
 "@shopify/react-native-skia@^0.1.122":
-  version "0.1.122"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.122.tgz#bc40ec7d2fdf31ff7db59f9035611b27045a7c9e"
-  integrity sha512-YJ8n1yvKPPwXiMbna0CL87ivNl5V1n92Nw9RpOY7aFOlniVcaCW25EscfVSFZVy6+L7g6cE+AJv3RCl89Zw6/Q==
+  version "0.1.130"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.130.tgz#a3db74db128f6c521d189397ba93afea2216f994"
+  integrity sha512-g/A3TtDdy3Fo17okrKLbQKbbFt4StodEYtwqnvrLiu5RU5MjHNWXGZR7QTQSxrggQsUUOSxX3ZRxzf/pt2g9EQ==
   dependencies:
     react-reconciler "^0.26.2"
 

@@ -20,11 +20,23 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 						...action.payload.data,
 					},
 				},
+				// backupVerified: false,
 			};
 
 		case actions.RESET_USER_STORE:
 		case actions.WIPE_WALLET:
 			return { ...defaultUserShape };
+
+		case actions.USER_IGNORE_BACKUP:
+			return {
+				...state,
+				ignoreBackupTimestamp: action.payload,
+			};
+		case actions.USER_VERIFY_BACKUP:
+			return {
+				...state,
+				backupVerified: true,
+			};
 
 		default:
 			return state;

@@ -15,17 +15,20 @@ import ActivityFiltered from '../../screens/Activity/ActivityFiltered';
 import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
-import ReceiveBottomSheet from '../../screens/Wallets/Receive/ReceiveBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
 import ProfileNavigator from '../profile/ProfileNavigator';
-import ReceiveAssetPicker from '../bottom-sheet/ReceiveAssetPicker';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import SendNavigation from '../bottom-sheet/SendNavigation';
+import ReceiveNavigation from '../bottom-sheet/ReceiveNavigation';
+import BackupNavigation from '../bottom-sheet/BackupNavigation';
+import PINNavigation from '../bottom-sheet/PINNavigation';
 import { NavigationContainer } from '../../styles/components';
 import CoinSelection from '../../screens/Wallets/SendOnChainTransaction/CoinSelection';
 import LightningNavigator from '../lightning/LightningNavigator';
-import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnChainNumberPad';
+import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
+import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
+import BoostPrompt from '../../screens/Wallets/BoostPrompt';
 
 const Stack = createNativeStackNavigator();
 
@@ -103,26 +106,24 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Scanner" component={ScannerScreen} />
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 					<Stack.Screen name="LightningRoot" component={LightningNavigator} />
+					<Stack.Screen name="Settings" component={SettingsNavigator} />
 				</Stack.Group>
 				<Stack.Group screenOptions={{ ...navOptions, presentation: 'modal' }}>
-					<Stack.Screen name="Settings" component={SettingsNavigator} />
 					<Stack.Screen name="ProfileRoot" component={ProfileNavigator} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />
 			<SendNavigation />
-			<ReceiveBottomSheet />
+			<ReceiveNavigation />
+			<BackupNavigation />
+			<PINNavigation />
 
-			<ReceiveAssetPicker />
 			<SendAssetPicker />
 			<CoinSelection />
-			<BottomSheetWrapper
-				snapPoints={[375]}
-				headerColor={'background'}
-				backdrop={false}
-				view="numberPad">
-				<OnChainNumberPad />
-			</BottomSheetWrapper>
+			<OnChainNumberPad />
+			<FeeNumberPad />
+			<PINPrompt />
+			<BoostPrompt />
 		</NavigationContainer>
 	);
 };

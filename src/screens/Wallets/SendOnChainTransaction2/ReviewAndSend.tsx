@@ -6,17 +6,18 @@ import React, {
 	useState,
 	useEffect,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
 	Caption13Up,
-	View as ThemedView,
+	Checkmark,
+	ClockIcon,
+	PenIcon,
 	Text02M,
 	TimerIcon,
-	ClockIcon,
-	Checkmark,
+	View as ThemedView,
 } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import SwipeToConfirm from '../../../components/SwipeToConfirm';
@@ -32,22 +33,35 @@ import {
 	getTransactionOutputValue,
 	validateTransaction,
 } from '../../../utils/wallet/transactions';
-import { updateWalletBalance } from '../../../store/actions/wallet';
+import {
+	updateWalletBalance,
+	setupFeeForOnChainTransaction,
+} from '../../../store/actions/wallet';
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const Section = memo(
-	({ title, value }: { title: string; value: React.ReactNode }) => {
+	({
+		title,
+		value,
+		onPress,
+	}: {
+		title: string;
+		value: React.ReactNode;
+		onPress?: () => void;
+	}) => {
 		const { gray4 } = useColors();
 		return (
-			<View style={[styles.sRoot, { borderBottomColor: gray4 }]}>
+			<TouchableOpacity
+				style={[styles.sRoot, { borderBottomColor: gray4 }]}
+				onPress={onPress}>
 				<View style={styles.sText}>
 					<Caption13Up color="gray1">{title}</Caption13Up>
 				</View>
 				<View style={styles.sText}>{value}</View>
-			</View>
+			</TouchableOpacity>
 		);
 	},
 );
@@ -130,7 +144,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 
 	const satsPerByte = useMemo((): number => {
 		try {
-			return transaction?.satsPerByte || 1;
+			return transaction?.satsPerByte ?? 1;
 		} catch (e) {
 			return 1;
 		}
@@ -148,6 +162,15 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		},
 		[selectedNetwork, selectedWallet, transaction?.message],
 	);
+
+	useEffect(() => {
+		(async (): Promise<void> => {
+			const res = await setupFeeForOnChainTransaction();
+			if (res.isErr()) {
+				Alert.alert(res.error.message);
+			}
+		})();
+	}, []);
 
 	const _onError = useCallback(
 		(errorTitle, errorMessage) => {
@@ -268,9 +291,10 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 				<View style={styles.sectionContainer}>
 					<Section
 						title="SPEED AND FEE"
+						onPress={(): void => navigation.navigate('FeeRate')}
 						value={
 							<>
-								<TimerIcon />
+								<TimerIcon color="brand" />
 								<Text02M>
 									{' '}
 									{FeeText[selectedFeeId]?.title}
@@ -278,6 +302,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 									{totalFeeDisplay.fiatSymbol}
 									{totalFeeDisplay.fiatFormatted})
 								</Text02M>
+								<PenIcon height={16} width={20} />
 							</>
 						}
 					/>
@@ -285,7 +310,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 						title="CONFIRMING IN"
 						value={
 							<>
-								<ClockIcon />
+								<ClockIcon color="brand" />
 								<Text02M> {FeeText[selectedFeeId]?.description}</Text02M>
 							</>
 						}

@@ -106,7 +106,7 @@ const BoostCards = (): ReactElement | null => {
 	);
 
 	const unconfirmedTransactions = useMemo(
-		() => Object.values(transactions).filter((tx) => tx.height < 1) || [],
+		() => Object.values(transactions).filter((tx) => tx.height < 1),
 		[transactions],
 	);
 

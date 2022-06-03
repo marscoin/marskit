@@ -29,9 +29,7 @@ const navOptions = {
 
 const SettingsNavigator = (): ReactElement => {
 	return (
-		<Stack.Navigator
-			screenOptions={navOptions}
-			initialRouteName={'SettingsMenu'}>
+		<Stack.Navigator screenOptions={navOptions} initialRouteName="SettingsMenu">
 			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
 				<Stack.Screen

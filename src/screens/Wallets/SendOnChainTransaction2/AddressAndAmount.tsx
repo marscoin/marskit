@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useMemo, useCallback } from 'react';
+import React, {
+	ReactElement,
+	memo,
+	useCallback,
+	useEffect,
+	useMemo,
+} from 'react';
 import { StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,6 +35,7 @@ import {
 import { showErrorNotification } from '../../../utils/notifications';
 import { useTransactionDetails } from '../../../hooks/transaction';
 import useColors from '../../../hooks/colors';
+import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 
 const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();
@@ -139,6 +146,11 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		[selectedWallet, selectedNetwork],
 	);
 
+	useEffect(() => {
+		// try to update fees on this screen, because they will be used on next one
+		updateOnchainFeeEstimates({ selectedNetwork });
+	}, [selectedNetwork]);
+
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
 			<NavigationHeader
@@ -243,7 +255,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						size="lg"
 						text="Next"
 						disabled={!validate(address) || !value}
-						onPress={(): void => navigation.navigate('FeeRate')}
+						onPress={(): void => navigation.navigate('ReviewAndSend')}
 					/>
 				</View>
 			</View>

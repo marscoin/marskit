@@ -26,11 +26,20 @@ const Receive = ({ asset }: { asset?: string }): ReactElement => {
 		}
 		return ' ';
 	}, [selectedNetwork, selectedWallet]);
+	const initial = useSelector(
+		(store: Store) => store.user.viewController?.receiveNavigation?.initial,
+	);
+	const displayBackButton = initial === 'ReceiveAssetPickerList';
+
 	return (
-		<View color={'onSurface'} style={styles.container}>
-			<NavigationHeader view={'receive'} title={header} />
-			<View color={'onSurface'} style={styles.content}>
-				<QR data={receiveAddress} header={false} />
+		<View color="onSurface" style={styles.container}>
+			<NavigationHeader
+				displayBackButton={displayBackButton}
+				title={header}
+				size="sm"
+			/>
+			<View color="onSurface" style={styles.content}>
+				<QR data={receiveAddress} />
 			</View>
 		</View>
 	);

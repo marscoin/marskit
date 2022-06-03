@@ -1732,7 +1732,11 @@ export const getRbfData = async ({
 				return err('Transaction is already confirmed. Unable to RBF.');
 			}
 			const txVout = tx.value.data[0].result.vout[input.vout];
-			address = txVout.scriptPubKey.addresses[0];
+			if (txVout.scriptPubKey.address) {
+				address = txVout.scriptPubKey.address;
+			} else if (txVout.scriptPubKey.addresses) {
+				address = txVout.scriptPubKey.addresses[0];
+			}
 			scriptHash = getScriptHash(address, selectedNetwork);
 			path = allAddresses[scriptHash].path;
 			value = btcToSats(txVout.value);
@@ -1749,19 +1753,23 @@ export const getRbfData = async ({
 			if (value) {
 				inputTotal = inputTotal + value;
 			}
-		} catch {}
+		} catch (e) {
+			console.log(e);
+		}
 	}
 	for (let i = 0; i < vouts.length; i++) {
 		const vout = vouts[i];
 		const voutValue = btcToSats(vout.value);
-		if (!vout.scriptPubKey?.addresses) {
+		if (vout.scriptPubKey?.addresses) {
+			address = vout.scriptPubKey.addresses[0];
+		} else if (vout.scriptPubKey?.address) {
+			address = vout.scriptPubKey.address;
+		} else {
 			try {
 				if (vout.scriptPubKey.asm.includes('OP_RETURN')) {
 					message = decodeOpReturnMessage(vout.scriptPubKey.asm)[0] || '';
 				}
-			} catch {}
-		} else {
-			address = vout.scriptPubKey.addresses[0];
+			} catch (e) {}
 		}
 		const changeAddressScriptHash = getScriptHash(address, selectedNetwork);
 

@@ -11,7 +11,7 @@ const AssetPicker = ({
 	assetName = 'Bitcoin',
 	sats = 0,
 	onPress = (): null => null,
-	hideArrow = false,
+	hideArrow = true,
 }: {
 	assetName?: TAssetNetwork | string;
 	sats?: number;

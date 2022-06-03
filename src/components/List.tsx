@@ -1,11 +1,12 @@
 import React, { memo, ReactElement, useCallback } from 'react';
-import { SectionList, StyleSheet, Switch } from 'react-native';
+import { SectionList, StyleSheet } from 'react-native';
 import {
 	Text01S,
 	Caption13Up,
 	View,
 	ChevronRight,
 	Checkmark,
+	Switch,
 } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import Card from './Card';
@@ -67,13 +68,7 @@ const _Item = memo(
 							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
-							<Switch
-								trackColor={{ false: '#767577', true: '#81b0ff' }}
-								thumbColor={'#f4f3f4'}
-								ios_backgroundColor="#3e3e3e"
-								onValueChange={_onPress}
-								value={enabled}
-							/>
+							<Switch onValueChange={_onPress} value={enabled} />
 						</View>
 					</Card>
 				</View>
@@ -92,10 +87,8 @@ const _Item = memo(
 							) : null
 						) : (
 							<>
-								<Text01S color={'gray2'} style={styles.valueText}>
-									{value}
-								</Text01S>
-								<ChevronRight color={'gray2'} />
+								<Text01S style={styles.valueText}>{value}</Text01S>
+								<ChevronRight color={'gray1'} />
 							</>
 						)}
 					</View>
@@ -166,9 +159,13 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		paddingHorizontal: 16,
+		paddingHorizontal: 0,
 		paddingVertical: 14,
 		minHeight: 51,
+		backgroundColor: 'black',
+		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+		borderBottomWidth: 1,
+		borderRadius: 0,
 	},
 	itemHeader: {
 		marginTop: 27,

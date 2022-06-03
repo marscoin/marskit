@@ -1,33 +1,19 @@
 import React, { memo, ReactElement } from 'react';
-import { LayoutAnimation, StyleSheet, Image } from 'react-native';
-import {
-	View,
-	Pressable,
-	Caption13Up,
-	DismissIcon,
-} from '../styles/components';
+import { LayoutAnimation, StyleSheet, Image, View } from 'react-native';
+import { Canvas, RadialGradient, Rect, vec } from '@shopify/react-native-skia';
+
+import { Caption13Up, Pressable, Text01M, XIcon } from '../styles/components';
 import Card from './Card';
 import BitcoinLogo from '../assets/bitcoin-logo.svg';
 import { dismissTodo } from '../store/actions/todos';
+import useColors from '../hooks/colors';
 
-const Icon = memo(({ id }: { id: string }): ReactElement => {
-	//TODO: Swap out BitcoinLogo with the relevant image based on the provided id.
-	switch (id) {
-		case 'lightning':
-			return <Image source={require('../assets/todo/ln.png')} />;
-		case 'pin':
-			return <Image source={require('../assets/todo/shield.png')} />;
-		case 'backupSeedPhrase':
-			return <Image source={require('../assets/todo/book.png')} />;
-		case 'activateBackup':
-			return (
-				<BitcoinLogo viewBox="0 0 70 70" height={'32.54px'} width={'45.52px'} />
-			);
-		default:
-			return (
-				<BitcoinLogo viewBox="0 0 70 70" height={'32.54px'} width={'45.52px'} />
-			);
-	}
+const Glow = memo(({ color }: { color: string }) => {
+	return (
+		<Rect x={0} y={0} width={160} height={160} opacity={0.4}>
+			<RadialGradient c={vec(0, 0)} r={250} colors={[color, 'transparent']} />
+		</Rect>
+	);
 });
 
 const CarouselCard = ({
@@ -41,24 +27,69 @@ const CarouselCard = ({
 	description: string;
 	onPress?: Function;
 }): ReactElement => {
+	const colors = useColors();
 	LayoutAnimation.easeInEaseOut();
+
+	let icon;
+	let color;
+	switch (id) {
+		case 'lightning':
+			icon = (
+				<Image
+					resizeMode="contain"
+					style={styles.image}
+					source={require('../assets/illustrations/lightning.png')}
+				/>
+			);
+			color = 'purple';
+			break;
+		case 'pin':
+			icon = (
+				<Image
+					resizeMode="contain"
+					style={styles.image}
+					source={require('../assets/illustrations/shield.png')}
+				/>
+			);
+			color = 'green';
+			break;
+		case 'backupSeedPhrase':
+			icon = (
+				<Image
+					resizeMode="contain"
+					style={styles.image}
+					source={require('../assets/illustrations/safe.png')}
+				/>
+			);
+			color = 'blue';
+			break;
+		default:
+			// TODO: Swap out BitcoinLogo with the relevant image based on the provided id.
+			icon = (
+				<BitcoinLogo viewBox="0 0 70 70" height="32.54px" width="45.52px" />
+			);
+			color = 'brand';
+	}
+
+	color = colors[color] ?? color;
 
 	return (
 		<Card style={styles.container}>
+			<Canvas style={styles.canvas}>
+				<Glow color={color} />
+			</Canvas>
 			<Pressable onPress={onPress} color="transparent" style={styles.pressable}>
-				<View color="transparent" style={styles.iconContainer}>
-					<Icon id={id} />
-				</View>
-				<View color="transparent">
-					<Caption13Up color="brand">{title}</Caption13Up>
+				<View style={styles.iconContainer}>{icon}</View>
+				<View>
+					<Text01M>{title}</Text01M>
 					<Caption13Up color="lightGray">{description}</Caption13Up>
 				</View>
 			</Pressable>
 			<Pressable
-				color={'transparent'}
+				color="transparent"
 				style={styles.dismiss}
 				onPress={(): any => dismissTodo(id)}>
-				<DismissIcon />
+				<XIcon width={16} height={16} color="gray1" />
 			</Pressable>
 		</Card>
 	);
@@ -68,8 +99,9 @@ const styles = StyleSheet.create({
 	container: {
 		width: 160,
 		height: 160,
-		borderRadius: 10,
+		borderRadius: 16,
 		paddingHorizontal: 16,
+		overflow: 'hidden',
 	},
 	pressable: {
 		flex: 1,
@@ -82,7 +114,16 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: 3,
 		right: 3,
-		padding: 10,
+		padding: 16,
+	},
+	image: {
+		height: 80,
+		width: 80,
+	},
+	canvas: {
+		width: 160,
+		height: 160,
+		position: 'absolute',
 	},
 });
 

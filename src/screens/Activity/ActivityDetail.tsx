@@ -8,26 +8,31 @@ import React, {
 	useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { Alert, Linking, ScrollView, StyleSheet } from 'react-native';
-import { Canvas, Path, Skia } from '@shopify/react-native-skia';
+import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import {
+	Canvas,
+	Path,
+	RadialGradient,
+	Rect,
+	Skia,
+	vec,
+} from '@shopify/react-native-skia';
 
 import {
 	Caption13M,
 	Caption13Up,
 	DisplayHaas,
-	Display,
 	GitBranchIcon,
 	TimerIconAlt,
 	NoteIcon,
 	ReceiveIcon,
 	SendIcon,
-	Text01M,
 	Text02M,
 	TitleHaas,
 	UserIcon,
-	View,
 	CheckCircleIcon,
 	ClockIcon,
+	View as ThemedView,
 } from '../../styles/components';
 import Button from '../../components/Button';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -44,23 +49,34 @@ import Store from '../../store/types';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import useColors from '../../hooks/colors';
 
-const SectionNew = memo(
+const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
 		const { gray4 } = useColors();
+
 		return (
-			<View
-				color="transparent"
-				style={[styles.sRoot, { borderBottomColor: gray4 }]}>
-				<View color="transparent" style={styles.sText}>
+			<View style={[styles.sRoot, { borderBottomColor: gray4 }]}>
+				<View style={styles.sText}>
 					<Caption13Up color="gray1">{title}</Caption13Up>
 				</View>
-				<View color="transparent" style={styles.sText}>
-					{value}
-				</View>
+				<View style={styles.sText}>{value}</View>
 			</View>
 		);
 	},
 );
+
+const Glow = ({
+	color,
+	size,
+}: {
+	color: string;
+	size: { width: number; height: number };
+}): ReactElement => {
+	return (
+		<Rect x={0} y={0} width={size.width} height={size.height} opacity={0.3}>
+			<RadialGradient c={vec(0, 100)} r={600} colors={[color, 'transparent']} />
+		</Rect>
+	);
+};
 
 const ZigZag = ({ color }): ReactElement => {
 	const step = 12;
@@ -78,7 +94,8 @@ const ZigZag = ({ color }): ReactElement => {
 };
 
 interface Props extends PropsWithChildren<any> {
-	route: { params: { activityItem: IActivityItem } };
+	navigation: any;
+	route: { params: { activityItem: IActivityItem; extended: boolean } };
 }
 
 const emptyActivityItem: IActivityItem = {
@@ -99,8 +116,9 @@ const ActivityDetail = (props: Props): ReactElement => {
 	] = useState<IActivityItem>(
 		props.route.params?.activityItem ?? emptyActivityItem,
 	);
-	const { green16, red16, gray5, background } = useColors();
-	const [extended, setExtended] = useState(false);
+	const [size, setSize] = useState({ width: 0, height: 0 });
+	const colors = useColors();
+	const extended = props.route.params?.extended ?? false;
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -120,6 +138,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const handleLayout = (e): void => {
+		const { height, width } = e.nativeEvent.layout;
+		setSize((s) => (s.width === 0 ? { width, height } : s));
+	};
+
 	let status = '';
 	if (value < 0) {
 		if (confirmed) {
@@ -135,8 +158,24 @@ const ActivityDetail = (props: Props): ReactElement => {
 		}
 	}
 
-	const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-		useDisplayValues(Math.abs(value));
+	let glowColor;
+
+	switch (activityType) {
+		case EActivityTypes.onChain:
+			glowColor = 'brand';
+			break;
+		case EActivityTypes.lightning:
+			glowColor = 'purple';
+			break;
+		case EActivityTypes.tether:
+			glowColor = 'green';
+			break;
+	}
+
+	glowColor = colors[glowColor] ?? glowColor;
+
+	const { bitcoinFormatted, fiatFormatted, fiatSymbol } =
+		useDisplayValues(value);
 
 	const blockExplorerUrl =
 		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
@@ -148,46 +187,57 @@ const ActivityDetail = (props: Props): ReactElement => {
 	}, [blockExplorerUrl]);
 
 	return (
-		<SafeAreaView>
-			<View style={styles.titleBlock}>
-				<NavigationHeader title={status} />
-			</View>
+		<SafeAreaView onLayout={handleLayout}>
+			<Canvas style={[styles.canvas, size]}>
+				<Glow color={glowColor} size={size} />
+			</Canvas>
+			<NavigationHeader title={status} />
 			<ScrollView
-				contentContainerStyle={[
-					styles.scrollContent,
-					// { paddingBottom: insets.bottom + 80 },
-				]}
+				contentContainerStyle={styles.scrollContent}
 				showsVerticalScrollIndicator={false}>
-				<View color="transparent" style={styles.title}>
-					<View color="transparent" style={styles.titleBlock}>
-						<Display color="gray" style={styles.bitcoinSymbol}>
-							{bitcoinSymbol}
-						</Display>
-						<DisplayHaas>{bitcoinFormatted}</DisplayHaas>
+				<View style={styles.title}>
+					<View style={styles.titleBlock}>
+						<DisplayHaas>
+							{Number(bitcoinFormatted) > 0 ? '+' : ''}
+							{bitcoinFormatted}
+						</DisplayHaas>
 					</View>
 
-					<View
-						color="transparent"
-						style={[
-							styles.iconContainer,
-							{ backgroundColor: txType === 'sent' ? red16 : green16 },
-						]}>
+					<ThemedView
+						color={txType === 'sent' ? 'red16' : 'green16'}
+						style={styles.iconContainer}>
 						{txType === 'sent' ? (
 							<SendIcon height={19} color="red" />
 						) : (
 							<ReceiveIcon height={19} color="green" />
 						)}
-					</View>
+					</ThemedView>
 				</View>
 
-				<View color="transparent" style={styles.amountSmall}>
-					<Text01M color="gray">
-						{fiatSymbol} {fiatFormatted}
-					</Text01M>
+				<View style={styles.sectionContainer}>
+					<Section
+						title={`VALUE (${fiatSymbol})`}
+						value={<Text02M>{fiatFormatted}</Text02M>}
+					/>
+					<Section
+						title="STATUS"
+						value={
+							<View style={styles.confStatus}>
+								{confirmed ? (
+									<CheckCircleIcon color="white" style={styles.checkmarkIcon} />
+								) : (
+									<ClockIcon color="white" style={styles.checkmarkIcon} />
+								)}
+								<Text02M color={confirmed ? 'green' : 'white'}>
+									{confirmed ? 'Confirmed' : 'Confirming'}
+								</Text02M>
+							</View>
+						}
+					/>
 				</View>
 
-				<View color="transparent" style={styles.sectionContainer}>
-					<SectionNew
+				<View style={styles.sectionContainer}>
+					<Section
 						title="DATE"
 						value={
 							<Text02M>
@@ -199,7 +249,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 							</Text02M>
 						}
 					/>
-					<SectionNew
+					<Section
 						title="TIME"
 						value={
 							<Text02M>
@@ -211,44 +261,29 @@ const ActivityDetail = (props: Props): ReactElement => {
 							</Text02M>
 						}
 					/>
-					<SectionNew
-						title="STATUS"
-						value={
-							<View color="transparent" style={styles.confStatus}>
-								<Caption13M color={confirmed ? 'green' : 'white'}>
-									{confirmed ? 'Confirmed' : 'Confirming'}
-								</Caption13M>
-								{confirmed ? (
-									<CheckCircleIcon color="green" style={styles.checkmarkIcon} />
-								) : (
-									<ClockIcon color="white" style={styles.checkmarkIcon} />
-								)}
-							</View>
-						}
-					/>
 				</View>
 
 				{!extended ? (
 					<>
 						{message ? (
-							<View color="transparent">
+							<View>
 								<Caption13M color="brand" style={styles.sText}>
 									NOTE
 								</Caption13M>
-								<View color="transparent" style={{ backgroundColor: gray5 }}>
+								<ThemedView color="gray5">
 									<Canvas style={styles.zRoot}>
-										<ZigZag color={background} />
+										<ZigZag color={colors.background} />
 									</Canvas>
 
-									<View color="transparent" style={styles.note}>
+									<View style={styles.note}>
 										<TitleHaas>{message}</TitleHaas>
 									</View>
-								</View>
+								</ThemedView>
 							</View>
 						) : null}
 
-						<View color="transparent" style={styles.buttonsContainer}>
-							<View color="transparent" style={styles.sectionContainer}>
+						<View style={styles.buttonsContainer}>
+							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
 									text="Assign"
@@ -263,7 +298,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 									onPress={handleBlockExplorerOpen}
 								/>
 							</View>
-							<View color="transparent" style={styles.sectionContainer}>
+							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
 									text="Label"
@@ -272,7 +307,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 								/>
 								<Button
 									style={styles.button}
-									text="Boost transaction"
+									text="Boost"
 									icon={<TimerIconAlt color="brand" />}
 									disabled={!boostData.canBoost}
 									onPress={(): void => Alert.alert('TODO')}
@@ -280,36 +315,35 @@ const ActivityDetail = (props: Props): ReactElement => {
 							</View>
 						</View>
 
-						<View color="transparent" style={styles.buttonDetailsContainer}>
+						<View style={styles.buttonDetailsContainer}>
 							<Button
 								text="Transaction details"
 								size="large"
-								onPress={(): void => setExtended(true)}
+								onPress={(): void =>
+									props.navigation.push('ActivityDetail', {
+										extended: true,
+										activityItem: props.route.params.activityItem,
+									})
+								}
 							/>
 						</View>
 					</>
 				) : (
 					<>
-						<View color="transparent" style={styles.sectionContainer}>
-							<SectionNew
-								title="TRANSACTION ID"
-								value={<Text02M>{id}</Text02M>}
-							/>
+						<View style={styles.sectionContainer}>
+							<Section title="TRANSACTION ID" value={<Text02M>{id}</Text02M>} />
 						</View>
-						<View color="transparent" style={styles.sectionContainer}>
-							<SectionNew
-								title="ADDRESS"
-								value={<Text02M>{address}</Text02M>}
-							/>
+						<View style={styles.sectionContainer}>
+							<Section title="ADDRESS" value={<Text02M>{address}</Text02M>} />
 						</View>
-						<View color="transparent" style={styles.sectionContainer}>
-							<SectionNew title="INPUTS" value={<Text02M>TODO</Text02M>} />
+						<View style={styles.sectionContainer}>
+							<Section title="INPUTS" value={<Text02M>TODO</Text02M>} />
 						</View>
-						<View color="transparent" style={styles.sectionContainer}>
-							<SectionNew title="OUTPUTS" value={<Text02M>TODO</Text02M>} />
+						<View style={styles.sectionContainer}>
+							<Section title="OUTPUTS" value={<Text02M>TODO</Text02M>} />
 						</View>
 
-						<View color="transparent" style={styles.buttonDetailsContainer}>
+						<View style={styles.buttonDetailsContainer}>
 							<Button
 								text="Open Block explorer"
 								size="large"
@@ -330,18 +364,22 @@ const styles = StyleSheet.create({
 	scrollContent: {
 		paddingHorizontal: 16,
 		flexGrow: 1,
+		position: 'relative',
+	},
+	canvas: {
+		position: 'absolute',
 	},
 	title: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
+		marginVertical: 32,
 	},
 	titleBlock: {
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
 	iconContainer: {
-		backgroundColor: 'rgba(185, 92, 232, 0.16)',
 		borderRadius: 30,
 		overflow: 'hidden',
 		height: 48,
@@ -352,17 +390,9 @@ const styles = StyleSheet.create({
 	confStatus: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'space-between',
 	},
 	checkmarkIcon: {
-		marginLeft: 8,
-	},
-	bitcoinSymbol: {
-		fontWeight: 'bold',
-	},
-	amountSmall: {
-		marginTop: 8,
-		marginBottom: 32,
+		marginRight: 10,
 	},
 	sectionContainer: {
 		marginHorizontal: -4,
@@ -370,6 +400,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	sRoot: {
+		paddingBottom: 10,
 		marginHorizontal: 4,
 		marginBottom: 16,
 		borderBottomWidth: 1,

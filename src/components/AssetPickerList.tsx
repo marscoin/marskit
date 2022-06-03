@@ -1,11 +1,41 @@
-import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import { StyleSheet, Image } from 'react-native';
+import React, { memo, ReactElement, useMemo } from 'react';
+import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
 
-import { Caption13Up, View } from '../styles/components';
-import { getAssetNames, getBalance } from '../utils/wallet';
-import AssetPicker from './AssetPicker';
+import {
+	Caption13Up,
+	BitcoinCircleIcon,
+	LightningIcon,
+	Text01M,
+} from '../styles/components';
+import { getAssetNames } from '../utils/wallet';
+import { capitalize } from '../utils/helpers';
 import NavigationHeader from './NavigationHeader';
 import Glow from './Glow';
+
+const Asset = memo(({ name, onPress }: { name: string; onPress(): void }) => {
+	const AssetIcon = useMemo(() => {
+		switch (name) {
+			case 'bitcoin':
+				return BitcoinCircleIcon;
+			case 'lightning':
+				return LightningIcon;
+			default:
+				return BitcoinCircleIcon;
+		}
+	}, [name]);
+
+	return (
+		<TouchableOpacity style={styles.assertRoot} onPress={onPress}>
+			<View style={styles.assertName}>
+				<View style={styles.assertIcon}>
+					<AssetIcon />
+				</View>
+				<Text01M>{capitalize(name)}</Text01M>
+			</View>
+			{/*<Text01M color="gray1">TODO show asset ticker</Text01M>*/}
+		</TouchableOpacity>
+	);
+});
 
 const AssetPickerList = ({
 	headerTitle,
@@ -15,37 +45,9 @@ const AssetPickerList = ({
 	onAssetPress?: Function;
 }): ReactElement => {
 	const assetNames = useMemo(() => getAssetNames({}), []);
-	const onPress = useCallback(
-		(asset) => {
-			onAssetPress(asset);
-		},
-		//eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
-	);
-
-	const assets = useMemo(
-		() => {
-			return assetNames.map((asset, i) => {
-				const sats = getBalance({
-					onchain: asset === 'bitcoin',
-					lightning: asset === 'lightning',
-				}).satoshis;
-				return (
-					<AssetPicker
-						key={i}
-						assetName={asset}
-						sats={sats}
-						onPress={onPress}
-					/>
-				);
-			});
-		},
-		//eslint-disable-next-line react-hooks/exhaustive-deps
-		[],
-	);
 
 	return (
-		<View style={styles.container} color="gray6">
+		<View style={styles.container}>
 			{headerTitle && (
 				<NavigationHeader
 					title={headerTitle}
@@ -58,7 +60,13 @@ const AssetPickerList = ({
 				<Caption13Up color="gray1" style={styles.title}>
 					ASSETS
 				</Caption13Up>
-				{assets}
+				{assetNames.map((asset) => (
+					<Asset
+						key={asset}
+						name={asset}
+						onPress={(): void => onAssetPress(asset)}
+					/>
+				))}
 			</View>
 			<View style={styles.imageContainer}>
 				<Glow style={styles.glow} size={300} color="white" />
@@ -77,7 +85,6 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		paddingHorizontal: 15,
-		backgroundColor: 'transparent',
 	},
 	title: {
 		marginBottom: 10,
@@ -92,11 +99,25 @@ const styles = StyleSheet.create({
 		width: 300,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: 'transparent',
 	},
 	image: {
 		width: 150,
 		height: 150,
+	},
+	assertRoot: {
+		height: 80,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		borderBottomWidth: 1,
+		borderColor: 'rgba(255, 255, 255, 0.1)',
+	},
+	assertName: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	assertIcon: {
+		width: 48,
 	},
 });
 

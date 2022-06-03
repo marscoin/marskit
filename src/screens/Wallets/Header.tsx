@@ -34,13 +34,13 @@ const Header = (): ReactElement => {
 					style={styles.profileIcon}
 					activeOpacity={1}
 					onPress={openProfile}>
-					<ProfileIcon width={23} height={23} />
+					<ProfileIcon width={24} height={24} />
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.cogIcon}
 					activeOpacity={1}
 					onPress={openSettings}>
-					<SettingsIcon width={25} height={25} />
+					<SettingsIcon width={24} height={24} />
 				</TouchableOpacity>
 			</View>
 		</View>

@@ -23,6 +23,10 @@ export const toggleView = async (payload: {
 	if (!payload.data?.isOpen) {
 		payload.data = { ...defaultViewController };
 	}
+	// Assign snapPoint to 0 if not set
+	if (payload.data?.isOpen && payload.data?.snapPoint === undefined) {
+		payload.data.snapPoint = 0;
+	}
 	// Assign the correct assetNetwork based on the provided assetName.
 	if (payload.data?.assetName) {
 		payload.data.assetNetwork = getAssetNetwork(payload.data?.assetName);
@@ -40,6 +44,21 @@ export const toggleView = async (payload: {
 export const resetUserStore = (): Result<string> => {
 	dispatch({
 		type: actions.RESET_USER_STORE,
+	});
+	return ok('');
+};
+
+export const ignoreBackup = (): Result<string> => {
+	dispatch({
+		type: actions.USER_IGNORE_BACKUP,
+		payload: Number(new Date()),
+	});
+	return ok('');
+};
+
+export const verifyBackup = (): Result<string> => {
+	dispatch({
+		type: actions.USER_VERIFY_BACKUP,
 	});
 	return ok('');
 };

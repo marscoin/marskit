@@ -1,6 +1,6 @@
 import React, { memo, ReactElement } from 'react';
-import { TouchableOpacity, View } from '../styles/components';
-import { StyleSheet, Switch } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Switch } from '../styles/components';
 
 const SwitchRow = ({
 	onPress,
@@ -22,13 +22,7 @@ const SwitchRow = ({
 					{children}
 				</View>
 				<View color="transparent" style={styles.rightColumn}>
-					<Switch
-						trackColor={{ false: '#767577', true: '#F75C1A' }}
-						thumbColor={'#f4f3f4'}
-						ios_backgroundColor="#3e3e3e"
-						onValueChange={onPress}
-						value={isEnabled}
-					/>
+					<Switch onValueChange={onPress} value={isEnabled} />
 				</View>
 			</TouchableOpacity>
 			<View color={'gray4'} style={styles.divider} />
