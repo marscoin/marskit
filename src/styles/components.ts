@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, Switch as _Switch } from 'react-native';
 import styled from 'styled-components';
 import _Feather from 'react-native-vector-icons/Feather';
 import _EvilIcon from 'react-native-vector-icons/EvilIcons';
@@ -48,6 +48,8 @@ import {
 	gearIcon,
 	xIcon,
 	tagIcon,
+	shareIcon,
+	penIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -74,9 +76,9 @@ export const CameraIcon = styled(SvgXml).attrs((props) => ({
 }))({});
 
 export const SettingsIcon = styled(SvgXml).attrs((props) => ({
-	xml: settings(props?.color ? props.theme.colors[props.color] : '#636366'),
-	height: props?.height ?? '19.8px',
-	width: props?.width ?? '21.6px',
+	xml: settings(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
 	color: undefined,
 }))({});
 
@@ -214,6 +216,20 @@ export const TagIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
+export const ShareIcon = styled(SvgXml).attrs((props) => ({
+	xml: shareIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const PenIcon = styled(SvgXml).attrs((props) => ({
+	xml: penIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
 export const BoostIcon = styled(SvgXml).attrs((props) => ({
 	xml: boost(),
 	width: props?.width ?? '39px',
@@ -305,7 +321,7 @@ export const Checkmark = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
-export const Copy = styled(SvgXml).attrs((props) => ({
+export const CopyIcon = styled(SvgXml).attrs((props) => ({
 	xml: copyIcon(
 		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
 	),
@@ -324,9 +340,9 @@ export const Logo = styled(SvgXml).attrs((props) => ({
 }))({});
 
 export const ProfileIcon = styled(SvgXml).attrs((props) => ({
-	xml: profileIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
-	height: props?.height ?? '20.53px',
-	width: props?.width ?? '20.54px',
+	xml: profileIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
 	color: undefined,
 }))({});
 
@@ -658,3 +674,10 @@ export const NavigationContainer = styled(_NavigationContainer).attrs(
 		},
 	}),
 )({});
+
+export const Switch = styled(_Switch).attrs((props) => ({
+	trackColor: { false: '#767577', true: props.theme.colors.brand },
+	thumbColor: 'white',
+	ios_backgroundColor: '#3e3e3e',
+	...props,
+}))({});

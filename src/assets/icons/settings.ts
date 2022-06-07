@@ -18,9 +18,5 @@ export const rightArrowIcon = (color = 'white'): string =>
 export const checkmarkIcon = (color = '#33CE59'): string =>
 	`<svg fill="none" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="m27.7071 8.29352c.3905.39053.3905 1.0237 0 1.41421l-14 13.99937c-.3905.3905-1.0237.3905-1.4142 0l-6.99998-6.9993c-.39054-.3906-.39057-1.0237-.00006-1.4143.39051-.3905 1.02367-.3905 1.41422 0l6.29292 6.2923 13.2929-13.29231c.3905-.39052 1.0237-.3905 1.4142.00003z" fill="${color}" fill-rule="evenodd"/></svg>`;
 
-export const copyIcon = (
-	color = '#F75C1A',
-): string => `<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-<path d="M8.25 9H0.75C0.33525 9 0 8.66475 0 8.25V0.75C0 0.336 0.33525 0 0.75 0H8.25C8.66475 0 9 0.336 9 0.75V8.25C9 8.66475 8.66475 9 8.25 9Z" fill="${color}"/>
-<path d="M11.25 12H3V10.5H10.5V3H12V11.25C12 11.6647 11.6647 12 11.25 12Z" fill="${color}"/>
-</svg>`;
+export const copyIcon = (color = 'white'): string =>
+	`<svg fill="none" height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg"><g fill="${color}"><path d="m21 10.9991v10h6v-15.99995h-16v5.99995z" opacity=".2"/><g clip-rule="evenodd" fill-rule="evenodd"><path d="m10 4.99915c0-.55229.4477-1 1-1h16c.5523 0 1 .44771 1 1v15.99995c0 .5523-.4477 1-1 1h-6c-.5523 0-1-.4477-1-1 0-.5522.4477-1 1-1h5v-13.99995h-14v4.99995c0 .5523-.4477 1-1 1s-1-.4477-1-1z"/><path d="m3.99976 10.9993c0-.5523.44771-1.00003 1-1.00003h16.00004c.5522 0 1 .44773 1 1.00003v16c0 .5523-.4478 1-1 1h-16.00004c-.55229 0-1-.4477-1-1zm2 1v14h14.00004v-14z"/></g></g></svg>`;

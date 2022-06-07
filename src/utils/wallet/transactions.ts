@@ -1020,7 +1020,8 @@ export const updateFee = ({
 	selectedNetwork?: TAvailableNetworks;
 	transaction?: IOnChainTransactionData;
 }): Result<string> => {
-	if (!satsPerByte || satsPerByte < 1) {
+	// if (!satsPerByte || satsPerByte < 1) {
+	if (satsPerByte === undefined) {
 		return err('No satsPerByte provided.');
 	}
 	if (!selectedWallet) {
@@ -1559,7 +1560,7 @@ export const adjustFee = ({
 			});
 			//Return if the new fee exceeds half of the user's balance
 			if (Number(newFee) >= inputTotal / 2) {
-				return ok(
+				return err(
 					'Unable to increase the fee any further. Otherwise, it will exceed half the current balance.',
 				);
 			}
@@ -1877,13 +1878,19 @@ export const setupBoost = async ({
 	}
 	const canBoostResponse = canBoost(txid);
 	if (!canBoostResponse.canBoost) {
-		return ok('Unable to boost this transaction.');
+		return err('Unable to boost this transaction.');
 	}
 	if (canBoostResponse.rbf) {
-		setupRbf({ selectedWallet, selectedNetwork, txid });
+		const response = await setupRbf({ selectedWallet, selectedNetwork, txid });
+		if (response.isErr()) {
+			return err(response.error?.message);
+		}
 		return ok('Successfully setup rbf.');
 	} else {
-		setupCpfp({ selectedNetwork, selectedWallet });
+		const response = await setupCpfp({ selectedNetwork, selectedWallet });
+		if (response.isErr()) {
+			return err(response.error?.message);
+		}
 		return ok('Successfully setup cpfp.');
 	}
 };

@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo } from 'react';
-import { createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
@@ -7,6 +6,7 @@ import { useSelector } from 'react-redux';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import AddressAndAmount from '../../screens/Wallets/SendOnChainTransaction2/AddressAndAmount';
 import FeeRate from '../../screens/Wallets/SendOnChainTransaction2/FeeRate';
+import FeeCustom from '../../screens/Wallets/SendOnChainTransaction2/FeeCustom';
 import Tags from '../../screens/Wallets/SendOnChainTransaction2/Tags';
 import ReviewAndSend from '../../screens/Wallets/SendOnChainTransaction2/ReviewAndSend';
 import SendAssetPickerList from '../../screens/Wallets/SendOnChainTransaction2/SendAssetPickerList';
@@ -18,7 +18,6 @@ import {
 } from '../../store/actions/wallet';
 import Store from '../../store/types';
 
-const navigationRef = createNavigationContainerRef();
 const Stack = createNativeStackNavigator();
 const navOptions = {
 	headerShown: false,
@@ -28,9 +27,9 @@ const navOptions = {
 };
 
 const SendNavigation = (): ReactElement => {
-	const { isOpen, initial } = useSelector(
-		(store: Store) => store.user.viewController?.sendNavigation,
-	);
+	const { isOpen, initial } =
+		useSelector((store: Store) => store.user.viewController?.sendNavigation) ??
+		{};
 	const snapPoints = useMemo(() => [600], []);
 
 	const initialRouteName = !isOpen ? undefined : initial;
@@ -41,7 +40,7 @@ const SendNavigation = (): ReactElement => {
 			onClose={resetOnChainTransaction}
 			onOpen={setupOnChainTransaction}
 			snapPoints={snapPoints}>
-			<NavigationContainer key={initialRouteName} ref={navigationRef}>
+			<NavigationContainer key={initialRouteName}>
 				<Stack.Navigator
 					screenOptions={navOptions}
 					initialRouteName={initialRouteName}>
@@ -55,6 +54,7 @@ const SendNavigation = (): ReactElement => {
 							component={AddressAndAmount}
 						/>
 						<Stack.Screen name="FeeRate" component={FeeRate} />
+						<Stack.Screen name="FeeCustom" component={FeeCustom} />
 						<Stack.Screen name="Tags" component={Tags} />
 						<Stack.Screen name="ReviewAndSend" component={ReviewAndSend} />
 						<Stack.Screen name="Result" component={Result} />

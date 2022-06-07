@@ -1,13 +1,14 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View } from '../../styles/components';
 
 import List, { IListData } from '../../components/List';
 
-import SettingsHeader from '../../components/SettingsHeader';
+import NavigationHeader from '../../components/NavigationHeader';
+import SafeAreaInsets from '../../components/SafeAreaInsets';
 
 /**
- * Generic settings view with built in header and scroll triggered overlay shadow
+ * Generic settings view
  * @param title
  * @param data
  * @param showBackNavigation
@@ -25,27 +26,23 @@ const SettingsView = ({
 	showBackNavigation: boolean;
 	children?: ReactElement | ReactElement[] | undefined;
 }): ReactElement => {
-	const [hideHeaderShadow, setHideHeaderShadow] = useState(false);
-
 	return (
-		<View style={styles.container} color={'onSurface'}>
-			<SettingsHeader
-				title={title}
-				showBackNavigation={showBackNavigation}
-				showShadow={hideHeaderShadow}
-			/>
+		<View style={styles.container} color="black">
+			<SafeAreaInsets type="top" />
+			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
 
 			{listData ? (
-				<View style={styles.listContent} color={'onSurface'}>
-					<List data={listData} onScrollDownChange={setHideHeaderShadow} />
+				<View style={styles.listContent} color="black">
+					<List data={listData} />
 				</View>
 			) : null}
 
 			{children ? (
-				<View style={styles.childrenContent} color={'onSurface'}>
+				<View style={styles.childrenContent} color="black">
 					{children}
 				</View>
 			) : null}
+			<SafeAreaInsets type="bottom" />
 		</View>
 	);
 };

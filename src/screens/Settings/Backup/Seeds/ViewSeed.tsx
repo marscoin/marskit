@@ -7,7 +7,7 @@ import {
 	Text02S,
 	TouchableOpacity,
 	Caption13M,
-	Copy,
+	CopyIcon,
 } from '../../../../styles/components';
 import SettingsView from '../../SettingsView';
 import { StyleSheet } from 'react-native';
@@ -146,7 +146,7 @@ const ViewSeed = (props: Props): ReactElement => {
 								styles.copyButton,
 								{ backgroundColor: applyAlpha(themeColors.white, 0.08) },
 							]}>
-							<Copy style={styles.copyIcon} />
+							<CopyIcon style={styles.copyIcon} />
 							<Caption13M color={'brand'}>{copyButtonText}</Caption13M>
 						</View>
 					</TouchableOpacity>

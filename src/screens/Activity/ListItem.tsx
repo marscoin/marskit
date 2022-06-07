@@ -1,16 +1,20 @@
-import React, { memo, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { memo, ReactElement, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import {
 	Caption13M,
 	ReceiveIcon,
 	SendIcon,
 	Text01M,
+	TimerIconAlt,
 	TouchableOpacity,
-	View,
+	View as ThemedView,
 } from '../../styles/components';
-import { IActivityItem } from '../../store/types/activity';
+import Button from '../../components/Button';
+import { IActivityItem, EActivityTypes } from '../../store/types/activity';
 import useDisplayValues from '../../hooks/displayValues';
+import { canBoost } from '../../utils/wallet/transactions';
+import { toggleView } from '../../store/actions/user';
 
 const ListItem = memo(
 	({
@@ -20,7 +24,7 @@ const ListItem = memo(
 		item: IActivityItem & { formattedDate: string };
 		onPress: () => void;
 	}): ReactElement => {
-		const { value, txType, confirmed, formattedDate } = item;
+		const { value, txType, confirmed, formattedDate, activityType, id } = item;
 
 		const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
 			useDisplayValues(value);
@@ -32,48 +36,76 @@ const ListItem = memo(
 			title = confirmed ? 'Received' : 'Receiving...';
 		}
 
+		const showBoost = useMemo(() => {
+			if (confirmed) {
+				return false;
+			}
+			if (activityType !== EActivityTypes.onChain) {
+				return false;
+			}
+			return canBoost(id).canBoost;
+		}, [confirmed, activityType, id]);
+
+		const handleBoost = (): void => {
+			toggleView({
+				view: 'boostPrompt',
+				data: { isOpen: true, activityItem: item },
+			});
+		};
+
 		return (
-			<TouchableOpacity style={styles.item} onPress={onPress}>
-				<View style={styles.col1} color={'transparent'}>
-					<View
-						color={txType === 'sent' ? 'red16' : 'green16'}
-						style={styles.iconCircle}>
-						{txType === 'sent' ? (
-							<SendIcon height={13} color="red" />
-						) : (
-							<ReceiveIcon height={13} color="green" />
-						)}
+			<TouchableOpacity onPress={onPress} style={styles.root}>
+				<View style={styles.item}>
+					<View style={styles.col1}>
+						<ThemedView
+							color={txType === 'sent' ? 'red16' : 'green16'}
+							style={styles.iconCircle}>
+							{txType === 'sent' ? (
+								<SendIcon height={13} color="red" />
+							) : (
+								<ReceiveIcon height={13} color="green" />
+							)}
+						</ThemedView>
+						<View>
+							<Text01M>{title}</Text01M>
+							<Caption13M color={'gray1'} style={styles.date} numberOfLines={1}>
+								{formattedDate}
+							</Caption13M>
+						</View>
 					</View>
-					<View color={'transparent'}>
-						<Text01M>{title}</Text01M>
-						<Caption13M color={'gray1'} style={styles.date} numberOfLines={1}>
-							{formattedDate}
+					<View style={styles.col2}>
+						<Text01M style={styles.value}>
+							<Text01M color={'gray1'}>
+								{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
+							</Text01M>
+							{bitcoinFormatted.replace('-', '')}
+						</Text01M>
+						<Caption13M color={'gray1'} style={styles.value}>
+							{fiatSymbol} {fiatFormatted.replace('-', '')}
 						</Caption13M>
 					</View>
 				</View>
-				<View style={styles.col2} color={'transparent'}>
-					<Text01M style={styles.value}>
-						<Text01M color={'gray1'}>
-							{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
-						</Text01M>
-						{bitcoinFormatted.replace('-', '')}
-					</Text01M>
-					<Caption13M color={'gray1'} style={styles.value}>
-						{fiatSymbol} {fiatFormatted.replace('-', '')}
-					</Caption13M>
-				</View>
+				{showBoost && (
+					<View style={styles.showBoost}>
+						<Button
+							text="Boost transaction"
+							color="yellow08"
+							icon={<TimerIconAlt color="yellow" />}
+							onPress={handleBoost}
+						/>
+					</View>
+				)}
 			</TouchableOpacity>
 		);
 	},
 );
 
 const styles = StyleSheet.create({
-	content: {
-		paddingTop: 20,
-		paddingBottom: 100,
-	},
-	category: {
+	root: {
+		paddingBottom: 16,
 		marginBottom: 16,
+		borderBottomWidth: 1,
+		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 	},
 	item: {
 		display: 'flex',
@@ -81,19 +113,15 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		backgroundColor: 'transparent',
-		marginBottom: 16,
 	},
 	col1: {
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
-		flex: 5,
 	},
 	col2: {
 		display: 'flex',
-		flexDirection: 'column',
 		justifyContent: 'flex-end',
-		flex: 3,
 	},
 	iconCircle: {
 		borderRadius: 20,
@@ -111,10 +139,11 @@ const styles = StyleSheet.create({
 		marginTop: 4,
 		overflow: 'hidden',
 	},
-	header: {
-		marginBottom: 23,
+	showBoost: {
+		marginTop: 8,
+		marginLeft: 48,
+		flexDirection: 'row',
 	},
-	footer: {},
 });
 
 export default memo(ListItem);

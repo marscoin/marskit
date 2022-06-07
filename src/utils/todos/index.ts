@@ -2,6 +2,7 @@ import { Alert } from 'react-native';
 import { ITodo, TTodoType } from '../../store/types/todos';
 import { getStore } from '../../store/helpers';
 import { addTodo, removeTodo } from '../../store/actions/todos';
+import { toggleView } from '../../store/actions/user';
 
 type TTodoPresets = { [key in TTodoType]: ITodo };
 export const todoPresets: TTodoPresets = {
@@ -25,7 +26,7 @@ export const todoPresets: TTodoPresets = {
 	},
 	lightning: {
 		type: 'lightning',
-		title: 'Instant payments',
+		title: 'Pay instantly',
 		description: 'Get on Lightning',
 		id: 'lightning',
 	},
@@ -65,9 +66,18 @@ export const setupTodos = (): void => {
 	const seedPhraseTodo = todos.filter(
 		(todo) => todo.type === 'backupSeedPhrase',
 	);
+	const backupSeedPhraseStatus = !!getStore().user.backupVerified;
 	// Add backupSeedPhrase to-do if it hasn't been previously dismissed and isn't included in the todos array
-	if (!seedPhraseDismissed.length && !seedPhraseTodo.length) {
+	// and backup has not been verified
+	if (
+		!backupSeedPhraseStatus &&
+		!seedPhraseDismissed.length &&
+		!seedPhraseTodo.length
+	) {
 		addTodo(todoPresets.backupSeedPhrase);
+	}
+	if (backupSeedPhraseStatus && seedPhraseTodo.length) {
+		removeTodo(seedPhraseTodo[0].id);
 	}
 
 	/*
@@ -112,10 +122,20 @@ export const handleOnPress = ({
 				navigation.navigate('Settings', { screen: 'BackupSettings' });
 				break;
 			case 'pin':
-				navigation.navigate('Settings', { screen: 'Pin' });
+				// navigation.navigate('Settings', { screen: 'Pin' });
+				toggleView({
+					view: 'PINPrompt',
+					data: { isOpen: true },
+				});
 				break;
 			case 'lightning':
 				navigation.navigate('LightningRoot');
+				break;
+			case 'backupSeedPhrase':
+				toggleView({
+					view: 'backupPrompt',
+					data: { isOpen: true },
+				});
 				break;
 			default:
 				Alert.alert('TODO: ' + type);

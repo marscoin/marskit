@@ -1,40 +1,23 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { LayoutAnimation, Share, StyleSheet } from 'react-native';
-import {
-	View,
-	Text,
-	AnimatedView,
-	TouchableOpacity,
-	Feather,
-	AntDesign,
-} from '../styles/components';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 import QRCode from 'react-native-qrcode-svg';
 import Animated, { EasingNode } from 'react-native-reanimated';
-import NavigationHeader from './NavigationHeader';
-import Button from './Button';
-import { systemWeights } from 'react-native-typography';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp } from '@react-navigation/native';
-import { showErrorNotification } from '../utils/notifications';
 
-const updateOpacity = ({
-	opacity = new Animated.Value(0),
-	toValue = 0,
-	duration = 1000,
-}): void => {
-	try {
-		Animated.timing(opacity, {
-			toValue,
-			duration,
-			easing: EasingNode.inOut(EasingNode.ease),
-		}).start();
-	} catch {}
-};
+import { showErrorNotification } from '../utils/notifications';
+import Button from './Button';
+import {
+	AnimatedView,
+	Caption13S,
+	CopyIcon,
+	ShareIcon,
+	TouchableOpacity,
+	View,
+} from '../styles/components';
 
 interface IReceive {
-	animate?: boolean;
-	header?: boolean;
-	headerTitle?: string;
 	data: string;
 	displayText?: boolean;
 	shareMessage?: string;
@@ -49,9 +32,6 @@ interface IReceive {
 	>;
 }
 const QR = ({
-	animate = true,
-	header = true,
-	headerTitle = 'Receive',
 	data = '',
 	displayText = true,
 	shareMessage = '',
@@ -62,7 +42,6 @@ const QR = ({
 	disabled = false,
 	route,
 }: IReceive): ReactElement => {
-	const [opacity] = useState(new Animated.Value(0));
 	const [textOpacity] = useState(new Animated.Value(0));
 
 	if (!data) {
@@ -70,20 +49,8 @@ const QR = ({
 			if (route?.params?.data) {
 				data = route.params.data;
 			}
-			if (route?.params.headerTitle) {
-				headerTitle = route.params.headerTitle;
-			}
 		} catch {}
 	}
-
-	useEffect(() => {
-		if (animate) {
-			setTimeout(() => {
-				updateOpacity({ opacity, toValue: 1 });
-			}, 100);
-			return (): void => updateOpacity({ opacity, toValue: 0, duration: 0 });
-		}
-	}, [animate, opacity]);
 
 	LayoutAnimation.easeInEaseOut();
 
@@ -131,13 +98,12 @@ const QR = ({
 	};
 
 	return (
-		<View
-			color={header ? 'background' : 'transparent'}
-			//eslint-disable-next-line react-native/no-inline-styles
-			style={{ flex: header ? 1 : 0 }}>
-			{header && <NavigationHeader title={headerTitle} />}
-			<AnimatedView style={[styles.container, { opacity }]}>
-				<View color={header ? 'background' : 'surface'} style={styles.content}>
+		<View color="transparent">
+			<AnimatedView
+				style={styles.container}
+				entering={FadeIn.duration(1000)}
+				exiting={FadeOut}>
+				<View color="surface" style={styles.content}>
 					<TouchableOpacity
 						color="text"
 						activeOpacity={1}
@@ -148,13 +114,17 @@ const QR = ({
 
 					{displayText && (
 						<View color="transparent" style={styles.textContainer}>
-							<Text style={styles.text}>{data}</Text>
+							<Caption13S style={styles.text} color="white5">
+								{data}
+							</Caption13S>
 							<AnimatedView
 								color="transparent"
 								style={[styles.copiedContainer, { opacity: textOpacity }]}>
 								<View color={'onSurface'} style={styles.copySuccessContainer}>
 									<View color="transparent" style={styles.copied}>
-										<Text style={styles.copiedText}>{onCopySuccessText}</Text>
+										<Caption13S color="white5" style={styles.copiedText}>
+											{onCopySuccessText}
+										</Caption13S>
 									</View>
 								</View>
 							</AnimatedView>
@@ -162,16 +132,14 @@ const QR = ({
 					)}
 					<View style={styles.row}>
 						<Button
-							icon={<Feather name={'copy'} size={18} color="text" />}
-							color={header ? 'onSurface' : 'background'}
+							icon={<CopyIcon height={18} color="brand" />}
 							text="Copy"
 							onPress={onCopyPress}
 							disabled={!data || disabled}
 						/>
 						<View style={styles.buttonSpacer} />
 						<Button
-							icon={<AntDesign name={'arrowup'} size={20} color="text" />}
-							color={header ? 'onSurface' : 'background'}
+							icon={<ShareIcon height={18} color="brand" />}
 							text="Share"
 							onPress={onSharePress}
 							disabled={!data || disabled}
@@ -193,21 +161,16 @@ const styles = StyleSheet.create({
 	},
 	qrCode: {
 		padding: 10,
-		borderRadius: 15,
 	},
-
 	textContainer: {
 		borderRadius: 5,
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: 10,
-		marginVertical: 20,
+		marginVertical: 16,
+		width: 220,
 	},
 	text: {
-		...systemWeights.semibold,
-		fontSize: 15,
 		textAlign: 'center',
-		fontWeight: 'bold',
 	},
 	copiedContainer: {
 		flex: 1,
@@ -223,7 +186,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	copiedText: {
-		fontSize: 16,
 		textAlign: 'center',
 	},
 	copySuccessContainer: {

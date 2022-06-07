@@ -1,23 +1,24 @@
 import { TAssetNetwork } from './wallet';
+import { IActivityItem } from './activity';
 
 export type TViewController =
 	| 'send'
-	| 'receive'
 	| 'sendAssetPicker'
-	| 'receiveAssetPicker'
 	| 'coinSelection'
 	| 'feePicker'
 	| 'sendNavigation'
-	| 'numberPad';
+	| 'receiveNavigation'
+	| 'numberPad'
+	| 'numberPadFee'
+	| 'backupPrompt'
+	| 'backupNavigation'
+	| 'PINPrompt'
+	| 'PINNavigation'
+	| 'boostPrompt';
 
 export type TUserViewController = {
 	[key in TViewController]: IViewControllerData;
 };
-
-export interface IUserViewController {
-	send: IViewControllerData;
-	receive: IViewControllerData;
-}
 
 export interface IViewControllerData {
 	isOpen?: boolean;
@@ -27,6 +28,7 @@ export interface IViewControllerData {
 	assetName?: string;
 	snapPoint?: number;
 	initial?: string;
+	activityItem?: IActivityItem;
 }
 
 export interface IUser {

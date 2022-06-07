@@ -30,6 +30,7 @@ import { err, ok, Result } from '../../utils/result';
 import {
 	getOnchainTransactionData,
 	getTotalFee,
+	updateFee,
 } from '../../utils/wallet/transactions';
 import {
 	IGenerateAddresses,
@@ -1016,6 +1017,40 @@ export const removeTxTag = ({
 		return ok('Tag successfully added');
 	} catch (e) {
 		console.log(e);
+		return err(e);
+	}
+};
+
+export const setupFeeForOnChainTransaction = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+} = {}): Promise<Result<string>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const fees = getStore().fees.onchain;
+
+		const res = updateFee({
+			selectedNetwork,
+			selectedWallet,
+			satsPerByte: fees[EFeeIds.normal],
+			selectedFeeId: EFeeIds.normal,
+		});
+
+		if (res.isErr()) {
+			return err(res.error.message);
+		}
+
+		return ok('Fee has been changed successfully');
+	} catch (e) {
 		return err(e);
 	}
 };

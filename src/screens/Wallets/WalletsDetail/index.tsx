@@ -21,7 +21,7 @@ import {
 	RadialGradient,
 	Rect,
 	rect,
-	useCanvasSize,
+	useCanvas,
 	useDerivedValue,
 	vec,
 } from '@shopify/react-native-skia';
@@ -66,10 +66,10 @@ interface Props extends PropsWithChildren<any> {
 }
 
 const Glow = ({ colors }): ReactElement => {
-	const canvas = useCanvasSize();
+	const { size } = useCanvas();
 	const rct = useDerivedValue(
-		() => rect(0, 0, canvas.current.width, canvas.current.height),
-		[canvas],
+		() => rect(0, 0, size.current.width, size.current.height),
+		[size],
 	);
 
 	return (

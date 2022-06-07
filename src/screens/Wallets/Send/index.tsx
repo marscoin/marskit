@@ -49,11 +49,7 @@ const Send = (props: ISendProps): ReactElement => {
 
 	return (
 		<View color="onSurface" style={styles.container}>
-			<NavigationHeader
-				view={'send'}
-				title={headerText}
-				onBackPress={onBackPress}
-			/>
+			<NavigationHeader title={headerText} onBackPress={onBackPress} />
 			<SendOnChainTransaction {...props} onComplete={_onComplete} />
 		</View>
 	);

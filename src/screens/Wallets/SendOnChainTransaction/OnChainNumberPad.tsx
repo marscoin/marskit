@@ -1,11 +1,13 @@
-import React, { memo, ReactElement, useCallback } from 'react';
+import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+
 import {
 	getTransactionOutputValue,
 	updateAmount,
 } from '../../../utils/wallet/transactions';
 import AmountButtonRow from './AmountButtonRow';
 import NumberPad from '../../../components/NumberPad';
-import { useSelector } from 'react-redux';
+import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import Store from '../../../store/types';
 import { defaultOnChainTransactionData } from '../../../store/types/wallet';
 import {
@@ -18,6 +20,8 @@ import { btcToSats } from '../../../utils/helpers';
  * Handles the number pad logic (add/remove/clear) for on-chain transactions.
  */
 const OnChainNumberPad = (): ReactElement => {
+	const snapPoints = useMemo(() => [375], []);
+
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -136,9 +140,15 @@ const OnChainNumberPad = (): ReactElement => {
 	};
 
 	return (
-		<NumberPad onPress={onPress} onRemove={onRemove} onClear={onClear}>
-			<AmountButtonRow />
-		</NumberPad>
+		<BottomSheetWrapper
+			snapPoints={snapPoints}
+			headerColor="background"
+			backdrop={false}
+			view="numberPad">
+			<NumberPad onPress={onPress} onRemove={onRemove} onClear={onClear}>
+				<AmountButtonRow />
+			</NumberPad>
+		</BottomSheetWrapper>
 	);
 };
 

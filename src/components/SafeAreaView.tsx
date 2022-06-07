@@ -10,7 +10,11 @@ interface Props extends PropsWithChildren<any> {
 	style?: any;
 }
 
-const SafeAreaView = ({ children, style = {} }: Props): ReactElement => {
+const SafeAreaView = ({
+	children,
+	style = {},
+	...props
+}: Props): ReactElement => {
 	const colors = useSelector(
 		(state: Store) => themes[state.settings.theme].colors,
 	);
@@ -23,8 +27,10 @@ const SafeAreaView = ({ children, style = {} }: Props): ReactElement => {
 		};
 	}, [colors.background, style]);
 
+	const edges = useMemo(() => ['top'], []);
+
 	return (
-		<SafeAreaViewRN style={safeAreaStyles} edges={['top']}>
+		<SafeAreaViewRN style={safeAreaStyles} edges={edges} {...props}>
 			{children}
 		</SafeAreaViewRN>
 	);

@@ -61,6 +61,7 @@ const ActivityList = (): ReactElement => {
 			<Button
 				text="Show all activity"
 				size="big"
+				variant="transparent"
 				onPress={(): void => {
 					// @ts-ignore
 					navigation.navigate('ActivityFiltered');

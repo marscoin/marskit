@@ -1,11 +1,4 @@
-import React, {
-	memo,
-	ReactElement,
-	useMemo,
-	useCallback,
-	useState,
-	useEffect,
-} from 'react';
+import React, { memo, ReactElement, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,9 +7,7 @@ import { Caption13Up, View as ThemedView } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import Store from '../../../store/types';
-import { EFeeIds, IOnchainFees } from '../../../store/types/fees';
-import { defaultFeesShape } from '../../../store/shapes/fees';
-import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
+import { EFeeIds } from '../../../store/types/fees';
 import { useTransactionDetails } from '../../../hooks/transaction';
 import { getBalance } from '../../../utils/wallet';
 import {
@@ -35,17 +26,13 @@ const FeeRate = ({ navigation }): ReactElement => {
 		}),
 		[insets.bottom],
 	);
-	const [feeEstimates, setFeeEstimates] = useState<IOnchainFees>(
-		defaultFeesShape.onchain,
-	);
-	const [custom, setCustom] = useState(false);
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-
+	const feeEstimates = useSelector((store: Store) => store.fees.onchain);
 	const balance = useMemo(
 		() => getBalance({ selectedWallet, selectedNetwork, onchain: true }),
 		[selectedNetwork, selectedWallet],
@@ -66,13 +53,10 @@ const FeeRate = ({ navigation }): ReactElement => {
 		});
 	}, [selectedNetwork, selectedWallet, transaction.outputs]);
 
-	const satsPerByte = useMemo((): number => {
-		try {
-			return transaction?.satsPerByte || 1;
-		} catch (e) {
-			return 1;
-		}
-	}, [transaction?.satsPerByte]);
+	const satsPerByte = useMemo(
+		(): number => transaction?.satsPerByte ?? 1,
+		[transaction?.satsPerByte],
+	);
 
 	const getFee = useCallback(
 		(_satsPerByte = 1) => {
@@ -99,11 +83,8 @@ const FeeRate = ({ navigation }): ReactElement => {
 			if (res.isErr()) {
 				return Alert.alert('Fee update error', res.error.message);
 			}
-			if (custom) {
-				setCustom(false);
-			}
 		},
-		[custom, selectedNetwork, selectedWallet, transaction],
+		[selectedNetwork, selectedWallet, transaction],
 	);
 
 	const displayInstant = useMemo(() => false, []); //TODO: Determine if the user can pay via Lightning.
@@ -139,12 +120,7 @@ const FeeRate = ({ navigation }): ReactElement => {
 		[balance.satoshis, getFee, transactionTotal],
 	);
 
-	const isSelected = useCallback(
-		(id) => {
-			return id === selectedFeeId;
-		},
-		[selectedFeeId],
-	);
+	const isSelected = useCallback((id) => id === selectedFeeId, [selectedFeeId]);
 
 	const onCardPress = useCallback(
 		async (feeId: EFeeIds, fee = 1) => {
@@ -154,28 +130,9 @@ const FeeRate = ({ navigation }): ReactElement => {
 	);
 
 	const onCustomPress = useCallback(() => {
-		// If the custom option is already selected and the user taps it, close the view.
-		if (selectedFeeId === EFeeIds.custom) {
-			toggleView({
-				view: 'feePicker',
-				data: {
-					isOpen: false,
-				},
-			}).then();
-		}
-		onCardPress(EFeeIds.custom, satsPerByte).then();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [satsPerByte, selectedFeeId]);
-
-	useEffect(() => {
-		updateFeeEstimates().then();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	const updateFeeEstimates = useCallback(async () => {
-		const response = await updateOnchainFeeEstimates({ selectedNetwork });
-		setFeeEstimates(response);
-	}, [selectedNetwork]);
+		onCardPress(EFeeIds.custom, satsPerByte);
+		navigation.replace('FeeCustom');
+	}, [satsPerByte, navigation, onCardPress]);
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>

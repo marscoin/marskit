@@ -1,10 +1,13 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
+import { TransitionPresets } from '@react-navigation/stack';
+import { useSelector } from 'react-redux';
+
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TransitionPresets } from '@react-navigation/stack';
 import Receive from '../../screens/Wallets/Receive';
 import ReceiveAssetPickerList from '../../screens/Wallets/Receive/ReceiveAssetPickerList';
 import { NavigationContainer } from '../../styles/components';
+import Store from '../../store/types';
 
 const Stack = createNativeStackNavigator();
 const navOptions = {
@@ -13,19 +16,27 @@ const navOptions = {
 	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
-const ReceiveAssetPicker = (): ReactElement => {
+const ReceiveNavigation = (): ReactElement => {
+	const { isOpen, initial } =
+		useSelector(
+			(store: Store) => store.user.viewController?.receiveNavigation,
+		) ?? {};
+	const snapPoints = useMemo(() => [600], []);
+
+	const initialRouteName = !isOpen ? undefined : initial;
+
 	return (
-		<BottomSheetWrapper view="receiveAssetPicker">
-			<NavigationContainer>
+		<BottomSheetWrapper view="receiveNavigation" snapPoints={snapPoints}>
+			<NavigationContainer key={initialRouteName}>
 				<Stack.Navigator
 					screenOptions={navOptions}
-					initialRouteName={'receiveAssetPickerList'}>
+					initialRouteName={initialRouteName}>
 					<Stack.Group screenOptions={navOptions}>
 						<Stack.Screen
-							name="receiveAssetPickerList"
+							name="ReceiveAssetPickerList"
 							component={ReceiveAssetPickerList}
 						/>
-						<Stack.Screen name="receive" component={Receive} />
+						<Stack.Screen name="Receive" component={Receive} />
 					</Stack.Group>
 				</Stack.Navigator>
 			</NavigationContainer>
@@ -33,4 +44,4 @@ const ReceiveAssetPicker = (): ReactElement => {
 	);
 };
 
-export default ReceiveAssetPicker;
+export default ReceiveNavigation;

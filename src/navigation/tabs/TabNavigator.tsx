@@ -9,8 +9,8 @@ import { BlurView } from '@react-native-community/blur';
 
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
-import QR from '../../components/QR';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
+import BackupPrompt from '../../screens/Settings/Backup2/BackupPrompt';
 import { CameraIcon, Text02M, View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
 import { receiveIcon, sendIcon } from '../../assets/icons/tabs';
@@ -67,7 +67,6 @@ const WalletsStack = (): ReactElement => {
 					name="BitcoinToLightning"
 					component={BitcoinToLightningModal}
 				/>
-				<Stack.Screen name="QR" component={QR} />
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 			</Stack.Group>
 		</Stack.Navigator>
@@ -91,22 +90,39 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	const onReceivePress = useCallback((): void => {
 		if (screen === 'WalletsDetail') {
 			toggleView({
-				view: 'receive',
+				view: 'receiveNavigation',
 				data: {
 					isOpen: true,
-					snapPoint: 1,
+					snapPoint: 0,
+					initial: 'Receive',
 					assetName: params.assetType,
 				},
 			});
+			// toggleView({
+			// 	view: 'receive',
+			// 	data: {
+			// 		isOpen: true,
+			// 		snapPoint: 1,
+			// 		assetName: params.assetType,
+			// 	},
+			// });
 		} else {
 			toggleView({
-				view: 'receiveAssetPicker',
+				view: 'receiveNavigation',
 				data: {
-					id: 'receive',
 					isOpen: true,
-					snapPoint: 1,
+					snapPoint: 0,
+					initial: 'ReceiveAssetPickerList',
 				},
 			});
+			// toggleView({
+			// 	view: 'receiveAssetPicker',
+			// 	data: {
+			// 		id: 'receive',
+			// 		isOpen: true,
+			// 		snapPoint: 1,
+			// 	},
+			// });
 		}
 	}, [screen, params]);
 
@@ -118,6 +134,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 					isOpen: true,
 					snapPoint: 0,
 					initial: 'AddressAndAmount',
+					assetName: params.assetType,
 				},
 			});
 			// toggleView({
@@ -135,10 +152,11 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 				data: {
 					isOpen: true,
 					snapPoint: 0,
+					initial: 'SendAssetPickerList',
 				},
 			});
 		}
-	}, [screen]);
+	}, [screen, params]);
 
 	const openScanner = useCallback(
 		() => navigation.navigate('Scanner'),
@@ -146,26 +164,29 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	);
 
 	return (
-		<View style={[styles.tabRoot, { bottom: Math.max(insets.bottom, 5) }]}>
-			<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
-				<Blur style={styles.tabSend}>
-					<SvgXml xml={sendIcon('white')} width={15} height={15} />
-					<Text02M style={styles.tabText}>Send</Text02M>
-				</Blur>
-			</TouchableOpacity>
-			<TouchableOpacity
-				onPress={openScanner}
-				activeOpacity={0.8}
-				style={[styles.tabScan, { borderColor: white08 }]}>
-				<CameraIcon width={32} height={32} />
-			</TouchableOpacity>
-			<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
-				<Blur style={styles.tabRecieve}>
-					<SvgXml xml={receiveIcon('white')} width={15} height={15} />
-					<Text02M style={styles.tabText}>Recieve</Text02M>
-				</Blur>
-			</TouchableOpacity>
-		</View>
+		<>
+			<View style={[styles.tabRoot, { bottom: Math.max(insets.bottom, 5) }]}>
+				<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
+					<Blur style={styles.tabSend}>
+						<SvgXml xml={sendIcon('white')} width={15} height={15} />
+						<Text02M style={styles.tabText}>Send</Text02M>
+					</Blur>
+				</TouchableOpacity>
+				<TouchableOpacity
+					onPress={openScanner}
+					activeOpacity={0.8}
+					style={[styles.tabScan, { borderColor: white08 }]}>
+					<CameraIcon width={32} height={32} />
+				</TouchableOpacity>
+				<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
+					<Blur style={styles.tabReceive}>
+						<SvgXml xml={receiveIcon('white')} width={15} height={15} />
+						<Text02M style={styles.tabText}>Receive</Text02M>
+					</Blur>
+				</TouchableOpacity>
+			</View>
+			<BackupPrompt screen={screen} />
+		</>
 	);
 };
 
@@ -209,7 +230,7 @@ const styles = StyleSheet.create({
 		paddingRight: 30,
 		borderRadius: 30,
 	},
-	tabRecieve: {
+	tabReceive: {
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',

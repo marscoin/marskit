@@ -14,12 +14,20 @@ export const defaultUserShape = {
 	error: false,
 	isHydrated: false,
 	isOnline: true,
+	ignoreBackupTimestamp: 0,
+	backupVerified: false,
 	// Used to control various views throughout the app. (Modals, bottom-sheets, etc.)
 	viewController: {
 		send: { ...defaultViewController },
-		receive: { ...defaultViewController },
 		sendAssetPicker: { ...defaultViewController },
-		receiveAssetPicker: { ...defaultViewController },
 		sendNavigation: { ...defaultViewController },
+		receiveNavigation: { ...defaultViewController },
+		backupPrompts: { ...defaultViewController },
+		backupNavigation: { ...defaultViewController },
+		PINPrompts: { ...defaultViewController },
+		PINNavigation: { ...defaultViewController },
+		numberPad: { ...defaultViewController },
+		numberPadFee: { ...defaultViewController },
+		boostPrompt: { ...defaultViewController },
 	},
 };
