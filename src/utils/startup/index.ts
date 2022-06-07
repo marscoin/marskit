@@ -45,11 +45,9 @@ export const createNewWallet = async (): Promise<Result<string>> => {
 	return await startWalletServices({});
 };
 
-/**
- * Callback passed to startLnd to be called after RPC is ready
- * @returns {Promise<void>}
- */
-/*const backupServiceStart = async (): Promise<void> => {
+/*
+// Callback passed to startLnd to be called after RPC is ready
+const backupServiceStart = async (): Promise<void> => {
 	const res = await backupSetup();
 	if (res.isErr()) {
 		showErrorNotification({
