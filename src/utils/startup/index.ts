@@ -49,7 +49,7 @@ export const createNewWallet = async (): Promise<Result<string>> => {
  * Callback passed to startLnd to be called after RPC is ready
  * @returns {Promise<void>}
  */
-const backupServiceStart = async (): Promise<void> => {
+/*const backupServiceStart = async (): Promise<void> => {
 	const res = await backupSetup();
 	if (res.isErr()) {
 		showErrorNotification({
@@ -58,7 +58,7 @@ const backupServiceStart = async (): Promise<void> => {
 		});
 	}
 	performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
-};
+};*/
 
 /**
  * Starts all wallet services
