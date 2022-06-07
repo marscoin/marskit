@@ -10,6 +10,7 @@ import {
 	IAddressType,
 	TAssetNetwork,
 } from '../types/wallet';
+import { IHeader } from '../../utils/types/electrum';
 
 export const assetNetworks: TAssetNetwork[] = ['bitcoin', 'lightning'];
 
@@ -34,23 +35,27 @@ export const addressTypes: IAddressType = {
 export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
 	bitcoin: defaultOnChainTransactionData,
 	bitcoinTestnet: defaultOnChainTransactionData,
+	bitcoinRegtest: defaultOnChainTransactionData,
 };
 
 export const numberTypeItems: IWalletItem<number> = {
 	bitcoin: 0,
 	bitcoinTestnet: 0,
+	bitcoinRegtest: 0,
 	timestamp: null,
 };
 
 export const arrayTypeItems: IWalletItem<[]> = {
 	bitcoin: [],
 	bitcoinTestnet: [],
+	bitcoinRegtest: [],
 	timestamp: null,
 };
 
 export const objectTypeItems: IWalletItem<object> = {
 	bitcoin: {},
 	bitcoinTestnet: {},
+	bitcoinRegtest: {},
 	timestamp: null,
 };
 
@@ -77,6 +82,7 @@ export type IAddressTypeContent<T> = {
 export const addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>> = {
 	bitcoin: getAddressTypeContent({ ...addressContent }),
 	bitcoinTestnet: getAddressTypeContent({ ...addressContent }),
+	bitcoinRegtest: getAddressTypeContent({ ...addressContent }),
 	timestamp: null,
 };
 
@@ -85,12 +91,14 @@ export const changeAddressIndex: IWalletItem<
 > = {
 	bitcoin: getAddressTypeContent(addressContent),
 	bitcoinTestnet: getAddressTypeContent(addressContent),
+	bitcoinRegtest: getAddressTypeContent(addressContent),
 	timestamp: null,
 };
 
 export const addresses: IWalletItem<IAddressTypeContent<IAddressContent>> = {
 	bitcoin: getAddressTypeContent({}),
 	bitcoinTestnet: getAddressTypeContent({}),
+	bitcoinRegtest: getAddressTypeContent({}),
 	timestamp: null,
 };
 
@@ -99,6 +107,7 @@ export const changeAddresses: IWalletItem<
 > = {
 	bitcoin: getAddressTypeContent({}),
 	bitcoinTestnet: getAddressTypeContent({}),
+	bitcoinRegtest: getAddressTypeContent({}),
 	timestamp: null,
 };
 
@@ -108,6 +117,12 @@ export const defaultKeyDerivationPath: IKeyDerivationPath = {
 	account: '0',
 	change: '0',
 	addressIndex: '0',
+};
+
+export const header: IHeader = {
+	height: 0,
+	hash: '',
+	hex: '',
 };
 
 export const defaultWalletShape: IDefaultWalletShape = {
@@ -132,14 +147,17 @@ export const defaultWalletShape: IDefaultWalletShape = {
 			...defaultKeyDerivationPath,
 			coinType: '0',
 		},
+		bitcoinRegtest: defaultKeyDerivationPath,
 	},
 	networkTypePath: {
 		bitcoin: '0',
 		bitcoinTestnet: '1',
+		bitcoinRegtest: '0',
 	},
 	addressType: {
 		bitcoin: EWallet.addressType,
 		bitcoinTestnet: EWallet.addressType,
+		bitcoinRegtest: EWallet.addressType,
 	},
 	rbfData: objectTypeItems,
 	transaction: onChainTransaction,
@@ -153,6 +171,11 @@ export const defaultWalletStoreShape: IWallet = {
 	selectedWallet: EWallet.defaultWallet,
 	addressTypes: { ...addressTypes },
 	exchangeRates: {},
+	header: {
+		bitcoin: { ...header },
+		bitcoinTestnet: { ...header },
+		bitcoinRegtest: { ...header },
+	},
 	wallets: {
 		wallet0: { ...defaultWalletShape },
 	},

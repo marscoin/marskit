@@ -2,6 +2,7 @@ import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate/types';
 import { IAddressTypeContent } from '../shapes/wallet';
 import { EFeeIds } from './fees';
+import { IHeader } from '../../utils/types/electrum';
 
 export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
 export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
@@ -109,6 +110,7 @@ export interface IWallet {
 	selectedWallet: string;
 	addressTypes: IAddressType;
 	exchangeRates: IExchangeRates;
+	header: IWalletItem<IHeader>;
 	wallets: { [key: string]: IDefaultWalletShape } | {};
 	[key: string]: any;
 }
@@ -116,6 +118,7 @@ export interface IWallet {
 export interface IWalletItem<T> {
 	bitcoin: T;
 	bitcoinTestnet: T;
+	bitcoinRegtest: T;
 	timestamp?: number | null;
 }
 
@@ -231,6 +234,7 @@ export interface IDefaultWalletShape {
 	addressType: {
 		bitcoin: TAddressType;
 		bitcoinTestnet: TAddressType;
+		bitcoinRegtest: TAddressType;
 	};
 	rbfData: IWalletItem<object>;
 	transaction: IWalletItem<IOnChainTransactionData>;

@@ -16,8 +16,12 @@ import {
 	ITxHash,
 	refreshWallet,
 } from './index';
+import { Block } from 'bitcoinjs-lib';
 import { showSuccessNotification } from '../notifications';
 import { ICustomElectrumPeer } from '../../store/types/settings';
+import { updateHeader } from '../../store/actions/wallet';
+import { getStore } from '../../store/helpers';
+import { IHeader, IGetHeaderResponse } from '../types/electrum';
 
 export interface IGetUtxosResponse {
 	utxos: IUtxo[];
@@ -195,18 +199,34 @@ export const subscribeToHeader = async ({
 	selectedNetwork,
 }: {
 	selectedNetwork?: undefined | TAvailableNetworks;
-}): Promise<Result<string>> => {
+}): Promise<Result<IHeader>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
 	const subscribeResponse: ISubscribeToHeader = await electrum.subscribeHeader({
 		network: selectedNetwork,
-		onReceive: refreshWallet,
+		onReceive: async (data) => {
+			const hex = data[0].hex;
+			const hash = getBlockHashFromHex({ blockHex: hex, selectedNetwork });
+			updateHeader({
+				selectedNetwork,
+				header: { ...data[0], hash },
+			});
+			refreshWallet();
+		},
 	});
 	if (subscribeResponse.error) {
 		return err('Unable to subscribe to headers.');
 	}
-	return ok('Successfully subscribed to headers.');
+	// Update local storage with current height and hex.
+	const hex = subscribeResponse.data.hex;
+	const hash = getBlockHashFromHex({ blockHex: hex, selectedNetwork });
+	const header = { ...subscribeResponse.data, hash };
+	updateHeader({
+		selectedNetwork,
+		header,
+	});
+	return ok(header);
 };
 
 interface IGetTransactions {
@@ -456,6 +476,7 @@ export const getAddressHistory = async ({
 const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {
 	bitcoin: peers.bitcoin,
 	bitcoinTestnet: peers.bitcoinTestnet,
+	bitcoinRegtest: [],
 };
 
 /**
@@ -565,4 +586,97 @@ export const getAddressBalance = async ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Returns the block hex of the provided block height.
+ * @param {number} [height]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const getBlockHex = async ({
+	height = 0,
+	selectedNetwork,
+}: {
+	height?: number;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const response: IGetHeaderResponse = await electrum.getHeader({
+		height,
+		network: selectedNetwork,
+	});
+	if (response.error) {
+		return err(response.data);
+	}
+	return ok(response.data);
+};
+
+/**
+ * Returns the block hash given a block hex.
+ * Leaving blockHex empty will return the last known block hash from storage.
+ * @param {string} [blockHex]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {string}
+ */
+export const getBlockHashFromHex = ({
+	blockHex,
+	selectedNetwork,
+}: {
+	blockHex?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	// If empty, return the last known block hex from storage.
+	if (!blockHex) {
+		const { hex } = getBlockHeader({ selectedNetwork });
+		blockHex = hex;
+	}
+	const block = Block.fromHex(blockHex);
+	const hash = block.getId();
+	return hash;
+};
+
+/**
+ * Returns last known block height, and it's corresponding hex from local storage.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {IHeader}
+ */
+export const getBlockHeader = ({
+	selectedNetwork,
+}: {
+	selectedNetwork?: TAvailableNetworks;
+}): IHeader => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	return getStore().wallet.header[selectedNetwork];
+};
+
+/**
+ * Returns the block hash for the provided height and network.
+ * @param {number} [height]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const getBlockHashFromHeight = async ({
+	height = 0,
+	selectedNetwork,
+}: {
+	height?: number;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const response = await getBlockHex({ height, selectedNetwork });
+	if (response.isErr()) {
+		return err(response.error.message);
+	}
+	const blockHash = getBlockHashFromHex({ blockHex: response.value });
+	return ok(blockHash);
 };

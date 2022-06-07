@@ -4,6 +4,7 @@ import {
 	IAddress,
 	ICreateWallet,
 	IFormattedTransaction,
+	IHeader,
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
@@ -1053,4 +1054,29 @@ export const setupFeeForOnChainTransaction = async ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Saves block header information to storage.
+ * @param {IHeader} header
+ * @param {TAvailableNetworks} selectedNetwork
+ */
+export const updateHeader = ({
+	header,
+	selectedNetwork,
+}: {
+	header: IHeader;
+	selectedNetwork?: TAvailableNetworks;
+}) => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const payload = {
+		header,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.UPDATE_HEADER,
+		payload,
+	});
 };
