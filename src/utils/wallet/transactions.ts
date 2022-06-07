@@ -1921,10 +1921,12 @@ export const setupCpfp = async ({
 	if (response.isErr()) {
 		return err(response.error?.message);
 	}
+
 	return sendMax({
 		selectedWallet,
 		selectedNetwork,
 		transaction: response.value,
+		address: response.value.changeAddress,
 	});
 };
 
