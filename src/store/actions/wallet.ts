@@ -4,7 +4,6 @@ import {
 	IAddress,
 	ICreateWallet,
 	IFormattedTransaction,
-	IHeader,
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
@@ -45,6 +44,7 @@ import {
 	getUtxos,
 } from '../../utils/wallet/electrum';
 import { EFeeIds } from '../types/fees';
+import { IHeader } from '../../utils/types/electrum';
 
 const dispatch = getDispatch();
 
@@ -1067,7 +1067,7 @@ export const updateHeader = ({
 }: {
 	header: IHeader;
 	selectedNetwork?: TAvailableNetworks;
-}) => {
+}): void => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
