@@ -7,7 +7,7 @@ import {
 import { err, ok, Result } from '../result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
-import { backupSetup, performFullBackup } from '../../store/actions/backup';
+//import { backupSetup, performFullBackup } from '../../store/actions/backup';
 import { showErrorNotification } from '../notifications';
 import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
