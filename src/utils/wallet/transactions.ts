@@ -1922,6 +1922,7 @@ export const setupCpfp = async ({
 		return err(response.error?.message);
 	}
 
+	// TODO: This will consolidate all UTXO's. Fix it to only use the UTXO's required according to the user's coin selection preference.
 	return sendMax({
 		selectedWallet,
 		selectedNetwork,
