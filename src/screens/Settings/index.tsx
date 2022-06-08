@@ -335,7 +335,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						title: 'Telegram',
 						type: 'button',
 						onPress: (): Promise<void> =>
-							Linking.openURL('https://t.me/backpackwallet').then(),
+							Linking.openURL('https://t.me/synonym_to').then(),
 						hide: false,
 					},
 					{

@@ -9,7 +9,10 @@ import Button from './Button';
 
 let scrollView;
 
-const onSharePress = ({ title = 'backpack-lnd-logs', message = '' }): void => {
+const onSharePress = ({
+	title = 'bitkit-lightning-logs',
+	message = '',
+}): void => {
 	try {
 		Share.share(
 			{
