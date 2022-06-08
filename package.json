@@ -11,7 +11,7 @@
     "test:coverage": "jest --coverage=true",
     "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
-    "clean": "rm -rf node_modules ios/Pods && yarn install",
+    "clean": "rm -rf node_modules ios/Pods ios/Podfile.lock && yarn install",
     "postinstall": "node postinstall.js",
     "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
   },
@@ -86,7 +86,7 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.1",
-    "rn-electrum-client": "git+ssh://git@github.com/synonymdev/rn-electrum-client#5551bc896a65fdf6d23bf63ca9a0d3d902878cc4",
+    "rn-electrum-client": "git+ssh://git@github.com/synonymdev/react-native-electrum-client#7060a07f672f9b9b66dcd29bd375d7a1eda34b1a",
     "secp256k1": "^4.0.3",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",

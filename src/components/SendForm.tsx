@@ -203,6 +203,7 @@ const SendForm = ({ index = 0 }): ReactElement => {
 			});
 			return;
 		}
+		data.replace('bitcoinRegtest:', '');
 		data.replace('bitcoinTestnet:', '');
 		data.replace('bitcoin:', '');
 		const addressIsValid = await validate(data);

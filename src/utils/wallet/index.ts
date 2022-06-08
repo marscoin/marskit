@@ -68,7 +68,6 @@ import {
 	getTransactionsFromInputs,
 	IGetAddressHistoryResponse,
 	subscribeToAddresses,
-	subscribeToHeader,
 	TTxResult,
 } from './electrum';
 import { getDisplayValues } from '../exchange-rate';
@@ -85,7 +84,6 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		await updateAddressIndexes({ selectedWallet, selectedNetwork });
 		await Promise.all([
-			subscribeToHeader({ selectedNetwork }),
 			subscribeToAddresses({
 				selectedWallet,
 				selectedNetwork,
@@ -1976,6 +1974,7 @@ export const createDefaultWallet = async ({
 				addressType: {
 					bitcoin: selectedAddressType,
 					bitcoinTestnet: selectedAddressType,
+					bitcoinRegtest: selectedAddressType,
 				},
 				addressIndex,
 				changeAddressIndex,

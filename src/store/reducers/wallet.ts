@@ -321,6 +321,15 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 					},
 				},
 			};
+
+		case actions.UPDATE_HEADER:
+			return {
+				...state,
+				header: {
+					...state.header,
+					[selectedNetwork]: action.payload.header,
+				},
+			};
 		default:
 			return state;
 	}

@@ -3,6 +3,7 @@ export type TAvailableNetworks = 'bitcoin' | 'bitcoinTestnet';
 export enum EAvailableNetworks {
 	bitcoin = 'bitcoin',
 	bitcoinTestnet = 'bitcoinTestnet',
+	bitcoinRegtest = 'bitcoinRegtest',
 }
 
 export interface INetwork {
@@ -40,6 +41,17 @@ export const networks: INetworks = {
 	bitcoinTestnet: {
 		messagePrefix: '\x18Bitcoin Signed Message:\n',
 		bech32: 'tb',
+		bip32: {
+			public: 0x043587cf,
+			private: 0x04358394,
+		},
+		pubKeyHash: 0x6f,
+		scriptHash: 0xc4,
+		wif: 0xef,
+	},
+	bitcoinRegtest: {
+		messagePrefix: '\x18Bitcoin Signed Message:\n',
+		bech32: 'bcrt',
 		bip32: {
 			public: 0x043587cf,
 			private: 0x04358394,
