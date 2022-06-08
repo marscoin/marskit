@@ -29,7 +29,6 @@ import {
 } from '../../store/types/wallet';
 import { err, ok, Result } from '../result';
 import {
-	IResponse,
 	IGetAddress,
 	IGenerateAddresses,
 	IGetInfoFromAddressPath,
@@ -74,7 +73,6 @@ import { getDisplayValues } from '../exchange-rate';
 import { IDisplayValues } from '../exchange-rate/types';
 import { IncludeBalances } from '../../hooks/wallet';
 import * as bitcoin from 'bitcoinjs-lib';
-import { CipherSeed } from 'aezeed';
 import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { EFeeIds } from '../../store/types/fees';
@@ -519,40 +517,6 @@ export const getSha256 = (buff: Buffer): Buffer => {
 };
 
 /**
- *.Returns any previously stored aezeed passphrase.
- * @async
- * @return {{error: boolean, data: string}}
- */
-export const getAezeedPassphrase = async (): Promise<IResponse<string>> => {
-	try {
-		return await getKeychainValue({
-			key: 'aezeedPassphrase',
-		});
-	} catch (e) {
-		return { error: true, data: e };
-	}
-};
-
-/**
- * Generate an aezeed cipher mnemonic phrase.
- * @async
- * @param passphrase
- * @return {Promise<string>}
- */
-export const generateAezeedMnemonic = async ({
-	aezeedPassphrase = EWallet.aezeedPassphrase,
-}: {
-	aezeedPassphrase?: string;
-}): Promise<string> => {
-	try {
-		const cipherSeedVersion = 0;
-		return CipherSeed.random().toMnemonic(aezeedPassphrase, cipherSeedVersion);
-	} catch (e) {
-		return e;
-	}
-};
-
-/**
  * Generate a mnemonic phrase.
  * @async
  * @param {number} strength
@@ -691,16 +655,11 @@ export const getInfoFromAddressPath = (path = ''): IGetInfoFromAddressPath => {
 /**
  * Determine if a given mnemonic is valid.
  * @param {string} mnemonic - The mnemonic to validate.
- * @param password
  * @return {boolean}
  */
-export const validateMnemonic = (mnemonic = '', password = ''): boolean => {
+export const validateMnemonic = (mnemonic = ''): boolean => {
 	try {
-		const bip39Response = bip39.validateMnemonic(mnemonic);
-		if (bip39Response) {
-			return true;
-		}
-		return !!CipherSeed.fromMnemonic(mnemonic, password);
+		return bip39.validateMnemonic(mnemonic);
 	} catch {
 		return false;
 	}
