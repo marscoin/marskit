@@ -10,7 +10,6 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
-import { backpackPassword } from '../../../utils/backup/backpack';
 import {
 	cleanupBackupFiles,
 	createBackupFile,
@@ -25,8 +24,6 @@ const ExportBackups = ({ navigation }): ReactElement => {
 	const [password, setPassword] = useState<string>('');
 
 	useEffect(() => {
-		backpackPassword().then(setPassword);
-
 		return (): void => {
 			cleanupBackupFiles().catch();
 		};
@@ -107,7 +104,7 @@ const ExportBackups = ({ navigation }): ReactElement => {
 								style={styles.textInput}
 								placeholder="Password"
 								autoCapitalize="none"
-								autoCompleteType="off"
+								autoComplete={'off'}
 								autoCorrect={false}
 								onChangeText={setPassword}
 								value={password}

@@ -3,7 +3,6 @@ import { getDispatch } from '../helpers';
 import { err, ok, Result } from '../../utils/result';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import { resetKeychainValue } from '../../utils/helpers';
-import { wipeAuthDetails } from '../../utils/backup/backpack';
 import { wipeLndDir } from '../../utils/lightning';
 import { removePin } from '../../utils/settings';
 import { resetActivityStore } from './activity';
@@ -50,7 +49,6 @@ export const wipeWallet = async ({
 			resetKeychainValue({ key: selectedWallet }),
 			resetKeychainValue({ key: `${selectedWallet}passphrase` }),
 			removePin(),
-			wipeAuthDetails(),
 			resetKeychainValue({ key: 'lndMnemonic' }),
 			wipeLndDir({ selectedWallet }),
 			resetActivityStore(),
