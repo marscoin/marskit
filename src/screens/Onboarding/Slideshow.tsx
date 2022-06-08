@@ -1,6 +1,5 @@
 import React, { ReactElement, useState, useRef, useMemo } from 'react';
 import {
-	Alert,
 	Image,
 	StyleSheet,
 	TouchableOpacity,
@@ -64,28 +63,6 @@ const Slideshow = ({
 				message: res.error.message,
 			});
 		}
-	};
-
-	const onRestore = (): void => {
-		Alert.alert('Restore', '', [
-			{
-				text: 'From backup server',
-				onPress: (): void => navigation.navigate('RestoreAccount'),
-			},
-			{
-				text: 'From file',
-				onPress: (): void => navigation.navigate('RestoreAccountFromFile'),
-			},
-			{
-				text: 'From seed',
-				onPress: (): void => navigation.navigate('RestoreFromSeed'),
-			},
-			{
-				text: 'Cancel',
-				onPress: (): void => {},
-				style: 'cancel',
-			},
-		]);
 	};
 
 	const slides = useMemo(
@@ -291,7 +268,7 @@ const Slideshow = ({
 									size="large"
 									variant="secondary"
 									style={[styles.button, styles.newButton]}
-									onPress={onRestore}
+									onPress={(): void => navigation.navigate('RestoreFromSeed')}
 									text="Restore"
 								/>
 							</View>

@@ -1,50 +1,21 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Feather, Text, TouchableOpacity } from '../../../styles/components';
-import Button from '../../../components/Button';
-import {
-	showErrorNotification,
-	showSuccessNotification,
-} from '../../../utils/notifications';
 import Store from '../../../store/types';
-import BackupRegisterForm from './RegisterForm';
-import { backupSetup, performFullBackup } from '../../../store/actions/backup';
 import SafeAreaView from '../../../components/SafeAreaView';
 
 const BackupSettings = ({ navigation }): ReactElement => {
 	const backupState = useSelector((state: Store) => state.backup);
-	const [isVerifying, setIsVerifying] = useState<boolean>(false);
-	const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
 
 	const lastBackup = backupState.lastBackedUp
 		? backupState.lastBackedUp.toLocaleString()
 		: 'Never';
 
-	const isRegistered = !!backupState.username;
-
 	const status =
 		`Registered: ${backupState.username ? '✅' : '❌'}\n` +
 		`Last backed up: ${lastBackup}\n` +
 		`Synced: ${backupState.backpackSynced ? '✅' : '❌'}`;
-
-	const onVerify = async (): Promise<void> => {
-		setIsVerifying(true);
-		const verifyResult = await backupSetup();
-		if (verifyResult.isErr()) {
-			showErrorNotification({
-				title: 'Failed to verify backup',
-				message: verifyResult.error.message,
-			});
-		} else {
-			showSuccessNotification({
-				title: 'Success',
-				message: 'Backup verified',
-			});
-		}
-
-		setIsVerifying(false);
-	};
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -57,43 +28,6 @@ const BackupSettings = ({ navigation }): ReactElement => {
 			</TouchableOpacity>
 			<ScrollView>
 				<Text style={styles.status}>{status}</Text>
-
-				{!isRegistered ? <BackupRegisterForm onRegister={onVerify} /> : null}
-
-				{isRegistered ? (
-					<>
-						<Button
-							text={isVerifying ? 'Verifying...' : 'Verify backup'}
-							disabled={isVerifying}
-							onPress={onVerify}
-						/>
-
-						<Button
-							text={isBackingUp ? 'Backing up...' : 'Backup now'}
-							disabled={isBackingUp}
-							onPress={async (): Promise<void> => {
-								setIsBackingUp(true);
-								const backupRes = await performFullBackup({
-									retries: 0,
-									retryTimeout: 0,
-								});
-								if (backupRes.isErr()) {
-									showErrorNotification({
-										title: 'Backup Failed',
-										message: backupRes.error.message,
-									});
-								} else {
-									showSuccessNotification({
-										title: 'Success',
-										message: 'Full backup complete',
-									});
-								}
-
-								setIsBackingUp(false);
-							}}
-						/>
-					</>
-				) : null}
 			</ScrollView>
 		</SafeAreaView>
 	);

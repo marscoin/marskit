@@ -3,9 +3,6 @@ import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
 import SlideshowScreen from '../../screens/Onboarding/Slideshow';
-import OnboardingCreateAccountScreen from '../../screens/Onboarding/CreateAccount';
-import OnboardingRestoreAccountScreen from '../../screens/Onboarding/RestoreAccount';
-import OnboardingRestoreFromFileScreen from '../../screens/Onboarding/RestoreFromFile';
 import RestoreFromSeed from '../../screens/Onboarding/RestoreFromSeed';
 import PinPad from '../../components/PinPad';
 import Biometrics, {
@@ -80,21 +77,6 @@ const OnboardingNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="Slideshow"
 					component={SlideshowScreen}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="CreateAccount"
-					component={OnboardingCreateAccountScreen}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="RestoreAccount"
-					component={OnboardingRestoreAccountScreen}
-					options={navOptionHandler}
-				/>
-				<Stack.Screen
-					name="RestoreAccountFromFile"
-					component={OnboardingRestoreFromFileScreen}
 					options={navOptionHandler}
 				/>
 				<Stack.Screen
