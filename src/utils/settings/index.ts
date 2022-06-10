@@ -1,6 +1,7 @@
 import { resetKeychainValue, setKeychainValue } from '../helpers';
 import { updateSettings } from '../../store/actions/settings';
 import { getStore } from '../../store/helpers';
+import { PIN_ATTEMPTS } from '../../components/PinPad2';
 
 /**
  * @async
@@ -9,7 +10,7 @@ import { getStore } from '../../store/helpers';
 export const removePin = async (): Promise<void> => {
 	await Promise.all([
 		updateSettings({ pin: false }),
-		setKeychainValue({ key: 'pinAttemptsRemaining', value: '5' }),
+		setKeychainValue({ key: 'pinAttemptsRemaining', value: PIN_ATTEMPTS }),
 		resetKeychainValue({ key: 'pin' }),
 	]);
 };

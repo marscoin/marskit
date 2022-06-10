@@ -39,9 +39,6 @@ const Wallets = ({ navigation }): ReactElement => {
 						<BalanceHeader />
 					</View>
 				</DetectSwipe>
-				<View style={styles.content}>
-					<BoostCards />
-				</View>
 				<TodoCarousel />
 				<DetectSwipe onSwipeLeft={onSwipeLeft}>
 					<View style={styles.content}>

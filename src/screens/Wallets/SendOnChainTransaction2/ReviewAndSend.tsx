@@ -37,10 +37,10 @@ import {
 	updateWalletBalance,
 	setupFeeForOnChainTransaction,
 } from '../../../store/actions/wallet';
+import { updateMetaTxTags } from '../../../store/actions/metadata';
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
-import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const Section = memo(
 	({
@@ -69,7 +69,9 @@ const Section = memo(
 const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	const insets = useSafeAreaInsets();
 	const [isLoading, setIsLoading] = useState(false);
-	const [rawTx, setRawTx] = useState<string | undefined>(undefined);
+	const [rawTx, setRawTx] = useState<{ hex: string; id: string } | undefined>(
+		undefined,
+	);
 	const nextButtonContainer = useMemo(
 		() => ({
 			...styles.nextButtonContainer,
@@ -207,28 +209,30 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			if (__DEV__) {
 				console.log(response.value);
 			}
-			const { pin, biometrics } = hasEnabledAuthentication();
-			if (pin || biometrics) {
-				// @ts-ignore
-				navigation.navigate('AuthCheck', {
-					onSuccess: () => {
-						// @ts-ignore
-						navigation.pop();
-						setRawTx(response.value);
-					},
-				});
-			} else {
-				setRawTx(response.value);
-			}
+			// disable biometrics during send for now
+
+			// const { pin, biometrics } = hasEnabledAuthentication();
+			// if (pin || biometrics) {
+			// 	// @ts-ignore
+			// 	navigation.navigate('AuthCheck', {
+			// 		onSuccess: () => {
+			// 			// @ts-ignore
+			// 			navigation.pop();
+			// 			setRawTx(response.value);
+			// 		},
+			// 	});
+			// }
+
+			setRawTx(response.value);
 		} catch (error) {
 			_onError('Error creating transaction.', (error as Error).message);
 			setIsLoading(false);
 		}
-	}, [selectedNetwork, selectedWallet, transaction, _onError, navigation]);
+	}, [selectedNetwork, selectedWallet, transaction, _onError]);
 
 	const _broadcast = useCallback(async () => {
 		const response = await broadcastTransaction({
-			rawTx: rawTx ?? '',
+			rawTx: rawTx?.hex ?? '',
 			selectedNetwork,
 		});
 		if (response.isErr()) {
@@ -247,6 +251,9 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			selectedNetwork,
 		});
 
+		// save tags to metadata
+		updateMetaTxTags(rawTx?.id, transaction.tags);
+
 		navigation.navigate('Result', { success: true });
 		setIsLoading(false);
 	}, [
@@ -257,6 +264,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		transactionTotal,
 		_onError,
 		navigation,
+		transaction,
 	]);
 
 	useEffect(() => {

@@ -11,10 +11,11 @@ import Store from '../../store/types';
 import { toggleView } from '../../store/actions/user';
 import { resetOnChainTransaction } from '../../store/actions/wallet';
 import {
+	adjustFee,
+	broadcastBoost,
 	canBoost,
 	setupBoost,
-	broadcastBoost,
-	adjustFee,
+	validateTransaction,
 } from '../../utils/wallet/transactions';
 import {
 	showErrorNotification,
@@ -72,6 +73,13 @@ const BoostForm = ({ activityItem }): ReactElement => {
 
 	const handleBoost = async (): Promise<void> => {
 		setLoading(true);
+		const transactionIsValid = validateTransaction(transaction);
+		if (transactionIsValid.isErr()) {
+			setLoading(false);
+			Alert.alert(transactionIsValid.error.message);
+			return;
+		}
+
 		try {
 			const response = await broadcastBoost({
 				selectedWallet,

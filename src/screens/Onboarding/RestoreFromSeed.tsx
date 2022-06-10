@@ -33,6 +33,8 @@ import VerticalShadow from '../../components/VerticalShadow';
 import Button from '../../components/Button';
 import { validateMnemonic } from '../../utils/wallet';
 import useColors from '../../hooks/colors';
+import { restoreWallet } from '../../utils/startup';
+import LoadingWalletScreen from './Loading';
 
 const Glow = ({ color }: { color: string }): ReactElement => {
 	const opacity = useValue(0);
@@ -56,6 +58,7 @@ const Glow = ({ color }: { color: string }): ReactElement => {
 
 const RestoreFromSeed = (): ReactElement => {
 	const numberOfWords = 12;
+	const [isRestoringWallet, setIsRestoringWallet] = useState(false);
 	const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
 	const [validWords, setValidWords] = useState(Array(numberOfWords).fill(true));
 	const [focused, setFocused] = useState(null);
@@ -91,12 +94,21 @@ const RestoreFromSeed = (): ReactElement => {
 		});
 	};
 
-	const handleRestore = (): void => {
-		if (validateMnemonic(seed.join(' '))) {
-			setShowRestored(true);
-		} else {
+	const handleRestore = async (): Promise<void> => {
+		if (!validateMnemonic(seed.join(' '))) {
 			setShowFailed(true);
+			return;
 		}
+
+		setIsRestoringWallet(true);
+		const res = await restoreWallet({ mnemonic: seed.join(' ') });
+		if (res.isErr()) {
+			setIsRestoringWallet(false);
+			Alert.alert(res.error.message);
+			return;
+		}
+
+		setShowRestored(true);
 	};
 
 	const renderInput = (word, index): ReactElement => {
@@ -117,6 +129,14 @@ const RestoreFromSeed = (): ReactElement => {
 			/>
 		);
 	};
+
+	if (isRestoringWallet) {
+		return (
+			<GlowingBackground topLeft={green}>
+				<LoadingWalletScreen />
+			</GlowingBackground>
+		);
+	}
 
 	if (showRestored || showFailed) {
 		const color = showRestored ? green : red;
@@ -193,7 +213,6 @@ const RestoreFromSeed = (): ReactElement => {
 					<View style={styles.buttonContainer}>
 						<Button
 							size="large"
-							style={styles.button}
 							onPress={handleRestore}
 							text="Restore wallet"
 						/>
@@ -246,7 +265,6 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		marginTop: 38,
 	},
-
 	contentResult: {
 		paddingHorizontal: 48,
 		paddingTop: 120,

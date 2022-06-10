@@ -22,7 +22,7 @@ const AssetCard = ({
 	onPress: Function;
 }): ReactElement => {
 	return (
-		<Pressable style={styles.container} onPress={onPress} color="onSurface">
+		<Pressable style={styles.container} onPress={onPress} color="transparent">
 			<View color="transparent" style={styles.col1}>
 				{icon}
 				<View color="transparent" style={styles.titleContainer}>
@@ -49,8 +49,6 @@ const styles = StyleSheet.create({
 	container: {
 		minHeight: 88,
 		marginBottom: 8,
-		borderRadius: 20,
-		paddingHorizontal: 16,
 		display: 'flex',
 		justifyContent: 'space-between',
 		alignItems: 'center',

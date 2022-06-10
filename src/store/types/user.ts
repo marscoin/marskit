@@ -14,7 +14,8 @@ export type TViewController =
 	| 'backupNavigation'
 	| 'PINPrompt'
 	| 'PINNavigation'
-	| 'boostPrompt';
+	| 'boostPrompt'
+	| 'activityTagsPrompt';
 
 export type TUserViewController = {
 	[key in TViewController]: IViewControllerData;

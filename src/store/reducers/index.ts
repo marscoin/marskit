@@ -9,6 +9,7 @@ import blocktank from './blocktank';
 import todos from './todos';
 import fees from './fees';
 import slashtags from './slashtags';
+import metadata from './metadata';
 
 const appReducers = combineReducers({
 	user,
@@ -21,6 +22,7 @@ const appReducers = combineReducers({
 	todos,
 	fees,
 	slashtags,
+	metadata,
 });
 
 export default appReducers;
