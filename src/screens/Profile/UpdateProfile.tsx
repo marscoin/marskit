@@ -3,7 +3,7 @@ import { TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Alert, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { TBasicProfile } from '@synonymdev/react-native-slashtags';
+import { BasicProfile } from '../../store/types/slashtags';
 import { setActiveProfile, updateProfile } from '../../store/actions/slashtags';
 import { useNavigation } from '@react-navigation/native';
 
@@ -17,7 +17,7 @@ const UpdateProfile = (): ReactElement => {
 			return;
 		}
 
-		const basicProfile: TBasicProfile = {
+		const basicProfile: BasicProfile = {
 			name: name,
 			type: 'Person',
 		};

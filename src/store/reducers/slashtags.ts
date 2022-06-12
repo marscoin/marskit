@@ -7,18 +7,6 @@ const slashtags = (
 	action,
 ): ISlashtags => {
 	switch (action.type) {
-		case actions.SLASHTAGS_UPDATE_API_READY: {
-			return {
-				...state,
-				apiReady: action.payload.apiReady,
-			};
-		}
-		case actions.SLASHTAGS_UPDATE_SDK_STATE: {
-			return {
-				...state,
-				sdkState: action.payload.sdkState,
-			};
-		}
 		case actions.SLASHTAGS_UPDATE_PROFILE:
 			return {
 				...state,
@@ -30,7 +18,6 @@ const slashtags = (
 					},
 				},
 			};
-
 		case actions.SLASHTAGS_SET_ACTIVE_PROFILE: {
 			return {
 				...state,

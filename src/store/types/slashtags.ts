@@ -1,13 +1,17 @@
-import { TSdkState, TBasicProfile } from '@synonymdev/react-native-slashtags';
+export type BasicProfile = Partial<{
+	name: string;
+	url: string;
+	image: string;
+	type: string;
+	// TODO update Basic profile interface
+}>;
 
 export interface ISlashtagProfile {
-	basicProfile: TBasicProfile;
+	basicProfile: BasicProfile;
 	slashtag?: string;
 }
 
 export interface ISlashtags {
-	apiReady: boolean;
-	sdkState: TSdkState;
 	profiles: { [name: string]: ISlashtagProfile };
 	currentProfileName: string; //Current selected profile (default authentication)
 }

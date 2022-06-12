@@ -490,7 +490,6 @@ export const deriveMnemonicPhrases = async (
 		onchain: string;
 		lightning: string;
 		tokens: string;
-		slashtags: string;
 	}>
 > => {
 	if (!mnemonic) {
@@ -503,8 +502,7 @@ export const deriveMnemonicPhrases = async (
 	const onchain = mnemonic;
 	const lightning = generateMnemonicPhraseFromEntropy(`${mnemonic}lightning`);
 	const tokens = generateMnemonicPhraseFromEntropy(`${mnemonic}tokens`);
-	const slashtags = generateMnemonicPhraseFromEntropy(`${mnemonic}slashtags`);
-	return ok({ onchain, lightning, tokens, slashtags });
+	return ok({ onchain, lightning, tokens });
 };
 
 /**

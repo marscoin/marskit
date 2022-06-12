@@ -11,7 +11,6 @@ import React, {
 import { Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
-import SlashtagsProvider from '@synonymdev/react-native-slashtags';
 import { SafeAreaProvider } from './styles/components';
 import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
@@ -21,8 +20,6 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
-import { SlashtagsAutoSyncSDK } from './hooks/slashtags';
-import { setApiReady } from './store/actions/slashtags';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -54,11 +51,8 @@ const App = (): ReactElement => {
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
-				<SlashtagsProvider onApiReady={(): void => setApiReady(true)}>
-					<SlashtagsAutoSyncSDK />
-					<StatusBar />
-					<RootComponent />
-				</SlashtagsProvider>
+				<StatusBar />
+				<RootComponent />
 			</SafeAreaProvider>
 			<Toast />
 		</ThemeProvider>

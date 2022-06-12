@@ -15,8 +15,5 @@ describe('Wallet Methods', () => {
 		expect(res.value.tokens).toEqual(
 			'inspire sick rule wild near rebuild pride tomato shell come drip reduce street steel warrior project radar sister day title spice execute evolve outside',
 		);
-		expect(res.value.slashtags).toEqual(
-			'symbol between rule refuse can salt rack slush lesson excite quality flavor lunar reunion ramp abandon plate narrow bulk machine asset cross violin senior',
-		);
 	});
 });

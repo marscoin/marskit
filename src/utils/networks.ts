@@ -70,6 +70,7 @@ type TSlashtagsNetwork = {
 	[key: string]: { relays: string[]; name: string };
 };
 
+// TODO: Update after switching to libudx and add seeding server's IP
 export const slashtagsNetworks: TSlashtagsNetwork = {
 	localhost: { name: 'Development', relays: ['ws://localhost:8888'] },
 	testnet: { name: 'Testnet', relays: ['wss://dht-relay.synonym.to'] },
