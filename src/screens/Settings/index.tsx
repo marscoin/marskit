@@ -1,30 +1,15 @@
 import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
-import { Alert, Linking, Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
-import {
-	resetSettingsStore,
-	updateSettings,
-	wipeWallet,
-} from '../../store/actions/settings';
+import { updateSettings } from '../../store/actions/settings';
 import { IListData } from '../../components/List';
-import {
-	resetSelectedWallet,
-	resetWalletStore,
-	updateWallet,
-} from '../../store/actions/wallet';
+import { updateWallet } from '../../store/actions/wallet';
 import { refreshWallet } from '../../utils/wallet';
-import { resetUserStore } from '../../store/actions/user';
-import { resetActivityStore } from '../../store/actions/activity';
-import { resetLightningStore } from '../../store/actions/lightning';
 import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
-import { resetBlocktankStore } from '../../store/actions/blocktank';
-import { capitalize } from '../../utils/helpers';
-import { Result } from '../../utils/result';
 import SettingsView from './SettingsView';
-import { resetSlashtagsStore } from '../../store/actions/slashtags';
 import { toggleView } from '../../store/actions/user';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
@@ -52,26 +37,21 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 		})();
 	}, []);
 
-	//TODO remove once settings bottom slider is ready
-	const updateTheme = (): void => {
-		Alert.alert('Theme', '', [
-			{
-				text: 'Dark',
-				onPress: (): Result<string> => updateSettings({ theme: 'dark' }),
-			},
-			{
-				text: 'Light',
-				onPress: (): Result<string> => updateSettings({ theme: 'light' }),
-			},
-			{
-				text: 'Cancel',
-				onPress: (): void => {},
-				style: 'cancel',
-			},
-		]);
+	const hasPin = useSelector((state: Store) => state.settings.pin);
+
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+
+	const selectedBitcoinUnit = useSelector(
+		(state: Store) => state.settings.bitcoinUnit,
+	);
+
+	const unitsBitcoin = {
+		satoshi: 'sats',
+		bitcoin: 'bitcoin',
 	};
 
-	const hasPin = useSelector((state: Store) => state.settings.pin);
 	const hasBiometrics = useSelector(
 		(state: Store) => state.settings.biometrics,
 	);
@@ -82,31 +62,53 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				title: 'General',
 				data: [
 					{
-						title: 'Theme',
-						value: capitalize(settingsTheme),
-						type: 'button',
-						onPress: updateTheme,
-						hide: false,
-					},
-					{
-						title: 'Currencies',
+						title: 'Local currency',
+						value: selectedCurrency,
 						type: 'button',
 						onPress: (): void => navigation.navigate('CurrenciesSettings'),
 						hide: false,
 					},
 					{
-						title: 'Bitcoin',
+						title: 'Bitcoin unit',
+						value: unitsBitcoin[selectedBitcoinUnit],
 						type: 'button',
 						onPress: (): void => navigation.navigate('BitcoinSettings'),
+						hide: false,
+					},
+					{
+						title: 'Default transaction speed',
+						value: 'Normal',
+						type: 'button',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
+						title: 'Display suggestions',
+						value: hasPin ? 'Enabled' : 'Disabled',
+						type: 'switch',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
+						title: 'Reset suggestions',
+						type: 'button',
+						onPress: (): void => {},
 						hide: false,
 					},
 				],
 			},
 			{
-				title: 'Security',
+				title: 'Security and Privacy',
 				data: [
 					{
-						title: 'Pin',
+						title: 'Swipe balance to hide',
+						value: hasPin ? 'Enabled' : 'Disabled',
+						type: 'switch',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
+						title: 'Change PIN code',
 						value: hasPin ? 'Enabled' : 'Disabled',
 						type: 'button',
 						onPress: (): void => {
@@ -122,6 +124,20 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
+						title: 'Require PIN on launch',
+						value: hasPin ? 'Enabled' : 'Disabled',
+						type: 'switch',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
+						title: 'Require PIN for payments',
+						value: hasPin ? 'Enabled' : 'Disabled',
+						type: 'switch',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
 						title: 'Biometrics',
 						type: 'switch',
 						enabled: hasBiometrics,
@@ -131,7 +147,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: !biometryData?.available && !biometryData?.biometryType,
 					},
 					{
-						title: 'App Permissions',
+						title: 'App permissions',
 						type: 'button',
 						onPress: (): void => {
 							if (Platform.OS === 'ios') {
@@ -145,8 +161,54 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				],
 			},
 			{
+				title: 'Networks',
+				data: [
+					{
+						title: 'Lightning Network',
+						type: 'button',
+						onPress: (): void => navigation.navigate('LightningNodeInfo'),
+						hide: false,
+					},
+					{
+						title: 'Electrum Server',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ElectrumConfig'),
+						hide: false,
+					},
+					{
+						title: 'Tor',
+						type: 'switch',
+						enabled: rbf,
+						onPress: async (): Promise<void> => {},
+						hide: false,
+					},
+				],
+			},
+			{
 				title: 'Backups',
 				data: [
+					{
+						title: 'Backup your money',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							navigation.navigate('Seeds');
+						},
+						hide: false,
+					},
+					{
+						title: 'Backup your data',
+						type: 'button',
+						onPress: (): void => navigation.navigate('ExportBackups'),
+						enabled: true,
+						hide: false,
+					},
+					{
+						title: 'Reset and restore wallet',
+						type: 'button',
+						onPress: (): void => {},
+						enabled: true,
+						hide: false,
+					},
 					{
 						title: 'Connect',
 						value: `${remoteBackupSynced ? 'Synced' : 'Not synced'}`,
@@ -155,73 +217,29 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						enabled: true,
 						hide: false,
 					},
-					{
-						title: 'Import',
-						type: 'button',
-						onPress: (): void => {},
-						enabled: true,
-						hide: false,
-					},
-					{
-						title: 'Export',
-						type: 'button',
-						onPress: (): void => navigation.navigate('ExportBackups'),
-						enabled: true,
-						hide: false,
-					},
-					{
-						title: 'Display Seeds',
-						type: 'button',
-						onPress: async (): Promise<void> => {
-							navigation.navigate('Seeds');
-						},
-						hide: false,
-					},
 				],
 			},
 			{
 				title: 'Advanced',
 				data: [
 					{
-						title: 'Coin-Select Preference',
+						title: 'Coin selection',
 						type: 'button',
 						onPress: (): void => navigation.navigate('CoinSelectPreference'),
 						hide: false,
 					},
 					{
-						title: 'Address-Type Preference',
+						title: 'Payment preference',
+						type: 'button',
+						onPress: (): void => {},
+						hide: false,
+					},
+					{
+						title: 'Address types preference',
 						type: 'button',
 						onPress: (): void => navigation.navigate('AddressTypePreference'),
 						hide: false,
 					},
-					{
-						title: 'Electrum Config',
-						type: 'button',
-						onPress: (): void => navigation.navigate('ElectrumConfig'),
-						hide: false,
-					},
-				],
-			},
-			{
-				title: 'Lightning Network',
-				data: [
-					{
-						title: 'Node info',
-						type: 'button',
-						onPress: (): void => navigation.navigate('LightningNodeInfo'),
-						hide: false,
-					},
-					{
-						title: 'Channels',
-						type: 'button',
-						onPress: (): void => navigation.navigate('LightningChannels'),
-						hide: false,
-					},
-				],
-			},
-			{
-				title: 'On-Chain Settings',
-				data: [
 					{
 						title: 'Enable RBF',
 						type: 'switch',
@@ -244,89 +262,19 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						},
 						hide: false,
 					},
-				],
-			},
-			{
-				title: 'Dev Settings',
-				data: [
 					{
-						title: 'Reset Current Wallet Store',
+						title: 'Dev settings',
 						type: 'button',
-						onPress: async (): Promise<void> => {
-							await resetSelectedWallet({ selectedWallet });
-						},
-						hide: false,
-					},
-					{
-						title: 'Reset Entire Wallet Store',
-						type: 'button',
-						onPress: resetWalletStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Lightning Store',
-						type: 'button',
-						onPress: resetLightningStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Slashtags Store',
-						type: 'button',
-						onPress: resetSlashtagsStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Settings Store',
-						type: 'button',
-						onPress: resetSettingsStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Activity Store',
-						type: 'button',
-						onPress: resetActivityStore,
-						hide: false,
-					},
-					{
-						title: 'Reset User Store',
-						type: 'button',
-						onPress: resetUserStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Blocktank Store',
-						type: 'button',
-						onPress: resetBlocktankStore,
-						hide: false,
-					},
-					{
-						title: 'Reset All Stores',
-						type: 'button',
-						onPress: async (): Promise<void> => {
-							await Promise.all([
-								resetWalletStore(),
-								resetLightningStore(),
-								resetSettingsStore(),
-								resetActivityStore(),
-								resetUserStore(),
-								resetBlocktankStore(),
-							]);
-						},
-						hide: false,
-					},
-					{
-						title: 'Wipe Wallet Data',
-						type: 'button',
-						onPress: wipeWallet,
+						onPress: (): void => navigation.navigate('DevSettings'),
 						hide: false,
 					},
 				],
 			},
 			{
-				title: 'About',
+				title: 'About Bitkit',
 				data: [
 					{
-						title: 'Twitter: @synonym_to',
+						title: 'Twitter',
 						type: 'button',
 						onPress: (): Promise<void> =>
 							Linking.openURL('https://twitter.com/synonym_to').then(),
@@ -340,33 +288,33 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Email: info@synonym.to',
+						title: 'Email',
 						type: 'button',
 						onPress: (): Promise<void> =>
 							Linking.openURL('mailto:info@synonym.to?subject=General Inquiry'),
 						hide: false,
 					},
 					{
-						title: 'Website: synonym.to',
+						title: 'Website',
 						type: 'button',
 						onPress: (): Promise<void> =>
 							Linking.openURL('https://synonym.to').then(),
 						hide: false,
 					},
 					{
-						title: 'Leave A Review',
+						title: 'Leave a review',
 						type: 'button',
 						onPress: (): void => navigation.navigate('TempSettings'),
 						hide: false,
 					},
 					{
-						title: 'Report A Bug',
+						title: 'Report a bug',
 						type: 'button',
 						onPress: (): void => navigation.navigate('TempSettings'),
 						hide: false,
 					},
 					{
-						title: 'Contribute to this open-source project',
+						title: 'Contribute to this project',
 						type: 'button',
 						onPress: (): Promise<void> =>
 							Linking.openURL('https://github.com/synonymdev').then(),
@@ -378,24 +326,11 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => navigation.navigate('TempSettings'),
 						hide: false,
 					},
-				],
-			},
-			{
-				title: 'Support',
-				data: [
 					{
-						title: 'Help Centre',
-						type: 'button',
-						onPress: (): void => navigation.navigate('TempSettings'),
-						hide: false,
-					},
-					{
-						title: 'Email: support@synonym.to',
-						type: 'button',
-						onPress: (): Promise<void> =>
-							Linking.openURL(
-								'mailto:support@synonym.to?subject=Support Request',
-							),
+						title: 'Version',
+						value: '1.0.1',
+						type: 'textButton',
+						onPress: (): void => {},
 						hide: false,
 					},
 				],
