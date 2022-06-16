@@ -11,7 +11,6 @@ import Header from './Header';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
-import BoostCards from './BoostCards';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
