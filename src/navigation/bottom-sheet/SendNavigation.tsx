@@ -11,6 +11,7 @@ import Tags from '../../screens/Wallets/SendOnChainTransaction2/Tags';
 import ReviewAndSend from '../../screens/Wallets/SendOnChainTransaction2/ReviewAndSend';
 import SendAssetPickerList from '../../screens/Wallets/SendOnChainTransaction2/SendAssetPickerList';
 import Result from '../../screens/Wallets/SendOnChainTransaction2/Result';
+import AuthCheck from '../../components/AuthCheck';
 import { NavigationContainer } from '../../styles/components';
 import {
 	resetOnChainTransaction,
@@ -58,6 +59,7 @@ const SendNavigation = (): ReactElement => {
 						<Stack.Screen name="Tags" component={Tags} />
 						<Stack.Screen name="ReviewAndSend" component={ReviewAndSend} />
 						<Stack.Screen name="Result" component={Result} />
+						<Stack.Screen name="AuthCheck" component={AuthCheck} />
 					</Stack.Group>
 				</Stack.Navigator>
 			</NavigationContainer>

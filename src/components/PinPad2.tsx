@@ -98,7 +98,7 @@ const ChoosePIN = ({ onSuccess }: { onSuccess: Function }): ReactElement => {
 					);
 					vibrate({ type: 'default' });
 					await wipeWallet({});
-					Alert.alert('All wallet data has been wiped')
+					Alert.alert('All wallet data has been wiped');
 				} else {
 					await reducePinAttemptsRemaining();
 				}
@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
 	dots: {
 		flexDirection: 'row',
 		justifyContent: 'center',
-		alighItems: 'center',
 		marginVertical: 32,
 	},
 	dot: {
