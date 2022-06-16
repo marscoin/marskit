@@ -2,7 +2,6 @@ import React, { ReactElement, useCallback, useMemo } from 'react';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from '../tabs/TabNavigator';
-import PinPad from '../../components/PinPad';
 import Biometrics from '../../components/Biometrics';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
@@ -12,6 +11,7 @@ import BlocktankOrder from '../../screens/Blocktank/OrderService';
 import BlocktankPayment from '../../screens/Blocktank/Payment';
 import ActivityDetail from '../../screens/Activity/ActivityDetail';
 import ActivityFiltered from '../../screens/Activity/ActivityFiltered';
+import ActivityTagsPrompt from '../../screens/Activity/ActivityTagsPrompt';
 import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
@@ -60,24 +60,6 @@ const RootNavigator = (): ReactElement => {
 		);
 	}, []);
 
-	const StartPinComponent = useCallback(
-		({ navigation }): ReactElement => {
-			return (
-				<PinPad
-					onSuccess={(): void => {
-						if (hasBiometrics) {
-							navigation.navigate('Biometrics');
-						} else {
-							navigation.replace('Tabs');
-						}
-					}}
-					pinSetup={false}
-				/>
-			);
-		},
-		[hasBiometrics],
-	);
-
 	const BiometricsComponent = useCallback(({ navigation }): ReactElement => {
 		return (
 			<Biometrics
@@ -96,7 +78,6 @@ const RootNavigator = (): ReactElement => {
 				<Stack.Group screenOptions={navOptions}>
 					<Stack.Screen name="RootAuthCheck" component={AuthCheckComponent} />
 					<Stack.Screen name="Tabs" component={TabNavigator} />
-					<Stack.Screen name="StartPin" component={StartPinComponent} />
 					<Stack.Screen name="Biometrics" component={BiometricsComponent} />
 					<Stack.Screen name="Blocktank" component={Blocktank} />
 					<Stack.Screen name="BlocktankOrder" component={BlocktankOrder} />
@@ -124,6 +105,7 @@ const RootNavigator = (): ReactElement => {
 			<FeeNumberPad />
 			<PINPrompt />
 			<BoostPrompt />
+			<ActivityTagsPrompt />
 		</NavigationContainer>
 	);
 };

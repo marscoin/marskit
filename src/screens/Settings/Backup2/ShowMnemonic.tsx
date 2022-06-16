@@ -47,13 +47,7 @@ const ShowMnemonic = ({ navigation }): ReactElement => {
 			if (res.isErr()) {
 				return Alert.alert(res.error.message);
 			}
-			// TODO: use real seed
-			// setSeed(res.value.split(' '));
-			setSeed(
-				'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'.split(
-					' ',
-				),
-			);
+			setSeed(res.value.split(' '));
 		});
 	}, []);
 

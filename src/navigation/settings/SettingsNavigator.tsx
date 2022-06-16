@@ -15,7 +15,6 @@ import LightningChannels from '../../screens/Settings/Lightning/LightningChannel
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
-import PinPad from '../../components/PinPad';
 import BitcoinSettings from '../../screens/Settings/Currencies/Bitcoin';
 
 const Stack = createNativeStackNavigator();
@@ -59,7 +58,6 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
-				<Stack.Screen name="Pin" component={PinPad} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);
