@@ -59,7 +59,6 @@ export type TGetByteCountOutputs = {
 export enum EWallet {
 	selectedNetwork = 'bitcoin',
 	defaultWallet = 'wallet0',
-	aezeedPassphrase = 'shhhhhhhh123',
 	addressType = 'p2wpkh',
 }
 

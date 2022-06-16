@@ -29,5 +29,6 @@ export const defaultUserShape = {
 		numberPad: { ...defaultViewController },
 		numberPadFee: { ...defaultViewController },
 		boostPrompt: { ...defaultViewController },
+		activityTagsPrompt: { ...defaultViewController },
 	},
 };

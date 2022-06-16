@@ -32,7 +32,7 @@ import {
 	sentIcon,
 	transferIcon,
 	coinsIcon,
-	userIcon,
+	userPlusIcon,
 	gitBranchIcon,
 	noteIcon,
 	checkCircleIcon,
@@ -96,10 +96,10 @@ export const CoinsIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
-export const UserIcon = styled(SvgXml).attrs((props) => ({
-	xml: userIcon(props?.color ? props.theme.colors[props.color] : '#F75C1A'),
-	height: props?.height ?? '16px',
-	width: props?.width ?? '16px',
+export const UserPlusIcon = styled(SvgXml).attrs((props) => ({
+	xml: userPlusIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 	color: undefined,
 }))({});
 

@@ -10,6 +10,7 @@ import { removePin, toggleBiometrics } from '../../utils/settings';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../components/Biometrics';
 import SettingsView from './SettingsView';
+import { toggleView } from '../../store/actions/user';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -114,9 +115,9 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 							if (hasPin) {
 								removePin().then();
 							} else {
-								navigation.navigate('Pin', {
-									pinSetup: !hasPin,
-									navigateBackOnSuccess: true,
+								toggleView({
+									view: 'PINPrompt',
+									data: { isOpen: true },
 								});
 							}
 						},

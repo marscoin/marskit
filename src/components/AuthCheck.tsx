@@ -1,8 +1,9 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
-import PinPad from './PinPad';
-import Biometrics from './Biometrics';
 import { RouteProp } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+
+import PinPad2 from './PinPad2';
+import Biometrics from './Biometrics';
 import Store from '../store/types';
 
 export interface IAuthCheck {
@@ -81,7 +82,7 @@ const AuthCheck = ({
 	};
 
 	if (displayPin) {
-		return <PinPad onSuccess={bioMetricCheck} pinSetup={false} />;
+		return <PinPad2 onSuccess={bioMetricCheck} />;
 	}
 
 	if (displayBiometrics) {

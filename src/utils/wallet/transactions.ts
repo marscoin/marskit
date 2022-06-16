@@ -626,13 +626,13 @@ export const signPsbt = ({
  * @param selectedWallet
  * @param selectedNetwork
  * @param {IOnChainTransactionData} [transactionData]
- * @returns {Promise<Ok<string> | Err<string>>}
+ * @returns {Promise<Ok<{id: string, hex: string}> | Err<string>>}
  */
 export const createTransaction = ({
 	selectedWallet,
 	selectedNetwork,
 	transactionData,
-}: ICreateTransaction): Promise<Result<string>> => {
+}: ICreateTransaction): Promise<Result<{ id: string; hex: string }>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
@@ -700,8 +700,10 @@ export const createTransaction = ({
 				return resolve(err(signedPsbtRes.error));
 			}
 
-			const rawTx = signedPsbtRes.value.extractTransaction().toHex();
-			return resolve(ok(rawTx));
+			const tx = signedPsbtRes.value.extractTransaction();
+			const id = tx.getId();
+			const hex = tx.toHex();
+			return resolve(ok({ id, hex }));
 		} catch (e) {
 			return resolve(err(e));
 		}
@@ -2051,7 +2053,7 @@ export const broadcastBoost = async ({
 		}
 
 		const broadcastResult = await broadcastTransaction({
-			rawTx: rawTx.value,
+			rawTx: rawTx.value.hex,
 			selectedNetwork,
 		});
 		if (broadcastResult.isErr()) {
