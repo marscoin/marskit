@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/explicit-function-return-type: 0 */
 // https://raw.githubusercontent.com/jonTrent/PatienceDiff/dev/PatienceDiff.js
 
 export { patienceDiff, patienceDiffPlus };

@@ -1315,6 +1315,9 @@ export const validateTransaction = (
 					`Output value for ${address} must be greater than or equal to ${baseFee} sats`,
 				);
 			}
+			if (!Number.isInteger(value)) {
+				return err(`Output value for ${address} should be an integer`);
+			}
 		}
 
 		const inputsReduce = reduceValue({
