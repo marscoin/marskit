@@ -27,7 +27,7 @@ const ItemHeader = memo(_ItemHeader, (prevProps, nextProps) => {
 	return prevProps.title === nextProps.title;
 });
 
-type TItemType = 'switch' | 'button';
+type TItemType = 'switch' | 'button' | 'textButton';
 
 type ItemData = {
 	title: string;
@@ -62,13 +62,27 @@ const _Item = memo(
 		const _onPress = (): void => onPress(navigation);
 		if (type === 'switch') {
 			return (
-				<View color="transparent">
+				<View color="transparent" style={styles.row}>
 					<Card style={styles.card} onPress={_onPress}>
 						<View color="transparent" style={styles.leftColumn}>
 							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
 							<Switch onValueChange={_onPress} value={enabled} />
+						</View>
+					</Card>
+				</View>
+			);
+		}
+		if (type === 'textButton') {
+			return (
+				<View color="transparent" style={styles.row}>
+					<Card style={styles.card} onPress={enabled ? _onPress : undefined}>
+						<View color="transparent" style={styles.leftColumn}>
+							<Text01S color="white">{title}</Text01S>
+						</View>
+						<View color="transparent" style={styles.rightColumn}>
+							<Text01S color={'gray1'}>{value}</Text01S>
 						</View>
 					</Card>
 				</View>

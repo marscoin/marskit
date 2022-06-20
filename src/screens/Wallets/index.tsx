@@ -11,7 +11,6 @@ import Header from './Header';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
-import BoostCards from './BoostCards';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
@@ -39,9 +38,6 @@ const Wallets = ({ navigation }): ReactElement => {
 						<BalanceHeader />
 					</View>
 				</DetectSwipe>
-				<View style={styles.content}>
-					<BoostCards />
-				</View>
 				<TodoCarousel />
 				<DetectSwipe onSwipeLeft={onSwipeLeft}>
 					<View style={styles.content}>

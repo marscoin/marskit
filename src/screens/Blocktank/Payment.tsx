@@ -141,7 +141,7 @@ const BlocktankPayment = (props: Props): ReactElement => {
 			});
 		}
 
-		await onSend(res.value, transactionTotal);
+		await onSend(res.value.hex, transactionTotal);
 	};
 
 	const onSend = async (

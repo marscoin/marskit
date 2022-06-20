@@ -179,11 +179,11 @@ const SendOnChainTransaction = ({
 						onSuccess: () => {
 							// @ts-ignore
 							navigation.pop();
-							setRawTx(response.value);
+							setRawTx(response.value.hex);
 						},
 					});
 				} else {
-					setRawTx(response.value);
+					setRawTx(response.value.hex);
 				}
 			}
 			setIsCreatingTransaction(false);

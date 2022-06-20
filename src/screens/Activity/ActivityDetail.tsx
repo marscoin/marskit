@@ -3,11 +3,9 @@ import React, {
 	ReactElement,
 	memo,
 	useCallback,
-	useEffect,
 	useMemo,
 	useState,
 } from 'react';
-import { useSelector } from 'react-redux';
 import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
 import {
 	Canvas,
@@ -17,21 +15,22 @@ import {
 	Skia,
 	vec,
 } from '@shopify/react-native-skia';
+import { useSelector } from 'react-redux';
 
 import {
 	Caption13M,
 	Caption13Up,
-	DisplayHaas,
-	GitBranchIcon,
-	TimerIconAlt,
-	NoteIcon,
-	ReceiveIcon,
-	SendIcon,
-	Text02M,
-	TitleHaas,
-	UserIcon,
 	CheckCircleIcon,
 	ClockIcon,
+	DisplayHaas,
+	GitBranchIcon,
+	ReceiveIcon,
+	SendIcon,
+	TagIcon,
+	Text02M,
+	TimerIconAlt,
+	TitleHaas,
+	UserPlusIcon,
 	View as ThemedView,
 } from '../../styles/components';
 import Button from '../../components/Button';
@@ -40,14 +39,15 @@ import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import {
 	canBoost,
 	getBlockExplorerLink,
-	setupBoost,
 } from '../../utils/wallet/transactions';
 import useDisplayValues from '../../hooks/displayValues';
 import SafeAreaView from '../../components/SafeAreaView';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import Store from '../../store/types';
-import { resetOnChainTransaction } from '../../store/actions/wallet';
+import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
+import Store from '../../store/types';
+import { toggleView } from '../../store/actions/user';
+import { deleteMetaTxTag } from '../../store/actions/metadata';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -111,36 +111,60 @@ const emptyActivityItem: IActivityItem = {
 };
 
 const ActivityDetail = (props: Props): ReactElement => {
-	const [
-		{ id, message, activityType, txType, value, confirmed, timestamp, address },
-	] = useState<IActivityItem>(
+	const [item] = useState<IActivityItem>(
 		props.route.params?.activityItem ?? emptyActivityItem,
 	);
+	const {
+		id,
+		message,
+		activityType,
+		txType,
+		value,
+		confirmed,
+		timestamp,
+		address,
+	} = item;
+	const tags =
+		useSelector((store: Store) => store.metadata.tags[item.id]) ?? [];
+
 	const [size, setSize] = useState({ width: 0, height: 0 });
 	const colors = useColors();
 	const extended = props.route.params?.extended ?? false;
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
 
-	const boostData = useMemo(() => canBoost(id), [id]);
-	useEffect(() => {
-		setupBoost({ selectedWallet, selectedNetwork, txid: id });
+	const showBoost = useMemo(() => {
+		if (confirmed) {
+			return false;
+		}
+		if (activityType !== EActivityTypes.onChain) {
+			return false;
+		}
+		return canBoost(id).canBoost;
+	}, [confirmed, activityType, id]);
 
-		return (): void => {
-			if (boostData.canBoost && !confirmed) {
-				resetOnChainTransaction({ selectedNetwork, selectedWallet });
-			}
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	const handleBoost = (): void => {
+		toggleView({
+			view: 'boostPrompt',
+			data: { isOpen: true, activityItem: item },
+		});
+	};
+
+	const handleTag = (): void => {
+		toggleView({
+			view: 'activityTagsPrompt',
+			data: { isOpen: true, id: item.id },
+		});
+	};
 
 	const handleLayout = (e): void => {
 		const { height, width } = e.nativeEvent.layout;
 		setSize((s) => (s.width === 0 ? { width, height } : s));
+	};
+
+	const handleTagClose = (tag: string): void => {
+		const res = deleteMetaTxTag(id, tag);
+		if (res.isErr()) {
+			Alert.alert(res.error.message);
+		}
 	};
 
 	let status = '';
@@ -263,6 +287,26 @@ const ActivityDetail = (props: Props): ReactElement => {
 					/>
 				</View>
 
+				{tags.length !== 0 && (
+					<View style={styles.sectionContainer}>
+						<Section
+							title="TAGS"
+							value={
+								<View style={styles.tagsContainer}>
+									{tags.map((tag) => (
+										<Tag
+											key={tag}
+											value={tag}
+											style={styles.tag}
+											onClose={(): void => handleTagClose(tag)}
+										/>
+									))}
+								</View>
+							}
+						/>
+					</View>
+				)}
+
 				{!extended ? (
 					<>
 						{message ? (
@@ -287,7 +331,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 								<Button
 									style={styles.button}
 									text="Assign"
-									icon={<UserIcon />}
+									icon={<UserPlusIcon height={16} width={16} color="brand" />}
 									onPress={(): void => Alert.alert('TODO')}
 								/>
 								<Button
@@ -301,16 +345,16 @@ const ActivityDetail = (props: Props): ReactElement => {
 							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
-									text="Label"
-									icon={<NoteIcon />}
-									onPress={(): void => Alert.alert('TODO')}
+									text="Tag"
+									icon={<TagIcon height={16} width={16} color="brand" />}
+									onPress={handleTag}
 								/>
 								<Button
 									style={styles.button}
 									text="Boost"
 									icon={<TimerIconAlt color="brand" />}
-									disabled={!boostData.canBoost}
-									onPress={(): void => Alert.alert('TODO')}
+									disabled={!showBoost}
+									onPress={handleBoost}
 								/>
 							</View>
 						</View>
@@ -426,6 +470,14 @@ const styles = StyleSheet.create({
 	},
 	zRoot: {
 		height: 12,
+	},
+	tagsContainer: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+	},
+	tag: {
+		marginRight: 8,
+		marginBottom: 8,
 	},
 });
 

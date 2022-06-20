@@ -7,6 +7,7 @@ import { IBackup } from './backup';
 import { IBlocktank } from './blocktank';
 import { ITodos } from './todos';
 import { IFees } from './fees';
+import { IMetadata } from './metadata';
 
 export default interface Store {
 	user: IUser;
@@ -18,4 +19,5 @@ export default interface Store {
 	blocktank: IBlocktank;
 	todos: ITodos;
 	fees: IFees;
+	metadata: IMetadata;
 }

@@ -19,6 +19,9 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
+	const lastUsedTags = useSelector(
+		(store: Store) => store.metadata.lastUsedTags,
+	);
 
 	const handleInputBlur = (): void => {
 		if (text.length === 0) {
@@ -43,16 +46,23 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 		<ThemedView color="onSurface" style={styles.container}>
 			<NavigationHeader title="Add tag" size="sm" />
 			<View style={styles.content}>
-				<Caption13Up color="gray1" style={styles.section}>
-					PREVIOUSLY USED TAGS
-				</Caption13Up>
-				<View style={styles.tagsContainer}>
-					<Tag
-						value="TODO"
-						style={styles.tag}
-						onPress={(): void => handleTagChoose('TODO')}
-					/>
-				</View>
+				{lastUsedTags.length !== 0 && (
+					<>
+						<Caption13Up color="gray1" style={styles.section}>
+							PREVIOUSLY USED TAGS
+						</Caption13Up>
+						<View style={styles.tagsContainer}>
+							{lastUsedTags.map((tag) => (
+								<Tag
+									key={tag}
+									value={tag}
+									style={styles.tag}
+									onPress={(): Promise<void> => handleTagChoose(tag)}
+								/>
+							))}
+						</View>
+					</>
+				)}
 				<BottomSheetTextInput
 					style={[
 						styles.input,
@@ -69,6 +79,7 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 					value={text}
 					onChangeText={setText}
 					onBlur={handleInputBlur}
+					maxLength={15}
 				/>
 			</View>
 		</ThemedView>

@@ -7,6 +7,7 @@ import CurrenciesSettings from '../../screens/Settings/Currencies';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
+import DevSettings from '../../screens/Settings/DevSettings';
 import BackupSettings from '../../screens/Settings/Backup';
 import ExportBackups from '../../screens/Settings/Backup/Export';
 import Seeds from '../../screens/Settings/Backup/Seeds';
@@ -15,7 +16,6 @@ import LightningChannels from '../../screens/Settings/Lightning/LightningChannel
 import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
-import PinPad from '../../components/PinPad';
 import BitcoinSettings from '../../screens/Settings/Currencies/Bitcoin';
 
 const Stack = createNativeStackNavigator();
@@ -48,6 +48,7 @@ const SettingsNavigator = (): ReactElement => {
 					name="AddressTypePreference"
 					component={AddressTypePreference}
 				/>
+				<Stack.Screen name="DevSettings" component={DevSettings} />
 				<Stack.Screen name="BackupSettings" component={BackupSettings} />
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
 				<Stack.Screen name="Seeds" component={Seeds} />
@@ -59,7 +60,6 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
-				<Stack.Screen name="Pin" component={PinPad} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);
