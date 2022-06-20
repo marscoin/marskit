@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 
 import ProfileScreen from '../../screens/Profile';
-import UpdateProfile from '../../screens/Profile/UpdateProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +28,6 @@ const ProfileStack = (): ReactElement => {
 		<Stack.Navigator initialRouteName="Profile">
 			<Stack.Group screenOptions={screenOptions}>
 				<Stack.Screen name="Profile" component={ProfileScreen} />
-				<Stack.Screen name="UpdateProfile" component={UpdateProfile} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);

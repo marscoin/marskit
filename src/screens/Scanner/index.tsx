@@ -22,8 +22,6 @@ import { hasEnabledAuthentication } from '../../utils/settings';
 import SafeAreaView from '../../components/SafeAreaView';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
-	const { currentProfileName } = useSelector((state: Store) => state.slashtags);
-
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -176,7 +174,6 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 
 	const onReadClipboard = async (): Promise<void> => {
 		const data = await Clipboard.getString();
-		console.debug('DATA:', data);
 		if (!data) {
 			return showInfoNotification(
 				{

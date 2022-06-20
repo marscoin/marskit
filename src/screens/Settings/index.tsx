@@ -24,7 +24,6 @@ import { resetBlocktankStore } from '../../store/actions/blocktank';
 import { capitalize } from '../../utils/helpers';
 import { Result } from '../../utils/result';
 import SettingsView from './SettingsView';
-import { resetSlashtagsStore } from '../../store/actions/slashtags';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -266,12 +265,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						title: 'Reset Lightning Store',
 						type: 'button',
 						onPress: resetLightningStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Slashtags Store',
-						type: 'button',
-						onPress: resetSlashtagsStore,
 						hide: false,
 					},
 					{
