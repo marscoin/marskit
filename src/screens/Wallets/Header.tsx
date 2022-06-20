@@ -8,9 +8,12 @@ import {
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
+import { useSlashtags } from '../../hooks/slashtags';
+import { Jdenticon } from '../../components/Jdenticon';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
+	const slashtags = useSlashtags();
 
 	const openProfile = useCallback(
 		// @ts-ignore
@@ -25,9 +28,14 @@ const Header = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.leftColumn}>
-				<TitleHaas>Wallet</TitleHaas>
-			</View>
+			<TouchableOpacity
+				activeOpacity={1}
+				onPress={openProfile}
+				style={styles.leftColumn}>
+				<Jdenticon
+					value={slashtags.currentSlashtag?.url.toString()}></Jdenticon>
+				<TitleHaas style={{ marginLeft: 16 }}>Your name</TitleHaas>
+			</TouchableOpacity>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<TouchableOpacity
@@ -53,7 +61,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginTop: 15,
 		marginHorizontal: 10,
-		marginBottom: 20,
+		marginBottom: 10,
 	},
 	cogIcon: {
 		alignItems: 'center',
@@ -69,11 +77,13 @@ const styles = StyleSheet.create({
 		minWidth: 30,
 	},
 	leftColumn: {
-		flex: 1,
-		justifyContent: 'center',
+		flex: 6,
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	middleColumn: {
-		flex: 1.5,
+		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 	},

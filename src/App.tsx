@@ -20,6 +20,9 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
+import { SlashtagsProvider } from './components/SlashtagsProvider';
+import { showErrorNotification } from './utils/notifications';
+import { getSlashtagsPrimaryKey } from './utils/wallet';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -30,6 +33,10 @@ if (Platform.OS === 'android') {
 const App = (): ReactElement => {
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const wallets = useSelector((store: Store) => store.wallet.wallets);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -48,13 +55,30 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
+	const currentPrimaryKey = useMemo(async () => {
+		const { error, data } = await getSlashtagsPrimaryKey(
+			wallets[selectedWallet]['seedHash'],
+		);
+		return error ? null : Buffer.from(data);
+	}, [wallets[selectedWallet]['seedHash']]);
+
 	return (
 		<ThemeProvider theme={currentTheme}>
-			<SafeAreaProvider>
-				<StatusBar />
-				<RootComponent />
-			</SafeAreaProvider>
-			<Toast />
+			<SlashtagsProvider
+				primaryKey={currentPrimaryKey}
+				onError={(error) =>
+					showErrorNotification({
+						title: 'SlashtagsProvider Error',
+						message: error.message,
+					})
+				}>
+				<SafeAreaProvider>
+					<StatusBar />
+					<RootComponent />
+				</SafeAreaProvider>
+
+				<Toast />
+			</SlashtagsProvider>
 		</ThemeProvider>
 	);
 };
