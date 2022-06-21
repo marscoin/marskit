@@ -7,6 +7,7 @@ import React, {
 	useMemo,
 	useEffect,
 	useCallback,
+	useState,
 } from 'react';
 import { Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -37,6 +38,7 @@ const App = (): ReactElement => {
 		(store: Store) => store.wallet.selectedWallet,
 	);
 	const wallets = useSelector((store: Store) => store.wallet.wallets);
+	const [primaryKey, setPrimaryKey] = useState<Buffer | null>(null);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -55,17 +57,20 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
-	const currentPrimaryKey = useMemo(async () => {
-		const { error, data } = await getSlashtagsPrimaryKey(
-			wallets[selectedWallet]['seedHash'],
-		);
-		return error ? null : Buffer.from(data);
+	useEffect(() => {
+		(async () => {
+			const { error, data } = await getSlashtagsPrimaryKey(
+				wallets[selectedWallet]['seedHash'],
+			);
+			if (error) return;
+			setPrimaryKey(Buffer.from(data, 'hex'));
+		})();
 	}, [wallets[selectedWallet]['seedHash']]);
 
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
-				primaryKey={currentPrimaryKey}
+				primaryKey={primaryKey}
 				onError={(error) =>
 					showErrorNotification({
 						title: 'SlashtagsProvider Error',

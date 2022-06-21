@@ -23,28 +23,29 @@ export const SlashtagsProvider = ({
 
 	useEffect(() => {
 		(async () => {
-			if (state.sdk) {
-				state.sdk.close();
+			if (!primaryKey) return;
+			if (state.sdk) state.sdk.close();
+
+			try {
+				const sdk: ISDK = await SDK.init({
+					primaryKey: await primaryKey,
+					persist: false,
+					// TODO: replace hardcoded relays with configurable relays
+					swarmOpts: { relays: ['ws://localhost:8888'] },
+				});
+
+				setState({
+					sdk,
+					resolveProfile(url) {
+						console.log('resolving', !!sdk);
+						const slashtag = sdk.slashtag({ url });
+						return slashtag.getProfile();
+					},
+					currentSlashtag: sdk._root,
+				});
+			} catch (error) {
+				onError(error as Error);
 			}
-
-			const sdk: ISDK = await SDK.init({
-				primaryKey: await primaryKey,
-				persist: false,
-				// TODO: replace hardcoded relays with configurable relays
-				swarmOpts: { relays: ['ws://localhost:8888'] },
-			}).catch((err) => {
-				onError(err);
-			});
-
-			setState({
-				sdk,
-				resolveProfile(url) {
-					console.log('resolving', !!sdk);
-					const slashtag = sdk.slashtag({ url });
-					return slashtag.getProfile();
-				},
-				currentSlashtag: sdk._root,
-			});
 		})();
 	}, [primaryKey]);
 
