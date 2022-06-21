@@ -23,6 +23,8 @@ export interface ISettings {
 	error: boolean;
 	biometrics: boolean;
 	pin: boolean;
+	pinOnLaunch: boolean;
+	pinForPayments: boolean;
 	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;

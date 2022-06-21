@@ -41,6 +41,7 @@ import { updateMetaTxTags } from '../../../store/actions/metadata';
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
+import { hasEnabledAuthentication } from '../../../utils/settings';
 
 const Section = memo(
 	({
@@ -209,26 +210,24 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			if (__DEV__) {
 				console.log(response.value);
 			}
-			// disable biometrics during send for now
 
-			// const { pin, biometrics } = hasEnabledAuthentication();
-			// if (pin || biometrics) {
-			// 	// @ts-ignore
-			// 	navigation.navigate('AuthCheck', {
-			// 		onSuccess: () => {
-			// 			// @ts-ignore
-			// 			navigation.pop();
-			// 			setRawTx(response.value);
-			// 		},
-			// 	});
-			// }
+			const { pin, pinForPayments } = hasEnabledAuthentication();
+			if (pin && pinForPayments) {
+				navigation.navigate('AuthCheck', {
+					onSuccess: () => {
+						navigation.pop();
+						setRawTx(response.value);
+					},
+				});
+				return;
+			}
 
 			setRawTx(response.value);
 		} catch (error) {
 			_onError('Error creating transaction.', (error as Error).message);
 			setIsLoading(false);
 		}
-	}, [selectedNetwork, selectedWallet, transaction, _onError]);
+	}, [selectedNetwork, selectedWallet, transaction, _onError, navigation]);
 
 	const _broadcast = useCallback(async () => {
 		const response = await broadcastTransaction({

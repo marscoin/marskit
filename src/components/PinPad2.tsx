@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
 	dots: {
 		flexDirection: 'row',
 		justifyContent: 'center',
-		alighItems: 'center',
 		marginVertical: 32,
 	},
 	dot: {
