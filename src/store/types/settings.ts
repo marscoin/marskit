@@ -32,6 +32,7 @@ export interface ISettings {
 	selectedCurrency: string;
 	exchangeRateService: EExchangeRateService;
 	selectedLanguage: string;
+	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	[key: string]: any;
