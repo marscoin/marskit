@@ -69,9 +69,3 @@ export const availableNetworks = (): EAvailableNetworks[] =>
 type TSlashtagsNetwork = {
 	[key: string]: { relays: string[]; name: string };
 };
-
-export const slashtagsNetworks: TSlashtagsNetwork = {
-	localhost: { name: 'Development', relays: ['ws://localhost:8888'] },
-	testnet: { name: 'Testnet', relays: ['wss://dht-relay.synonym.to'] },
-	mainnet: { name: 'Mainnet', relays: [] },
-};

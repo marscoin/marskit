@@ -44,6 +44,7 @@ export interface IGenerateAddresses {
 	keyDerivationPath?: IKeyDerivationPath | undefined;
 	accountType?: TKeyDerivationAccountType;
 	addressType?: string;
+	seed?: Buffer;
 }
 
 export interface IGenerateAddressesResponse {

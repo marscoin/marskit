@@ -7,11 +7,11 @@ import React, {
 	useMemo,
 	useEffect,
 	useCallback,
+	useState,
 } from 'react';
 import { Platform, UIManager } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
-import SlashtagsProvider from '@synonymdev/react-native-slashtags';
 import { SafeAreaProvider } from './styles/components';
 import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
@@ -21,8 +21,9 @@ import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
-import { SlashtagsAutoSyncSDK } from './hooks/slashtags';
-import { setApiReady } from './store/actions/slashtags';
+import { SlashtagsProvider } from './components/SlashtagsProvider';
+import { showErrorNotification } from './utils/notifications';
+import { getSlashtagsPrimaryKey } from './utils/wallet';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -33,6 +34,11 @@ if (Platform.OS === 'android') {
 const App = (): ReactElement => {
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const wallets = useSelector((store: Store) => store.wallet.wallets);
+	const [primaryKey, setPrimaryKey] = useState<Buffer | null>(null);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -51,16 +57,33 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
+	useEffect(() => {
+		(async () => {
+			const { error, data } = await getSlashtagsPrimaryKey(
+				wallets[selectedWallet]['seedHash'],
+			);
+			if (error) return;
+			setPrimaryKey(Buffer.from(data, 'hex'));
+		})();
+	}, [wallets[selectedWallet]['seedHash']]);
+
 	return (
 		<ThemeProvider theme={currentTheme}>
-			<SafeAreaProvider>
-				<SlashtagsProvider onApiReady={(): void => setApiReady(true)}>
-					<SlashtagsAutoSyncSDK />
+			<SlashtagsProvider
+				primaryKey={primaryKey}
+				onError={(error) =>
+					showErrorNotification({
+						title: 'SlashtagsProvider Error',
+						message: error.message,
+					})
+				}>
+				<SafeAreaProvider>
 					<StatusBar />
 					<RootComponent />
-				</SlashtagsProvider>
-			</SafeAreaProvider>
-			<Toast />
+				</SafeAreaProvider>
+
+				<Toast />
+			</SlashtagsProvider>
 		</ThemeProvider>
 	);
 };

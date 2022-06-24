@@ -15,7 +15,6 @@ import { resetActivityStore } from '../../../store/actions/activity';
 import { resetLightningStore } from '../../../store/actions/lightning';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
-import { resetSlashtagsStore } from '../../../store/actions/slashtags';
 
 const SettingsMenu = ({}): ReactElement => {
 	const selectedWallet = useSelector(
@@ -45,12 +44,6 @@ const SettingsMenu = ({}): ReactElement => {
 						title: 'Reset Lightning Store',
 						type: 'button',
 						onPress: resetLightningStore,
-						hide: false,
-					},
-					{
-						title: 'Reset Slashtags Store',
-						type: 'button',
-						onPress: resetSlashtagsStore,
 						hide: false,
 					},
 					{

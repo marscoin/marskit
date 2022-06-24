@@ -8,7 +8,6 @@ import backup from './backup';
 import blocktank from './blocktank';
 import todos from './todos';
 import fees from './fees';
-import slashtags from './slashtags';
 import metadata from './metadata';
 
 const appReducers = combineReducers({
@@ -21,7 +20,6 @@ const appReducers = combineReducers({
 	blocktank,
 	todos,
 	fees,
-	slashtags,
 	metadata,
 });
 

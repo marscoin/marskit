@@ -77,6 +77,12 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { EFeeIds } from '../../store/types/fees';
 
+// @ts-ignore
+import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
+import type { SDK as ISDK } from '@synonymdev/slashtags-sdk';
+
+const BITKIT_WALLET_SEED_HASH_PREFIX = Buffer.from('@Bitkit/wallet-uuid');
+
 export const refreshWallet = async (): Promise<Result<string>> => {
 	try {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
@@ -179,6 +185,7 @@ export const generateAddresses = async ({
 	keyDerivationPath = { ...defaultKeyDerivationPath },
 	accountType = 'onchain',
 	addressType,
+	seed = undefined,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	try {
 		if (!selectedWallet) {
@@ -193,16 +200,12 @@ export const generateAddresses = async ({
 		const addressTypes = getAddressTypes();
 		const { type } = addressTypes[addressType];
 		const network = networks[selectedNetwork];
-		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
-		if (getMnemonicPhraseResponse.isErr()) {
-			return err(getMnemonicPhraseResponse.error.message);
+		if (!seed) {
+			const seedResponse = await getSeed(selectedWallet);
+			if (seedResponse.isErr()) return err(seedResponse.error.message);
+			seed = seedResponse.value;
 		}
 
-		//Attempt to acquire the bip39Passphrase if available
-		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
-
-		const mnemonic = getMnemonicPhraseResponse.value;
-		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
 		const root = bip32.fromSeed(seed, network);
 
 		//Generate Addresses
@@ -308,17 +311,10 @@ export const getPrivateKey = async ({
 			selectedWallet = getSelectedWallet();
 		}
 		const network = networks[selectedNetwork];
-		const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
-		if (getMnemonicPhraseResponse.isErr()) {
-			return err(getMnemonicPhraseResponse.error.message);
-		}
 
-		//Attempt to acquire the bip39Passphrase if available
-		const bip39Passphrase = await getBip39Passphrase(selectedWallet);
-
-		const mnemonic = getMnemonicPhraseResponse.value;
-		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
-		const root = bip32.fromSeed(seed, network);
+		const seedResponse = await getSeed(selectedWallet);
+		if (seedResponse.isErr()) return err(seedResponse.error.message);
+		const root = bip32.fromSeed(seedResponse.value, network);
 
 		const addressPath = addressData.path;
 		const addressKeypair = root.derivePath(addressPath);
@@ -327,6 +323,36 @@ export const getPrivateKey = async ({
 		return err(e);
 	}
 };
+
+const slashtagsPrimaryKeyKeyChainName = (seedHash: string = '') =>
+	'SLASHTAGS_PRIMARYKEY/' + seedHash;
+
+export const getSlashtagsPrimaryKey = async (seedHash: string) => {
+	return getKeychainValue({ key: slashtagsPrimaryKeyKeyChainName(seedHash) });
+};
+
+export const slashtagsPrimaryKey = async (seed: Buffer) => {
+	const network = networks.bitcoin;
+	const root = bip32.fromSeed(seed, network);
+
+	const path = (SDK as typeof ISDK).DERIVATION_PATH;
+	const keyPair = root.derivePath(path);
+
+	return keyPair.privateKey?.toString('hex') as string;
+};
+
+const setKeychainSlashtagsPrimaryKey = async (seed: Buffer) => {
+	const primaryKey = await slashtagsPrimaryKey(seed);
+	setKeychainValue({
+		key: slashtagsPrimaryKeyKeyChainName(seedHash(seed)),
+		value: primaryKey,
+	});
+};
+
+export const seedHash = (seed: Buffer) =>
+	bitcoin.crypto
+		.sha256(Buffer.concat([BITKIT_WALLET_SEED_HASH_PREFIX, seed]))
+		.toString('hex');
 
 export const keyDerivationAccountTypes: {
 	onchain: TKeyDerivationAccount;
@@ -490,7 +516,6 @@ export const deriveMnemonicPhrases = async (
 		onchain: string;
 		lightning: string;
 		tokens: string;
-		slashtags: string;
 	}>
 > => {
 	if (!mnemonic) {
@@ -503,8 +528,7 @@ export const deriveMnemonicPhrases = async (
 	const onchain = mnemonic;
 	const lightning = generateMnemonicPhraseFromEntropy(`${mnemonic}lightning`);
 	const tokens = generateMnemonicPhraseFromEntropy(`${mnemonic}tokens`);
-	const slashtags = generateMnemonicPhraseFromEntropy(`${mnemonic}slashtags`);
-	return ok({ onchain, lightning, tokens, slashtags });
+	return ok({ onchain, lightning, tokens });
 };
 
 /**
@@ -547,6 +571,19 @@ export const getBip39Passphrase = async (wallet = ''): Promise<string> => {
 	} catch {
 		return '';
 	}
+};
+
+export const getSeed = async (selectedWallet: string) => {
+	const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
+	if (getMnemonicPhraseResponse.isErr()) {
+		return err(getMnemonicPhraseResponse.error.message);
+	}
+
+	//Attempt to acquire the bip39Passphrase if available
+	const bip39Passphrase = await getBip39Passphrase(selectedWallet);
+
+	const mnemonic = getMnemonicPhraseResponse.value;
+	return ok(await bip39.mnemonicToSeed(mnemonic, bip39Passphrase));
 };
 
 /**
@@ -1888,13 +1925,17 @@ export const createDefaultWallet = async ({
 		}
 		await setKeychainValue({ key: walletName, value: mnemonic });
 
+		const bip39Passphrase = await getBip39Passphrase(walletName);
+		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+
 		//Generate a set of addresses & changeAddresses for each network.
 		const addressesObj = { ...defaultWalletShape.addresses };
 		const changeAddressesObj = { ...defaultWalletShape.changeAddresses };
 		const addressIndex = { ...defaultWalletShape.addressIndex };
 		const changeAddressIndex = { ...defaultWalletShape.changeAddressIndex };
-		await Promise.all(
-			Object.values(addressTypes).map(async ({ type, path }) => {
+		await Promise.all([
+			setKeychainSlashtagsPrimaryKey(seed),
+			...Object.values(addressTypes).map(async ({ type, path }) => {
 				if (!selectedNetwork) {
 					selectedNetwork = getSelectedNetwork();
 				}
@@ -1915,6 +1956,7 @@ export const createDefaultWallet = async ({
 					changeAddressAmount,
 					keyDerivationPath: pathObject.value,
 					addressType: type,
+					seed, // Skip calculating the seed again (bip39.mnemonicToSeed takes 2-5s).
 				});
 				if (generatedAddresses.isErr()) {
 					return err(generatedAddresses.error);
@@ -1926,10 +1968,11 @@ export const createDefaultWallet = async ({
 				addressesObj[selectedNetwork][type] = { ...addresses };
 				changeAddressesObj[selectedNetwork][type] = { ...changeAddresses };
 			}),
-		);
+		]);
 		const payload: IDefaultWallet = {
 			[walletName]: {
 				...defaultWalletShape,
+				seedHash: seedHash(seed),
 				addressType: {
 					bitcoin: selectedAddressType,
 					bitcoinTestnet: selectedAddressType,
