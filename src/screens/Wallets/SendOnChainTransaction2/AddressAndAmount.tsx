@@ -26,7 +26,6 @@ import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
 import Store from '../../../store/types';
 import { IOutput } from '../../../store/types/wallet';
-import { toggleView } from '../../../store/actions/user';
 import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
 import {
 	updateOnChainTransaction,
@@ -55,6 +54,9 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	);
 	const initial = useSelector(
 		(store: Store) => store.user.viewController?.sendNavigation?.initial,
+	);
+	const coinSelectAuto = useSelector(
+		(state: Store) => state.settings.coinSelectAuto,
 	);
 	const transaction = useTransactionDetails();
 	const displayBackButton = initial === 'SendAssetPickerList';
@@ -237,25 +239,17 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						icon={<TagIcon color="brand" width={16} />}
 						onPress={(): void => navigation.navigate('Tags')}
 					/>
-					<Button
-						text="Coin selection"
-						onPress={(): void => {
-							toggleView({
-								view: 'coinSelection',
-								data: {
-									isOpen: true,
-									snapPoint: 1,
-								},
-							}).then();
-						}}
-					/>
 				</View>
 				<View style={nextButtonContainer}>
 					<Button
 						size="lg"
 						text="Next"
 						disabled={!validate(address) || !value}
-						onPress={(): void => navigation.navigate('ReviewAndSend')}
+						onPress={(): void =>
+							navigation.navigate(
+								coinSelectAuto ? 'ReviewAndSend' : 'CoinSelection',
+							)
+						}
 					/>
 				</View>
 			</View>

@@ -11,6 +11,7 @@ import Tags from '../../screens/Wallets/SendOnChainTransaction2/Tags';
 import ReviewAndSend from '../../screens/Wallets/SendOnChainTransaction2/ReviewAndSend';
 import SendAssetPickerList from '../../screens/Wallets/SendOnChainTransaction2/SendAssetPickerList';
 import Result from '../../screens/Wallets/SendOnChainTransaction2/Result';
+import CoinSelection from '../../screens/Wallets/SendOnChainTransaction2/CoinSelection';
 import AuthCheck from '../../components/AuthCheck';
 import { NavigationContainer } from '../../styles/components';
 import {
@@ -54,6 +55,7 @@ const SendNavigation = (): ReactElement => {
 							name="AddressAndAmount"
 							component={AddressAndAmount}
 						/>
+						<Stack.Screen name="CoinSelection" component={CoinSelection} />
 						<Stack.Screen name="FeeRate" component={FeeRate} />
 						<Stack.Screen name="FeeCustom" component={FeeCustom} />
 						<Stack.Screen name="Tags" component={Tags} />
