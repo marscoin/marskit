@@ -29,7 +29,7 @@ const SettingsView = ({
 	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
 	return (
-		<View style={styles.container} color="transparent">
+		<View style={styles.container} color="black">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
 

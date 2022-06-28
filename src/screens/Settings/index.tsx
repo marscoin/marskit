@@ -53,7 +53,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	);
 
 	return (
-		<>
+		<View style={styles.container}>
 			<SettingsView
 				title={'Settings'}
 				listData={SettingsListData}
@@ -67,11 +67,15 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 					source={require('./../../assets/illustrations/cog.png')}
 				/>
 			</View>
-		</>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: '#000',
+	},
 	imageContainer: {
 		zIndex: -1,
 		alignItems: 'center',
