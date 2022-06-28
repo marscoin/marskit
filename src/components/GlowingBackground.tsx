@@ -47,7 +47,7 @@ const Glow = memo(
 					/>
 				) : (
 					<RadialGradient
-						c={vec(width, height)}
+						c={vec(width + 118, height + 61)}
 						r={width}
 						colors={[color, 'transparent']}
 					/>
@@ -109,7 +109,7 @@ const GlowingBackground = ({
 						<Glow
 							key={id}
 							top={true}
-							color={color}
+							color={color || ''}
 							fadeout={index !== arr.length - 1}
 							width={width}
 							height={height}
@@ -119,7 +119,7 @@ const GlowingBackground = ({
 					{bottomRightItems.map(({ id, color }, index, arr) => (
 						<Glow
 							key={id}
-							color={color}
+							color={color || ''}
 							fadeout={index !== arr.length - 1}
 							width={width}
 							height={height}
