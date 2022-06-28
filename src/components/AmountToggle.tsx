@@ -6,11 +6,10 @@ import {
 	Pressable,
 	Text01M,
 } from '../styles/components';
-import { LayoutAnimation, StyleSheet, Keyboard } from 'react-native';
+import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
 import { IDisplayValues } from '../utils/exchange-rate/types';
-import { toggleView } from '../store/actions/user';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 
@@ -83,9 +82,11 @@ const AssetBalance = memo(
 const AmountToggle = ({
 	sats = 0,
 	style,
+	onPress,
 }: {
 	sats: number;
 	style?: object;
+	onPress?: Function;
 }): ReactElement => {
 	const primary = useSelector((state: Store) => state.settings.unitPreference);
 	const displayValues = useDisplayValues(sats);
@@ -109,19 +110,9 @@ const AmountToggle = ({
 			</View>
 		));
 	}, [getBalanceComponents]);
-	const onTogglePress = useCallback(() => {
-		Keyboard.dismiss(); // in case it was opened by Address input
-		toggleView({
-			view: 'numberPad',
-			data: {
-				isOpen: true,
-				snapPoint: 0,
-			},
-		}).then();
-	}, []);
 
 	return (
-		<Pressable onPress={onTogglePress} style={[styles.row, style]}>
+		<Pressable onPress={onPress} style={[styles.row, style]}>
 			<View color="transparent">{BalanceComponents}</View>
 		</Pressable>
 	);
