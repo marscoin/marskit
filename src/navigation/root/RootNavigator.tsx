@@ -29,6 +29,7 @@ import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnCha
 import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
 import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
+import { Profile, ProfileEdit } from '../../screens/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -88,9 +89,8 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 					<Stack.Screen name="LightningRoot" component={LightningNavigator} />
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
-				</Stack.Group>
-				<Stack.Group screenOptions={{ ...navOptions, presentation: 'modal' }}>
-					<Stack.Screen name="ProfileRoot" component={ProfileNavigator} />
+					<Stack.Screen name="Profile" component={Profile} />
+					<Stack.Screen name="ProfileEdit" component={ProfileEdit} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />

@@ -17,6 +17,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import { IsSensorAvailableResult } from '../../../components/Biometrics';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
+import { resetSlashtagsStore } from '../../../store/actions/slashtags';
 
 const SettingsMenu = ({}): ReactElement => {
 	const settingsTheme = useSelector((state: Store) => state.settings.theme);
@@ -99,6 +100,12 @@ const SettingsMenu = ({}): ReactElement => {
 						hide: false,
 					},
 					{
+						title: 'Reset slashtags store',
+						type: 'button',
+						onPress: () => resetSlashtagsStore(),
+						hide: false,
+					},
+					{
 						title: 'Reset All Stores',
 						type: 'button',
 						onPress: async (): Promise<void> => {
@@ -109,6 +116,7 @@ const SettingsMenu = ({}): ReactElement => {
 								resetActivityStore(),
 								resetUserStore(),
 								resetBlocktankStore(),
+								resetSlashtagsStore(),
 							]);
 						},
 						hide: false,
