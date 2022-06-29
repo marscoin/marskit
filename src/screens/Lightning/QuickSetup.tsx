@@ -84,7 +84,7 @@ const QuickSetup = ({ navigation }): ReactElement => {
 					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>
 						<View style={styles.row}>
 							<Caption13Up color="purple">SPENDING BALANCE</Caption13Up>
-							<Caption13Up color="purple">SAVING</Caption13Up>
+							<Caption13Up color="purple">SAVINGS</Caption13Up>
 						</View>
 						<View style={styles.row}>
 							<Text02M>
