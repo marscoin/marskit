@@ -40,6 +40,10 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 			});
 			amount = Math.round(Number(str));
 		}
+		// limit amount to 21 000 000 BTC
+		if (amount > 2.1e16) {
+			amount = sats;
+		}
 		onChange(amount);
 	};
 
@@ -81,7 +85,7 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 					onPress={(): void => {
 						Alert.alert('TODO');
 					}}>
-					<Text02B>MAX</Text02B>
+					<Text02B color="purple">MAX</Text02B>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.topRowButtons}
@@ -92,7 +96,7 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 						updateSettings({ unitPreference: newUnitPreference });
 					}}>
 					<SwitchIcon color="white" width={16.44} height={13.22} />
-					<Text02B style={styles.middleButtonText}>
+					<Text02B color="purple" style={styles.middleButtonText}>
 						{unitPreference === 'asset'
 							? displayValue.fiatTicker
 							: displayValue.bitcoinTicker}
@@ -102,7 +106,7 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 					style={styles.topRowButtons}
 					color="onSurface"
 					onPress={onDone}>
-					<Text02B>DONE</Text02B>
+					<Text02B color="purple">DONE</Text02B>
 				</TouchableOpacity>
 			</View>
 		</NumberPad>
