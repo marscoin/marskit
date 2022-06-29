@@ -1,11 +1,12 @@
 import React, { ReactElement, useMemo } from 'react';
-import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
+import { TransitionPresets } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ChoosePIN from '../../screens/Settings/PIN/ChoosePIN';
 import Result from '../../screens/Settings/PIN/Result';
+import AskForBiometrics from '../../screens/Settings/PIN/AskForBiometrics';
 import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
 
@@ -28,6 +29,10 @@ const PINNavigation = (): ReactElement => {
 				<Stack.Navigator screenOptions={navOptions}>
 					<Stack.Group screenOptions={navOptions}>
 						<Stack.Screen name="ChoosePIN" component={ChoosePIN} />
+						<Stack.Screen
+							name="AskForBiometrics"
+							component={AskForBiometrics}
+						/>
 						<Stack.Screen name="Result" component={Result} />
 					</Stack.Group>
 				</Stack.Navigator>

@@ -12,18 +12,20 @@ import { IsSensorAvailableResult } from '../../components/Biometrics';
 import SettingsView from './SettingsView';
 import { toggleView } from '../../store/actions/user';
 
+const rnBiometrics = new ReactNativeBiometrics();
+
+const unitsBitcoin = {
+	satoshi: 'sats',
+	bitcoin: 'bitcoin',
+};
+
 const SettingsMenu = ({ navigation }): ReactElement => {
-	const settingsTheme = useSelector((state: Store) => state.settings.theme);
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
 	);
 	const remoteBackupSynced = useSelector(
 		(state: Store) => state.backup.backpackSynced,
 	);
-	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
 
 	const [biometryData, setBiometricData] = useState<
 		IsSensorAvailableResult | undefined
@@ -32,12 +34,10 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 	useEffect(() => {
 		(async (): Promise<void> => {
 			const data: IsSensorAvailableResult =
-				await ReactNativeBiometrics.isSensorAvailable();
+				await rnBiometrics.isSensorAvailable();
 			setBiometricData(data);
 		})();
 	}, []);
-
-	const hasPin = useSelector((state: Store) => state.settings.pin);
 
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
@@ -47,13 +47,8 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 		(state: Store) => state.settings.bitcoinUnit,
 	);
 
-	const unitsBitcoin = {
-		satoshi: 'sats',
-		bitcoin: 'bitcoin',
-	};
-
-	const hasBiometrics = useSelector(
-		(state: Store) => state.settings.biometrics,
+	const { rbf, pin, biometrics, pinOnLaunch, pinForPayments } = useSelector(
+		(state: Store) => state.settings,
 	);
 
 	const SettingsListData: IListData[] = useMemo(
@@ -84,7 +79,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 					},
 					{
 						title: 'Display suggestions',
-						value: hasPin ? 'Enabled' : 'Disabled',
+						value: pin ? 'Enabled' : 'Disabled',
 						type: 'switch',
 						onPress: (): void => {},
 						hide: false,
@@ -101,19 +96,17 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				title: 'Security and Privacy',
 				data: [
 					{
-						title: 'Swipe balance to hide',
-						value: hasPin ? 'Enabled' : 'Disabled',
-						type: 'switch',
-						onPress: (): void => {},
-						hide: false,
-					},
-					{
-						title: 'Change PIN code',
-						value: hasPin ? 'Enabled' : 'Disabled',
+						title: 'Pin',
+						value: pin ? 'Enabled' : 'Disabled',
 						type: 'button',
 						onPress: (): void => {
-							if (hasPin) {
-								removePin().then();
+							if (pin) {
+								navigation.navigate('AuthCheck', {
+									onSuccess: () => {
+										navigation.pop();
+										removePin().then();
+									},
+								});
 							} else {
 								toggleView({
 									view: 'PINPrompt',
@@ -124,27 +117,47 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Require PIN on launch',
-						value: hasPin ? 'Enabled' : 'Disabled',
+						title: 'Use biometrics to bypass the PIN',
 						type: 'switch',
-						onPress: (): void => {},
-						hide: false,
+						enabled: biometrics,
+						onPress: (): void => {
+							navigation.navigate('AuthCheck', {
+								onSuccess: () => {
+									navigation.pop();
+									toggleBiometrics();
+								},
+							});
+						},
+						hide:
+							!pin || (!biometryData?.available && !biometryData?.biometryType),
+					},
+					{
+						title: 'Require PIN on launch',
+						type: 'switch',
+						enabled: pinOnLaunch,
+						onPress: (): void => {
+							navigation.navigate('AuthCheck', {
+								onSuccess: () => {
+									navigation.pop();
+									updateSettings({ pinOnLaunch: !pinOnLaunch });
+								},
+							});
+						},
+						hide: !pin,
 					},
 					{
 						title: 'Require PIN for payments',
-						value: hasPin ? 'Enabled' : 'Disabled',
 						type: 'switch',
-						onPress: (): void => {},
-						hide: false,
-					},
-					{
-						title: 'Biometrics',
-						type: 'switch',
-						enabled: hasBiometrics,
+						enabled: pinForPayments,
 						onPress: (): void => {
-							toggleBiometrics();
+							navigation.navigate('AuthCheck', {
+								onSuccess: () => {
+									navigation.pop();
+									updateSettings({ pinForPayments: !pinForPayments });
+								},
+							});
 						},
-						hide: !biometryData?.available && !biometryData?.biometryType,
+						hide: !pin,
 					},
 					{
 						title: 'App permissions',
@@ -336,17 +349,19 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				],
 			},
 		],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			biometryData?.available,
 			biometryData?.biometryType,
-			hasBiometrics,
-			hasPin,
+			biometrics,
+			pin,
+			pinOnLaunch,
+			pinForPayments,
 			remoteBackupSynced,
 			selectedNetwork,
-			selectedWallet,
-			settingsTheme,
 			rbf,
+			navigation,
+			selectedBitcoinUnit,
+			selectedCurrency,
 		],
 	);
 

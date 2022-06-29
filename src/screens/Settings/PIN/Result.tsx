@@ -8,8 +8,8 @@ import Button from '../../../components/Button';
 import Glow from '../../../components/Glow';
 import { toggleView } from '../../../store/actions/user';
 
-const Result = ({ navigation, route }): ReactElement => {
-	const { success = true } = route.params;
+const Result = ({ route }): ReactElement => {
+	const { bio } = route?.params;
 	const insets = useSafeAreaInsets();
 	const nextButtonContainer = useMemo(
 		() => ({
@@ -19,62 +19,42 @@ const Result = ({ navigation, route }): ReactElement => {
 		[insets.bottom],
 	);
 
-	const source = success
-		? require('../../../assets/illustrations/check.png')
-		: require('../../../assets/illustrations/cross.png');
+	const source = require('../../../assets/illustrations/check.png');
 
 	const handleButtonPress = (): void => {
-		if (success) {
-			toggleView({
-				view: 'PINNavigation',
-				data: { isOpen: false },
-			});
-		} else {
-			navigation.pop(2);
-		}
+		toggleView({
+			view: 'PINNavigation',
+			data: { isOpen: false },
+		});
 	};
-
-	const handleOnBack = (): void => {
-		navigation.goBack();
-	};
-
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
 			<NavigationHeader
 				title="PIN setup complete"
 				size="sm"
-				displayBackButton={!success}
-				onBackPress={handleOnBack}
+				displayBackButton={false}
 			/>
 
 			<View style={styles.message}>
-				{success ? (
+				{bio ? (
 					<Text01S color="gray1">
-						You have succesfully set up a passcode to improve your security.
+						You have succesfully set up a PIN code and biometrics to improve
+						your security.
 					</Text01S>
 				) : (
 					<Text01S color="gray1">
-						Unfortunately, the 4-digit PIN codes that you provided don’t match
-						up.
+						You have succesfully set up a PIN code to improve your security.
 					</Text01S>
 				)}
 			</View>
 
 			<View style={styles.imageContainer}>
-				<Glow
-					style={styles.glow}
-					size={300}
-					color={success ? 'green' : 'red'}
-				/>
+				<Glow style={styles.glow} size={300} color="green" />
 				<Image source={source} style={styles.image} />
 			</View>
 
 			<View style={nextButtonContainer}>
-				<Button
-					size="lg"
-					text={success ? 'Close' : 'Try again'}
-					onPress={handleButtonPress}
-				/>
+				<Button size="lg" text="Close" onPress={handleButtonPress} />
 			</View>
 		</ThemedView>
 	);
@@ -88,6 +68,7 @@ const styles = StyleSheet.create({
 	},
 	message: {
 		marginHorizontal: 32,
+		alignSelf: 'flex-start',
 	},
 	imageContainer: {
 		position: 'relative',
@@ -105,7 +86,7 @@ const styles = StyleSheet.create({
 	},
 	nextButtonContainer: {
 		width: '100%',
-		paddingHorizontal: 16,
+		paddingHorizontal: 32,
 		minHeight: 100,
 	},
 });

@@ -7,6 +7,8 @@ export const defaultSettingsShape: ISettings = {
 	error: false,
 	biometrics: false,
 	pin: false,
+	pinOnLaunch: false,
+	pinForPayments: false,
 	rbf: true,
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
@@ -14,6 +16,7 @@ export const defaultSettingsShape: ISettings = {
 	exchangeRateService: EExchangeRateService.bitfinex,
 	selectedLanguage: 'english',
 	customElectrumPeers: { ...arrayTypeItems },
+	coinSelectAuto: true,
 	coinSelectPreference: 'small',
 	unitPreference: 'asset',
 };

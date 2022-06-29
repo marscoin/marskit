@@ -42,13 +42,11 @@ const navOptions = {
 
 export type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
 const RootNavigator = (): ReactElement => {
-	const hasPin = useSelector((state: Store) => state.settings.pin);
-	const hasBiometrics = useSelector(
-		(state: Store) => state.settings.biometrics,
-	);
+	const pin = useSelector((state: Store) => state.settings.pin);
+	const pinOnLaunch = useSelector((state: Store) => state.settings.pinOnLaunch);
 	const initialRouteName = useMemo(
-		() => (hasPin || hasBiometrics ? 'RootAuthCheck' : 'Tabs'),
-		[hasBiometrics, hasPin],
+		() => (pin && pinOnLaunch ? 'RootAuthCheck' : 'Tabs'),
+		[pin, pinOnLaunch],
 	);
 
 	const AuthCheckComponent = useCallback(({ navigation }): ReactElement => {

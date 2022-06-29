@@ -23,6 +23,8 @@ export interface ISettings {
 	error: boolean;
 	biometrics: boolean;
 	pin: boolean;
+	pinOnLaunch: boolean;
+	pinForPayments: boolean;
 	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
@@ -30,6 +32,7 @@ export interface ISettings {
 	selectedCurrency: string;
 	exchangeRateService: EExchangeRateService;
 	selectedLanguage: string;
+	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	[key: string]: any;

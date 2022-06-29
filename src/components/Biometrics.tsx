@@ -6,17 +6,19 @@ import React, {
 	useState,
 } from 'react';
 import { StyleSheet } from 'react-native';
-import { systemWeights } from 'react-native-typography';
+import ReactNativeBiometrics from 'react-native-biometrics';
+
 import {
-	Text,
+	Subtitle,
 	Ionicons,
 	MaterialIcons,
 	View,
 	TouchableOpacity,
 } from '../styles/components';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { vibrate } from '../utils/helpers';
 import { toggleBiometrics } from '../utils/settings';
+
+const rnBiometrics = new ReactNativeBiometrics();
 
 const getIcon = ({
 	biometryData = undefined,
@@ -67,7 +69,7 @@ const Biometrics = ({
 	useEffect(() => {
 		(async (): Promise<void> => {
 			const data: IsSensorAvailableResult =
-				await ReactNativeBiometrics.isSensorAvailable();
+				await rnBiometrics.isSensorAvailable();
 			setBiometricData(data);
 			authenticate(`Confirm ${data?.biometryType || ''}`);
 		})();
@@ -100,16 +102,17 @@ const Biometrics = ({
 					const biotmetryType = biometryData?.biometryType;
 					promptMessage = `Confirm ${biotmetryType}`;
 				}
-				ReactNativeBiometrics.simplePrompt({
-					promptMessage: promptMessage || '',
-				})
+				rnBiometrics
+					.simplePrompt({
+						promptMessage: promptMessage || '',
+					})
 					.then(({ success }) => {
 						if (success) {
 							toggleBiometrics(true);
 							onSuccess();
-							return;
 						} else {
 							vibrate({});
+							onFailure();
 						}
 					})
 					.catch(() => {
@@ -123,13 +126,14 @@ const Biometrics = ({
 	);
 
 	return (
-		<View style={[styles.container, { ...style }]}>
+		<View color="transparent" style={[styles.container, { ...style }]}>
 			<TouchableOpacity
+				color="transparent"
 				activeOpacity={0.6}
 				onPress={authenticate}
 				style={styles.container}>
 				<Icon />
-				<Text style={styles.text}>{text()}</Text>
+				<Subtitle style={styles.text}>{text()}</Subtitle>
 			</TouchableOpacity>
 			{children}
 		</View>
@@ -144,10 +148,8 @@ const styles = StyleSheet.create({
 		paddingVertical: 20,
 	},
 	text: {
-		...systemWeights.regular,
-		fontSize: 18,
+		marginTop: 16,
 		textAlign: 'center',
-		marginHorizontal: 20,
 	},
 });
 

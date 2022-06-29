@@ -43,12 +43,20 @@ export const toggleBiometrics = (
  */
 export const hasEnabledAuthentication = (): {
 	pin: boolean;
+	pinOnLaunch: boolean;
+	pinForPayments: boolean;
 	biometrics: boolean;
 } => {
 	try {
-		const { pin, biometrics } = getStore().settings;
-		return { pin, biometrics };
+		const { pin, pinOnLaunch, pinForPayments, biometrics } =
+			getStore().settings;
+		return { pin, pinOnLaunch, pinForPayments, biometrics };
 	} catch {
-		return { pin: false, biometrics: false };
+		return {
+			pin: false,
+			pinOnLaunch: false,
+			pinForPayments: false,
+			biometrics: false,
+		};
 	}
 };

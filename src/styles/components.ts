@@ -57,6 +57,8 @@ import {
 	rightArrowIcon,
 	checkmarkIcon,
 	copyIcon,
+	faceIdIcon,
+	touchIdIcon,
 } from '../assets/icons/settings';
 import { logo } from '../assets/icons/onboarding';
 import _SafeAreaView from '../components/SafeAreaView';
@@ -327,6 +329,24 @@ export const CopyIcon = styled(SvgXml).attrs((props) => ({
 	),
 	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const FaceIdIcon = styled(SvgXml).attrs((props) => ({
+	xml: faceIdIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
+	),
+	height: props?.height ?? '133px',
+	width: props?.width ?? '133px',
+	color: undefined,
+}))({});
+
+export const TouchIdIcon = styled(SvgXml).attrs((props) => ({
+	xml: touchIdIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
+	),
+	height: props?.height ?? '133px',
+	width: props?.width ?? '133px',
 	color: undefined,
 }))({});
 

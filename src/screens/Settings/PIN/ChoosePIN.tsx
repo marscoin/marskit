@@ -8,7 +8,11 @@ import React, {
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { View as ThemedView, Text01S } from '../../../styles/components';
+import {
+	View as ThemedView,
+	Text01S,
+	Text02S,
+} from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import NumberPad from '../../../components/NumberPad';
 import useColors from '../../../hooks/colors';
@@ -19,6 +23,7 @@ import { todoPresets } from '../../../utils/todos';
 
 const ChoosePIN = ({ navigation, route }): ReactElement => {
 	const [pin, setPin] = useState<string>('');
+	const [tryAgain, setTryAgain] = useState<boolean>(false);
 	const origPIN = route?.params?.pin;
 	const { brand, brand08 } = useColors();
 
@@ -52,10 +57,12 @@ const ChoosePIN = ({ navigation, route }): ReactElement => {
 				await setKeychainValue({ key: 'pin', value: pin });
 				await updateSettings({ pin: true });
 				removeTodo(todoPresets.pin.type);
+				navigation.navigate('AskForBiometrics');
 			} else {
 				vibrate({ type: 'notificationWarning' });
+				setPin('');
+				setTryAgain(true);
 			}
-			navigation.navigate('Result', { success: pinsAreEqual });
 		}, 500);
 		return (): void => clearInterval(timer);
 	}, [pin, origPIN, navigation]);
@@ -78,6 +85,14 @@ const ChoosePIN = ({ navigation, route }): ReactElement => {
 					reset it, but that will require restoring your wallet.
 				</Text01S>
 			)}
+
+			<View style={styles.tryAgain}>
+				{tryAgain ? (
+					<Text02S color="brand">Try again, this is not the same PIN.</Text02S>
+				) : (
+					<Text02S> </Text02S>
+				)}
+			</View>
 
 			<View style={styles.dots}>
 				{Array(4)
@@ -114,11 +129,15 @@ const styles = StyleSheet.create({
 	text: {
 		paddingHorizontal: 32,
 	},
+	tryAgain: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		marginVertical: 16,
+	},
 	dots: {
 		flexDirection: 'row',
 		justifyContent: 'center',
-		alighItems: 'center',
-		marginVertical: 32,
+		marginBottom: 32,
 	},
 	dot: {
 		width: 20,
