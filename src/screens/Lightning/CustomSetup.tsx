@@ -160,7 +160,6 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 						</View>
 						<Button
 							text="Enter custom amount"
-							icon={<CoinsIcon width={16} height={16} color="purple" />}
 							style={styles.buttonCustom}
 							onPress={(): void => setKeybrd((k) => !k)}
 						/>
