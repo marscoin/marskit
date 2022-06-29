@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 
-import ProfileScreen from '../../screens/Profile';
+import { Profile } from '../../screens/Profile/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,11 +23,12 @@ const screenOptions = {
 	...navOptions,
 };
 
+// TODO do we need this navigator?
 const ProfileStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Profile">
 			<Stack.Group screenOptions={screenOptions}>
-				<Stack.Screen name="Profile" component={ProfileScreen} />
+				<Stack.Screen name="Profile" component={Profile} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);

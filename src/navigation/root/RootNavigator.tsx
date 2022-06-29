@@ -16,7 +16,6 @@ import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
-import ProfileNavigator from '../profile/ProfileNavigator';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import SendNavigation from '../bottom-sheet/SendNavigation';
 import ReceiveNavigation from '../bottom-sheet/ReceiveNavigation';
@@ -29,7 +28,8 @@ import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnCha
 import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
 import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
-import { Profile, ProfileEdit } from '../../screens/Profile';
+import Profile from '../../screens/Profile/Profile';
+import ProfileEdit from '../../screens/Profile/ProfileEdit';
 
 const Stack = createNativeStackNavigator();
 
