@@ -4,12 +4,11 @@ import NavigationHeader from '../../components/NavigationHeader';
 import { Image } from 'react-native';
 import Button from '../../components/Button';
 import { TitleHaas } from '../../styles/components';
-import { setVisitedProfile } from '../../store/actions/slashtags';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
 
-export const ProfileOnboarding = () => {
+export const ProfileOnboarding = ({ navigation }) => {
 	return (
 		<GlowingBackground topLeft="#f60">
 			<SafeAreaInsets type={'top'} />
@@ -39,7 +38,7 @@ export const ProfileOnboarding = () => {
 					text="Continue"
 					size="large"
 					onPress={() => {
-						setVisitedProfile(true);
+						navigation.navigate('ProfileEdit');
 					}}></Button>
 			</View>
 		</GlowingBackground>
