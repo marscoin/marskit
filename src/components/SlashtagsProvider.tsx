@@ -63,7 +63,7 @@ export const SlashtagsProvider = ({
 
 				async function onUpdate({ key }: { key: string }) {
 					if (key === 'profile.json') {
-						setState({ ...state, profile: await profile(slashtag) });
+						setState({ sdk, slashtag, profile: await profile(slashtag) });
 					}
 				}
 

@@ -3,6 +3,7 @@ export interface BasicProfile {
 	id?: string;
 	name?: string;
 	about?: string;
+	image?: string;
 }
 
 export interface ISlashtags {

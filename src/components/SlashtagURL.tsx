@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from '../styles/components';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
+import colors from '../styles/colors';
 
 export const SlashtagURL = ({ url, style }: { url?: string; style?: any }) => {
 	return (
@@ -25,8 +26,7 @@ export const SlashtagURL = ({ url, style }: { url?: string; style?: any }) => {
 
 const styles = {
 	url: {
-		color: '#f60',
-		lineHeight: 20,
+		color: colors.brand,
 		fontSize: 15,
 	},
 };
