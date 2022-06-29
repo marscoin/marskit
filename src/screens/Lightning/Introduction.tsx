@@ -23,9 +23,9 @@ const Introduction = ({ navigation }): ReactElement => {
 				</View>
 				<View color="transparent" style={styles.textContent}>
 					<DisplayHaas>
-						Enjoy{' '}
+						Instant{' '}
 						<DisplayHaas style={styles.headline2}>
-							instant payments.
+							payments.
 						</DisplayHaas>
 					</DisplayHaas>
 					<Text01S color="gray1" style={styles.text}>
