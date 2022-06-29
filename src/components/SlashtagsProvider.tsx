@@ -1,13 +1,25 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 // @ts-ignore
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
-import type { SDK as ISDK } from '@synonymdev/slashtags-sdk';
+import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
 import { SlashtagsContext } from '../hooks/slashtags';
+import { storage as mmkv } from '../store/mmkv-storage';
+import RAWSFactory from 'random-access-web-storage';
+
+const RAWS = RAWSFactory({
+	setItem: (key, value) => {
+		mmkv.set(key, value);
+	},
+	getItem: (key) => {
+		return mmkv.getString(key);
+	},
+	removeItem: (key) => {
+		mmkv.delete(key);
+	},
+});
 
 export interface ISlashtagsContext {
 	sdk: ISDK;
-	resolveProfile: (url: string) => Promise<object | null>;
-	currentSlashtag: ReturnType<ISDK['slashtag']>;
 }
 
 export const SlashtagsProvider = ({
@@ -27,22 +39,15 @@ export const SlashtagsProvider = ({
 			if (state.sdk) state.sdk.close();
 
 			try {
-				const sdk: ISDK = await SDK.init({
-					primaryKey: await primaryKey,
-					persist: false,
+				const sdk = await (SDK as typeof ISDK).init({
+					primaryKey: (await primaryKey) as Uint8Array,
+					// TODO: replace it with random access react native after m1 support
+					storage: RAWS,
 					// TODO: replace hardcoded relays with configurable relays
 					swarmOpts: { relays: ['ws://localhost:8888'] },
 				});
 
-				setState({
-					sdk,
-					resolveProfile(url) {
-						console.log('resolving', !!sdk);
-						const slashtag = sdk.slashtag({ url });
-						return slashtag.getProfile();
-					},
-					currentSlashtag: sdk._root,
-				});
+				setState({ sdk });
 			} catch (error) {
 				onError(error as Error);
 			}
