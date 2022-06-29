@@ -6,14 +6,10 @@ import { useSelector } from 'react-redux';
 import {
 	AnimatedView,
 	Caption13Up,
-	CoinsIcon,
 	DisplayHaas,
-	ReceiveIcon,
-	SendIcon,
 	Subtitle,
 	Text01S,
 	TouchableOpacity,
-	View as ThemedView,
 } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
@@ -179,13 +175,6 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 							)}
 							<AmountToggle sats={amount} />
 						</View>
-						<ThemedView color="purple16" style={styles.iconContainer}>
-							{spending ? (
-								<SendIcon height={24} width={20} color="purple" />
-							) : (
-								<ReceiveIcon height={24} width={20} color="purple" />
-							)}
-						</ThemedView>
 					</View>
 				</View>
 
@@ -268,14 +257,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginBottom: 8,
-	},
-	iconContainer: {
-		borderRadius: 32,
-		overflow: 'hidden',
-		height: 64,
-		width: 64,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 });
 
