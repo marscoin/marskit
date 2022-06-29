@@ -7,25 +7,11 @@ export const Jdenticon = ({
 	value,
 	size = 32,
 	config = {},
-	style = {},
 }: {
-	value?: string;
-	size?: number;
+	value: string;
+	size: number;
 	config?: JdenticonConfig;
-	style?: ViewStyle;
 }) => {
-	const _style: ViewStyle = {
-		width: size,
-		height: size,
-		overflow: 'hidden',
-		borderRadius: size / 2,
-		backgroundColor: '#222',
-		...style,
-	};
-
-	if (!value) return <View style={_style} />;
-
 	const svg = jdenticon.toSvg(value, size, config);
-
-	return <SvgXml xml={svg} style={_style} />;
+	return <SvgXml xml={svg} />;
 };

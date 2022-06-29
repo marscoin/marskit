@@ -9,8 +9,9 @@ import {
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import { useSlashtags } from '../../hooks/slashtags';
-import { Jdenticon } from '../../components/Jdenticon';
 import { SlashtagURL } from '../../components/SlashtagURL';
+import ProfileImage from '../../components/ProfileImage';
+import { truncate } from '../../utils/helpers';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
@@ -31,11 +32,12 @@ const Header = (): ReactElement => {
 		<View style={styles.container}>
 			<TouchableOpacity activeOpacity={1} onPress={openProfile}>
 				<View style={styles.leftColumn}>
-					<Jdenticon
-						style={{ marginRight: 12 }}
-						value={profile?.id}></Jdenticon>
+					<ProfileImage
+						size={32}
+						profile={profile}
+						style={{ marginRight: 16 }}></ProfileImage>
 					{profile?.name ? (
-						<TitleHaas>{profile?.name || 'Your name'}</TitleHaas>
+						<TitleHaas>{truncate(profile?.name, 20)}</TitleHaas>
 					) : (
 						<SlashtagURL url={profile?.id} />
 					)}
