@@ -5,6 +5,7 @@ import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
 import { SlashtagsContext } from '../hooks/slashtags';
 import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
+import { BasicProfile } from '../store/types/slashtags';
 
 const RAWS = RAWSFactory({
 	setItem: (key, value) => {
@@ -20,6 +21,8 @@ const RAWS = RAWSFactory({
 
 export interface ISlashtagsContext {
 	sdk: ISDK;
+	slashtag: ReturnType<ISDK['slashtag']>;
+	profile: BasicProfile;
 }
 
 export const SlashtagsProvider = ({
@@ -47,7 +50,29 @@ export const SlashtagsProvider = ({
 					swarmOpts: { relays: ['ws://localhost:8888'] },
 				});
 
-				setState({ sdk });
+				const slashtag = sdk.slashtag();
+
+				setState({ sdk, slashtag, profile: await profile(slashtag) });
+
+				// Watch public drive updates
+				slashtag?.publicDrive?.on('update', onUpdate);
+
+				return () => {
+					slashtag?.removeListener('update', onUpdate);
+				};
+
+				async function onUpdate({ key }: { key: string }) {
+					if (key === 'profile.json') {
+						setState({ ...state, profile: await profile(slashtag) });
+					}
+				}
+
+				async function profile(slashtag) {
+					return {
+						id: slashtag.url.toString(),
+						...((await slashtag.getProfile()) as BasicProfile),
+					};
+				}
 			} catch (error) {
 				onError(error as Error);
 			}

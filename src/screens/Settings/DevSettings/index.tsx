@@ -73,13 +73,13 @@ const SettingsMenu = ({}): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Reset slashtags store',
+						title: 'Reset Slashtags store',
 						type: 'button',
 						onPress: () => resetSlashtagsStore(),
 						hide: false,
 					},
 					{
-						title: 'Clear slashtags storage',
+						title: 'Clear Slashtags storage',
 						type: 'button',
 						onPress: () => {
 							const keys = storage.getAllKeys();

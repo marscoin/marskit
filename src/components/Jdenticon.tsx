@@ -18,9 +18,8 @@ export const Jdenticon = ({
 		width: size,
 		height: size,
 		overflow: 'hidden',
-		borderColor: '#333',
-		borderWidth: 2,
 		borderRadius: size / 2,
+		backgroundColor: '#222',
 		...style,
 	};
 

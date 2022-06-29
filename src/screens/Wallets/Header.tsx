@@ -10,14 +10,15 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSlashtags } from '../../hooks/slashtags';
 import { Jdenticon } from '../../components/Jdenticon';
+import { SlashtagURL } from '../../components/SlashtagURL';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
-	const slashtags = useSlashtags();
+	const { profile } = useSlashtags();
 
 	const openProfile = useCallback(
 		// @ts-ignore
-		() => navigation.navigate('ProfileRoot'),
+		() => navigation.navigate('Profile'),
 		[navigation],
 	);
 	const openSettings = useCallback(
@@ -28,13 +29,17 @@ const Header = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity
-				activeOpacity={1}
-				onPress={openProfile}
-				style={styles.leftColumn}>
-				<Jdenticon
-					value={slashtags.currentSlashtag?.url.toString()}></Jdenticon>
-				<TitleHaas style={{ marginLeft: 16 }}>Your name</TitleHaas>
+			<TouchableOpacity activeOpacity={1} onPress={openProfile}>
+				<View style={styles.leftColumn}>
+					<Jdenticon
+						style={{ marginRight: 12 }}
+						value={profile?.id}></Jdenticon>
+					{profile?.name ? (
+						<TitleHaas>{profile?.name || 'Your name'}</TitleHaas>
+					) : (
+						<SlashtagURL url={profile?.id} />
+					)}
+				</View>
 			</TouchableOpacity>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
