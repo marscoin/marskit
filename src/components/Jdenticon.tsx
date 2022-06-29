@@ -24,7 +24,9 @@ export const Jdenticon = ({
 		...style,
 	};
 
-	if (!value) return <View style={_style} />;
+	if (!value) {
+		return <View style={_style} />;
+	}
 
 	const svg = jdenticon.toSvg(value, size, config);
 

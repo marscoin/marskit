@@ -202,7 +202,9 @@ export const generateAddresses = async ({
 		const network = networks[selectedNetwork];
 		if (!seed) {
 			const seedResponse = await getSeed(selectedWallet);
-			if (seedResponse.isErr()) return err(seedResponse.error.message);
+			if (seedResponse.isErr()) {
+				return err(seedResponse.error.message);
+			}
 			seed = seedResponse.value;
 		}
 
@@ -313,7 +315,9 @@ export const getPrivateKey = async ({
 		const network = networks[selectedNetwork];
 
 		const seedResponse = await getSeed(selectedWallet);
-		if (seedResponse.isErr()) return err(seedResponse.error.message);
+		if (seedResponse.isErr()) {
+			return err(seedResponse.error.message);
+		}
 		const root = bip32.fromSeed(seedResponse.value, network);
 
 		const addressPath = addressData.path;

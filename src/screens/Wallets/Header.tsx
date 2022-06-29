@@ -32,8 +32,7 @@ const Header = (): ReactElement => {
 				activeOpacity={1}
 				onPress={openProfile}
 				style={styles.leftColumn}>
-				<Jdenticon
-					value={slashtags.currentSlashtag?.url.toString()}></Jdenticon>
+				<Jdenticon value={slashtags.currentSlashtag?.url.toString()} />
 				<TitleHaas style={{ marginLeft: 16 }}>Your name</TitleHaas>
 			</TouchableOpacity>
 			<View style={styles.middleColumn} />
