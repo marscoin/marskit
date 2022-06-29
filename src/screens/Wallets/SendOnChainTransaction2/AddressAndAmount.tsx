@@ -13,7 +13,7 @@ import { validate } from 'bitcoin-address-validation';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import {
-	CameraIcon,
+	ScanIcon,
 	Caption13Up,
 	ClipboardTextIcon,
 	UsersIcon,
@@ -197,7 +197,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 					/>
 					<View style={styles.inputActions}>
 						<TouchableOpacity style={styles.inputAction}>
-							<CameraIcon
+							<ScanIcon
 								color="brand"
 								width={24}
 								onPress={(): void => Alert.alert('TODO')}

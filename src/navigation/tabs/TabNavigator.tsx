@@ -11,7 +11,7 @@ import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import BackupPrompt from '../../screens/Settings/Backup2/BackupPrompt';
-import { CameraIcon, Text02M, View } from '../../styles/components';
+import { ScanIcon, Text02M, View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
 import { receiveIcon, sendIcon } from '../../assets/icons/tabs';
 import { toggleView } from '../../store/actions/user';
@@ -176,7 +176,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 					onPress={openScanner}
 					activeOpacity={0.8}
 					style={[styles.tabScan, { borderColor: white08 }]}>
-					<CameraIcon width={32} height={32} />
+					<ScanIcon width={32} height={32} />
 				</TouchableOpacity>
 				<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
 					<Blur style={styles.tabReceive}>
