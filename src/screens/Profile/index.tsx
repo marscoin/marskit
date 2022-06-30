@@ -11,7 +11,7 @@ const ProfileScreen = ({ navigation }): ReactElement => {
 			<View style={styles.content}>
 				<Text style={styles.title}>Create your Slashtags Profile</Text>
 
-				<ScrollView></ScrollView>
+				<ScrollView />
 
 				<Button onPress={() => {}} text={'Create profile'} size={'lg'} />
 			</View>

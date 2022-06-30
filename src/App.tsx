@@ -60,12 +60,14 @@ const App = (): ReactElement => {
 	useEffect(() => {
 		(async () => {
 			const { error, data } = await getSlashtagsPrimaryKey(
-				wallets[selectedWallet]['seedHash'],
+				wallets[selectedWallet].seedHash,
 			);
-			if (error) return;
+			if (error) {
+				return;
+			}
 			setPrimaryKey(Buffer.from(data, 'hex'));
 		})();
-	}, [wallets[selectedWallet]['seedHash']]);
+	}, [wallets[selectedWallet].seedHash]);
 
 	return (
 		<ThemeProvider theme={currentTheme}>

@@ -181,6 +181,7 @@ export const getDisplayValues = ({
 			fiatDecimalValue,
 			fiatSymbol,
 			fiatTicker: currency,
+			fiatValue: Number(fiatValue),
 			bitcoinFormatted,
 			bitcoinSymbol,
 			bitcoinTicker,

@@ -1,18 +1,15 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { TouchableOpacity, View } from '../../../styles/components';
+import { TouchableOpacity, View, SwitchIcon } from '../../../styles/components';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { sendMax } from '../../../utils/wallet/transactions';
 import { Text02B } from '../../../styles/components';
 import { getStore } from '../../../store/helpers';
 import { updateSettings } from '../../../store/actions/settings';
-import { SvgXml } from 'react-native-svg';
 import { toggleView } from '../../../store/actions/user';
 import useDisplayValues from '../../../hooks/displayValues';
-import { switchIcon } from '../../../assets/icons/wallet';
 
-const switchIconXml = switchIcon('white');
 const AmountButtonRow = (): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -55,7 +52,7 @@ const AmountButtonRow = (): ReactElement => {
 						getStore().settings?.unitPreference === 'asset' ? 'fiat' : 'asset';
 					updateSettings({ unitPreference: newUnitPreference });
 				}}>
-				<SvgXml xml={switchIconXml} width={16.44} height={13.22} />
+				<SwitchIcon color="white" width={16.44} height={13.22} />
 				<Text02B style={styles.middleButtonText}>
 					{unitPreference === 'asset'
 						? displayValues.fiatTicker

@@ -29,6 +29,7 @@ import {
 	bitcoinCircleIcon,
 	tetherCircleIcon,
 	receivedIcon,
+	switchIcon,
 	sentIcon,
 	transferIcon,
 	coinsIcon,
@@ -50,6 +51,7 @@ import {
 	tagIcon,
 	shareIcon,
 	penIcon,
+	savingsIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -232,6 +234,13 @@ export const PenIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
+export const SavingsIcon = styled(SvgXml).attrs((props) => ({
+	xml: savingsIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
 export const BoostIcon = styled(SvgXml).attrs((props) => ({
 	xml: boost(),
 	width: props?.width ?? '39px',
@@ -350,6 +359,13 @@ export const TouchIdIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
+export const SwitchIcon = styled(SvgXml).attrs((props) => ({
+	xml: switchIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '16px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
 export const Logo = styled(SvgXml).attrs((props) => ({
 	xml: logo(
 		props?.color ? props.theme.colors[props.color] : props.theme.colors.brand,
@@ -383,7 +399,7 @@ export const DisplayHaas = styled(Display)`
 `;
 
 export const Headline = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+	...sanFranciscoWeights.bold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,

@@ -23,8 +23,12 @@ export const SlashtagsProvider = ({
 
 	useEffect(() => {
 		(async () => {
-			if (!primaryKey) return;
-			if (state.sdk) state.sdk.close();
+			if (!primaryKey) {
+				return;
+			}
+			if (state.sdk) {
+				state.sdk.close();
+			}
 
 			try {
 				const sdk: ISDK = await SDK.init({

@@ -41,6 +41,7 @@ export interface IDisplayValues {
 	fiatDecimalValue: string; // Value after decimal point
 	fiatSymbol: string; //$,€,£
 	fiatTicker: string; //USD, EUR
+	fiatValue: number;
 	bitcoinFormatted: string;
 	bitcoinSymbol: string; //₿, m₿, μ₿, ⚡,
 	bitcoinTicker: string; //BTC, mBTC, μBTC, Sats
@@ -54,6 +55,7 @@ export const defaultDisplayValues: IDisplayValues = {
 	fiatDecimalValue: '',
 	fiatSymbol: '',
 	fiatTicker: '',
+	fiatValue: 0,
 	bitcoinFormatted: '-',
 	bitcoinSymbol: '',
 	bitcoinTicker: '',
