@@ -41,8 +41,8 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 			amount = Math.round(Number(str));
 		}
 		// limit amount to 21 000 000 BTC
-		if (amount > 2.1e16) {
-			amount = sats;
+		if (amount > 2.1e15) {
+			amount = 2.1e15;
 		}
 		onChange(amount);
 	};
