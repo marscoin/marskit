@@ -5,21 +5,19 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import { LayoutAnimation, StyleSheet } from 'react-native';
+
 import {
 	Display,
 	Title,
 	View,
 	Pressable,
 	Headline,
+	SwitchIcon,
 } from '../styles/components';
-import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
 import { IDisplayValues } from '../utils/exchange-rate/types';
-import { SvgXml } from 'react-native-svg';
-import { switchIcon } from '../assets/icons/wallet';
-
-const switchIconXml = switchIcon();
 
 const FiatBalance = memo(
 	({
@@ -128,7 +126,7 @@ const BalanceToggle = ({
 		<Pressable onPress={onTogglePress} style={[styles.row, style]}>
 			<View color="transparent">{BalanceComponents}</View>
 			<View style={styles.switchIcon}>
-				<SvgXml xml={switchIconXml} width={15.44} height={12.22} />
+				<SwitchIcon width={15.44} height={12.22} />
 			</View>
 		</Pressable>
 	);

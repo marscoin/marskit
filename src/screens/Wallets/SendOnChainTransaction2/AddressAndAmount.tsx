@@ -5,7 +5,13 @@ import React, {
 	useEffect,
 	useMemo,
 } from 'react';
-import { StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
+import {
+	StyleSheet,
+	View,
+	Alert,
+	TouchableOpacity,
+	Keyboard,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -35,6 +41,7 @@ import { showErrorNotification } from '../../../utils/notifications';
 import { useTransactionDetails } from '../../../hooks/transaction';
 import useColors from '../../../hooks/colors';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
+import { toggleView } from '../../../store/actions/user';
 
 const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();
@@ -148,6 +155,17 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		[selectedWallet, selectedNetwork],
 	);
 
+	const onTogglePress = useCallback(() => {
+		Keyboard.dismiss(); // in case it was opened by Address input
+		toggleView({
+			view: 'numberPad',
+			data: {
+				isOpen: true,
+				snapPoint: 0,
+			},
+		}).then();
+	}, []);
+
 	useEffect(() => {
 		// try to update fees on this screen, because they will be used on next one
 		updateOnchainFeeEstimates({ selectedNetwork });
@@ -161,7 +179,11 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 				size="sm"
 			/>
 			<View style={styles.content}>
-				<AmountToggle sats={amount} style={styles.amountToggle} />
+				<AmountToggle
+					sats={amount}
+					onPress={onTogglePress}
+					style={styles.amountToggle}
+				/>
 				<Caption13Up color="gray1" style={styles.section}>
 					TO
 				</Caption13Up>
