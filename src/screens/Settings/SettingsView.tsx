@@ -20,16 +20,22 @@ const SettingsView = ({
 	listData,
 	showBackNavigation = true,
 	children,
+	childrenPosition = 'top',
 }: {
 	title: string;
 	listData?: IListData[];
 	showBackNavigation: boolean;
 	children?: ReactElement | ReactElement[] | undefined;
+	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
 	return (
 		<View style={styles.container} color="black">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
+
+			{children && childrenPosition === 'top' ? (
+				<View color="black">{children}</View>
+			) : null}
 
 			{listData ? (
 				<View style={styles.listContent} color="black">
@@ -37,7 +43,7 @@ const SettingsView = ({
 				</View>
 			) : null}
 
-			{children ? (
+			{children && childrenPosition === 'bottom' ? (
 				<View style={styles.childrenContent} color="black">
 					{children}
 				</View>
@@ -50,8 +56,10 @@ const SettingsView = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: 'rgba(255, 255, 255, 0)',
 	},
 	listContent: {
+		backgroundColor: 'rgba(255, 255, 255, 0)',
 		paddingHorizontal: 16,
 		flex: 1,
 	},
