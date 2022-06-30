@@ -108,7 +108,12 @@ const Input = ({
 	return (
 		<View style={{ marginBottom: 16 }}>
 			<Text style={styles.Label}>{label}</Text>
-			<View style={{ ...styles.input, ...(multiline ? { height: 92 } : {}) }}>
+			<View
+				style={
+					multiline
+						? StyleSheet.compose(styles.input, styles.multiline)
+						: styles.input
+				}>
 				<TextInput
 					style={{ backgroundColor: 'transparent', flex: 1 }}
 					defaultValue={value}
@@ -143,6 +148,9 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		backgroundColor: 'rgba(255, 255, 255, 0.08)',
 		boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.03)',
+	},
+	multiline: {
+		height: 96,
 	},
 	Label: {
 		fontWeight: '500',

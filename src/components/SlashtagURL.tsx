@@ -1,10 +1,17 @@
 import React from 'react';
+import { StyleSheet, ViewStyle } from 'react-native';
 import { Text } from '../styles/components';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
 import colors from '../styles/colors';
 
-export const SlashtagURL = ({ url, style }: { url?: string; style?: any }) => {
+export const SlashtagURL = ({
+	url,
+	style,
+}: {
+	url?: string;
+	style?: ViewStyle;
+}) => {
 	return (
 		<TouchableOpacity
 			onLongPress={async () => {
@@ -13,20 +20,30 @@ export const SlashtagURL = ({ url, style }: { url?: string; style?: any }) => {
 					console.debug('Copied slashtag url:', url);
 				}
 			}}
-			style={{ ...style, display: 'flex', flexDirection: 'row' }}
+			style={StyleSheet.compose(style, styles.button)}
 			activeOpacity={0.8}
 			delayLongPress={500}>
-			<Text style={{ ...styles.url, opacity: 0.7 }}>@</Text>
-			<Text style={{ ...styles.url, fontWeight: '800' }}>
+			<Text style={styles.at}>@</Text>
+			<Text style={styles.url}>
 				{url?.slice(8, 13)}...{url?.slice(url.length - 6, -1)}
 			</Text>
 		</TouchableOpacity>
 	);
 };
 
-const styles = {
+const styles = StyleSheet.create({
+	button: {
+		display: 'flex',
+		flexDirection: 'row',
+	},
 	url: {
 		color: colors.brand,
 		fontSize: 15,
+		fontWeight: '800',
 	},
-};
+	at: {
+		color: colors.brand,
+		fontSize: 15,
+		opacity: 0.7,
+	},
+});

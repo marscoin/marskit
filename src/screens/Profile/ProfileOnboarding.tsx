@@ -10,7 +10,7 @@ import { StyleSheet } from 'react-native';
 
 export const ProfileOnboarding = ({ navigation }) => {
 	return (
-		<GlowingBackground topLeft="#f60">
+		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader title="Profile" />
 			<View style={styles.content}>
@@ -19,17 +19,10 @@ export const ProfileOnboarding = ({ navigation }) => {
 					style={styles.illustration}
 				/>
 				<TitleHaas style={styles.headline}>Own your</TitleHaas>
-				<TitleHaas style={{ ...styles.headline, color: '#f60' }}>
+				<TitleHaas color="brand" style={styles.headline}>
 					own Profile.
 				</TitleHaas>
-				<Text
-					style={{
-						marginTop: 8,
-						fontSize: 17,
-						lineHeight: 22,
-						color: '#8E8E93',
-						flex: 1,
-					}}>
+				<Text color="gray1" style={styles.introText}>
 					Use Slashtags to take control of your profile. A sovereign way to
 					manage your identity.
 				</Text>
@@ -68,6 +61,12 @@ const styles = StyleSheet.create({
 	headline: {
 		fontSize: 48,
 		lineHeight: 48,
+	},
+	introText: {
+		marginTop: 8,
+		fontSize: 17,
+		lineHeight: 22,
+		flex: 1,
 	},
 	button: {
 		fontWeight: '800',

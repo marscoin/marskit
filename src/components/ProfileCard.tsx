@@ -23,7 +23,7 @@ export const ProfileCard = ({
 								{truncate(name, 16)}
 							</TitleHaas>
 						))}
-					<SlashtagURL style={{ marginTop: 16 }} url={profile?.id} />
+					<SlashtagURL style={styles.url} url={profile?.id} />
 				</View>
 				<ProfileImage profile={profile} size={96}></ProfileImage>
 			</View>
@@ -59,6 +59,9 @@ const styles = {
 	actions: {
 		display: 'flex',
 		flexDirection: 'row',
+	},
+	url: {
+		marginTop: 16,
 	},
 };
 
