@@ -80,7 +80,8 @@ export const ProfileEdit = ({
 					text="Save profile"
 					size="large"
 					onPress={async () => {
-						const toSave = { ...form, image };
+						const toSave = form || {};
+						if (image) toSave.image = image;
 
 						if (JSON.stringify(toSave) !== JSON.stringify(profile)) {
 							await slashtag?.setProfile({ ...profile, ...toSave });
