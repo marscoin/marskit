@@ -3,7 +3,6 @@ import {
 	CopyIcon,
 	InfoIcon,
 	PencileIcon,
-	PenIcon,
 	QrPage,
 	ShareIcon,
 	Text,
@@ -24,14 +23,14 @@ import { BasicProfile } from '../../store/types/slashtags';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-export const Profile = ({ navigation }) => {
+export const Profile = ({ navigation }): JSX.Element => {
 	const visitedProfile = useSelector(
 		(store: Store) => store.slashtags.visitedProfile,
 	);
 
 	const [view, setView] = useState('qr');
 
-	function switchView() {
+	function switchView(): void {
 		view === 'details' ? setView('qr') : setView('details');
 	}
 
@@ -47,13 +46,13 @@ export const Profile = ({ navigation }) => {
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
 						<IconButton
-							onPress={() => {
+							onPress={(): void => {
 								profile?.id && Clipboard.setString(profile.id);
 							}}>
 							<CopyIcon height={24} width={24} color="brand" />
 						</IconButton>
 						<IconButton
-							onPress={() => {
+							onPress={(): void => {
 								profile?.id &&
 									Share.share({
 										title: 'Share Slashtag url',
@@ -63,7 +62,7 @@ export const Profile = ({ navigation }) => {
 							<ShareIcon height={24} width={24} color="brand" />
 						</IconButton>
 						<IconButton
-							onPress={() => {
+							onPress={(): void => {
 								navigation.navigate('ProfileEdit');
 							}}>
 							<PencileIcon height={24} width={24} color="brand" />
@@ -76,7 +75,7 @@ export const Profile = ({ navigation }) => {
 							)}
 						</IconButton>
 						<IconButton
-							onPress={() => {
+							onPress={(): void => {
 								navigation.navigate('Contacts');
 							}}>
 							<UsersIcon height={24} width={24} color="brand" />
@@ -93,7 +92,8 @@ export const Profile = ({ navigation }) => {
 					textStyle={styles.button}
 					size="large"
 					text={view === 'details' ? 'Show QR code' : 'Profile details'}
-					onPress={switchView}></Button>
+					onPress={switchView}
+				/>
 			</View>
 		</View>
 	) : (
@@ -107,7 +107,7 @@ const IconButton = ({
 }: {
 	children?: any;
 	onPress?: () => void;
-}) => {
+}): JSX.Element => {
 	return (
 		<TouchableOpacity
 			activeOpacity={0.7}
@@ -118,18 +118,11 @@ const IconButton = ({
 	);
 };
 
-const QRView = ({ profile }: { profile?: BasicProfile }) => {
+const QRView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
 	const { width } = useWindowDimensions();
 	return (
-		<View
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'center',
-				flex: 1,
-			}}>
-			<View style={{ borderRadius: 10, overflow: 'hidden' }}>
+		<View style={styles.qrViewContainer}>
+			<View style={styles.qrContainer}>
 				<QR
 					value={profile?.id}
 					size={(width * 2) / 3}
@@ -141,31 +134,21 @@ const QRView = ({ profile }: { profile?: BasicProfile }) => {
 					quietZone={20}
 				/>
 			</View>
-			<Text style={{ marginTop: 16, fontSize: 15, lineHeight: 20 }}>
-				Scan to add {profile?.name}
-			</Text>
+			<Text style={styles.qrViewNote}>Scan to add {profile?.name}</Text>
 		</View>
 	);
 };
 
-const DetailsView = ({ profile }: { profile?: BasicProfile }) => {
+const DetailsView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
 	const excludedKeys = ['name', 'image', 'id', 'about'];
 	const entries = profile
-		? Object.entries(profile).filter(
-				(entry) => !excludedKeys.includes(entry[0]),
-		  )
+		? Object.entries(profile).filter((e) => !excludedKeys.includes(e[0]))
 		: [];
 
 	return (
-		<View
-			style={{
-				display: 'flex',
-				flex: 1,
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}>
+		<View style={styles.detailsViewContainer}>
 			{entries.length === 0 ? (
-				<Text style={{ opacity: 0.5 }}>No details added yet...</Text>
+				<Text style={styles.detailsViewNote}>No details added yet...</Text>
 			) : (
 				entries.map(([key, value]) => (
 					<View>
@@ -188,13 +171,6 @@ const styles = StyleSheet.create({
 		margin: 20,
 		marginTop: 0,
 		backgroundColor: 'transparent',
-	},
-	title: {
-		fontSize: 18,
-		marginBottom: 20,
-	},
-	slashtag: {
-		fontSize: 10,
 	},
 	divider: {
 		height: 2,
@@ -224,6 +200,31 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
+	},
+	qrViewContainer: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+		flex: 1,
+	},
+	qrContainer: {
+		borderRadius: 10,
+		overflow: 'hidden',
+	},
+	qrViewNote: {
+		marginTop: 16,
+		fontSize: 15,
+		lineHeight: 20,
+	},
+	detailsViewContainer: {
+		display: 'flex',
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	detailsViewNote: {
+		opacity: 0.5,
 	},
 });
 

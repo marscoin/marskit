@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { View } from '../../styles/components';
 import { Alert, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -65,7 +65,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 			);
 		}
 
-		const { qrDataType, address, sats: amount, message, network, url } = data;
+		const { qrDataType, address, sats: amount, message, network } = data;
 
 		switch (qrDataType) {
 			case EQRDataType.bitcoinAddress: {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, ViewStyle } from 'react-native';
 import jdenticon, { JdenticonConfig } from 'jdenticon';
 import { SvgXml } from 'react-native-svg';
 

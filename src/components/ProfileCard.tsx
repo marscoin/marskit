@@ -25,7 +25,7 @@ export const ProfileCard = ({
 						))}
 					<SlashtagURL style={styles.url} url={profile?.id} />
 				</View>
-				<ProfileImage profile={profile} size={96}></ProfileImage>
+				<ProfileImage profile={profile} size={96} />
 			</View>
 
 			<Text style={styles.about}>

@@ -24,9 +24,7 @@ const Introduction = ({ navigation }): ReactElement => {
 				<View color="transparent" style={styles.textContent}>
 					<DisplayHaas>
 						Instant{' '}
-						<DisplayHaas style={styles.headline2}>
-							payments.
-						</DisplayHaas>
+						<DisplayHaas style={styles.headline2}>payments.</DisplayHaas>
 					</DisplayHaas>
 					<Text01S color="gray1" style={styles.text}>
 						Open a Lightning connection and send or receive bitcoin instantly.

@@ -8,7 +8,7 @@ import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
 
-export const ProfileOnboarding = ({ navigation }) => {
+export const ProfileOnboarding = ({ navigation }): JSX.Element => {
 	return (
 		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />
@@ -30,22 +30,16 @@ export const ProfileOnboarding = ({ navigation }) => {
 					textStyle={styles.button}
 					text="Continue"
 					size="large"
-					onPress={() => {
+					onPress={(): void => {
 						navigation.navigate('ProfileEdit');
-					}}></Button>
+					}}
+				/>
 			</View>
 		</GlowingBackground>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		display: 'flex',
-		flexDirection: 'column',
-		backgroundColor: 'transparent',
-		padding: 10,
-		flex: 1,
-	},
 	content: {
 		flex: 1,
 		justifyContent: 'space-between',

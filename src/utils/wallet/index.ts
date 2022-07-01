@@ -27,7 +27,7 @@ import {
 	IFormattedTransactionContent,
 	TAssetNetwork,
 } from '../../store/types/wallet';
-import { err, ok, Result } from '../result';
+import { Err, err, Ok, ok, Result } from '../result';
 import {
 	IGetAddress,
 	IGenerateAddresses,
@@ -328,14 +328,16 @@ export const getPrivateKey = async ({
 	}
 };
 
-const slashtagsPrimaryKeyKeyChainName = (seedHash: string = '') =>
+const slashtagsPrimaryKeyKeyChainName = (seedHash: string = ''): string =>
 	'SLASHTAGS_PRIMARYKEY/' + seedHash;
 
-export const getSlashtagsPrimaryKey = async (seedHash: string) => {
+export const getSlashtagsPrimaryKey = async (
+	seedHash: string,
+): Promise<{ error: boolean; data: string }> => {
 	return getKeychainValue({ key: slashtagsPrimaryKeyKeyChainName(seedHash) });
 };
 
-export const slashtagsPrimaryKey = async (seed: Buffer) => {
+export const slashtagsPrimaryKey = async (seed: Buffer): Promise<string> => {
 	const network = networks.bitcoin;
 	const root = bip32.fromSeed(seed, network);
 
@@ -345,7 +347,7 @@ export const slashtagsPrimaryKey = async (seed: Buffer) => {
 	return keyPair.privateKey?.toString('hex') as string;
 };
 
-const setKeychainSlashtagsPrimaryKey = async (seed: Buffer) => {
+const setKeychainSlashtagsPrimaryKey = async (seed: Buffer): Promise<void> => {
 	const primaryKey = await slashtagsPrimaryKey(seed);
 	setKeychainValue({
 		key: slashtagsPrimaryKeyKeyChainName(seedHash(seed)),
@@ -353,7 +355,7 @@ const setKeychainSlashtagsPrimaryKey = async (seed: Buffer) => {
 	});
 };
 
-export const seedHash = (seed: Buffer) =>
+export const seedHash = (seed: Buffer): string =>
 	bitcoin.crypto
 		.sha256(Buffer.concat([BITKIT_WALLET_SEED_HASH_PREFIX, seed]))
 		.toString('hex');
@@ -577,7 +579,9 @@ export const getBip39Passphrase = async (wallet = ''): Promise<string> => {
 	}
 };
 
-export const getSeed = async (selectedWallet: string) => {
+export const getSeed = async (
+	selectedWallet: string,
+): Promise<Err<Error> | Ok<Buffer>> => {
 	const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
 	if (getMnemonicPhraseResponse.isErr()) {
 		return err(getMnemonicPhraseResponse.error.message);

@@ -3,27 +3,24 @@ import { CameraIcon, Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import { useSlashtags } from '../../hooks/slashtags';
-import type { SDK } from '@synonymdev/slashtags-sdk/types/src/index';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { BasicProfile } from '../../store/types/slashtags';
-import { InteractionManager, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { setVisitedProfile } from '../../store/actions/slashtags';
 import ProfileImage from '../../components/ProfileImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 export const ProfileEdit = ({
 	navigation,
 }: {
-	slashtag?: ReturnType<SDK['slashtag']>;
 	navigation: any;
-	profile: BasicProfile;
-}) => {
+}): JSX.Element => {
 	const [form, setForm] = useState<BasicProfile | null>(null);
 
 	const { slashtag, profile } = useSlashtags();
 
-	const setField = (key, value) => setForm({ ...form, [key]: value });
+	const setField = (key, value): void => setForm({ ...form, [key]: value });
 
 	const [image, setImage] = useState<string | null>(null);
 
@@ -39,56 +36,57 @@ export const ProfileEdit = ({
 					</Text>
 					<TouchableOpacity
 						activeOpacity={0.8}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-						onPress={async () => {
+						style={styles.editImageButton}
+						onPress={async (): Promise<void> => {
 							const result = await launchImageLibrary({
 								mediaType: 'photo',
 								includeBase64: true,
 								quality: 0.1,
 							});
-							const image = result.assets?.[0].base64;
+							const base64 = result.assets?.[0].base64;
 							const type = result.assets?.[0].type;
-							image && setImage(`data:${type};base64,` + image);
+							base64 && setImage(`data:${type};base64,` + base64);
 						}}>
-						<CameraIcon style={{ position: 'absolute', zIndex: 99999 }} />
+						<CameraIcon style={styles.cameraIcon} />
 						<ProfileImage
 							size={96}
 							profile={{
 								...profile,
 								...(image && { image }),
 							}}
-							style={{ opacity: 0.6 }}
+							style={styles.profileImage}
 						/>
 					</TouchableOpacity>
 				</View>
-				<View style={{ flex: 1 }}>
+				<View style={styles.column}>
 					<Input
 						label="Profile name"
 						value={profile?.name}
-						onChange={(val) => setField('name', val)}></Input>
+						onChange={(val): void => setField('name', val)}
+					/>
 					<Input
 						label="About"
 						value={profile?.about}
 						multiline={true}
-						onChange={(val) => setField('about', val)}></Input>
+						onChange={(val): void => setField('about', val)}
+					/>
 				</View>
 				<Button
 					text="Save profile"
 					size="large"
-					onPress={async () => {
+					onPress={async (): Promise<void> => {
 						const toSave = form || {};
-						if (image) toSave.image = image;
+						if (image) {
+							toSave.image = image;
+						}
 
 						if (JSON.stringify(toSave) !== JSON.stringify(profile)) {
 							await slashtag?.setProfile({ ...profile, ...toSave });
 						}
 						setVisitedProfile(true);
 						navigation.goBack();
-					}}></Button>
+					}}
+				/>
 			</View>
 		</View>
 	);
@@ -104,9 +102,9 @@ const Input = ({
 	multiline?: boolean;
 	value?: string;
 	onChange: (value: string) => void;
-}) => {
+}): JSX.Element => {
 	return (
-		<View style={{ marginBottom: 16 }}>
+		<View style={styles.inputContainer}>
 			<Text style={styles.Label}>{label}</Text>
 			<View
 				style={
@@ -115,14 +113,15 @@ const Input = ({
 						: styles.input
 				}>
 				<TextInput
-					style={{ backgroundColor: 'transparent', flex: 1 }}
+					style={styles.inputText}
 					defaultValue={value}
 					color={'white'}
 					autoCapitalize="none"
 					autoCorrect={false}
 					placeholder={label}
 					onChangeText={onChange}
-					multiline={multiline || false}></TextInput>
+					multiline={multiline || false}
+				/>
 			</View>
 		</View>
 	);
@@ -160,21 +159,6 @@ const styles = StyleSheet.create({
 		color: '#8E8E93',
 		marginBottom: 8,
 	},
-	divider: {
-		height: 2,
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
-
-		marginTop: 16,
-		marginBottom: 16,
-	},
-	bottom: {
-		flex: 1,
-		display: 'flex',
-		flexDirection: 'column',
-	},
-	button: {
-		fontWeight: '800',
-	},
 	topRow: {
 		display: 'flex',
 		flexDirection: 'row',
@@ -188,6 +172,28 @@ const styles = StyleSheet.create({
 		color: '#8E8E93',
 		flex: 1,
 		paddingRight: 20,
+	},
+	editImageButton: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	cameraIcon: {
+		position: 'absolute',
+		zIndex: 99999,
+	},
+	profileImage: {
+		opacity: 0.6,
+	},
+	column: {
+		flex: 1,
+	},
+	inputContainer: {
+		marginBottom: 16,
+	},
+	inputText: {
+		backgroundColor: 'transparent',
+		flex: 1,
 	},
 });
 

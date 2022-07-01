@@ -16,7 +16,7 @@ import { resetLightningStore } from '../../../store/actions/lightning';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
 import { resetSlashtagsStore } from '../../../store/actions/slashtags';
-import { storage } from '../../../store/mmkv-storage';
+import { clearSlashtagsStorage } from '../../../components/SlashtagsProvider';
 
 const SettingsMenu = ({}): ReactElement => {
 	const selectedWallet = useSelector(
@@ -81,12 +81,7 @@ const SettingsMenu = ({}): ReactElement => {
 					{
 						title: 'Clear Slashtags storage',
 						type: 'button',
-						onPress: () => {
-							const keys = storage.getAllKeys();
-							for (let key of keys) {
-								key.startsWith('core') && storage.delete(key);
-							}
-						},
+						onPress: () => clearSlashtagsStorage(),
 						hide: false,
 					},
 					{

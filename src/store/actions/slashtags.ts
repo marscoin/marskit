@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { ok, Result } from '../../utils/result';
+import { Ok, ok, Result } from '../../utils/result';
 
 const dispatch = getDispatch();
 
@@ -12,7 +12,7 @@ export const setVisitedProfile = (visitedProfile = true): Result<string> => {
 	return ok('Set visited profile to: ' + visitedProfile);
 };
 
-export const resetSlashtagsStore = () => {
+export const resetSlashtagsStore = (): Ok<string> => {
 	dispatch({ type: actions.RESET_SLASHTAGS_STORE });
 	return ok('Reset slashtags store successfully');
 };

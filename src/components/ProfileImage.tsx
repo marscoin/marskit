@@ -19,7 +19,9 @@ export const ProfileImage = ({
 		...style,
 	};
 
-	if (!profile?.id) return <View style={_style} />;
+	if (!profile?.id) {
+		return <View style={_style} />;
+	}
 
 	return (
 		<View style={_style}>

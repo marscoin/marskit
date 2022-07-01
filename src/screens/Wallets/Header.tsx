@@ -35,7 +35,8 @@ const Header = (): ReactElement => {
 					<ProfileImage
 						size={32}
 						profile={profile}
-						style={{ marginRight: 16 }}></ProfileImage>
+						style={styles.profileImage}
+					/>
 					{profile?.name ? (
 						<TitleHaas>{truncate(profile?.name, 20)}</TitleHaas>
 					) : (
@@ -99,6 +100,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'flex-end',
 		alignItems: 'center',
+	},
+	profileImage: {
+		marginRight: 16,
 	},
 });
 

@@ -19,9 +19,17 @@ const RAWS = RAWSFactory({
 	},
 });
 
+export const clearSlashtagsStorage = (): void => {
+	const keys = mmkv.getAllKeys();
+	for (let key of keys) {
+		key.startsWith('core') && mmkv.delete(key);
+	}
+};
+
+export type Slashtag = ReturnType<ISDK['slashtag']>;
 export interface ISlashtagsContext {
 	sdk: ISDK;
-	slashtag: ReturnType<ISDK['slashtag']>;
+	slashtag: Slashtag;
 	profile: BasicProfile;
 }
 
@@ -33,16 +41,13 @@ export const SlashtagsProvider = ({
 	primaryKey: Buffer | null | Promise<Buffer | null>;
 	onError: (error: Error) => void;
 	children: ReactElement[];
-}) => {
+}): JSX.Element => {
 	const [state, setState] = useState<Partial<ISlashtagsContext>>({});
 
 	useEffect(() => {
-		(async () => {
+		(async (): Promise<undefined | (() => void)> => {
 			if (!primaryKey) {
 				return;
-			}
-			if (state.sdk) {
-				state.sdk.close();
 			}
 
 			try {
@@ -56,22 +61,23 @@ export const SlashtagsProvider = ({
 
 				const slashtag = sdk.slashtag();
 
-				setState({ sdk, slashtag, profile: await profile(slashtag) });
+				setState({ sdk, slashtag, profile: await profile() });
 
 				// Watch public drive updates
 				slashtag?.publicDrive?.on('update', onUpdate);
 
 				return () => {
 					slashtag?.removeListener('update', onUpdate);
+					sdk?.close();
 				};
 
-				async function onUpdate({ key }: { key: string }) {
+				async function onUpdate({ key }: { key: string }): Promise<void> {
 					if (key === 'profile.json') {
-						setState({ sdk, slashtag, profile: await profile(slashtag) });
+						setState({ sdk, slashtag, profile: await profile() });
 					}
 				}
 
-				async function profile(slashtag) {
+				async function profile(): Promise<BasicProfile> {
 					return {
 						id: slashtag.url.toString(),
 						...((await slashtag.getProfile()) as BasicProfile),
@@ -81,7 +87,7 @@ export const SlashtagsProvider = ({
 				onError(error as Error);
 			}
 		})();
-	}, [primaryKey]);
+	}, [primaryKey, onError]);
 
 	return (
 		<SlashtagsContext.Provider value={state}>
