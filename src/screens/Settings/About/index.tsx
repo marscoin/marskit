@@ -65,9 +65,13 @@ const AboutSettings = ({ navigation }): ReactElement => {
 				Your mobile toolkit for a new economy, based on Bitcoin.
 			</Text>
 			<Text style={styles.textIntro}>
-				This Orange Pill was carefully crafted by: John, Reza, Paulo, Corey,
-				Jason, Gr0kchain, Ar, Ivan, Instabot, Aldert, Sasha, Auwal, Miguel &
-				Pavel from Synonym Software Ltd.
+				This{' '}
+				<Text onPress={(): void => navigation.navigate('EasterEgg')}>
+					Orange Pill
+				</Text>{' '}
+				was carefully crafted by: John, Reza, Paulo, Corey, Jason, Gr0kchain,
+				Ar, Ivan, Instabot, Aldert, Sasha, Auwal, Miguel & Pavel from Synonym
+				Software Ltd.
 			</Text>
 		</SettingsView>
 	);

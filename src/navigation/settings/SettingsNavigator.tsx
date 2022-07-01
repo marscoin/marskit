@@ -23,6 +23,7 @@ import BackupMenu from '../../screens/Settings/BackupMenu';
 import NetworksSettings from '../../screens/Settings/Networks';
 import AdvancedSettings from '../../screens/Settings/Advanced';
 import AboutSettings from '../../screens/Settings/About';
+import EasterEgg from '../../screens/Settings/EasterEgg';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,7 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen name="NetworksSettings" component={NetworksSettings} />
 				<Stack.Screen name="AdvancedSettings" component={AdvancedSettings} />
 				<Stack.Screen name="AboutSettings" component={AboutSettings} />
+				<Stack.Screen name="EasterEgg" component={EasterEgg} />
 
 				<Stack.Screen
 					name="CurrenciesSettings"
