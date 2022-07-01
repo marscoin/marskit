@@ -5,26 +5,41 @@ import SettingsView from '../SettingsView';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
-import { TBitcoinUnit } from '../../../store/types/wallet';
-import { capitalize } from '../../../utils/helpers';
+
+import BitcoinUnitBtcSVG from '../../../assets/icons/bitcoin-unit-btc.svg';
+import BitcoinUnitSatoshisSVG from '../../../assets/icons/bitcoin-unit-satoshis.svg';
 
 const BitcoinSettings = (): ReactElement => {
 	const selectedBitcoinUnit = useSelector(
 		(state: Store) => state.settings.bitcoinUnit,
 	);
 
-	const bitcoinUnits: TBitcoinUnit[] = ['BTC', 'satoshi'];
+	const bitcoinUnits = [
+		{
+			label: 'Bitcoin',
+			unit: 'BTC',
+			labelExample: '(0.0001000)',
+			Icon: BitcoinUnitBtcSVG,
+		},
+		{
+			label: 'Satoshis',
+			unit: 'satoshi',
+			labelExample: '(1 000)',
+			Icon: BitcoinUnitSatoshisSVG,
+		},
+	];
 
 	const CurrencyListData: IListData[] = useMemo(
 		() => [
 			{
-				title: 'Bitcoin display unit',
-				data: bitcoinUnits.map((unit) => ({
-					title: capitalize(unit),
-					value: unit === selectedBitcoinUnit,
+				title: 'Display Bitcoin amounts as',
+				data: bitcoinUnits.map((bitcoinUnit) => ({
+					title: `${bitcoinUnit.label} ${bitcoinUnit.labelExample}`,
+					value: bitcoinUnit.unit === selectedBitcoinUnit,
 					type: 'button',
-					onPress: (): any => updateSettings({ bitcoinUnit: unit }),
+					onPress: (): any => updateSettings({ bitcoinUnit: bitcoinUnit.unit }),
 					hide: false,
+					Icon: bitcoinUnit.Icon,
 				})),
 			},
 		],
@@ -34,7 +49,7 @@ const BitcoinSettings = (): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Bitcoin'}
+			title={'Bitcoin unit'}
 			listData={CurrencyListData}
 			showBackNavigation
 		/>

@@ -19,7 +19,7 @@ const General = ({ navigation }): ReactElement => {
 
 	const unitsBitcoin = {
 		satoshi: 'Satoshis',
-		bitcoin: 'Bitcoin',
+		BTC: 'Bitcoin',
 	};
 
 	const SettingsListData: IListData[] = useMemo(
@@ -66,7 +66,7 @@ const General = ({ navigation }): ReactElement => {
 			},
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[hasPin],
+		[hasPin, selectedBitcoinUnit],
 	);
 
 	return (
