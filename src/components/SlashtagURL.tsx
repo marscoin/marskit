@@ -11,10 +11,10 @@ export const SlashtagURL = ({
 }: {
 	url?: string;
 	style?: ViewStyle;
-}) => {
+}): JSX.Element => {
 	return (
 		<TouchableOpacity
-			onLongPress={async () => {
+			onLongPress={async (): Promise<void> => {
 				if (url) {
 					Clipboard.setString(url);
 					console.debug('Copied slashtag url:', url);

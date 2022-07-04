@@ -10,7 +10,7 @@ export const Jdenticon = ({
 	value: string;
 	size: number;
 	config?: JdenticonConfig;
-}) => {
+}): JSX.Element => {
 	const svg = jdenticon.toSvg(value, size, config);
 	return <SvgXml xml={svg} />;
 };

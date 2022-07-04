@@ -11,7 +11,7 @@ export const ProfileImage = ({
 	profile?: BasicProfile;
 	style?: ViewStyle;
 	size: number;
-}) => {
+}): JSX.Element => {
 	const _style: ViewStyle = {
 		backgroundColor: '#222',
 		borderRadius: size,

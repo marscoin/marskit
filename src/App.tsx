@@ -72,7 +72,7 @@ const App = (): ReactElement => {
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
 				primaryKey={primaryKey}
-				onError={(error) =>
+				onError={(error): void =>
 					showErrorNotification({
 						title: 'SlashtagsProvider Error',
 						message: error.message,

@@ -51,6 +51,8 @@ import {
 	scanIcon,
 	cameraIcon,
 	savingsIcon,
+	trashIcon,
+	plusIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -742,5 +744,19 @@ export const CameraIcon = styled(SvgXml).attrs((props) => ({
 	xml: cameraIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const TrashIcon = styled(SvgXml).attrs((props) => ({
+	xml: trashIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '32px',
+	width: props.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const PlusIcon = styled(SvgXml).attrs((props) => ({
+	xml: plusIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '32px',
+	width: props.width ?? '32px',
 	color: undefined,
 }))({});

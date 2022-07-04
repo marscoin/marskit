@@ -22,6 +22,7 @@ import QR from 'react-native-qrcode-svg';
 import { BasicProfile } from '../../store/types/slashtags';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
+import ProfileDetails from '../../components/ProfileDetails';
 
 export const Profile = ({ navigation }): JSX.Element => {
 	const visitedProfile = useSelector(
@@ -45,6 +46,13 @@ export const Profile = ({ navigation }): JSX.Element => {
 				<View style={styles.divider} />
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
+						<IconButton onPress={switchView}>
+							{view === 'qr' ? (
+								<InfoIcon height={24} width={24} color="brand" />
+							) : (
+								<QrPage height={24} width={24} color="brand" />
+							)}
+						</IconButton>
 						<IconButton
 							onPress={(): void => {
 								profile?.id && Clipboard.setString(profile.id);
@@ -67,13 +75,6 @@ export const Profile = ({ navigation }): JSX.Element => {
 							}}>
 							<PencileIcon height={24} width={24} color="brand" />
 						</IconButton>
-						<IconButton onPress={switchView}>
-							{view === 'qr' ? (
-								<InfoIcon height={24} width={24} color="brand" />
-							) : (
-								<QrPage height={24} width={24} color="brand" />
-							)}
-						</IconButton>
 						<IconButton
 							onPress={(): void => {
 								navigation.navigate('Contacts');
@@ -82,7 +83,7 @@ export const Profile = ({ navigation }): JSX.Element => {
 						</IconButton>
 					</View>
 					{view === 'details' ? (
-						<DetailsView profile={profile} />
+						<ProfileDetails profile={profile} style={styles.profileDetails} />
 					) : (
 						<QRView profile={profile} />
 					)}
@@ -139,28 +140,6 @@ const QRView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
 	);
 };
 
-const DetailsView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
-	const excludedKeys = ['name', 'image', 'id', 'about'];
-	const entries = profile
-		? Object.entries(profile).filter((e) => !excludedKeys.includes(e[0]))
-		: [];
-
-	return (
-		<View style={styles.detailsViewContainer}>
-			{entries.length === 0 ? (
-				<Text style={styles.detailsViewNote}>No details added yet...</Text>
-			) : (
-				entries.map(([key, value]) => (
-					<View>
-						<Text>{key}</Text>
-						<Text>{value}</Text>
-					</View>
-				))
-			)}
-		</View>
-	);
-};
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
@@ -195,11 +174,11 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
+		marginRight: 16,
 	},
 	bottomHeader: {
 		display: 'flex',
 		flexDirection: 'row',
-		justifyContent: 'space-between',
 	},
 	qrViewContainer: {
 		display: 'flex',
@@ -217,14 +196,8 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		lineHeight: 20,
 	},
-	detailsViewContainer: {
-		display: 'flex',
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	detailsViewNote: {
-		opacity: 0.5,
+	profileDetails: {
+		marginTop: 32,
 	},
 });
 

@@ -10,7 +10,7 @@ export const ProfileCard = ({
 }: {
 	id?: string;
 	profile?: BasicProfile;
-}) => {
+}): JSX.Element => {
 	return (
 		<View style={styles.container}>
 			<View style={styles.row}>
@@ -28,9 +28,7 @@ export const ProfileCard = ({
 				<ProfileImage profile={profile} size={96} />
 			</View>
 
-			<Text style={styles.about}>
-				{profile?.about?.slice(0, 160) || 'About ...'}
-			</Text>
+			<Text style={styles.bio}>{profile?.bio?.slice(0, 160) || 'Bio ...'}</Text>
 		</View>
 	);
 };
@@ -51,7 +49,7 @@ const styles = {
 		fontSize: 34,
 		lineHeight: 34,
 	},
-	about: {
+	bio: {
 		fontSize: 22,
 		lineHeight: 26,
 		color: '#8E8E93',
