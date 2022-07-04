@@ -8,7 +8,6 @@ import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import DevSettings from '../../screens/Settings/DevSettings';
-import BackupSettings from '../../screens/Settings/Backup';
 import ExportBackups from '../../screens/Settings/Backup/Export';
 import Seeds from '../../screens/Settings/Backup/Seeds';
 import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
@@ -18,6 +17,12 @@ import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInf
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinSettings from '../../screens/Settings/Currencies/Bitcoin';
 import AuthCheck from '../../components/AuthCheck';
+import GeneralSettings from '../../screens/Settings/General';
+import SecuritySettings from '../../screens/Settings/Security';
+import BackupMenu from '../../screens/Settings/BackupMenu';
+import NetworksSettings from '../../screens/Settings/Networks';
+import AdvancedSettings from '../../screens/Settings/Advanced';
+import AboutSettings from '../../screens/Settings/About';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +38,14 @@ const SettingsNavigator = (): ReactElement => {
 		<Stack.Navigator screenOptions={navOptions} initialRouteName="SettingsMenu">
 			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
+
+				<Stack.Screen name="GeneralSettings" component={GeneralSettings} />
+				<Stack.Screen name="SecuritySettings" component={SecuritySettings} />
+				<Stack.Screen name="BackupMenu" component={BackupMenu} />
+				<Stack.Screen name="NetworksSettings" component={NetworksSettings} />
+				<Stack.Screen name="AdvancedSettings" component={AdvancedSettings} />
+				<Stack.Screen name="AboutSettings" component={AboutSettings} />
+
 				<Stack.Screen
 					name="CurrenciesSettings"
 					component={CurrenciesSettings}
@@ -50,7 +63,6 @@ const SettingsNavigator = (): ReactElement => {
 					component={AddressTypePreference}
 				/>
 				<Stack.Screen name="DevSettings" component={DevSettings} />
-				<Stack.Screen name="BackupSettings" component={BackupSettings} />
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
 				<Stack.Screen name="Seeds" component={Seeds} />
 				<Stack.Screen name="ViewSeed" component={ViewSeed} />

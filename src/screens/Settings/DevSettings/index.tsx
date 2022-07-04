@@ -22,6 +22,12 @@ const SettingsMenu = ({}): ReactElement => {
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
+	const remoteBackupSynced = useSelector(
+		(state: Store) => state.backup.backpackSynced,
+	);
+	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
+
+	const hasPin = useSelector((state: Store) => state.settings.pin);
 
 	const SettingsListData: IListData[] = useMemo(
 		() => [
@@ -109,7 +115,8 @@ const SettingsMenu = ({}): ReactElement => {
 				],
 			},
 		],
-		[selectedWallet],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[hasPin, remoteBackupSynced, selectedWallet, rbf],
 	);
 
 	return (
