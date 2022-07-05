@@ -3,10 +3,13 @@ import { View, Image, StyleSheet, Share } from 'react-native';
 
 import Button from '../../../components/Button';
 import GlowingBackground from '../../../components/GlowingBackground';
+import useColors from '../../../hooks/colors';
 import { Display } from '../../../styles/components';
 import SettingsView from './../SettingsView';
 
 const EasterEgg = (): ReactElement => {
+	const { brand } = useColors();
+
 	const onShare = async (): Promise<void> => {
 		await Share.share({
 			title: 'Bitkit',
@@ -14,7 +17,7 @@ const EasterEgg = (): ReactElement => {
 		});
 	};
 	return (
-		<GlowingBackground bottomRight="#FF6600">
+		<GlowingBackground bottomRight={brand}>
 			<SettingsView title={'Orange Pilled'} showBackNavigation={true} />
 			<View style={styles.alignCenter}>
 				<Image
@@ -22,8 +25,12 @@ const EasterEgg = (): ReactElement => {
 				/>
 			</View>
 			<View style={styles.intro}>
-				<Display style={styles.title}>Who will you</Display>
-				<Display style={styles.subtitle}>Orange Pill?</Display>
+				<Display color="white" style={styles.title}>
+					Who will you
+				</Display>
+				<Display color="brand" style={styles.subtitle}>
+					Orange Pill?
+				</Display>
 			</View>
 			<View style={styles.alignCenter}>
 				<Button
@@ -47,16 +54,12 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontStyle: 'normal',
-		textAlign: 'left',
 		fontWeight: '700',
 		fontSize: 48,
 		lineHeight: 48,
-		color: '#fff',
-		width: 281,
+		marginTop: 48,
 	},
 	subtitle: {
-		color: '#FF6600',
-		textAlign: 'left',
 		fontStyle: 'normal',
 		fontWeight: '700',
 		fontSize: 48,
@@ -74,14 +77,9 @@ const styles = StyleSheet.create({
 		marginLeft: 16,
 		marginRight: 16,
 		marginBottom: 16,
-		gap: 40,
 		width: 343,
 		height: 56,
 		fontWeight: 600,
-		background: 'rgba(255, 255, 255, 0.08)',
-		boxShadow: '0px 25px 50px rgba(0, 0, 0, 0.25)',
-		backdropFilter: 'blur(10px)',
-		borderRadius: 64,
 	},
 });
 
