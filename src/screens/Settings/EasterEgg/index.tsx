@@ -25,10 +25,10 @@ const EasterEgg = (): ReactElement => {
 				/>
 			</View>
 			<View style={styles.intro}>
-				<Display color="white" style={styles.title}>
+				<Display color="white" style={styles.text}>
 					Who will you
 				</Display>
-				<Display color="brand" style={styles.subtitle}>
+				<Display color="brand" style={styles.text}>
 					Orange Pill?
 				</Display>
 			</View>
@@ -45,41 +45,29 @@ const EasterEgg = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	intro: {
-		alignItems: 'center',
-		padding: 0,
-		gap: 8,
-		display: 'flex',
-		flexDirection: 'column',
 		marginBottom: 40,
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
-	title: {
+	text: {
 		fontStyle: 'normal',
 		fontWeight: '700',
 		fontSize: 48,
 		lineHeight: 48,
-		marginTop: 48,
-	},
-	subtitle: {
-		fontStyle: 'normal',
-		fontWeight: '700',
-		fontSize: 48,
-		lineHeight: 48,
-		width: 281,
+		width: '100%',
+		maxWidth: 281,
 	},
 	alignCenter: {
 		alignItems: 'center',
 	},
 	button: {
-		display: 'flex',
-		flexDirection: 'column',
-		justifyContent: 'center',
-		alignItems: 'center',
 		marginLeft: 16,
 		marginRight: 16,
 		marginBottom: 16,
-		width: 343,
+		width: '100%',
+		maxWidth: 343,
 		height: 56,
-		fontWeight: 600,
 	},
 });
 
