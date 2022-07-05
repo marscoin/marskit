@@ -46,14 +46,14 @@ const NavigationHeader = ({
 	onBackPress = (): null => null,
 	navigateBack = true,
 	size = 'lg',
-	handleClosePress,
+	onClosePress,
 }: {
 	title?: string;
 	displayBackButton?: boolean;
 	onBackPress?: Function;
 	navigateBack?: boolean;
 	size?: 'lg' | 'sm';
-	handleClosePress?: Function;
+	onClosePress?: Function;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 
@@ -76,7 +76,7 @@ const NavigationHeader = ({
 				<Text style={styles.title}>{title}</Text>
 			</View>
 			<View style={styles.rightColumn}>
-				{handleClosePress && <CloseButton onPress={handleClosePress} />}
+				{onClosePress && <CloseButton onPress={onClosePress} />}
 			</View>
 		</View>
 	);

@@ -46,7 +46,7 @@ export const ProfileEdit = ({
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
 				title="Edit profile"
-				handleClosePress={(): void => {
+				onClosePress={(): void => {
 					navigation.navigate('Profile');
 				}}
 			/>

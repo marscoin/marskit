@@ -43,7 +43,7 @@ export const Profile = ({ navigation }): JSX.Element => {
 			<NavigationHeader
 				title="Profile"
 				displayBackButton={false}
-				handleClosePress={(): void => {
+				onClosePress={(): void => {
 					navigation.navigate('Tabs');
 				}}
 			/>
