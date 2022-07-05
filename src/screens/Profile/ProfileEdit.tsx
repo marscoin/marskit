@@ -118,7 +118,7 @@ export const ProfileEdit = ({
 				view="profileAddDataForm"
 				snapPoints={[400]}>
 				<View style={styles.editDataModal}>
-					<Subtitle style={styles.addDataTitle}>Wallet backup</Subtitle>
+					<Subtitle style={styles.addDataTitle}>Add data</Subtitle>
 					<View style={styles.editDataContent}>
 						<Input
 							label="Label"
