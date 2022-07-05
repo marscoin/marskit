@@ -44,7 +44,12 @@ export const ProfileEdit = ({
 	return (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
-			<NavigationHeader title="Edit profile" />
+			<NavigationHeader
+				title="Edit profile"
+				onClosePress={(): void => {
+					navigation.navigate('Profile');
+				}}
+			/>
 			<View style={styles.content}>
 				<ScrollView>
 					<View style={styles.topRow}>

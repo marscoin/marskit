@@ -12,7 +12,13 @@ export const ProfileOnboarding = ({ navigation }): JSX.Element => {
 	return (
 		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />
-			<NavigationHeader title="Profile" />
+			<NavigationHeader
+				title="Profile"
+				displayBackButton={false}
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.content}>
 				<Image
 					source={require('../../assets/illustrations/crown.png')}

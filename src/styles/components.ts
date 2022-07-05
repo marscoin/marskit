@@ -53,6 +53,7 @@ import {
 	savingsIcon,
 	trashIcon,
 	plusIcon,
+	backIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -758,5 +759,12 @@ export const PlusIcon = styled(SvgXml).attrs((props) => ({
 	xml: plusIcon(props.color ? props.theme.colors[props.color] : 'white'),
 	height: props.height ?? '32px',
 	width: props.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const BackIcon = styled(SvgXml).attrs((props) => ({
+	xml: backIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 	color: undefined,
 }))({});
