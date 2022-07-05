@@ -40,7 +40,13 @@ export const Profile = ({ navigation }): JSX.Element => {
 	return visitedProfile ? (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
-			<NavigationHeader title="Profile" />
+			<NavigationHeader
+				title="Profile"
+				displayBackButton={false}
+				handleClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.content}>
 				<ProfileCard id={profile?.id} profile={profile} />
 				<View style={styles.divider} />

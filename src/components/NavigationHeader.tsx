@@ -8,17 +8,30 @@ import {
 	TitleHaas,
 	TouchableOpacity,
 	View,
+	BackIcon,
+	XIcon,
 } from '../styles/components';
-import { backIcon } from '../assets/icons/wallet';
-
-const _backIcon = backIcon();
 
 const BackButton = memo(
 	({ onPress = (): null => null }: { onPress: Function }): ReactElement => {
 		try {
 			return (
 				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
-					<SvgXml xml={_backIcon} width={20} height={20} />
+					<BackIcon width={20} height={20} />
+				</TouchableOpacity>
+			);
+		} catch {
+			return <View />;
+		}
+	},
+);
+
+const CloseButton = memo(
+	({ onPress = (): null => null }: { onPress: Function }): ReactElement => {
+		try {
+			return (
+				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
+					<XIcon width={24} height={24} />
 				</TouchableOpacity>
 			);
 		} catch {
@@ -33,12 +46,14 @@ const NavigationHeader = ({
 	onBackPress = (): null => null,
 	navigateBack = true,
 	size = 'lg',
+	handleClosePress,
 }: {
 	title?: string;
 	displayBackButton?: boolean;
 	onBackPress?: Function;
 	navigateBack?: boolean;
 	size?: 'lg' | 'sm';
+	handleClosePress?: Function;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 
@@ -60,7 +75,9 @@ const NavigationHeader = ({
 			<View style={styles.middleColumn}>
 				<Text style={styles.title}>{title}</Text>
 			</View>
-			<View style={styles.rightColumn} />
+			<View style={styles.rightColumn}>
+				{handleClosePress && <CloseButton onPress={handleClosePress} />}
+			</View>
 		</View>
 	);
 };
@@ -89,6 +106,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'flex-end',
 		backgroundColor: 'transparent',
+		right: 15,
 	},
 	title: {
 		textAlign: 'center',
