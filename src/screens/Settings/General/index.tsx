@@ -37,7 +37,7 @@ const General = ({ navigation }): ReactElement => {
 						title: 'Bitcoin unit',
 						value: unitsBitcoin[selectedBitcoinUnit],
 						type: 'button',
-						onPress: (): void => navigation.navigate('BitcoinSettings'),
+						onPress: (): void => navigation.navigate('BitcoinUnitSettings'),
 						hide: false,
 					},
 					{

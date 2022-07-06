@@ -6,10 +6,9 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 
-import BitcoinUnitBtcSVG from '../../../assets/icons/bitcoin-unit-btc.svg';
-import BitcoinUnitSatoshisSVG from '../../../assets/icons/bitcoin-unit-satoshis.svg';
+import { UnitBitcoinIcon, UnitSatoshiIcon } from '../../../styles/components';
 
-const BitcoinSettings = (): ReactElement => {
+const BitcoinUnitSettings = (): ReactElement => {
 	const selectedBitcoinUnit = useSelector(
 		(state: Store) => state.settings.bitcoinUnit,
 	);
@@ -19,13 +18,13 @@ const BitcoinSettings = (): ReactElement => {
 			label: 'Bitcoin',
 			unit: 'BTC',
 			labelExample: '(0.0001000)',
-			Icon: BitcoinUnitBtcSVG,
+			Icon: UnitBitcoinIcon,
 		},
 		{
 			label: 'Satoshis',
 			unit: 'satoshi',
 			labelExample: '(1 000)',
-			Icon: BitcoinUnitSatoshisSVG,
+			Icon: UnitSatoshiIcon,
 		},
 	];
 
@@ -56,4 +55,4 @@ const BitcoinSettings = (): ReactElement => {
 	);
 };
 
-export default memo(BitcoinSettings);
+export default memo(BitcoinUnitSettings);
