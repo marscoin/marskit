@@ -8,7 +8,7 @@ export const ProfileImage = ({
 	style,
 	size = 32,
 }: {
-	profile?: BasicProfile;
+	profile?: BasicProfile | null;
 	style?: ViewStyle;
 	size: number;
 }): JSX.Element => {

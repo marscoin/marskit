@@ -11,6 +11,22 @@ const slashtags = (state = defaultSlashtagsShape, action): ISlashtags => {
 				...state,
 				visitedProfile: action.visitedProfile,
 			};
+		case actions.SET_VISITED_CONTACTS:
+			return {
+				...state,
+				visitedContacts: action.visitedContacts,
+			};
+		case actions.SET_PROFILE_SEEN:
+			return {
+				...state,
+				profiles: {
+					...(state.profiles || {}),
+					[action.id]: {
+						...(state.profiles[action.id] || {}),
+						seen: action.version,
+					},
+				},
+			};
 		default:
 			return state;
 	}

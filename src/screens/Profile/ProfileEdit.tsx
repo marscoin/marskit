@@ -9,11 +9,14 @@ import {
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
-import { useSlashtags } from '../../hooks/slashtags';
+import { useSlashtagProfile } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { BasicProfile } from '../../store/types/slashtags';
 import { StyleSheet } from 'react-native';
-import { setVisitedProfile } from '../../store/actions/slashtags';
+import {
+	setProfileSeen,
+	setVisitedProfile,
+} from '../../store/actions/slashtags';
 import ProfileImage from '../../components/ProfileImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -21,16 +24,21 @@ import Input from '../../components/LabeledInput';
 import ProfileDetails from '../../components/ProfileDetails';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { toggleView } from '../../store/actions/user';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
+import { useSlashtags } from '../../components/SlashtagsProvider';
 
-export const ProfileEdit = ({
-	navigation,
-}: {
-	navigation: any;
-}): JSX.Element => {
+export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 	const [fields, setFields] = useState<BasicProfile | null>(null);
 	const [addDataForm, setAddDataForm] = useState({ key: '', value: '' });
 
-	const { slashtag, profile: savedProfile } = useSlashtags();
+	const { sdk } = useSlashtags();
+
+	const id = route.params?.id;
+	const slashtag =
+		// TODO update the SDK to handle this on its own
+		id === sdk?._root.url.toString() ? sdk?._root : sdk?.slashtag({ url: id });
+	const savedProfile = useSlashtagProfile({ url: id });
 
 	const setField = (key: string, value: string | undefined): void =>
 		setFields({ ...fields, [key]: value });
@@ -40,6 +48,26 @@ export const ProfileEdit = ({
 	const profile: BasicProfile = useMemo(() => {
 		return { ...savedProfile, ...fields, ...(image ? { image } : {}) };
 	}, [savedProfile, fields, image]);
+
+	const visitedProfile = useSelector(
+		(store: Store) => store.slashtags.visitedProfile,
+	);
+
+	async function saveProfile(): Promise<void> {
+		if (JSON.stringify(profile) !== JSON.stringify(savedProfile)) {
+			await slashtag?.setProfile(profile);
+		}
+		if (!visitedProfile) {
+			setVisitedProfile(true);
+		}
+		setProfileSeen(
+			slashtag?.url.toString(),
+			// TODO expose drive.version API
+			slashtag?.publicDrive?.metadataDB.feed.length,
+		);
+
+		navigation.navigate('Profile', { id: profile.id });
+	}
 
 	return (
 		<View style={styles.container}>
@@ -87,7 +115,7 @@ export const ProfileEdit = ({
 						label="Bio"
 						value={profile?.bio}
 						multiline={true}
-						onChange={(val): void => setField('', val)}
+						onChange={(val): void => setField('bio', val)}
 					/>
 					<ProfileDetails profile={profile} setField={setField} />
 					<Button
@@ -108,13 +136,7 @@ export const ProfileEdit = ({
 					style={styles.saveButton}
 					text="Save profile"
 					size="large"
-					onPress={async (): Promise<void> => {
-						if (JSON.stringify(profile) !== JSON.stringify(savedProfile)) {
-							await slashtag?.setProfile(profile);
-						}
-						setVisitedProfile(true);
-						navigation.goBack();
-					}}
+					onPress={saveProfile}
 				/>
 			</View>
 			<BottomSheetWrapper

@@ -1,11 +1,10 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 // @ts-ignore
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
 import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
-import { SlashtagsContext } from '../hooks/slashtags';
+import { createContext } from 'react';
 import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
-import { BasicProfile } from '../store/types/slashtags';
 
 const RAWS = RAWSFactory({
 	setItem: (key, value) => {
@@ -26,12 +25,11 @@ export const clearSlashtagsStorage = (): void => {
 	}
 };
 
-export type Slashtag = ReturnType<ISDK['slashtag']>;
 export interface ISlashtagsContext {
-	sdk: ISDK;
-	slashtag: Slashtag;
-	profile: BasicProfile;
+	sdk?: ISDK;
 }
+
+export const SlashtagsContext = createContext<ISlashtagsContext>({});
 
 export const SlashtagsProvider = ({
 	primaryKey,
@@ -59,30 +57,7 @@ export const SlashtagsProvider = ({
 					swarmOpts: { relays: ['ws://localhost:45475'] },
 				});
 
-				const slashtag = sdk.slashtag();
-
-				setState({ sdk, slashtag, profile: await profile() });
-
-				// Watch public drive updates
-				slashtag?.publicDrive?.on('update', onUpdate);
-
-				return () => {
-					slashtag?.removeListener('update', onUpdate);
-					sdk?.close();
-				};
-
-				async function onUpdate({ key }: { key: string }): Promise<void> {
-					if (key === 'profile.json') {
-						setState({ sdk, slashtag, profile: await profile() });
-					}
-				}
-
-				async function profile(): Promise<BasicProfile> {
-					return {
-						id: slashtag.url.toString(),
-						...((await slashtag.getProfile()) as BasicProfile),
-					};
-				}
+				setState({ sdk });
 			} catch (error) {
 				onError(error as Error);
 			}
@@ -94,4 +69,9 @@ export const SlashtagsProvider = ({
 			{children}
 		</SlashtagsContext.Provider>
 	);
+};
+
+export const useSlashtags = (): ISlashtagsContext => {
+	const context = useContext(SlashtagsContext);
+	return context;
 };

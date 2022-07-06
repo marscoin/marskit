@@ -8,14 +8,15 @@ import {
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { useSlashtags } from '../../hooks/slashtags';
+import { useSlashtagProfile } from '../../hooks/slashtags';
 import { SlashtagURL } from '../../components/SlashtagURL';
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
-	const { profile } = useSlashtags();
+
+	const profile = useSlashtagProfile();
 
 	const openProfile = useCallback(
 		// @ts-ignore

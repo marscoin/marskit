@@ -14,7 +14,7 @@ import { StyleSheet, useWindowDimensions, Share } from 'react-native';
 import Button from '../../components/Button';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
-import { useSlashtags } from '../../hooks/slashtags';
+import { useSlashtagProfile } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileOnboarding from './ProfileOnboarding';
@@ -24,18 +24,19 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ProfileDetails from '../../components/ProfileDetails';
 
-export const Profile = ({ navigation }): JSX.Element => {
+export const Profile = ({ navigation, route }): JSX.Element => {
 	const visitedProfile = useSelector(
 		(store: Store) => store.slashtags.visitedProfile,
 	);
+
+	const id = route.params?.id;
+	const profile = useSlashtagProfile({ url: id });
 
 	const [view, setView] = useState('qr');
 
 	function switchView(): void {
 		view === 'details' ? setView('qr') : setView('details');
 	}
-
-	const { profile } = useSlashtags();
 
 	return visitedProfile ? (
 		<View style={styles.container}>
@@ -77,7 +78,7 @@ export const Profile = ({ navigation }): JSX.Element => {
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								navigation.navigate('ProfileEdit');
+								navigation.navigate('ProfileEdit', { id: id });
 							}}>
 							<PencileIcon height={24} width={24} color="brand" />
 						</IconButton>
@@ -125,7 +126,11 @@ const IconButton = ({
 	);
 };
 
-const QRView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
+const QRView = ({
+	profile,
+}: {
+	profile?: BasicProfile | null;
+}): JSX.Element => {
 	const { width } = useWindowDimensions();
 	return (
 		<View style={styles.qrViewContainer}>

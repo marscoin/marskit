@@ -9,7 +9,7 @@ export const ProfileCard = ({
 	profile,
 }: {
 	id?: string;
-	profile?: BasicProfile;
+	profile?: BasicProfile | null;
 }): JSX.Element => {
 	return (
 		<View style={styles.container}>
@@ -18,9 +18,14 @@ export const ProfileCard = ({
 					{profile?.name
 						?.split(' ')
 						.slice(0, 2)
-						.map((name) => (
+						.map((name, index) => (
 							<TitleHaas key={name} style={styles.name}>
 								{truncate(name, 16)}
+								{index === 1 &&
+								profile?.name &&
+								profile.name.split(' ').length > 2
+									? ' ...'
+									: ''}
 							</TitleHaas>
 						))}
 					<SlashtagURL style={styles.url} url={profile?.id} />

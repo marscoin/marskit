@@ -9,7 +9,7 @@ const ProfileDetails = ({
 	setField,
 	style = {},
 }: {
-	profile?: BasicProfile;
+	profile?: BasicProfile | null;
 	setField?: (key: string, value: string | undefined) => void;
 	style?: StyleProp<any> | StyleProp<any>[];
 }): JSX.Element => {
@@ -48,7 +48,9 @@ const ProfileDetails = ({
 				<Text style={styles.detailsViewNote}>No details added yet...</Text>
 			) : (
 				entries.map(
-					([key]): JSX.Element => <Input label={key} deletable={true} />,
+					([key]): JSX.Element => (
+						<Input label={key} key={key} deletable={true} />
+					),
 				)
 			)}
 		</View>

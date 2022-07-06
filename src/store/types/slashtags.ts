@@ -7,6 +7,11 @@ export type BasicProfile = Partial<{
 	[key: string]: string;
 }>;
 
+export interface ProfileStatus {
+	seen: number;
+}
+
 export interface ISlashtags {
 	visitedProfile: boolean;
+	profiles: { [id: string]: ProfileStatus };
 }
