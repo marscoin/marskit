@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { Linking, Text, View, FlatList } from 'react-native';
+import { Linking, Text, View, FlatList, Share } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -33,7 +33,12 @@ const AboutSettings = ({ navigation }): ReactElement => {
 					{
 						title: 'Share Bitkit with a friend',
 						type: 'button',
-						onPress: (): void => navigation.navigate('TempSettings'),
+						onPress: async (): Promise<void> => {
+							await Share.share({
+								title: 'Bitkit',
+								message: 'TODO link to bitkit wallet goes here',
+							});
+						},
 						hide: false,
 					},
 					{
