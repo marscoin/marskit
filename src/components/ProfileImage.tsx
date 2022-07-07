@@ -8,7 +8,7 @@ export const ProfileImage = ({
 	style,
 	size = 32,
 }: {
-	profile?: BasicProfile | null;
+	profile?: BasicProfile;
 	style?: ViewStyle;
 	size: number;
 }): JSX.Element => {
@@ -16,6 +16,8 @@ export const ProfileImage = ({
 		backgroundColor: '#222',
 		borderRadius: size,
 		overflow: 'hidden',
+		height: size,
+		width: size,
 		...style,
 	};
 

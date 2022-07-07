@@ -9,7 +9,7 @@ const ProfileDetails = ({
 	setField,
 	style = {},
 }: {
-	profile?: BasicProfile | null;
+	profile?: BasicProfile;
 	setField?: (key: string, value: string | undefined) => void;
 	style?: StyleProp<any> | StyleProp<any>[];
 }): JSX.Element => {

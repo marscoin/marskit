@@ -9,7 +9,7 @@ export const ProfileCard = ({
 	profile,
 }: {
 	id?: string;
-	profile?: BasicProfile | null;
+	profile?: BasicProfile;
 }): JSX.Element => {
 	return (
 		<View style={styles.container}>

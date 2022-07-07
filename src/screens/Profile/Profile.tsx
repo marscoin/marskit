@@ -126,11 +126,7 @@ const IconButton = ({
 	);
 };
 
-const QRView = ({
-	profile,
-}: {
-	profile?: BasicProfile | null;
-}): JSX.Element => {
+const QRView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
 	const { width } = useWindowDimensions();
 	return (
 		<View style={styles.qrViewContainer}>

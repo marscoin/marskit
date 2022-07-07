@@ -11,10 +11,8 @@ export type Slashtag = ReturnType<ISDK['slashtag']>;
  * Helper hook to return Slashtag's profile
  * and detect when it has a new version to fetch.
  */
-export const useSlashtagProfile = (opts?: {
-	url: string;
-}): BasicProfile | undefined | null => {
-	const [profile, setProfile] = useState<BasicProfile | null>();
+export const useSlashtagProfile = (opts?: { url: string }): BasicProfile => {
+	const [profile, setProfile] = useState<BasicProfile>({});
 
 	const { sdk } = useSlashtags();
 
@@ -29,12 +27,15 @@ export const useSlashtagProfile = (opts?: {
 		// set a clean up flag
 		let shouldSetProfile = true;
 
-		sdk
-			?.slashtag({ url })
-			?.getProfile()
-			.then((p) => {
-				shouldSetProfile && setProfile(p || null);
-			});
+		const _slashtag = sdk?.slashtag({ url });
+
+		_slashtag?.getProfile().then((p) => {
+			shouldSetProfile &&
+				setProfile({
+					...(p || {}),
+					id: _slashtag.url.toString(),
+				});
+		});
 
 		return () => {
 			shouldSetProfile = false;

@@ -29,7 +29,7 @@ import Store from '../../store/types';
 import { useSlashtags } from '../../components/SlashtagsProvider';
 
 export const ProfileEdit = ({ navigation, route }): JSX.Element => {
-	const [fields, setFields] = useState<BasicProfile | null>(null);
+	const [fields, setFields] = useState<BasicProfile>({});
 	const [addDataForm, setAddDataForm] = useState({ key: '', value: '' });
 
 	const { sdk } = useSlashtags();
