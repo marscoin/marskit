@@ -129,9 +129,9 @@ const FeeRate = ({ navigation }): ReactElement => {
 		[_updateFee],
 	);
 
-	const onCustomPress = useCallback(() => {
-		onCardPress(EFeeIds.custom, satsPerByte);
-		navigation.replace('FeeCustom');
+	const onCustomPress = useCallback(async () => {
+		await onCardPress(EFeeIds.custom, satsPerByte);
+		navigation.navigate('FeeCustom');
 	}, [satsPerByte, navigation, onCardPress]);
 
 	return (

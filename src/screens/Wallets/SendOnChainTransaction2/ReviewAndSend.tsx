@@ -42,6 +42,7 @@ import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
 import { hasEnabledAuthentication } from '../../../utils/settings';
+import { EFeeIds } from '../../../store/types/fees';
 
 const Section = memo(
 	({
@@ -141,7 +142,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	}, [getOutput?.address]);
 
 	const selectedFeeId = useMemo(
-		() => transaction.selectedFeeId,
+		() => transaction?.selectedFeeId ?? EFeeIds.slow,
 		[transaction.selectedFeeId],
 	);
 
@@ -230,6 +231,13 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	}, [selectedNetwork, selectedWallet, transaction, _onError, navigation]);
 
 	const _broadcast = useCallback(async () => {
+		if (!rawTx || !rawTx?.id || !rawTx?.hex) {
+			_onError(
+				'Error: No transaction is available to broadcast.',
+				'Please check your transaction info and try again.',
+			);
+			return;
+		}
 		const response = await broadcastTransaction({
 			rawTx: rawTx?.hex ?? '',
 			selectedNetwork,
@@ -251,7 +259,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		});
 
 		// save tags to metadata
-		updateMetaTxTags(rawTx?.id, transaction.tags);
+		updateMetaTxTags(rawTx?.id, transaction?.tags);
 
 		navigation.navigate('Result', { success: true });
 		setIsLoading(false);
@@ -268,7 +276,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 
 	useEffect(() => {
 		if (rawTx) {
-			_broadcast();
+			_broadcast().then();
 		}
 	}, [rawTx, _broadcast]);
 
@@ -315,6 +323,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 					/>
 					<Section
 						title="CONFIRMING IN"
+						onPress={(): void => navigation.navigate('FeeRate')}
 						value={
 							<>
 								<ClockIcon color="brand" />

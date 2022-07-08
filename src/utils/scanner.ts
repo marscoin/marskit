@@ -4,18 +4,28 @@
 
 import bip21 from 'bip21';
 import { err, ok, Result } from './result';
-import { availableNetworks, networks, TAvailableNetworks } from './networks';
+import {
+	availableNetworks,
+	EAvailableNetworks,
+	networks,
+	TAvailableNetworks,
+} from './networks';
 import { address as bitcoinJSAddress } from 'bitcoinjs-lib';
 import { parseOnChainPaymentRequest } from './wallet/transactions';
 import { getStore } from '../store/helpers';
 import {
 	getLNURLParams,
 	LNURLAuthParams,
-	LNURLWithdrawParams,
 	LNURLChannelParams,
 	LNURLPayParams,
 	LNURLResponse,
+	LNURLWithdrawParams,
 } from '@synonymdev/react-native-lnurl';
+import { showErrorNotification } from './notifications';
+import { updateOnChainTransaction } from '../store/actions/wallet';
+import { getSelectedNetwork, getSelectedWallet, refreshWallet } from './wallet';
+import { toggleView } from '../store/actions/user';
+import { sleep } from './helpers';
 
 const availableNetworksList = availableNetworks();
 
@@ -24,10 +34,10 @@ export const validateAddress = ({
 	selectedNetwork = undefined,
 }: {
 	address: string;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedNetwork?: EAvailableNetworks;
 }): {
 	isValid: boolean;
-	network: TAvailableNetworks;
+	network: EAvailableNetworks;
 } => {
 	try {
 		//Validate address for a specific network
@@ -36,7 +46,7 @@ export const validateAddress = ({
 		} else {
 			//Validate address for all available networks
 			let isValid = false;
-			let network: TAvailableNetworks | undefined;
+			let network: EAvailableNetworks = EAvailableNetworks.bitcoin;
 			for (let i = 0; i < availableNetworksList.length; i++) {
 				if (
 					validateAddress({
@@ -49,15 +59,12 @@ export const validateAddress = ({
 					break;
 				}
 			}
-			if (!network) {
-				network = 'bitcoin';
-			}
 			return { isValid, network };
 		}
 
 		return { isValid: true, network: selectedNetwork };
 	} catch (e) {
-		return { isValid: false, network: 'bitcoin' };
+		return { isValid: false, network: EAvailableNetworks.bitcoin };
 	}
 };
 
@@ -71,7 +78,7 @@ export enum EQRDataType {
 }
 
 export interface QRData {
-	network?: TAvailableNetworks;
+	network?: TAvailableNetworks | EAvailableNetworks;
 	qrDataType: EQRDataType;
 	sats?: number;
 	address?: string;
@@ -187,4 +194,121 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 	}
 
 	return ok(foundNetworksInQR);
+};
+
+export const handleData = async ({
+	data,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	data: QRData;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	if (!data) {
+		return showErrorNotification(
+			{
+				title: 'No data provided',
+				message: 'Unable to read or interpret data from the provided QR code.',
+			},
+			'bottom',
+		);
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (data?.network && data?.network !== selectedNetwork) {
+		return showErrorNotification(
+			{
+				title: 'Unsupported network',
+				message: `App is currently set to ${selectedNetwork} but QR is for ${data.network}.`,
+			},
+			'bottom',
+		);
+	}
+
+	const qrDataType = data?.qrDataType;
+	const address = data?.address ?? '';
+	const amount = data?.sats ?? 0;
+	const message = data?.message ?? '';
+
+	switch (qrDataType) {
+		case EQRDataType.bitcoinAddress: {
+			await toggleView({
+				view: 'sendNavigation',
+				data: {
+					isOpen: true,
+					snapPoint: 0,
+					initial: 'AddressAndAmount',
+					assetName: 'Bitcoin',
+				},
+			});
+			await sleep(5); //This is only needed to prevent the view from briefly displaying the SendAssetList
+			updateOnChainTransaction({
+				selectedWallet,
+				selectedNetwork,
+				transaction: {
+					label: message,
+					outputs: [{ address, value: amount }],
+				},
+			}).then();
+			refreshWallet().then();
+			break;
+		}
+		case EQRDataType.lightningPaymentRequest: {
+			// TODO: LDK
+			break;
+			/*const { pin, biometrics } = hasEnabledAuthentication();
+			if (pin || biometrics) {
+				navigation.navigate('AuthCheck', {
+					onSuccess: () => {
+						navigation.pop();
+						setTimeout(() => {
+							payLightningInvoicePrompt(data);
+						}, 500);
+					},
+				});
+			} else {
+				payLightningInvoicePrompt(data);
+			}
+			break;*/
+		}
+		case EQRDataType.lnurlAuth: {
+			// TODO: LDK
+			break;
+			/*const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
+			if (getMnemonicPhraseResponse.isErr()) {
+				return;
+			}
+
+			const authRes = await lnurlAuth({
+				params: data.lnUrlParams! as LNURLAuthParams,
+				network: selectedNetwork,
+				bip32Mnemonic: getMnemonicPhraseResponse.value,
+			});
+			if (authRes.isErr()) {
+				showErrorNotification({
+					title: 'LNURL-Auth failed',
+					message: authRes.error.message,
+				});
+				return;
+			}
+
+			showSuccessNotification({
+				title: 'Authenticated!',
+				message: '',
+			});
+
+			break;*/
+		}
+		case EQRDataType.lnurlWithdraw: {
+			//let params = data.lnUrlParams as LNURLWithdrawParams;
+			//const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
+			//TODO: Create invoice
+			break;
+		}
+	}
 };

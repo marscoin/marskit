@@ -9,7 +9,7 @@ const dispatch = getDispatch();
  */
 export const updateMetaTxTags = (
 	txid: string,
-	tags: Array<string>,
+	tags: Array<string> = [],
 ): Result<string> => {
 	dispatch({
 		type: actions.UPDATE_META_TX_TAGS,
