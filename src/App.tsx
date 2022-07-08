@@ -38,6 +38,7 @@ const App = (): ReactElement => {
 		(store: Store) => store.wallet.selectedWallet,
 	);
 	const wallets = useSelector((store: Store) => store.wallet.wallets);
+	const seedHash = wallets[selectedWallet].seedHash;
 	const [primaryKey, setPrimaryKey] = useState<Buffer | null>(null);
 
 	useEffect(() => {
@@ -49,6 +50,16 @@ const App = (): ReactElement => {
 		})();
 	}, []);
 
+	useEffect(() => {
+		(async (): Promise<void> => {
+			const { error, data } = await getSlashtagsPrimaryKey(seedHash);
+			if (error) {
+				return;
+			}
+			setPrimaryKey(Buffer.from(data, 'hex'));
+		})();
+	}, [seedHash]);
+
 	const currentTheme = useMemo(() => {
 		return themes[theme];
 	}, [theme]);
@@ -57,23 +68,11 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
-	useEffect(() => {
-		(async () => {
-			const { error, data } = await getSlashtagsPrimaryKey(
-				wallets[selectedWallet].seedHash,
-			);
-			if (error) {
-				return;
-			}
-			setPrimaryKey(Buffer.from(data, 'hex'));
-		})();
-	}, [wallets[selectedWallet].seedHash]);
-
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
 				primaryKey={primaryKey}
-				onError={(error) =>
+				onError={(error): void =>
 					showErrorNotification({
 						title: 'SlashtagsProvider Error',
 						message: error.message,

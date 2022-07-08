@@ -16,7 +16,6 @@ import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
-import ProfileNavigator from '../profile/ProfileNavigator';
 import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import SendNavigation from '../bottom-sheet/SendNavigation';
 import ReceiveNavigation from '../bottom-sheet/ReceiveNavigation';
@@ -29,6 +28,8 @@ import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnCha
 import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
 import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
+import Profile from '../../screens/Profile/Profile';
+import ProfileEdit from '../../screens/Profile/ProfileEdit';
 
 const Stack = createNativeStackNavigator();
 
@@ -86,9 +87,8 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 					<Stack.Screen name="LightningRoot" component={LightningNavigator} />
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
-				</Stack.Group>
-				<Stack.Group screenOptions={{ ...navOptions, presentation: 'modal' }}>
-					<Stack.Screen name="ProfileRoot" component={ProfileNavigator} />
+					<Stack.Screen name="Profile" component={Profile} />
+					<Stack.Screen name="ProfileEdit" component={ProfileEdit} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />
