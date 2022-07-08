@@ -1,5 +1,5 @@
 import { Platform, Switch as _Switch } from 'react-native';
-import styled from 'styled-components';
+import styled from 'styled-components/native';
 import _Feather from 'react-native-vector-icons/Feather';
 import _EvilIcon from 'react-native-vector-icons/EvilIcons';
 import _Ionicons from 'react-native-vector-icons/Ionicons';
