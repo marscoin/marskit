@@ -22,14 +22,14 @@ import {
 	Caption13Up,
 	CheckCircleIcon,
 	ClockIcon,
-	DisplayHaas,
+	Display,
 	GitBranchIcon,
 	ReceiveIcon,
 	SendIcon,
 	TagIcon,
 	Text02M,
 	TimerIconAlt,
-	TitleHaas,
+	Title,
 	UserPlusIcon,
 	View as ThemedView,
 } from '../../styles/components';
@@ -51,10 +51,10 @@ import { deleteMetaTxTag } from '../../store/actions/metadata';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
-		const { gray4 } = useColors();
+		const { white1 } = useColors();
 
 		return (
-			<View style={[styles.sRoot, { borderBottomColor: gray4 }]}>
+			<View style={[styles.sRoot, { borderBottomColor: white1 }]}>
 				<View style={styles.sText}>
 					<Caption13Up color="gray1">{title}</Caption13Up>
 				</View>
@@ -221,10 +221,10 @@ const ActivityDetail = (props: Props): ReactElement => {
 				showsVerticalScrollIndicator={false}>
 				<View style={styles.title}>
 					<View style={styles.titleBlock}>
-						<DisplayHaas>
+						<Display>
 							{Number(bitcoinFormatted) > 0 ? '+' : ''}
 							{bitcoinFormatted}
-						</DisplayHaas>
+						</Display>
 					</View>
 
 					<ThemedView
@@ -248,7 +248,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 						value={
 							<View style={styles.confStatus}>
 								{confirmed ? (
-									<CheckCircleIcon color="white" style={styles.checkmarkIcon} />
+									<CheckCircleIcon color="green" style={styles.checkmarkIcon} />
 								) : (
 									<ClockIcon color="white" style={styles.checkmarkIcon} />
 								)}
@@ -320,13 +320,13 @@ const ActivityDetail = (props: Props): ReactElement => {
 									</Canvas>
 
 									<View style={styles.note}>
-										<TitleHaas>{message}</TitleHaas>
+										<Title>{message}</Title>
 									</View>
 								</ThemedView>
 							</View>
 						) : null}
 
-						<View style={styles.buttonsContainer}>
+						<View>
 							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
@@ -336,25 +336,25 @@ const ActivityDetail = (props: Props): ReactElement => {
 								/>
 								<Button
 									style={styles.button}
-									text="Explore"
-									icon={<GitBranchIcon />}
-									disabled={!blockExplorerUrl}
-									onPress={handleBlockExplorerOpen}
-								/>
-							</View>
-							<View style={styles.sectionContainer}>
-								<Button
-									style={styles.button}
 									text="Tag"
 									icon={<TagIcon height={16} width={16} color="brand" />}
 									onPress={handleTag}
 								/>
+							</View>
+							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
 									text="Boost"
 									icon={<TimerIconAlt color="brand" />}
 									disabled={!showBoost}
 									onPress={handleBoost}
+								/>
+								<Button
+									style={styles.button}
+									text="Explore"
+									icon={<GitBranchIcon />}
+									disabled={!blockExplorerUrl}
+									onPress={handleBlockExplorerOpen}
 								/>
 							</View>
 						</View>
@@ -439,13 +439,13 @@ const styles = StyleSheet.create({
 		marginRight: 10,
 	},
 	sectionContainer: {
-		marginHorizontal: -4,
+		marginHorizontal: -8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 	},
 	sRoot: {
 		paddingBottom: 10,
-		marginHorizontal: 4,
+		marginHorizontal: 8,
 		marginBottom: 16,
 		borderBottomWidth: 1,
 		flex: 1,
@@ -456,16 +456,13 @@ const styles = StyleSheet.create({
 	note: {
 		padding: 24,
 	},
-	buttonsContainer: {
-		marginVertical: 10,
-	},
 	buttonDetailsContainer: {
 		flex: 1,
 		justifyContent: 'flex-end',
 	},
 	button: {
-		marginHorizontal: 4,
-		marginVertical: 4,
+		marginHorizontal: 8,
+		marginBottom: 16,
 		flex: 1,
 	},
 	zRoot: {
@@ -474,6 +471,7 @@ const styles = StyleSheet.create({
 	tagsContainer: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
+		marginBottom: -8,
 	},
 	tag: {
 		marginRight: 8,

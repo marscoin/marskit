@@ -32,8 +32,8 @@ export const todoPresets: TTodoPresets = {
 	},
 	pin: {
 		type: 'pin',
-		title: 'Increase security',
-		description: 'Set up a PIN',
+		title: 'Better security',
+		description: 'Set up a PIN code',
 		id: 'pin',
 	},
 };

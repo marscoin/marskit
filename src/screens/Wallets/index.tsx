@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
 	},
 	assetsTitle: {
 		marginBottom: 8,
-		marginTop: 10,
+		marginTop: 32,
 	},
 });
 

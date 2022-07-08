@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import {
 	Caption13Up,
 	Headline,
-	DisplayHaas,
+	Display,
 	Text01S,
 	Text01M,
 	LightningIcon,
@@ -35,7 +35,7 @@ const CustomConfirm = ({ navigation, route }): ReactElement => {
 			<NavigationHeader title="Add instant payments" />
 			<View style={styles.root}>
 				<View>
-					<DisplayHaas color="purple">Please{'\n'}confirm.</DisplayHaas>
+					<Display color="purple">Please{'\n'}confirm.</Display>
 					<Text01S color="gray1" style={styles.text}>
 						It costs{' '}
 						<Text01S>

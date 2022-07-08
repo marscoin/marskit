@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import {
 	AnimatedView,
 	Caption13Up,
-	DisplayHaas,
+	Display,
 	Subtitle,
 	Text01S,
 	TouchableOpacity,
@@ -113,9 +113,9 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 			<NavigationHeader title="Add instant payments" />
 			<View style={styles.root}>
 				<View>
-					<DisplayHaas color="purple">
+					<Display color="purple">
 						{spending ? 'Spending money.' : 'Receiving money.'}
-					</DisplayHaas>
+					</Display>
 					{spending && !keybrd && (
 						<Text01S color="gray1" style={styles.text}>
 							Choose how much bitcoin you want to have available as your instant

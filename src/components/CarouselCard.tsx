@@ -2,7 +2,7 @@ import React, { memo, ReactElement } from 'react';
 import { LayoutAnimation, StyleSheet, Image, View } from 'react-native';
 import { Canvas, RadialGradient, Rect, vec } from '@shopify/react-native-skia';
 
-import { Caption13Up, Pressable, Text01M, XIcon } from '../styles/components';
+import { Caption13M, Pressable, Text01M, XIcon } from '../styles/components';
 import Card from './Card';
 import BitcoinLogo from '../assets/bitcoin-logo.svg';
 import { dismissTodo } from '../store/actions/todos';
@@ -82,7 +82,7 @@ const CarouselCard = ({
 				<View style={styles.iconContainer}>{icon}</View>
 				<View>
 					<Text01M>{title}</Text01M>
-					<Caption13Up color="lightGray">{description}</Caption13Up>
+					<Caption13M color="lightGray">{description}</Caption13M>
 				</View>
 			</Pressable>
 			<Pressable

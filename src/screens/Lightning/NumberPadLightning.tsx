@@ -85,7 +85,9 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 					onPress={(): void => {
 						Alert.alert('TODO');
 					}}>
-					<Text02B color="purple">MAX</Text02B>
+					<Text02B size="12px" color="purple">
+						MAX
+					</Text02B>
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.topRowButtons}
@@ -96,7 +98,7 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 						updateSettings({ unitPreference: newUnitPreference });
 					}}>
 					<SwitchIcon color="white" width={16.44} height={13.22} />
-					<Text02B color="purple" style={styles.middleButtonText}>
+					<Text02B size="12px" color="purple" style={styles.middleButtonText}>
 						{unitPreference === 'asset'
 							? displayValue.fiatTicker
 							: displayValue.bitcoinTicker}
@@ -106,7 +108,9 @@ const NumberPadLightning = ({ sats, onChange, onDone }): ReactElement => {
 					style={styles.topRowButtons}
 					color="onSurface"
 					onPress={onDone}>
-					<Text02B color="purple">DONE</Text02B>
+					<Text02B size="12px" color="purple">
+						DONE
+					</Text02B>
 				</TouchableOpacity>
 			</View>
 		</NumberPad>

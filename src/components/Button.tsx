@@ -13,7 +13,7 @@ import {
 import useColors from '../hooks/colors';
 
 interface IButton extends TouchableOpacityProps {
-	text: string;
+	text: string | ReactElement;
 	color?: string;
 	variant?: 'primary' | 'secondary' | 'transparent';
 	size?: string;
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
 		shadowOffset: { width: 1, height: 13 },
 	},
 	buttonSmall: {
-		height: 36,
+		height: 40,
 		borderRadius: 54,
 		paddingHorizontal: 16,
 		minWidth: 110,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 	},
 	iconContainer: {
-		marginRight: 6,
+		marginRight: 8,
 	},
 	loading: {
 		...StyleSheet.absoluteFillObject,

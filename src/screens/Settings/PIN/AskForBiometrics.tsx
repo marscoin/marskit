@@ -87,14 +87,14 @@ const ChoosePIN = ({ navigation }): ReactElement => {
 				{biometryData?.biometryType && (
 					<Text01S color="gray1">
 						PIN code set. Would you like to use {typeName} instead of your PIN
-						code whenever possible?
+						code?
 					</Text01S>
 				)}
 			</View>
 
 			{biometryData?.biometryType && (
 				<View style={styles.imageContainer}>
-					<Glow style={styles.glow} size={280} color="brand" />
+					<Glow style={styles.glow} size={600} color="brand" />
 					{biometryData?.biometryType === 'FaceID' ? (
 						<FaceIdIcon />
 					) : (
@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	message: {
+		marginTop: 10,
 		marginHorizontal: 32,
 	},
 	imageContainer: {

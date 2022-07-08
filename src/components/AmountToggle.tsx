@@ -1,11 +1,5 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import {
-	Display,
-	DisplayHaas,
-	View,
-	Pressable,
-	Text01M,
-} from '../styles/components';
+import { Display, View, Pressable, Text01M } from '../styles/components';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { abbreviateNumber } from '../utils/helpers';
 import useDisplayValues from '../hooks/displayValues';
@@ -24,7 +18,7 @@ const FiatBalance = memo(
 		LayoutAnimation.easeInEaseOut();
 		const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } =
 			displayValues;
-		const Text = useMemo(() => (primary ? DisplayHaas : Text01M), [primary]);
+		const Text = useMemo(() => (primary ? Display : Text01M), [primary]);
 
 		if (fiatWhole.length > 12) {
 			const { newValue, abbreviation } = abbreviateNumber(fiatWhole);
@@ -62,7 +56,7 @@ const AssetBalance = memo(
 		primary: boolean;
 	}): ReactElement => {
 		LayoutAnimation.easeInEaseOut();
-		const Text = useMemo(() => (primary ? DisplayHaas : Text01M), [primary]);
+		const Text = useMemo(() => (primary ? Display : Text01M), [primary]);
 		const TextSymbol = useMemo(() => (primary ? Display : Text01M), [primary]);
 		const { bitcoinFormatted, bitcoinSymbol } = displayValues;
 		return (

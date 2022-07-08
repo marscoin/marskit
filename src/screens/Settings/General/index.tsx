@@ -80,7 +80,7 @@ const General = ({ navigation }): ReactElement => {
 				animationType="slide"
 				transparent={true}
 				visible={modalVisible}
-				onRequestClose={() => {
+				onRequestClose={(): void => {
 					setModalVisible(!modalVisible);
 				}}>
 				<View style={styles.centeredView}>

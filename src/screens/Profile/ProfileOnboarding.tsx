@@ -3,7 +3,7 @@ import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Image } from 'react-native';
 import Button from '../../components/Button';
-import { TitleHaas } from '../../styles/components';
+import { Title } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
@@ -24,10 +24,10 @@ export const ProfileOnboarding = ({ navigation }): JSX.Element => {
 					source={require('../../assets/illustrations/crown.png')}
 					style={styles.illustration}
 				/>
-				<TitleHaas style={styles.headline}>Own your</TitleHaas>
-				<TitleHaas color="brand" style={styles.headline}>
+				<Title style={styles.headline}>Own your</Title>
+				<Title color="brand" style={styles.headline}>
 					own Profile.
-				</TitleHaas>
+				</Title>
 				<Text color="gray1" style={styles.introText}>
 					Use Slashtags to take control of your profile. A sovereign way to
 					manage your identity.

@@ -49,12 +49,12 @@ const Result = ({ route }): ReactElement => {
 			</View>
 
 			<View style={styles.imageContainer}>
-				<Glow style={styles.glow} size={300} color="green" />
+				<Glow style={styles.glow} size={600} color="green" />
 				<Image source={source} style={styles.image} />
 			</View>
 
 			<View style={nextButtonContainer}>
-				<Button size="lg" text="Close" onPress={handleButtonPress} />
+				<Button size="lg" text="OK" onPress={handleButtonPress} />
 			</View>
 		</ThemedView>
 	);

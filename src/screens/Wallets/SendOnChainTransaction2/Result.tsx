@@ -60,7 +60,7 @@ const Result = ({ navigation, route }): ReactElement => {
 			<View style={styles.imageContainer}>
 				<Glow
 					style={styles.glow}
-					size={300}
+					size={600}
 					color={success ? 'green' : 'red'}
 				/>
 				<Image source={source} style={styles.image} />

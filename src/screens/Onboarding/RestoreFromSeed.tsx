@@ -24,7 +24,7 @@ import {
 	vec,
 } from '@shopify/react-native-skia';
 
-import { DisplayHaas, Text01S } from '../../styles/components';
+import { Display, Text01S } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SeedInput from '../../components/SeedInput';
@@ -153,7 +153,7 @@ const RestoreFromSeed = (): ReactElement => {
 			<GlowingBackground topLeft={color}>
 				<View style={styles.contentResult}>
 					<View>
-						<DisplayHaas style={styles.title}>{title}</DisplayHaas>
+						<Display style={styles.title}>{title}</Display>
 						<Text01S color="white8">{subtitle}</Text01S>
 					</View>
 
@@ -185,7 +185,7 @@ const RestoreFromSeed = (): ReactElement => {
 				<View style={styles.shadowContainer}>
 					<VerticalShadow />
 				</View>
-				<DisplayHaas style={styles.title}>Restore your wallet</DisplayHaas>
+				<Display style={styles.title}>Restore your wallet</Display>
 				<Text01S color="white8">
 					Please type in your 12 seed words from any (paper) backup.
 				</Text01S>

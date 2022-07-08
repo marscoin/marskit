@@ -114,9 +114,7 @@ const QR = ({
 
 					{displayText && (
 						<View color="transparent" style={styles.textContainer}>
-							<Caption13S style={styles.text} color="white5">
-								{data}
-							</Caption13S>
+							<Caption13S style={styles.text}>{data}</Caption13S>
 							<AnimatedView
 								color="transparent"
 								style={[styles.copiedContainer, { opacity: textOpacity }]}>

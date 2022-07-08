@@ -10,6 +10,7 @@ export interface IAuthCheck {
 	children?: ReactElement;
 	onSuccess?: Function;
 	onFailure?: Function;
+	showLogoOnPIN?: boolean;
 }
 export interface IAuthCheckParams extends IAuthCheck {
 	route?: RouteProp<{ params: IAuthCheck }, 'params'>;
@@ -26,6 +27,7 @@ const AuthCheck = ({
 	children = <></>,
 	onSuccess = (): null => null,
 	onFailure = (): null => null,
+	showLogoOnPIN = false,
 	route,
 }: IAuthCheckParams): ReactElement => {
 	const pin = useSelector((state: Store) => state.settings.pin);
@@ -34,8 +36,9 @@ const AuthCheck = ({
 	const [displayPin, setDisplayPin] = useState(pin);
 	const [displayBiometrics, setDisplayBiometrics] = useState(biometrics);
 	const [authCheckParams] = useState<IAuthCheck>({
-		onSuccess: route?.params?.onSuccess || onSuccess,
-		onFailure: route?.params?.onFailure || onFailure,
+		onSuccess: route?.params?.onSuccess ?? onSuccess,
+		onFailure: route?.params?.onFailure ?? onFailure,
+		showLogoOnPIN: route?.params?.showLogoOnPIN ?? showLogoOnPIN,
 	});
 
 	if (displayPin && displayBiometrics) {
@@ -56,6 +59,7 @@ const AuthCheck = ({
 	if (displayPin) {
 		return (
 			<PinPad2
+				showLogoOnPIN={showLogoOnPIN}
 				onSuccess={(): void => {
 					setDisplayPin(false);
 					authCheckParams?.onSuccess?.();

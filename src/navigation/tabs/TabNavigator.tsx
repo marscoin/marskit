@@ -168,7 +168,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 			<View style={[styles.tabRoot, { bottom: Math.max(insets.bottom, 5) }]}>
 				<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
 					<Blur style={styles.tabSend}>
-						<SvgXml xml={sendIcon('white')} width={15} height={15} />
+						<SvgXml xml={sendIcon('white')} width={13} height={13} />
 						<Text02M style={styles.tabText}>Send</Text02M>
 					</Blur>
 				</TouchableOpacity>
@@ -180,7 +180,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 				</TouchableOpacity>
 				<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
 					<Blur style={styles.tabReceive}>
-						<SvgXml xml={receiveIcon('white')} width={15} height={15} />
+						<SvgXml xml={receiveIcon('white')} width={13} height={13} />
 						<Text02M style={styles.tabText}>Receive</Text02M>
 					</Blur>
 				</TouchableOpacity>
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 	},
 	tabText: {
-		marginLeft: 10,
+		marginLeft: 6,
 	},
 });
 

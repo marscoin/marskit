@@ -4,7 +4,7 @@ import {
 	View,
 	SettingsIcon,
 	TouchableOpacity,
-	TitleHaas,
+	Title,
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
@@ -39,7 +39,7 @@ const Header = (): ReactElement => {
 						style={styles.profileImage}
 					/>
 					{profile?.name ? (
-						<TitleHaas>{truncate(profile?.name, 20)}</TitleHaas>
+						<Title>{truncate(profile?.name, 20)}</Title>
 					) : (
 						<SlashtagURL url={profile?.id} />
 					)}
@@ -69,21 +69,21 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		alignItems: 'center',
 		marginTop: 15,
-		marginHorizontal: 10,
+		marginHorizontal: 16,
 		marginBottom: 10,
 	},
 	cogIcon: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		minHeight: 30,
-		minWidth: 30,
+		minHeight: 32,
+		minWidth: 32,
 	},
 	profileIcon: {
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginRight: 10,
-		minHeight: 30,
-		minWidth: 30,
+		minHeight: 32,
+		minWidth: 32,
 	},
 	leftColumn: {
 		flex: 6,

@@ -61,7 +61,7 @@ const Section = memo(
 				<View style={styles.sText}>
 					<Caption13Up color="gray1">{title}</Caption13Up>
 				</View>
-				<View style={styles.sText}>{value}</View>
+				<View style={styles.sValue}>{value}</View>
 			</TouchableOpacity>
 		);
 	},
@@ -341,6 +341,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 
 				<View style={nextButtonContainer}>
 					<SwipeToConfirm
+						text="Swipe to pay"
 						onConfirm={handleConfirm}
 						icon={<Checkmark width={30} height={30} color="black" />}
 						loading={isLoading}
@@ -361,12 +362,12 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	amountToggle: {
+		marginTop: 10,
 		marginBottom: 32,
 	},
 	nextButtonContainer: {
 		flex: 1,
 		justifyContent: 'flex-end',
-		paddingHorizontal: 16,
 	},
 	sectionContainer: {
 		marginHorizontal: -4,
@@ -383,6 +384,11 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		flexDirection: 'row',
 		alignItems: 'center',
+	},
+	sValue: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 16,
 	},
 	tagsContainer: {
 		flexDirection: 'row',

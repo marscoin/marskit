@@ -28,8 +28,9 @@ import React, {
 import { StyleSheet } from 'react-native';
 import BottomSheet, {
 	useBottomSheetDynamicSnapPoints,
+	BottomSheetView,
+	BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { TViewController } from '../store/types/user';
@@ -72,6 +73,18 @@ const BottomSheetWrapper = forwardRef(
 			}
 			return theme.colors.tabBackground;
 		}, [theme.colors, headerColor]);
+		const backgroundStyle = useMemo(
+			() => ({ backgroundColor }),
+			[backgroundColor],
+		);
+		const handleIndicatorStyle = useMemo(
+			() => ({ backgroundColor: theme.colors.gray2 }),
+			[theme.colors.gray2],
+		);
+		const handleStyle = useMemo(
+			() => [styles.handle, { backgroundColor }],
+			[backgroundColor],
+		);
 
 		useEffect(() => {
 			try {
@@ -152,9 +165,9 @@ const BottomSheetWrapper = forwardRef(
 
 		return (
 			<BottomSheet
-				backgroundStyle={{ backgroundColor }}
-				handleIndicatorStyle={{ backgroundColor: theme.colors.gray2 }}
-				handleStyle={{ ...styles.handle, backgroundColor: backgroundColor }}
+				backgroundStyle={backgroundStyle}
+				handleIndicatorStyle={handleIndicatorStyle}
+				handleStyle={handleStyle}
 				animateOnMount
 				enablePanDownToClose
 				keyboardBlurBehavior="restore"
