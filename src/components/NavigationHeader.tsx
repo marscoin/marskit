@@ -1,14 +1,13 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { SvgXml } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import {
+	BackIcon,
 	Subtitle,
-	TitleHaas,
+	Title,
 	TouchableOpacity,
 	View,
-	BackIcon,
 	XIcon,
 } from '../styles/components';
 
@@ -65,10 +64,19 @@ const NavigationHeader = ({
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const Text = useMemo(() => (size === 'lg' ? TitleHaas : Subtitle), [size]);
+	const Text = useMemo(() => (size === 'lg' ? Title : Subtitle), [size]);
+	const container = useMemo(
+		() => [
+			styles.container,
+			size === 'lg'
+				? { marginTop: 17, marginBottom: 20 }
+				: { marginTop: 2, marginBottom: 10 },
+		],
+		[size],
+	);
 
 	return (
-		<View style={styles.container}>
+		<View style={container}>
 			<View style={styles.leftColumn}>
 				{displayBackButton && <BackButton onPress={handleBackPress} />}
 			</View>
@@ -85,8 +93,6 @@ const NavigationHeader = ({
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: 'row',
-		marginTop: 17,
-		marginBottom: 20,
 		backgroundColor: 'transparent',
 	},
 	leftColumn: {

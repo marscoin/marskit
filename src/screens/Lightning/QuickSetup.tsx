@@ -5,7 +5,7 @@ import { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
 	AnimatedView,
 	Caption13Up,
-	DisplayHaas,
+	Display,
 	Headline,
 	LightningIcon,
 	SavingsIcon,
@@ -67,7 +67,7 @@ const QuickSetup = ({ navigation }): ReactElement => {
 			<NavigationHeader title="Add instant payments" />
 			<View style={styles.root}>
 				<View>
-					<DisplayHaas color="purple">Spending balance.</DisplayHaas>
+					<Display color="purple">Spending balance.</Display>
 					{keybrd ? (
 						<Text01S color="gray1" style={styles.text}>
 							Enter the amount of money you want to be able to spend instantly.

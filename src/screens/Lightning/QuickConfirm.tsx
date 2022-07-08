@@ -5,7 +5,7 @@ import { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
 	AnimatedView,
 	Caption13Up,
-	DisplayHaas,
+	Display,
 	LightningIcon,
 	Text01S,
 } from '../../styles/components';
@@ -47,7 +47,7 @@ const QuickConfirm = ({ navigation, route }): ReactElement => {
 			<NavigationHeader title="Add instant payments" />
 			<View style={styles.root}>
 				<View>
-					<DisplayHaas color="purple">Please {'\n'}confirm.</DisplayHaas>
+					<Display color="purple">Please {'\n'}confirm.</Display>
 					<Text01S color="gray1" style={styles.text}>
 						It costs <Text01S>$TODO</Text01S> to connect you to Lightning and
 						set up your spending balance.

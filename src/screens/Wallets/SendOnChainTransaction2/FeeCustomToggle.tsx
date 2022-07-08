@@ -1,11 +1,7 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet, Keyboard } from 'react-native';
 
-import {
-	DisplayHaas,
-	Pressable,
-	LightningIcon,
-} from '../../../styles/components';
+import { Display, Pressable, LightningIcon } from '../../../styles/components';
 import { toggleView } from '../../../store/actions/user';
 import { useTransactionDetails } from '../../../hooks/transaction';
 
@@ -26,7 +22,7 @@ const FeeCustomToggle = ({ style }: { style?: object }): ReactElement => {
 	return (
 		<Pressable onPress={onTogglePress} style={[styles.row, style]}>
 			<LightningIcon height={38} style={styles.symbol} color="gray2" />
-			<DisplayHaas>{transaction.satsPerByte}</DisplayHaas>
+			<Display>{transaction.satsPerByte}</Display>
 		</Pressable>
 	);
 };

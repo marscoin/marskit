@@ -1,7 +1,7 @@
 import React, { ReactElement, memo } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 
-import { DisplayHaas, Text01S } from '../../styles/components';
+import { Display, Text01S } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -21,7 +21,7 @@ const Result = ({ navigation }): ReactElement => {
 			/>
 			<View style={styles.root}>
 				<View>
-					<DisplayHaas color="purple">You’re Connected!</DisplayHaas>
+					<Display color="purple">You’re Connected!</Display>
 					<Text01S color="gray1" style={styles.text}>
 						You are now connected to the Lightning network. Enjoy instant
 						payments! (Your instant balance will be ready in ±10-20min)

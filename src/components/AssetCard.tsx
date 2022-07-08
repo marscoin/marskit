@@ -1,8 +1,3 @@
-/**
- * @format
- * @flow strict-local
- */
-
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Pressable, Text02M, Caption13M } from '../styles/components';
@@ -48,11 +43,12 @@ const AssetCard = ({
 const styles = StyleSheet.create({
 	container: {
 		minHeight: 88,
-		marginBottom: 8,
 		display: 'flex',
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		flexDirection: 'row',
+		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+		borderBottomWidth: 1,
 	},
 	col1: {
 		display: 'flex',

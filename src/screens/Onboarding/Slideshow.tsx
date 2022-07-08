@@ -1,18 +1,19 @@
-import React, { ReactElement, useState, useRef, useMemo } from 'react';
+import React, { memo, ReactElement, useState, useRef, useMemo } from 'react';
 import {
 	Image,
 	StyleSheet,
 	TouchableOpacity,
 	useWindowDimensions,
+	View,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
 	AnimatedView,
-	DisplayHaas,
+	Display,
 	Text01M,
 	Text01S,
-	View,
+	View as ThemedView,
 } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
@@ -24,7 +25,9 @@ import useColors from '../../hooks/colors';
 import LoadingWalletScreen from './Loading';
 
 const Dot = ({ active }: { active?: boolean }): ReactElement => {
-	return <View color={active ? 'white' : 'gray2'} style={styles.pageDot} />;
+	return (
+		<ThemedView color={active ? 'white' : 'gray2'} style={styles.pageDot} />
+	);
 };
 
 /**
@@ -70,83 +73,49 @@ const Slideshow = ({
 			{
 				topLeftColor: colors.brand,
 				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
-							<Image
-								style={styles.floatIllustraion}
-								source={require('../../assets/illustrations/figures.png')}
-							/>
-						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Welcome to the
-								<DisplayHaas lineHeight="48px" color="brand">
-									{' '}
-									Atomic Economy.
-								</DisplayHaas>
-							</DisplayHaas>
-							<Text01S color="gray1" style={styles.text}>
-								Bitkit is your toolkit for a new economy, where everything is
-								based on Bitcoin.
-							</Text01S>
-						</View>
-						<SafeAreaInsets type={'bottom'} />
-					</View>
-				),
-			},
-
-			{
-				topLeftColor: colors.orange,
-				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
+					<View style={styles.slide}>
+						<View style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
 								source={require('../../assets/illustrations/shield-b.png')}
 							/>
 						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Money,
-								<DisplayHaas lineHeight="48px" color="orange">
-									{' '}
-									Owned by You.
-								</DisplayHaas>
-							</DisplayHaas>
+						<View style={styles.textContent}>
+							<Display>
+								Bitcoin,
+								<Display color="brand"> Everywhere.</Display>
+							</Display>
 							<Text01S color="gray1" style={styles.text}>
-								Be in charge of your own money. Spend your Bitcoin on the things
-								that you value in life.
+								Pay anyone, anywhere, any time and spend your Bitcoin on the
+								things that you value in life.
 							</Text01S>
 						</View>
-						<SafeAreaInsets type={'bottom'} />
+						<SafeAreaInsets type="bottom" />
 					</View>
 				),
 			},
 
 			{
-				topLeftColor: '#B95CE8',
+				topLeftColor: colors.purple,
 				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
+					<View style={styles.slide}>
+						<View style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
 								source={require('../../assets/illustrations/lightning.png')}
 							/>
 						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Bitcoin,
-								<DisplayHaas lineHeight="48px" style={styles.headline2}>
-									{' '}
-									Lightning fast.
-								</DisplayHaas>
-							</DisplayHaas>
+						<View style={styles.textContent}>
+							<Display>
+								Lightning
+								<Display style={styles.headline2}> Fast.</Display>
+							</Display>
 							<Text01S color="gray1" style={styles.text}>
-								Send Bitcoin faster than ever. Set up an instant connection and
-								pay anyone, anywhere.
+								Send Bitcoin faster than ever. Enjoy instant transactions with
+								friends, family and merchants.
 							</Text01S>
 						</View>
-						<SafeAreaInsets type={'bottom'} />
+						<SafeAreaInsets type="bottom" />
 					</View>
 				),
 			},
@@ -154,26 +123,23 @@ const Slideshow = ({
 			{
 				topLeftColor: colors.green,
 				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
+					<View style={styles.slide}>
+						<View style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
 								source={require('../../assets/illustrations/coins.png')}
 							/>
 						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Instant{' '}
-								<DisplayHaas lineHeight="48px" style={styles.headline3}>
-									Tether.
-								</DisplayHaas>
-							</DisplayHaas>
+						<View style={styles.textContent}>
+							<Display>
+								Instant <Display style={styles.headline3}>Tether.</Display>
+							</Display>
 							<Text01S color="gray1" style={styles.text}>
 								Save and spend traditional currency, gifts, rewards, and digital
 								assets instantly and borderless.
 							</Text01S>
 						</View>
-						<SafeAreaInsets type={'bottom'} />
+						<SafeAreaInsets type="bottom" />
 					</View>
 				),
 			},
@@ -181,55 +147,24 @@ const Slideshow = ({
 			{
 				topLeftColor: colors.blue,
 				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
+					<View style={styles.slide}>
+						<View style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
 								source={require('../../assets/illustrations/padlock.png')}
 							/>
 						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
+						<View style={styles.textContent}>
+							<Display>
 								Log in with
-								<DisplayHaas lineHeight="48px" color="blue">
-									{' '}
-									just a Tap.
-								</DisplayHaas>
-							</DisplayHaas>
+								<Display color="blue"> just a Tap.</Display>
+							</Display>
 							<Text01S color="gray1" style={styles.text}>
 								Experience the web without passwords. Use Slashtags to take
 								control of your accounts & contacts.
 							</Text01S>
 						</View>
-						<SafeAreaInsets type={'bottom'} />
-					</View>
-				),
-			},
-
-			{
-				topLeftColor: colors.yellow,
-				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
-							<Image
-								style={illustrationStyles}
-								source={require('../../assets/illustrations/gift.png')}
-							/>
-						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Money gets
-								<DisplayHaas lineHeight="48px" color="yellow">
-									{' '}
-									Personal.
-								</DisplayHaas>
-							</DisplayHaas>
-							<Text01S color="gray1" style={styles.text}>
-								Pay, tip or gift your friends & family Bitcoin, Tether and other
-								tokens and attach a personal note.
-							</Text01S>
-						</View>
-						<SafeAreaInsets type={'bottom'} />
+						<SafeAreaInsets type="bottom" />
 					</View>
 				),
 			},
@@ -237,26 +172,20 @@ const Slideshow = ({
 			{
 				topLeftColor: colors.brand,
 				slide: (): ReactElement => (
-					<View color={'transparent'} style={styles.slide}>
-						<View color={'transparent'} style={styles.imageContainer}>
+					<View style={styles.slide}>
+						<View style={styles.imageContainer}>
 							<Image
 								style={illustrationStyles}
 								source={require('../../assets/illustrations/wallet.png')}
 							/>
 						</View>
-						<View color={'transparent'} style={styles.textContent}>
-							<DisplayHaas lineHeight="48px">
-								Money needs
-								<DisplayHaas lineHeight="48px" color="brand">
-									{' '}
-									a Wallet.
-								</DisplayHaas>
-							</DisplayHaas>
-							<Text01S color="gray1" style={styles.text}>
-								Time to set up your Bitkit Wallet
-							</Text01S>
+						<View style={styles.textContent}>
+							<Display>
+								Let’s create
+								<Display color="brand"> your Wallet.</Display>
+							</Display>
 
-							<View color={'transparent'} style={styles.buttonsContainer}>
+							<View style={styles.buttonsContainer}>
 								<Button
 									size="large"
 									style={[styles.button, styles.restoreButton]}
@@ -273,7 +202,7 @@ const Slideshow = ({
 								/>
 							</View>
 						</View>
-						<SafeAreaInsets type={'bottom'} />
+						<SafeAreaInsets type="bottom" />
 					</View>
 				),
 			},
@@ -299,7 +228,7 @@ const Slideshow = ({
 
 	if (isCreatingWallet) {
 		return (
-			<GlowingBackground topLeft={colors.green}>
+			<GlowingBackground topLeft={colors.brand}>
 				<LoadingWalletScreen />
 			</GlowingBackground>
 		);
@@ -324,11 +253,11 @@ const Slideshow = ({
 					<AnimatedView
 						entering={FadeIn}
 						exiting={FadeOut}
-						color={'transparent'}
+						color="transparent"
 						style={styles.headerButtonContainer}>
 						<TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-							<SafeAreaInsets type={'top'} />
-							<Text01M color={'gray1'}>Skip</Text01M>
+							<SafeAreaInsets type="top" />
+							<Text01M color="gray1">Skip</Text01M>
 						</TouchableOpacity>
 					</AnimatedView>
 				)}
@@ -375,10 +304,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		position: 'relative', // for first slide background image
 	},
-	floatIllustraion: {
-		position: 'absolute',
-		top: 10,
-	},
 	illustration: {
 		resizeMode: 'contain',
 	},
@@ -406,4 +331,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default Slideshow;
+export default memo(Slideshow);

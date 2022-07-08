@@ -2,11 +2,11 @@ import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 
 import {
-	BicycleIcon,
-	CarSimpleIcon,
-	GearIcon,
 	LightningIcon,
-	PedestrianIcon,
+	SettingsIcon,
+	SpeedFastIcon,
+	SpeedNormalIcon,
+	SpeedSlowIcon,
 	Text01M,
 	Text02M,
 } from '../../../styles/components';
@@ -33,19 +33,19 @@ const FeeItem = ({
 	let icon;
 	switch (id) {
 		case EFeeIds.instant:
-			icon = <CarSimpleIcon color="brand" />;
+			icon = <SpeedFastIcon color="brand" />;
 			break;
 		case EFeeIds.fast:
-			icon = <CarSimpleIcon color="brand" />;
+			icon = <SpeedFastIcon color="brand" />;
 			break;
 		case EFeeIds.normal:
-			icon = <BicycleIcon color="brand" />;
+			icon = <SpeedNormalIcon color="brand" />;
 			break;
 		case EFeeIds.slow:
-			icon = <PedestrianIcon color="brand" />;
+			icon = <SpeedSlowIcon color="brand" />;
 			break;
 		case EFeeIds.custom:
-			icon = <GearIcon color="gray1" />;
+			icon = <SettingsIcon color="gray1" width={32} height={32} />;
 			break;
 	}
 

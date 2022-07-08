@@ -25,12 +25,7 @@ import {
 	useDerivedValue,
 	vec,
 } from '@shopify/react-native-skia';
-import {
-	AnimatedView,
-	DisplayHaas,
-	TitleHaas,
-	View,
-} from '../../../styles/components';
+import { AnimatedView, Display, Title, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
 import useColors from '../../../hooks/colors';
@@ -184,7 +179,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 							<View color={'transparent'} style={styles.row}>
 								<View color={'transparent'} style={styles.cell}>
 									<BitcoinLogo viewBox="0 0 70 70" height={32} width={32} />
-									<TitleHaas style={styles.title}>{title}</TitleHaas>
+									<Title style={styles.title}>{title}</Title>
 								</View>
 								{!showDetails ? (
 									<AnimatedView
@@ -192,12 +187,12 @@ const WalletsDetail = (props: Props): ReactElement => {
 										style={styles.cell}
 										entering={FadeIn}
 										exiting={FadeOut}>
-										<TitleHaas color={'gray'}>{fiatSymbol} </TitleHaas>
-										<TitleHaas>{fiatWhole}</TitleHaas>
-										<TitleHaas color={'gray'}>
+										<Title color={'gray'}>{fiatSymbol} </Title>
+										<Title>{fiatWhole}</Title>
+										<Title color={'gray'}>
 											{fiatDecimal}
 											{fiatDecimalValue}
-										</TitleHaas>
+										</Title>
 									</AnimatedView>
 								) : null}
 							</View>
@@ -211,12 +206,12 @@ const WalletsDetail = (props: Props): ReactElement => {
 										<View
 											color={'transparent'}
 											style={styles.largeValueContainer}>
-											<DisplayHaas color={'gray'}>{fiatSymbol}</DisplayHaas>
-											<DisplayHaas>{fiatWhole}</DisplayHaas>
-											<DisplayHaas color={'gray'}>
+											<Display color={'gray'}>{fiatSymbol}</Display>
+											<Display>{fiatWhole}</Display>
+											<Display color={'gray'}>
 												{fiatDecimal}
 												{fiatDecimalValue}
-											</DisplayHaas>
+											</Display>
 										</View>
 									</View>
 									{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}

@@ -22,7 +22,7 @@ import {
 	ScanIcon,
 	Caption13Up,
 	ClipboardTextIcon,
-	UsersIcon,
+	UserIcon,
 	TagIcon,
 	View as ThemedView,
 } from '../../../styles/components';
@@ -201,7 +201,9 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						placeholderTextColor={colors.white5}
 						selectTextOnFocus={true}
 						multiline={true}
-						placeholder="Address"
+						placeholder="Paste or scan an address, invoice or select a contact"
+						fontSize={15}
+						fontWeight="600"
 						autoCapitalize="none"
 						autoCompleteType="off"
 						autoCorrect={false}
@@ -233,7 +235,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 							/>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.inputAction}>
-							<UsersIcon
+							<UserIcon
 								color="brand"
 								width={24}
 								onPress={(): void => Alert.alert('TODO')}

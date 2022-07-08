@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
+		marginTop: 20,
 		paddingHorizontal: 16,
 	},
 	title: {

@@ -37,9 +37,10 @@ import {
 	magnifyingGlassIcon,
 	clipboardTextIcon,
 	usersIcon,
-	carSimpleIcon,
-	bicycleIcon,
-	pedestrianIcon,
+	userIcon,
+	speedFastIcon,
+	speedNormalIcon,
+	speedSlowIcon,
 	gearIcon,
 	xIcon,
 	tagIcon,
@@ -182,22 +183,31 @@ export const UsersIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
-export const CarSimpleIcon = styled(SvgXml).attrs((props) => ({
-	xml: carSimpleIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+export const UserIcon = styled(SvgXml).attrs((props) => ({
+	xml: userIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
 	color: undefined,
 }))({});
 
-export const BicycleIcon = styled(SvgXml).attrs((props) => ({
-	xml: bicycleIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+export const SpeedFastIcon = styled(SvgXml).attrs((props) => ({
+	xml: speedFastIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
 	color: undefined,
 }))({});
 
-export const PedestrianIcon = styled(SvgXml).attrs((props) => ({
-	xml: pedestrianIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+export const SpeedNormalIcon = styled(SvgXml).attrs((props) => ({
+	xml: speedNormalIcon(
+		props?.color ? props.theme.colors[props.color] : 'white',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const SpeedSlowIcon = styled(SvgXml).attrs((props) => ({
+	xml: speedSlowIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
 	color: undefined,
@@ -405,20 +415,16 @@ export const ProfileIcon = styled(SvgXml).attrs((props) => ({
 }))({});
 
 export const Display = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+	...sanFranciscoWeights.semibold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.medium.fontFamily,
+		: 'NHaasGroteskDSW02-65Md',
 	fontSize: props.size ? props.size : '48px',
-	lineHeight: props.lineHeight,
+	lineHeight: props.lineHeight ?? '48px',
 }));
-
-export const DisplayHaas = styled(Display)`
-	font-family: 'NHaasGroteskDSW02-65Md';
-`;
 
 export const Headline = styled.Text((props) => ({
 	...sanFranciscoWeights.bold,
@@ -427,24 +433,20 @@ export const Headline = styled.Text((props) => ({
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.medium.fontFamily,
+		: sanFranciscoWeights.bold.fontFamily,
 	fontSize: props.size ? props.size : '34px',
 }));
 
 export const Title = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+	...sanFranciscoWeights.semibold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.medium.fontFamily,
+		: 'NHaasGroteskDSW02-65Md',
 	fontSize: props.size ? props.size : '22px',
 }));
-
-export const TitleHaas = styled(Title)`
-	font-family: 'NHaasGroteskDSW02-65Md';
-`;
 
 export const Subtitle = styled.Text((props) => ({
 	...sanFranciscoWeights.bold,
@@ -454,17 +456,17 @@ export const Subtitle = styled.Text((props) => ({
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.bold.fontFamily,
-	fontSize: props.size ? props.size : '18px',
+	fontSize: props.size ? props.size : '17px',
 }));
 
 export const Text01M = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+	...sanFranciscoWeights.semibold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.medium.fontFamily,
+		: sanFranciscoWeights.semibold.fontFamily,
 	fontSize: props.size ? props.size : '17px',
 }));
 
@@ -491,13 +493,13 @@ export const Text01B = styled.Text((props) => ({
 }));
 
 export const Text02M = styled.Text((props) => ({
-	...sanFranciscoWeights.medium,
+	...sanFranciscoWeights.semibold,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	fontFamily: props.font
 		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.medium.fontFamily,
+		: sanFranciscoWeights.semibold.fontFamily,
 	fontSize: props.size ? props.size : '15px',
 }));
 
@@ -536,6 +538,28 @@ export const SubHeadM = styled.Text((props) => ({
 }));
 
 export const Caption13M = styled.Text((props) => ({
+	...sanFranciscoWeights.semibold,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	fontFamily: props.font
+		? props.theme.fonts[props.font].fontFamily
+		: sanFranciscoWeights.semibold.fontFamily,
+	fontSize: props.size ? props.size : '13px',
+}));
+
+export const Caption13S = styled.Text((props) => ({
+	...sanFranciscoWeights.regular,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	fontFamily: props.font
+		? props.theme.fonts[props.font].fontFamily
+		: sanFranciscoWeights.regular.fontFamily,
+	fontSize: props.size ? props.size : '13px',
+}));
+
+export const Caption13Up = styled.Text((props) => ({
 	...sanFranciscoWeights.medium,
 	color: props.color
 		? props.theme.colors[props.color]
@@ -544,24 +568,7 @@ export const Caption13M = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.medium.fontFamily,
 	fontSize: props.size ? props.size : '13px',
-}));
-
-export const Caption13S = styled.Text((props) => ({
-	...sanFranciscoWeights.regular,
-	color: props.color ? props.theme.colors[props.color] : '#636366',
-	fontFamily: props.font
-		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.regular.fontFamily,
-	fontSize: props.size ? props.size : '13px',
-}));
-
-export const Caption13Up = styled.Text((props) => ({
-	...sanFranciscoWeights.semibold,
-	color: props.color ? props.theme.colors[props.color] : '#636366',
-	fontFamily: props.font
-		? props.theme.fonts[props.font].fontFamily
-		: sanFranciscoWeights.semibold.fontFamily,
-	fontSize: props.size ? props.size : '13px',
+	textTransform: 'uppercase',
 }));
 
 export const Text13S = styled.Text((props) => ({
@@ -584,6 +591,7 @@ export const Text13UP = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.medium.fontFamily,
 	fontSize: props.size ? props.size : '13px',
+	textTransform: 'uppercase',
 }));
 
 export const SafeAreaView = styled(_SafeAreaView)`

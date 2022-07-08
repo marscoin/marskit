@@ -41,7 +41,9 @@ const AmountButtonRow = (): ReactElement => {
 				color={'onSurface'}
 				disabled={balance <= 0}
 				onPress={sendMax}>
-				<Text02B color={max ? 'orange' : 'white'}>MAX</Text02B>
+				<Text02B size="12px" color={max ? 'orange' : 'brand'}>
+					MAX
+				</Text02B>
 			</TouchableOpacity>
 
 			<TouchableOpacity
@@ -52,8 +54,8 @@ const AmountButtonRow = (): ReactElement => {
 						getStore().settings?.unitPreference === 'asset' ? 'fiat' : 'asset';
 					updateSettings({ unitPreference: newUnitPreference });
 				}}>
-				<SwitchIcon color="white" width={16.44} height={13.22} />
-				<Text02B style={styles.middleButtonText}>
+				<SwitchIcon color="brand" width={16.44} height={13.22} />
+				<Text02B size="12px" color="brand" style={styles.middleButtonText}>
 					{unitPreference === 'asset'
 						? displayValues.fiatTicker
 						: displayValues.bitcoinTicker}
@@ -66,7 +68,9 @@ const AmountButtonRow = (): ReactElement => {
 				onPress={(): void => {
 					toggleView({ view: 'numberPad', data: { isOpen: false } }).then();
 				}}>
-				<Text02B>DONE</Text02B>
+				<Text02B size="12px" color="brand">
+					DONE
+				</Text02B>
 			</TouchableOpacity>
 		</View>
 	);

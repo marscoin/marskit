@@ -85,7 +85,9 @@ const FeeNumberPad = (): ReactElement => {
 						onPress={(): void => {
 							toggleView({ view: 'numberPadFee', data: { isOpen: false } });
 						}}>
-						<Text02B color="brand">DONE</Text02B>
+						<Text02B size="12px" color="brand">
+							DONE
+						</Text02B>
 					</TouchableOpacity>
 				</View>
 			</NumberPad>

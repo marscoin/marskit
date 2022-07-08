@@ -7,28 +7,31 @@ import React, {
 } from 'react';
 import { Alert, StyleSheet, View, LayoutAnimation } from 'react-native';
 
-import { View as ThemedView, Text01S, Subtitle } from '../styles/components';
+import { Text02S, Subtitle } from '../styles/components';
 import NumberPad from './NumberPad';
 import SafeAreaInsets from './SafeAreaInsets';
+import GlowingBackground from './GlowingBackground';
 import useColors from '../hooks/colors';
 import { wipeWallet } from '../store/actions/settings';
 import { setKeychainValue, getKeychainValue, vibrate } from '../utils/helpers';
+import BitKitLogo from '../assets/bitkit-logo.svg';
 
 export const PIN_ATTEMPTS = '10';
 
-const ChoosePIN = ({ onSuccess }: { onSuccess: Function }): ReactElement => {
+const ChoosePIN = ({
+	onSuccess,
+	showLogoOnPIN,
+}: {
+	onSuccess: Function;
+	showLogoOnPIN: boolean;
+}): ReactElement => {
 	const [pin, setPin] = useState<string>('');
 	const [attemptsRemaining, setAttemptsRemaining] = useState(0);
 	const { brand, brand08 } = useColors();
 
 	const handleOnPress = (n): void => {
 		vibrate({});
-		setPin((p) => {
-			if (p.length === 4) {
-				return;
-			}
-			return p + String(n);
-		});
+		setPin((p) => (p.length === 4 ? '' : p + String(n)));
 	};
 
 	const handleOnRemove = (): void => {
@@ -119,31 +122,44 @@ const ChoosePIN = ({ onSuccess }: { onSuccess: Function }): ReactElement => {
 		return (): void => clearInterval(timer);
 	}, [pin, attemptsRemaining, onSuccess, reducePinAttemptsRemaining]);
 
-	return (
-		<ThemedView color="onSurface" style={styles.container}>
+	const content = (
+		<View style={styles.container}>
 			<SafeAreaInsets type="top" />
-			<View>
-				<Subtitle style={styles.title}>Enter pin</Subtitle>
-				<Text01S style={styles.title} color="gray1">
-					Attempts Remaining: {attemptsRemaining}
-				</Text01S>
-			</View>
 
-			<View style={styles.dots}>
-				{Array(4)
-					.fill(null)
-					.map((_, i) => (
-						<View
-							key={i}
-							style={[
-								styles.dot,
-								{
-									borderColor: brand,
-									backgroundColor: pin[i] === undefined ? brand08 : brand,
-								},
-							]}
-						/>
-					))}
+			<View />
+			{showLogoOnPIN && (
+				<View style={styles.logo}>
+					<BitKitLogo height={64} width={184} />
+				</View>
+			)}
+
+			<View />
+			<View />
+
+			<View>
+				<Subtitle style={styles.title}>Please enter your PIN code</Subtitle>
+				{attemptsRemaining !== Number(PIN_ATTEMPTS) && (
+					<Text02S style={styles.attempts} color="brand">
+						{attemptsRemaining} attempts remaining. Forgot your PIN?
+					</Text02S>
+				)}
+
+				<View style={styles.dots}>
+					{Array(4)
+						.fill(null)
+						.map((_, i) => (
+							<View
+								key={i}
+								style={[
+									styles.dot,
+									{
+										borderColor: brand,
+										backgroundColor: pin[i] === undefined ? brand08 : brand,
+									},
+								]}
+							/>
+						))}
+				</View>
 			</View>
 
 			<NumberPad
@@ -152,8 +168,14 @@ const ChoosePIN = ({ onSuccess }: { onSuccess: Function }): ReactElement => {
 				onRemove={handleOnRemove}
 				onClear={handleOnClear}
 			/>
-		</ThemedView>
+		</View>
 	);
+
+	if (!showLogoOnPIN) {
+		return content;
+	}
+
+	return <GlowingBackground topLeft={brand}>{content}</GlowingBackground>;
 };
 
 const styles = StyleSheet.create({
@@ -161,14 +183,21 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 	},
+	logo: {
+		alignSelf: 'center',
+		justifyContent: 'center',
+	},
 	title: {
 		textAlign: 'center',
 		marginBottom: 32,
 	},
+	attempts: {
+		textAlign: 'center',
+	},
 	dots: {
 		flexDirection: 'row',
 		justifyContent: 'center',
-		marginVertical: 32,
+		marginTop: 32,
 	},
 	dot: {
 		width: 20,

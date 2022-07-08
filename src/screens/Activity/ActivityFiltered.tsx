@@ -1,14 +1,10 @@
 import React, { ReactElement, memo, useMemo, useState, useEffect } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
-import {
-	View as ThemedView,
-	Caption13S,
-	TouchableOpacity as ThemedTouchableOpacity,
-} from '../../styles/components';
+import { View as ThemedView, Caption13M } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import SearchInput from '../../components/SearchInput';
 import ActivityList from './ActivityList';
@@ -20,6 +16,7 @@ import {
 	resetActivityFilterStore,
 } from '../../store/actions/activity';
 import { EActivityTypes } from '../../store/types/activity';
+import useColors from '../../hooks/colors';
 
 const Blur = Platform.OS === 'ios' ? BlurView : View;
 
@@ -31,13 +28,18 @@ const Tab = ({
 	text: string;
 	active?: boolean;
 }): ReactElement => {
+	const colors = useColors();
+	const style = useMemo(
+		() => ({
+			borderColor: active ? colors.brand : colors.gray1,
+		}),
+		[active, colors],
+	);
+
 	return (
-		<ThemedTouchableOpacity
-			style={styles.tab}
-			color={active ? 'gray3' : 'white08'}
-			{...props}>
-			<Caption13S color={active ? 'white' : 'gray1'}>{text}</Caption13S>
-		</ThemedTouchableOpacity>
+		<TouchableOpacity style={[styles.tab, style]} {...props}>
+			<Caption13M color={active ? 'white' : 'gray1'}>{text}</Caption13M>
+		</TouchableOpacity>
 	);
 };
 
@@ -135,12 +137,12 @@ const styles = StyleSheet.create({
 	},
 	tab: {
 		flex: 1,
-		paddingVertical: 8,
+		paddingVertical: 10,
 		paddingHorizontal: 4,
-		borderRadius: 8,
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginHorizontal: 4,
+		borderBottomWidth: 2,
 	},
 });
 

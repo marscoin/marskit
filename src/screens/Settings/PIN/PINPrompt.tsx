@@ -36,10 +36,9 @@ const PINPrompt = (): ReactElement => {
 			onClose={handleLater}
 			view="PINPrompt">
 			<View style={styles.root}>
-				<Subtitle style={styles.title}>Set up a PIN code</Subtitle>
+				<Subtitle style={styles.title}>Increase security</Subtitle>
 				<Text01S color="white5">
-					To increase security, you can set up a PIN code. You will have to
-					enter this PIN code to send a transaction.
+					To increase wallet security, you can set up a PIN code and Face ID.
 				</Text01S>
 				<View style={styles.imageContainer}>
 					<Glow color="green" size={500} style={styles.glow} />
@@ -53,16 +52,16 @@ const PINPrompt = (): ReactElement => {
 					<Button
 						style={styles.button}
 						size="lg"
-						text="Secure wallet"
-						onPress={handlePIN}
+						variant="secondary"
+						text="Later"
+						onPress={handleLater}
 					/>
 					<View style={styles.divider} />
 					<Button
 						style={styles.button}
 						size="lg"
-						variant="secondary"
-						text="Later"
-						onPress={handleLater}
+						text="Secure wallet"
+						onPress={handlePIN}
 					/>
 				</View>
 			</View>

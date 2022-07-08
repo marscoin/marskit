@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { Caption13Up, Subtitle, View } from '../../styles/components';
+import { Caption13Up, Subtitle, Text01M, View } from '../../styles/components';
 import Store from '../../store/types';
 import { groupActivityItems } from '../../utils/activity';
 import Button from '../../components/Button';
@@ -59,7 +59,7 @@ const ActivityList = (): ReactElement => {
 			</View>
 			{groupedItems.map((item) => renderItem({ item }))}
 			<Button
-				text="Show all activity"
+				text={<Text01M color="white8">Show all activity</Text01M>}
 				size="big"
 				variant="transparent"
 				onPress={(): void => {
@@ -73,7 +73,7 @@ const ActivityList = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		paddingTop: 20,
+		paddingTop: 30,
 	},
 	category: {
 		marginBottom: 16,

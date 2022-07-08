@@ -201,11 +201,11 @@ const CoinSelection = ({ navigation }): ReactElement => {
 							styles.totalBorder,
 							{ borderBottomColor: gray4 },
 						]}>
-						<Caption13Up>TOTAL REQUIRED</Caption13Up>
+						<Caption13Up color="gray1">TOTAL REQUIRED</Caption13Up>
 						<Subtitle>{txOutputDV.bitcoinFormatted}</Subtitle>
 					</View>
 					<View style={styles.totalRow}>
-						<Caption13Up>TOTAL SELECTED</Caption13Up>
+						<Caption13Up color="gray1">TOTAL SELECTED</Caption13Up>
 						<Subtitle color="green">{txInputDV.bitcoinFormatted}</Subtitle>
 					</View>
 				</View>

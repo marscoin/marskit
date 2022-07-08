@@ -1,6 +1,6 @@
 import React from 'react';
 import { BasicProfile } from '../store/types/slashtags';
-import { Text, TitleHaas, View } from '../styles/components';
+import { Text, Title, View } from '../styles/components';
 import { truncate } from '../utils/helpers';
 import ProfileImage from './ProfileImage';
 import { SlashtagURL } from './SlashtagURL';
@@ -19,14 +19,14 @@ export const ProfileCard = ({
 						?.split(' ')
 						.slice(0, 2)
 						.map((name, index) => (
-							<TitleHaas key={name} style={styles.name}>
+							<Title key={name} style={styles.name}>
 								{truncate(name, 16)}
 								{index === 1 &&
 								profile?.name &&
 								profile.name.split(' ').length > 2
 									? ' ...'
 									: ''}
-							</TitleHaas>
+							</Title>
 						))}
 					<SlashtagURL style={styles.url} url={profile?.id} />
 				</View>

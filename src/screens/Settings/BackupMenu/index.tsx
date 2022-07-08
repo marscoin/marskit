@@ -32,7 +32,7 @@ const BackupMenu = ({ navigation }): ReactElement => {
 				],
 			},
 		],
-		[],
+		[navigation],
 	);
 
 	return (

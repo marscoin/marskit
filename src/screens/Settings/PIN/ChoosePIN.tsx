@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	text: {
+		marginTop: 10,
 		paddingHorizontal: 32,
 	},
 	tryAgain: {

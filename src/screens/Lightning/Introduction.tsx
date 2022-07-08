@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Image, StyleSheet } from 'react-native';
-import { DisplayHaas, Text01S, View } from '../../styles/components';
+import { Display, Text01S, View } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -22,10 +22,9 @@ const Introduction = ({ navigation }): ReactElement => {
 					/>
 				</View>
 				<View color="transparent" style={styles.textContent}>
-					<DisplayHaas>
-						Instant{' '}
-						<DisplayHaas style={styles.headline2}>payments.</DisplayHaas>
-					</DisplayHaas>
+					<Display>
+						Instant <Display style={styles.headline2}>payments.</Display>
+					</Display>
 					<Text01S color="gray1" style={styles.text}>
 						Open a Lightning connection and send or receive bitcoin instantly.
 					</Text01S>

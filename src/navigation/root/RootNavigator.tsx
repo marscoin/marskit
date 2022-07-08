@@ -52,6 +52,7 @@ const RootNavigator = (): ReactElement => {
 	const AuthCheckComponent = useCallback(({ navigation }): ReactElement => {
 		return (
 			<AuthCheck
+				showLogoOnPIN={true}
 				onSuccess={(): void => {
 					navigation.replace('Tabs');
 				}}
