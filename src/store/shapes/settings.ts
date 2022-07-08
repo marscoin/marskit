@@ -12,6 +12,7 @@ export const defaultSettingsShape: ISettings = {
 	rbf: true,
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
+	balaceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
 	exchangeRateService: EExchangeRateService.bitfinex,
 	selectedLanguage: 'english',
@@ -19,4 +20,5 @@ export const defaultSettingsShape: ISettings = {
 	coinSelectAuto: true,
 	coinSelectPreference: 'small',
 	unitPreference: 'asset',
+	hideBalance: false,
 };

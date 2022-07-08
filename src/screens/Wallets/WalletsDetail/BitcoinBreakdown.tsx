@@ -6,23 +6,23 @@ import {
 	View,
 	TransferIcon,
 	LightningIcon,
-	CoinsIcon,
+	SavingsIcon,
 } from '../../../styles/components';
 import { useBalance } from '../../../hooks/wallet';
-import { IDisplayValues } from '../../../utils/exchange-rate/types';
+import Money from '../../../components/Money';
 
 const NetworkRow = ({
 	title,
 	subtitle,
 	color,
 	icon,
-	values,
+	satoshis,
 }: {
 	title: string;
 	subtitle: string;
 	color: string;
 	icon: ReactElement;
-	values: IDisplayValues;
+	satoshis: number;
 }): ReactElement => {
 	return (
 		<View color={'transparent'} style={styles.networkRow}>
@@ -36,21 +36,21 @@ const NetworkRow = ({
 				</View>
 			</View>
 			<View color={'transparent'} style={styles.valueContainer}>
-				<Text01M style={styles.value}>
-					<Text01M color={'gray1'}>{values.bitcoinSymbol} </Text01M>
-					{values.bitcoinFormatted}
-				</Text01M>
-				<Caption13M color={'gray1'} style={styles.value}>
-					{values.fiatSymbol} {values.fiatFormatted}
-				</Caption13M>
+				<Money sats={satoshis} size="text01m" />
+				<Money
+					sats={satoshis}
+					size="caption13M"
+					showFiat={true}
+					color="gray1"
+				/>
 			</View>
 		</View>
 	);
 };
 
 const BitcoinBreakdown = (): ReactElement => {
-	const onchainBalance = useBalance({ onchain: true });
-	const lightningBalance = useBalance({ lightning: true });
+	const { satoshis: onchain } = useBalance({ onchain: true });
+	const { satoshis: lightning } = useBalance({ lightning: true });
 
 	return (
 		<View color={'transparent'} style={styles.container}>
@@ -58,8 +58,8 @@ const BitcoinBreakdown = (): ReactElement => {
 				title={'Bitcoin savings'}
 				subtitle={'On-chain BTC'}
 				color={'rgba(247, 147, 26, 0.16)'}
-				icon={<CoinsIcon />}
-				values={onchainBalance}
+				icon={<SavingsIcon color="orange" width={17} height={17} />}
+				satoshis={onchain}
 			/>
 			<View color={'transparent'} style={styles.transferRow}>
 				<View color={'gray4'} style={styles.line} />
@@ -78,7 +78,7 @@ const BitcoinBreakdown = (): ReactElement => {
 				subtitle={'Lightning Network BTC'}
 				color={'rgba(185, 92, 232, 0.16)'}
 				icon={<LightningIcon height={15} />}
-				values={lightningBalance}
+				satoshis={lightning}
 			/>
 		</View>
 	);
@@ -136,9 +136,6 @@ const styles = StyleSheet.create({
 	valueContainer: {
 		display: 'flex',
 		alignItems: 'flex-end',
-	},
-	value: {
-		textAlign: 'right',
 	},
 });
 

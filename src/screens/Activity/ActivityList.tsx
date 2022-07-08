@@ -53,7 +53,7 @@ const ActivityList = ({
 	style?: StyleProp<ViewStyle> | undefined;
 	contentContainerStyle?: StyleProp<ViewStyle> | undefined;
 	progressViewOffset?: number | undefined;
-	showTitle: boolean;
+	showTitle?: boolean;
 }): ReactElement => {
 	const navigation = useNavigation();
 

@@ -1,5 +1,5 @@
-import React, { memo, ReactElement } from 'react';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import React, { memo, ReactElement, useRef } from 'react';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 export interface IDetectSwipe {
 	onSwipeLeft?: Function | undefined;
@@ -10,9 +10,9 @@ export interface IDetectSwipe {
 	swipeRightSensitivity?: number;
 	swipeUpSensitivity?: number;
 	swipeDownSensitivity?: number;
-	onEvent?: Function;
 	children?: ReactElement;
 }
+
 const DetectSwipe = ({
 	onSwipeLeft,
 	onSwipeRight,
@@ -22,39 +22,44 @@ const DetectSwipe = ({
 	swipeRightSensitivity = 600,
 	swipeUpSensitivity = 600,
 	swipeDownSensitivity = 600,
-	onEvent,
 	children,
 }: IDetectSwipe): ReactElement => {
-	const onPanGestureEvent = (event): void => {
-		if (onSwipeLeft && event.nativeEvent.velocityX <= -swipeLeftSensitivity) {
-			//Swiping left
-			onSwipeLeft();
-		}
-		if (onSwipeRight && event.nativeEvent.velocityX >= swipeRightSensitivity) {
-			//Swiping right.
-			onSwipeRight();
-		}
-		if (onSwipeUp && event.nativeEvent.velocityY <= -swipeUpSensitivity) {
-			//Swiping up
-			onSwipeUp();
-		}
-		if (onSwipeDown && event.nativeEvent.velocityY >= swipeDownSensitivity) {
-			//Swiping down.
-			onSwipeDown();
-		}
-		if (onEvent) {
-			onEvent(event);
-		}
-	};
+	const acticated = useRef(false);
 
-	return (
-		<PanGestureHandler
-			onGestureEvent={onPanGestureEvent}
-			// This allows Android to scroll when wrapping a ScrollView.
-			activeOffsetX={[-10, 10]}>
-			{children}
-		</PanGestureHandler>
-	);
+	const gesture = Gesture.Pan()
+		.runOnJS(true)
+		.minDistance(10)
+		.onUpdate((event) => {
+			if (acticated.current) {
+				return;
+			}
+
+			if (onSwipeLeft && event.velocityX <= -swipeLeftSensitivity) {
+				//Swiping left
+				onSwipeLeft();
+				acticated.current = true;
+			}
+			if (onSwipeRight && event.velocityX >= swipeRightSensitivity) {
+				//Swiping right.
+				onSwipeRight();
+				acticated.current = true;
+			}
+			if (onSwipeUp && event.velocityY <= -swipeUpSensitivity) {
+				//Swiping up
+				onSwipeUp();
+				acticated.current = true;
+			}
+			if (onSwipeDown && event.velocityY >= swipeDownSensitivity) {
+				//Swiping down.
+				onSwipeDown();
+				acticated.current = true;
+			}
+		})
+		.onFinalize(() => {
+			acticated.current = false;
+		});
+
+	return <GestureDetector gesture={gesture}>{children}</GestureDetector>;
 };
 
 export default memo(DetectSwipe);

@@ -25,13 +25,14 @@ import {
 	useDerivedValue,
 	vec,
 } from '@shopify/react-native-skia';
-import { AnimatedView, Display, Title, View } from '../../../styles/components';
+import { AnimatedView, Title, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
 import useColors from '../../../hooks/colors';
 import ActivityList from '../../Activity/ActivityList';
 import BitcoinBreakdown from './BitcoinBreakdown';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import Money from '../../../components/Money';
 import { EActivityTypes } from '../../../store/types/activity';
 import { TAssetType } from '../../../store/types/wallet';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
@@ -80,13 +81,8 @@ const Glow = ({ colors }): ReactElement => {
 
 const WalletsDetail = (props: Props): ReactElement => {
 	const { route } = props;
-
 	const { assetType } = route.params;
-
-	const { fiatWhole, fiatDecimal, fiatDecimalValue, fiatSymbol } = useBalance({
-		onchain: true,
-		lightning: true,
-	});
+	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
 	const colors = useColors();
 
@@ -187,12 +183,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 										style={styles.cell}
 										entering={FadeIn}
 										exiting={FadeOut}>
-										<Title color={'gray'}>{fiatSymbol} </Title>
-										<Title>{fiatWhole}</Title>
-										<Title color={'gray'}>
-											{fiatDecimal}
-											{fiatDecimalValue}
-										</Title>
+										<Money sats={satoshis} hightlight={true} size="title" />
 									</AnimatedView>
 								) : null}
 							</View>
@@ -206,12 +197,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 										<View
 											color={'transparent'}
 											style={styles.largeValueContainer}>
-											<Display color={'gray'}>{fiatSymbol}</Display>
-											<Display>{fiatWhole}</Display>
-											<Display color={'gray'}>
-												{fiatDecimal}
-												{fiatDecimalValue}
-											</Display>
+											<Money sats={satoshis} hightlight={true} />
 										</View>
 									</View>
 									{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}

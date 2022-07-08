@@ -1,19 +1,19 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { View, Pressable, Text02M, Caption13M } from '../styles/components';
-import { IDisplayValues } from '../utils/exchange-rate/types';
+import Money from '../components/Money';
 
 const AssetCard = ({
 	name,
 	ticker,
 	icon,
-	balances,
+	satoshis,
 	onPress,
 }: {
 	name: string;
 	ticker: string;
 	icon: ReactElement;
-	balances: IDisplayValues;
+	satoshis: number;
 	onPress: Function;
 }): ReactElement => {
 	return (
@@ -22,19 +22,25 @@ const AssetCard = ({
 				{icon}
 				<View color="transparent" style={styles.titleContainer}>
 					<Text02M>{name}</Text02M>
-					<Caption13M color={'gray1'}>{ticker}</Caption13M>
+					<Caption13M color="gray1">{ticker}</Caption13M>
 				</View>
 			</View>
 
 			<View color="transparent" style={styles.col2}>
-				<Text02M style={styles.value}>
-					{balances.bitcoinSymbol}
-					{balances.bitcoinFormatted}
-				</Text02M>
-				<Caption13M style={styles.value} color={'gray1'}>
-					{balances.fiatSymbol}
-					{balances.fiatFormatted}
-				</Caption13M>
+				<Money
+					sats={satoshis}
+					hide={true}
+					size="text01m"
+					style={styles.value}
+				/>
+				<Money
+					sats={satoshis}
+					hide={true}
+					size="caption13M"
+					showFiat={true}
+					color="gray1"
+					style={styles.value}
+				/>
 			</View>
 		</Pressable>
 	);
@@ -64,7 +70,7 @@ const styles = StyleSheet.create({
 		marginHorizontal: 12,
 	},
 	value: {
-		textAlign: 'right',
+		justifyContent: 'flex-end',
 	},
 });
 

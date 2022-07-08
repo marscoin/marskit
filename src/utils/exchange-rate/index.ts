@@ -150,11 +150,27 @@ export const getDisplayValues = ({
 				: fiatFormatted.replace(fiatSymbol, '');
 		}
 
-		const bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')
+		let bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')
 			.to(bitcoinUnit)
 			.value()
 			.toFixed(bitcoinUnit === 'satoshi' ? 0 : 8)
 			.toString();
+
+		// format sats to group thousands
+		// 4000000 -> 4 000 000
+		if (bitcoinUnit === 'satoshi') {
+			let res = '';
+			bitcoinFormatted
+				.split('')
+				.reverse()
+				.forEach((c, index) => {
+					if (index > 0 && index % 3 === 0) {
+						res = ' ' + res;
+					}
+					res = c + res;
+				});
+			bitcoinFormatted = res;
+		}
 
 		let { bitcoinSymbol } = defaultDisplayValues;
 		let bitcoinTicker = bitcoinUnit.toString();

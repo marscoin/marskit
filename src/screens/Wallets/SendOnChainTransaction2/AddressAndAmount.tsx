@@ -183,6 +183,8 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 					sats={amount}
 					onPress={onTogglePress}
 					style={styles.amountToggle}
+					reverse={true}
+					space={16}
 				/>
 				<Caption13Up color="gray1" style={styles.section}>
 					TO
@@ -288,6 +290,7 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		paddingHorizontal: 16,
+		marginTop: 16,
 	},
 	amountToggle: {
 		marginBottom: 32,

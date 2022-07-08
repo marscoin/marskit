@@ -52,6 +52,7 @@ import {
 	scanIcon,
 	cameraIcon,
 	savingsIcon,
+	bIcon,
 	unitBitcoinIcon,
 	unitSatoshiIcon,
 	trashIcon,
@@ -252,6 +253,13 @@ export const SavingsIcon = styled(SvgXml).attrs((props) => ({
 	xml: savingsIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const BIcon = styled(SvgXml).attrs((props) => ({
+	xml: bIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '42px',
+	width: props?.width ?? '26px',
 	color: undefined,
 }))({});
 

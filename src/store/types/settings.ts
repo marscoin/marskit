@@ -1,4 +1,4 @@
-import { IWalletItem, TBitcoinUnit } from './wallet';
+import { IWalletItem, TBitcoinUnit, TBalanceUnit } from './wallet';
 import { EExchangeRateService } from '../../utils/exchange-rate/types';
 
 type TTheme = 'dark' | 'light' | 'blue';
@@ -28,6 +28,7 @@ export interface ISettings {
 	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
+	balaceUnit: TBalanceUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
 	exchangeRateService: EExchangeRateService;
