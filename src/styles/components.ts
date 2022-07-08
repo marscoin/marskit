@@ -51,6 +51,8 @@ import {
 	scanIcon,
 	cameraIcon,
 	savingsIcon,
+	unitBitcoinIcon,
+	unitSatoshiIcon,
 	trashIcon,
 	plusIcon,
 	backIcon,
@@ -269,6 +271,24 @@ export const BitcoinCircleIcon = styled(SvgXml).attrs((props) => ({
 export const TetherCircleIcon = styled(SvgXml).attrs((props) => ({
 	xml: tetherCircleIcon(
 		props?.color ? props.theme.colors[props.color] : '#50AF95',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const UnitBitcoinIcon = styled(SvgXml).attrs((props) => ({
+	xml: unitBitcoinIcon(
+		props?.color ? props.theme.colors[props.color] : '#F7931A',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const UnitSatoshiIcon = styled(SvgXml).attrs((props) => ({
+	xml: unitSatoshiIcon(
+		props?.color ? props.theme.colors[props.color] : '#F7931A',
 	),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',

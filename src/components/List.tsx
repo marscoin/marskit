@@ -10,6 +10,7 @@ import {
 } from '../styles/components';
 import { useNavigation } from '@react-navigation/native';
 import Card from './Card';
+import { SvgProps } from 'react-native-svg';
 
 const _ItemHeader = memo(({ title }: { title?: string }): ReactElement => {
 	if (!title) {
@@ -36,6 +37,7 @@ type ItemData = {
 	onPress: Function;
 	enabled?: boolean;
 	hide?: boolean;
+	Icon?: React.FC<SvgProps>;
 };
 
 interface IItem extends ItemData {
@@ -52,6 +54,7 @@ const _Item = memo(
 		navigation,
 		enabled = true,
 		hide = false,
+		Icon,
 	}: IItem): ReactElement => {
 		if (hide) {
 			return <View />;
@@ -65,6 +68,14 @@ const _Item = memo(
 				<View color="transparent" style={styles.row}>
 					<Card style={styles.card} onPress={_onPress}>
 						<View color="transparent" style={styles.leftColumn}>
+							{Icon && (
+								<Icon
+									style={styles.icon}
+									viewBox="0 0 32 32"
+									height={32}
+									width={32}
+								/>
+							)}
 							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
@@ -79,6 +90,14 @@ const _Item = memo(
 				<View color="transparent" style={styles.row}>
 					<Card style={styles.card} onPress={enabled ? _onPress : undefined}>
 						<View color="transparent" style={styles.leftColumn}>
+							{Icon && (
+								<Icon
+									style={styles.icon}
+									viewBox="0 0 32 32"
+									height={32}
+									width={32}
+								/>
+							)}
 							<Text01S color="white">{title}</Text01S>
 						</View>
 						<View color="transparent" style={styles.rightColumn}>
@@ -92,12 +111,20 @@ const _Item = memo(
 			<View color="transparent" style={styles.row}>
 				<Card style={styles.card} onPress={enabled ? _onPress : undefined}>
 					<View color="transparent" style={styles.leftColumn}>
+						{Icon && (
+							<Icon
+								style={styles.icon}
+								viewBox="0 0 32 32"
+								height={32}
+								width={32}
+							/>
+						)}
 						<Text01S color="white">{title}</Text01S>
 					</View>
 					<View color="transparent" style={styles.rightColumn}>
 						{useCheckmark ? (
 							value ? (
-								<Checkmark />
+								<Checkmark color="brand" height={22} width={22} />
 							) : null
 						) : (
 							<>
@@ -116,7 +143,8 @@ const Item = memo(_Item, (prevProps, nextProps) => {
 		prevProps.title === nextProps.title &&
 		prevProps.value === nextProps.value &&
 		prevProps.type === nextProps.type &&
-		prevProps.enabled === nextProps.enabled
+		prevProps.enabled === nextProps.enabled &&
+		prevProps.Icon === nextProps.Icon
 	);
 });
 
@@ -189,11 +217,20 @@ const styles = StyleSheet.create({
 		marginRight: 15,
 	},
 	leftColumn: {
-		justifyContent: 'center',
+		justifyContent: 'flex-end',
+		flexDirection: 'row',
 	},
 	rightColumn: {
 		alignItems: 'center',
 		flexDirection: 'row',
+	},
+	icon: {
+		borderRadius: 200,
+		marginRight: 8,
+		marginBottom: -8,
+		marginTop: -5,
+		width: 32,
+		height: 32,
 	},
 });
 
