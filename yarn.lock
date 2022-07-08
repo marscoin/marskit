@@ -1717,13 +1717,30 @@
     random-access-memory "^4.1.0"
     sodium-universal "^3.1.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.2":
-  version "1.0.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.2.tgz#18b14ac2b43a2fcd0e1207023cd2ef7147963dec"
-  integrity sha512-ccPcCjLUl2oO51lQB1aWV5Ds1V0AeEJuQG7hT+IWPMrBPAKFuw3bX/BAC8TQUYbLiSdHhsBrMJDGyRyOntPbbw==
+"@synonymdev/slashtag@^1.0.0-alpha.3":
+  version "1.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.3.tgz#8c76ba9efe4dd4ced397c35c9b511607ce78b2d5"
+  integrity sha512-2/ZhvXKZTrdpKTZc8Tithe7jlReMAPEslxeymeWz53kr0iqEstcY/RD96VIg0CYTXHrTVaNieSzMnhu4+Q1oLw==
+  dependencies:
+    "@synonymdev/slashdrive" "^1.0.0-alpha.0"
+    b4a "^1.5.0"
+    compact-encoding "^2.6.1"
+    corestore "^6.0.1-alpha.17"
+    debug "^4.3.4"
+    dht-universal "^0.4.1"
+    graceful-goodbye "^1.0.0"
+    hyperswarm "^3.0.4"
+    random-access-memory "^4.1.0"
+    sodium-universal "^3.1.0"
+    z32 "^1.0.0"
+
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.6":
+  version "1.0.0-alpha.6"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.6.tgz#32d5848b10a507c87defff0261b3fd8186e57301"
+  integrity sha512-QarQcG2OoDSEH2RExQFeh7EEHCnYhkOQcJN4WKYU8ZqAaUuMAojTWqXqhmY58tvQAwjmA62mFmgkugBesrNJag==
   dependencies:
     "@synonymdev/slashauth" "^1.0.0-alpha.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.0"
+    "@synonymdev/slashtag" "^1.0.0-alpha.3"
     b4a "^1.3.1"
     corestore "^6.0.1-alpha.16"
     debug "^4.3.4"
@@ -2466,7 +2483,7 @@ axobject-query@^2.2.0:
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
   integrity sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==
 
-b4a@^1.0.1, b4a@^1.1.0, b4a@^1.1.1, b4a@^1.1.4, b4a@^1.3.0, b4a@^1.3.1, b4a@^1.5.0:
+b4a@^1.0.1, b4a@^1.1.0, b4a@^1.1.1, b4a@^1.1.4, b4a@^1.3.0, b4a@^1.3.1, b4a@^1.5.0, b4a@^1.5.3:
   version "1.5.3"
   resolved "https://registry.yarnpkg.com/b4a/-/b4a-1.5.3.tgz#56293b5607aeda3fd81c481e516e9f103fc88341"
   integrity sha512-1aCQIzQJK7G0z1Una75tWMlwVAR8o+QHoAlnWc5XAxRVBESY9WsitfBgM5nPyDBP5HrhPU1Np4Pq2Y7CJQ+tVw==
@@ -8058,6 +8075,14 @@ random-access-storage@^1.1.1, random-access-storage@^1.3.0:
     inherits "^2.0.3"
     queue-tick "^1.0.0"
 
+random-access-web-storage@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/random-access-web-storage/-/random-access-web-storage-1.4.0.tgz#c72500db366f10034c2e6f62d72adb5f60f509d9"
+  integrity sha512-E/S+V6z6R+y0QIWNZR2DJILAl2MB/8gkMfQ1nNUiT91drimsg/LDWjVm97b2pA9F9nfll+mKPz4nfbmPchR5YQ==
+  dependencies:
+    b4a "^1.1.0"
+    random-access-storage "^1.1.1"
+
 random-access-web@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/random-access-web/-/random-access-web-2.0.3.tgz#d645bce74f28f045eaea30497e98fe6c7219759d"
@@ -8212,6 +8237,11 @@ react-native-haptic-feedback@^1.13.1:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/react-native-haptic-feedback/-/react-native-haptic-feedback-1.13.1.tgz#f3b429732f1373b2b0f9d8a07e213feb59bc4d86"
   integrity sha512-aP4AhnxMPnlMEeG0ZVit5+ji85mhzvqQjWkGuOpNwjlJuWJ7IkUvLv/H32+S+Kb41eAl78z9k3FG9waPmLv/IQ==
+
+react-native-image-picker@^4.8.4:
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-4.8.4.tgz#ac52f1e265458e944664adf1dcd0a9ee408fe083"
+  integrity sha512-Mjh2j/sddyolb16EpmprWzbtyeFvW8Xgzr/8WNi9d6bR2FC/kL78cY/a+7Yzujg5ZDtT1MWys+eWw/qtfwgGiw==
 
 react-native-keyboard-accessory@^0.1.16:
   version "0.1.16"
@@ -10314,3 +10344,10 @@ yargs@^16.1.1, yargs@^16.2.0:
     string-width "^4.2.0"
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
+
+z32@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/z32/-/z32-1.0.0.tgz#d87c4a8b7aaf3660ebded2ec98f076e4c8d906e9"
+  integrity sha512-p3DhBJckAZj5XwYMJYeLlkgJJ+aEyCoOjTpK17I/MofVs70eR+WQPXQpk1LEmMweB2JbUx0naFXPPI2EGaVX6w==
+  dependencies:
+    b4a "^1.5.3"

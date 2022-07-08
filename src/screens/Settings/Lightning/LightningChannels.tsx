@@ -42,7 +42,7 @@ const LightningChannels = ({ navigation }): ReactElement => {
 		{
 			title: 'Peers',
 			data: peerList.map((p) => ({
-				title: `Pubkey: ${truncate(p.pubKey, 20)}${
+				title: `Pubkey: ${truncate(p.pubKey, 22)}${
 					p.pubKey === defaultNodePubKey ? ' (Default node)' : ''
 				}\nAddress: ${p.address}`,
 				type: 'button',

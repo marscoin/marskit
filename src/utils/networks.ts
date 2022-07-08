@@ -65,7 +65,3 @@ export const networks: INetworks = {
 //Returns an array of all available networks from the networks object.
 export const availableNetworks = (): EAvailableNetworks[] =>
 	Object.values(EAvailableNetworks);
-
-type TSlashtagsNetwork = {
-	[key: string]: { relays: string[]; name: string };
-};

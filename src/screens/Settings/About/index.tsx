@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { Linking, Text, View, FlatList } from 'react-native';
+import { Linking, Text, View, FlatList, Share } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -33,7 +33,12 @@ const AboutSettings = ({ navigation }): ReactElement => {
 					{
 						title: 'Share Bitkit with a friend',
 						type: 'button',
-						onPress: (): void => navigation.navigate('TempSettings'),
+						onPress: async (): Promise<void> => {
+							await Share.share({
+								title: 'Bitkit',
+								message: 'TODO link to bitkit wallet goes here',
+							});
+						},
 						hide: false,
 					},
 					{
@@ -65,9 +70,13 @@ const AboutSettings = ({ navigation }): ReactElement => {
 				Your mobile toolkit for a new economy, based on Bitcoin.
 			</Text>
 			<Text style={styles.textIntro}>
-				This Orange Pill was carefully crafted by: John, Reza, Paulo, Corey,
-				Jason, Gr0kchain, Ar, Ivan, Instabot, Aldert, Sasha, Auwal, Miguel &
-				Pavel from Synonym Software Ltd.
+				This{' '}
+				<Text onPress={(): void => navigation.navigate('EasterEgg')}>
+					Orange Pill
+				</Text>{' '}
+				was carefully crafted by: John, Reza, Paulo, Corey, Jason, Gr0kchain,
+				Ar, Ivan, Instabot, Aldert, Sasha, Auwal, Miguel & Pavel from Synonym
+				Software Ltd.
 			</Text>
 		</SettingsView>
 	);

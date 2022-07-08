@@ -16,13 +16,7 @@ import {
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
 
-import {
-	camera,
-	settings,
-	dismiss,
-	boost,
-	profileIcon,
-} from '../assets/icons/header';
+import { settings, dismiss, boost, profileIcon } from '../assets/icons/header';
 import {
 	bitcoinIcon,
 	lightningIcon,
@@ -51,9 +45,17 @@ import {
 	tagIcon,
 	shareIcon,
 	penIcon,
+	pencileIcon,
+	infoIcon,
+	qrPage,
+	scanIcon,
+	cameraIcon,
 	savingsIcon,
 	unitBitcoinIcon,
 	unitSatoshiIcon,
+	trashIcon,
+	plusIcon,
+	backIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -74,8 +76,8 @@ export const DismissIcon = styled(SvgXml).attrs((props) => ({
 	color: undefined,
 }))({});
 
-export const CameraIcon = styled(SvgXml).attrs((props) => ({
-	xml: camera(props?.color ? props.theme.colors[props.color] : '#636366'),
+export const ScanIcon = styled(SvgXml).attrs((props) => ({
+	xml: scanIcon(props?.color ? props.theme.colors[props.color] : '#636366'),
 	height: props?.height ?? '20.53px',
 	width: props?.width ?? '20.54px',
 	color: undefined,
@@ -736,4 +738,53 @@ export const Switch = styled(_Switch).attrs((props) => ({
 	thumbColor: 'white',
 	ios_backgroundColor: '#3e3e3e',
 	...props,
+}))({});
+
+export const PencileIcon = styled(SvgXml).attrs((props) => ({
+	xml: pencileIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const InfoIcon = styled(SvgXml).attrs((props) => ({
+	xml: infoIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const QrPage = styled(SvgXml).attrs((props) => ({
+	xml: qrPage(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const CameraIcon = styled(SvgXml).attrs((props) => ({
+	xml: cameraIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const TrashIcon = styled(SvgXml).attrs((props) => ({
+	xml: trashIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '32px',
+	width: props.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const PlusIcon = styled(SvgXml).attrs((props) => ({
+	xml: plusIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '32px',
+	width: props.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const BackIcon = styled(SvgXml).attrs((props) => ({
+	xml: backIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
+	color: undefined,
 }))({});

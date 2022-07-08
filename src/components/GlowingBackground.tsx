@@ -72,7 +72,7 @@ const GlowingBackground = ({
 	const colors = useSelector(
 		(state: Store) => themes[state.settings.theme].colors,
 	);
-	topLeft = topLeft ?? colors.background;
+	topLeft = topLeft ? colors[topLeft] || topLeft : colors.background;
 	bottomRight = bottomRight ?? colors.background;
 	const [topLeftItems, setTopLeftItems] = useState([{ color: topLeft, id: 0 }]);
 	const [bottomRightItems, setBottomRightItems] = useState([

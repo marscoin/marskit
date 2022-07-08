@@ -8,16 +8,19 @@ import {
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { useSlashtags } from '../../hooks/slashtags';
-import { Jdenticon } from '../../components/Jdenticon';
+import { useSlashtagProfile } from '../../hooks/slashtags';
+import { SlashtagURL } from '../../components/SlashtagURL';
+import ProfileImage from '../../components/ProfileImage';
+import { truncate } from '../../utils/helpers';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
-	const slashtags = useSlashtags();
+
+	const profile = useSlashtagProfile();
 
 	const openProfile = useCallback(
 		// @ts-ignore
-		() => navigation.navigate('ProfileRoot'),
+		() => navigation.navigate('Profile'),
 		[navigation],
 	);
 	const openSettings = useCallback(
@@ -28,12 +31,19 @@ const Header = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity
-				activeOpacity={1}
-				onPress={openProfile}
-				style={styles.leftColumn}>
-				<Jdenticon value={slashtags.currentSlashtag?.url.toString()} />
-				<TitleHaas style={{ marginLeft: 16 }}>Your name</TitleHaas>
+			<TouchableOpacity activeOpacity={1} onPress={openProfile}>
+				<View style={styles.leftColumn}>
+					<ProfileImage
+						size={32}
+						profile={profile}
+						style={styles.profileImage}
+					/>
+					{profile?.name ? (
+						<TitleHaas>{truncate(profile?.name, 20)}</TitleHaas>
+					) : (
+						<SlashtagURL url={profile?.id} />
+					)}
+				</View>
 			</TouchableOpacity>
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
@@ -91,6 +101,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'flex-end',
 		alignItems: 'center',
+	},
+	profileImage: {
+		marginRight: 16,
 	},
 });
 
