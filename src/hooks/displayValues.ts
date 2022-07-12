@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { getDisplayValues } from '../utils/exchange-rate';
@@ -6,12 +6,13 @@ import {
 	defaultDisplayValues,
 	IDisplayValues,
 } from '../utils/exchange-rate/types';
+import { TBitcoinUnit } from '../store/types/wallet';
 
-export default function useDisplayValues(sats: number): IDisplayValues {
-	const [displayValues, setDisplayValues] =
-		useState<IDisplayValues>(defaultDisplayValues);
-
-	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+export default function useDisplayValues(
+	sats: number,
+	bitcoinUnit?: TBitcoinUnit,
+): IDisplayValues {
+	const stateUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
 	);
@@ -19,23 +20,23 @@ export default function useDisplayValues(sats: number): IDisplayValues {
 		(state: Store) => state.wallet.exchangeRates,
 	);
 
-	useEffect((): void => {
+	bitcoinUnit = bitcoinUnit ?? stateUnit;
+
+	const displayValues: IDisplayValues = useMemo(() => {
 		//Exchange rates haven't loaded yet
 		if (!exchangeRates) {
-			return;
+			return defaultDisplayValues;
 		}
 
 		const exchangeRate = exchangeRates[selectedCurrency];
 
-		setDisplayValues(
-			getDisplayValues({
-				satoshis: sats,
-				exchangeRate,
-				currency: selectedCurrency,
-				bitcoinUnit: bitcoinUnit,
-				locale: 'en-US', //TODO get from native module
-			}),
-		);
+		return getDisplayValues({
+			satoshis: sats,
+			exchangeRate,
+			currency: selectedCurrency,
+			bitcoinUnit: bitcoinUnit,
+			locale: 'en-US', //TODO get from native module
+		});
 	}, [sats, selectedCurrency, bitcoinUnit, exchangeRates]);
 
 	return displayValues;

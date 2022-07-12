@@ -11,8 +11,8 @@ import {
 	View as ThemedView,
 } from '../../styles/components';
 import Button from '../../components/Button';
+import Money from '../../components/Money';
 import { IActivityItem, EActivityTypes } from '../../store/types/activity';
-import useDisplayValues from '../../hooks/displayValues';
 import { canBoost } from '../../utils/wallet/transactions';
 import { toggleView } from '../../store/actions/user';
 
@@ -25,9 +25,6 @@ const ListItem = memo(
 		onPress: () => void;
 	}): ReactElement => {
 		const { value, txType, confirmed, formattedDate, activityType, id } = item;
-
-		const { bitcoinFormatted, bitcoinSymbol, fiatFormatted, fiatSymbol } =
-			useDisplayValues(value);
 
 		let title;
 		if (txType === 'sent') {
@@ -74,15 +71,21 @@ const ListItem = memo(
 						</View>
 					</View>
 					<View style={styles.col2}>
-						<Text01M style={styles.value}>
-							<Text01M color={'gray1'}>
-								{txType === 'sent' ? '-' : '+'} {bitcoinSymbol}{' '}
-							</Text01M>
-							{bitcoinFormatted.replace('-', '')}
-						</Text01M>
-						<Caption13M color={'gray1'} style={styles.value}>
-							{fiatSymbol} {fiatFormatted.replace('-', '')}
-						</Caption13M>
+						<Money
+							sats={value}
+							hide={true}
+							size="text01m"
+							style={styles.value}
+							sign={txType === 'sent' ? '-' : '+'}
+						/>
+						<Money
+							sats={value}
+							hide={true}
+							size="caption13M"
+							style={styles.value}
+							showFiat={true}
+							color="gray1"
+						/>
 					</View>
 				</View>
 				{showBoost && (
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
 		marginRight: 14,
 	},
 	value: {
-		textAlign: 'right',
+		justifyContent: 'flex-end',
 	},
 	date: {
 		marginTop: 4,

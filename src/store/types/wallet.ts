@@ -19,6 +19,8 @@ export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
 export type TBitcoinUnit = 'satoshi' | 'BTC' | 'mBTC' | 'μBTC';
 
+export type TBalanceUnit = 'satoshi' | 'BTC' | 'fiat';
+
 export type TBitcoinAbbreviation = 'sats' | 'BTC';
 
 export type TBitcoinLabel = 'Bitcoin' | 'Bitcoin Testnet';

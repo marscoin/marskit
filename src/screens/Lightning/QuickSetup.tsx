@@ -112,7 +112,9 @@ const QuickSetup = ({ navigation }): ReactElement => {
 				<View>
 					<View style={styles.amountBig}>
 						<View>
-							<Caption13Up color="purple">SPENDING BALANCE</Caption13Up>
+							<Caption13Up color="purple" style={styles.amountBigCaption}>
+								SPENDING BALANCE
+							</Caption13Up>
 							<AmountToggle
 								sats={spendingAmount}
 								onPress={(): void => setKeybrd(true)}
@@ -183,6 +185,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginBottom: 32,
+	},
+	amountBigCaption: {
+		marginBottom: 4,
 	},
 	lightningIcon: {
 		marginLeft: 7,

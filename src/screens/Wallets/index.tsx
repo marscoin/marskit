@@ -1,9 +1,5 @@
-/**
- * @format
- * @flow strict-local
- */
-
 import React, { memo, ReactElement } from 'react';
+import { useSelector } from 'react-redux';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View, Subtitle, BitcoinCircleIcon } from '../../styles/components';
@@ -15,8 +11,12 @@ import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
 import { useBalance } from '../../hooks/wallet';
+import { updateSettings } from '../../store/actions/settings';
+import Store from '../../store/types';
 
 const Wallets = ({ navigation }): ReactElement => {
+	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
+
 	LayoutAnimation.easeInEaseOut();
 
 	const onSwipeLeft = (): void => {
@@ -24,7 +24,11 @@ const Wallets = ({ navigation }): ReactElement => {
 		navigation.navigate('Scanner');
 	};
 
-	const bitcoinBalances = useBalance({ onchain: true, lightning: true });
+	const onSwipeRight = (): void => {
+		updateSettings({ hideBalance: !hideBalance });
+	};
+
+	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
 	return (
 		<SafeAreaView>
@@ -33,19 +37,19 @@ const Wallets = ({ navigation }): ReactElement => {
 				contentContainerStyle={styles.scrollview}
 				disableScrollViewPanResponder={true}
 				showsVerticalScrollIndicator={false}>
-				<DetectSwipe onSwipeLeft={onSwipeLeft}>
+				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
 					<View>
 						<BalanceHeader />
 					</View>
 				</DetectSwipe>
 				<TodoCarousel />
-				<DetectSwipe onSwipeLeft={onSwipeLeft}>
+				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
 					<View style={styles.content}>
 						<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
 						<AssetCard
 							name={'Bitcoin'}
 							ticker={'BTC'}
-							balances={bitcoinBalances}
+							satoshis={satoshis}
 							icon={<BitcoinCircleIcon />}
 							onPress={(): void =>
 								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
