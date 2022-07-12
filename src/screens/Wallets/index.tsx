@@ -10,14 +10,15 @@ import TodoCarousel from '../../components/TodoCarousel';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
-import { useBalance } from '../../hooks/wallet';
+import EmptyWallet from '../../screens/Activity/EmptyWallet';
+import { useBalance, useNoTransactions } from '../../hooks/wallet';
 import { updateSettings } from '../../store/actions/settings';
 import Store from '../../store/types';
 
 const Wallets = ({ navigation }): ReactElement => {
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
-
-	LayoutAnimation.easeInEaseOut();
+	const empty = useNoTransactions();
+	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
 	const onSwipeLeft = (): void => {
 		//Swiping left, navigate to the scanner/camera.
@@ -28,7 +29,7 @@ const Wallets = ({ navigation }): ReactElement => {
 		updateSettings({ hideBalance: !hideBalance });
 	};
 
-	const { satoshis } = useBalance({ onchain: true, lightning: true });
+	LayoutAnimation.easeInEaseOut();
 
 	return (
 		<SafeAreaView>
@@ -42,24 +43,32 @@ const Wallets = ({ navigation }): ReactElement => {
 						<BalanceHeader />
 					</View>
 				</DetectSwipe>
-				<TodoCarousel />
-				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
-					<View style={styles.content}>
-						<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
-						<AssetCard
-							name={'Bitcoin'}
-							ticker={'BTC'}
-							satoshis={satoshis}
-							icon={<BitcoinCircleIcon />}
-							onPress={(): void =>
-								navigation.navigate('WalletsDetail', { assetType: 'bitcoin' })
-							}
-						/>
-					</View>
-				</DetectSwipe>
-				<View style={styles.content}>
-					<ActivityListShort />
-				</View>
+				{empty ? (
+					<EmptyWallet />
+				) : (
+					<>
+						<TodoCarousel />
+						<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
+							<View style={styles.content}>
+								<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
+								<AssetCard
+									name={'Bitcoin'}
+									ticker={'BTC'}
+									satoshis={satoshis}
+									icon={<BitcoinCircleIcon />}
+									onPress={(): void =>
+										navigation.navigate('WalletsDetail', {
+											assetType: 'bitcoin',
+										})
+									}
+								/>
+							</View>
+						</DetectSwipe>
+						<View style={styles.content}>
+							<ActivityListShort />
+						</View>
+					</>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);
