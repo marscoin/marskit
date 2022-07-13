@@ -1,20 +1,29 @@
-import React, { memo, ReactElement } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { memo, ReactElement, useMemo } from 'react';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { Headline } from '../../styles/components';
 import Arrow from '../../assets/dotted-arrow.svg';
 
 const EmptyWallet = (): ReactElement => {
+	const { height } = useWindowDimensions();
+	const [root, arrowContainer, arrow] = useMemo(() => {
+		return [
+			[styles.root, { marginTop: height * 0.17 }],
+			[styles.arrowContainer, { marginTop: height * 0.04 }],
+			{ maxHeight: height * 0.28 },
+		];
+	}, [height]);
+
 	return (
-		<View style={styles.root}>
+		<View style={root}>
 			<Headline>
 				To get started send <Headline color="brand">Bitcoin</Headline> to your
 				wallet.
 			</Headline>
 
-			<View style={styles.arrowContainer}>
+			<View style={arrowContainer}>
 				<View style={styles.spaceLeft} />
-				<Arrow />
+				<Arrow style={arrow} />
 				<View style={styles.spaceRight} />
 			</View>
 		</View>
@@ -24,10 +33,8 @@ const EmptyWallet = (): ReactElement => {
 const styles = StyleSheet.create({
 	root: {
 		paddingHorizontal: 16,
-		marginTop: '35%',
 	},
 	arrowContainer: {
-		marginTop: 32,
 		flexDirection: 'row',
 	},
 	spaceLeft: {
