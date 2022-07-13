@@ -98,14 +98,6 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 					assetName: params.assetType,
 				},
 			});
-			// toggleView({
-			// 	view: 'receive',
-			// 	data: {
-			// 		isOpen: true,
-			// 		snapPoint: 1,
-			// 		assetName: params.assetType,
-			// 	},
-			// });
 		} else {
 			toggleView({
 				view: 'receiveNavigation',
@@ -115,14 +107,6 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 					initial: 'ReceiveAssetPickerList',
 				},
 			});
-			// toggleView({
-			// 	view: 'receiveAssetPicker',
-			// 	data: {
-			// 		id: 'receive',
-			// 		isOpen: true,
-			// 		snapPoint: 1,
-			// 	},
-			// });
 		}
 	}, [screen, params]);
 
@@ -137,15 +121,6 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 					assetName: params.assetType,
 				},
 			});
-			// toggleView({
-			// 	view: 'send',
-			// 	data: {
-			// 		id: params.assetType,
-			// 		isOpen: true,
-			// 		snapPoint: 1,
-			// 		assetName: params.assetType,
-			// 	},
-			// });
 		} else {
 			toggleView({
 				view: 'sendNavigation',

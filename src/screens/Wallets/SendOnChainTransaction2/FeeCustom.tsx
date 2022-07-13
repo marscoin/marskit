@@ -61,7 +61,7 @@ const FeeRate = ({ navigation }): ReactElement => {
 						size="lg"
 						text="Done"
 						disabled={transaction.satsPerByte === 0}
-						onPress={(): void => navigation.goBack()}
+						onPress={(): void => navigation.navigate('ReviewAndSend')}
 					/>
 				</View>
 			</View>

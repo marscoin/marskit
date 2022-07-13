@@ -1,7 +1,7 @@
 import { err, ok, Result } from '../result';
 import * as electrum from 'rn-electrum-client/helpers';
 import { validateAddress } from '../scanner';
-import { networks, TAvailableNetworks } from '../networks';
+import { EAvailableNetworks, networks, TAvailableNetworks } from '../networks';
 import { btcToSats, getKeychainValue, reduceValue } from '../helpers';
 import {
 	defaultOnChainTransactionData,
@@ -59,7 +59,7 @@ export const parseOnChainPaymentRequest = (
 	data = '',
 ): Result<{
 	address: string;
-	network: TAvailableNetworks;
+	network: EAvailableNetworks;
 	sats: number;
 	message: string;
 }> => {
