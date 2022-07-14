@@ -443,6 +443,7 @@ export const Headline = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.bold.fontFamily,
 	fontSize: props.size ? props.size : '34px',
+	lineHeight: props.lineHeight ?? '34px',
 }));
 
 export const Title = styled.Text((props) => ({

@@ -51,7 +51,7 @@ const colors: IColors = {
 
 	// Brand
 	brand: '#FF6600',
-	tether: '#22C846',
+	tether: '#009393',
 
 	// Accents
 	blue: '#0085FF',
