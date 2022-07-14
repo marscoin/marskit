@@ -35,7 +35,7 @@ const Wallets = ({ navigation }): ReactElement => {
 		<SafeAreaView>
 			<Header />
 			<ScrollView
-				contentContainerStyle={styles.scrollview}
+				contentContainerStyle={!empty && styles.scrollview}
 				disableScrollViewPanResponder={true}
 				showsVerticalScrollIndicator={false}>
 				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
