@@ -1,9 +1,10 @@
-import React, { memo, ReactElement, useMemo, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Modal, StyleSheet, Text, Pressable, View } from 'react-native';
 import Store from './../../../store/types';
 import { IListData } from './../../../components/List';
 import SettingsView from './../SettingsView';
+import { getStore } from '../../../store/helpers';
 import { updateSettings } from '../../../store/actions/settings';
 
 const General = ({ navigation }): ReactElement => {
@@ -11,6 +12,20 @@ const General = ({ navigation }): ReactElement => {
 
 	const showSuggestions = useSelector(
 		(state: Store) => state.settings.showSuggestions,
+	);
+
+	// set a default value to transaction speed if it's not set
+	useEffect(() => {
+		const transactionSpeed = getStore().settings.transactionSpeed;
+		if (!transactionSpeed) {
+			updateSettings({
+				transactionSpeed: 'normal',
+			});
+		}
+	}, []);
+
+	const selectedTransactionSpeed = useSelector(
+		(state: Store) => state.settings.transactionSpeed,
 	);
 
 	const selectedCurrency = useSelector(
@@ -24,6 +39,13 @@ const General = ({ navigation }): ReactElement => {
 	const unitsBitcoin = {
 		satoshi: 'Satoshis',
 		BTC: 'Bitcoin',
+	};
+
+	const transactionSpeeds = {
+		slow: 'Slow',
+		normal: 'Normal',
+		fast: 'Fast',
+		custom: 'Custom',
 	};
 
 	const SettingsListData: IListData[] = useMemo(
@@ -46,9 +68,10 @@ const General = ({ navigation }): ReactElement => {
 					},
 					{
 						title: 'Default transaction speed',
-						value: 'Normal',
+						value: transactionSpeeds[selectedTransactionSpeed],
 						type: 'button',
-						onPress: (): void => {},
+						onPress: (): void =>
+							navigation.navigate('TransactionSpeedSettings'),
 						hide: false,
 					},
 					{
@@ -72,7 +95,7 @@ const General = ({ navigation }): ReactElement => {
 			},
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[showSuggestions, selectedBitcoinUnit],
+		[showSuggestions, selectedBitcoinUnit, selectedTransactionSpeed],
 	);
 
 	return (

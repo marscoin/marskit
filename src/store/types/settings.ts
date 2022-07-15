@@ -4,6 +4,8 @@ import { EExchangeRateService } from '../../utils/exchange-rate/types';
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
 
+type TTransactionSpeed = 'normal' | 'fast' | 'slow';
+
 /**
  * large = Sort by and use largest UTXO first. Lowest fee, but reveals your largest UTXO's.
  * small = Sort by and use smallest UTXO first. Higher fee, but hides your largest UTXO's.
@@ -37,6 +39,7 @@ export interface ISettings {
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
+	transactionSpeed: TTransactionSpeed;
 	[key: string]: any;
 }
 
