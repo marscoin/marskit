@@ -1717,10 +1717,10 @@
     random-access-memory "^4.1.0"
     sodium-universal "^3.1.0"
 
-"@synonymdev/slashtag@^1.0.0-alpha.3":
-  version "1.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.3.tgz#8c76ba9efe4dd4ced397c35c9b511607ce78b2d5"
-  integrity sha512-2/ZhvXKZTrdpKTZc8Tithe7jlReMAPEslxeymeWz53kr0iqEstcY/RD96VIg0CYTXHrTVaNieSzMnhu4+Q1oLw==
+"@synonymdev/slashtag@^1.0.0-alpha.5":
+  version "1.0.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.5.tgz#e959a390c939649ff99b899829a1c9465228de97"
+  integrity sha512-b7z/8zitM9c/h6WnpctutiNBl8zDz/B72oCDUkkZfnWDtJrFEzhiyM81O1PfcEue9u+3HJ8e2Sbt32d4tYKXQA==
   dependencies:
     "@synonymdev/slashdrive" "^1.0.0-alpha.0"
     b4a "^1.5.0"
@@ -1734,13 +1734,13 @@
     sodium-universal "^3.1.0"
     z32 "^1.0.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.6":
-  version "1.0.0-alpha.6"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.6.tgz#32d5848b10a507c87defff0261b3fd8186e57301"
-  integrity sha512-QarQcG2OoDSEH2RExQFeh7EEHCnYhkOQcJN4WKYU8ZqAaUuMAojTWqXqhmY58tvQAwjmA62mFmgkugBesrNJag==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.7":
+  version "1.0.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.7.tgz#50300d8b33ccd7ebf360bac2e3d12cffd3d5481d"
+  integrity sha512-pJL7Sg2DolR8X4K70cnKgbiVpAdx+OZzKa8EaD4pm80Vz8zypd0RJV9HZzJtma4VCNzE/sCnYSmDKt27I39L3g==
   dependencies:
     "@synonymdev/slashauth" "^1.0.0-alpha.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.3"
+    "@synonymdev/slashtag" "^1.0.0-alpha.5"
     b4a "^1.3.1"
     corestore "^6.0.1-alpha.16"
     debug "^4.3.4"
