@@ -26,11 +26,11 @@ export const ProfileOnboarding = ({ navigation }): JSX.Element => {
 				/>
 				<Title style={styles.headline}>Own your</Title>
 				<Title color="brand" style={styles.headline}>
-					own Profile.
+					Social Profile.
 				</Title>
 				<Text color="gray1" style={styles.introText}>
-					Use Slashtags to take control of your profile. A sovereign way to
-					manage your identity.
+					Use Slashtags to control your public profile and links, so your
+					contacts can reach you or pay you anytime.
 				</Text>
 				<Button
 					textStyle={styles.button}
