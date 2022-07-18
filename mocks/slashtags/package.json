@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "dht-universal": "^0.4.1"
+  },
+  "dependencies": {
+    "@synonymdev/slashtags-sdk": "^1.0.0-alpha.8"
+  }
+}

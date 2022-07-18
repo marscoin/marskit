@@ -15,6 +15,7 @@ import {
 } from '@react-navigation/native';
 import { sanFranciscoWeights } from 'react-native-typography';
 import { SafeAreaProvider as _SafeAreaProvider } from 'react-native-safe-area-context';
+import { BottomSheetTextInput as _BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import { settings, dismiss, boost, profileIcon } from '../assets/icons/header';
 import {
@@ -58,6 +59,7 @@ import {
 	trashIcon,
 	plusIcon,
 	backIcon,
+	cornersOut,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -667,6 +669,25 @@ export const TextInput = styled.TextInput.attrs((props) => ({
 		: props.theme.colors.text,
 }));
 
+export const BottomSheetTextInput = styled(_BottomSheetTextInput).attrs(
+	(props) => ({
+		selectionColor: colors.brand,
+		placeholderTextColor: props?.placeholderTextColor
+			? props.placeholderTextColor
+			: props.theme.colors.white5,
+	}),
+)((props) => ({
+	backgroundColor: props.backgroundColor
+		? props.theme.colors[props.color]
+		: props.theme.colors.white08,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	borderColor: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+}));
+
 export const RefreshControl = styled.RefreshControl.attrs((props) => ({
 	tintColor: props.theme.colors.refreshControl,
 }))({});
@@ -810,6 +831,12 @@ export const BackIcon = styled(SvgXml).attrs((props) => ({
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
 	color: undefined,
+}))({});
+
+export const CornersOutIcon = styled(SvgXml).attrs((props) => ({
+	xml: cornersOut(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 }))({});
 
 export const BitkitIcon = styled(SvgXml).attrs((props) => ({

@@ -1,6 +1,7 @@
 import { ISlashtags } from '../types/slashtags';
 
 export const defaultSlashtagsShape: ISlashtags = {
-	visitedProfile: false,
+	onboardedProfile: false,
+	visitedContacts: false,
 	profiles: {},
 };

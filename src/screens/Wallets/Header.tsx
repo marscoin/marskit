@@ -16,11 +16,16 @@ import { truncate } from '../../utils/helpers';
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
 
-	const profile = useSlashtagProfile();
+	const [profile] = useSlashtagProfile();
 
 	const openProfile = useCallback(
 		// @ts-ignore
 		() => navigation.navigate('Profile'),
+		[navigation],
+	);
+	const openContacts = useCallback(
+		// @ts-ignore
+		() => navigation.navigate('Contacts'),
 		[navigation],
 	);
 	const openSettings = useCallback(
@@ -50,7 +55,7 @@ const Header = (): ReactElement => {
 				<TouchableOpacity
 					style={styles.profileIcon}
 					activeOpacity={1}
-					onPress={openProfile}>
+					onPress={openContacts}>
 					<ProfileIcon width={24} height={24} />
 				</TouchableOpacity>
 				<TouchableOpacity

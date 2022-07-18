@@ -1,7 +1,12 @@
 import React, { ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Text, TextInput, View } from '../styles/components';
+import {
+	Text,
+	TextInput,
+	View,
+	BottomSheetTextInput,
+} from '../styles/components';
 
 export const Input = ({
 	label,
@@ -10,6 +15,8 @@ export const Input = ({
 	onChange,
 	rightIcon,
 	onRightIconPress,
+	bottomSheet,
+	placeholder,
 }: {
 	label: string;
 	multiline?: boolean;
@@ -17,6 +24,8 @@ export const Input = ({
 	onChange?: (value: string) => void;
 	rightIcon?: ReactElement;
 	onRightIconPress?: () => void;
+	bottomSheet?: boolean;
+	placeholder?: string;
 }): JSX.Element => {
 	return (
 		<View style={styles.inputContainer}>
@@ -29,17 +38,31 @@ export const Input = ({
 							: styles.input
 						: styles.readOnlyInput
 				}>
-				<TextInput
-					style={styles.inputText}
-					defaultValue={value}
-					color={'white'}
-					autoCapitalize="none"
-					autoCorrect={false}
-					placeholder={label}
-					onChangeText={onChange}
-					multiline={multiline || false}
-					editable={!!onChange}
-				/>
+				{bottomSheet ? (
+					<BottomSheetTextInput
+						style={styles.inputText}
+						defaultValue={value}
+						color={'white'}
+						autoCapitalize="none"
+						autoCorrect={false}
+						placeholder={placeholder}
+						onChangeText={onChange}
+						multiline={multiline || false}
+						editable={!!onChange}
+					/>
+				) : (
+					<TextInput
+						style={styles.inputText}
+						defaultValue={value}
+						color={'white'}
+						autoCapitalize="none"
+						autoCorrect={false}
+						placeholder={placeholder}
+						onChangeText={onChange}
+						multiline={multiline || false}
+						editable={!!onChange}
+					/>
+				)}
 				{rightIcon && (
 					<TouchableOpacity style={styles.rightIcon} onPress={onRightIconPress}>
 						{rightIcon}
@@ -88,6 +111,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	inputText: {
+		color: 'white',
 		backgroundColor: 'transparent',
 		flex: 1,
 		fontSize: 15,

@@ -2,16 +2,22 @@
 export type BasicProfile = Partial<{
 	id: string;
 	name: string;
-	about: string;
+	bio: string;
 	image: string;
-	[key: string]: string;
+	links: Array<Link>;
 }>;
 
+export interface Link {
+	title: string;
+	url: string;
+}
+
 export interface ProfileStatus {
-	seen: number;
+	version: number;
 }
 
 export interface ISlashtags {
-	visitedProfile: boolean;
+	onboardedProfile: boolean;
+	visitedContacts: boolean;
 	profiles: { [id: string]: ProfileStatus };
 }

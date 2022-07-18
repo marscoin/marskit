@@ -436,3 +436,21 @@ export const applyAlpha = (hexColor: string, alpha: number): string => {
 export const sleep = (ms = 1000): Promise<void> => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 };
+
+export const profileNameMultiLine = (name?: string) => {
+	if (!name) {
+		return '';
+	}
+
+	const parts = name.split(' ');
+
+	return parts
+		.slice(0, 2)
+		.map(
+			(name, index) =>
+				`${truncate(name, 16)}${
+					index === 1 && parts && parts.length > 2 ? ' ...' : ''
+				}`,
+		)
+		.join('\n');
+};

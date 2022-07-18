@@ -30,6 +30,9 @@ import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
 import Profile from '../../screens/Profile/Profile';
 import ProfileEdit from '../../screens/Profile/ProfileEdit';
+import Contacts from '../../screens/Contacts/Contacts';
+import AddContact from '../../screens/Contacts/AddContact';
+import ConfirmContact from '../../screens/Contacts/ConfirmContact';
 
 const Stack = createNativeStackNavigator();
 
@@ -90,6 +93,9 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
 					<Stack.Screen name="Profile" component={Profile} />
 					<Stack.Screen name="ProfileEdit" component={ProfileEdit} />
+					<Stack.Screen name="Contacts" component={Contacts} />
+					<Stack.Screen name="AddContact" component={AddContact} />
+					<Stack.Screen name="ConfirmContact" component={ConfirmContact} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />

@@ -4,12 +4,14 @@ import { Ok, ok, Result } from '../../utils/result';
 
 const dispatch = getDispatch();
 
-export const setVisitedProfile = (visitedProfile = true): Result<string> => {
+export const setonboardedProfile = (
+	onboardedProfile = true,
+): Result<string> => {
 	dispatch({
 		type: actions.SET_VISITED_PROFILE,
-		visitedProfile,
+		onboardedProfile,
 	});
-	return ok('Set visitedProfile to: ' + visitedProfile);
+	return ok('Set onboardedProfile to: ' + onboardedProfile);
 };
 
 export const setVisitedContacts = (visitedContacts = true): Result<string> => {
@@ -20,14 +22,14 @@ export const setVisitedContacts = (visitedContacts = true): Result<string> => {
 	return ok('Set visitedContacts to: ' + visitedContacts);
 };
 
-export const setProfileSeen = (id, version): Result<string> => {
+export const setProfileVersion = (id, version): Result<string> => {
 	dispatch({
-		type: actions.SET_PROFILE_SEEN,
+		type: actions.SET_PROFILE_VERSION,
 		id,
 		version,
 	});
 
-	return ok('Set profile seen to: ' + version);
+	return ok('Set profile version to: ' + version);
 };
 
 export const resetSlashtagsStore = (): Ok<string> => {

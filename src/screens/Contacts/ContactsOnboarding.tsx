@@ -7,14 +7,14 @@ import { Title } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { setVisitedContacts } from '../../store/actions/slashtags';
 
-export const ProfileOnboarding = ({ navigation }): JSX.Element => {
+export const ContactsOnboarding = ({ navigation }): JSX.Element => {
 	return (
 		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
-				title="Profile"
+				title="Contacts"
 				displayBackButton={false}
 				onClosePress={(): void => {
 					navigation.navigate('Tabs');
@@ -22,23 +22,23 @@ export const ProfileOnboarding = ({ navigation }): JSX.Element => {
 			/>
 			<View style={styles.content}>
 				<Image
-					source={require('../../assets/illustrations/crown.png')}
+					source={require('../../assets/illustrations/book.png')}
 					style={styles.illustration}
 				/>
-				<Title style={styles.headline}>Own your</Title>
+				<Title style={styles.headline}>Dynamic</Title>
 				<Title color="brand" style={styles.headline}>
-					Social Profile.
+					Contacts.
 				</Title>
 				<Text color="gray1" style={styles.introText}>
-					Use Slashtags to control your public profile and links, so your
-					contacts can reach you or pay you anytime.
+					Use Slashtags to get automatic updates about your contacts, pay them
+					with Bitcoin, and follow their public profiles.
 				</Text>
 				<Button
 					textStyle={styles.button}
-					text="Continue"
+					text="Add your first contact"
 					size="large"
 					onPress={(): void => {
-						navigation.navigate('ProfileEdit');
+						setVisitedContacts();
 					}}
 				/>
 			</View>
@@ -74,4 +74,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ProfileOnboarding;
+export default ContactsOnboarding;

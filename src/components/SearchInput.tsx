@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 		position: 'relative',
 	},
 	input: {
-		height: 56,
+		height: 48,
 		paddingLeft: 53,
 		borderRadius: 32,
 		paddingRight: 6,

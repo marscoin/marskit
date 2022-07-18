@@ -22,15 +22,15 @@ import QR from 'react-native-qrcode-svg';
 import { BasicProfile } from '../../store/types/slashtags';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
-import ProfileDetails from '../../components/ProfileDetails';
+import ProfileLinks from '../../components/ProfileLinks';
 
 export const Profile = ({ navigation, route }): JSX.Element => {
-	const visitedProfile = useSelector(
-		(store: Store) => store.slashtags.visitedProfile,
+	const onboardedProfile = useSelector(
+		(store: Store) => store.slashtags.onboardedProfile,
 	);
 
 	const id = route.params?.id;
-	const profile = useSlashtagProfile({ url: id });
+	const [profile] = useSlashtagProfile({ url: id });
 
 	const [view, setView] = useState('qr');
 
@@ -38,7 +38,7 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 		view === 'details' ? setView('qr') : setView('details');
 	}
 
-	return visitedProfile ? (
+	return onboardedProfile ? (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
@@ -90,7 +90,7 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 						</IconButton>
 					</View>
 					{view === 'details' ? (
-						<ProfileDetails profile={profile} style={styles.profileDetails} />
+						<ProfileLinks links={profile.links} style={styles.profileDetails} />
 					) : (
 						<QRView profile={profile} />
 					)}
