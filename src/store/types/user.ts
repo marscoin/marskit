@@ -16,7 +16,7 @@ export type TViewController =
 	| 'PINNavigation'
 	| 'boostPrompt'
 	| 'activityTagsPrompt'
-	| 'profileAddDataForm';
+	| 'profileAddLinkForm';
 
 export type TUserViewController = {
 	[key in TViewController]: IViewControllerData;

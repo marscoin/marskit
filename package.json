@@ -27,7 +27,7 @@
     "@shopify/react-native-skia": "^0.1.124",
     "@synonymdev/blocktank-client": "^0.0.4",
     "@synonymdev/react-native-lnurl": "0.0.3",
-    "@synonymdev/slashtags-sdk": "^1.0.0-alpha.6",
+    "@synonymdev/slashtags-sdk": "^1.0.0-alpha.12",
     "assert": "^2.0.0",
     "bip21": "^2.0.3",
     "bip32": "^2.0.6",

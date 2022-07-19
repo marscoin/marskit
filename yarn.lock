@@ -1700,6 +1700,21 @@
     safety-catch "^1.0.2"
     sodium-universal "^3.1.0"
 
+"@synonymdev/slashdrive@^1.0.0-alpha.4":
+  version "1.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.4.tgz#7ddab15c15677f8b3ec37eef6cf284bcd3ee30cf"
+  integrity sha512-QLBVWkFgIt4EtX/d1L1IROxeMyrEHnmCcgAc7i60UEbNRR5+/mVWdfxbKsE5uKqxpHhVlWqjmHWjddpfGO6ZJQ==
+  dependencies:
+    b4a "^1.5.0"
+    compact-encoding "^2.6.1"
+    compact-encoding-struct "^1.2.1"
+    debug "^4.3.4"
+    hyperbee "^1.10.1"
+    hyperblobs "^2.0.0-rc.0"
+    hypercore "^10.0.0-alpha.42"
+    safety-catch "^1.0.2"
+    sodium-universal "^3.1.0"
+
 "@synonymdev/slashtag@^1.0.0-alpha.0":
   version "1.0.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.1.tgz#1e2b21977f469e47ece019e2295197f9449f5a52"
@@ -1717,12 +1732,12 @@
     random-access-memory "^4.1.0"
     sodium-universal "^3.1.0"
 
-"@synonymdev/slashtag@^1.0.0-alpha.3":
-  version "1.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.3.tgz#8c76ba9efe4dd4ced397c35c9b511607ce78b2d5"
-  integrity sha512-2/ZhvXKZTrdpKTZc8Tithe7jlReMAPEslxeymeWz53kr0iqEstcY/RD96VIg0CYTXHrTVaNieSzMnhu4+Q1oLw==
+"@synonymdev/slashtag@^1.0.0-alpha.9":
+  version "1.0.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.9.tgz#9245c566e1ad54fca5f8b8554af93f5b28d6f59a"
+  integrity sha512-1up4iZqcH5z6RPDqC9j7mJKp2nHly01ut2xdplOwNKCvc+mTF+s5qKGeabQtjtWTTrRXhJ251QwtF0K28nTE/Q==
   dependencies:
-    "@synonymdev/slashdrive" "^1.0.0-alpha.0"
+    "@synonymdev/slashdrive" "^1.0.0-alpha.4"
     b4a "^1.5.0"
     compact-encoding "^2.6.1"
     corestore "^6.0.1-alpha.17"
@@ -1734,13 +1749,13 @@
     sodium-universal "^3.1.0"
     z32 "^1.0.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.6":
-  version "1.0.0-alpha.6"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.6.tgz#32d5848b10a507c87defff0261b3fd8186e57301"
-  integrity sha512-QarQcG2OoDSEH2RExQFeh7EEHCnYhkOQcJN4WKYU8ZqAaUuMAojTWqXqhmY58tvQAwjmA62mFmgkugBesrNJag==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.12":
+  version "1.0.0-alpha.12"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.12.tgz#d73a50cf64ed9ac7b97882e71bf4b7a3a553625a"
+  integrity sha512-eVAC+JEZQDaYcXfIvYuuItF0PDHDXUDv1swbiQ0YSuTeyVRwG7NyXQL0i0TsPF49Yvx1TRLFmT1CIp9XZCdEFA==
   dependencies:
     "@synonymdev/slashauth" "^1.0.0-alpha.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.3"
+    "@synonymdev/slashtag" "^1.0.0-alpha.9"
     b4a "^1.3.1"
     corestore "^6.0.1-alpha.16"
     debug "^4.3.4"
@@ -1748,7 +1763,6 @@
     random-access-memory "^4.0.0"
     random-access-web "^2.0.3"
     sodium-universal "^3.1.0"
-    turbo-hash-map "^1.0.3"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -5119,7 +5133,7 @@ human-signals@^2.1.0:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
 
-hyperbee@^1.8.0:
+hyperbee@^1.10.1, hyperbee@^1.8.0:
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/hyperbee/-/hyperbee-1.10.1.tgz#0a971e15de328309426c545d590633e35fc64761"
   integrity sha512-c9FByHIy6TG4rkjlfXFo1p1EDotBMsrwZh+BkUPNKsOsWWy010SVS9MPKV78EtnRBGN/7NsdEIdDxNIvgffRRA==
@@ -9747,13 +9761,6 @@ tty-browserify@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/tty-browserify/-/tty-browserify-0.0.0.tgz#a157ba402da24e9bf957f9aa69d524eed42901a6"
   integrity sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY=
-
-turbo-hash-map@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/turbo-hash-map/-/turbo-hash-map-1.0.3.tgz#6bdc94b677ee55ea507fb8ee214cc48e3f81d81e"
-  integrity sha512-r7/5Q48HTqbPEZsXC1AR5hUeMn/RfB6o0rokQfLVeikEMjGOzICBuMj6sZSV9bfpHxXGB3cA0xHmWHlYiy1XTw==
-  dependencies:
-    b4a "^1.3.1"
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
