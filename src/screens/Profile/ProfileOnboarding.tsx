@@ -1,43 +1,162 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import { Image } from 'react-native';
+import { Image, ImageSourcePropType } from 'react-native';
 import Button from '../../components/Button';
 import { Title } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
+import { setOnboardingProfileStep } from '../../store/actions/slashtags';
+import { ISlashtags, SlashPayConfig } from '../../store/types/slashtags';
+import SwitchRow from '../../components/SwitchRow';
+import { useSlashtag } from '../../hooks/slashtags';
+import { getReceiveAddress } from '../../utils/wallet';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
 
-export const ProfileOnboarding = ({ navigation }): JSX.Element => {
+export const ProfileIntro = ({ navigation }): JSX.Element => {
+	return (
+		<Layout
+			navigation={navigation}
+			backButton={false}
+			illustration={require('../../assets/illustrations/crown.png')}
+			illustrationStyle={styles.crown}
+			title="Own your"
+			highlighted="Social Profile"
+			text="Use Slashtags to control your public profile and links, so your
+contacts can reach you or pay you anytime."
+			nextStep="InitialEdit"
+		/>
+	);
+};
+
+export const PaymentsFromContacts = ({ navigation }): JSX.Element => {
+	return (
+		<Layout
+			navigation={navigation}
+			backButton={true}
+			illustration={require('../../assets/illustrations/coin-stack-2.png')}
+			illustrationStyle={styles.crown}
+			title="Payments"
+			subtitle="from "
+			highlighted="Contacts"
+			text="Contacts can pay you instantly viaLightning whenever you are online."
+			nextStep="OfflinePayments"
+		/>
+	);
+};
+
+export const OfflinePayments = ({ navigation }): JSX.Element => {
+	const [enableOfflinePayment, setEnableOfflinePayment] = useState(true);
+	const { setPayConfig } = useSlashtag();
+
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+
+	const savePaymentConfig = (): void => {
+		const config: SlashPayConfig = {};
+		if (enableOfflinePayment) {
+			const response = getReceiveAddress({ selectedWallet });
+			if (response.isOk()) {
+				config.p2wpkh = response.value;
+			}
+		}
+		setPayConfig(config);
+	};
+
+	return (
+		<Layout
+			navigation={navigation}
+			backButton={true}
+			illustration={require('../../assets/illustrations/switch.png')}
+			illustrationStyle={styles.swtich}
+			title="Offline"
+			highlighted="Payments."
+			text="Bitkit can also create a fixed Bitcoin address for you, so you’re able to receive payments even when you are offline."
+			nextStep="Done"
+			buttonText="Save profile"
+			onNext={savePaymentConfig}>
+			<View>
+				<View style={styles.enableOfflineRow}>
+					<SwitchRow
+						isEnabled={enableOfflinePayment}
+						onPress={(): void =>
+							setEnableOfflinePayment(!enableOfflinePayment)
+						}>
+						<Text style={styles.enableOfflineLabel}>
+							Enable offline payments
+						</Text>
+					</SwitchRow>
+				</View>
+			</View>
+		</Layout>
+	);
+};
+
+const Layout = ({
+	navigation,
+	backButton = false,
+	illustration,
+	illustrationStyle,
+	title,
+	subtitle,
+	text,
+	highlighted,
+	nextStep,
+	buttonText = 'Continue',
+	children,
+	onNext,
+}: {
+	navigation;
+	backButton: boolean;
+	illustration: ImageSourcePropType;
+	illustrationStyle;
+	title: string;
+	subtitle?: string;
+	text: string;
+	highlighted: string;
+	nextStep: ISlashtags['onboardingProfileStep'];
+	buttonText?: string;
+	children?;
+	onNext?;
+}): JSX.Element => {
 	return (
 		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
 				title="Profile"
-				displayBackButton={false}
+				displayBackButton={backButton}
 				onClosePress={(): void => {
 					navigation.navigate('Tabs');
 				}}
 			/>
 			<View style={styles.content}>
 				<Image
-					source={require('../../assets/illustrations/crown.png')}
-					style={styles.illustration}
+					source={illustration}
+					style={{ ...styles.illustration, ...illustrationStyle }}
 				/>
-				<Title style={styles.headline}>Own your</Title>
-				<Title color="brand" style={styles.headline}>
-					Social Profile.
-				</Title>
-				<Text color="gray1" style={styles.introText}>
-					Use Slashtags to control your public profile and links, so your
-					contacts can reach you or pay you anytime.
-				</Text>
+				<View style={styles.middleContainer}>
+					<Title style={styles.headline}>{title}</Title>
+					<Title style={styles.headline}>
+						{subtitle}
+						<Title color="brand" style={styles.headline}>
+							{highlighted}
+						</Title>
+					</Title>
+					<Text color="gray1" style={styles.introText}>
+						{text}
+					</Text>
+					{children}
+				</View>
 				<Button
 					textStyle={styles.button}
-					text="Continue"
+					text={buttonText}
 					size="large"
 					onPress={(): void => {
-						navigation.navigate('ProfileEdit');
+						onNext?.();
+						setOnboardingProfileStep(nextStep);
 					}}
 				/>
 			</View>
@@ -55,7 +174,13 @@ const styles = StyleSheet.create({
 	},
 	illustration: {
 		alignSelf: 'center',
+	},
+	crown: {
 		width: 332,
+		height: 332,
+	},
+	swtich: {
+		width: 190,
 		height: 332,
 	},
 	headline: {
@@ -66,11 +191,17 @@ const styles = StyleSheet.create({
 		marginTop: 8,
 		fontSize: 17,
 		lineHeight: 22,
-		flex: 1,
 	},
 	button: {
 		fontWeight: '800',
 	},
+	middleContainer: { flex: 1 },
+	enableOfflineRow: {
+		marginTop: 25,
+	},
+	enableOfflineLabel: {
+		backgroundColor: 'transparent',
+		fontSize: 17,
+		lineHeight: 22,
+	},
 });
-
-export default ProfileOnboarding;

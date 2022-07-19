@@ -67,7 +67,6 @@ async function resolveProfile() {
 	console.time('-- resolved drive in');
 	await slashtag.ready();
 	await slashtag.publicDrive?.getContent();
-	console.timeEnd('-- resolved drive in');
 
 	const profile = await slashtag.getProfile();
 
@@ -75,11 +74,12 @@ async function resolveProfile() {
 		.get('slashpay.json')
 		.then((buf) => JSON.parse(buf.toString()))
 		.catch(noop);
+	console.timeEnd('-- resolved drive in');
 
 	console.dir(
 		{
 			url: slashtag.url.toString(),
-			version: slashtag.publicDrive.objects.version,
+			version: slashtag.publicDrive.version,
 			profile: profile && {
 				...profile,
 				...(profile.image ? { image: profile.image.slice(0, 40) + '...' } : {}),
@@ -100,8 +100,12 @@ function cache(toCache) {
 }
 
 function loadCache() {
-	const str = fs.readFileSync(cacheLocation);
-	return JSON.parse(str.toString());
+	try {
+		const str = fs.readFileSync(cacheLocation);
+		return JSON.parse(str.toString());
+	} catch (error) {
+		return {};
+	}
 }
 
 function noop() {}
