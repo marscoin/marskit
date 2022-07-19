@@ -17,7 +17,7 @@ export type TViewController =
 	| 'boostPrompt'
 	| 'activityTagsPrompt'
 	| 'newTxPrompt'
-	| 'profileAddDataForm';
+	| 'profileAddDataForm'
 	| 'profileAddLinkForm';
 
 export type TUserViewController = {
