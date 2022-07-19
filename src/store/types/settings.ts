@@ -28,7 +28,7 @@ export interface ISettings {
 	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
-	balaceUnit: TBalanceUnit;
+	balanceUnit: TBalanceUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
 	exchangeRateService: EExchangeRateService;
@@ -36,6 +36,7 @@ export interface ISettings {
 	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
+	showSuggestions: boolean;
 	[key: string]: any;
 }
 
