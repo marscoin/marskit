@@ -2105,7 +2105,7 @@ export const broadcastBoost = async ({
 				}),
 			]);
 		}
-		await refreshWallet();
+		await refreshWallet({});
 		setupBoost({ txid: newTxId, selectedNetwork, selectedWallet });
 		return ok(newActivityItem);
 	} catch (e) {

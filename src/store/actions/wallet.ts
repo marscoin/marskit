@@ -45,6 +45,7 @@ import {
 } from '../../utils/wallet/electrum';
 import { EFeeIds } from '../types/fees';
 import { IHeader } from '../../utils/types/electrum';
+import { toggleView } from './user';
 
 const dispatch = getDispatch();
 
@@ -362,9 +363,11 @@ export interface ITransactionData {
 export const updateTransactions = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
+	showNotification = false,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
+	showNotification?: boolean;
 }): Promise<Result<IFormattedTransaction>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -432,6 +435,8 @@ export const updateTransactions = ({
 			}),
 		);
 
+		let notificationTxid;
+
 		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
 			//If the tx is new or the tx now has a block height (state changed to confirmed)
 			if (
@@ -440,6 +445,11 @@ export const updateTransactions = ({
 					formatTransactionsResponse.value[txid].height
 			) {
 				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
+			}
+
+			// if the tx is new show notification if needed
+			if (!storedTransactions[txid] && showNotification) {
+				notificationTxid = txid;
 			}
 		});
 
@@ -457,6 +467,15 @@ export const updateTransactions = ({
 			type: actions.UPDATE_TRANSACTIONS,
 			payload,
 		});
+		if (notificationTxid) {
+			toggleView({
+				view: 'newTxPrompt',
+				data: {
+					isOpen: true,
+					txid: notificationTxid,
+				},
+			});
+		}
 
 		return resolve(ok(formattedTransactions));
 	});
@@ -583,7 +602,7 @@ export const resetSelectedWallet = async ({
 		},
 	});
 	await createWallet({ walletName: selectedWallet });
-	await refreshWallet();
+	await refreshWallet({});
 };
 
 /**
@@ -595,7 +614,7 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 		type: actions.RESET_WALLET_STORE,
 	});
 	await createWallet({});
-	await refreshWallet();
+	await refreshWallet({});
 	return ok('');
 };
 

@@ -58,8 +58,7 @@ const ChoosePIN = ({ navigation }): ReactElement => {
 				toggleBiometrics(true);
 				navigation.navigate('Result', { bio: true });
 			})
-			.catch((z) => {
-				console.info(z);
+			.catch(() => {
 				Alert.alert('Biometrics failed');
 			});
 	};

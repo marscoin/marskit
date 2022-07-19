@@ -107,7 +107,7 @@ export const startWalletServices = async ({
 				if (electrumResponse.isOk()) {
 					// Ensure we are subscribed to and save new header information.
 					subscribeToHeader({ selectedNetwork }).then();
-					refreshWallet().then();
+					refreshWallet({}).then();
 				} else {
 					showErrorNotification({
 						title: 'Unable to connect to Electrum Server.',

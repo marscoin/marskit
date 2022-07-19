@@ -19,7 +19,7 @@ export const showErrorNotification = (
 	Toast.show({
 		type: 'error',
 		text1: title,
-		text2: message,
+		text2: message || ' ', // Toast.show fails if we accidentally provide an empty string
 		...defaultOptions,
 		position,
 	});
@@ -32,7 +32,7 @@ export const showSuccessNotification = (
 	Toast.show({
 		type: 'success',
 		text1: title,
-		text2: message,
+		text2: message || ' ', // Toast.show fails if we accidentally provide an empty string
 		...defaultOptions,
 		position,
 	});
@@ -45,7 +45,7 @@ export const showInfoNotification = (
 	Toast.show({
 		type: 'info',
 		text1: title,
-		text2: message,
+		text2: message || ' ', // Toast.show fails if we accidentally provide an empty string
 		...defaultOptions,
 		position,
 	});

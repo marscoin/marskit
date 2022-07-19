@@ -7,6 +7,7 @@ export const defaultViewController: IViewControllerData = {
 	assetNetwork: undefined,
 	assetName: undefined,
 	snapPoint: -1,
+	txid: undefined,
 };
 
 export const defaultUserShape = {
@@ -30,6 +31,7 @@ export const defaultUserShape = {
 		numberPadFee: { ...defaultViewController },
 		boostPrompt: { ...defaultViewController },
 		activityTagsPrompt: { ...defaultViewController },
+		newTxPrompt: { ...defaultViewController },
 		coinSelection: { ...defaultViewController },
 		feePicker: { ...defaultViewController },
 	},

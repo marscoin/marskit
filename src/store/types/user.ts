@@ -16,6 +16,7 @@ export type TViewController =
 	| 'PINNavigation'
 	| 'boostPrompt'
 	| 'activityTagsPrompt'
+	| 'newTxPrompt'
 	| 'profileAddDataForm';
 
 export type TUserViewController = {
@@ -31,6 +32,7 @@ export interface IViewControllerData {
 	snapPoint?: number;
 	initial?: string;
 	activityItem?: IActivityItem;
+	txid?: string;
 }
 
 export interface IUser {

@@ -83,7 +83,11 @@ import type { SDK as ISDK } from '@synonymdev/slashtags-sdk';
 
 const BITKIT_WALLET_SEED_HASH_PREFIX = Buffer.from('@Bitkit/wallet-uuid');
 
-export const refreshWallet = async (): Promise<Result<string>> => {
+export const refreshWallet = async ({
+	showNotification = false,
+}: {
+	showNotification?: boolean;
+}): Promise<Result<string>> => {
 	try {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		await updateAddressIndexes({ selectedWallet, selectedNetwork });
@@ -100,6 +104,7 @@ export const refreshWallet = async (): Promise<Result<string>> => {
 			updateTransactions({
 				selectedWallet,
 				selectedNetwork,
+				showNotification,
 			}),
 			deleteBoostedTransactions({
 				selectedWallet,
