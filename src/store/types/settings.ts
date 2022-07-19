@@ -40,6 +40,7 @@ export interface ISettings {
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
+	showSuggestions: boolean;
 	[key: string]: any;
 }
 

@@ -33,5 +33,6 @@ export const defaultSettingsShape: ISettings = {
 	unitPreference: 'asset',
 	showSuggestions: true,
 	transactionSpeed: 'normal',
+	showSuggestions: true,
 	hideBalance: false,
 };
