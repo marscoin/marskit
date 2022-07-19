@@ -1,0 +1,7 @@
+{
+  "name": "stpg",
+  "type": "module",
+  "dependencies": {
+    "inquirer": "^9.0.1"
+  }
+}

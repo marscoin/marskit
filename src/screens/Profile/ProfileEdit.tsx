@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
-	CameraIcon,
 	PlusIcon,
 	ScrollView,
 	Subtitle,
@@ -9,171 +8,154 @@ import {
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
-import { useSlashtagProfile } from '../../hooks/slashtags';
+import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { BasicProfile } from '../../store/types/slashtags';
 import { StyleSheet } from 'react-native';
-import {
-	setProfileSeen,
-	setVisitedProfile,
-} from '../../store/actions/slashtags';
-import ProfileImage from '../../components/ProfileImage';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { launchImageLibrary } from 'react-native-image-picker';
-import Input from '../../components/LabeledInput';
-import ProfileDetails from '../../components/ProfileDetails';
+import LabeledInput from '../../components/LabeledInput';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { toggleView } from '../../store/actions/user';
+import ProfileCard from '../../components/ProfileCard';
+import ProfileLinks from '../../components/ProfileLinks';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { useSlashtags } from '../../components/SlashtagsProvider';
+import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 
 export const ProfileEdit = ({ navigation, route }): JSX.Element => {
-	const [fields, setFields] = useState<BasicProfile>({});
-	const [addDataForm, setAddDataForm] = useState({ key: '', value: '' });
+	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
+	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
+	const [links, setLinks] = useState<object>({});
 
-	const { sdk } = useSlashtags();
+	const onboardedProfile =
+		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
+		'Done';
 
-	const id = route.params?.id;
-	const slashtag =
-		// TODO update the SDK to handle this on its own
-		id === sdk?._root.url.toString() ? sdk?._root : sdk?.slashtag({ url: id });
-	const savedProfile = useSlashtagProfile({ url: id });
+	const {
+		slashtag,
+		profile: savedProfile,
+		setProfile,
+	} = useSlashtag({
+		url: route.params?.id,
+	});
+
+	useEffect(() => {
+		const savedLinks = savedProfile.links || [];
+		const entries = savedLinks?.map((l) => [l.title, l]);
+		setLinks(Object.fromEntries(entries));
+	}, [savedProfile]);
 
 	const setField = (key: string, value: string | undefined): void =>
 		setFields({ ...fields, [key]: value });
 
-	const [image, setImage] = useState<string | null>(null);
+	const setLink = (title: string, url: string | undefined): void =>
+		setLinks({ ...links, [title]: { title, url } });
 
 	const profile: BasicProfile = useMemo(() => {
-		return { ...savedProfile, ...fields, ...(image ? { image } : {}) };
-	}, [savedProfile, fields, image]);
+		const merged = {
+			...savedProfile,
+			...fields,
+			links: Object.values(links),
+		};
+		return merged;
+	}, [savedProfile, fields, links]);
 
-	const visitedProfile = useSelector(
-		(store: Store) => store.slashtags.visitedProfile,
-	);
-
-	async function saveProfile(): Promise<void> {
-		if (JSON.stringify(profile) !== JSON.stringify(savedProfile)) {
-			await slashtag?.setProfile(profile);
+	const save = (): void => {
+		setProfile(profile);
+		if (!onboardedProfile) {
+			setOnboardingProfileStep('PaymentsFromContacts');
+		} else {
+			navigation.navigate('Profile', { id: slashtag?.url.toString() });
 		}
-		if (!visitedProfile) {
-			setVisitedProfile(true);
-		}
-		setProfileSeen(
-			slashtag?.url.toString(),
-			// TODO expose drive.version API
-			slashtag?.publicDrive?.metadataDB.feed.length,
-		);
-
-		navigation.navigate('Profile', { id: profile.id });
-	}
+	};
 
 	return (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
-				title="Edit profile"
+				title={onboardedProfile ? 'Edit Profile' : 'Create Profile'}
 				onClosePress={(): void => {
-					navigation.navigate('Profile');
+					navigation.navigate(onboardedProfile ? 'Profile' : 'Tabs');
 				}}
 			/>
 			<View style={styles.content}>
 				<ScrollView>
-					<View style={styles.topRow}>
-						<Text style={styles.note}>
-							Please note that all your profile information will be publicly
-							available.
-						</Text>
-						<TouchableOpacity
-							activeOpacity={0.8}
-							style={styles.editImageButton}
-							onPress={async (): Promise<void> => {
-								const result = await launchImageLibrary({
-									mediaType: 'photo',
-									includeBase64: true,
-									quality: 0.1,
-								});
-								const base64 = result.assets?.[0].base64;
-								const type = result.assets?.[0].type;
-								base64 && setImage(`data:${type};base64,` + base64);
-							}}>
-							<CameraIcon style={styles.cameraIcon} />
-							<ProfileImage
-								size={96}
-								profile={profile}
-								style={styles.profileImage}
-							/>
-						</TouchableOpacity>
-					</View>
-					<Input
-						label="Profile name"
-						value={profile?.name}
-						onChange={(val): void => setField('name', val)}
+					<ProfileCard
+						editable={true}
+						id={slashtag?.url.toString()}
+						profile={profile}
+						onChange={setField}
 					/>
-					<Input
-						label="Bio"
-						value={profile?.bio}
-						multiline={true}
-						onChange={(val): void => setField('bio', val)}
-					/>
-					<ProfileDetails profile={profile} setField={setField} />
+					<View style={styles.topRow} />
+					<ProfileLinks links={profile?.links} setLink={setLink} />
 					<Button
-						text="Add data"
-						style={styles.addDataButton}
+						text="Add link"
+						style={styles.addLinkButton}
 						onPress={(): void => {
 							toggleView({
-								view: 'profileAddDataForm',
+								view: 'profileAddLinkForm',
 								data: { isOpen: true },
 							});
 						}}
 						icon={
-							<PlusIcon color="brand" width={16} style={styles.addDataButton} />
+							<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
 						}
 					/>
+					<View style={styles.divider} />
+					<Text color="gray1" style={styles.note}>
+						Please note that all your profile information will be publicly
+						available.
+					</Text>
 				</ScrollView>
 				<Button
 					style={styles.saveButton}
-					text="Save profile"
+					text={onboardedProfile ? 'Save profile' : 'Continue'}
 					size="large"
-					onPress={saveProfile}
+					disabled={(profile?.name?.length || '') === 0}
+					onPress={save}
 				/>
 			</View>
+
 			<BottomSheetWrapper
 				headerColor="onSurface"
 				backdrop={true}
-				view="profileAddDataForm"
+				view="profileAddLinkForm"
 				snapPoints={[400]}>
 				<View style={styles.editDataModal}>
-					<Subtitle style={styles.addDataTitle}>Add data</Subtitle>
-					<View style={styles.editDataContent}>
-						<Input
+					<Subtitle style={styles.addLinkTitle}>Add link</Subtitle>
+					<View style={styles.editLinkContent}>
+						<LabeledInput
+							bottomSheet={true}
 							label="Label"
-							value={addDataForm.key}
-							onChange={(key: string): void => {
-								setAddDataForm({ ...addDataForm, key });
+							value={addLinkForm.label}
+							placeholder="For example ‘Website’"
+							onChange={(label: string): void => {
+								setAddLinkForm({ ...addLinkForm, label });
 							}}
 						/>
-						<Input
-							label="DATA (URL OR TEXT)"
-							value={addDataForm.value}
-							onChange={(value: string): void => {
-								setAddDataForm({ ...addDataForm, value });
+						<LabeledInput
+							bottomSheet={true}
+							label="Link OR TEXT"
+							value={addLinkForm.url}
+							placeholder="https://"
+							onChange={(url: string): void => {
+								setAddLinkForm({ ...addLinkForm, url });
 							}}
 						/>
 						<Button
 							text="Save"
 							size="large"
-							style={styles.addDataSave}
-							disabled={!(addDataForm.key?.length > 0)}
+							style={styles.addLinkSave}
+							disabled={
+								!(addLinkForm.label?.length > 0 && addLinkForm.url?.length > 0)
+							}
 							onPress={(): void => {
-								const { key, value } = addDataForm;
-								if (key.length > 0) {
-									setField(key, value);
-									setAddDataForm({ key: '', value: '' });
+								const { label, url } = addLinkForm;
+								if (label?.length > 0) {
+									setLink(label, url);
+									setAddLinkForm({ label: '', url: '' });
 								}
 								toggleView({
-									view: 'profileAddDataForm',
+									view: 'profileAddLinkForm',
 									data: { isOpen: false },
 								});
 							}}
@@ -206,43 +188,38 @@ const styles = StyleSheet.create({
 		fontSize: 17,
 		lineHeight: 22,
 		letterSpacing: -0.4,
-		color: '#8E8E93',
 		flex: 1,
 		paddingRight: 20,
 	},
-	editImageButton: {
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	cameraIcon: {
-		position: 'absolute',
-		zIndex: 99999,
-	},
-	profileImage: {
-		opacity: 0.6,
-	},
-	addDataButton: {
+	addLinkButton: {
 		height: 40,
+		maxWidth: 110,
 	},
 	editDataModal: {
 		flex: 1,
 		backgroundColor: 'transparent',
 	},
-	addDataTitle: {
+	addLinkTitle: {
 		textAlign: 'center',
 		marginBottom: 16,
 	},
-	editDataContent: {
+	editLinkContent: {
 		display: 'flex',
 		padding: 16,
 		backgroundColor: 'transparent',
 	},
-	addDataSave: {
+	addLinkSave: {
 		marginTop: 8,
 	},
 	saveButton: {
 		marginTop: 32,
+	},
+	divider: {
+		height: 2,
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
+
+		marginTop: 16,
+		marginBottom: 16,
 	},
 });
 
