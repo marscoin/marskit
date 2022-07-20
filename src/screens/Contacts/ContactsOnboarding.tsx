@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from '../../styles/components';
+import { Text, Text01B, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { Image } from 'react-native';
 import Button from '../../components/Button';
@@ -30,17 +30,15 @@ export const ContactsOnboarding = ({ navigation }): JSX.Element => {
 					Contacts.
 				</Title>
 				<Text color="gray1" style={styles.introText}>
-					Use Slashtags to get automatic updates about your contacts, pay them
-					with Bitcoin, and follow their public profiles.
+					Use Slashtags to get automatic updates from your contacts, pay them,
+					and follow their public profiles
 				</Text>
 				<Button
-					textStyle={styles.button}
-					text="Add your first contact"
+					text={<Text01B>Add your first contact</Text01B>}
 					size="large"
 					onPress={(): void => {
 						setVisitedContacts();
-					}}
-				/>
+					}}></Button>
 			</View>
 		</GlowingBackground>
 	);
@@ -68,9 +66,6 @@ const styles = StyleSheet.create({
 		fontSize: 17,
 		lineHeight: 22,
 		flex: 1,
-	},
-	button: {
-		fontWeight: '800',
 	},
 });
 

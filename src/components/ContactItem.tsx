@@ -6,9 +6,11 @@ import ProfileImage from './ProfileImage';
 import { SlashtagURL } from './SlashtagURL';
 
 export const ContactItem = ({
+	id,
 	profile,
 	navigation,
 }: {
+	id?: string;
 	profile?: BasicProfile;
 	navigation: any;
 }): JSX.Element => {
@@ -16,13 +18,13 @@ export const ContactItem = ({
 		<TouchableOpacity
 			activeOpacity={0.8}
 			onPress={(): void => {
-				navigation.navigate('Profile', { id: profile?.id });
+				navigation.navigate('Profile', { id });
 			}}>
 			<View style={styles.container}>
-				<ProfileImage profile={profile} size={48} />
+				<ProfileImage id={id} profile={profile} size={48} />
 				<View style={styles.column}>
 					<Text01B style={styles.name}>{profile?.name}</Text01B>
-					<SlashtagURL style={styles.url} color="gray" url={profile?.id} />
+					<SlashtagURL style={styles.url} color="gray" url={id} />
 				</View>
 			</View>
 		</TouchableOpacity>

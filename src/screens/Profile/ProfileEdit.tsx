@@ -8,35 +8,39 @@ import {
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
-import { useSlashtagProfile } from '../../hooks/slashtags';
+import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { BasicProfile } from '../../store/types/slashtags';
 import { StyleSheet } from 'react-native';
-import Input from '../../components/LabeledInput';
+import LabeledInput from '../../components/LabeledInput';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { toggleView } from '../../store/actions/user';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 
 export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
 	const [links, setLinks] = useState<object>({});
 
-	const onboardedProfile = useSelector(
-		(state: Store) => state.slashtags.onboardedProfile,
-	);
+	const onboardedProfile =
+		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
+		'Done';
 
-	const [savedProfile, setProfile] = useSlashtagProfile({
+	const {
+		slashtag,
+		profile: savedProfile,
+		setProfile,
+	} = useSlashtag({
 		url: route.params?.id,
 	});
 
 	useEffect(() => {
 		const savedLinks = savedProfile.links || [];
 		const entries = savedLinks?.map((l) => [l.title, l]);
-		// @ts-ignore
 		setLinks(Object.fromEntries(entries));
 	}, [savedProfile]);
 
@@ -55,13 +59,14 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 		return merged;
 	}, [savedProfile, fields, links]);
 
-	async function save(): Promise<void> {
-		if (JSON.stringify(profile) !== JSON.stringify(savedProfile)) {
-			setProfile(profile);
+	const save = (): void => {
+		setProfile(profile);
+		if (!onboardedProfile) {
+			setOnboardingProfileStep('PaymentsFromContacts');
+		} else {
+			navigation.navigate('Profile', { id: slashtag?.url.toString() });
 		}
-
-		navigation.navigate('Profile', { id: profile.id });
-	}
+	};
 
 	return (
 		<View style={styles.container}>
@@ -69,14 +74,14 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 			<NavigationHeader
 				title={onboardedProfile ? 'Edit Profile' : 'Create Profile'}
 				onClosePress={(): void => {
-					navigation.navigate('Profile');
+					navigation.navigate(onboardedProfile ? 'Profile' : 'Tabs');
 				}}
 			/>
 			<View style={styles.content}>
 				<ScrollView>
 					<ProfileCard
 						editable={true}
-						id={profile?.id}
+						id={slashtag?.url.toString()}
 						profile={profile}
 						onChange={setField}
 					/>
@@ -96,7 +101,7 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 						}
 					/>
 					<View style={styles.divider} />
-					<Text style={styles.note}>
+					<Text color="gray1" style={styles.note}>
 						Please note that all your profile information will be publicly
 						available.
 					</Text>
@@ -109,6 +114,7 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 					onPress={save}
 				/>
 			</View>
+
 			<BottomSheetWrapper
 				headerColor="onSurface"
 				backdrop={true}
@@ -117,7 +123,7 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 				<View style={styles.editDataModal}>
 					<Subtitle style={styles.addLinkTitle}>Add link</Subtitle>
 					<View style={styles.editLinkContent}>
-						<Input
+						<LabeledInput
 							bottomSheet={true}
 							label="Label"
 							value={addLinkForm.label}
@@ -126,7 +132,7 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 								setAddLinkForm({ ...addLinkForm, label });
 							}}
 						/>
-						<Input
+						<LabeledInput
 							bottomSheet={true}
 							label="Link OR TEXT"
 							value={addLinkForm.url}
@@ -182,7 +188,6 @@ const styles = StyleSheet.create({
 		fontSize: 17,
 		lineHeight: 22,
 		letterSpacing: -0.4,
-		color: '#8E8E93',
 		flex: 1,
 		paddingRight: 20,
 	},
@@ -209,7 +214,6 @@ const styles = StyleSheet.create({
 	saveButton: {
 		marginTop: 32,
 	},
-
 	divider: {
 		height: 2,
 		backgroundColor: 'rgba(255, 255, 255, 0.1)',

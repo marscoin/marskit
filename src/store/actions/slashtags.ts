@@ -1,17 +1,18 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
 import { Ok, ok, Result } from '../../utils/result';
+import { ISlashtags } from '../types/slashtags';
 
 const dispatch = getDispatch();
 
-export const setonboardedProfile = (
-	onboardedProfile = true,
+export const setOnboardingProfileStep = (
+	step: ISlashtags['onboardingProfileStep'],
 ): Result<string> => {
 	dispatch({
-		type: actions.SET_VISITED_PROFILE,
-		onboardedProfile,
+		type: actions.SET_ONBOARDING_PROFILE_STEP,
+		step,
 	});
-	return ok('Set onboardedProfile to: ' + onboardedProfile);
+	return ok('Set onboarding profile step to: ' + step);
 };
 
 export const setVisitedContacts = (visitedContacts = true): Result<string> => {
@@ -20,16 +21,6 @@ export const setVisitedContacts = (visitedContacts = true): Result<string> => {
 		visitedContacts,
 	});
 	return ok('Set visitedContacts to: ' + visitedContacts);
-};
-
-export const setProfileVersion = (id, version): Result<string> => {
-	dispatch({
-		type: actions.SET_PROFILE_VERSION,
-		id,
-		version,
-	});
-
-	return ok('Set profile version to: ' + version);
 };
 
 export const resetSlashtagsStore = (): Ok<string> => {

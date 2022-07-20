@@ -1700,10 +1700,10 @@
     safety-catch "^1.0.2"
     sodium-universal "^3.1.0"
 
-"@synonymdev/slashdrive@^1.0.0-alpha.3":
-  version "1.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.3.tgz#68a09339c340242ff7f72a17e021cf328a847d50"
-  integrity sha512-nSdL+egDgbtDmeOoEn9DvmHG38pjlnrN7H4brYy3N7DrlaDl9ghzl5WiOr5tSseZGaXQ9mdAk5l1tI1woctZdg==
+"@synonymdev/slashdrive@^1.0.0-alpha.4":
+  version "1.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.4.tgz#7ddab15c15677f8b3ec37eef6cf284bcd3ee30cf"
+  integrity sha512-QLBVWkFgIt4EtX/d1L1IROxeMyrEHnmCcgAc7i60UEbNRR5+/mVWdfxbKsE5uKqxpHhVlWqjmHWjddpfGO6ZJQ==
   dependencies:
     b4a "^1.5.0"
     compact-encoding "^2.6.1"
@@ -1732,12 +1732,12 @@
     random-access-memory "^4.1.0"
     sodium-universal "^3.1.0"
 
-"@synonymdev/slashtag@^1.0.0-alpha.8":
-  version "1.0.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.8.tgz#b42c3e16f31a4087e9106d17290a23a0b5bfd2c0"
-  integrity sha512-O7NxDJwhzpnM7bhTNDucN8YHHNfMBTnx4Suu1rNbKl+3Lpl/rkXsuElxD4NY1PoOb4ITHRQFEnxrfVKd9tM4bQ==
+"@synonymdev/slashtag@^1.0.0-alpha.9":
+  version "1.0.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.9.tgz#9245c566e1ad54fca5f8b8554af93f5b28d6f59a"
+  integrity sha512-1up4iZqcH5z6RPDqC9j7mJKp2nHly01ut2xdplOwNKCvc+mTF+s5qKGeabQtjtWTTrRXhJ251QwtF0K28nTE/Q==
   dependencies:
-    "@synonymdev/slashdrive" "^1.0.0-alpha.3"
+    "@synonymdev/slashdrive" "^1.0.0-alpha.4"
     b4a "^1.5.0"
     compact-encoding "^2.6.1"
     corestore "^6.0.1-alpha.17"
@@ -1749,13 +1749,13 @@
     sodium-universal "^3.1.0"
     z32 "^1.0.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.10":
-  version "1.0.0-alpha.10"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.10.tgz#d597e4851bd3fb74c2e0ce12c0d7c1b910a43f5c"
-  integrity sha512-R3k6fmarukRN24s4aurlPhTCwaugcYN7jJPEiGtNXxQZeXIEv09knlbNy92DLn5tMkmk9k/VxgS8py8lA9eBqw==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.12":
+  version "1.0.0-alpha.12"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.12.tgz#d73a50cf64ed9ac7b97882e71bf4b7a3a553625a"
+  integrity sha512-eVAC+JEZQDaYcXfIvYuuItF0PDHDXUDv1swbiQ0YSuTeyVRwG7NyXQL0i0TsPF49Yvx1TRLFmT1CIp9XZCdEFA==
   dependencies:
     "@synonymdev/slashauth" "^1.0.0-alpha.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.8"
+    "@synonymdev/slashtag" "^1.0.0-alpha.9"
     b4a "^1.3.1"
     corestore "^6.0.1-alpha.16"
     debug "^4.3.4"
@@ -1763,7 +1763,6 @@
     random-access-memory "^4.0.0"
     random-access-web "^2.0.3"
     sodium-universal "^3.1.0"
-    turbo-hash-map "^1.0.3"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -3736,6 +3735,11 @@ decode-uri-component@^0.2.0:
   resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
   integrity sha512-hjf+xovcEn31w/EUYdTXQh/8smFL/dzYjohQGEIgjyNavaJfBY2p5F527Bo1VPATxv0VYTUC2bOcXvqFwk78Og==
 
+dedent@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/dedent/-/dedent-0.6.0.tgz#0e6da8f0ce52838ef5cec5c8f9396b0c1b64a3cb"
+  integrity sha512-cSfRWjXJtZQeRuZGVvDrJroCR5V2UvBNUMHsPCdNYzuAG8b9V8aAy3KUcdQrGQPXs17Y+ojbPh1aOCplg9YR9g==
+
 dedent@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/dedent/-/dedent-0.7.0.tgz#2495ddbaf6eb874abb0e1be9df22d2e5a544326c"
@@ -5310,7 +5314,7 @@ intl@^1.2.5:
   resolved "https://registry.yarnpkg.com/intl/-/intl-1.2.5.tgz#82244a2190c4e419f8371f5aa34daa3420e2abde"
   integrity sha512-rK0KcPHeBFBcqsErKSpvZnrOmWOj+EmDkyJ57e90YWaQNqbcivcqmKDlHEeNprDWOsKzPsh1BfSpPQdDvclHVw==
 
-invariant@*, invariant@^2.2.4:
+invariant@*, invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -6469,6 +6473,19 @@ loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
+
+lottie-ios@3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/lottie-ios/-/lottie-ios-3.2.3.tgz#d5a029ccce611603d178ea7ba725c1446f2310b4"
+  integrity sha512-mubYMN6+1HXa8z3EJKBvNBkl4UoVM4McjESeB2PgvRMSngmJtC5yUMRdhbbrIAn5Liu3hFGao/14s5hQIgtkRQ==
+
+lottie-react-native@^5.1.3:
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/lottie-react-native/-/lottie-react-native-5.1.3.tgz#6f5d0867bb762cee1dfc0613845d50c73e138ddd"
+  integrity sha512-Ho+oM+D3if85I2EBn8c17tcg7pc880Sp/DOeNW5aWiNtlCJKX/kmlhoM19NLqjzkHEm96fTkTcTy82ZwYU3Kbg==
+  dependencies:
+    invariant "^2.2.2"
+    react-native-safe-modules "^1.0.3"
 
 lru-cache@^6.0.0:
   version "6.0.0"
@@ -8333,6 +8350,13 @@ react-native-safe-area-context@^4.2.5:
   resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-4.3.1.tgz#5cf97b25b395e0d09bc1f828920cd7da0d792ade"
   integrity sha512-cEr7fknJCToTrSyDCVNg0GRdRMhyLeQa2NZwVCuzEQcWedOw/59ExomjmzCE4rxrKXs6OJbyfNtFRNyewDaHuA==
 
+react-native-safe-modules@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-safe-modules/-/react-native-safe-modules-1.0.3.tgz#f5f29bb9d09d17581193843d4173ad3054f74890"
+  integrity sha512-DUxti4Z+AgJ/ZsO5U7p3uSCUBko8JT8GvFlCeOXk9bMd+4qjpoDvMYpfbixXKgL88M+HwmU/KI1YFN6gsQZyBA==
+  dependencies:
+    dedent "^0.6.0"
+
 react-native-screens@^3.13.1:
   version "3.13.1"
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-3.13.1.tgz#b3b1c5788dca25a71668909f66d87fb35c5c5241"
@@ -9762,13 +9786,6 @@ tty-browserify@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/tty-browserify/-/tty-browserify-0.0.0.tgz#a157ba402da24e9bf957f9aa69d524eed42901a6"
   integrity sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY=
-
-turbo-hash-map@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/turbo-hash-map/-/turbo-hash-map-1.0.3.tgz#6bdc94b677ee55ea507fb8ee214cc48e3f81d81e"
-  integrity sha512-r7/5Q48HTqbPEZsXC1AR5hUeMn/RfB6o0rokQfLVeikEMjGOzICBuMj6sZSV9bfpHxXGB3cA0xHmWHlYiy1XTw==
-  dependencies:
-    b4a "^1.3.1"
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

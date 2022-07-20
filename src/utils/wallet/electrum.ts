@@ -17,7 +17,6 @@ import {
 	refreshWallet,
 } from './index';
 import { Block } from 'bitcoinjs-lib';
-import { showSuccessNotification } from '../notifications';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateHeader } from '../../store/actions/wallet';
 import { getStore } from '../../store/helpers';
@@ -161,14 +160,10 @@ export const subscribeToAddresses = async ({
 				await electrum.subscribeAddress({
 					scriptHash: addressScriptHash,
 					network: selectedNetwork,
-					onReceive: (data): void => {
+					onReceive: (): void => {
 						if (showNotification) {
-							showSuccessNotification({
-								title: 'Received BTC',
-								message: data[1], //TODO: Include amount received as the message.
-							});
+							refreshWallet({ showNotification: true });
 						}
-						refreshWallet();
 						onReceive();
 					},
 				});
@@ -212,7 +207,7 @@ export const subscribeToHeader = async ({
 				selectedNetwork,
 				header: { ...data[0], hash },
 			});
-			refreshWallet();
+			refreshWallet({});
 		},
 	});
 	if (subscribeResponse.error) {

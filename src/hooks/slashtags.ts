@@ -1,53 +1,75 @@
 import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
+import type { EventsListeners } from '@synonymdev/slashdrive';
 import { useEffect, useState } from 'react';
-import { useSlashtags } from '../components/SlashtagsProvider';
-import { BasicProfile } from '../store/types/slashtags';
+import { useSlashtagsSDK } from '../components/SlashtagsProvider';
+import { BasicProfile, SlashPayConfig } from '../store/types/slashtags';
 
 export type Slashtag = ReturnType<ISDK['slashtag']>;
 
 /**
- * Helper hook to return Slashtag's profile
- * and detect when it has a new version to fetch.
+ * Helper hook to get and set profiles.
  */
-export const useSlashtagProfile = (opts?: {
+export const useSlashtag = (opts?: {
 	url: string;
-}): [BasicProfile, (profile: BasicProfile) => void] => {
-	const [profile, setProfile] = useState<BasicProfile>({ id: opts?.url });
+}): {
+	slashtag?: Slashtag;
+	profile: BasicProfile;
+	setProfile: (p: BasicProfile) => void;
+	payConfig;
+	setPayConfig: (p: SlashPayConfig) => void;
+} => {
+	const [profile, setProfile] = useState<BasicProfile>({});
+	const [payConfig, setPayConfig] = useState<SlashPayConfig>({});
 
-	const { sdk } = useSlashtags();
+	const { sdk } = useSlashtagsSDK();
+	const slashtag = sdk?.slashtag(opts);
 
-	const slashtag =
-		// TODO update the SDK to handle this on its own
-		opts?.url === sdk?._root.url.toString() ? sdk?._root : sdk?.slashtag(opts);
+	useEffect(() => {
+		let shouldUpdate = true;
 
-	const saveProfile = (profileToSave: BasicProfile): void => {
-		slashtag?.setProfile(profileToSave);
-		setProfile(profile);
-	};
+		slashtag?.getProfile().then((p) => {
+			shouldUpdate && p && setProfile(p);
+		});
 
-	useEffect((): (() => void) => {
-		// set a clean up flag
-		let shouldSetProfile = true;
-
-		(async (): Promise<void> => {
-			const p = await slashtag?.getProfile();
-
-			if (shouldSetProfile) {
-				setProfile({
-					...(p || {}),
-					id: slashtag?.url.toString(),
+		const listener: EventsListeners['update'] = async ({ key }) => {
+			if (key === 'profile.json') {
+				slashtag?.getProfile().then((p) => {
+					shouldUpdate && p && setProfile(p);
 				});
+			} else if (key === 'slashpay.json') {
+				slashtag?.publicDrive
+					?.get('slashpay.json')
+					.then((config) => {
+						shouldUpdate &&
+							config &&
+							setPayConfig(JSON.parse(config.toString()));
+					})
+					.catch((error) => {
+						console.debug('error reading slashpay.json', { error });
+					});
 			}
-		})();
-
-		return () => {
-			shouldSetProfile = false;
 		};
-	}, [
-		slashtag,
-		// TODO: add drive.version API to SlashDrive
-		// slashtag?.publicDrive?.objects.version,
-	]);
 
-	return [profile, saveProfile];
+		slashtag?.publicDrive?.on('update', listener);
+
+		return (): void => {
+			shouldUpdate = false;
+			slashtag?.publicDrive?.removeListener('update', listener);
+		};
+	}, [slashtag]);
+
+	return {
+		slashtag,
+		profile,
+		setProfile: (toSave): void => {
+			slashtag?.setProfile(toSave);
+		},
+		payConfig,
+		setPayConfig: (toSave): void => {
+			slashtag?.publicDrive?.put(
+				'slashpay.json',
+				Buffer.from(JSON.stringify(toSave)),
+			);
+		},
+	};
 };

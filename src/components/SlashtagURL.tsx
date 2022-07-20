@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { Text } from '../styles/components';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 export const SlashtagURL = ({
@@ -15,7 +15,7 @@ export const SlashtagURL = ({
 }): JSX.Element => {
 	return (
 		<TouchableOpacity
-			onLongPress={async (): Promise<void> => {
+			onLongPress={(): void => {
 				if (url) {
 					Clipboard.setString(url);
 					console.debug('Copied slashtag url:', url);

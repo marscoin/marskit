@@ -14,23 +14,45 @@ import { StyleSheet, useWindowDimensions, Share } from 'react-native';
 import Button from '../../components/Button';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
-import { useSlashtagProfile } from '../../hooks/slashtags';
+import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
-import ProfileOnboarding from './ProfileOnboarding';
+import {
+	ProfileIntro,
+	PaymentsFromContacts,
+	OfflinePayments,
+} from './ProfileOnboarding';
 import QR from 'react-native-qrcode-svg';
 import { BasicProfile } from '../../store/types/slashtags';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ProfileLinks from '../../components/ProfileLinks';
+import ProfileEdit from './ProfileEdit';
 
 export const Profile = ({ navigation, route }): JSX.Element => {
-	const onboardedProfile = useSelector(
-		(store: Store) => store.slashtags.onboardedProfile,
+	const onboardingProfileStep = useSelector(
+		(store: Store) => store.slashtags.onboardingProfileStep,
 	);
 
+	switch (onboardingProfileStep) {
+		case 'Intro':
+			return <ProfileIntro navigation={navigation} />;
+		case 'InitialEdit':
+			return <ProfileEdit navigation={navigation} route={route} />;
+		case 'PaymentsFromContacts':
+			return <PaymentsFromContacts navigation={navigation} />;
+		case 'OfflinePayments':
+			return <OfflinePayments navigation={navigation} />;
+		case 'Done':
+			return <ProfileScreen navigation={navigation} route={route} />;
+		default:
+			return <ProfileScreen navigation={navigation} route={route} />;
+	}
+};
+
+const ProfileScreen = ({ navigation, route }): JSX.Element => {
 	const id = route.params?.id;
-	const [profile] = useSlashtagProfile({ url: id });
+	const { slashtag, profile } = useSlashtag({ url: id });
 
 	const [view, setView] = useState('qr');
 
@@ -38,7 +60,7 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 		view === 'details' ? setView('qr') : setView('details');
 	}
 
-	return onboardedProfile ? (
+	return (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
@@ -49,7 +71,7 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 				}}
 			/>
 			<View style={styles.content}>
-				<ProfileCard id={profile?.id} profile={profile} />
+				<ProfileCard id={slashtag?.url.toString()} profile={profile} />
 				<View style={styles.divider} />
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
@@ -62,16 +84,17 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								profile?.id && Clipboard.setString(profile.id);
+								slashtag?.url.toString() &&
+									Clipboard.setString(slashtag?.url.toString());
 							}}>
 							<CopyIcon height={24} width={24} color="brand" />
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								profile?.id &&
+								slashtag?.url &&
 									Share.share({
 										title: 'Share Slashtag url',
-										message: profile.id,
+										message: slashtag?.url.toString(),
 									});
 							}}>
 							<ShareIcon height={24} width={24} color="brand" />
@@ -104,8 +127,6 @@ export const Profile = ({ navigation, route }): JSX.Element => {
 				/>
 			</View>
 		</View>
-	) : (
-		<ProfileOnboarding navigation={navigation} />
 	);
 };
 
@@ -126,13 +147,19 @@ const IconButton = ({
 	);
 };
 
-const QRView = ({ profile }: { profile?: BasicProfile }): JSX.Element => {
+const QRView = ({
+	id,
+	profile,
+}: {
+	id?: string;
+	profile?: BasicProfile;
+}): JSX.Element => {
 	const { width } = useWindowDimensions();
 	return (
 		<View style={styles.qrViewContainer}>
 			<View style={styles.qrContainer}>
 				<QR
-					value={profile?.id}
+					value={id}
 					size={(width * 2) / 3}
 					logo={{ uri: profile?.image || '' }}
 					logoBackgroundColor={profile?.image ? '#fff' : 'transparent'}

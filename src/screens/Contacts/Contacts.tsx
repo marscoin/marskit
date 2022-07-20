@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { PlusIcon, Text, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Store from '../../store/types';
 import { useSelector } from 'react-redux';
-import { useSlashtagProfile } from '../../hooks/slashtags';
+import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ContactsOnboarding from './ContactsOnboarding';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import SearchInput from '../../components/SearchInput';
 import ContactItem from '../../components/ContactItem';
 
@@ -16,7 +15,7 @@ export const Contacts = ({ navigation }): JSX.Element => {
 		(store: Store) => store.slashtags.visitedContacts,
 	);
 
-	const profile = useSlashtagProfile();
+	const { slashtag, profile } = useSlashtag();
 
 	const [searchFilter, setSearchFilter] = useState('');
 
@@ -49,7 +48,11 @@ export const Contacts = ({ navigation }): JSX.Element => {
 				<View style={styles.contacts}>
 					<Text style={styles.label}>My profile</Text>
 					<View style={styles.divider} />
-					<ContactItem navigation={navigation} profile={profile} />
+					<ContactItem
+						navigation={navigation}
+						id={slashtag?.url.toString()}
+						profile={profile}
+					/>
 					<View style={styles.divider} />
 				</View>
 			</View>

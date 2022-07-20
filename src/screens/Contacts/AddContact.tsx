@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ContactsOnboarding from './ContactsOnboarding';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { useSlashtags } from '../../components/SlashtagsProvider';
+import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
 import Glow from '../../components/Glow';
 import Clipboard from '@react-native-clipboard/clipboard';
 
@@ -25,7 +25,7 @@ export const AddContact = ({ navigation }): JSX.Element => {
 		(store: Store) => store.slashtags.visitedContacts,
 	);
 
-	const { sdk } = useSlashtags();
+	const { sdk } = useSlashtagsSDK();
 
 	useEffect(() => {
 		contactID && navigation.navigate('ConfirmContact', { id: contactID });

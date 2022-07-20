@@ -13,7 +13,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet, useWindowDimensions, Share } from 'react-native';
 import Button from '../../components/Button';
 import Store from '../../store/types';
-import { useSlashtagProfile } from '../../hooks/slashtags';
+import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import QR from 'react-native-qrcode-svg';
@@ -23,7 +23,7 @@ import ProfileDetails from '../../components/ProfileLinks';
 
 export const ConfirmContact = ({ navigation, route }): JSX.Element => {
 	const id = route.params.id;
-	const contact = useSlashtagProfile({ url: id });
+	const contact = useSlashtag({ url: id });
 
 	return (
 		<View style={styles.container}>

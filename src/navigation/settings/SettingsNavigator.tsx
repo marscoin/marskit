@@ -16,6 +16,7 @@ import LightningChannelDetails from '../../screens/Settings/Lightning/LightningC
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
+import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
 import AuthCheck from '../../components/AuthCheck';
 import GeneralSettings from '../../screens/Settings/General';
 import SecuritySettings from '../../screens/Settings/Security';
@@ -24,6 +25,7 @@ import NetworksSettings from '../../screens/Settings/Networks';
 import AdvancedSettings from '../../screens/Settings/Advanced';
 import AboutSettings from '../../screens/Settings/About';
 import EasterEgg from '../../screens/Settings/EasterEgg';
+import BitcoinNetworkSelection from '../../screens/Settings/Bitcoin/BitcoinNetworkSelection';
 
 const Stack = createNativeStackNavigator();
 
@@ -56,6 +58,10 @@ const SettingsNavigator = (): ReactElement => {
 					name="BitcoinUnitSettings"
 					component={BitcoinUnitSettings}
 				/>
+				<Stack.Screen
+					name="TransactionSpeedSettings"
+					component={TransactionSpeedSettings}
+				/>
 				<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
 				<Stack.Screen name="TempSettings" component={TempSettings} />
 
@@ -75,6 +81,10 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="LightningChannelDetails"
 					component={LightningChannelDetails}
+				/>
+				<Stack.Screen
+					name="BitcoinNetworkSelection"
+					component={BitcoinNetworkSelection}
 				/>
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />

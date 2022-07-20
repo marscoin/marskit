@@ -115,6 +115,8 @@ export const getNetworkData = ({
 				return { abbreviation, label: 'Bitcoin', ticker: 'BTC' };
 			case 'bitcoinTestnet':
 				return { abbreviation, label: 'Bitcoin Testnet', ticker: 'tBTC' };
+			case 'bitcoinRegtest':
+				return { abbreviation, label: 'Bitcoin Regtest', ticker: 'tBTC' };
 			default:
 				return { abbreviation, label: 'Bitcoin', ticker: 'BTC' };
 		}
@@ -437,7 +439,7 @@ export const sleep = (ms = 1000): Promise<void> => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const profileNameMultiLine = (name?: string) => {
+export const profileNameMultiLine = (name?: string): string => {
 	if (!name) {
 		return '';
 	}
@@ -447,8 +449,8 @@ export const profileNameMultiLine = (name?: string) => {
 	return parts
 		.slice(0, 2)
 		.map(
-			(name, index) =>
-				`${truncate(name, 16)}${
+			(n, index) =>
+				`${truncate(n, 16)}${
 					index === 1 && parts && parts.length > 2 ? ' ...' : ''
 				}`,
 		)

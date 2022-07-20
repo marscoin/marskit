@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import {
-	Text,
+	Caption13Up,
 	TextInput,
 	View,
 	BottomSheetTextInput,
@@ -17,6 +17,7 @@ export const Input = ({
 	onRightIconPress,
 	bottomSheet,
 	placeholder,
+	ref,
 }: {
 	label: string;
 	multiline?: boolean;
@@ -26,20 +27,24 @@ export const Input = ({
 	onRightIconPress?: () => void;
 	bottomSheet?: boolean;
 	placeholder?: string;
+	ref?;
 }): JSX.Element => {
 	return (
 		<View style={styles.inputContainer}>
-			<Text style={styles.label}>{label}</Text>
+			<Caption13Up color="gray1" style={styles.label}>
+				{label}
+			</Caption13Up>
 			<View
 				style={
 					onChange
 						? multiline
-							? StyleSheet.compose(styles.input, styles.multiline)
+							? StyleSheet.compose<{}>(styles.input, styles.multiline)
 							: styles.input
 						: styles.readOnlyInput
 				}>
 				{bottomSheet ? (
 					<BottomSheetTextInput
+						ref={ref}
 						style={styles.inputText}
 						defaultValue={value}
 						color={'white'}
@@ -103,7 +108,6 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		lineHeight: 18,
 		textTransform: 'uppercase',
-		color: '#8E8E93',
 		marginBottom: 8,
 	},
 	inputContainer: {
