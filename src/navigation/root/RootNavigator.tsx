@@ -28,6 +28,7 @@ import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnCha
 import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
 import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
+import NewTxPrompt from '../../screens/Wallets/NewTxPrompt';
 import Profile from '../../screens/Profile/Profile';
 import ProfileEdit from '../../screens/Profile/ProfileEdit';
 
@@ -105,6 +106,7 @@ const RootNavigator = (): ReactElement => {
 			<PINPrompt />
 			<BoostPrompt />
 			<ActivityTagsPrompt />
+			<NewTxPrompt />
 		</NavigationContainer>
 	);
 };

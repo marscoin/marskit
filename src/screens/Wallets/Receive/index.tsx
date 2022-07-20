@@ -13,8 +13,6 @@ import QRCode from 'react-native-qrcode-svg';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
-import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import { Flatlist } from 'react-native-gesture-handler';
 
 import {
 	View as ThemedView,

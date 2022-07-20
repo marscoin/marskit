@@ -35,9 +35,9 @@ const Result = ({ navigation }): ReactElement => {
 			/>
 
 			<Text01S color="gray1" style={styles.text}>
-				You have succesfully backed up your recovery phrase! Make sure you store
-				your backup in a secure place, as this is the only way to recover your
-				money.
+				You have successfully backed up your recovery phrase! Make sure you
+				store your backup in a secure place, as this is the only way to recover
+				your money.
 			</Text01S>
 
 			<View style={styles.imageContainer}>

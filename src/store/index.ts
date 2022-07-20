@@ -1,9 +1,9 @@
 import { createStore, applyMiddleware } from 'redux';
-import reducers from './reducers';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
+import { persistReducer } from 'redux-persist';
 import mmkvStorage from './mmkv-storage';
-const { persistReducer } = require('redux-persist');
+import reducers from './reducers';
 
 //Switch off logging for unit tests and prod env
 const createStoreWithMiddleware = (

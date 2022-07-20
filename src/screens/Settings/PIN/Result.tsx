@@ -38,12 +38,12 @@ const Result = ({ route }): ReactElement => {
 			<View style={styles.message}>
 				{bio ? (
 					<Text01S color="gray1">
-						You have succesfully set up a PIN code and biometrics to improve
+						You have successfully set up a PIN code and biometrics to improve
 						your security.
 					</Text01S>
 				) : (
 					<Text01S color="gray1">
-						You have succesfully set up a PIN code to improve your security.
+						You have successfully set up a PIN code to improve your security.
 					</Text01S>
 				)}
 			</View>
