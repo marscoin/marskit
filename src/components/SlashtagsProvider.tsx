@@ -71,7 +71,7 @@ export const SlashtagsProvider = ({
 	);
 };
 
-export const useSlashtags = (): ISlashtagsContext => {
+export const useSlashtagsSDK = (): ISlashtagsContext => {
 	const context = useContext(SlashtagsContext);
 	return context;
 };

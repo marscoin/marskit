@@ -1,44 +1,104 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useEffect } from 'react';
+import { TextInput as ITextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { BasicProfile } from '../store/types/slashtags';
-import { Text, Title, View } from '../styles/components';
-import { truncate } from '../utils/helpers';
+import { Text, Title, TextInput, View, CameraIcon } from '../styles/components';
+import { profileNameMultiLine } from '../utils/helpers';
 import ProfileImage from './ProfileImage';
 import { SlashtagURL } from './SlashtagURL';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 export const ProfileCard = ({
+	id,
 	profile,
+	editable,
+	onChange,
 }: {
 	id?: string;
 	profile?: BasicProfile;
+	editable?: boolean;
+	onChange?: (name, val) => void;
 }): JSX.Element => {
+	const name = profile?.name;
+	const bio = profile?.bio?.slice?.(0, 160);
+
+	const nameRef = useRef<ITextInput | null>(null);
+	const bioRef = useRef<ITextInput | null>(null);
+
+	useEffect(() => nameRef.current?.focus(), []);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.row}>
 				<View>
-					{profile?.name
-						?.split(' ')
-						.slice(0, 2)
-						.map((name, index) => (
-							<Title key={name} style={styles.name}>
-								{truncate(name, 16)}
-								{index === 1 &&
-								profile?.name &&
-								profile.name.split(' ').length > 2
-									? ' ...'
-									: ''}
-							</Title>
-						))}
-					<SlashtagURL style={styles.url} url={profile?.id} />
+					{editable ? (
+						<TextInput
+							ref={nameRef}
+							autoFucus={true}
+							style={styles.name}
+							value={name?.replace(/\s+/g, '\n')}
+							placeholder={'Your public\nprofile name'}
+							multiline={true}
+							onChangeText={(value): void => {
+								if (value.slice(-1) === '\t') {
+									bioRef.current?.focus();
+								} else {
+									onChange?.('name', value.replace(/\n/g, ' '));
+								}
+							}}
+						/>
+					) : (
+						<Title style={styles.name}>{profileNameMultiLine(name)}</Title>
+					)}
+					<SlashtagURL style={styles.url} url={id} />
 				</View>
-				<ProfileImage profile={profile} size={96} />
+				{editable ? (
+					<TouchableOpacity
+						activeOpacity={0.8}
+						style={styles.editImageButton}
+						onPress={async (): Promise<void> => {
+							const result = await launchImageLibrary({
+								mediaType: 'photo',
+								includeBase64: true,
+								quality: 0.1,
+							});
+							const base64 = result.assets?.[0].base64;
+							const type = result.assets?.[0].type;
+							base64 && onChange?.('image', `data:${type};base64,` + base64);
+						}}>
+						<CameraIcon style={styles.cameraIcon} />
+						<ProfileImage
+							size={96}
+							id={id}
+							profile={profile}
+							style={styles.profileImage}
+						/>
+					</TouchableOpacity>
+				) : (
+					<ProfileImage id={id} profile={profile} size={96} />
+				)}
 			</View>
 
-			<Text style={styles.bio}>{profile?.bio?.slice(0, 160) || 'Bio ...'}</Text>
+			{editable ? (
+				<TextInput
+					color="gray1"
+					ref={bioRef}
+					style={styles.bio}
+					value={bio}
+					placeholder={'Short bio. Tell a bit about yourself.'}
+					onChangeText={(value): void => onChange?.('bio', value)}
+				/>
+			) : (
+				<Text color="gray1" style={styles.bio}>
+					{bio}
+				</Text>
+			)}
 		</View>
 	);
 };
 
-const styles = {
+const styles = StyleSheet.create({
 	container: {
 		display: 'flex',
 		flexDirection: 'column',
@@ -52,20 +112,29 @@ const styles = {
 	},
 	name: {
 		fontSize: 34,
-		lineHeight: 34,
+		fontFamily: 'NHaasGroteskDSW02-65Md',
+		backgroundColor: 'transparent',
 	},
 	bio: {
 		fontSize: 22,
 		lineHeight: 26,
-		color: '#8E8E93',
-	},
-	actions: {
-		display: 'flex',
-		flexDirection: 'row',
+		backgroundColor: 'transparent',
 	},
 	url: {
 		marginTop: 16,
 	},
-};
+	editImageButton: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	cameraIcon: {
+		position: 'absolute',
+		zIndex: 99999,
+	},
+	profileImage: {
+		opacity: 0.6,
+	},
+});
 
 export default ProfileCard;

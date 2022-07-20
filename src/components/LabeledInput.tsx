@@ -1,7 +1,12 @@
 import React, { ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Text, TextInput, View } from '../styles/components';
+import { TouchableOpacity } from 'react-native';
+import {
+	Caption13Up,
+	TextInput,
+	View,
+	BottomSheetTextInput,
+} from '../styles/components';
 
 export const Input = ({
 	label,
@@ -10,6 +15,9 @@ export const Input = ({
 	onChange,
 	rightIcon,
 	onRightIconPress,
+	bottomSheet,
+	placeholder,
+	ref,
 }: {
 	label: string;
 	multiline?: boolean;
@@ -17,29 +25,49 @@ export const Input = ({
 	onChange?: (value: string) => void;
 	rightIcon?: ReactElement;
 	onRightIconPress?: () => void;
+	bottomSheet?: boolean;
+	placeholder?: string;
+	ref?;
 }): JSX.Element => {
 	return (
 		<View style={styles.inputContainer}>
-			<Text style={styles.label}>{label}</Text>
+			<Caption13Up color="gray1" style={styles.label}>
+				{label}
+			</Caption13Up>
 			<View
 				style={
 					onChange
 						? multiline
-							? StyleSheet.compose(styles.input, styles.multiline)
+							? StyleSheet.compose<{}>(styles.input, styles.multiline)
 							: styles.input
 						: styles.readOnlyInput
 				}>
-				<TextInput
-					style={styles.inputText}
-					defaultValue={value}
-					color={'white'}
-					autoCapitalize="none"
-					autoCorrect={false}
-					placeholder={label}
-					onChangeText={onChange}
-					multiline={multiline || false}
-					editable={!!onChange}
-				/>
+				{bottomSheet ? (
+					<BottomSheetTextInput
+						ref={ref}
+						style={styles.inputText}
+						defaultValue={value}
+						color={'white'}
+						autoCapitalize="none"
+						autoCorrect={false}
+						placeholder={placeholder}
+						onChangeText={onChange}
+						multiline={multiline || false}
+						editable={!!onChange}
+					/>
+				) : (
+					<TextInput
+						style={styles.inputText}
+						defaultValue={value}
+						color={'white'}
+						autoCapitalize="none"
+						autoCorrect={false}
+						placeholder={placeholder}
+						onChangeText={onChange}
+						multiline={multiline || false}
+						editable={!!onChange}
+					/>
+				)}
 				{rightIcon && (
 					<TouchableOpacity style={styles.rightIcon} onPress={onRightIconPress}>
 						{rightIcon}
@@ -80,7 +108,6 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		lineHeight: 18,
 		textTransform: 'uppercase',
-		color: '#8E8E93',
 		marginBottom: 8,
 	},
 	inputContainer: {
@@ -88,6 +115,7 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	inputText: {
+		color: 'white',
 		backgroundColor: 'transparent',
 		flex: 1,
 		fontSize: 15,

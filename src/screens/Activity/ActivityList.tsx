@@ -100,7 +100,7 @@ const ActivityList = ({
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
-		await Promise.all([refreshWallet()]);
+		await Promise.all([refreshWallet({})]);
 		await updateActivityList();
 		setRefreshing(false);
 	};

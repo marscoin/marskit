@@ -6,26 +6,10 @@ const slashtags = (state = defaultSlashtagsShape, action): ISlashtags => {
 	switch (action.type) {
 		case actions.RESET_SLASHTAGS_STORE:
 			return defaultSlashtagsShape;
-		case actions.SET_VISITED_PROFILE:
+		case actions.SET_ONBOARDING_PROFILE_STEP:
 			return {
 				...state,
-				visitedProfile: action.visitedProfile,
-			};
-		case actions.SET_VISITED_CONTACTS:
-			return {
-				...state,
-				visitedContacts: action.visitedContacts,
-			};
-		case actions.SET_PROFILE_SEEN:
-			return {
-				...state,
-				profiles: {
-					...(state.profiles || {}),
-					[action.id]: {
-						...(state.profiles[action.id] || {}),
-						seen: action.version,
-					},
-				},
+				onboardingProfileStep: action.step,
 			};
 		default:
 			return state;
