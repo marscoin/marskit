@@ -22,7 +22,6 @@ import {
 	Caption13Up,
 	CheckCircleIcon,
 	ClockIcon,
-	Display,
 	GitBranchIcon,
 	ReceiveIcon,
 	SendIcon,
@@ -34,6 +33,7 @@ import {
 	View as ThemedView,
 } from '../../styles/components';
 import Button from '../../components/Button';
+import Money from '../../components/Money';
 import NavigationHeader from '../../components/NavigationHeader';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import {
@@ -198,8 +198,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 
 	glowColor = colors[glowColor] ?? glowColor;
 
-	const { bitcoinFormatted, fiatFormatted, fiatSymbol } =
-		useDisplayValues(value);
+	const { fiatSymbol } = useDisplayValues(1);
 
 	const blockExplorerUrl =
 		activityType === 'onChain' ? getBlockExplorerLink(id) : '';
@@ -221,10 +220,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 				showsVerticalScrollIndicator={false}>
 				<View style={styles.title}>
 					<View style={styles.titleBlock}>
-						<Display>
-							{Number(bitcoinFormatted) > 0 ? '+' : ''}
-							{bitcoinFormatted}
-						</Display>
+						<Money
+							sats={value}
+							hightlight={true}
+							sign={value > 0 ? '+' : '-'}
+						/>
 					</View>
 
 					<ThemedView
@@ -241,7 +241,14 @@ const ActivityDetail = (props: Props): ReactElement => {
 				<View style={styles.sectionContainer}>
 					<Section
 						title={`VALUE (${fiatSymbol})`}
-						value={<Text02M>{fiatFormatted}</Text02M>}
+						value={
+							<Money
+								sats={value}
+								showFiat={true}
+								size="text02m"
+								color="white"
+							/>
+						}
 					/>
 					<Section
 						title="STATUS"
@@ -422,6 +429,7 @@ const styles = StyleSheet.create({
 	titleBlock: {
 		flexDirection: 'row',
 		alignItems: 'center',
+		paddingTop: 10,
 	},
 	iconContainer: {
 		borderRadius: 30,
