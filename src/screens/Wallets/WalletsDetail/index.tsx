@@ -13,6 +13,7 @@ import {
 	NativeSyntheticEvent,
 	Platform,
 	StyleSheet,
+	TouchableOpacity,
 } from 'react-native';
 import Animated, { EasingNode, FadeIn, FadeOut } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
@@ -25,6 +26,8 @@ import {
 	useDerivedValue,
 	vec,
 } from '@shopify/react-native-skia';
+import { useSelector } from 'react-redux';
+
 import { AnimatedView, Title, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
 import { useBalance } from '../../../hooks/wallet';
@@ -34,6 +37,8 @@ import BitcoinBreakdown from './BitcoinBreakdown';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import Money from '../../../components/Money';
 import { EActivityTypes } from '../../../store/types/activity';
+import Store from '../../../store/types';
+import { updateSettings } from '../../../store/actions/settings';
 import { TAssetType } from '../../../store/types/wallet';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 
@@ -83,6 +88,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 	const { route } = props;
 	const { assetType } = route.params;
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
+	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
 	const colors = useColors();
 
 	let title = '';
@@ -137,6 +143,11 @@ const WalletsDetail = (props: Props): ReactElement => {
 		[showDetails, height, headerHeight],
 	);
 
+	const handleSwitchUnit = useCallback(() => {
+		const nextUnit = bitcoinUnit === 'satoshi' ? 'BTC' : 'satoshi';
+		updateSettings({ bitcoinUnit: nextUnit });
+	}, [bitcoinUnit]);
+
 	return (
 		<AnimatedView style={styles.container}>
 			<View color={'transparent'} style={styles.txListContainer}>
@@ -182,7 +193,9 @@ const WalletsDetail = (props: Props): ReactElement => {
 										style={styles.cell}
 										entering={FadeIn}
 										exiting={FadeOut}>
-										<Money sats={satoshis} hightlight={true} size="title" />
+										<TouchableOpacity onPress={handleSwitchUnit}>
+											<Money sats={satoshis} hightlight={true} size="title" />
+										</TouchableOpacity>
 									</AnimatedView>
 								) : null}
 							</View>
@@ -193,11 +206,11 @@ const WalletsDetail = (props: Props): ReactElement => {
 									entering={FadeIn}
 									exiting={FadeOut}>
 									<View color={'transparent'} style={styles.balanceContainer}>
-										<View
-											color={'transparent'}
+										<TouchableOpacity
+											onPress={handleSwitchUnit}
 											style={styles.largeValueContainer}>
 											<Money sats={satoshis} hightlight={true} />
-										</View>
+										</TouchableOpacity>
 									</View>
 									{assetType === 'bitcoin' ? <BitcoinBreakdown /> : null}
 								</AnimatedView>
