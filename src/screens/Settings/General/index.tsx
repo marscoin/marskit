@@ -6,6 +6,8 @@ import { IListData } from './../../../components/List';
 import SettingsView from './../SettingsView';
 import { getStore } from '../../../store/helpers';
 import { updateSettings } from '../../../store/actions/settings';
+import { setupTodos } from '../../../utils/todos';
+import { resetTodo } from '../../../store/actions/todos';
 
 const General = ({ navigation }): ReactElement => {
 	const [modalVisible, setModalVisible] = useState(false);
@@ -122,7 +124,8 @@ const General = ({ navigation }): ReactElement => {
 						<Pressable
 							style={[styles.button]}
 							onPress={(): void => {
-								console.log('TODO: clean suggestions store');
+								resetTodo();
+								setupTodos();
 								setModalVisible(!modalVisible);
 							}}>
 							<Text style={styles.buttonText}>No, Cancel</Text>
