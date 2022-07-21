@@ -22,13 +22,6 @@ const NetworksSettings = ({ navigation }): ReactElement => {
 						onPress: (): void => navigation.navigate('ElectrumConfig'),
 						hide: false,
 					},
-					{
-						title: 'Tor',
-						type: 'switch',
-						enabled: rbf,
-						onPress: async (): Promise<void> => {},
-						hide: false,
-					},
 				],
 			},
 		],
