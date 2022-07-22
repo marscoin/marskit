@@ -57,3 +57,14 @@ export const dismissTodo = (id: string): Result<string> => {
 	});
 	return ok(`Successfully dismissed to-do with an id of ${id}`);
 };
+
+/**
+ * Calls resetTodo, to reset dismissed Todos and Todos.
+ */
+export const resetTodo = (): Result<string> => {
+	dispatch({
+		type: actions.RESET_TODO,
+		payload: null,
+	});
+	return ok('Successfully reset to-do');
+};
