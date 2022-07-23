@@ -147,7 +147,11 @@ const Connections = ({ navigation }): ReactElement => {
 				{nodes
 					.filter(({ status }) => status === 'pending')
 					.map((props) => (
-						<Node {...props} onPress={(): void => handleNode(props)} />
+						<Node
+							{...props}
+							key={props.id}
+							onPress={(): void => handleNode(props)}
+						/>
 					))}
 
 				<Caption13Up color="gray1" style={styles.sectionTitle}>
@@ -156,7 +160,11 @@ const Connections = ({ navigation }): ReactElement => {
 				{nodes
 					.filter(({ status }) => status === 'connected')
 					.map((props) => (
-						<Node {...props} onPress={(): void => handleNode(props)} />
+						<Node
+							{...props}
+							key={props.id}
+							onPress={(): void => handleNode(props)}
+						/>
 					))}
 
 				{closed && (
@@ -167,7 +175,11 @@ const Connections = ({ navigation }): ReactElement => {
 						{nodes
 							.filter(({ status }) => status === 'closed')
 							.map((props) => (
-								<Node {...props} onPress={(): void => handleNode(props)} />
+								<Node
+									{...props}
+									key={props.id}
+									onPress={(): void => handleNode(props)}
+								/>
 							))}
 					</AnimatedView>
 				)}
