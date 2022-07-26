@@ -11,9 +11,6 @@ import DevSettings from '../../screens/Settings/DevSettings';
 import ExportBackups from '../../screens/Settings/Backup/Export';
 import Seeds from '../../screens/Settings/Backup/Seeds';
 import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
-import LightningChannels from '../../screens/Settings/Lightning/LightningChannels';
-import LightningChannelDetails from '../../screens/Settings/Lightning/LightningChannelDetails';
-import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
 import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
@@ -26,6 +23,11 @@ import AdvancedSettings from '../../screens/Settings/Advanced';
 import AboutSettings from '../../screens/Settings/About';
 import EasterEgg from '../../screens/Settings/EasterEgg';
 import BitcoinNetworkSelection from '../../screens/Settings/Bitcoin/BitcoinNetworkSelection';
+import Connections from '../../screens/Settings/Lightning/Connections';
+import ConnectionDetails from '../../screens/Settings/Lightning/ConnectionDetails';
+import CloseConnection from '../../screens/Settings/Lightning/CloseConnection';
+import AddConnection from '../../screens/Settings/Lightning/AddConnection';
+import AddConnectionResult from '../../screens/Settings/Lightning/AddConnectionResult';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,18 +79,26 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
 				<Stack.Screen name="Seeds" component={Seeds} />
 				<Stack.Screen name="ViewSeed" component={ViewSeed} />
-				<Stack.Screen name="LightningChannels" component={LightningChannels} />
-				<Stack.Screen
-					name="LightningChannelDetails"
-					component={LightningChannelDetails}
-				/>
 				<Stack.Screen
 					name="BitcoinNetworkSelection"
 					component={BitcoinNetworkSelection}
 				/>
-				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
+				<Stack.Screen name="LightningConnections" component={Connections} />
+				<Stack.Screen
+					name="LightningConnection"
+					component={ConnectionDetails}
+				/>
+				<Stack.Screen
+					name="LightningCloseConnection"
+					component={CloseConnection}
+				/>
+				<Stack.Screen name="LightningAddConnection" component={AddConnection} />
+				<Stack.Screen
+					name="LightningAddConnectionResult"
+					component={AddConnectionResult}
+				/>
 			</Stack.Group>
 		</Stack.Navigator>
 	);

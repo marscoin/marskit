@@ -11,9 +11,9 @@ const NetworksSettings = ({ navigation }): ReactElement => {
 			{
 				data: [
 					{
-						title: 'Lightning Network',
+						title: 'Lightning connections',
 						type: 'button',
-						onPress: (): void => navigation.navigate('LightningNodeInfo'),
+						onPress: (): void => navigation.navigate('LightningConnections'),
 						hide: false,
 					},
 					{
