@@ -1,5 +1,5 @@
 # Bitkit - Mobile
-Bitkit is a self-custodial mobile keychain and wallet application that supports Bitcoin, Lightning Network and Slashtags. 
+Bitkit is a self-custodial mobile keychain and wallet application that supports Bitcoin, Lightning Network and Slashtags.
 
 Bitkit includes backup and restore features utilizing [Backpack](https://github.com/synonymdev/backpack-client), and supports [Blocktank](https://github.com/synonymdev/blocktank-client) LSP services.
 
@@ -7,14 +7,18 @@ Bitkit includes backup and restore features utilizing [Backpack](https://github.
 
 ### Installation
 1. Clone BitKit:
-   - `git clone git@github.com:synonymdev/bitkit.git`
+```bash
+git clone git@github.com:synonymdev/bitkit.git && cd bitkit/
+```
 
 2. Install Dependencies:
-   - `yarn install`
+```bash
+yarn install
+```
 
 3. Start the project:
-   - iOS: `npx react-native run-ios`
-   - Android: `npx react-native run-android`
-
-### Download APK
-- APK's can be located for download in the `bitkit-mobile` Slack channel as PR's are merged.
+```bash
+yarn ios
+#or
+yarn android
+```

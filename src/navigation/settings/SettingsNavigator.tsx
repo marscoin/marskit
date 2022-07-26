@@ -11,6 +11,7 @@ import DevSettings from '../../screens/Settings/DevSettings';
 import ExportBackups from '../../screens/Settings/Backup/Export';
 import Seeds from '../../screens/Settings/Backup/Seeds';
 import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
+import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
 import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
@@ -83,6 +84,7 @@ const SettingsNavigator = (): ReactElement => {
 					name="BitcoinNetworkSelection"
 					component={BitcoinNetworkSelection}
 				/>
+				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 				<Stack.Screen name="LightningConnections" component={Connections} />

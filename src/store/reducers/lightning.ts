@@ -4,20 +4,10 @@ import { defaultLightningShape } from '../shapes/lightning';
 
 const lightning = (state: ILightning, action): ILightning => {
 	switch (action.type) {
-		case actions.UPDATE_LIGHTNING_STATE:
+		case actions.UPDATE_LIGHTNING:
 			return {
 				...state,
-				state: action.payload,
-			};
-		case actions.UPDATE_LIGHTNING_INFO:
-			return {
-				...state,
-				info: action.payload,
-			};
-		case actions.CREATE_LIGHTNING_WALLET:
-			return {
-				...state,
-				...defaultLightningShape,
+				...action.payload,
 			};
 		case actions.RESET_LIGHTNING_STORE:
 		case actions.WIPE_WALLET:
