@@ -132,15 +132,22 @@ export const setAccount = async ({
 	try {
 		if (!name) {
 			name = getSelectedWallet();
+			name = `${name}${LDK_ACCOUNT_SUFFIX}`;
 		}
-		name = `${name}${LDK_ACCOUNT_SUFFIX}`;
 		const account: TAccount = {
 			name,
 			seed,
 		};
-		await Keychain.setGenericPassword(name, JSON.stringify(account), {
-			service: name,
-		});
+		const setRes = await Keychain.setGenericPassword(
+			name,
+			JSON.stringify(account),
+			{
+				service: name,
+			},
+		);
+		if (!setRes || setRes?.service !== name || setRes?.storage !== 'keychain') {
+			return false;
+		}
 		return true;
 	} catch {
 		return false;
@@ -172,8 +179,12 @@ export const getAccount = async ({
 		} else {
 			const defaultAccount = _getDefaultAccount(name, mnemonicPhrase.value);
 			// Setup default account.
-			await setAccount(defaultAccount);
-			return ok(defaultAccount);
+			const setAccountResponse = await setAccount(defaultAccount);
+			if (setAccountResponse) {
+				return ok(defaultAccount);
+			} else {
+				return err('Unable to set LDK account.');
+			}
 		}
 	} catch (e) {
 		console.log(e);
