@@ -175,7 +175,7 @@ export const getAccount = async ({
 		let result = await Keychain.getGenericPassword({ service: name });
 		if (result && result?.password) {
 			// Return existing account.
-			return JSON.parse(result?.password);
+			return ok(JSON.parse(result?.password));
 		} else {
 			const defaultAccount = _getDefaultAccount(name, mnemonicPhrase.value);
 			// Setup default account.
@@ -268,11 +268,7 @@ export const getTransactionData = async (
  */
 export const getNodeId = async (): Promise<Result<string>> => {
 	try {
-		const nodeIdResponse = await ldk.nodeId();
-		if (nodeIdResponse.isErr()) {
-			return err(nodeIdResponse.error.message);
-		}
-		return ok(nodeIdResponse.value);
+		return await ldk.nodeId();
 	} catch (e) {
 		return err(e);
 	}
