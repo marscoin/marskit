@@ -1,20 +1,15 @@
-import React, { ReactElement, memo, useMemo, useState, useEffect } from 'react';
+import React, { ReactElement, memo, useMemo, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
 
 import { View as ThemedView, Caption13M } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import SearchInput from '../../components/SearchInput';
 import ActivityList from './ActivityList';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import Store from '../../store/types';
-import {
-	updateSearchFilter,
-	updateTypesFilter,
-	resetActivityFilterStore,
-} from '../../store/actions/activity';
+import FilterAccessory from '../../components/FilterAccessory';
+import Tag from '../../components/Tag';
 import { EActivityTypes } from '../../store/types/activity';
 import useColors from '../../hooks/colors';
 
@@ -23,10 +18,11 @@ const Blur = Platform.OS === 'ios' ? BlurView : View;
 const Tab = ({
 	text,
 	active = false,
-	...props
+	onPress,
 }: {
 	text: string;
 	active?: boolean;
+	onPress: Function;
 }): ReactElement => {
 	const colors = useColors();
 	const style = useMemo(
@@ -37,72 +33,96 @@ const Tab = ({
 	);
 
 	return (
-		<TouchableOpacity style={[styles.tab, style]} {...props}>
+		<TouchableOpacity style={[styles.tab, style]} onPress={onPress}>
 			<Caption13M color={active ? 'white' : 'gray1'}>{text}</Caption13M>
 		</TouchableOpacity>
 	);
 };
 
 const ActivityFiltered = (): ReactElement => {
-	const { searchFilter, typesFilter } = useSelector(
-		(state: Store) => state.activity,
+	const [search, setSearch] = useState<string>('');
+	const [types, setTypes] = useState<Array<string>>([]);
+	const [tags, setTags] = useState<Array<string>>([]);
+	const filter = useMemo(
+		() => ({ search, types, tags }),
+		[search, types, tags],
 	);
 	const insets = useSafeAreaInsets();
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(0);
+	// const [tags, setTags] = useState<Array<string>>([]);
 	const activityPadding = useMemo(
 		() => ({ paddingTop: radiusContainerHeight, paddingBottom: insets.bottom }),
 		[radiusContainerHeight, insets.bottom],
 	);
 
-	useEffect(() => {
-		return (): void => resetActivityFilterStore();
-	}, []);
-
 	const handleChangeTab = (tab): void => {
-		updateTypesFilter([tab]);
+		setTypes(tab);
 	};
 
-	return (
-		<ThemedView style={styles.container}>
-			<View style={styles.txListContainer}>
-				<ActivityList
-					// assetFilter={assetFilter}
-					style={styles.txList}
-					showTitle={false}
-					contentContainerStyle={activityPadding}
-					progressViewOffset={radiusContainerHeight + 10}
-				/>
-			</View>
+	const addTag = (tag): void => setTags((t) => [...t, tag]);
+	const removeTag = (tag): void => setTags((t) => t.filter((x) => x !== tag));
 
-			<View
-				style={styles.radiusContainer}
-				onLayout={(e): void => {
-					const hh = e.nativeEvent.layout.height;
-					setRadiusContainerHeight((h) => (h === 0 ? hh : h));
-				}}>
-				<Blur>
-					<SafeAreaInsets type="top" />
-					<NavigationHeader title="All Activity" />
-					<View style={styles.formContainer}>
-						<SearchInput
-							style={styles.searchInput}
-							value={searchFilter}
-							onChangeText={updateSearchFilter}
-						/>
-						<View style={styles.tabContainer}>
-							{Object.keys(EActivityTypes).map((i) => (
+	return (
+		<>
+			<ThemedView style={styles.container}>
+				<View style={styles.txListContainer}>
+					<ActivityList
+						style={styles.txList}
+						showTitle={false}
+						contentContainerStyle={activityPadding}
+						progressViewOffset={radiusContainerHeight + 10}
+						filter={filter}
+					/>
+				</View>
+
+				<View
+					style={styles.radiusContainer}
+					onLayout={(e): void => {
+						const hh = e.nativeEvent.layout.height;
+						setRadiusContainerHeight((h) => (h === 0 ? hh : h));
+					}}>
+					<Blur>
+						<SafeAreaInsets type="top" />
+						<NavigationHeader title="All Activity" />
+						<View style={styles.formContainer}>
+							<SearchInput
+								style={styles.searchInput}
+								value={search}
+								onChangeText={setSearch}>
+								{tags.length > 0 && (
+									<View style={styles.tags}>
+										{tags.map((t) => (
+											<Tag
+												style={styles.tag}
+												key={t}
+												value={t}
+												onClose={(): void => removeTag(t)}
+											/>
+										))}
+									</View>
+								)}
+							</SearchInput>
+							<View style={styles.tabContainer}>
 								<Tab
-									key={i}
-									text={i}
-									active={typesFilter.includes(i)}
-									onPress={(): void => handleChangeTab(i)}
+									text="All"
+									active={types.length === 0}
+									onPress={(): void => handleChangeTab([])}
 								/>
-							))}
+								{Object.keys(EActivityTypes).map((i) => (
+									<Tab
+										key={i}
+										text={i}
+										active={types.includes(i)}
+										onPress={(): void => handleChangeTab([i])}
+									/>
+								))}
+							</View>
 						</View>
-					</View>
-				</Blur>
-			</View>
-		</ThemedView>
+					</Blur>
+				</View>
+			</ThemedView>
+			<FilterAccessory tags={tags} addTag={addTag} />
+		</>
 	);
 };
 
@@ -143,6 +163,15 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		marginHorizontal: 4,
 		borderBottomWidth: 2,
+	},
+	tag: {
+		marginRight: 8,
+		marginBottom: 8,
+	},
+	tags: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		marginTop: 8,
 	},
 });
 

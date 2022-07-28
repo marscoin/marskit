@@ -14,17 +14,21 @@ const { persistStore } = require('redux-persist');
 const persistor = persistStore(store);
 
 const Root = (): ReactElement => {
-	return (
-		<ErrorBoundary>
-			<Provider store={store}>
-				<PersistGate
-					loading={<View style={styles.container} />}
-					persistor={persistor}>
-					<App />
-				</PersistGate>
-			</Provider>
-		</ErrorBoundary>
+	const content = (
+		<Provider store={store}>
+			<PersistGate
+				loading={<View style={styles.container} />}
+				persistor={persistor}>
+				<App />
+			</PersistGate>
+		</Provider>
 	);
+
+	if (__DEV__) {
+		return content;
+	}
+
+	return <ErrorBoundary>{content}</ErrorBoundary>;
 };
 
 export default Root;

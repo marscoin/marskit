@@ -1,42 +1,40 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TextInput, MagnifyingGlassIcon } from '../styles/components';
 
-const SearchInput = ({ style, ...props }): ReactElement => {
+const SearchInput = ({ style, children, ...props }): ReactElement => {
+	const rootStyle = StyleSheet.compose(style, styles.root);
+
 	return (
-		<View style={StyleSheet.compose(style, styles.inputWrapper)}>
+		<View style={rootStyle}>
+			<MagnifyingGlassIcon style={styles.icon} />
 			<TextInput style={styles.input} placeholder="Search" {...props} />
-			<View style={styles.iconContainer}>
-				<MagnifyingGlassIcon style={styles.icon} />
-			</View>
+			{children && <View style={styles.tags}>{children}</View>}
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	inputWrapper: {
+	root: {
 		position: 'relative',
+		flexDirection: 'row',
+		alignItems: 'center',
+		borderRadius: 32,
+		backgroundColor: 'rgba(255, 255, 255, 0.08)',
+		overflow: 'hidden',
 	},
 	input: {
 		height: 56,
-		paddingLeft: 53,
-		borderRadius: 32,
-		paddingRight: 6,
 		fontSize: 17,
-		backgroundColor: 'rgba(255, 255, 255, 0.08)',
-	},
-	iconContainer: {
-		position: 'absolute',
-		top: 0,
-		left: 18,
-		bottom: 0,
-		justifyContent: 'center',
-		flexDirection: 'row',
-		alignItems: 'center',
+		flex: 1,
+		backgroundColor: 'transparent',
 	},
 	icon: {
-		marginRight: 16,
+		marginHorizontal: 16,
+	},
+	tags: {
+		maxWidth: '60%',
 	},
 });
 
-export default SearchInput;
+export default memo(SearchInput);

@@ -77,6 +77,7 @@ const ListItem = memo(
 							size="text01m"
 							style={styles.value}
 							sign={txType === 'sent' ? '-' : '+'}
+							hightlight={true}
 						/>
 						<Money
 							sats={value}
