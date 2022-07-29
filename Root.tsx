@@ -1,16 +1,26 @@
 import React, { ReactElement } from 'react';
 import { View, StyleSheet } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+import { PersistGate } from 'redux-persist/integration/react';
+import { enableScreens, enableFreeze } from 'react-native-screens';
+import { persistStore } from 'redux-persist';
+import { Provider } from 'react-redux';
+
 import App from './src/App';
 import ErrorBoundary from './src/ErrorBoundary';
 import store from './src/store';
-import { PersistGate } from 'redux-persist/integration/react';
-import { enableScreens, enableFreeze } from 'react-native-screens';
+
+if (!__DEV__) {
+	Sentry.init({
+		dsn: 'https://70caceeda5c14f4da121ef90ac0858bf@sentry.synonym.to/2',
+		tracesSampleRate: 1.0,
+		normalizeDepth: 10, // increase default for Redux
+	});
+}
 
 enableScreens(true);
 enableFreeze(true);
 
-const Provider = require('react-redux').Provider;
-const { persistStore } = require('redux-persist');
 const persistor = persistStore(store);
 
 const Root = (): ReactElement => {
@@ -27,7 +37,7 @@ const Root = (): ReactElement => {
 	);
 };
 
-export default Root;
+export default Sentry.wrap(Root);
 
 const styles = StyleSheet.create({
 	container: {

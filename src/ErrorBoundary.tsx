@@ -1,5 +1,6 @@
 import React, { ReactElement, Component } from 'react';
 import { Text, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 
 type State = {
 	error: null | any;
@@ -19,6 +20,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 	}
 
 	componentDidCatch(error, errorInfo): void {
+		Sentry.captureException(error);
 		console.error('ErrorBoundary componentDidCatch', error, errorInfo);
 	}
 
