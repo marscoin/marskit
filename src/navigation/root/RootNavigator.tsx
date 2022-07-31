@@ -41,11 +41,12 @@ const navOptions = {
 	detachInactiveScreens: true,
 };
 
-export type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
+type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
+
 const RootNavigator = (): ReactElement => {
 	const pin = useSelector((state: Store) => state.settings.pin);
 	const pinOnLaunch = useSelector((state: Store) => state.settings.pinOnLaunch);
-	const initialRouteName = useMemo(
+	const initialRouteName: TInitialRoutes = useMemo(
 		() => (pin && pinOnLaunch ? 'RootAuthCheck' : 'Tabs'),
 		[pin, pinOnLaunch],
 	);

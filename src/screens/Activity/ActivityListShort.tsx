@@ -11,17 +11,13 @@ import ListItem from './ListItem';
 
 const ActivityList = (): ReactElement => {
 	const navigation = useNavigation();
-
-	const activityItems = useSelector(
-		(state: Store) => state.activity.itemsFiltered,
-	).slice(0, 3);
-
-	// group items by categories: today, yestarday, this month, this year, earlier
-	// and attach to them formattedDate
-	const groupedItems = useMemo(
-		() => groupActivityItems(activityItems),
-		[activityItems],
-	);
+	const items = useSelector((state: Store) => state.activity.items);
+	const groupedItems = useMemo(() => {
+		const activityItems = items.slice(0, 3);
+		// group items by categories: today, yestarday, this month, this year, earlier
+		// and attach to them formattedDate
+		return groupActivityItems(activityItems);
+	}, [items]);
 
 	const renderItem = useCallback(
 		({ item }): ReactElement => {
@@ -44,13 +40,8 @@ const ActivityList = (): ReactElement => {
 				/>
 			);
 		},
-		//eslint-disable-next-line react-hooks/exhaustive-deps
-		[activityItems],
+		[navigation],
 	);
-
-	if (activityItems.length === 0) {
-		return <></>;
-	}
 
 	return (
 		<View style={styles.content} color={'transparent'}>
