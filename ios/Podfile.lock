@@ -323,6 +323,8 @@ PODS:
     - React-Core
   - react-native-image-picker (4.8.4):
     - React-Core
+  - react-native-ldk (0.0.51):
+    - React
   - react-native-libsodium (0.0.1):
     - React-Core
   - react-native-mmkv (2.4.1):
@@ -549,6 +551,7 @@ DEPENDENCIES:
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-ldk (from `../node_modules/@synonymdev/react-native-ldk`)"
   - react-native-libsodium (from `../node_modules/react-native-libsodium`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -657,6 +660,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-ldk:
+    :path: "../node_modules/@synonymdev/react-native-ldk"
   react-native-libsodium:
     :path: "../node_modules/react-native-libsodium"
   react-native-mmkv:
@@ -765,6 +770,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 5663fe4bcdb646200683a41790464d2793307ac8
   react-native-image-picker: cffb727cf2f59bd5c0408e30b3dbe0b935f88835
+  react-native-ldk: ad26f1f6932bfa7eb07a35a9b8ea74a7aa794c44
   react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
   react-native-mmkv: b5c7f9bc369eef2b8a2aa36e8a15949989fa823f
   react-native-netinfo: 1a6035d3b9780221d407c277ebfb5722ace00658

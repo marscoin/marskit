@@ -188,12 +188,15 @@ interface ISubscribeToHeader {
 /**
  * Subscribes to the current networks headers.
  * @param {string} [selectedNetwork]
+ * @param {Function} [onReceive]
  * @return {Promise<Result<string>>}
  */
 export const subscribeToHeader = async ({
 	selectedNetwork,
+	onReceive = (): void => {},
 }: {
-	selectedNetwork?: undefined | TAvailableNetworks;
+	selectedNetwork?: TAvailableNetworks;
+	onReceive?: Function;
 }): Promise<Result<IHeader>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
@@ -207,11 +210,16 @@ export const subscribeToHeader = async ({
 				selectedNetwork,
 				header: { ...data[0], hash },
 			});
-			refreshWallet({});
+			onReceive();
+			refreshWallet({}).then();
 		},
 	});
 	if (subscribeResponse.error) {
 		return err('Unable to subscribe to headers.');
+	}
+	// @ts-ignore
+	if (subscribeResponse?.data === 'Already Subscribed.') {
+		return ok(getStore().wallet.header[selectedNetwork]);
 	}
 	// Update local storage with current height and hex.
 	const hex = subscribeResponse.data.hex;
@@ -534,8 +542,9 @@ export const connectToElectrum = async ({
 		if (error) {
 			return err(data);
 		}
+		return ok(data);
 	}
-	return ok('Successfully connected.');
+	return ok(startResponse.data);
 };
 
 /**

@@ -26,6 +26,7 @@
     "@react-navigation/stack": "^6.2.1",
     "@shopify/react-native-skia": "^0.1.124",
     "@synonymdev/blocktank-client": "^0.0.4",
+    "@synonymdev/react-native-ldk": "0.0.51",
     "@synonymdev/react-native-lnurl": "0.0.3",
     "@synonymdev/slashtags-sdk": "1.0.0-alpha.13",
     "assert": "^2.0.0",
@@ -133,17 +134,6 @@
     "react-test-renderer": "17.0.2",
     "rn-nodeify": "^10.3.0",
     "typescript": "^3.9.7"
-  },
-  "jest": {
-    "preset": "react-native",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   },
   "react-native": {
     "crypto": "react-native-crypto",

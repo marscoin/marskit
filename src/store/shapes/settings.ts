@@ -32,6 +32,7 @@ export const defaultSettingsShape: ISettings = {
 	coinSelectPreference: 'small',
 	unitPreference: 'asset',
 	showSuggestions: true,
+	swipeBalanceToHide: true,
 	transactionSpeed: 'normal',
 	hideBalance: false,
 };

@@ -23,10 +23,9 @@ import {
 	View,
 } from '../../styles/components';
 import Store from '../../store/types';
-import { EActivityTypes } from '../../store/types/activity';
 import { updateActivityList } from '../../store/actions/activity';
 import { refreshWallet } from '../../utils/wallet';
-import { groupActivityItems } from '../../utils/activity';
+import { groupActivityItems, filterActivityItems } from '../../utils/activity';
 import ListItem from './ListItem';
 
 const ListHeaderComponent = memo(
@@ -41,34 +40,29 @@ const ListHeaderComponent = memo(
 );
 
 const ActivityList = ({
-	assetFilter,
 	onScroll,
 	style,
 	contentContainerStyle,
 	progressViewOffset,
 	showTitle = true,
+	filter = {},
 }: {
-	assetFilter?: EActivityTypes[];
 	onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 	style?: StyleProp<ViewStyle> | undefined;
 	contentContainerStyle?: StyleProp<ViewStyle> | undefined;
 	progressViewOffset?: number | undefined;
 	showTitle?: boolean;
+	filter?: {};
 }): ReactElement => {
 	const navigation = useNavigation();
-
-	const activityItems = useSelector((state: Store) =>
-		state.activity.itemsFiltered.filter(
-			(v) => !assetFilter || assetFilter.indexOf(v.activityType) > -1,
-		),
-	);
-
-	// group items by categories: today, yestarday, this month, this year, earlier
-	// and attach to them formattedDate
-	const groupedItems = useMemo(
-		() => groupActivityItems(activityItems),
-		[activityItems],
-	);
+	const items = useSelector((state: Store) => state.activity.items);
+	const tags = useSelector((state: Store) => state.metadata.tags);
+	const groupedItems = useMemo(() => {
+		const activityItems = filterActivityItems(items, tags, filter);
+		// group items by categories: today, yestarday, this month, this year, earlier
+		// and attach to them formattedDate
+		return groupActivityItems(activityItems);
+	}, [items, tags, filter]);
 
 	const [refreshing, setRefreshing] = useState(false);
 
@@ -93,8 +87,7 @@ const ActivityList = ({
 				/>
 			);
 		},
-		//eslint-disable-next-line react-hooks/exhaustive-deps
-		[activityItems],
+		[navigation],
 	);
 
 	const onRefresh = async (): Promise<void> => {

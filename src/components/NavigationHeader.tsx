@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import {
 	BackIcon,
+	PlusIcon,
 	Subtitle,
 	Title,
 	TouchableOpacity,
@@ -13,29 +14,31 @@ import {
 
 const BackButton = memo(
 	({ onPress = (): null => null }: { onPress: Function }): ReactElement => {
-		try {
-			return (
-				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
-					<BackIcon width={20} height={20} />
-				</TouchableOpacity>
-			);
-		} catch {
-			return <View />;
-		}
+		return (
+			<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
+				<BackIcon width={20} height={20} />
+			</TouchableOpacity>
+		);
 	},
 );
 
 const CloseButton = memo(
 	({ onPress = (): null => null }: { onPress: Function }): ReactElement => {
-		try {
-			return (
-				<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
-					<XIcon width={24} height={24} />
-				</TouchableOpacity>
-			);
-		} catch {
-			return <View />;
-		}
+		return (
+			<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
+				<XIcon width={24} height={24} />
+			</TouchableOpacity>
+		);
+	},
+);
+
+const AddButton = memo(
+	({ onPress = (): null => null }: { onPress: Function }): ReactElement => {
+		return (
+			<TouchableOpacity onPress={onPress} style={styles.iconContainer}>
+				<PlusIcon width={24} height={24} />
+			</TouchableOpacity>
+		);
 	},
 );
 
@@ -46,6 +49,7 @@ const NavigationHeader = ({
 	navigateBack = true,
 	size = 'lg',
 	onClosePress,
+	onAddPress,
 }: {
 	title?: string;
 	displayBackButton?: boolean;
@@ -53,6 +57,7 @@ const NavigationHeader = ({
 	navigateBack?: boolean;
 	size?: 'lg' | 'sm';
 	onClosePress?: Function;
+	onAddPress?: Function;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 
@@ -85,6 +90,7 @@ const NavigationHeader = ({
 			</View>
 			<View style={styles.rightColumn}>
 				{onClosePress && <CloseButton onPress={onClosePress} />}
+				{onAddPress && <AddButton onPress={onAddPress} />}
 			</View>
 		</View>
 	);

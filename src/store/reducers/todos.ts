@@ -23,6 +23,13 @@ const todos = (state = defaultTodosShape, action): ITodos => {
 				dismissedTodos: [...state.dismissedTodos, action.payload],
 			};
 
+		case actions.RESET_TODO:
+			return {
+				...state,
+				dismissedTodos: [],
+				todos: [],
+			};
+
 		default:
 			return state;
 	}

@@ -29,7 +29,7 @@ const EasterEgg = (): ReactElement => {
 					Who will you
 				</Display>
 				<Display color="brand" style={styles.text}>
-					Orange Pill?
+					orange-pill?
 				</Display>
 			</View>
 			<View style={styles.alignCenter}>

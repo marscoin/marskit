@@ -82,46 +82,49 @@ export const mergeActivityItems = (
 };
 
 /**
- * Filters activity items based on search string or type list
+ * Filters activity items based on search string, type list or tags
  * @param items
- * @param search
- * @param types
+ * @param metaTags
+ * @param filter
  */
 export const filterActivityItems = (
 	items: IActivityItem[],
-	search: string,
-	types: EActivityTypes[],
+	metaTags: { [txid: string]: Array<string> },
+	{
+		search = '',
+		types = [],
+		tags = [],
+	}: {
+		search?: string;
+		types?: EActivityTypes[];
+		tags?: Array<string>;
+	},
 ): IActivityItem[] => {
-	let filteredItems: IActivityItem[] = [];
-
-	items.forEach((item) => {
-		//If there is a search set and it's not found in the message then don't bother continuing
-		if (
-			search &&
-			item.message.toLowerCase().indexOf(search.toLowerCase()) === -1
-		) {
-			return;
+	return items.filter((item) => {
+		// If there is a search set and it's not found in the message then don't bother continuing
+		if (search && !item.message.toLowerCase().includes(search.toLowerCase())) {
+			return false;
 		}
 
-		//Filter not set, assume all
-		if (types.length === 0) {
-			filteredItems.push(item);
-			return;
+		// type doesn't match
+		if (types.length > 0 && !types.includes(item.activityType)) {
+			return false;
 		}
 
-		let existsInFilter = false;
-		types.forEach((type) => {
-			if (item.activityType === type) {
-				existsInFilter = true;
-			}
-		});
-
-		if (existsInFilter) {
-			filteredItems.push(item);
+		// if no tags filter, skip it
+		if (tags.length === 0) {
+			return true;
 		}
+
+		const itemTags = metaTags[item.id] ?? [];
+
+		// check all search tags are in item tags
+		if (itemTags.length > 0 && tags.every((t) => itemTags.includes(t))) {
+			return true;
+		}
+
+		return false;
 	});
-
-	return filteredItems;
 };
 
 export const groupActivityItems = (
@@ -225,4 +228,14 @@ export const groupActivityItems = (
 	}
 
 	return result;
+};
+
+export const updateLastUsedTags = (
+	oldTags: Array<string>,
+	newTags: Array<string>,
+): Array<string> => {
+	let tags = [...newTags, ...oldTags];
+	tags = [...new Set(tags)];
+	tags = tags.slice(0, 10);
+	return tags;
 };

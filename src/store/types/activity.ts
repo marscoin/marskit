@@ -25,8 +25,5 @@ export interface IActivityItemFormatted extends IActivityItem {
 
 export interface IActivity {
 	items: IActivityItem[];
-	itemsFiltered: IActivityItem[];
-	searchFilter: string;
-	typesFilter: EActivityTypes[];
 	//TODO set TAvailableNetworks
 }

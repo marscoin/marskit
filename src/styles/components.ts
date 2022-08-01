@@ -65,6 +65,8 @@ import {
 	chevronRightIcon,
 	leftArrowIcon,
 	rightArrowIcon,
+	upArrowIcon,
+	downArrowIcon,
 	checkmarkIcon,
 	copyIcon,
 	faceIdIcon,
@@ -364,6 +366,24 @@ export const LeftArrow = styled(SvgXml).attrs((props) => ({
 
 export const RightArrow = styled(SvgXml).attrs((props) => ({
 	xml: rightArrowIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.white,
+	),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
+	color: undefined,
+}))({});
+
+export const UpArrow = styled(SvgXml).attrs((props) => ({
+	xml: upArrowIcon(
+		props?.color ? props.theme.colors[props.color] : props.theme.colors.white,
+	),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
+	color: undefined,
+}))({});
+
+export const DownArrow = styled(SvgXml).attrs((props) => ({
+	xml: downArrowIcon(
 		props?.color ? props.theme.colors[props.color] : props.theme.colors.white,
 	),
 	height: props?.height ?? '24px',

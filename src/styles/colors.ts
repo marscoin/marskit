@@ -41,6 +41,7 @@ export interface IColors {
 	brand08: string;
 	yellow08: string;
 	purple16: string;
+	purple5: string;
 }
 
 const colors: IColors = {
@@ -100,6 +101,7 @@ const colors: IColors = {
 	brand08: 'rgba(255, 102, 0, 0.08)',
 	yellow08: 'rgba(255, 174, 0, 0.08)',
 	purple16: 'rgba(185, 92, 232, 0.16)',
+	purple5: 'rgba(185, 92, 232, 0.5)',
 };
 
 export default colors;

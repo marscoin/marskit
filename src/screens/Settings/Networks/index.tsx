@@ -1,19 +1,22 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 
 const NetworksSettings = ({ navigation }): ReactElement => {
-	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
 	const SettingsListData: IListData[] = useMemo(
 		() => [
 			{
 				data: [
 					{
-						title: 'Lightning Network',
+						title: 'Lightning Node Info',
 						type: 'button',
 						onPress: (): void => navigation.navigate('LightningNodeInfo'),
+						hide: false,
+					},
+					{
+						title: 'Lightning connections',
+						type: 'button',
+						onPress: (): void => navigation.navigate('LightningConnections'),
 						hide: false,
 					},
 					{
@@ -22,17 +25,11 @@ const NetworksSettings = ({ navigation }): ReactElement => {
 						onPress: (): void => navigation.navigate('ElectrumConfig'),
 						hide: false,
 					},
-					{
-						title: 'Tor',
-						type: 'switch',
-						enabled: rbf,
-						onPress: async (): Promise<void> => {},
-						hide: false,
-					},
 				],
 			},
 		],
-		[navigation, rbf],
+		//eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
 	);
 
 	return (
