@@ -214,15 +214,11 @@ const List = ({
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
 			stickySectionHeadersEnabled={false}
-			contentContainerStyle={styles.contentContainerStyle}
 		/>
 	);
 };
 
 const styles = StyleSheet.create({
-	contentContainerStyle: {
-		paddingBottom: 55,
-	},
 	row: {
 		height: 55,
 	},
