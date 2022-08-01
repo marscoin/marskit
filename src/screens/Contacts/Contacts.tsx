@@ -1,25 +1,101 @@
-import React, { useState } from 'react';
-import { PlusIcon, Text, View } from '../../styles/components';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
+import {
+	ClipboardTextIcon,
+	CornersOutIcon,
+	PlusIcon,
+	Subtitle,
+	Text,
+	View,
+} from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import Store from '../../store/types';
+import { SectionList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ContactsOnboarding from './ContactsOnboarding';
 import SearchInput from '../../components/SearchInput';
 import ContactItem from '../../components/ContactItem';
+import BottomSheetWrapper from '../../components/BottomSheetWrapper';
+import LabeledInput from '../../components/LabeledInput';
+import { toggleView } from '../../store/actions/user';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Store from '../../store/types';
+import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { handleSlashtagURL, saveBulkContacts } from '../../utils/slashtags';
+import { IContactRecord } from '../../store/types/slashtags';
+import { useSlashtagsContacts } from '../../components/SlashtagContactsProvider';
 
 export const Contacts = ({ navigation }): JSX.Element => {
-	const onboardedProfile = useSelector(
-		(store: Store) => store.slashtags.visitedContacts,
+	const onboardedContacts = useSelector(
+		(state: Store) => state.slashtags.onboardedContacts,
 	);
 
-	const { slashtag, profile } = useSlashtag();
+	return onboardedContacts ? (
+		<ContactsScreen navigation={navigation} />
+	) : (
+		<ContactsOnboarding navigation={navigation} />
+	);
+};
 
+const ContactsScreen = ({ navigation }): JSX.Element => {
 	const [searchFilter, setSearchFilter] = useState('');
+	const [addContactURL, setAddContactURL] = useState('');
+	const [addContacInvalid, setAddContactInvalid] = useState(false);
 
-	return onboardedProfile ? (
+	const { contacts } = useSlashtagsContacts();
+
+	const orderedContacts = useMemo(() => {
+		return Object.values(contacts).sort((a, b) => (a.name > b.name ? 1 : -1));
+	}, [contacts]);
+
+	const filter = useCallback(
+		(name: string): boolean =>
+			searchFilter.length === 0
+				? true
+				: name?.toLowerCase().includes(searchFilter?.toLowerCase()),
+		[searchFilter],
+	);
+
+	const { url: myProfileURL, profile } = useSelectedSlashtag();
+
+	const sectionedContacts = useMemo(() => {
+		const sections: { [char: string]: IContactRecord[] } = {};
+
+		orderedContacts.forEach((contact) => {
+			if (filter(contact.name)) {
+				const char = contact.name?.slice(0, 1);
+				sections[char]
+					? sections[char].push(contact)
+					: (sections[char] = [contact]);
+			}
+		});
+
+		const result = Object.entries(sections).map(([title, data]) => ({
+			title,
+			data,
+		}));
+
+		if (profile?.name && filter(profile?.name)) {
+			result.unshift({
+				title: 'My profile',
+				data: [{ ...profile, url: myProfileURL as string } as IContactRecord],
+			});
+		}
+		return result;
+	}, [profile, filter, orderedContacts, myProfileURL]);
+
+	const updateContactID = (url: string): void => {
+		setAddContactURL(url);
+		setAddContactInvalid(false);
+
+		handleSlashtagURL(url, () => setAddContactInvalid(true));
+	};
+
+	const pasteAddContact = async (): Promise<void> => {
+		let url = await Clipboard.getString();
+		updateContactID(url);
+	};
+
+	return (
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
@@ -30,7 +106,7 @@ export const Contacts = ({ navigation }): JSX.Element => {
 				}}
 			/>
 			<View style={styles.content}>
-				<View style={styles.row}>
+				<View style={styles.searchRow}>
 					<SearchInput
 						style={styles.searchInput}
 						value={searchFilter}
@@ -40,25 +116,82 @@ export const Contacts = ({ navigation }): JSX.Element => {
 						style={styles.addButton}
 						activeOpacity={0.8}
 						onPress={(): void => {
-							navigation.navigate('AddContact');
+							toggleView({
+								view: 'addContactModal',
+								data: { isOpen: true },
+							});
 						}}>
 						<PlusIcon widht={24} height={24} color="brand" />
 					</TouchableOpacity>
 				</View>
 				<View style={styles.contacts}>
-					<Text style={styles.label}>My profile</Text>
-					<View style={styles.divider} />
-					<ContactItem
-						navigation={navigation}
-						id={slashtag?.url.toString()}
-						profile={profile}
+					<SectionList
+						sections={sectionedContacts as any}
+						keyExtractor={(item: IContactRecord): string => item.url}
+						ItemSeparatorComponent={(): ReactElement => (
+							<View style={styles.divider} />
+						)}
+						SectionSeparatorComponent={(): ReactElement => (
+							<View style={styles.divider} />
+						)}
+						renderSectionHeader={({ section: { title } }): ReactElement => (
+							<View style={styles.sectionHeader}>
+								<Text style={styles.label}>{title}</Text>
+							</View>
+						)}
+						renderItem={({ item: contact }): ReactElement => (
+							<ContactItem
+								url={contact.url}
+								name={contact.name}
+								navigation={navigation}
+								isContact={contact.url !== myProfileURL}
+							/>
+						)}
 					/>
-					<View style={styles.divider} />
 				</View>
 			</View>
+
+			<BottomSheetWrapper
+				headerColor="onSurface"
+				backdrop={true}
+				view="addContactModal"
+				snapPoints={[400]}>
+				<View style={styles.modalContainer}>
+					<Subtitle style={styles.modalTitle}>Add a contact</Subtitle>
+					<Text color="gray1" style={styles.addContactNote}>
+						Add a new contact by scanning a QR or by pasting their Slashtags key
+						below.
+					</Text>
+					<View style={styles.modalContent}>
+						<LabeledInput
+							bottomSheet={true}
+							label="ADD SLASHTAGS CONTACT"
+							value={addContactURL}
+							placeholder="Paste a Slashtags key"
+							onChange={updateContactID}
+							rightIcon={
+								<View style={styles.addContactsIconsContainer}>
+									<TouchableOpacity
+										onPress={(): void => {
+											navigation.navigate('Scanner');
+										}}>
+										<CornersOutIcon widht={24} height={24} color="brand" />
+									</TouchableOpacity>
+									<TouchableOpacity onPress={pasteAddContact}>
+										<ClipboardTextIcon widht={24} height={24} color="brand" />
+									</TouchableOpacity>
+								</View>
+							}
+						/>
+						<View style={styles.addContactInvalid}>
+							{addContacInvalid && (
+								<Text color="brand">This is not a valid Slashtags URL.</Text>
+							)}
+						</View>
+					</View>
+				</View>
+			</BottomSheetWrapper>
 		</View>
-	) : (
-		<ContactsOnboarding navigation={navigation} />
 	);
 };
 
@@ -73,9 +206,10 @@ const styles = StyleSheet.create({
 		marginTop: 0,
 		backgroundColor: 'transparent',
 	},
-	row: {
+	searchRow: {
 		display: 'flex',
 		flexDirection: 'row',
+		marginBottom: 16,
 	},
 	searchInput: {
 		flex: 1,
@@ -91,13 +225,13 @@ const styles = StyleSheet.create({
 		borderRadius: 999,
 		backgroundColor: 'rgba(255, 255, 255, 0.08)',
 	},
+	sectionHeader: { height: 24 },
 	label: {
 		fontWeight: '500',
 		fontSize: 13,
 		lineHeight: 18,
 		textTransform: 'uppercase',
 		color: '#8E8E93',
-		marginBottom: 8,
 	},
 	contacts: {
 		flex: 1,
@@ -107,6 +241,34 @@ const styles = StyleSheet.create({
 		backgroundColor: 'rgba(255, 255, 255, 0.1)',
 		marginTop: 16,
 		marginBottom: 16,
+	},
+	modalContainer: {
+		flex: 1,
+		backgroundColor: 'transparent',
+	},
+	modalTitle: {
+		textAlign: 'center',
+		marginBottom: 16,
+	},
+	modalContent: {
+		display: 'flex',
+		padding: 16,
+		backgroundColor: 'transparent',
+	},
+	addContactNote: {
+		fontSize: 17,
+		lineHeight: 22,
+		padding: 16,
+	},
+	addContactsIconsContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		backgroundColor: 'transparent',
+	},
+	addContactInvalid: {
+		height: 20,
+		marginTop: 16,
+		backgroundColor: 'transparent',
 	},
 });
 

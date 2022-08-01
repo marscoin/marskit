@@ -2,9 +2,13 @@ import actions from './actions';
 import { getDispatch } from '../helpers';
 import { Ok, ok, Result } from '../../utils/result';
 import { ISlashtags } from '../types/slashtags';
+import Store from '../types';
 
 const dispatch = getDispatch();
 
+/**
+ * Sets the onboarding profile state.
+ */
 export const setOnboardingProfileStep = (
 	step: ISlashtags['onboardingProfileStep'],
 ): Result<string> => {
@@ -15,14 +19,22 @@ export const setOnboardingProfileStep = (
 	return ok('Set onboarding profile step to: ' + step);
 };
 
-export const setVisitedContacts = (visitedContacts = true): Result<string> => {
+/**
+ * Set onboardedContacts state.
+ */
+export const setOnboardedContacts = (
+	onboardedContacts = true,
+): Result<string> => {
 	dispatch({
 		type: actions.SET_VISITED_CONTACTS,
-		visitedContacts,
+		onboardedContacts,
 	});
-	return ok('Set visitedContacts to: ' + visitedContacts);
+	return ok('Set onboardedContacts to: ' + onboardedContacts);
 };
 
+/**
+ * Resets slasthags store to the default state.
+ */
 export const resetSlashtagsStore = (): Ok<string> => {
 	dispatch({ type: actions.RESET_SLASHTAGS_STORE });
 	return ok('Reset slashtags store successfully');

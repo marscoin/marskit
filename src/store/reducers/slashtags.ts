@@ -14,7 +14,7 @@ const slashtags = (state = defaultSlashtagsShape, action): ISlashtags => {
 		case actions.SET_VISITED_CONTACTS:
 			return {
 				...state,
-				visitedContacts: action.visitedContacts,
+				onboardedContacts: action.onboardedContacts,
 			};
 		default:
 			return state;

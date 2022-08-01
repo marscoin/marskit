@@ -834,9 +834,10 @@ export const BackIcon = styled(SvgXml).attrs((props) => ({
 }))({});
 
 export const CornersOutIcon = styled(SvgXml).attrs((props) => ({
-	xml: cornersOut(props?.color ? props.theme.colors[props.color] : 'white'),
-	height: props?.height ?? '32px',
-	width: props?.width ?? '32px',
+	xml: cornersOut(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '32px',
+	width: props.width ?? '32px',
+	color: undefined,
 }))({});
 
 export const BitkitIcon = styled(SvgXml).attrs((props) => ({

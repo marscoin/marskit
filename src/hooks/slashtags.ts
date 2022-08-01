@@ -1,75 +1,94 @@
-import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
-import type { EventsListeners } from '@synonymdev/slashdrive';
-import { useEffect, useState } from 'react';
-import { useSlashtagsSDK } from '../components/SlashtagsProvider';
-import { BasicProfile, SlashPayConfig } from '../store/types/slashtags';
+import { useEffect, useMemo, useState } from 'react';
+import type { SDK } from '@synonymdev/slashtags-sdk';
 
-export type Slashtag = ReturnType<ISDK['slashtag']>;
+import { useSlashtagsSDK } from '../components/SlashtagsProvider';
+import { getSelectedSlashtag, getRemote } from '../utils/slashtags';
+import { IRemote } from '../store/types/slashtags';
+import { useSlashtagsContacts } from '../components/SlashtagContactsProvider';
+
+export type Slashtag = ReturnType<SDK['slashtag']>;
 
 /**
- * Helper hook to get and set profiles.
+ * Returns reomte Profile, and slashPay config, and watch the publicDrive for updates.
  */
-export const useSlashtag = (opts?: {
-	url: string;
-}): {
-	slashtag?: Slashtag;
-	profile: BasicProfile;
-	setProfile: (p: BasicProfile) => void;
-	payConfig;
-	setPayConfig: (p: SlashPayConfig) => void;
+export const useRemote = (
+	url: string,
+): {
+	// Set to true once resolving the profile is done
+	resolved: boolean;
+	remote: IRemote | undefined;
 } => {
-	const [profile, setProfile] = useState<BasicProfile>({});
-	const [payConfig, setPayConfig] = useState<SlashPayConfig>({});
-
-	const { sdk } = useSlashtagsSDK();
-	const slashtag = sdk?.slashtag(opts);
+	const sdk = useSlashtagsSDK();
+	const [remote, setRemote] = useState<IRemote>();
 
 	useEffect(() => {
-		let shouldUpdate = true;
+		let unmounted = false;
+		const slashtag = sdk.slashtag({ url });
 
-		slashtag?.getProfile().then((p) => {
-			shouldUpdate && p && setProfile(p);
-		});
+		// Get the profile once on opening the hook.
+		resolve();
 
-		const listener: EventsListeners['update'] = async ({ key }) => {
-			if (key === 'profile.json') {
-				slashtag?.getProfile().then((p) => {
-					shouldUpdate && p && setProfile(p);
-				});
-			} else if (key === 'slashpay.json') {
-				slashtag?.publicDrive
-					?.get('slashpay.json')
-					.then((config) => {
-						shouldUpdate &&
-							config &&
-							setPayConfig(JSON.parse(config.toString()));
-					})
-					.catch((error) => {
-						console.debug('error reading slashpay.json', { error });
-					});
-			}
+		// Watch for any edits or updates to hot reload the profil.
+		const onUpdate = (): Promise<void> => resolve();
+		slashtag.publicDrive.on('update', onUpdate);
+
+		async function resolve(): Promise<void> {
+			const _remote = await getRemote(slashtag);
+			!unmounted && setRemote(_remote);
+		}
+
+		// Clean everything
+		return () => {
+			unmounted = true;
+			slashtag.publicDrive.removeListener('update', onUpdate);
 		};
-
-		slashtag?.publicDrive?.on('update', listener);
-
-		return (): void => {
-			shouldUpdate = false;
-			slashtag?.publicDrive?.removeListener('update', listener);
-		};
-	}, [slashtag]);
+	}, [sdk, url]);
 
 	return {
-		slashtag,
+		resolved: !!remote?.profile,
+		remote,
+	};
+};
+
+/**
+ * Same as useRemote but for the currently selected slashtag
+ */
+export const useSelectedSlashtag = (): {
+	url: string;
+	slashtag: Slashtag;
+} & IRemote => {
+	const sdk = useSlashtagsSDK();
+	const slashtag = useMemo(() => getSelectedSlashtag(sdk), [sdk]);
+	const { remote } = useRemote(slashtag.url.origin);
+
+	return { url: slashtag.url.origin, slashtag, ...remote };
+};
+
+/**
+ * Combines the remote profile with the
+ * saved contact record if exists.
+ */
+export const useContact = (
+	url: string,
+): IRemote & { isContact: boolean; resolved: boolean } => {
+	const { resolved, remote } = useRemote(url);
+	const { contacts } = useSlashtagsContacts();
+	const contactRecord = useMemo(() => {
+		return contacts[url];
+	}, [contacts, url]);
+
+	const profile = useMemo(() => {
+		return {
+			...remote?.profile,
+			...(contactRecord || {}),
+		};
+	}, [remote?.profile, contactRecord]);
+
+	return {
+		resolved,
+		// Already saved in contacts drive
+		isContact: !!contactRecord,
+		...remote,
 		profile,
-		setProfile: (toSave): void => {
-			slashtag?.setProfile(toSave);
-		},
-		payConfig,
-		setPayConfig: (toSave): void => {
-			slashtag?.publicDrive?.put(
-				'slashpay.json',
-				Buffer.from(JSON.stringify(toSave)),
-			);
-		},
 	};
 };

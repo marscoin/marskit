@@ -7,7 +7,7 @@ import { Title } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { StyleSheet } from 'react-native';
-import { setVisitedContacts } from '../../store/actions/slashtags';
+import { setOnboardedContacts } from '../../store/actions/slashtags';
 
 export const ContactsOnboarding = ({ navigation }): JSX.Element => {
 	return (
@@ -37,8 +37,9 @@ export const ContactsOnboarding = ({ navigation }): JSX.Element => {
 					text={<Text01B>Add your first contact</Text01B>}
 					size="large"
 					onPress={(): void => {
-						setVisitedContacts();
-					}}></Button>
+						setOnboardedContacts();
+					}}
+				/>
 			</View>
 		</GlowingBackground>
 	);

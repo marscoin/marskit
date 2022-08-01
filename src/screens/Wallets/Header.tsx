@@ -8,15 +8,15 @@ import {
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { useSlashtag } from '../../hooks/slashtags';
 import { SlashtagURL } from '../../components/SlashtagURL';
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
+import { useSelectedSlashtag } from '../../hooks/slashtags';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation();
 
-	const { slashtag, profile } = useSlashtag();
+	const { url, profile } = useSelectedSlashtag();
 
 	const openProfile = useCallback(
 		// @ts-ignore
@@ -40,14 +40,14 @@ const Header = (): ReactElement => {
 				<View style={styles.leftColumn}>
 					<ProfileImage
 						size={32}
-						profile={profile}
-						id={slashtag?.url.toString()}
+						url={url}
+						image={profile?.image}
 						style={styles.profileImage}
 					/>
 					{profile?.name ? (
 						<Title>{truncate(profile?.name, 20)}</Title>
 					) : (
-						<SlashtagURL url={slashtag?.url.toString()} />
+						<SlashtagURL url={url} />
 					)}
 				</View>
 			</TouchableOpacity>

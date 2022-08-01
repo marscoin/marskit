@@ -1,6 +1,6 @@
 import { ISlashtags } from '../types/slashtags';
 
 export const defaultSlashtagsShape: ISlashtags = {
-	visitedContacts: false,
+	onboardedContacts: false,
 	onboardingProfileStep: 'Intro',
 };

@@ -10,10 +10,11 @@ import { StyleSheet } from 'react-native';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import { ISlashtags, SlashPayConfig } from '../../store/types/slashtags';
 import SwitchRow from '../../components/SwitchRow';
-import { useSlashtag } from '../../hooks/slashtags';
 import { getReceiveAddress } from '../../utils/wallet';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
+import { getSelectedSlashtag } from '../../utils/slashtags';
 
 export const ProfileIntro = ({ navigation }): JSX.Element => {
 	return (
@@ -49,21 +50,26 @@ export const PaymentsFromContacts = ({ navigation }): JSX.Element => {
 
 export const OfflinePayments = ({ navigation }): JSX.Element => {
 	const [enableOfflinePayment, setEnableOfflinePayment] = useState(true);
-	const { setPayConfig } = useSlashtag();
 
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
 
+	const sdk = useSlashtagsSDK();
+
 	const savePaymentConfig = (): void => {
-		const config: SlashPayConfig = {};
+		const payConfig: SlashPayConfig = {};
 		if (enableOfflinePayment) {
 			const response = getReceiveAddress({ selectedWallet });
 			if (response.isOk()) {
-				config.p2wpkh = response.value;
+				payConfig.p2wpkh = response.value;
 			}
 		}
-		setPayConfig(config);
+		const slashtag = getSelectedSlashtag(sdk);
+		slashtag?.publicDrive.put(
+			'/slashprofile',
+			Buffer.from(JSON.stringify(payConfig)),
+		);
 	};
 
 	return (
