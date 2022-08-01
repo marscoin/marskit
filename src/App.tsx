@@ -24,6 +24,7 @@ import { checkWalletExists, startWalletServices } from './utils/startup';
 import { SlashtagsProvider } from './components/SlashtagsProvider';
 import { showErrorNotification } from './utils/notifications';
 import { getSlashtagsPrimaryKey } from './utils/wallet';
+import { SlashtagsContactsProvider } from './components/SlashtagContactsProvider';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -38,8 +39,8 @@ const App = (): ReactElement => {
 		(store: Store) => store.wallet.selectedWallet,
 	);
 	const wallets = useSelector((store: Store) => store.wallet.wallets);
-	const seedHash = wallets[selectedWallet].seedHash;
-	const [primaryKey, setPrimaryKey] = useState<Buffer | null>(null);
+	const seedHash = wallets[selectedWallet]?.seedHash;
+	const [primaryKey, setPrimaryKey] = useState<Uint8Array>();
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -51,13 +52,10 @@ const App = (): ReactElement => {
 	}, []);
 
 	useEffect(() => {
-		(async (): Promise<void> => {
-			const { error, data } = await getSlashtagsPrimaryKey(seedHash);
-			if (error) {
-				return;
-			}
-			setPrimaryKey(Buffer.from(data, 'hex'));
-		})();
+		seedHash &&
+			getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
+				!error && setPrimaryKey(Buffer.from(data, 'hex'));
+			});
 	}, [seedHash]);
 
 	const currentTheme = useMemo(() => {
@@ -72,18 +70,21 @@ const App = (): ReactElement => {
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
 				primaryKey={primaryKey}
-				onError={(error): void =>
+				// TODO(slashtags): add settings to customize this relay
+				relay={'wss://dht-relay.synonym.to'}
+				onError={(error: Error): void => {
 					showErrorNotification({
 						title: 'SlashtagsProvider Error',
 						message: error.message,
-					})
-				}>
-				<SafeAreaProvider>
-					<StatusBar />
-					<RootComponent />
-				</SafeAreaProvider>
-
-				<Toast />
+					});
+				}}>
+				<SlashtagsContactsProvider>
+					<SafeAreaProvider>
+						<StatusBar />
+						<RootComponent />
+					</SafeAreaProvider>
+					<Toast />
+				</SlashtagsContactsProvider>
 			</SlashtagsProvider>
 		</ThemeProvider>
 	);
