@@ -2,7 +2,6 @@ import actions from './actions';
 import { getDispatch } from '../helpers';
 import { Ok, ok, Result } from '../../utils/result';
 import { ISlashtags } from '../types/slashtags';
-import Store from '../types';
 
 const dispatch = getDispatch();
 

@@ -20,7 +20,7 @@ import { toggleView } from '../../store/actions/user';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Store from '../../store/types';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
-import { handleSlashtagURL, saveBulkContacts } from '../../utils/slashtags';
+import { handleSlashtagURL } from '../../utils/slashtags';
 import { IContactRecord } from '../../store/types/slashtags';
 import { useSlashtagsContacts } from '../../components/SlashtagContactsProvider';
 

@@ -24,10 +24,7 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 	input: {
-		height: 48,
-		paddingLeft: 53,
-		borderRadius: 32,
-		paddingRight: 6,
+		height: 56,
 		fontSize: 17,
 		flex: 1,
 		backgroundColor: 'transparent',
