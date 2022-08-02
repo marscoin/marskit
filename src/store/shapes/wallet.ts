@@ -128,7 +128,6 @@ export const header: IHeader = {
 export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
-	seedHash: '',
 	type: 'default',
 	addresses,
 	addressIndex,

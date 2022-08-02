@@ -31,6 +31,9 @@ import BoostPrompt from '../../screens/Wallets/BoostPrompt';
 import NewTxPrompt from '../../screens/Wallets/NewTxPrompt';
 import Profile from '../../screens/Profile/Profile';
 import ProfileEdit from '../../screens/Profile/ProfileEdit';
+import Contacts from '../../screens/Contacts/Contacts';
+import Contact from '../../screens/Contacts/Contact';
+import ContactEdit from '../../screens/Contacts/ContactEdit';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,7 +44,14 @@ const navOptions = {
 	detachInactiveScreens: true,
 };
 
-type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
+export const navigationRef: any = React.createRef();
+/**
+ * Helper function to navigate from utils.
+ */
+export const navigate = (name: string, params: object): void =>
+	navigationRef.current?.navigate(name, params);
+
+export type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
 
 const RootNavigator = (): ReactElement => {
 	const pin = useSelector((state: Store) => state.settings.pin);
@@ -73,7 +83,7 @@ const RootNavigator = (): ReactElement => {
 	}, []);
 
 	return (
-		<NavigationContainer>
+		<NavigationContainer ref={navigationRef}>
 			<Stack.Navigator
 				screenOptions={navOptions}
 				initialRouteName={initialRouteName}>
@@ -92,6 +102,9 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
 					<Stack.Screen name="Profile" component={Profile} />
 					<Stack.Screen name="ProfileEdit" component={ProfileEdit} />
+					<Stack.Screen name="Contacts" component={Contacts} />
+					<Stack.Screen name="ContactEdit" component={ContactEdit} />
+					<Stack.Screen name="Contact" component={Contact} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendBottomSheet />

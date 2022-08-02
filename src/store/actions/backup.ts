@@ -10,6 +10,7 @@ const dispatch = getDispatch();
  */
 export const performFullBackup = async (): Promise<Result<string>> => {
 	//TODO
+	//TODO(slashtags): Send all drives (public + contacts) to the seeding server.
 	return ok('Backup success');
 };
 

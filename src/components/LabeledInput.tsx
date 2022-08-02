@@ -68,10 +68,12 @@ export const Input = ({
 						editable={!!onChange}
 					/>
 				)}
-				{rightIcon && (
+				{rightIcon && onRightIconPress ? (
 					<TouchableOpacity style={styles.rightIcon} onPress={onRightIconPress}>
 						{rightIcon}
 					</TouchableOpacity>
+				) : (
+					<View style={styles.rightIcon}>{rightIcon}</View>
 				)}
 			</View>
 		</View>
@@ -122,6 +124,7 @@ const styles = StyleSheet.create({
 		fontWeight: '600',
 	},
 	rightIcon: {
+		backgroundColor: 'transparent',
 		marginLeft: 16,
 	},
 });

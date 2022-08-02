@@ -11,6 +11,11 @@ const slashtags = (state = defaultSlashtagsShape, action): ISlashtags => {
 				...state,
 				onboardingProfileStep: action.step,
 			};
+		case actions.SET_VISITED_CONTACTS:
+			return {
+				...state,
+				onboardedContacts: action.onboardedContacts,
+			};
 		default:
 			return state;
 	}

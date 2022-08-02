@@ -1706,9 +1706,9 @@
     sodium-universal "^3.1.0"
 
 "@synonymdev/slashdrive@^1.0.0-alpha.4":
-  version "1.0.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.4.tgz#7ddab15c15677f8b3ec37eef6cf284bcd3ee30cf"
-  integrity sha512-QLBVWkFgIt4EtX/d1L1IROxeMyrEHnmCcgAc7i60UEbNRR5+/mVWdfxbKsE5uKqxpHhVlWqjmHWjddpfGO6ZJQ==
+  version "1.0.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.5.tgz#152931f30af6001a9edf5b9503986604266dfa31"
+  integrity sha512-eqVAcvWggEvsZjoPkKozPnsxlqfGBuuTCN7F4NIRs/ZBjH21vlUe36bnZGGXfClDtoJDctZegvyeWoAf6GFjFw==
   dependencies:
     b4a "^1.5.0"
     compact-encoding "^2.6.1"
@@ -1754,10 +1754,10 @@
     sodium-universal "^3.1.0"
     z32 "^1.0.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.12":
-  version "1.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.12.tgz#d73a50cf64ed9ac7b97882e71bf4b7a3a553625a"
-  integrity sha512-eVAC+JEZQDaYcXfIvYuuItF0PDHDXUDv1swbiQ0YSuTeyVRwG7NyXQL0i0TsPF49Yvx1TRLFmT1CIp9XZCdEFA==
+"@synonymdev/slashtags-sdk@1.0.0-alpha.13":
+  version "1.0.0-alpha.13"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.13.tgz#8a2884d44f80edb659ec0aa1ed776c042e086fb8"
+  integrity sha512-qOnClERoyIiXc+RMnxEblgnRcPlWqQWF1GBSR6cJPBsjqiyHR9amlEOgfcD88Z3nTQam5AumAFGXOYzeVS51JQ==
   dependencies:
     "@synonymdev/slashauth" "^1.0.0-alpha.0"
     "@synonymdev/slashtag" "^1.0.0-alpha.9"

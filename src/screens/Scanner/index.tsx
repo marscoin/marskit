@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import Button from '../../components/Button';
 import SafeAreaView from '../../components/SafeAreaView';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -68,7 +69,10 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					<Button
 						style={styles.pasteButton}
 						text={'Paste from clipboard'}
-						onPress={onRead}
+						onPress={async (): Promise<void> => {
+							let url = await Clipboard.getString();
+							onRead(url);
+						}}
 					/>
 				</View>
 			</Camera>

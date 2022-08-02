@@ -3,6 +3,8 @@ import { StyleSheet, ViewStyle } from 'react-native';
 import { Text } from '../styles/components';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+// @ts-ignore
+import { SlashURL } from '@synonymdev/slashtags-sdk/dist/rn.js';
 
 export const SlashtagURL = ({
 	url,
@@ -13,9 +15,12 @@ export const SlashtagURL = ({
 	style?: ViewStyle;
 	color?: string;
 }): JSX.Element => {
+	// Ensure that URL is normalized
+	const id = url && new SlashURL(url).slashtag.base32;
+
 	return (
 		<TouchableOpacity
-			onLongPress={async (): Promise<void> => {
+			onLongPress={(): void => {
 				if (url) {
 					Clipboard.setString(url);
 					console.debug('Copied slashtag url:', url);
@@ -28,7 +33,7 @@ export const SlashtagURL = ({
 				@
 			</Text>
 			<Text style={styles.url} color={color}>
-				{url?.slice(8, 13)}...{url?.slice(url.length - 6, -1)}
+				{id?.slice(0, 5)}...{url?.slice(url.length - 6)}
 			</Text>
 		</TouchableOpacity>
 	);

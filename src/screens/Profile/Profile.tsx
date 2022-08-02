@@ -12,9 +12,7 @@ import {
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet, useWindowDimensions, Share } from 'react-native';
 import Button from '../../components/Button';
-import Store from '../../store/types';
 import { useSelector } from 'react-redux';
-import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import {
@@ -28,31 +26,32 @@ import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ProfileLinks from '../../components/ProfileLinks';
 import ProfileEdit from './ProfileEdit';
+import Store from '../../store/types';
+import { useSelectedSlashtag } from '../../hooks/slashtags';
 
-export const Profile = ({ navigation, route }): JSX.Element => {
+export const Profile = ({ navigation }): JSX.Element => {
 	const onboardingProfileStep = useSelector(
-		(store: Store) => store.slashtags.onboardingProfileStep,
+		(state: Store) => state.slashtags.onboardingProfileStep,
 	);
 
 	switch (onboardingProfileStep) {
 		case 'Intro':
 			return <ProfileIntro navigation={navigation} />;
 		case 'InitialEdit':
-			return <ProfileEdit navigation={navigation} route={route} />;
+			return <ProfileEdit navigation={navigation} />;
 		case 'PaymentsFromContacts':
 			return <PaymentsFromContacts navigation={navigation} />;
 		case 'OfflinePayments':
 			return <OfflinePayments navigation={navigation} />;
 		case 'Done':
-			return <ProfileScreen navigation={navigation} route={route} />;
+			return <ProfileScreen navigation={navigation} />;
 		default:
-			return <ProfileScreen navigation={navigation} route={route} />;
+			return <ProfileScreen navigation={navigation} />;
 	}
 };
 
-const ProfileScreen = ({ navigation, route }): JSX.Element => {
-	const id = route.params?.id;
-	const { slashtag, profile } = useSlashtag({ url: id });
+const ProfileScreen = ({ navigation }): JSX.Element => {
+	const { url, profile } = useSelectedSlashtag();
 
 	const [view, setView] = useState('qr');
 
@@ -71,7 +70,7 @@ const ProfileScreen = ({ navigation, route }): JSX.Element => {
 				}}
 			/>
 			<View style={styles.content}>
-				<ProfileCard id={slashtag?.url.toString()} profile={profile} />
+				<ProfileCard url={url} profile={profile} />
 				<View style={styles.divider} />
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
@@ -84,24 +83,23 @@ const ProfileScreen = ({ navigation, route }): JSX.Element => {
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								slashtag?.url.toString() &&
-									Clipboard.setString(slashtag?.url.toString());
+								url && Clipboard.setString(url);
 							}}>
 							<CopyIcon height={24} width={24} color="brand" />
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								slashtag?.url &&
+								url &&
 									Share.share({
 										title: 'Share Slashtag url',
-										message: slashtag?.url.toString(),
+										message: url,
 									});
 							}}>
 							<ShareIcon height={24} width={24} color="brand" />
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								navigation.navigate('ProfileEdit', { id: id });
+								navigation.navigate('ProfileEdit');
 							}}>
 							<PencileIcon height={24} width={24} color="brand" />
 						</IconButton>
@@ -113,9 +111,12 @@ const ProfileScreen = ({ navigation, route }): JSX.Element => {
 						</IconButton>
 					</View>
 					{view === 'details' ? (
-						<ProfileLinks links={profile.links} style={styles.profileDetails} />
+						<ProfileLinks
+							links={profile?.links}
+							style={styles.profileDetails}
+						/>
 					) : (
-						<QRView profile={profile} />
+						<QRView url={url as string} profile={profile} />
 					)}
 				</View>
 
@@ -148,10 +149,10 @@ const IconButton = ({
 };
 
 const QRView = ({
-	id,
+	url,
 	profile,
 }: {
-	id?: string;
+	url: string;
 	profile?: BasicProfile;
 }): JSX.Element => {
 	const { width } = useWindowDimensions();
@@ -159,7 +160,7 @@ const QRView = ({
 		<View style={styles.qrViewContainer}>
 			<View style={styles.qrContainer}>
 				<QR
-					value={id}
+					value={url}
 					size={(width * 2) / 3}
 					logo={{ uri: profile?.image || '' }}
 					logoBackgroundColor={profile?.image ? '#fff' : 'transparent'}
