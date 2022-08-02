@@ -73,7 +73,7 @@ const Barrel = ({ active, id, amount, img, onPress }): ReactElement => {
 			onPress={(): void => onPress(id)}>
 			<Image style={styles.bImage} source={img} />
 			<Subtitle style={styles.bAmount}>
-				{dp.fiatSymbol} {dp.fiatFormatted}
+				{dp.fiatSymbol} {dp.fiatWhole}
 			</Subtitle>
 		</TouchableOpacity>
 	);
