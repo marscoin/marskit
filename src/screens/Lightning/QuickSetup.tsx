@@ -26,22 +26,12 @@ export const Percentage = ({ value, type }): ReactElement => {
 	return (
 		<View style={styles.pRoot}>
 			{type === 'spendings' ? (
-				<CoinsIcon
-					color="purple"
-					height={26}
-					width={26}
-					style={styles.coinsIcon}
-				/>
+				<CoinsIcon color="purple" height={26} width={26} />
 			) : (
-				<SavingsIcon
-					color="orange"
-					height={32}
-					width={32}
-					style={styles.savingsIcon}
-				/>
+				<SavingsIcon color="orange" height={32} width={32} />
 			)}
 
-			<Headline>
+			<Headline lineHeight="40px">
 				{value}
 				<Text01S>%</Text01S>
 			</Headline>
@@ -203,12 +193,6 @@ const styles = StyleSheet.create({
 	},
 	amountBigCaption: {
 		marginBottom: 4,
-	},
-	coinsIcon: {
-		marginLeft: 1,
-	},
-	savingsIcon: {
-		marginLeft: 1,
 	},
 	pRoot: {
 		flexDirection: 'row',
