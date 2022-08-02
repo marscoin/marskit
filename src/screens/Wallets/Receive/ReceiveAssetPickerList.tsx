@@ -8,7 +8,13 @@ const ReceiveAssetPickerList = ({ navigation }): ReactElement => {
 		},
 		[navigation],
 	);
-	return <AssetPickerList headerTitle="Receive" onAssetPress={onAssetPress} />;
+	return (
+		<AssetPickerList
+			headerTitle="Receive Bitcoin"
+			onAssetPress={onAssetPress}
+			side="receive"
+		/>
+	);
 };
 
 export default memo(ReceiveAssetPickerList);

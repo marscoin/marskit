@@ -3,44 +3,73 @@ import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
 
 import {
 	Caption13Up,
-	BitcoinCircleIcon,
-	LightningIcon,
 	Text01M,
+	SubHeadM,
+	SpeedFastIcon,
+	SpeedNormalIcon,
 } from '../styles/components';
 import { getAssetNames } from '../utils/wallet';
 import { capitalize } from '../utils/helpers';
 import NavigationHeader from './NavigationHeader';
 import Glow from './Glow';
 
-const Asset = memo(({ name, onPress }: { name: string; onPress(): void }) => {
-	const AssetIcon = useMemo(() => {
-		switch (name) {
-			case 'bitcoin':
-				return BitcoinCircleIcon;
-			case 'lightning':
-				return LightningIcon;
-			default:
-				return BitcoinCircleIcon;
-		}
-	}, [name]);
+const Asset = memo(
+	({
+		index,
+		name,
+		side,
+		onPress,
+	}: {
+		index: number;
+		name: string;
+		side: 'send' | 'receive';
+		onPress(): void;
+	}) => {
+		const assetsInfo = {
+			bitcoin: {
+				icon: <SpeedNormalIcon color="brand" />,
+				title: 'Normal',
+				description:
+					side === 'send'
+						? 'Send via QR code or Bitcoin address. Confirmation may take up to 1 hour.'
+						: 'Receive via QR code or Bitcoin address. Confirmation may take up to 1 hour.',
+			},
+			lightning: {
+				icon: <SpeedFastIcon color="purple" />,
+				title: 'Instant',
+				description:
+					side === 'send'
+						? 'Create an instant invoice to send Bitcoin in just a few seconds.'
+						: 'Create an instant invoice to receive Bitcoin in just a few seconds.',
+			},
+		};
 
-	return (
-		<TouchableOpacity style={styles.assertRoot} onPress={onPress}>
-			<View style={styles.assertName}>
-				<View style={styles.assertIcon}>
-					<AssetIcon />
+		return (
+			<TouchableOpacity
+				style={
+					index % 2 === 0
+						? [styles.assertRoot, styles.border]
+						: [styles.assertRoot]
+				}
+				onPress={onPress}>
+				<View style={styles.leftColumn}>
+					<View style={styles.icon}>{assetsInfo[name].icon}</View>
 				</View>
-				<Text01M>{capitalize(name)}</Text01M>
-			</View>
-			{/*<Text01M color="gray1">TODO show asset ticker</Text01M>*/}
-		</TouchableOpacity>
-	);
-});
+				<View style={styles.rightColumn}>
+					<Text01M>{capitalize(assetsInfo[name].title)}</Text01M>
+					<SubHeadM color="gray1">{assetsInfo[name].description}</SubHeadM>
+				</View>
+			</TouchableOpacity>
+		);
+	},
+);
 
 const AssetPickerList = ({
 	headerTitle,
 	onAssetPress = (): null => null,
+	side = 'send',
 }: {
+	side?: 'send' | 'receive';
 	headerTitle?: string;
 	onAssetPress?: Function;
 }): ReactElement => {
@@ -58,12 +87,14 @@ const AssetPickerList = ({
 			)}
 			<View style={styles.content}>
 				<Caption13Up color="gray1" style={styles.title}>
-					ASSETS
+					SPEED
 				</Caption13Up>
-				{assetNames.map((asset) => (
+				{assetNames.map((asset, index) => (
 					<Asset
+						index={index}
 						key={asset}
 						name={asset}
+						side={side}
 						onPress={(): void => onAssetPress(asset)}
 					/>
 				))}
@@ -71,8 +102,8 @@ const AssetPickerList = ({
 			<View style={styles.imageContainer}>
 				<Glow style={styles.glow} size={300} color="white" />
 				<Image
-					source={require('../assets/illustrations/coins.png')}
 					style={styles.image}
+					source={require('../assets/illustrations/coins.png')}
 				/>
 			</View>
 		</View>
@@ -101,23 +132,34 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	image: {
-		width: 150,
-		height: 150,
+		height: 300,
+		width: 300,
 	},
-	assertRoot: {
-		height: 80,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
+	border: {
 		borderBottomWidth: 1,
 		borderColor: 'rgba(255, 255, 255, 0.1)',
 	},
-	assertName: {
+	assertRoot: {
 		flexDirection: 'row',
-		alignItems: 'center',
+		paddingTop: 15,
+		paddingBottom: 15,
 	},
-	assertIcon: {
-		width: 48,
+	leftColumn: {
+		justifyContent: 'center',
+		flexDirection: 'row',
+		width: '17%',
+	},
+	rightColumn: {
+		alignItems: 'flex-start',
+		flexDirection: 'column',
+		flex: 1,
+		maxWidth: 250,
+	},
+	icon: {
+		borderRadius: 200,
+		marginRight: 8,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 });
 
