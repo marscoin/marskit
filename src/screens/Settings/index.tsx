@@ -60,7 +60,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				showBackNavigation={true}
 				fullHeight={false}
 			/>
-			<View style={styles.imageContainer}>
+			<View style={styles.imageContainer} pointerEvents="none">
 				<Glow color="brand" size={500} style={styles.glow} />
 				<Image
 					style={styles.image}
@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		flexGrow: 1,
 		width: '100%',
-		pointerEvents: 'none'
 	},
 	image: {
 		width: 150,
