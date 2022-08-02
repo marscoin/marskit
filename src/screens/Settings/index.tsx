@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		flexGrow: 1,
 		width: '100%',
+		pointerEvents: 'none'
 	},
 	image: {
 		width: 150,
