@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	scrollview: {
-		paddingBottom: 400,
+		paddingBottom: 130,
 	},
 	assetsTitle: {
 		marginBottom: 8,
