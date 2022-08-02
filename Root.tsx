@@ -10,6 +10,7 @@ import App from './src/App';
 import ErrorBoundary from './src/ErrorBoundary';
 import store from './src/store';
 
+// TODO: Setry needs to be removed before full release
 if (!__DEV__) {
 	Sentry.init({
 		dsn: 'https://70caceeda5c14f4da121ef90ac0858bf@sentry.synonym.to/2',
