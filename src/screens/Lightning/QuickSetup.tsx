@@ -7,7 +7,7 @@ import {
 	Caption13Up,
 	Display,
 	Headline,
-	LightningIcon,
+	CoinsIcon,
 	SavingsIcon,
 	Text01S,
 } from '../../styles/components';
@@ -26,7 +26,12 @@ export const Percentage = ({ value, type }): ReactElement => {
 	return (
 		<View style={styles.pRoot}>
 			{type === 'spendings' ? (
-				<LightningIcon height={28} width={20} style={styles.lightningIcon} />
+				<CoinsIcon
+					color="purple"
+					height={26}
+					width={26}
+					style={styles.coinsIcon}
+				/>
 			) : (
 				<SavingsIcon
 					color="orange"
@@ -199,8 +204,8 @@ const styles = StyleSheet.create({
 	amountBigCaption: {
 		marginBottom: 4,
 	},
-	lightningIcon: {
-		marginLeft: 7,
+	coinsIcon: {
+		marginLeft: 1,
 	},
 	savingsIcon: {
 		marginLeft: 1,
