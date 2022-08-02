@@ -19,17 +19,19 @@ const SettingsView = ({
 	title,
 	listData,
 	showBackNavigation = true,
+	fullHeight = true,
 	children,
 	childrenPosition = 'top',
 }: {
 	title: string;
 	listData?: IListData[];
 	showBackNavigation: boolean;
+	fullHeight?: boolean;
 	children?: ReactElement | ReactElement[] | undefined;
 	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
 	return (
-		<View style={styles.container} color="black">
+		<View style={[ fullHeight ? styles.fullHeight : null ]} color="black">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
 
@@ -48,22 +50,20 @@ const SettingsView = ({
 					{children}
 				</View>
 			) : null}
-			<SafeAreaInsets type="bottom" />
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
 	listContent: {
 		paddingHorizontal: 16,
-		flex: 1,
 	},
 	childrenContent: {
 		flex: 1,
 	},
+	fullHeight: {
+		flex: 1,
+	}
 });
 
 export default memo(SettingsView);
