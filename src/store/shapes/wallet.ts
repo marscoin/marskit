@@ -167,7 +167,7 @@ export const defaultWalletStoreShape: IWallet = {
 	loading: true,
 	walletExists: false,
 	error: false,
-	selectedNetwork: 'bitcoinTestnet',
+	selectedNetwork: 'bitcoinRegtest',
 	selectedWallet: EWallet.defaultWallet,
 	addressTypes: { ...addressTypes },
 	exchangeRates: {},

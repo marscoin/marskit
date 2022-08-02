@@ -15,6 +15,7 @@ import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { setupLdk } from '../lightning';
 import lm from '@synonymdev/react-native-ldk';
+import { ICustomElectrumPeer } from '../../store/types/settings';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -106,7 +107,19 @@ export const startWalletServices = async ({
 			// We need to start Electrum if either onchain or lightning is true.
 			if (onchain || lightning) {
 				// Connect to Electrum
-				const electrumResponse = await connectToElectrum({ selectedNetwork });
+				let customPeers: ICustomElectrumPeer[] | undefined;
+				/*customPeers = [
+					{
+						host: '192.168.50.35',
+						ssl: 50001,
+						tcp: 50001,
+						protocol: 'tcp',
+					},
+				];*/
+				const electrumResponse = await connectToElectrum({
+					selectedNetwork,
+					customPeers,
+				});
 				if (electrumResponse.isOk()) {
 					let onReceive = (): void => {};
 					// TODO: Remove regtest condition once LDK is enabled for mainnet and testnet.
