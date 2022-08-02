@@ -171,7 +171,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 						<View>
 							{!keybrd && (
 								<Caption13Up style={styles.amountTitle} color="purple">
-									{spending ? 'SPENDING BALANCE' : 'RECEIVING BANDWITH'}
+									{spending ? 'SPENDING BALANCE' : 'RECEIVING CAPACITY'}
 									{!spending && (
 										<Caption13Up color="gray2"> (COST: $ TODO)</Caption13Up>
 									)}
