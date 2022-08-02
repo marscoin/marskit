@@ -10,8 +10,8 @@ import Store from '../../../store/types';
 import { toggleView, ignoreBackup } from '../../../store/actions/user';
 import { useNoTransactions } from '../../../hooks/wallet';
 
-const ASK_INTERVAL = 60_000; // how long this propt will be hidden if user taps Later
-const CHECK_INTERVAL = 10_000; // how long user needs to stay on Wallets screen before he will see this prompt
+const ASK_INTERVAL = 600_000; // how long this propt will be hidden if user taps Later
+const CHECK_INTERVAL = 15_000; // how long user needs to stay on Wallets screen before he will see this prompt
 
 const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 	const snapPoints = useMemo(() => [450], []);
