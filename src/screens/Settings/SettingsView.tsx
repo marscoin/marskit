@@ -31,7 +31,7 @@ const SettingsView = ({
 	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
 	return (
-		<View style={[ fullHeight ? styles.fullHeight : null ]} color="black">
+		<View style={[fullHeight ? styles.fullHeight : null]} color="black">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
 
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 	},
 	fullHeight: {
 		flex: 1,
-	}
+	},
 });
 
 export default memo(SettingsView);
