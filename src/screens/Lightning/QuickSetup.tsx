@@ -48,7 +48,7 @@ const QuickSetup = ({ navigation }): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const total = 100500; // TODO: use real value
-	const [spendingAmount, setSpendingAmount] = useState(total * 0.2); // 20% of total
+	const [spendingAmount, setSpendingAmount] = useState(0);
 
 	const savingsAmount = total - spendingAmount;
 	const spendingPercentage = Math.round((spendingAmount / total) * 100);
