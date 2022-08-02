@@ -113,16 +113,16 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 					<Button
 						style={styles.button}
 						size="lg"
-						text="Back up"
-						onPress={handleBackup}
+						variant="secondary"
+						text="Later"
+						onPress={handleLater}
 					/>
 					<View style={styles.divider} />
 					<Button
 						style={styles.button}
 						size="lg"
-						variant="secondary"
-						text="Later"
-						onPress={handleLater}
+						text="Back up"
+						onPress={handleBackup}
 					/>
 				</View>
 			</View>
