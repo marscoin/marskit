@@ -59,7 +59,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 				listData={SettingsListData}
 				showBackNavigation={true}
 			/>
-			<View style={styles.imageContainer}>
+			<View style={styles.imageContainer} pointerEvents="none">
 				<Glow color="brand" size={500} style={styles.glow} />
 				<Image
 					style={styles.image}
