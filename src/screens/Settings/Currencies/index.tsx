@@ -1,4 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -8,6 +9,8 @@ import { mostUsedExchangeTickers } from '../../../utils/exchange-rate/types';
 import { updateSettings } from '../../../store/actions/settings';
 
 const Currencies = (): ReactElement => {
+	const navigation = useNavigation();
+
 	const exchangeRates = useSelector(
 		(state: Store) => state.wallet.exchangeRates,
 	);
@@ -28,7 +31,10 @@ const Currencies = (): ReactElement => {
 					title: `${ticker} (${exchangeRates[ticker].currencySymbol})`,
 					value: selectedCurrency === ticker,
 					type: 'button',
-					onPress: (): void => onSetCurrency(ticker),
+					onPress: (): void => {
+						navigation.goBack();
+						onSetCurrency(ticker);
+					},
 					hide: false,
 				})),
 			},
@@ -38,7 +44,10 @@ const Currencies = (): ReactElement => {
 					title: ticker,
 					value: selectedCurrency === ticker,
 					type: 'button',
-					onPress: (): void => onSetCurrency(ticker),
+					onPress: (): void => {
+						navigation.goBack();
+						onSetCurrency(ticker);
+					},
 					hide: false,
 				})),
 			},
