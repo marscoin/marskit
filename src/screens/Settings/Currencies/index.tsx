@@ -52,6 +52,7 @@ const Currencies = (): ReactElement => {
 			title={'Local currency'}
 			listData={CurrencyListData}
 			showBackNavigation
+			showSearch
 		/>
 	);
 };

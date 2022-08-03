@@ -1,12 +1,18 @@
 import React, { ReactElement, memo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { TextInput, MagnifyingGlassIcon } from '../styles/components';
 
-const SearchInput = ({ style, children, ...props }): ReactElement => {
+type SearchInputProps = {
+	style?: StyleProp<ViewStyle>;
+	children?: ReactElement;
+	[x: string]: any;
+};
+
+const SearchInput = ({ style, children, ...props }: SearchInputProps) => {
 	const rootStyle = StyleSheet.compose(style, styles.root);
 
 	return (
-		<View style={rootStyle}>
+		<View style={style ? rootStyle : null}>
 			<MagnifyingGlassIcon style={styles.icon} />
 			<TextInput style={styles.input} placeholder="Search" {...props} />
 			{children && <View style={styles.tags}>{children}</View>}
