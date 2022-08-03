@@ -13,6 +13,7 @@ export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
 		return {
 			...acc,
 			[ticker.quote]: {
+				currencySymbol: ticker.currencySymbol,
 				quoteName: ticker.quoteName,
 				rate: Math.round(Number(ticker.lastPrice) * 100) / 100,
 			},

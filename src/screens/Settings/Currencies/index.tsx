@@ -25,7 +25,7 @@ const Currencies = (): ReactElement => {
 			{
 				title: 'Most Used',
 				data: mostUsedExchangeTickers.map((ticker) => ({
-					title: ticker,
+					title: `${ticker} (${exchangeRates[ticker].currencySymbol})`,
 					value: selectedCurrency === ticker,
 					type: 'button',
 					onPress: (): void => onSetCurrency(ticker),
@@ -33,9 +33,9 @@ const Currencies = (): ReactElement => {
 				})),
 			},
 			{
-				title: 'All',
+				title: 'Other Currencies',
 				data: Object.keys(exchangeRates).map((ticker) => ({
-					title: `${ticker} — ${exchangeRates[ticker].quoteName}`,
+					title: ticker,
 					value: selectedCurrency === ticker,
 					type: 'button',
 					onPress: (): void => onSetCurrency(ticker),
@@ -49,7 +49,7 @@ const Currencies = (): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Currencies'}
+			title={'Local currency'}
 			listData={CurrencyListData}
 			showBackNavigation
 		/>
