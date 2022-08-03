@@ -9,6 +9,7 @@ import { TAvailableNetworks } from '../src/utils/networks';
 import { mnemonic, walletState } from './utils/dummy-wallet';
 import { createTransaction } from '../src/utils/wallet/transactions';
 
+const selectedNetwork: TAvailableNetworks = 'bitcoinTestnet';
 describe('On chain transactions', () => {
 	beforeAll(async () => {
 		//Seed wallet data including utxo and transaction data
@@ -16,15 +17,15 @@ describe('On chain transactions', () => {
 			mnemonic,
 			addressAmount: 5,
 			changeAddressAmount: 5,
+			selectedNetwork,
 		});
 
 		await updateWallet({ wallets: { wallet0: walletState } });
 
-		await setupOnChainTransaction({});
+		await setupOnChainTransaction({ selectedNetwork });
 	});
 
 	it('Creates an on chain transaction from the transaction store', async () => {
-		const selectedNetwork: TAvailableNetworks = 'bitcoinTestnet';
 		const selectedWallet = getSelectedWallet();
 
 		await updateOnChainTransaction({
