@@ -31,7 +31,6 @@ const PINPrompt = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleLater}
 			view="PINPrompt">

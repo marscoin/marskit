@@ -6,6 +6,7 @@ import { Subtitle, Text01S } from '../../../styles/components';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import Glow from '../../../components/Glow';
 import Button from '../../../components/Button';
+import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import Store from '../../../store/types';
 import { toggleView, ignoreBackup } from '../../../store/actions/user';
 import { useNoTransactions } from '../../../hooks/wallet';
@@ -92,16 +93,17 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleLater}
 			view="backupPrompt">
 			<View style={styles.root}>
-				<Subtitle style={styles.title}>Wallet backup</Subtitle>
-				<Text01S color="white5">
-					Now that you have some funds in your wallet, it is time to back up
-					your money!
-				</Text01S>
+				<View style={styles.center}>
+					<Subtitle style={styles.title}>Wallet backup</Subtitle>
+					<Text01S color="white5">
+						Now that you have some funds in your wallet, it is time to back up
+						your money!
+					</Text01S>
+				</View>
 				<View style={styles.imageContainer}>
 					<Glow color="blue" size={500} style={styles.glow} />
 					<Image
@@ -109,21 +111,24 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 						source={require('../../../assets/illustrations/safe.png')}
 					/>
 				</View>
-				<View style={styles.buttons}>
-					<Button
-						style={styles.button}
-						size="lg"
-						text="Back up"
-						onPress={handleBackup}
-					/>
-					<View style={styles.divider} />
-					<Button
-						style={styles.button}
-						size="lg"
-						variant="secondary"
-						text="Later"
-						onPress={handleLater}
-					/>
+				<View style={styles.center}>
+					<View style={styles.buttons}>
+						<Button
+							style={styles.button}
+							size="lg"
+							text="Back up"
+							onPress={handleBackup}
+						/>
+						<View style={styles.divider} />
+						<Button
+							style={styles.button}
+							size="lg"
+							variant="secondary"
+							text="Later"
+							onPress={handleLater}
+						/>
+					</View>
+					<SafeAreaInsets type="bottom" />
 				</View>
 			</View>
 		</BottomSheetWrapper>
@@ -135,6 +140,10 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flex: 1,
 		paddingHorizontal: 32,
+		justifyContent: 'space-between',
+	},
+	center: {
+		alignItems: 'center',
 	},
 	title: {
 		marginBottom: 25,
@@ -147,8 +156,8 @@ const styles = StyleSheet.create({
 		width: 210,
 	},
 	image: {
-		width: 200,
-		height: 200,
+		width: 250,
+		height: 250,
 	},
 	glow: {
 		position: 'absolute',
@@ -156,6 +165,7 @@ const styles = StyleSheet.create({
 	buttons: {
 		flexDirection: 'row',
 		justifyContent: 'center',
+		marginBottom: 8,
 	},
 	button: {
 		flex: 1,

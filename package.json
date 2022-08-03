@@ -25,7 +25,7 @@
     "@react-navigation/native-stack": "^6.6.2",
     "@react-navigation/stack": "^6.2.1",
     "@sentry/react-native": "^4.2.2",
-    "@shopify/react-native-skia": "^0.1.124",
+    "@shopify/react-native-skia": "^0.1.137",
     "@synonymdev/blocktank-client": "^0.0.4",
     "@synonymdev/react-native-ldk": "0.0.51",
     "@synonymdev/react-native-lnurl": "0.0.3",

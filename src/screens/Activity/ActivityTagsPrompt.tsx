@@ -85,6 +85,7 @@ const Form = ({ id }: { id: string }): ReactElement => {
 				onBlur={handleInputBlur}
 				autoFocus={true}
 				maxLength={15}
+				returnKeyType="done"
 			/>
 		</>
 	);
@@ -108,7 +109,6 @@ const ActivityTagsPrompt = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleClose}
 			view="activityTagsPrompt">
