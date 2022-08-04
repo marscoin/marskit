@@ -13,7 +13,7 @@ import {
 import {
 	cleanupBackupFiles,
 	createBackupFile,
-} from '../../../utils/backup/backup';
+} from '../../../utils/backup/fileBackup';
 import Share from 'react-native-share';
 import AuthCheck from '../../../components/AuthCheck';
 import SafeAreaView from '../../../components/SafeAreaView';
