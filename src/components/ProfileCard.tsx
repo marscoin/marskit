@@ -15,12 +15,14 @@ export const ProfileCard = ({
 	editable,
 	onChange,
 	contact,
+	resolving,
 }: {
 	url: string;
 	profile?: BasicProfile;
 	editable?: boolean;
 	contact?: boolean;
 	onChange?: (name, val) => void;
+	resolving: boolean;
 }): JSX.Element => {
 	const name = profile?.name;
 	const bio = profile?.bio?.slice?.(0, 160);
@@ -28,13 +30,13 @@ export const ProfileCard = ({
 	const nameRef = useRef<ITextInput | null>(null);
 	const bioRef = useRef<ITextInput | null>(null);
 
-	useEffect(() => nameRef.current?.focus(), []);
+	useEffect(() => nameRef.current?.focus(), [resolving]);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.row}>
 				<View>
-					{editable ? (
+					{editable && !resolving ? (
 						<TextInput
 							ref={nameRef}
 							autoFucus={true}
@@ -53,7 +55,11 @@ export const ProfileCard = ({
 							}}
 						/>
 					) : (
-						<Title style={styles.name}>{profileNameMultiLine(name)}</Title>
+						<Title style={styles.name}>
+							{resolving
+								? 'Retrieving\ncontact info..'
+								: profileNameMultiLine(name)}
+						</Title>
 					)}
 					<SlashtagURL style={styles.url} url={url} />
 				</View>
