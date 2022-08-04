@@ -18,6 +18,10 @@ const TodoCarousel = (): ReactElement => {
 	);
 	const todos = useSelector((state: Store) => state.todos.todos);
 	const carouselStyle = useMemo(() => ({ width }), [width]);
+	const panGestureHandlerProps = useMemo(
+		() => ({ activeOffsetX: [-10, 10] }),
+		[],
+	);
 
 	const renderItem = useCallback(
 		({ item }) => (
@@ -52,6 +56,7 @@ const TodoCarousel = (): ReactElement => {
 					data={todos}
 					renderItem={renderItem}
 					style={carouselStyle}
+					panGestureHandlerProps={panGestureHandlerProps}
 				/>
 			</View>
 		</>
