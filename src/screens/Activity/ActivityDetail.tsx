@@ -3,10 +3,18 @@ import React, {
 	ReactElement,
 	memo,
 	useCallback,
+	useEffect,
 	useMemo,
 	useState,
 } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import {
+	ActivityIndicator,
+	Alert,
+	Linking,
+	ScrollView,
+	StyleSheet,
+	View,
+} from 'react-native';
 import {
 	Canvas,
 	Path,
@@ -48,6 +56,8 @@ import useColors from '../../hooks/colors';
 import Store from '../../store/types';
 import { toggleView } from '../../store/actions/user';
 import { deleteMetaTxTag } from '../../store/actions/metadata';
+import { getTransactions } from '../../utils/wallet/electrum';
+import { ITransaction, ITxHash } from '../../utils/wallet';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -128,6 +138,13 @@ const ActivityDetail = (props: Props): ReactElement => {
 		useSelector((store: Store) => store.metadata.tags[item.id]) ?? [];
 
 	const [size, setSize] = useState({ width: 0, height: 0 });
+	const [txDetails, setTxDetails] = useState<
+		null | ITransaction<ITxHash>['result']
+	>(null);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+
 	const colors = useColors();
 	const extended = props.route.params?.extended ?? false;
 
@@ -167,18 +184,37 @@ const ActivityDetail = (props: Props): ReactElement => {
 		}
 	};
 
+	useEffect(() => {
+		if (txDetails || !extended) {
+			return;
+		}
+		getTransactions({ txHashes: [{ tx_hash: id }], selectedNetwork }).then(
+			(txResponse) => {
+				if (txResponse.isErr()) {
+					return Alert.alert(txResponse.error.message);
+				}
+				const txData: ITransaction<ITxHash>[] = txResponse.value.data;
+				if (txData.length === 0) {
+					return Alert.alert('tx not found');
+				}
+				const data = txData[0].result;
+				setTxDetails(data);
+			},
+		);
+	}, [id, activityType, extended, selectedNetwork, txDetails]);
+
 	let status = '';
 	if (value < 0) {
 		if (confirmed) {
-			status = 'Sent';
+			status = 'Sent bitcoin';
 		} else {
-			status = 'Sending...';
+			status = 'Sending bitcoin...';
 		}
 	} else {
 		if (confirmed) {
-			status = 'Received';
+			status = 'Received bitcoin';
 		} else {
-			status = 'Receiving...';
+			status = 'Receiving bitcoin...';
 		}
 	}
 
@@ -294,28 +330,28 @@ const ActivityDetail = (props: Props): ReactElement => {
 					/>
 				</View>
 
-				{tags.length !== 0 && (
-					<View style={styles.sectionContainer}>
-						<Section
-							title="TAGS"
-							value={
-								<View style={styles.tagsContainer}>
-									{tags.map((tag) => (
-										<Tag
-											key={tag}
-											value={tag}
-											style={styles.tag}
-											onClose={(): void => handleTagClose(tag)}
-										/>
-									))}
-								</View>
-							}
-						/>
-					</View>
-				)}
-
 				{!extended ? (
 					<>
+						{tags.length !== 0 && (
+							<View style={styles.sectionContainer}>
+								<Section
+									title="TAGS"
+									value={
+										<View style={styles.tagsContainer}>
+											{tags.map((tag) => (
+												<Tag
+													key={tag}
+													value={tag}
+													style={styles.tag}
+													onClose={(): void => handleTagClose(tag)}
+												/>
+											))}
+										</View>
+									}
+								/>
+							</View>
+						)}
+
 						{message ? (
 							<View>
 								<Caption13M color="brand" style={styles.sText}>
@@ -387,13 +423,30 @@ const ActivityDetail = (props: Props): ReactElement => {
 						<View style={styles.sectionContainer}>
 							<Section title="ADDRESS" value={<Text02M>{address}</Text02M>} />
 						</View>
-						<View style={styles.sectionContainer}>
-							<Section title="INPUTS" value={<Text02M>TODO</Text02M>} />
-						</View>
-						<View style={styles.sectionContainer}>
-							<Section title="OUTPUTS" value={<Text02M>TODO</Text02M>} />
-						</View>
-
+						{txDetails ? (
+							<>
+								<View style={styles.sectionContainer}>
+									<Section
+										title={`INPUTS (${txDetails.vin.length})`}
+										value={txDetails.vin.map(({ txid, vout }) => {
+											const i = txid + ':' + vout;
+											return <Text02M key={i}>{i}</Text02M>;
+										})}
+									/>
+								</View>
+								<View style={styles.sectionContainer}>
+									<Section
+										title={`OUTPUTS (${txDetails.vout.length})`}
+										value={txDetails.vout.map(({ scriptPubKey }) => {
+											const i = scriptPubKey.address;
+											return <Text02M key={i}>{i}</Text02M>;
+										})}
+									/>
+								</View>
+							</>
+						) : (
+							<ActivityIndicator size="small" />
+						)}
 						<View style={styles.buttonDetailsContainer}>
 							<Button
 								text="Open Block explorer"
