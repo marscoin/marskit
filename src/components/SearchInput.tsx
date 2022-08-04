@@ -9,10 +9,8 @@ type SearchInputProps = {
 };
 
 const SearchInput = ({ style, children, ...props }: SearchInputProps) => {
-	const rootStyle = StyleSheet.compose(style, styles.root);
-
 	return (
-		<View style={style ? rootStyle : null}>
+		<View style={[styles.root, style]}>
 			<MagnifyingGlassIcon style={styles.icon} />
 			<TextInput style={styles.input} placeholder="Search" {...props} />
 			{children && <View style={styles.tags}>{children}</View>}
