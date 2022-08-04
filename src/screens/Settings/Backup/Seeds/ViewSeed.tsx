@@ -106,74 +106,68 @@ const ViewSeed = (props: Props): ReactElement => {
 
 	return (
 		<SettingsView title={`${title} Seed`} showBackNavigation>
-			<View color="transparent" style={styles.content}>
-				<View color={'transparent'} style={styles.titleContainer}>
-					<Text01M>Your recovery phrase</Text01M>
-					<Text01S color={'gray1'}>
-						Write down or copy these words in the right order and save them
-						somewhere safe.
-					</Text01S>
-				</View>
-
-				<View
-					style={[
-						styles.block,
-						{ backgroundColor: applyAlpha(themeColors.gray3, 0.1) },
-					]}>
-					<View color={'transparent'} style={styles.wordsContainer}>
-						{wordColumns.map((words, col) => (
-							<View
-								key={col}
-								color={'transparent'}
-								style={compactLayout ? styles.wordColCompact : styles.wordCol}>
-								{words.map(({ word, index }) => (
-									<WordItem
-										key={index}
-										word={word}
-										index={index}
-										compact={compactLayout}
-									/>
-								))}
-							</View>
-						))}
-					</View>
-					<TouchableOpacity
-						color={'transparent'}
-						style={styles.copyButtonContainer}
-						onPress={onCopyPress}>
-						<View
-							style={[
-								styles.copyButton,
-								{ backgroundColor: applyAlpha(themeColors.white, 0.08) },
-							]}>
-							<CopyIcon style={styles.copyIcon} />
-							<Caption13M color={'brand'}>{copyButtonText}</Caption13M>
-						</View>
-					</TouchableOpacity>
-				</View>
-
-				<View color={'transparent'} style={styles.footer}>
-					<Text02S color={'gray1'} style={styles.footerText}>
-						👆
-						{'\n\n'}
-						<Text02S color={'brand'}>We recommend</Text02S> writing your
-						passphrase down on paper and storing copies in various locations.
-						{'\n\n'}
-						<Text02S color={'brand'}>Never share</Text02S> recovery phrase with
-						anyone.
-					</Text02S>
-				</View>
+			<View color={'transparent'} style={styles.titleContainer}>
+				<Text01M>Your recovery phrase</Text01M>
+				<Text01S color={'gray1'}>
+					Write down or copy these words in the right order and save them
+					somewhere safe.
+				</Text01S>
 			</View>
 
+			<View
+				style={[
+					styles.block,
+					{ backgroundColor: applyAlpha(themeColors.gray3, 0.1) },
+				]}>
+				<View color={'transparent'} style={styles.wordsContainer}>
+					{wordColumns.map((words, col) => (
+						<View
+							key={col}
+							color={'transparent'}
+							style={compactLayout ? styles.wordColCompact : styles.wordCol}>
+							{words.map(({ word, index }) => (
+								<WordItem
+									key={index}
+									word={word}
+									index={index}
+									compact={compactLayout}
+								/>
+							))}
+						</View>
+					))}
+				</View>
+				<TouchableOpacity
+					color={'transparent'}
+					style={styles.copyButtonContainer}
+					onPress={onCopyPress}>
+					<View
+						style={[
+							styles.copyButton,
+							{ backgroundColor: applyAlpha(themeColors.white, 0.08) },
+						]}>
+						<CopyIcon style={styles.copyIcon} />
+						<Caption13M color={'brand'}>{copyButtonText}</Caption13M>
+					</View>
+				</TouchableOpacity>
+			</View>
+
+			<View color={'transparent'} style={styles.footer}>
+				<Text02S color={'gray1'} style={styles.footerText}>
+					👆
+					{'\n\n'}
+					<Text02S color={'brand'}>We recommend</Text02S> writing your
+					passphrase down on paper and storing copies in various locations.
+					{'\n\n'}
+					<Text02S color={'brand'}>Never share</Text02S> recovery phrase with
+					anyone.
+				</Text02S>
+			</View>
 			<SafeAreaInsets type={'bottom'} />
 		</SettingsView>
 	);
 };
 
 const styles = StyleSheet.create({
-	content: {
-		flex: 1,
-	},
 	titleContainer: {
 		paddingHorizontal: 28,
 	},
@@ -229,9 +223,6 @@ const styles = StyleSheet.create({
 		marginRight: 4,
 	},
 	footer: {
-		flex: 1,
-		display: 'flex',
-		justifyContent: 'flex-end',
 		paddingHorizontal: 17,
 		paddingVertical: 10,
 	},
