@@ -10,7 +10,6 @@ import ActivityList from './ActivityList';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
-import { EActivityTypes } from '../../store/types/activity';
 import useColors from '../../hooks/colors';
 
 const Blur = Platform.OS === 'ios' ? BlurView : View;
@@ -39,25 +38,34 @@ const Tab = ({
 	);
 };
 
+const filterTabs = {
+	all: {},
+	sent: { txType: 'sent' },
+	received: { txType: 'received' },
+	instant: { types: ['lightning'] },
+};
+
+const filterTabsLabels = {
+	all: 'All',
+	sent: 'Sent',
+	received: 'Received',
+	instant: 'Instant',
+};
+
 const ActivityFiltered = (): ReactElement => {
+	const [tab, setTab] = useState<string>('all');
 	const [search, setSearch] = useState<string>('');
-	const [types, setTypes] = useState<Array<string>>([]);
 	const [tags, setTags] = useState<Array<string>>([]);
 	const filter = useMemo(
-		() => ({ search, types, tags }),
-		[search, types, tags],
+		() => ({ ...filterTabs[tab], search, tags }),
+		[tab, search, tags],
 	);
 	const insets = useSafeAreaInsets();
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(0);
-	// const [tags, setTags] = useState<Array<string>>([]);
 	const activityPadding = useMemo(
 		() => ({ paddingTop: radiusContainerHeight, paddingBottom: insets.bottom }),
 		[radiusContainerHeight, insets.bottom],
 	);
-
-	const handleChangeTab = (tab): void => {
-		setTypes(tab);
-	};
 
 	const addTag = (tag): void => setTags((t) => [...t, tag]);
 	const removeTag = (tag): void => setTags((t) => t.filter((x) => x !== tag));
@@ -103,17 +111,12 @@ const ActivityFiltered = (): ReactElement => {
 								)}
 							</SearchInput>
 							<View style={styles.tabContainer}>
-								<Tab
-									text="All"
-									active={types.length === 0}
-									onPress={(): void => handleChangeTab([])}
-								/>
-								{Object.keys(EActivityTypes).map((i) => (
+								{Object.entries(filterTabsLabels).map(([key, label]) => (
 									<Tab
-										key={i}
-										text={i}
-										active={types.includes(i)}
-										onPress={(): void => handleChangeTab([i])}
+										key={key}
+										text={label}
+										active={tab === key}
+										onPress={(): void => setTab(key)}
 									/>
 								))}
 							</View>
