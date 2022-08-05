@@ -17,8 +17,9 @@ const SecuritySettings = ({ navigation }): ReactElement => {
 	const [biometryData, setBiometricData] = useState<
 		IsSensorAvailableResult | undefined
 	>(undefined);
-	const { pin, biometrics, pinOnLaunch, pinForPayments, swipeBalanceToHide } =
-		useSelector((state: Store) => state.settings);
+	const { pin, biometrics, pinOnLaunch, pinForPayments } = useSelector(
+		(state: Store) => state.settings,
+	);
 
 	useEffect(() => {
 		(async (): Promise<void> => {
@@ -32,18 +33,6 @@ const SecuritySettings = ({ navigation }): ReactElement => {
 		() => [
 			{
 				data: [
-					{
-						title: 'Swipe balance to hide',
-						enabled: swipeBalanceToHide,
-						type: 'switch',
-						onPress: (): void => {
-							updateSettings({
-								hideBalance: false,
-								swipeBalanceToHide: !swipeBalanceToHide,
-							});
-						},
-						hide: false,
-					},
 					{
 						title: 'Pin',
 						value: pin ? 'Enabled' : 'Disabled',
@@ -119,7 +108,6 @@ const SecuritySettings = ({ navigation }): ReactElement => {
 			pinOnLaunch,
 			pinForPayments,
 			navigation,
-			swipeBalanceToHide,
 		],
 	);
 

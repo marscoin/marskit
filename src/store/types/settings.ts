@@ -38,7 +38,6 @@ export interface ISettings {
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
-	swipeBalanceToHide: boolean;
 	[key: string]: any;
 }
 
