@@ -128,6 +128,7 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 							onPress={handleBackup}
 						/>
 					</View>
+					<SafeAreaInsets type="bottom" />
 				</View>
 			</View>
 		</BottomSheetWrapper>
