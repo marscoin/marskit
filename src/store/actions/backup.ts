@@ -4,6 +4,7 @@ import { getDispatch } from '../helpers';
 import { EBackupCategories, uploadBackup } from '../../utils/backup/backpack';
 import { stringToBytes } from '../../utils/converters';
 import { Slashtag } from '../../hooks/slashtags';
+import { exportBackup } from '../../utils/lightning';
 
 const dispatch = getDispatch();
 
@@ -16,6 +17,8 @@ export const performFullBackup = async (
 ): Promise<Result<string>> => {
 	const ldkRemoteRes = await performRemoteLdkBackup(slashtag);
 	//TODO perform other backup types
+
+	//TODO(slashtags): Send all drives (public + contacts) to the seeding server.
 
 	//TODO check results of each time and return errors if any
 
@@ -34,10 +37,15 @@ export const performRemoteLdkBackup = async (
 		payload: { remoteLdkBackupSynced: false },
 	});
 
+	const ldkBackup = await exportBackup();
+	if (ldkBackup.isErr()) {
+		return err(ldkBackup.error);
+	}
+
 	const res = await uploadBackup(
 		slashtag,
-		stringToBytes('Hello World'), //TODO upload actual channel manager data
-		EBackupCategories.ldkChannelManager,
+		stringToBytes(ldkBackup.value),
+		EBackupCategories.ldkComplete,
 	);
 
 	if (res.isErr()) {
@@ -57,7 +65,7 @@ export const setRemoteBackupsEnabled = (
 ): void => {
 	dispatch({
 		type: actions.BACKUP_UPDATE,
-		payload: { remoteBackupsEnabled },
+		payload: { remoteBackupsEnabled, remoteLdkBackupLastSync: new Date() },
 	});
 };
 

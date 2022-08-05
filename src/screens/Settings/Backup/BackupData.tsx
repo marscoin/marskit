@@ -8,14 +8,14 @@ import {
 	performFullBackup,
 	setRemoteBackupsEnabled,
 } from '../../../store/actions/backup';
-import { useSlashtag } from '../../../hooks/slashtags';
+import { useSelectedSlashtag } from '../../../hooks/slashtags';
 
 const BackupData = ({ navigation }): ReactElement => {
 	const { remoteBackupsEnabled } = useSelector((state: Store) => state.backup);
 
 	const [isBackingUp, setIsBackingUp] = useState(false);
 
-	const { slashtag } = useSlashtag();
+	const { slashtag } = useSelectedSlashtag(); //TODO this will backup using the current slashtag. Should we rather have a slashtag just for backups?
 
 	const toggleRemoteBackup = async (): Promise<void> => {
 		if (isBackingUp) {

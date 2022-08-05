@@ -1,4 +1,3 @@
-import { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/sdk';
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 import { ok, err, Result } from '../result';
 import { name as appName, version as appVersion } from '../../../package.json';
@@ -14,7 +13,7 @@ const serverSlashtag =
 export enum EBackupCategories {
 	jest = 'bitkit.jest',
 	transactions = 'bitkit.transactions',
-	ldkChannelManager = 'bitkit.ldk.channelmanager',
+	ldkComplete = 'bitkit.ldk.complete',
 }
 
 const backupOptions = { timeout: 30000 };

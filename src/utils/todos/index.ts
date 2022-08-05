@@ -46,7 +46,7 @@ export const setupTodos = (): void => {
 	 * Check for backup status.
 	 */
 	const backupTodo = todos.filter((todo) => todo.type === 'activateBackup');
-	const backupStatus = getStore().backup.lastBackedUp !== undefined;
+	const backupStatus = getStore().backup.remoteBackupsEnabled;
 	const activateBackupIsDismissed = 'activateBackup' in dismissedTodos;
 	// Add backupTodo if status is false and is not included in the todos array.
 	if (!backupStatus && !backupTodo?.length && activateBackupIsDismissed) {
