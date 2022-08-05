@@ -5,6 +5,7 @@ import {
 	TouchableOpacity,
 	useWindowDimensions,
 	View,
+	Linking,
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -67,6 +68,12 @@ const Slideshow = ({
 			});
 		}
 	};
+	const showTOS = async (): Promise<void> => {
+		const link = 'https://synonym.to/terms-of-use/';
+		if (await Linking.canOpenURL(link)) {
+			await Linking.openURL(link);
+		}
+	};
 
 	const slides = useMemo(
 		() => [
@@ -111,32 +118,8 @@ const Slideshow = ({
 								<Display style={styles.headline2}> Fast.</Display>
 							</Display>
 							<Text01S color="gray1" style={styles.text}>
-								Send Bitcoin faster than ever. Enjoy instant transactions with
-								friends, family and merchants.
-							</Text01S>
-						</View>
-						<SafeAreaInsets type="bottom" />
-					</View>
-				),
-			},
-
-			{
-				topLeftColor: colors.green,
-				slide: (): ReactElement => (
-					<View style={styles.slide}>
-						<View style={styles.imageContainer}>
-							<Image
-								style={illustrationStyles}
-								source={require('../../assets/illustrations/coins.png')}
-							/>
-						</View>
-						<View style={styles.textContent}>
-							<Display>
-								Instant <Display style={styles.headline3}>Tether.</Display>
-							</Display>
-							<Text01S color="gray1" style={styles.text}>
-								Save and spend traditional currency, gifts, rewards, and digital
-								assets instantly and borderless.
+								Send Bitcoin faster than ever.{'\n'}Enjoy instant transactions
+								with friends, family and merchants.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type="bottom" />
@@ -184,6 +167,13 @@ const Slideshow = ({
 								Let’s create
 								<Display color="brand"> your Wallet.</Display>
 							</Display>
+							<Text01S color="gray1" style={styles.text}>
+								By tapping ‘New Wallet’ or ‘Restore’ you accept our{' '}
+								<Text01S onPress={showTOS} color="brand">
+									terms of service
+								</Text01S>
+								.
+							</Text01S>
 
 							<View style={styles.buttonsContainer}>
 								<Button
@@ -280,10 +270,11 @@ const styles = StyleSheet.create({
 	},
 	buttonsContainer: {
 		flexDirection: 'row',
-		marginTop: 70,
+		marginTop: 32,
 	},
 	button: {
 		flex: 1,
+		paddingHorizontal: 10,
 	},
 	restoreButton: {
 		marginRight: 6,
@@ -322,9 +313,6 @@ const styles = StyleSheet.create({
 	headline2: {
 		color: 'rgba(172, 101, 225, 1)',
 		lineHeight: 48,
-	},
-	headline3: {
-		color: 'rgba(134, 188, 122, 1)',
 	},
 	text: {
 		marginTop: 8,

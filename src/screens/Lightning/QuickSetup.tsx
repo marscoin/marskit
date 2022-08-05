@@ -7,7 +7,7 @@ import {
 	Caption13Up,
 	Display,
 	Headline,
-	LightningIcon,
+	CoinsIcon,
 	SavingsIcon,
 	Text01S,
 } from '../../styles/components';
@@ -26,17 +26,12 @@ export const Percentage = ({ value, type }): ReactElement => {
 	return (
 		<View style={styles.pRoot}>
 			{type === 'spendings' ? (
-				<LightningIcon height={28} width={20} style={styles.lightningIcon} />
+				<CoinsIcon color="purple" height={26} width={26} />
 			) : (
-				<SavingsIcon
-					color="orange"
-					height={32}
-					width={32}
-					style={styles.savingsIcon}
-				/>
+				<SavingsIcon color="orange" height={32} width={32} />
 			)}
 
-			<Headline>
+			<Headline lineHeight="40px">
 				{value}
 				<Text01S>%</Text01S>
 			</Headline>
@@ -48,7 +43,7 @@ const QuickSetup = ({ navigation }): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const total = 100500; // TODO: use real value
-	const [spendingAmount, setSpendingAmount] = useState(total * 0.2); // 20% of total
+	const [spendingAmount, setSpendingAmount] = useState(0);
 
 	const savingsAmount = total - spendingAmount;
 	const spendingPercentage = Math.round((spendingAmount / total) * 100);
@@ -198,12 +193,6 @@ const styles = StyleSheet.create({
 	},
 	amountBigCaption: {
 		marginBottom: 4,
-	},
-	lightningIcon: {
-		marginLeft: 7,
-	},
-	savingsIcon: {
-		marginLeft: 1,
 	},
 	pRoot: {
 		flexDirection: 'row',
