@@ -1,18 +1,13 @@
 import { getStore } from '../src/store/helpers';
 import { updateExchangeRates } from '../src/store/actions/wallet';
 import { getDisplayValues } from '../src/utils/exchange-rate';
-import {
-	EExchangeRateService,
-	supportedExchangeTickers,
-} from '../src/utils/exchange-rate/types';
-import { updateSettings } from '../src/store/actions/settings';
 
 global.fetch = require('node-fetch');
 
 describe('Pulls latest fiat exchange rates and checks the wallet store for valid conversions', () => {
 	jest.setTimeout(10000);
 
-	it('Bitfinex rates with default selected currency', async () => {
+	it('Blocktank FX rates with default selected currency', async () => {
 		const res = await updateExchangeRates();
 
 		expect(res.isOk()).toEqual(true);
@@ -25,43 +20,14 @@ describe('Pulls latest fiat exchange rates and checks the wallet store for valid
 		const tickers = Object.keys(exchangeRates);
 
 		//We have some available tickers
-		expect(tickers.length).toBe(
-			supportedExchangeTickers[EExchangeRateService.bitfinex].length,
-		);
+		expect(tickers.length).toBeGreaterThan(0);
 
-		//Every ticker stored needs to be a valid number
+		//All tickers have the correct format 
 		tickers.forEach((ticker) => {
-			expect(typeof exchangeRates[ticker]).toBe('number');
-			expect(exchangeRates[ticker]).toBeGreaterThan(1);
-		});
-	});
-
-	it('Crypto Compare rates with new selected currency', async () => {
-		updateSettings({
-			exchangeRateService: 'cryptoCompare',
-			selectedCurrency: 'EUR',
-		});
-
-		const res = await updateExchangeRates();
-
-		expect(res.isOk()).toEqual(true);
-		if (res.isErr()) {
-			return;
-		}
-
-		const { exchangeRates } = getStore().wallet;
-
-		const tickers = Object.keys(exchangeRates);
-
-		//We have some available tickers
-		expect(tickers.length).toBe(
-			supportedExchangeTickers[EExchangeRateService.cryptoCompare].length,
-		);
-
-		//Every ticker stored needs to be a valid number
-		tickers.forEach((ticker) => {
-			expect(typeof exchangeRates[ticker]).toBe('number');
-			expect(exchangeRates[ticker]).toBeGreaterThan(1);
+			expect(typeof exchangeRates[ticker].currencySymbol).toBe('string');
+			expect(typeof exchangeRates[ticker].quoteName).toBe('string');
+			expect(typeof exchangeRates[ticker].rate).toBe('number');
+			expect(exchangeRates[ticker].rate).toBeGreaterThan(1);
 		});
 	});
 
