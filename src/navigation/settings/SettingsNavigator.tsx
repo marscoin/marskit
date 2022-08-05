@@ -8,7 +8,7 @@ import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import DevSettings from '../../screens/Settings/DevSettings';
-import ExportBackups from '../../screens/Settings/Backup/Export';
+import BackupData from '../../screens/Settings/Backup/BackupData';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
 import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
@@ -26,6 +26,7 @@ import ConnectionDetails from '../../screens/Settings/Lightning/ConnectionDetail
 import CloseConnection from '../../screens/Settings/Lightning/CloseConnection';
 import AddConnection from '../../screens/Settings/Lightning/AddConnection';
 import AddConnectionResult from '../../screens/Settings/Lightning/AddConnectionResult';
+import ExportToPhone from '../../screens/Settings/Backup/ExportToPhone';
 
 const Stack = createNativeStackNavigator();
 
@@ -74,7 +75,8 @@ const SettingsNavigator = (): ReactElement => {
 					component={AddressTypePreference}
 				/>
 				<Stack.Screen name="DevSettings" component={DevSettings} />
-				<Stack.Screen name="ExportBackups" component={ExportBackups} />
+				<Stack.Screen name="BackupData" component={BackupData} />
+				<Stack.Screen name="ExportToPhone" component={ExportToPhone} />
 				<Stack.Screen
 					name="BitcoinNetworkSelection"
 					component={BitcoinNetworkSelection}

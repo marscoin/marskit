@@ -18,7 +18,7 @@ import Share from 'react-native-share';
 import AuthCheck from '../../../components/AuthCheck';
 import SafeAreaView from '../../../components/SafeAreaView';
 
-const ExportBackups = ({ navigation }): ReactElement => {
+const ExportToPhone = ({ navigation }): ReactElement => {
 	const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
 	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const [password, setPassword] = useState<string>('');
@@ -165,4 +165,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(ExportBackups);
+export default memo(ExportToPhone);

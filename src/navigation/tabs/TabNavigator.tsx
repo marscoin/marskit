@@ -10,7 +10,7 @@ import { BlurView } from '@react-native-community/blur';
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
 import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
-import BackupPrompt from '../../screens/Settings/Backup2/BackupPrompt';
+import BackupPrompt from '../../screens/Settings/Backup/BackupPrompt';
 import { ScanIcon, Text02M, View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
 import { receiveIcon, sendIcon } from '../../assets/icons/tabs';

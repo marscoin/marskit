@@ -1,0 +1,109 @@
+import React, { memo, ReactElement, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Text } from '../../../styles/components';
+import Store from '../../../store/types';
+import SettingsView from '../SettingsView';
+import { IListData } from '../../../components/List';
+import {
+	performFullBackup,
+	setRemoteBackupsEnabled,
+} from '../../../store/actions/backup';
+
+const BackupData = ({ navigation }): ReactElement => {
+	const { remoteBackupsEnabled, remoteLdkBackupLastSync } = useSelector(
+		(state: Store) => state.backup,
+	);
+
+	const [isBackingUp, setIsBackingUp] = useState(false);
+
+	const toggleRemoteBackup = async (): Promise<void> => {
+		if (isBackingUp) {
+			return;
+		}
+
+		if (remoteBackupsEnabled) {
+			return Alert.alert(
+				'Switch off automated backups?',
+				"Are you sure you want to stop automated backups? You won't be able to restore your data if your phone is lost or damaged.",
+				[
+					{
+						text: 'Yes, switch off',
+						onPress: (): void => {
+							setRemoteBackupsEnabled(false);
+						},
+					},
+					{
+						text: 'Cancel',
+						onPress: (): void => {},
+						style: 'cancel',
+					},
+				],
+			);
+		}
+
+		setRemoteBackupsEnabled(true);
+		setIsBackingUp(true);
+		const res = await performFullBackup();
+		if (res.isErr()) {
+			Alert.alert('Error backup up', res.error.message);
+		} else {
+			Alert.alert('Success', 'Backup up successful');
+		}
+
+		setIsBackingUp(false);
+	};
+
+	const SettingsListData: IListData[] = [
+		{
+			data: [
+				{
+					title: `Back up automatically ${isBackingUp ? '(Syncing...)' : ''}`,
+					type: 'switch',
+					onPress: toggleRemoteBackup,
+					hide: false,
+					enabled: remoteBackupsEnabled,
+				},
+				{
+					title: 'Export to phone',
+					type: 'button',
+					onPress: (): void => navigation.navigate('ExportToPhone'),
+					enabled: true,
+					hide: false,
+				},
+				{
+					title: 'Store on iCloud',
+					type: 'button',
+					onPress: (): void => Alert.alert('Coming soon'),
+					enabled: true,
+					hide: false,
+				},
+				{
+					title: 'Store on Google Drive',
+					type: 'button',
+					onPress: (): void => Alert.alert('Coming soon'),
+					enabled: true,
+					hide: false,
+				},
+				{
+					title: 'Store on Dropbox',
+					type: 'button',
+					onPress: (): void => Alert.alert('Coming soon'),
+					enabled: true,
+					hide: false,
+				},
+			],
+		},
+	];
+
+	return (
+		<SettingsView
+			title={'Backup or restore'}
+			listData={SettingsListData}
+			showBackNavigation={true}
+			childrenPosition={'bottom'}
+		/>
+	);
+};
+
+export default memo(BackupData);

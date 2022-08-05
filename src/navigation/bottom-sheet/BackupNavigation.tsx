@@ -4,10 +4,10 @@ import { useSelector } from 'react-redux';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ShowMnemonic from '../../screens/Settings/Backup2/ShowMnemonic';
-import ConfirmMnemonic from '../../screens/Settings/Backup2/ConfirmMnemonic';
-import Result from '../../screens/Settings/Backup2/Result';
-import Metadata from '../../screens/Settings/Backup2/Metadata';
+import ShowMnemonic from '../../screens/Settings/Backup/ShowMnemonic';
+import ConfirmMnemonic from '../../screens/Settings/Backup/ConfirmMnemonic';
+import Result from '../../screens/Settings/Backup/Result';
+import Metadata from '../../screens/Settings/Backup/Metadata';
 import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
 
