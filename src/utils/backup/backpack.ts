@@ -1,7 +1,8 @@
+import { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/sdk';
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
-import { Slashtag } from '@synonymdev/slashtag';
 import { ok, err, Result } from '../result';
 import { name as appName, version as appVersion } from '../../../package.json';
+import { Slashtag } from '../../hooks/slashtags';
 
 //TODO move to env when we have a production server
 //Staging server config

@@ -1,7 +1,6 @@
-import React, { memo, ReactElement, useMemo, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Text } from '../../../styles/components';
+import { Alert } from 'react-native';
 import Store from '../../../store/types';
 import SettingsView from '../SettingsView';
 import { IListData } from '../../../components/List';
@@ -9,13 +8,14 @@ import {
 	performFullBackup,
 	setRemoteBackupsEnabled,
 } from '../../../store/actions/backup';
+import { useSlashtag } from '../../../hooks/slashtags';
 
 const BackupData = ({ navigation }): ReactElement => {
-	const { remoteBackupsEnabled, remoteLdkBackupLastSync } = useSelector(
-		(state: Store) => state.backup,
-	);
+	const { remoteBackupsEnabled } = useSelector((state: Store) => state.backup);
 
 	const [isBackingUp, setIsBackingUp] = useState(false);
+
+	const { slashtag } = useSlashtag();
 
 	const toggleRemoteBackup = async (): Promise<void> => {
 		if (isBackingUp) {
@@ -44,7 +44,7 @@ const BackupData = ({ navigation }): ReactElement => {
 
 		setRemoteBackupsEnabled(true);
 		setIsBackingUp(true);
-		const res = await performFullBackup();
+		const res = await performFullBackup(slashtag);
 		if (res.isErr()) {
 			Alert.alert('Error backup up', res.error.message);
 		} else {

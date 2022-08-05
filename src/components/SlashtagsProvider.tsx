@@ -5,6 +5,7 @@ import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
 import { createContext } from 'react';
 import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
+import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 
 const RAWS = RAWSFactory({
 	setItem: (key, value) => {
@@ -55,6 +56,7 @@ export const SlashtagsProvider = ({
 					storage: RAWS,
 					// TODO: replace hardcoded relays with configurable relays
 					swarmOpts: { relays: ['ws://167.86.102.121:45475'] },
+					protocols: [BackupProtocol],
 				});
 
 				setState({ sdk });
