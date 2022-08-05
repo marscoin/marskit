@@ -116,7 +116,6 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 			</View>
 
 			<BottomSheetWrapper
-				headerColor="onSurface"
 				backdrop={true}
 				view="profileAddLinkForm"
 				snapPoints={[400]}>

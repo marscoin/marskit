@@ -152,7 +152,6 @@ const ContactsScreen = ({ navigation }): JSX.Element => {
 			</View>
 
 			<BottomSheetWrapper
-				headerColor="onSurface"
 				backdrop={true}
 				view="addContactModal"
 				snapPoints={[400]}>

@@ -41,7 +41,6 @@ const NewTxPrompt = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleClose}
 			view="newTxPrompt">
