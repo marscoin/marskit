@@ -39,7 +39,7 @@ const OnChainNumberPad = (): ReactElement => {
 		(store: Store) => store.settings.selectedCurrency,
 	);
 	const exchangeRate = useSelector(
-		(store: Store) => store.wallet.exchangeRates[currency],
+		(store: Store) => store.wallet.exchangeRates[currency].rate,
 	);
 
 	const transaction = useSelector(
@@ -142,7 +142,6 @@ const OnChainNumberPad = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={false}
 			view="numberPad">
 			<NumberPad onPress={onPress} onRemove={onRemove} onClear={onClear}>

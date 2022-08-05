@@ -2,22 +2,24 @@ import React, { useRef } from 'react';
 import { useEffect } from 'react';
 import { TextInput as ITextInput, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native';
-import { BasicProfile } from '../store/types/slashtags';
 import { Text, Title, TextInput, View, CameraIcon } from '../styles/components';
 import { profileNameMultiLine } from '../utils/helpers';
 import ProfileImage from './ProfileImage';
 import { SlashtagURL } from './SlashtagURL';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { BasicProfile } from '../store/types/slashtags';
 
 export const ProfileCard = ({
-	id,
+	url,
 	profile,
 	editable,
 	onChange,
+	contact,
 }: {
-	id?: string;
+	url: string;
 	profile?: BasicProfile;
 	editable?: boolean;
+	contact?: boolean;
 	onChange?: (name, val) => void;
 }): JSX.Element => {
 	const name = profile?.name;
@@ -38,7 +40,9 @@ export const ProfileCard = ({
 							autoFucus={true}
 							style={styles.name}
 							value={name?.replace(/\s+/g, '\n')}
-							placeholder={'Your public\nprofile name'}
+							placeholder={
+								contact ? "Contact's name" : 'Your public\nprofile name'
+							}
 							multiline={true}
 							onChangeText={(value): void => {
 								if (value.slice(-1) === '\t') {
@@ -47,13 +51,15 @@ export const ProfileCard = ({
 									onChange?.('name', value.replace(/\n/g, ' '));
 								}
 							}}
+							blurOnSubmit
+							returnKeyType={'done'}
 						/>
 					) : (
 						<Title style={styles.name}>{profileNameMultiLine(name)}</Title>
 					)}
-					<SlashtagURL style={styles.url} url={id} />
+					<SlashtagURL style={styles.url} url={url} />
 				</View>
-				{editable ? (
+				{editable && !contact ? (
 					<TouchableOpacity
 						activeOpacity={0.8}
 						style={styles.editImageButton}
@@ -67,20 +73,17 @@ export const ProfileCard = ({
 							const type = result.assets?.[0].type;
 							base64 && onChange?.('image', `data:${type};base64,` + base64);
 						}}>
-						<CameraIcon style={styles.cameraIcon} />
-						<ProfileImage
-							size={96}
-							id={id}
-							profile={profile}
-							style={styles.profileImage}
-						/>
+						<View style={styles.cameraIconOverlay}>
+							<CameraIcon />
+						</View>
+						<ProfileImage url={url} image={profile?.image} size={96} />
 					</TouchableOpacity>
 				) : (
-					<ProfileImage id={id} profile={profile} size={96} />
+					<ProfileImage url={url} image={profile?.image} size={96} />
 				)}
 			</View>
 
-			{editable ? (
+			{editable && !contact ? (
 				<TextInput
 					color="gray1"
 					ref={bioRef}
@@ -88,6 +91,8 @@ export const ProfileCard = ({
 					value={bio}
 					placeholder={'Short bio. Tell a bit about yourself.'}
 					onChangeText={(value): void => onChange?.('bio', value)}
+					blurOnSubmit
+					returnKeyType={'done'}
 				/>
 			) : (
 				<Text color="gray1" style={styles.bio}>
@@ -128,12 +133,15 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	cameraIcon: {
+	cameraIconOverlay: {
 		position: 'absolute',
 		zIndex: 99999,
-	},
-	profileImage: {
-		opacity: 0.6,
+		backgroundColor: 'rgba(0,0,0,.4)',
+		width: '100%',
+		height: '100%',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 });
 

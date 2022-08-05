@@ -118,6 +118,22 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: wipeWallet,
 						hide: false,
 					},
+					{
+						title: 'Trigger exception in React render',
+						type: 'button',
+						onPress: (): void => {
+							throw new Error('test render error');
+						},
+						hide: false,
+					},
+					{
+						title: 'Trigger unhandled async exception',
+						type: 'button',
+						onPress: async (): Promise<void> => {
+							throw new Error('test async error');
+						},
+						hide: false,
+					},
 				],
 			},
 		],

@@ -73,7 +73,7 @@ const Barrel = ({ active, id, amount, img, onPress }): ReactElement => {
 			onPress={(): void => onPress(id)}>
 			<Image style={styles.bImage} source={img} />
 			<Subtitle style={styles.bAmount}>
-				{dp.fiatSymbol} {dp.fiatFormatted}
+				{dp.fiatSymbol} {dp.fiatWhole}
 			</Subtitle>
 		</TouchableOpacity>
 	);
@@ -83,6 +83,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 	const spending = route?.params?.spending;
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
+	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
 	const [amount, setAmount] = useState(0);
 	const [pkgRates, setPkgRates] = useState({});
 	const usdRate = useSelector((state: Store) => state.wallet.exchangeRates.USD);
@@ -101,6 +102,15 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 		// run only on mount
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// set amount to 0 when user tries to enter custom amount at the first time
+	useEffect(() => {
+		if (keybrdWasEverOpened || !keybrd) {
+			return;
+		}
+		setKeybrdWasEverOpened(true);
+		setAmount(0);
+	}, [keybrd, keybrdWasEverOpened]);
 
 	const handleBarrelPress = (id): void => {
 		setAmount(pkgRates[id]);
@@ -171,7 +181,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 						<View>
 							{!keybrd && (
 								<Caption13Up style={styles.amountTitle} color="purple">
-									{spending ? 'SPENDING BALANCE' : 'RECEIVING BANDWITH'}
+									{spending ? 'SPENDING BALANCE' : 'RECEIVING CAPACITY'}
 									{!spending && (
 										<Caption13Up color="gray2"> (COST: $ TODO)</Caption13Up>
 									)}

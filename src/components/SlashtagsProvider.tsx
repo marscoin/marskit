@@ -1,13 +1,11 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
-// @ts-ignore
+import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
-import type { SDK as ISDK } from '@synonymdev/slashtags-sdk/types/src/index';
 import { createContext } from 'react';
 import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
-import BackupProtocol from 'backpack-client/src/backup-protocol.js';
+import b4a from 'b4a';
 
-const RAWS = RAWSFactory({
+export const RAWS = RAWSFactory({
 	setItem: (key, value) => {
 		mmkv.set(key, value);
 	},
@@ -26,54 +24,51 @@ export const clearSlashtagsStorage = (): void => {
 	}
 };
 
-export interface ISlashtagsContext {
-	sdk?: ISDK;
-}
-
-export const SlashtagsContext = createContext<ISlashtagsContext>({});
+const SlashtagsContext = createContext<SDK>({} as SDK);
 
 export const SlashtagsProvider = ({
 	primaryKey,
-	onError,
+	relay,
+	onError = noop,
+	onReady = noop,
 	children,
 }: {
-	primaryKey: Buffer | null | Promise<Buffer | null>;
-	onError: (error: Error) => void;
-	children: ReactElement[];
+	relay: string;
+	primaryKey?: Uint8Array;
+	onError?: (error: Error) => void;
+	onReady?: (sdk: SDK) => void;
+	children: ReactElement[] | ReactElement;
 }): JSX.Element => {
-	const [state, setState] = useState<Partial<ISlashtagsContext>>({});
+	const primaryKeyString = primaryKey && b4a.toString(primaryKey, 'hex');
+
+	const sdk = useMemo(() => {
+		const _sdk = new SDK({
+			primaryKey: primaryKeyString && b4a.from(primaryKeyString, 'hex'),
+			// TODO(slashtags): replace it with non-blocking storage,
+			// like random access react native after m1 support. or react-native-fs?
+			storage: RAWS,
+			swarmOpts: { relays: [relay] },
+		});
+		_sdk
+			.ready()
+			.then(() => onReady(_sdk))
+			.catch(onError);
+		return _sdk;
+	}, [primaryKeyString, relay, onError, onReady]);
 
 	useEffect(() => {
-		(async (): Promise<undefined | (() => void)> => {
-			if (!primaryKey) {
-				return;
-			}
-
-			try {
-				const sdk = await (SDK as typeof ISDK).init({
-					primaryKey: (await primaryKey) as Uint8Array,
-					// TODO: replace it with random access react native after m1 support
-					storage: RAWS,
-					// TODO: replace hardcoded relays with configurable relays
-					swarmOpts: { relays: ['ws://167.86.102.121:45475'] },
-					protocols: [BackupProtocol],
-				});
-
-				setState({ sdk });
-			} catch (error) {
-				onError(error as Error);
-			}
-		})();
-	}, [primaryKey, onError]);
+		return function cleanup() {
+			// sdk.close();
+		};
+	}, [sdk]);
 
 	return (
-		<SlashtagsContext.Provider value={state}>
+		<SlashtagsContext.Provider value={sdk}>
 			{children}
 		</SlashtagsContext.Provider>
 	);
 };
 
-export const useSlashtagsSDK = (): ISlashtagsContext => {
-	const context = useContext(SlashtagsContext);
-	return context;
-};
+export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext);
+
+function noop(): any {}

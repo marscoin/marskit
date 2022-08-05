@@ -128,7 +128,6 @@ export const header: IHeader = {
 export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
-	seedHash: '',
 	type: 'default',
 	addresses,
 	addressIndex,
@@ -168,7 +167,7 @@ export const defaultWalletStoreShape: IWallet = {
 	loading: true,
 	walletExists: false,
 	error: false,
-	selectedNetwork: 'bitcoinTestnet',
+	selectedNetwork: 'bitcoinRegtest',
 	selectedWallet: EWallet.defaultWallet,
 	addressTypes: { ...addressTypes },
 	exchangeRates: {},

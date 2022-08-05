@@ -224,7 +224,7 @@ export interface IDefaultWalletShape {
 	id: string;
 	name: string;
 	type: string;
-	seedHash: string; // Help components/hooks recognize when a seed is set/updated for the same wallet id/name.
+	seedHash?: string; // Help components/hooks recognize when a seed is set/updated for the same wallet id/name.
 	addresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;

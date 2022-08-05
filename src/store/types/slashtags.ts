@@ -1,10 +1,13 @@
-// TODO move this interface to the Slashtags SDK once its stable
+// TODO(slashtags): move this interface to the Slashtags SDK once its stable?
 export type BasicProfile = Partial<{
 	name: string;
 	bio: string;
 	image: string;
 	links: Array<Link>;
 }>;
+
+/** Contact Record saved in the "contacts" SlashDrive */
+export type IContactRecord = { url: string; name: string } & BasicProfile;
 
 export type SlashPayConfig = Partial<{
 	p2wpkh: string;
@@ -15,7 +18,13 @@ export interface Link {
 	url: string;
 }
 
+export interface IRemote {
+	profile?: BasicProfile;
+	payConfig?: SlashPayConfig;
+}
+
 export interface ISlashtags {
+	onboardedContacts: boolean;
 	onboardingProfileStep:
 		| 'Intro'
 		| 'InitialEdit'

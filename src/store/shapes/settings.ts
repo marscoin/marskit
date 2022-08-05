@@ -1,5 +1,4 @@
 import { ISettings } from '../types/settings';
-import { EExchangeRateService } from '../../utils/exchange-rate/types';
 
 export const defaultSettingsShape: ISettings = {
 	loading: false,
@@ -13,7 +12,6 @@ export const defaultSettingsShape: ISettings = {
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	balanceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
-	exchangeRateService: EExchangeRateService.bitfinex,
 	selectedLanguage: 'english',
 	customElectrumPeers: {
 		bitcoin: [],
@@ -32,7 +30,6 @@ export const defaultSettingsShape: ISettings = {
 	coinSelectPreference: 'small',
 	unitPreference: 'asset',
 	showSuggestions: true,
-	swipeBalanceToHide: true,
 	transactionSpeed: 'normal',
 	hideBalance: false,
 };

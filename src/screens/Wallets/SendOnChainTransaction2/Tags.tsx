@@ -80,6 +80,7 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 					onChangeText={setText}
 					onBlur={handleInputBlur}
 					maxLength={15}
+					returnKeyType="done"
 				/>
 			</View>
 		</ThemedView>

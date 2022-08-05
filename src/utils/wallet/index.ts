@@ -77,9 +77,7 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { EFeeIds } from '../../store/types/fees';
 
-// @ts-ignore
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
-import type { SDK as ISDK } from '@synonymdev/slashtags-sdk';
 
 const BITKIT_WALLET_SEED_HASH_PREFIX = Buffer.from('@Bitkit/wallet-uuid');
 
@@ -346,7 +344,7 @@ export const slashtagsPrimaryKey = async (seed: Buffer): Promise<string> => {
 	const network = networks.bitcoin;
 	const root = bip32.fromSeed(seed, network);
 
-	const path = (SDK as typeof ISDK).DERIVATION_PATH;
+	const path = SDK.DERIVATION_PATH;
 	const keyPair = root.derivePath(path);
 
 	return keyPair.privateKey?.toString('hex') as string;

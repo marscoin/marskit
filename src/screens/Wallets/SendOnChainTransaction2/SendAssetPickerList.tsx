@@ -8,7 +8,13 @@ const SendAssetPickerList = ({ navigation }): ReactElement => {
 		},
 		[navigation],
 	);
-	return <AssetPickerList headerTitle="Send" onAssetPress={onAssetPress} />;
+	return (
+		<AssetPickerList
+			headerTitle="Send Bitcoin"
+			side="send"
+			onAssetPress={onAssetPress}
+		/>
+	);
 };
 
 export default memo(SendAssetPickerList);

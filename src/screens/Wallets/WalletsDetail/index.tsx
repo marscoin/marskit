@@ -23,7 +23,7 @@ import {
 	Rect,
 	rect,
 	useCanvas,
-	useDerivedValue,
+	useComputedValue,
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
@@ -41,6 +41,7 @@ import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 import { TAssetType } from '../../../store/types/wallet';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
+import { capitalize } from '../../../utils/helpers';
 
 const Blur = Platform.OS === 'ios' ? BlurView : View;
 
@@ -68,7 +69,7 @@ interface Props extends PropsWithChildren<any> {
 
 const Glow = ({ colors }): ReactElement => {
 	const { size } = useCanvas();
-	const rct = useDerivedValue(
+	const rct = useComputedValue(
 		() => rect(0, 0, size.current.width, size.current.height),
 		[size],
 	);
@@ -90,22 +91,14 @@ const WalletsDetail = (props: Props): ReactElement => {
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
 	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
 	const colors = useColors();
-
-	let title = '';
-	let assetFilter: EActivityTypes[] = [];
-	switch (assetType) {
-		case 'bitcoin': {
-			title = 'Bitcoin';
-			assetFilter = [EActivityTypes.onChain, EActivityTypes.lightning];
-			break;
-		}
-		case 'tether': {
-			title = 'Tether';
-			assetFilter = [EActivityTypes.tether];
-			break;
-		}
-	}
-
+	const filter = useMemo(() => {
+		const types =
+			assetType === 'bitcoin'
+				? [EActivityTypes.onChain, EActivityTypes.lightning]
+				: [EActivityTypes.tether];
+		return { types };
+	}, [assetType]);
+	const title = capitalize(assetType);
 	const [showDetails, setShowDetails] = useState(true);
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(400);
 	const [headerHeight, setHeaderHeight] = useState(0);
@@ -152,11 +145,11 @@ const WalletsDetail = (props: Props): ReactElement => {
 		<AnimatedView style={styles.container}>
 			<View color={'transparent'} style={styles.txListContainer}>
 				<ActivityList
-					assetFilter={assetFilter}
 					onScroll={onScroll}
 					style={styles.txList}
 					contentContainerStyle={activityPadding}
 					progressViewOffset={radiusContainerHeight + 10}
+					filter={filter}
 				/>
 			</View>
 			<View color={'transparent'} style={styles.radiusContainer}>

@@ -1,62 +1,31 @@
 import { default as bitcoinUnits } from 'bitcoin-units';
-import { ok, Result } from '../result';
+import { ok, err, Result } from '../result';
 import { getStore } from '../../store/helpers';
 import { TBitcoinUnit } from '../../store/types/wallet';
-import {
-	defaultDisplayValues,
-	EExchangeRateService,
-	IDisplayValues,
-	IExchangeRates,
-	supportedExchangeTickers,
-} from './types';
+import { defaultDisplayValues, IDisplayValues, IExchangeRates } from './types';
 
 export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
-	let { exchangeRateService } = getStore().settings;
+	try {
+		// TODO: pull this out into .env
+		const response = await fetch('http://35.233.47.252:443/fx/rates/btc');
+		const { tickers } = await response.json();
 
-	const service = exchangeRateService
-		? EExchangeRateService[exchangeRateService]
-		: EExchangeRateService.bitfinex;
+		const rates: IExchangeRates = tickers.reduce((acc, ticker) => {
+			return {
+				...acc,
+				[ticker.quote]: {
+					currencySymbol: ticker.currencySymbol,
+					quoteName: ticker.quoteName,
+					rate: Math.round(Number(ticker.lastPrice) * 100) / 100,
+				},
+			};
+		}, {});
 
-	switch (service) {
-		case EExchangeRateService.cryptoCompare: {
-			return getCryptoCompareRates();
-		}
-		case EExchangeRateService.bitfinex:
-		default: {
-			return getBitfinexRates();
-		}
+		return ok(rates);
+	} catch (e) {
+		console.error(e);
+		return err(e);
 	}
-};
-
-const getBitfinexRates = async (): Promise<Result<IExchangeRates>> => {
-	const rates: IExchangeRates = {};
-
-	const response = await fetch(
-		`https://api-pub.bitfinex.com/v2/tickers?symbols=${supportedExchangeTickers[
-			EExchangeRateService.bitfinex
-		]
-			.map((c) => `tBTC${c}`)
-			.join(',')}`,
-	);
-
-	const jsonResponse = (await response.json()) as Array<Array<string>>;
-	jsonResponse.forEach((a) => {
-		rates[a[0].replace('tBTC', '')] = Math.round(Number(a[1]) * 100) / 100;
-	});
-
-	return ok(rates);
-};
-
-const getCryptoCompareRates = async (): Promise<Result<IExchangeRates>> => {
-	const response = await fetch(
-		`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${supportedExchangeTickers[
-			EExchangeRateService.cryptoCompare
-		]
-			.map((c) => `${c}`)
-			.join(',')}`,
-	);
-
-	return ok((await response.json()) as IExchangeRates);
 };
 
 export const fiatToBitcoinUnit = ({
@@ -74,7 +43,7 @@ export const fiatToBitcoinUnit = ({
 		currency = getStore().settings.selectedCurrency;
 	}
 	if (!exchangeRate) {
-		exchangeRate = getStore().wallet.exchangeRates[currency] || 0;
+		exchangeRate = getStore().wallet.exchangeRates[currency].rate || 0;
 	}
 	if (!bitcoinUnit) {
 		bitcoinUnit = getStore().settings.bitcoinUnit;
@@ -107,7 +76,7 @@ export const getDisplayValues = ({
 			currency = getStore().settings.selectedCurrency;
 		}
 		if (!exchangeRate) {
-			exchangeRate = getStore().wallet.exchangeRates[currency] || 0;
+			exchangeRate = getStore().wallet.exchangeRates[currency].rate || 0;
 		}
 		if (!bitcoinUnit) {
 			bitcoinUnit = getStore().settings.bitcoinUnit;

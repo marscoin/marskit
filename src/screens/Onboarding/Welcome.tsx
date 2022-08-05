@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
 	},
 	button: {
 		flex: 1,
+		paddingHorizontal: 10,
 	},
 	restoreButton: {
 		marginRight: 6,

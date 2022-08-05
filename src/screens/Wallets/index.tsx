@@ -17,10 +17,6 @@ import Store from '../../store/types';
 
 const Wallets = ({ navigation }): ReactElement => {
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
-	const swipeBalanceToHide = useSelector(
-		(state: Store) => state.settings.swipeBalanceToHide,
-	);
-
 	const empty = useNoTransactions();
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
@@ -30,9 +26,7 @@ const Wallets = ({ navigation }): ReactElement => {
 	};
 
 	const onSwipeRight = (): void => {
-		if (swipeBalanceToHide) {
-			updateSettings({ hideBalance: !hideBalance });
-		}
+		updateSettings({ hideBalance: !hideBalance });
 	};
 
 	LayoutAnimation.easeInEaseOut();
@@ -85,7 +79,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	scrollview: {
-		paddingBottom: 400,
+		paddingBottom: 130,
 	},
 	assetsTitle: {
 		marginBottom: 8,

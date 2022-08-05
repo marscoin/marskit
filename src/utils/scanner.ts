@@ -26,6 +26,7 @@ import { updateOnChainTransaction } from '../store/actions/wallet';
 import { getSelectedNetwork, getSelectedWallet, refreshWallet } from './wallet';
 import { toggleView } from '../store/actions/user';
 import { sleep } from './helpers';
+import { handleSlashtagURL } from './slashtags';
 
 const availableNetworksList = availableNetworks();
 
@@ -73,7 +74,8 @@ export enum EQRDataType {
 	lightningPaymentRequest = 'lightningPaymentRequest',
 	lnurlAuth = 'lnurlAuth',
 	lnurlWithdraw = 'lnurlWithdraw',
-	slashtagUrl = 'slashtagUrl',
+	slashAuthURL = 'slashAuthURL',
+	slasthagURL = 'slashURL',
 	//TODO add rgb, xpub, lightning node peer etc
 }
 
@@ -100,6 +102,12 @@ export interface QRData {
  * @returns {string}
  */
 export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
+	if (data.startsWith('slashauth://')) {
+		return ok([{ qrDataType: EQRDataType.slashAuthURL, url: data }]);
+	} else if (data.startsWith('slash://')) {
+		return ok([{ qrDataType: EQRDataType.slasthagURL, url: data }]);
+	}
+
 	let foundNetworksInQR: QRData[] = [];
 	let lightningInvoice = '';
 
@@ -180,10 +188,6 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 		}
 	} catch (e) {}
 
-	if (data.startsWith('slashauth://')) {
-		return ok([{ qrDataType: EQRDataType.slashtagUrl, url: data }]);
-	}
-
 	if (lightningInvoice) {
 		// TODO: Decode Lightning Invoice
 	}
@@ -235,7 +239,13 @@ export const handleData = async ({
 	const amount = data?.sats ?? 0;
 	const message = data?.message ?? '';
 
+	//TODO(slashtags): Handle contacts' urls
+	//TODO(slashtags): Register Bitkit to handle all slash?x:// protocols
 	switch (qrDataType) {
+		case EQRDataType.slasthagURL: {
+			handleSlashtagURL(data.url as string);
+			break;
+		}
 		case EQRDataType.bitcoinAddress: {
 			toggleView({
 				view: 'sendNavigation',

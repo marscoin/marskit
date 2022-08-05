@@ -41,7 +41,8 @@ const LoadingWalletScreen = (): ReactElement => {
 
 	useEffect(() => {
 		// repeat entering animation every DURATION seconds
-		setInterval(() => setKey((v) => !v), DURATION);
+		const interval = setInterval(() => setKey((v) => !v), DURATION);
+		return () => clearInterval(interval);
 	}, []);
 
 	return (

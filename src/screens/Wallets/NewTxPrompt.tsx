@@ -41,7 +41,6 @@ const NewTxPrompt = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleClose}
 			view="newTxPrompt">
@@ -52,13 +51,12 @@ const NewTxPrompt = (): ReactElement => {
 					loop
 				/>
 				<View>
-					<Subtitle style={styles.title}>Payment reveived!</Subtitle>
+					<Subtitle style={styles.title}>Payment received!</Subtitle>
 					<Caption13Up style={styles.received} color="gray1">
-						You just reveived
+						You just received
 					</Caption13Up>
-
 					{isOpen && transaction && (
-						<AmountToggle sats={transaction.value * 10e8} />
+						<AmountToggle sats={transaction.value * 10e7} />
 					)}
 				</View>
 

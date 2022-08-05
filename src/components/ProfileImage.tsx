@@ -4,13 +4,13 @@ import { BasicProfile } from '../store/types/slashtags';
 import { Jdenticon } from './Jdenticon';
 
 export const ProfileImage = ({
-	id,
-	profile,
+	url,
+	image,
 	style,
 	size = 32,
 }: {
-	id?: string;
-	profile?: BasicProfile;
+	url?: string;
+	image?: BasicProfile['image'];
 	style?: ViewStyle;
 	size: number;
 }): JSX.Element => {
@@ -23,16 +23,14 @@ export const ProfileImage = ({
 		...style,
 	};
 
-	if (!id) {
-		return <View style={_style} />;
-	}
-
 	return (
 		<View style={_style}>
-			{profile?.image ? (
-				<Image source={{ uri: profile.image, width: size, height: size }} />
+			{image ? (
+				<Image source={{ uri: image, width: size, height: size }} />
+			) : url ? (
+				<Jdenticon value={url} size={size} />
 			) : (
-				<Jdenticon value={id} size={size} />
+				<View style={_style} />
 			)}
 		</View>
 	);

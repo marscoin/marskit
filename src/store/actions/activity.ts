@@ -1,45 +1,11 @@
 import actions from './actions';
 import { ok, Result } from '../../utils/result';
-import { EActivityTypes, IActivityItem } from '../types/activity';
+import { IActivityItem } from '../types/activity';
 import { getDispatch, getStore } from '../helpers';
 import { onChainTransactionsToActivityItems } from '../../utils/activity';
 import { getCurrentWallet } from '../../utils/wallet';
 
 const dispatch = getDispatch();
-
-/**
- * Filter activity items with a search string
- * @param search
- * @returns {Promise<Ok<string> | Err<string>>}
- */
-export const updateSearchFilter = (search: string): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_ACTIVITY_SEARCH_FILTER,
-			payload: search,
-		});
-
-		resolve(ok('Search filter updated'));
-	});
-};
-
-/**
- * Filter activity items by returning only certain types
- * @param types
- * @returns {Promise<Ok<string> | Err<string>>}
- */
-export const updateTypesFilter = (
-	types: EActivityTypes[],
-): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_ACTIVITY_TYPES_FILTER,
-			payload: types,
-		});
-
-		resolve(ok('Search filter updated'));
-	});
-};
 
 /**
  * Updates activity list with all wallet stores
@@ -84,16 +50,6 @@ export const updateOnChainActivityList = (): Promise<Result<string>> => {
 export const resetActivityStore = (): Result<string> => {
 	dispatch({
 		type: actions.RESET_ACTIVITY_STORE,
-	});
-	return ok('');
-};
-
-/*
- * This resets the activity filters store to defaut state
- */
-export const resetActivityFilterStore = (): Result<string> => {
-	dispatch({
-		type: actions.RESET_ACTIVITY_FILTERS_STORE,
 	});
 	return ok('');
 };

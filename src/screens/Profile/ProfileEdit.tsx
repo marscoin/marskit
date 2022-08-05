@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
 	PlusIcon,
 	ScrollView,
@@ -8,9 +8,8 @@ import {
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
-import { useSlashtag } from '../../hooks/slashtags';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import { BasicProfile } from '../../store/types/slashtags';
+import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { StyleSheet } from 'react-native';
 import LabeledInput from '../../components/LabeledInput';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
@@ -18,28 +17,27 @@ import { toggleView } from '../../store/actions/user';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import { useSelector } from 'react-redux';
-import Store from '../../store/types';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
+import Store from '../../store/types';
+import { BasicProfile } from '../../store/types/slashtags';
 
-export const ProfileEdit = ({ navigation, route }): JSX.Element => {
+export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
 	const [links, setLinks] = useState<object>({});
+
+	const { url, slashtag, profile: savedProfile } = useSelectedSlashtag();
+	const saveProfile = useCallback(
+		(profile) => slashtag.setProfile(profile),
+		[slashtag],
+	);
 
 	const onboardedProfile =
 		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
 		'Done';
 
-	const {
-		slashtag,
-		profile: savedProfile,
-		setProfile,
-	} = useSlashtag({
-		url: route.params?.id,
-	});
-
 	useEffect(() => {
-		const savedLinks = savedProfile.links || [];
+		const savedLinks = savedProfile?.links || [];
 		const entries = savedLinks?.map((l) => [l.title, l]);
 		setLinks(Object.fromEntries(entries));
 	}, [savedProfile]);
@@ -47,8 +45,8 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 	const setField = (key: string, value: string | undefined): void =>
 		setFields({ ...fields, [key]: value });
 
-	const setLink = (title: string, url: string | undefined): void =>
-		setLinks({ ...links, [title]: { title, url } });
+	const setLink = (title: string, _url: string | undefined): void =>
+		setLinks({ ...links, [title]: { title, url: _url } });
 
 	const profile: BasicProfile = useMemo(() => {
 		const merged = {
@@ -60,11 +58,11 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 	}, [savedProfile, fields, links]);
 
 	const save = (): void => {
-		setProfile(profile);
+		saveProfile(profile);
 		if (!onboardedProfile) {
 			setOnboardingProfileStep('PaymentsFromContacts');
 		} else {
-			navigation.navigate('Profile', { id: slashtag?.url.toString() });
+			navigation.navigate('Profile');
 		}
 	};
 
@@ -80,8 +78,8 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 			<View style={styles.content}>
 				<ScrollView>
 					<ProfileCard
+						url={url}
 						editable={true}
-						id={slashtag?.url.toString()}
 						profile={profile}
 						onChange={setField}
 					/>
@@ -110,13 +108,14 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 					style={styles.saveButton}
 					text={onboardedProfile ? 'Save profile' : 'Continue'}
 					size="large"
-					disabled={(profile?.name?.length || '') === 0}
+					disabled={
+						!profile.name || profile.name.replace(/\s/g, '').length === 0
+					}
 					onPress={save}
 				/>
 			</View>
 
 			<BottomSheetWrapper
-				headerColor="onSurface"
 				backdrop={true}
 				view="profileAddLinkForm"
 				snapPoints={[400]}>
@@ -137,8 +136,8 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 							label="Link OR TEXT"
 							value={addLinkForm.url}
 							placeholder="https://"
-							onChange={(url: string): void => {
-								setAddLinkForm({ ...addLinkForm, url });
+							onChange={(_url: string): void => {
+								setAddLinkForm({ ...addLinkForm, url: _url });
 							}}
 						/>
 						<Button
@@ -149,9 +148,9 @@ export const ProfileEdit = ({ navigation, route }): JSX.Element => {
 								!(addLinkForm.label?.length > 0 && addLinkForm.url?.length > 0)
 							}
 							onPress={(): void => {
-								const { label, url } = addLinkForm;
+								const { label, url: _url } = addLinkForm;
 								if (label?.length > 0) {
-									setLink(label, url);
+									setLink(label, _url);
 									setAddLinkForm({ label: '', url: '' });
 								}
 								toggleView({

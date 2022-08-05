@@ -76,6 +76,14 @@ const RestoreFromSeed = (): ReactElement => {
 	const [showFailed, setShowFailed] = useState(false);
 
 	const onSeedChange = (index, text): void => {
+		text = text.trim();
+		// decect if user pastes whole seed in first input
+		if (text.split(' ').length === numberOfWords) {
+			setSeed(text.split(' '));
+			Keyboard.dismiss();
+			return;
+		}
+
 		setSeed((items) => {
 			items[index] = text;
 			return [...items];

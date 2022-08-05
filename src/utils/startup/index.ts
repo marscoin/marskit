@@ -13,6 +13,9 @@ import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
 import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
+import { setupLdk } from '../lightning';
+import lm from '@synonymdev/react-native-ldk';
+import { ICustomElectrumPeer } from '../../store/types/settings';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -101,13 +104,40 @@ export const startWalletServices = async ({
 				await createWallet({ mnemonic });
 			}
 
-			if (onchain) {
-				updateOnchainFeeEstimates({ selectedNetwork }).then();
-				const electrumResponse = await connectToElectrum({ selectedNetwork });
+			// We need to start Electrum if either onchain or lightning is true.
+			if (onchain || lightning) {
+				// Connect to Electrum
+				let customPeers: ICustomElectrumPeer[] | undefined;
+				/*customPeers = [
+					{
+						host: '192.168.50.35',
+						ssl: 50001,
+						tcp: 50001,
+						protocol: 'tcp',
+					},
+				];*/
+				const electrumResponse = await connectToElectrum({
+					selectedNetwork,
+					customPeers,
+				});
 				if (electrumResponse.isOk()) {
+					let onReceive = (): void => {};
+					// TODO: Remove regtest condition once LDK is enabled for mainnet and testnet.
+					if (lightning && selectedNetwork === 'bitcoinRegtest') {
+						// Start LDK
+						const setupResponse = await setupLdk({ selectedNetwork });
+						if (setupResponse.isOk()) {
+							// Ensure LDK syncs when a new block is detected.
+							onReceive = lm.syncLdk;
+						} else {
+							showErrorNotification({
+								title: 'Unable to start LDK.',
+								message: setupResponse.error.message,
+							});
+						}
+					}
 					// Ensure we are subscribed to and save new header information.
-					subscribeToHeader({ selectedNetwork }).then();
-					refreshWallet({}).then();
+					subscribeToHeader({ selectedNetwork, onReceive }).then();
 				} else {
 					showErrorNotification({
 						title: 'Unable to connect to Electrum Server.',
@@ -118,8 +148,9 @@ export const startWalletServices = async ({
 				}
 			}
 
-			if (lightning) {
-				// TODO: Start LDK
+			if (onchain) {
+				updateOnchainFeeEstimates({ selectedNetwork }).then();
+				refreshWallet({}).then();
 			}
 
 			setupTodos();
