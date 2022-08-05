@@ -51,6 +51,8 @@ export const ProfileCard = ({
 									onChange?.('name', value.replace(/\n/g, ' '));
 								}
 							}}
+							blurOnSubmit
+							returnKeyType={'done'}
 						/>
 					) : (
 						<Title style={styles.name}>{profileNameMultiLine(name)}</Title>
@@ -89,6 +91,8 @@ export const ProfileCard = ({
 					value={bio}
 					placeholder={'Short bio. Tell a bit about yourself.'}
 					onChangeText={(value): void => onChange?.('bio', value)}
+					blurOnSubmit
+					returnKeyType={'done'}
 				/>
 			) : (
 				<Text color="gray1" style={styles.bio}>
