@@ -9,8 +9,6 @@ import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import DevSettings from '../../screens/Settings/DevSettings';
 import ExportBackups from '../../screens/Settings/Backup/Export';
-import Seeds from '../../screens/Settings/Backup/Seeds';
-import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
 import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
@@ -77,8 +75,6 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="DevSettings" component={DevSettings} />
 				<Stack.Screen name="ExportBackups" component={ExportBackups} />
-				<Stack.Screen name="Seeds" component={Seeds} />
-				<Stack.Screen name="ViewSeed" component={ViewSeed} />
 				<Stack.Screen
 					name="BitcoinNetworkSelection"
 					component={BitcoinNetworkSelection}

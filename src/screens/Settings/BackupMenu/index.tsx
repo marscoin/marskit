@@ -1,6 +1,7 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { IListData } from '../../../components/List';
 import SettingsView from './../SettingsView';
+import { toggleView } from '../../../store/actions/user';
 
 const BackupMenu = ({ navigation }): ReactElement => {
 	const SettingsListData: IListData[] = useMemo(
@@ -11,7 +12,14 @@ const BackupMenu = ({ navigation }): ReactElement => {
 						title: 'Backup your money',
 						type: 'button',
 						onPress: async (): Promise<void> => {
-							navigation.navigate('Seeds');
+							toggleView({
+								view: 'backupPrompt',
+								data: { isOpen: false },
+							});
+							toggleView({
+								view: 'backupNavigation',
+								data: { isOpen: true },
+							});
 						},
 						hide: false,
 					},

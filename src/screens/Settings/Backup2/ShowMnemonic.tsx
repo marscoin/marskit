@@ -32,7 +32,7 @@ const Word = ({
 
 const ShowMnemonic = ({ navigation }): ReactElement => {
 	const [show, setShow] = useState(false);
-	const [seed, setSeed] = useState([]);
+	const [seed, setSeed] = useState<string[]>([]);
 	const insets = useSafeAreaInsets();
 	const nextButtonContainer = useMemo(
 		() => ({
