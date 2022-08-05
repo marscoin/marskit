@@ -21,14 +21,6 @@ const Seeds = ({ navigation }): ReactElement => {
 			});
 		}
 
-		let seedStr = (await getKeychainValue({ key: 'lndMnemonic' })).data;
-		if (seedStr) {
-			seedTypes.push({
-				title: 'Lightning',
-				words: seedStr.split(' '),
-			});
-		}
-
 		//TODO: Slashtag seeds
 		let dummyWords: string[] = [];
 		for (let index = 1; index <= 12; index++) {

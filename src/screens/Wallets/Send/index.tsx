@@ -13,7 +13,7 @@ const onBackPress = (): void => {
 	toggleView({
 		view: 'sendAssetPicker',
 		data: { isOpen: true, snapPoint: 0 },
-	}).then();
+	});
 };
 
 interface ISendProps {

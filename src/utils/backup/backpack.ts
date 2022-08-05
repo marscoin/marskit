@@ -1,6 +1,6 @@
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
-import { ok, err, Result } from '../result';
 import { Slashtag } from '@synonymdev/slashtag';
+import { ok, err, Result } from '../result';
 import { name as appName, version as appVersion } from '../../../package.json';
 
 //TODO move to env when we have a production server

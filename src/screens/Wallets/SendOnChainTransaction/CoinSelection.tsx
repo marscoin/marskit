@@ -57,7 +57,7 @@ const closeList = (): void => {
 		data: {
 			isOpen: false,
 		},
-	}).then();
+	});
 };
 
 const CoinSelection = (): ReactElement => {

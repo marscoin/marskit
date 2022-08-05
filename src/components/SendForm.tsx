@@ -315,7 +315,7 @@ const SendForm = ({ index = 0 }): ReactElement => {
 							isOpen: true,
 							snapPoint: 0,
 						},
-					}).then();
+					});
 				}}
 				title={feeCardTitle}
 				description={feeCardDescription}
