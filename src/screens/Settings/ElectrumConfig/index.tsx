@@ -18,7 +18,7 @@ import { connectToElectrum } from '../../../utils/wallet/electrum';
 import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import { objectsMatch, shuffleArray } from '../../../utils/helpers';
-import { err, ok, Result } from '../../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import {
 	defaultElectrumPorts,
 	getDefaultPort,

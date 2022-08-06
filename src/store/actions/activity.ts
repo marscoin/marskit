@@ -1,5 +1,5 @@
 import actions from './actions';
-import { ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { IActivityItem } from '../types/activity';
 import { getDispatch, getStore } from '../helpers';
 import { onChainTransactionsToActivityItems } from '../../utils/activity';
@@ -9,7 +9,7 @@ const dispatch = getDispatch();
 
 /**
  * Updates activity list with all wallet stores
- * @returns {Promise<Ok<string> | Err<string>>}
+ * @returns {Promise<Result<string>>}
  */
 export const updateActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
@@ -21,7 +21,7 @@ export const updateActivityList = (): Promise<Result<string>> => {
 
 /**
  * Updates activity list store with just on chain wallet transactions store
- * @returns {Promise<Ok<string> | Err<string>>}
+ * @returns {Promise<Result<string>>}
  */
 export const updateOnChainActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {

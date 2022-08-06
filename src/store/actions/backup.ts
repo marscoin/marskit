@@ -1,12 +1,12 @@
 import actions from './actions';
-import { ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { getDispatch } from '../helpers';
 
 const dispatch = getDispatch();
 
 /**
  * Triggers a full remote backup
- * @return {Promise<Err<unknown> | Ok<string>>}
+ * @return {Promise<Result<string>>}
  */
 export const performFullBackup = async (): Promise<Result<string>> => {
 	//TODO

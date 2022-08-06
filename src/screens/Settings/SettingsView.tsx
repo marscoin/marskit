@@ -16,7 +16,7 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
  * @constructor
  */
 const SettingsView = ({
-	title,
+	title = ' ',
 	listData,
 	showBackNavigation = true,
 	showSearch = false,
@@ -24,7 +24,7 @@ const SettingsView = ({
 	children,
 	childrenPosition = 'top',
 }: {
-	title: string;
+	title?: string;
 	listData?: IListData[];
 	showBackNavigation: boolean;
 	showSearch?: boolean;
@@ -33,15 +33,16 @@ const SettingsView = ({
 	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
 	const [search, setSearch] = useState('');
-	const filteredListData = listData?.map((section) => {
-		const filteredSectionData = section.data.filter((item) => {
-			return item.title.toLowerCase().includes(search.toLowerCase());
-		});
+	const filteredListData =
+		listData?.map((section) => {
+			const filteredSectionData = section.data.filter((item) => {
+				return item.title.toLowerCase().includes(search.toLowerCase());
+			});
 
-		const filteredSection = filteredSectionData.length > 0 ? section : null
+			const filteredSection = filteredSectionData.length > 0 ? section : null;
 
-		return { ...filteredSection, data: filteredSectionData };
-	}) ?? [];
+			return { ...filteredSection, data: filteredSectionData };
+		}) ?? [];
 
 	return (
 		<View style={[fullHeight ? styles.fullHeight : null]} color="black">

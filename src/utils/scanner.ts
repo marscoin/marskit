@@ -3,7 +3,7 @@
  */
 
 import bip21 from 'bip21';
-import { err, ok, Result } from './result';
+import { err, ok, Result } from '@synonymdev/result';
 import {
 	availableNetworks,
 	EAvailableNetworks,
@@ -265,7 +265,7 @@ export const handleData = async ({
 					outputs: [{ address, value: amount }],
 				},
 			}).then();
-			refreshWallet().then();
+			refreshWallet({}).then();
 			break;
 		}
 		case EQRDataType.lightningPaymentRequest: {
