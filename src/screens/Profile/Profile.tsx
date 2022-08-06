@@ -11,7 +11,6 @@ import {
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet, useWindowDimensions, Share } from 'react-native';
-import Button from '../../components/Button';
 import { useSelector } from 'react-redux';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
@@ -119,13 +118,6 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 						<QRView url={url as string} profile={profile} />
 					)}
 				</View>
-
-				<Button
-					textStyle={styles.button}
-					size="large"
-					text={view === 'details' ? 'Show QR code' : 'Profile details'}
-					onPress={switchView}
-				/>
 			</View>
 		</View>
 	);
@@ -155,13 +147,13 @@ const QRView = ({
 	url: string;
 	profile?: BasicProfile;
 }): JSX.Element => {
-	const { width } = useWindowDimensions();
+	const { height } = useWindowDimensions();
 	return (
 		<View style={styles.qrViewContainer}>
 			<View style={styles.qrContainer}>
 				<QR
 					value={url}
-					size={(width * 2) / 3}
+					size={height / 3.25}
 					logo={{ uri: profile?.image || '' }}
 					logoBackgroundColor={profile?.image ? '#fff' : 'transparent'}
 					logoSize={70}
@@ -198,9 +190,6 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'column',
 	},
-	button: {
-		fontWeight: '800',
-	},
 	iconContainer: {
 		width: 48,
 		height: 48,
@@ -223,7 +212,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	qrContainer: {
-		borderRadius: 10,
+		borderRadius: 0,
+		marginTop: 20,
 		overflow: 'hidden',
 	},
 	qrViewNote: {
