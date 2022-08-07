@@ -57,6 +57,7 @@ import { defaultFeesShape } from '../../store/shapes/fees';
  */
 export const parseOnChainPaymentRequest = (
 	data = '',
+	selectedNetwork?: TAvailableNetworks,
 ): Result<{
 	address: string;
 	network: EAvailableNetworks;
@@ -68,7 +69,12 @@ export const parseOnChainPaymentRequest = (
 			return err(data);
 		}
 
-		let validateAddressResult = validateAddress({ address: data });
+		let validateAddressResult = validateAddress({
+			address: data,
+			selectedNetwork: selectedNetwork
+				? EAvailableNetworks[selectedNetwork]
+				: undefined,
+		});
 		if (
 			validateAddressResult.isValid &&
 			!data.includes(':' || '?' || '&' || '//')

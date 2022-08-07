@@ -3,6 +3,8 @@ import { View, Alert, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { launchImageLibrary } from 'react-native-image-picker';
+import RNQRGenerator from 'rn-qr-generator';
 
 import {
 	ClipboardTextIcon,
@@ -32,13 +34,13 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 	);
 
 	const onRead = async (data): Promise<void> => {
-		const res = await decodeQRData(data);
+		const res = await decodeQRData(data, selectedNetwork);
 
 		if (res.isErr() || (res.isOk() && res.value.length === 0)) {
 			showErrorNotification(
 				{
 					title: 'Error',
-					message: 'Failed to detect any readable data',
+					message: 'Failed to detect any adress data',
 				},
 				'bottom',
 			);
@@ -72,6 +74,57 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 						}),
 				})),
 			]);
+		}
+	};
+
+	const onPickFile = async () => {
+		try {
+			const result = await launchImageLibrary({
+				// Use 'mixed' so the user can search folders other than "Photos"
+				mediaType: 'mixed',
+				includeBase64: true,
+				quality: 0.1,
+			});
+
+			if (result.assets?.[0]) {
+				const { uri } = result.assets?.[0];
+
+				try {
+					// Read QR from image
+					const { values } = await RNQRGenerator.detect({ uri });
+
+					if (values.length === 0) {
+						showErrorNotification(
+							{
+								title: 'Error',
+								message: 'Could not detect QR code in image',
+							},
+							'bottom',
+						);
+						return false;
+					}
+
+					onRead(values[0]);
+				} catch (error) {
+					console.error('Failed to read QR from image: ', error);
+					showErrorNotification(
+						{
+							title: 'Error',
+							message: 'Failed to read QR from image',
+						},
+						'bottom',
+					);
+				}
+			}
+		} catch (error) {
+			console.error('Failed to open image file: ', error);
+			showErrorNotification(
+				{
+					title: 'Error',
+					message: 'Failed to open image file',
+				},
+				'bottom',
+			);
 		}
 	};
 
