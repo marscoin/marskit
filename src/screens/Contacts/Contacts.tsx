@@ -121,7 +121,7 @@ const ContactsScreen = ({ navigation }): JSX.Element => {
 								data: { isOpen: true },
 							});
 						}}>
-						<PlusIcon widht={24} height={24} color="brand" />
+						<PlusIcon width={24} height={24} color="brand" />
 					</TouchableOpacity>
 				</View>
 				<View style={styles.contacts}>
@@ -174,10 +174,10 @@ const ContactsScreen = ({ navigation }): JSX.Element => {
 										onPress={(): void => {
 											navigation.navigate('Scanner');
 										}}>
-										<CornersOutIcon widht={24} height={24} color="brand" />
+										<CornersOutIcon width={24} height={24} color="brand" />
 									</TouchableOpacity>
 									<TouchableOpacity onPress={pasteAddContact}>
-										<ClipboardTextIcon widht={24} height={24} color="brand" />
+										<ClipboardTextIcon width={24} height={24} color="brand" />
 									</TouchableOpacity>
 								</View>
 							}
