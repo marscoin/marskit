@@ -1,8 +1,16 @@
 import React, { ReactElement, useState } from 'react';
-import { View, Alert, StyleSheet, useWindowDimensions } from 'react-native';
+import {
+	View,
+	Alert,
+	StyleSheet,
+	Platform,
+	useWindowDimensions,
+	ViewProps,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { BlurView } from '@react-native-community/blur';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNQRGenerator from 'rn-qr-generator';
 
@@ -20,6 +28,8 @@ import SafeAreaView from '../../components/SafeAreaView';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
+
+const Blur = (props: ViewProps) => Platform.OS === 'ios' ? <BlurView {...props} /> : <View  {...props} />;
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const { white08, white5 } = useColors();
@@ -143,9 +153,9 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					/>
 
 					<View style={StyleSheet.absoluteFill}>
-						<View style={styles.mask} />
+						<Blur style={styles.mask} />
 						<View style={styles.maskCenter}>
-							<View style={styles.mask} />
+							<Blur style={styles.mask} />
 							<View
 								style={{
 									height: dimensions.height / 2.4,
@@ -169,9 +179,9 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 									</TouchableOpacity>
 								</View>
 							</View>
-							<View style={styles.mask} />
+							<Blur style={styles.mask} />
 						</View>
-						<View style={styles.mask}>
+						<Blur style={styles.mask}>
 							<Button
 								style={styles.pasteButton}
 								icon={<ClipboardTextIcon width={16} height={16} />}
@@ -182,7 +192,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 									onRead(url);
 								}}
 							/>
-						</View>
+						</Blur>
 					</View>
 				</>
 			</Camera>
