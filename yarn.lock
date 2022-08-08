@@ -1813,6 +1813,11 @@
     secp256k1 "^4.0.2"
     stream-browserify "^3.0.0"
 
+"@synonymdev/result@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@synonymdev/result/-/result-0.0.2.tgz#c526743e4f1d3ec1d24a1952281b5daa77ba3fbc"
+  integrity sha512-Ni5qknulcf350qfPVTw3DWXqT2i6K68BoFc18zlqIAj9YA2RUOIJsKTdemX31i3wSma5LRHVcGLESVga16iAag==
+
 "@synonymdev/slashauth@^1.0.0-alpha.0":
   version "1.0.0-alpha.0"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashauth/-/slashauth-1.0.0-alpha.0.tgz#a695a623b23923a2224e36221d4c837409de7c3d"

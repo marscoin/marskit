@@ -27,7 +27,7 @@ import {
 	IFormattedTransactionContent,
 	TAssetNetwork,
 } from '../../store/types/wallet';
-import { Err, err, Ok, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import {
 	IGetAddress,
 	IGenerateAddresses,
@@ -584,7 +584,7 @@ export const getBip39Passphrase = async (wallet = ''): Promise<string> => {
 
 export const getSeed = async (
 	selectedWallet: string,
-): Promise<Err<Error> | Ok<Buffer>> => {
+): Promise<Result<Buffer>> => {
 	const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
 	if (getMnemonicPhraseResponse.isErr()) {
 		return err(getMnemonicPhraseResponse.error.message);

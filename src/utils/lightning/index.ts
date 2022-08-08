@@ -1,4 +1,4 @@
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import lm, {
 	DefaultTransactionDataShape,
 	ENetworks,

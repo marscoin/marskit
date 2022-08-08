@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Text, View } from '../../styles/components';
+import { View } from '../../styles/components';
+import { Image } from 'react-native';
 import NavigationHeader from '../../components/NavigationHeader';
 import { StyleSheet } from 'react-native';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
@@ -8,6 +9,7 @@ import Button from '../../components/Button';
 import { saveContact } from '../../utils/slashtags';
 import { useContact, useSelectedSlashtag } from '../../hooks/slashtags';
 import { BasicProfile } from '../../store/types/slashtags';
+import Glow from '../../components/Glow';
 
 export const ContactEdit = ({ navigation, route }): JSX.Element => {
 	const url = route.params.url;
@@ -52,6 +54,7 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 			<View style={styles.content}>
 				<ProfileCard
 					url={url}
+					resolving={!remote.resolved}
 					profile={profile}
 					editable={true}
 					contact={true}
@@ -59,9 +62,17 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 						setForm((prev) => ({ ...prev, name: value }))
 					}
 				/>
-				<View style={styles.divider} />
+				{remote.resolved && <View style={styles.divider} />}
 				<View style={styles.middleRow}>
-					{!remote.resolved && <Text>Resolving contact's profile...</Text>}
+					{!remote.resolved && (
+						<View>
+							<Glow color="brand" size={600} style={styles.illustrationGlow} />
+							<Image
+								source={require('../../assets/illustrations/hourglass.png')}
+								style={styles.illustration}
+							/>
+						</View>
+					)}
 				</View>
 				<View style={styles.bottomRow}>
 					<Button
@@ -117,6 +128,16 @@ const styles = StyleSheet.create({
 	},
 	buttonRight: {
 		flex: 1,
+	},
+	illustration: {
+		alignSelf: 'center',
+		width: 332,
+		height: 332,
+	},
+	illustrationGlow: {
+		position: 'absolute',
+		left: -120,
+		top: -120,
 	},
 });
 

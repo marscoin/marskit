@@ -1,4 +1,4 @@
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import actions from './actions';
 import { getDispatch, getStore } from '../helpers';
 import { ITodo } from '../types/todos';

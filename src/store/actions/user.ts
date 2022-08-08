@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { IViewControllerData, TViewController } from '../types/user';
 import { defaultViewController } from '../shapes/user';
 import { getAssetNetwork } from '../../utils/wallet';

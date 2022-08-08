@@ -1,5 +1,5 @@
 import actions from './actions';
-import { ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { getDispatch } from '../helpers';
 
 const dispatch = getDispatch();

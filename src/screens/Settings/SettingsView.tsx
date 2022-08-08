@@ -16,7 +16,7 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
  * @constructor
  */
 const SettingsView = ({
-	title,
+	title = ' ',
 	listData,
 	showBackNavigation = true,
 	showSearch = false,
@@ -24,7 +24,7 @@ const SettingsView = ({
 	children,
 	childrenPosition = 'top',
 }: {
-	title: string;
+	title?: string;
 	listData?: IListData[];
 	showBackNavigation: boolean;
 	showSearch?: boolean;

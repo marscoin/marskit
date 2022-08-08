@@ -8,7 +8,11 @@ type SearchInputProps = {
 	[x: string]: any;
 };
 
-const SearchInput = ({ style, children, ...props }: SearchInputProps) => {
+const SearchInput = ({
+	style,
+	children,
+	...props
+}: SearchInputProps): ReactElement => {
 	return (
 		<View style={[styles.root, style]}>
 			<MagnifyingGlassIcon style={styles.icon} />
