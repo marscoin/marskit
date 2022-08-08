@@ -1,9 +1,11 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { RNCamera } from 'react-native-camera';
 import { systemWeights } from 'react-native-typography';
+
 import { EvilIcon, Text, View } from '../styles/components';
+import { showErrorNotification } from '../utils/notifications';
 
 const Camera = ({
 	onBarCodeRead = (): null => null,
@@ -31,6 +33,20 @@ const Camera = ({
 		</View>
 	);
 
+	const onMountError = () => {
+		console.error(
+			'An error was encountered when loading the camera. Please ensure BitKit has permission to use this feature in your phone settings.',
+		);
+		showErrorNotification(
+			{
+				title: 'Error',
+				message: 'Error loading camera, please check permissions.',
+			},
+			'bottom',
+		);
+		onClose();
+	};
+
 	return (
 		<View style={styles.container}>
 			{isFocused && (
@@ -43,12 +59,7 @@ const Camera = ({
 							onBarCodeRead(data);
 						}
 					}}
-					onMountError={(): void => {
-						console.log(
-							'An error was encountered when loading the camera. Please ensure BitKit has permission to use this feature in your phone settings.',
-						);
-						onClose();
-					}}
+					onMountError={onMountError}
 					notAuthorizedView={notAuthorizedView}
 					type={RNCamera.Constants.Type.back}
 					flashMode={
