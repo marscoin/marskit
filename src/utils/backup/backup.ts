@@ -1,4 +1,4 @@
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import RNFS from 'react-native-fs';
 import { zipWithPassword } from 'react-native-zip-archive';
 
@@ -6,7 +6,7 @@ const backupFilePrefix = 'backpack_wallet_';
 
 /**
  * Creates a full backup and saves to local file
- * @return {Promise<Err<unknown> | Ok<string>>}
+ * @return {Promise<Result<string>>}
  */
 export const createBackupFile = async (
 	encryptionPassword?: string,
@@ -41,7 +41,7 @@ export const createBackupFile = async (
 
 /**
  * Removes all local backup files
- * @return {Promise<Err<unknown> | Ok<string>>}
+ * @return {Promise<Result<string>>}
  */
 export const cleanupBackupFiles = async (): Promise<Result<string>> => {
 	const list = await RNFS.readDir(RNFS.DocumentDirectoryPath);

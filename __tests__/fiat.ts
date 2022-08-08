@@ -22,7 +22,7 @@ describe('Pulls latest fiat exchange rates and checks the wallet store for valid
 		//We have some available tickers
 		expect(tickers.length).toBeGreaterThan(0);
 
-		//All tickers have the correct format 
+		//All tickers have the correct format
 		tickers.forEach((ticker) => {
 			expect(typeof exchangeRates[ticker].currencySymbol).toBe('string');
 			expect(typeof exchangeRates[ticker].quoteName).toBe('string');

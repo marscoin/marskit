@@ -3,7 +3,7 @@ import * as peers from 'rn-electrum-client/helpers/peers.json';
 import * as tls from '../electrum/tls';
 
 import { TAvailableNetworks } from '../networks';
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import { IAddressContent, IUtxo, IWalletItem } from '../../store/types/wallet';
 import {
 	getAddressTypes,

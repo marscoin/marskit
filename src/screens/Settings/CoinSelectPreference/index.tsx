@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 import { FlatList } from 'react-native';
-import { Result } from '../../../utils/result';
+import { Result } from '@synonymdev/result';
 
 const CoinSelectSettings = (): ReactElement => {
 	const selectedAutoPilot = useSelector(

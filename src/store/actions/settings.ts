@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import { resetKeychainValue } from '../../utils/helpers';
 import { wipeLdkStorage } from '../../utils/lightning';
