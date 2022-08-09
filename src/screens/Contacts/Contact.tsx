@@ -38,13 +38,19 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 				}}
 			/>
 			<View style={styles.content}>
-				<ProfileCard url={url} profile={contact.profile} editable={false} />
+				<ProfileCard
+					url={url}
+					profile={contact.profile}
+					editable={false}
+					resolving={false}
+				/>
 				<View style={styles.divider} />
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
 						<IconButton
 							onPress={(): void => {
 								// TODO: do something with payment address
+								// eslint-disable-next-line no-alert
 								alert(JSON.stringify(contact?.payConfig || {}, null, 2));
 							}}>
 							<CoinsIcon height={24} width={24} color="brand" />
