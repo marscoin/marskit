@@ -58,7 +58,7 @@ const Wallets = ({ navigation }): ReactElement => {
 					contentContainerStyle={!empty && styles.scrollview}
 					disableScrollViewPanResponder={true}
 					showsVerticalScrollIndicator={false}
-          refreshControl={
+					refreshControl={
 						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 					}>
 					<DetectSwipe
