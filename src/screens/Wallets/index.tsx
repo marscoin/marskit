@@ -1,8 +1,13 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { View, Subtitle, BitcoinCircleIcon } from '../../styles/components';
+import {
+	View,
+	Subtitle,
+	BitcoinCircleIcon,
+	RefreshControl,
+} from '../../styles/components';
 import Header from './Header';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
@@ -14,8 +19,10 @@ import EmptyWallet from '../../screens/Activity/EmptyWallet';
 import { useBalance, useNoTransactions } from '../../hooks/wallet';
 import { updateSettings } from '../../store/actions/settings';
 import Store from '../../store/types';
+import { refreshWallet } from '../../utils/wallet';
 
 const Wallets = ({ navigation }): ReactElement => {
+	const [refreshing, setRefreshing] = useState(false);
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
 	const empty = useNoTransactions();
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
@@ -34,6 +41,13 @@ const Wallets = ({ navigation }): ReactElement => {
 
 	LayoutAnimation.easeInEaseOut();
 
+	const onRefresh = async (): Promise<void> => {
+		setRefreshing(true);
+		//Refresh wallet and then update activity list
+		await Promise.all([refreshWallet({})]);
+		setRefreshing(false);
+	};
+
 	return (
 		<SafeAreaView>
 			<Header />
@@ -43,7 +57,10 @@ const Wallets = ({ navigation }): ReactElement => {
 				<ScrollView
 					contentContainerStyle={!empty && styles.scrollview}
 					disableScrollViewPanResponder={true}
-					showsVerticalScrollIndicator={false}>
+					showsVerticalScrollIndicator={false}
+					refreshControl={
+						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+					}>
 					<DetectSwipe
 						onSwipeLeft={toggleHideBalance}
 						onSwipeRight={toggleHideBalance}>
