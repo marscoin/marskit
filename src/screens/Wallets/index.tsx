@@ -20,13 +20,16 @@ const Wallets = ({ navigation }): ReactElement => {
 	const empty = useNoTransactions();
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
-	const onSwipeLeft = (): void => {
-		//Swiping left, navigate to the scanner/camera.
+	const toggleHideBalance = (): void => {
+		updateSettings({ hideBalance: !hideBalance });
+	};
+
+	const navigateToScanner = (): void => {
 		navigation.navigate('Scanner');
 	};
 
-	const onSwipeRight = (): void => {
-		updateSettings({ hideBalance: !hideBalance });
+	const navigateToProfile = (): void => {
+		navigation.navigate('Profile');
 	};
 
 	LayoutAnimation.easeInEaseOut();
@@ -34,21 +37,26 @@ const Wallets = ({ navigation }): ReactElement => {
 	return (
 		<SafeAreaView>
 			<Header />
-			<ScrollView
-				contentContainerStyle={!empty && styles.scrollview}
-				disableScrollViewPanResponder={true}
-				showsVerticalScrollIndicator={false}>
-				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
-					<View>
-						<BalanceHeader />
-					</View>
-				</DetectSwipe>
-				{empty ? (
-					<EmptyWallet />
-				) : (
-					<>
-						<TodoCarousel />
-						<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
+			<DetectSwipe
+				onSwipeLeft={navigateToScanner}
+				onSwipeRight={navigateToProfile}>
+				<ScrollView
+					contentContainerStyle={!empty && styles.scrollview}
+					disableScrollViewPanResponder={true}
+					showsVerticalScrollIndicator={false}>
+					<DetectSwipe
+						onSwipeLeft={toggleHideBalance}
+						onSwipeRight={toggleHideBalance}>
+						<View>
+							<BalanceHeader />
+						</View>
+					</DetectSwipe>
+
+					{empty ? (
+						<EmptyWallet />
+					) : (
+						<>
+							<TodoCarousel />
 							<View style={styles.content}>
 								<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
 								<AssetCard
@@ -56,20 +64,20 @@ const Wallets = ({ navigation }): ReactElement => {
 									ticker={'BTC'}
 									satoshis={satoshis}
 									icon={<BitcoinCircleIcon />}
-									onPress={(): void =>
+									onPress={(): void => {
 										navigation.navigate('WalletsDetail', {
 											assetType: 'bitcoin',
-										})
-									}
+										});
+									}}
 								/>
 							</View>
-						</DetectSwipe>
-						<View style={styles.content}>
-							<ActivityListShort />
-						</View>
-					</>
-				)}
-			</ScrollView>
+							<View style={styles.content}>
+								<ActivityListShort />
+							</View>
+						</>
+					)}
+				</ScrollView>
+			</DetectSwipe>
 		</SafeAreaView>
 	);
 };
