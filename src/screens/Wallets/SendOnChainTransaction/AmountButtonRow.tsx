@@ -66,7 +66,7 @@ const AmountButtonRow = (): ReactElement => {
 				style={styles.topRowButtons}
 				color={'onSurface'}
 				onPress={(): void => {
-					toggleView({ view: 'numberPad', data: { isOpen: false } }).then();
+					toggleView({ view: 'numberPad', data: { isOpen: false } });
 				}}>
 				<Text02B size="12px" color="brand">
 					DONE

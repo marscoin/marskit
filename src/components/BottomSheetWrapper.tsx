@@ -114,7 +114,7 @@ const BottomSheetWrapper = forwardRef(
 				toggleView({
 					view,
 					data: { isOpen: false, id: data?.id },
-				}).then();
+				});
 			}
 			onClose();
 		}, [view, onClose, data?.id]);

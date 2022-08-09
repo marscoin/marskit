@@ -167,7 +167,7 @@ const FeePicker = ({
 				data: {
 					isOpen: false,
 				},
-			}).then();
+			});
 		}
 		onPress(feeId, fee);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,7 +181,7 @@ const FeePicker = ({
 				data: {
 					isOpen: false,
 				},
-			}).then();
+			});
 		}
 		onCardPress(EFeeIds.custom, satsPerByte).then();
 		// eslint-disable-next-line react-hooks/exhaustive-deps

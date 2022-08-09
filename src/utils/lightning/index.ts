@@ -202,6 +202,30 @@ const _getDefaultAccount = (name, mnemonic): TAccount => {
 };
 
 /**
+ * Exports complete backup string for current LDK account.
+ * @param account
+ * @returns {Promise<Err<unknown> | Ok<string> | Err<string>>}
+ */
+export const exportBackup = async (
+	account?: TAccount,
+): Promise<Result<string>> => {
+	if (!account) {
+		const res = await getAccount({});
+		if (res.isErr()) {
+			return err(res.error);
+		}
+
+		account = res.value;
+	}
+	return await lm.backupAccount({
+		account,
+		setItem: mmkvStorage.setItem,
+		getItem: mmkvStorage.getItem,
+		includeNetworkGraph: false,
+	});
+};
+
+/**
  * Returns last known header information from storage.
  * @returns {Promise<THeader>}
  */

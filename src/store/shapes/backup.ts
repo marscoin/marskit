@@ -1,6 +1,12 @@
 import { IBackup } from '../types/backup';
 
 export const defaultBackupShape: IBackup = {
-	username: '',
-	backpackSynced: false,
+	remoteBackupsEnabled: false,
+	remoteLdkBackupSynced: false,
+
+	iCloudBackupsEnabled: false,
+	iCloudLdkBackupsSynced: false,
+
+	gDriveBackupsEnabled: false,
+	gDriveLdkBackupsSynced: false,
 };

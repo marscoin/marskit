@@ -247,7 +247,7 @@ export const handleData = async ({
 			break;
 		}
 		case EQRDataType.bitcoinAddress: {
-			await toggleView({
+			toggleView({
 				view: 'sendNavigation',
 				data: {
 					isOpen: true,

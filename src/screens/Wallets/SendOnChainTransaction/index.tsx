@@ -53,7 +53,7 @@ const onCoinSelectionPress = (): void => {
 			isOpen: true,
 			snapPoint: 1,
 		},
-	}).then();
+	});
 };
 
 const SendOnChainTransaction = ({
@@ -225,7 +225,7 @@ const SendOnChainTransaction = ({
 		const currentView = getStore().user?.viewController?.sendAssetPicker?.isOpen
 			? 'sendAssetPicker'
 			: 'send';
-		toggleView({ view: currentView, data: { isOpen: false } }).then();
+		toggleView({ view: currentView, data: { isOpen: false } });
 		//Successful broadcast, reset rawTx.
 		setRawTx(undefined);
 		onComplete(response?.value);
