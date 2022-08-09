@@ -8,10 +8,11 @@ import {
 	Text,
 	UsersIcon,
 	View,
+	AnimatedView,
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { StyleSheet, useWindowDimensions, Share } from 'react-native';
-import Button from '../../components/Button';
 import { useSelector } from 'react-redux';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
@@ -25,6 +26,7 @@ import { BasicProfile } from '../../store/types/slashtags';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ProfileLinks from '../../components/ProfileLinks';
+import Tooltip from '../../components/Tooltip';
 import ProfileEdit from './ProfileEdit';
 import Store from '../../store/types';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
@@ -51,6 +53,7 @@ export const Profile = ({ navigation }): JSX.Element => {
 };
 
 const ProfileScreen = ({ navigation }): JSX.Element => {
+	const [showCopy, setShowCopy] = useState(false);
 	const { url, profile } = useSelectedSlashtag();
 
 	const [view, setView] = useState('qr');
@@ -58,6 +61,12 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 	function switchView(): void {
 		view === 'details' ? setView('qr') : setView('details');
 	}
+
+	const handleCopyButton = (): void => {
+		setShowCopy(() => true);
+		setTimeout(() => setShowCopy(() => false), 1200);
+		Clipboard.setString(url);
+	};
 
 	return (
 		<View style={styles.container}>
@@ -70,7 +79,7 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 				}}
 			/>
 			<View style={styles.content}>
-				<ProfileCard url={url} profile={profile} />
+				<ProfileCard url={url} profile={profile} resolving={false} />
 				<View style={styles.divider} />
 				<View style={styles.bottom}>
 					<View style={styles.bottomHeader}>
@@ -83,7 +92,7 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 						</IconButton>
 						<IconButton
 							onPress={(): void => {
-								url && Clipboard.setString(url);
+								url && handleCopyButton();
 							}}>
 							<CopyIcon height={24} width={24} color="brand" />
 						</IconButton>
@@ -118,14 +127,16 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 					) : (
 						<QRView url={url as string} profile={profile} />
 					)}
+					{showCopy && (
+						<AnimatedView
+							entering={FadeIn.duration(500)}
+							exiting={FadeOut.duration(500)}
+							color="transparent"
+							style={styles.tooltip}>
+							<Tooltip text="Slashtags key copied to clipboard" />
+						</AnimatedView>
+					)}
 				</View>
-
-				<Button
-					textStyle={styles.button}
-					size="large"
-					text={view === 'details' ? 'Show QR code' : 'Profile details'}
-					onPress={switchView}
-				/>
 			</View>
 		</View>
 	);
@@ -155,13 +166,13 @@ const QRView = ({
 	url: string;
 	profile?: BasicProfile;
 }): JSX.Element => {
-	const { width } = useWindowDimensions();
+	const { height } = useWindowDimensions();
 	return (
 		<View style={styles.qrViewContainer}>
 			<View style={styles.qrContainer}>
 				<QR
 					value={url}
-					size={(width * 2) / 3}
+					size={height / 3.25}
 					logo={{ uri: profile?.image || '' }}
 					logoBackgroundColor={profile?.image ? '#fff' : 'transparent'}
 					logoSize={70}
@@ -198,9 +209,6 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'column',
 	},
-	button: {
-		fontWeight: '800',
-	},
 	iconContainer: {
 		width: 48,
 		height: 48,
@@ -223,7 +231,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	qrContainer: {
-		borderRadius: 10,
+		borderRadius: 0,
+		marginTop: 20,
 		overflow: 'hidden',
 	},
 	qrViewNote: {
@@ -233,6 +242,11 @@ const styles = StyleSheet.create({
 	},
 	profileDetails: {
 		marginTop: 32,
+	},
+	tooltip: {
+		position: 'absolute',
+		alignSelf: 'center',
+		bottom: -20,
 	},
 });
 

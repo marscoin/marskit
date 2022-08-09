@@ -86,7 +86,7 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 					<View style={styles.topRow} />
 					<ProfileLinks links={profile?.links} setLink={setLink} />
 					<Button
-						text="Add link"
+						text="Add link or text"
 						style={styles.addLinkButton}
 						onPress={(): void => {
 							toggleView({
@@ -172,10 +172,8 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: 'space-between',
 		margin: 20,
 		marginTop: 0,
-		backgroundColor: 'transparent',
 	},
 	topRow: {
 		display: 'flex',
@@ -192,11 +190,10 @@ const styles = StyleSheet.create({
 	},
 	addLinkButton: {
 		height: 40,
-		maxWidth: 110,
+		maxWidth: 140,
 	},
 	editDataModal: {
 		flex: 1,
-		backgroundColor: 'transparent',
 	},
 	addLinkTitle: {
 		textAlign: 'center',
@@ -205,7 +202,6 @@ const styles = StyleSheet.create({
 	editLinkContent: {
 		display: 'flex',
 		padding: 16,
-		backgroundColor: 'transparent',
 	},
 	addLinkSave: {
 		marginTop: 8,
@@ -216,7 +212,6 @@ const styles = StyleSheet.create({
 	divider: {
 		height: 2,
 		backgroundColor: 'rgba(255, 255, 255, 0.1)',
-
 		marginTop: 16,
 		marginBottom: 16,
 	},
