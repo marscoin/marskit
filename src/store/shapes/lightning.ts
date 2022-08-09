@@ -1,10 +1,22 @@
-import { ILightning } from '../types/lightning';
+import { IDefaultLightningShape, ILightning } from '../types/lightning';
+import { arrayTypeItems, objectTypeItems, stringTypeItems } from './wallet';
+import { EWallet } from '../types/wallet';
 
-export const defaultLightningShape: ILightning = {
-	state: '',
-	nodeId: '',
-	info: {},
-	channels: [],
-	invoices: [],
-	payments: [],
+export const defaultLightningShape: IDefaultLightningShape = {
+	nodeId: stringTypeItems,
+	info: objectTypeItems,
+	channels: objectTypeItems,
+	openChannelIds: arrayTypeItems,
+	invoices: arrayTypeItems,
+	payments: arrayTypeItems,
+};
+
+export const defaultLightningStoreShape: ILightning = {
+	version: {
+		ldk: '',
+		c_bindings: '',
+	},
+	nodes: {
+		[EWallet.defaultWallet]: { ...defaultLightningShape },
+	},
 };
