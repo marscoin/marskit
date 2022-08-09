@@ -90,6 +90,31 @@ export const startWalletServices = async ({
 			//Create wallet if none exists.
 			let { wallets, selectedNetwork } = getStore().wallet;
 
+			// Before we do anything we should connect to an Electrum server.
+			if (onchain || lightning) {
+				let customPeers: ICustomElectrumPeer[] | undefined;
+				/*customPeers = [
+					{
+						host: '192.168.50.35',
+						ssl: 50001,
+						tcp: 50001,
+						protocol: 'tcp',
+					},
+				];*/
+				const electrumResponse = await connectToElectrum({
+					selectedNetwork,
+					customPeers,
+				});
+				if (electrumResponse.isErr()) {
+					showErrorNotification({
+						title: 'Unable to connect to Electrum Server.',
+						message:
+							electrumResponse?.error?.message ??
+							'Unable to connect to Electrum Server',
+					});
+				}
+			}
+
 			const walletExists = await checkWalletExists();
 			const walletKeys = Object.keys(wallets);
 			if (
@@ -106,51 +131,31 @@ export const startWalletServices = async ({
 
 			// We need to start Electrum if either onchain or lightning is true.
 			if (onchain || lightning) {
-				// Connect to Electrum
-				let customPeers: ICustomElectrumPeer[] | undefined;
-				/*customPeers = [
-					{
-						host: '192.168.50.35',
-						ssl: 50001,
-						tcp: 50001,
-						protocol: 'tcp',
-					},
-				];*/
-				const electrumResponse = await connectToElectrum({
-					selectedNetwork,
-					customPeers,
-				});
-				if (electrumResponse.isOk()) {
-					let onReceive = (): void => {};
-					// TODO: Remove regtest condition once LDK is enabled for mainnet and testnet.
-					if (lightning && selectedNetwork === 'bitcoinRegtest') {
-						// Start LDK
-						const setupResponse = await setupLdk({ selectedNetwork });
-						if (setupResponse.isOk()) {
-							// Ensure LDK syncs when a new block is detected.
-							onReceive = lm.syncLdk;
-						} else {
-							showErrorNotification({
-								title: 'Unable to start LDK.',
-								message: setupResponse.error.message,
-							});
-						}
-					}
-					// Ensure we are subscribed to and save new header information.
-					subscribeToHeader({ selectedNetwork, onReceive }).then();
-				} else {
-					showErrorNotification({
-						title: 'Unable to connect to Electrum Server.',
-						message:
-							electrumResponse?.error?.message ??
-							'Unable to connect to Electrum Server',
-					});
+				let onReceive = (): void => {};
+				// Ensure LDK syncs when a new block is detected.
+				if (lightning) {
+					onReceive = lm.syncLdk;
 				}
-			}
 
-			if (onchain) {
-				updateOnchainFeeEstimates({ selectedNetwork }).then();
-				refreshWallet({}).then();
+				await Promise.all([
+					// Ensure we are subscribed to and save new header information.
+					subscribeToHeader({ selectedNetwork, onReceive }),
+					updateOnchainFeeEstimates({ selectedNetwork }),
+					refreshWallet({ lightning: false }),
+				]);
+
+				// Setup LDK.
+				// TODO: Remove regtest condition once LDK is enabled for mainnet and testnet.
+				if (lightning && selectedNetwork === 'bitcoinRegtest') {
+					// Start LDK
+					const setupResponse = await setupLdk({ selectedNetwork });
+					if (setupResponse.isErr()) {
+						showErrorNotification({
+							title: 'Unable to start LDK.',
+							message: setupResponse.error.message,
+						});
+					}
+				}
 			}
 
 			setupTodos();
