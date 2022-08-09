@@ -97,7 +97,12 @@ const General = ({ navigation }): ReactElement => {
 			},
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[showSuggestions, selectedBitcoinUnit, selectedTransactionSpeed],
+		[
+			showSuggestions,
+			selectedCurrency,
+			selectedBitcoinUnit,
+			selectedTransactionSpeed,
+		],
 	);
 
 	return (

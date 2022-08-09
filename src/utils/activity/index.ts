@@ -7,6 +7,7 @@ import {
 	IFormattedTransaction,
 	IFormattedTransactionContent,
 } from '../../store/types/wallet';
+import type { TTransactionType } from '../../store/types/wallet';
 
 /**
  * Converts list of formatted transactions to array of activity items
@@ -94,10 +95,12 @@ export const filterActivityItems = (
 		search = '',
 		types = [],
 		tags = [],
+		txType = undefined,
 	}: {
 		search?: string;
 		types?: EActivityTypes[];
 		tags?: Array<string>;
+		txType?: TTransactionType;
 	},
 ): IActivityItem[] => {
 	return items.filter((item) => {
@@ -108,6 +111,11 @@ export const filterActivityItems = (
 
 		// type doesn't match
 		if (types.length > 0 && !types.includes(item.activityType)) {
+			return false;
+		}
+
+		// txType doesn't match
+		if (txType !== undefined && item.txType !== txType) {
 			return false;
 		}
 

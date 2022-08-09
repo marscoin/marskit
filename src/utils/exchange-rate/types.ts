@@ -1,38 +1,12 @@
-export enum EExchangeRateService {
-	bitfinex = 'bitfinex',
-	cryptoCompare = 'cryptoCompare',
-}
-
-export const exchangeRateServices = {
-	[EExchangeRateService.bitfinex]: 'Bitfinex',
-	[EExchangeRateService.cryptoCompare]: 'Crypto Compare',
-};
-
-export const supportedExchangeTickers = {
-	[EExchangeRateService.bitfinex]: ['USD', 'EUR', 'JPY', 'GBP'],
-	[EExchangeRateService.cryptoCompare]: [
-		'USD',
-		'EUR',
-		'JPY',
-		'GBP',
-		'ZAR',
-		'CAD',
-		'CNY',
-	],
-};
-
-export const mostUsedExchangeTickers = {
-	[EExchangeRateService.bitfinex]: ['USD', 'EUR', 'GBP'],
-	[EExchangeRateService.cryptoCompare]: ['USD', 'EUR', 'GBP'],
-};
+export const mostUsedExchangeTickers = ['USD', 'GBP', 'CAD', 'CNY', 'EUR'];
 
 export interface IExchangeRates {
-	[key: string]: number;
+	[key: string]: {
+		currencySymbol: string;
+		quoteName: string;
+		rate: number;
+	};
 }
-
-export type IExchangeTickers = {
-	[key in EExchangeRateService]: string[];
-};
 
 export interface IDisplayValues {
 	fiatFormatted: string;

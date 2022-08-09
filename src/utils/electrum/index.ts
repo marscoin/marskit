@@ -2,7 +2,7 @@ import { TAvailableNetworks } from '../networks';
 import { getSelectedNetwork } from '../wallet';
 import * as electrum from 'rn-electrum-client/helpers';
 const hardcodedPeers = require('rn-electrum-client/helpers/peers.json');
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 
 export const defaultElectrumPorts = ['51002', '50002', '51001', '50001'];
 

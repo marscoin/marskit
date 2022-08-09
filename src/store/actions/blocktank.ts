@@ -1,5 +1,5 @@
 import actions from './actions';
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import { getDispatch } from '../helpers';
 import bt, {
 	IBuyChannelRequest,

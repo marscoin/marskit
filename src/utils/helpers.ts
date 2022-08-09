@@ -11,7 +11,7 @@ import { TAvailableNetworks } from './networks';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Linking, Vibration } from 'react-native';
 import { default as bitcoinUnits } from 'bitcoin-units';
-import { err, ok, Result } from './result';
+import { err, ok, Result } from '@synonymdev/result';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const promiseTimeout = (

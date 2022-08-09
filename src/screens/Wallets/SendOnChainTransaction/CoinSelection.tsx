@@ -57,7 +57,7 @@ const closeList = (): void => {
 		data: {
 			isOpen: false,
 		},
-	}).then();
+	});
 };
 
 const CoinSelection = (): ReactElement => {
@@ -122,7 +122,7 @@ const CoinSelection = (): ReactElement => {
 	const exchangeRates = useSelector(
 		(state: Store) => state.wallet.exchangeRates,
 	);
-	const exchangeRate = exchangeRates[selectedCurrency];
+	const exchangeRate = exchangeRates[selectedCurrency].rate;
 
 	const getBtcValueText = (displayValue: IDisplayValues): string =>
 		`${

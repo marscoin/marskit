@@ -26,7 +26,7 @@ import {
 } from '../../utils/wallet';
 import { getDispatch, getStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import {
 	getOnchainTransactionData,
 	getTotalFee,

@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { err, ok, Result } from '../../utils/result';
+import { err, ok, Result } from '@synonymdev/result';
 import { LNURLChannelParams } from 'js-lnurl';
 import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
 
@@ -17,7 +17,7 @@ export const updateLightning = (payload): Result<string> => {
 /**
  * Claims a lightning channel from a lnurl-channel string
  * @param lnurl
- * @returns {Promise<Ok<boolean> | Err<boolean>>}
+ * @returns {Promise<Result<boolean>>}
  */
 export const claimChannelFromLnurlString = (
 	lnurl: string,
@@ -40,7 +40,7 @@ export const claimChannelFromLnurlString = (
 /**
  * Claims a lightning channel from a decoded lnurl-channel request
  * @param params
- * @returns {Promise<Ok<boolean> | Err<boolean>>}
+ * @returns {Promise<Result<boolean>>}
  */
 export const claimChannel = (
 	params: LNURLChannelParams,

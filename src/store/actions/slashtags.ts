@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { Ok, ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { ISlashtags } from '../types/slashtags';
 
 const dispatch = getDispatch();
@@ -34,7 +34,7 @@ export const setOnboardedContacts = (
 /**
  * Resets slasthags store to the default state.
  */
-export const resetSlashtagsStore = (): Ok<string> => {
+export const resetSlashtagsStore = (): Result<string> => {
 	dispatch({ type: actions.RESET_SLASHTAGS_STORE });
 	return ok('Reset slashtags store successfully');
 };

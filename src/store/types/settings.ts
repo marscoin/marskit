@@ -1,5 +1,4 @@
 import { IWalletItem, TBitcoinUnit, TBalanceUnit } from './wallet';
-import { EExchangeRateService } from '../../utils/exchange-rate/types';
 
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
@@ -33,14 +32,12 @@ export interface ISettings {
 	balanceUnit: TBalanceUnit;
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
-	exchangeRateService: EExchangeRateService;
 	selectedLanguage: string;
 	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
-	swipeBalanceToHide: boolean;
 	[key: string]: any;
 }
 

@@ -24,22 +24,19 @@ import { refreshWallet } from '../../utils/wallet';
 const Wallets = ({ navigation }): ReactElement => {
 	const [refreshing, setRefreshing] = useState(false);
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
-	const swipeBalanceToHide = useSelector(
-		(state: Store) => state.settings.swipeBalanceToHide,
-	);
-
 	const empty = useNoTransactions();
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
 
-	const onSwipeLeft = (): void => {
-		//Swiping left, navigate to the scanner/camera.
+	const toggleHideBalance = (): void => {
+		updateSettings({ hideBalance: !hideBalance });
+	};
+
+	const navigateToScanner = (): void => {
 		navigation.navigate('Scanner');
 	};
 
-	const onSwipeRight = (): void => {
-		if (swipeBalanceToHide) {
-			updateSettings({ hideBalance: !hideBalance });
-		}
+	const navigateToProfile = (): void => {
+		navigation.navigate('Profile');
 	};
 
 	LayoutAnimation.easeInEaseOut();
@@ -54,24 +51,29 @@ const Wallets = ({ navigation }): ReactElement => {
 	return (
 		<SafeAreaView>
 			<Header />
-			<ScrollView
-				contentContainerStyle={!empty && styles.scrollview}
-				disableScrollViewPanResponder={true}
-				showsVerticalScrollIndicator={false}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}>
-				<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
-					<View>
-						<BalanceHeader />
-					</View>
-				</DetectSwipe>
-				{empty ? (
-					<EmptyWallet />
-				) : (
-					<>
-						<TodoCarousel />
-						<DetectSwipe onSwipeLeft={onSwipeLeft} onSwipeRight={onSwipeRight}>
+			<DetectSwipe
+				onSwipeLeft={navigateToScanner}
+				onSwipeRight={navigateToProfile}>
+				<ScrollView
+					contentContainerStyle={!empty && styles.scrollview}
+					disableScrollViewPanResponder={true}
+					showsVerticalScrollIndicator={false}
+          refreshControl={
+						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+					}>
+					<DetectSwipe
+						onSwipeLeft={toggleHideBalance}
+						onSwipeRight={toggleHideBalance}>
+						<View>
+							<BalanceHeader />
+						</View>
+					</DetectSwipe>
+
+					{empty ? (
+						<EmptyWallet />
+					) : (
+						<>
+							<TodoCarousel />
 							<View style={styles.content}>
 								<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
 								<AssetCard
@@ -79,20 +81,20 @@ const Wallets = ({ navigation }): ReactElement => {
 									ticker={'BTC'}
 									satoshis={satoshis}
 									icon={<BitcoinCircleIcon />}
-									onPress={(): void =>
+									onPress={(): void => {
 										navigation.navigate('WalletsDetail', {
 											assetType: 'bitcoin',
-										})
-									}
+										});
+									}}
 								/>
 							</View>
-						</DetectSwipe>
-						<View style={styles.content}>
-							<ActivityListShort />
-						</View>
-					</>
-				)}
-			</ScrollView>
+							<View style={styles.content}>
+								<ActivityListShort />
+							</View>
+						</>
+					)}
+				</ScrollView>
+			</DetectSwipe>
 		</SafeAreaView>
 	);
 };
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	scrollview: {
-		paddingBottom: 400,
+		paddingBottom: 130,
 	},
 	assetsTitle: {
 		marginBottom: 8,

@@ -1,24 +1,24 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { ok, Result } from '../../utils/result';
+import { ok, Result } from '@synonymdev/result';
 import { IViewControllerData, TViewController } from '../types/user';
 import { defaultViewController } from '../shapes/user';
 import { getAssetNetwork } from '../../utils/wallet';
 
 const dispatch = getDispatch();
 
-export const updateUser = async (payload): Promise<Result<string>> => {
-	await dispatch({
+export const updateUser = (payload): Result<string> => {
+	dispatch({
 		type: actions.UPDATE_USER,
 		payload,
 	});
 	return ok('');
 };
 
-export const toggleView = async (payload: {
+export const toggleView = (payload: {
 	view: TViewController;
 	data: IViewControllerData;
-}): Promise<Result<string>> => {
+}): Result<string> => {
 	// Reset viewController state for the provided view.
 	if (!payload.data?.isOpen) {
 		payload.data = { ...defaultViewController };
@@ -31,7 +31,8 @@ export const toggleView = async (payload: {
 	if (payload.data?.assetName) {
 		payload.data.assetNetwork = getAssetNetwork(payload.data?.assetName);
 	}
-	await dispatch({
+
+	dispatch({
 		type: actions.TOGGLE_VIEW,
 		payload,
 	});

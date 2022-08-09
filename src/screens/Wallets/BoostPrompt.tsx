@@ -183,7 +183,6 @@ const BoostPrompt = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={true}
 			onClose={handleClose}
 			view="boostPrompt">

@@ -1,9 +1,12 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+import {
+	createStackNavigator,
+	TransitionPresets,
+} from '@react-navigation/stack';
+
 import TabNavigator from '../tabs/TabNavigator';
 import Biometrics from '../../components/Biometrics';
-import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import AuthCheck from '../../components/AuthCheck';
 import Blocktank from '../../screens/Blocktank';
@@ -35,7 +38,7 @@ import Contacts from '../../screens/Contacts/Contacts';
 import Contact from '../../screens/Contacts/Contact';
 import ContactEdit from '../../screens/Contacts/ContactEdit';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const navOptions = {
 	headerShown: false,
@@ -100,7 +103,11 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 					<Stack.Screen name="LightningRoot" component={LightningNavigator} />
 					<Stack.Screen name="Settings" component={SettingsNavigator} />
-					<Stack.Screen name="Profile" component={Profile} />
+					<Stack.Screen
+						name="Profile"
+						component={Profile}
+						options={{ gestureDirection: 'horizontal-inverted' }}
+					/>
 					<Stack.Screen name="ProfileEdit" component={ProfileEdit} />
 					<Stack.Screen name="Contacts" component={Contacts} />
 					<Stack.Screen name="ContactEdit" component={ContactEdit} />

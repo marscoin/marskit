@@ -78,7 +78,7 @@ const CustomConfirm = ({ navigation, route }): ReactElement => {
 
 						<View style={styles.block}>
 							<Caption13Up color="purple" style={styles.space}>
-								RECEIVING BANDWIDTH
+								Receiving capacity
 							</Caption13Up>
 							<Money
 								sats={receivingAmount}

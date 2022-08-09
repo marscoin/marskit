@@ -164,7 +164,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 				isOpen: true,
 				snapPoint: 0,
 			},
-		}).then();
+		});
 	}, []);
 
 	useEffect(() => {

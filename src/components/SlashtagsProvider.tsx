@@ -4,6 +4,7 @@ import { createContext } from 'react';
 import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
+import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 
 export const RAWS = RAWSFactory({
 	setItem: (key, value) => {
@@ -48,6 +49,7 @@ export const SlashtagsProvider = ({
 			// like random access react native after m1 support. or react-native-fs?
 			storage: RAWS,
 			swarmOpts: { relays: [relay] },
+			protocols: [BackupProtocol],
 		});
 		_sdk
 			.ready()

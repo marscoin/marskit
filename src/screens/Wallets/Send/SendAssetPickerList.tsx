@@ -15,7 +15,7 @@ const SendAssetPickerList = (): ReactElement => {
 				asset,
 				assetName: capitalize(asset),
 			},
-		}).then();
+		});
 		// @ts-ignore
 		navigation.navigate('send');
 		//eslint-disable-next-line react-hooks/exhaustive-deps

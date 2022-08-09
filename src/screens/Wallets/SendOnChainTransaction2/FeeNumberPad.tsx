@@ -74,7 +74,6 @@ const FeeNumberPad = (): ReactElement => {
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
-			headerColor="background"
 			backdrop={false}
 			view="numberPadFee">
 			<NumberPad onPress={onPress} onRemove={onRemove} onClear={onClear}>

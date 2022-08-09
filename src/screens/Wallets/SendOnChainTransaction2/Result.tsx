@@ -43,11 +43,13 @@ const Result = ({ navigation, route }): ReactElement => {
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
-			<Lottie
-				source={require('../../../assets/lottie/confetti-green.json')}
-				autoPlay
-				loop
-			/>
+			{success && (
+				<Lottie
+					source={require('../../../assets/lottie/confetti-green.json')}
+					autoPlay
+					loop
+				/>
+			)}
 			{success ? (
 				<Subtitle>Bitcoin sent</Subtitle>
 			) : (

@@ -8,9 +8,7 @@ import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
 import AddressTypePreference from '../../screens/Settings/AddressTypePreference';
 import DevSettings from '../../screens/Settings/DevSettings';
-import ExportBackups from '../../screens/Settings/Backup/Export';
-import Seeds from '../../screens/Settings/Backup/Seeds';
-import ViewSeed from '../../screens/Settings/Backup/Seeds/ViewSeed';
+import BackupData from '../../screens/Settings/Backup/BackupData';
 import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInfo';
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
@@ -29,6 +27,7 @@ import ConnectionDetails from '../../screens/Settings/Lightning/ConnectionDetail
 import CloseConnection from '../../screens/Settings/Lightning/CloseConnection';
 import AddConnection from '../../screens/Settings/Lightning/AddConnection';
 import AddConnectionResult from '../../screens/Settings/Lightning/AddConnectionResult';
+import ExportToPhone from '../../screens/Settings/Backup/ExportToPhone';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,9 +76,8 @@ const SettingsNavigator = (): ReactElement => {
 					component={AddressTypePreference}
 				/>
 				<Stack.Screen name="DevSettings" component={DevSettings} />
-				<Stack.Screen name="ExportBackups" component={ExportBackups} />
-				<Stack.Screen name="Seeds" component={Seeds} />
-				<Stack.Screen name="ViewSeed" component={ViewSeed} />
+				<Stack.Screen name="BackupData" component={BackupData} />
+				<Stack.Screen name="ExportToPhone" component={ExportToPhone} />
 				<Stack.Screen
 					name="BitcoinNetworkSelection"
 					component={BitcoinNetworkSelection}

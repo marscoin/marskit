@@ -1,4 +1,4 @@
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import * as electrum from 'rn-electrum-client/helpers';
 import { validateAddress } from '../scanner';
 import { EAvailableNetworks, networks, TAvailableNetworks } from '../networks';
@@ -389,7 +389,7 @@ interface ITargets extends IOutput {
  * Creates a BIP32Interface from the selected wallet's mnemonic and passphrase
  * @param selectedWallet
  * @param selectedNetwork
- * @returns {Promise<Ok<BIP32Interface> | Err<unknown>>}
+ * @returns {Promise<Result<BIP32Interface>>}
  */
 const getBip32Interface = async (
 	selectedWallet: string,
@@ -424,7 +424,7 @@ const getBip32Interface = async (
  * @param selectedWallet
  * @param selectedNetwork
  * @param transactionData
- * @return {Promise<Ok<Psbt> | Err<unknown>>}
+ * @return {Promise<Result<Psbt>>}
  */
 const createPsbtFromTransactionData = async ({
 	selectedWallet,
@@ -626,7 +626,7 @@ export const signPsbt = ({
  * @param selectedWallet
  * @param selectedNetwork
  * @param {IOnChainTransactionData} [transactionData]
- * @returns {Promise<Ok<{id: string, hex: string}> | Err<string>>}
+ * @returns {Promise<Result<{id: string, hex: string}>>}
  */
 export const createTransaction = ({
 	selectedWallet,

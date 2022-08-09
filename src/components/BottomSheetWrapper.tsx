@@ -37,13 +37,13 @@ import { TViewController } from '../store/types/user';
 import themes from '../styles/themes';
 import { toggleView } from '../store/actions/user';
 import { defaultViewController } from '../store/shapes/user';
+import BottomSheetGradient from './BottomSheetGradient';
 
 export interface IModalProps {
 	children: ReactElement;
 	view?: TViewController;
 	onOpen?: () => any;
 	onClose?: () => any;
-	headerColor?: string;
 	snapPoints?: (string | number)[];
 	backdrop?: boolean;
 }
@@ -54,7 +54,6 @@ const BottomSheetWrapper = forwardRef(
 			view,
 			onOpen = (): null => null,
 			onClose = (): null => null,
-			headerColor = undefined,
 			snapPoints = ['60%', '95%'],
 			backdrop = true,
 		}: IModalProps,
@@ -67,23 +66,9 @@ const BottomSheetWrapper = forwardRef(
 
 		const settingsTheme = useSelector((state: Store) => state.settings.theme);
 		const theme = useMemo(() => themes[settingsTheme], [settingsTheme]);
-		const backgroundColor = useMemo(() => {
-			if (headerColor) {
-				return theme.colors[headerColor];
-			}
-			return theme.colors.tabBackground;
-		}, [theme.colors, headerColor]);
-		const backgroundStyle = useMemo(
-			() => ({ backgroundColor }),
-			[backgroundColor],
-		);
 		const handleIndicatorStyle = useMemo(
 			() => ({ backgroundColor: theme.colors.gray2 }),
 			[theme.colors.gray2],
-		);
-		const handleStyle = useMemo(
-			() => [styles.handle, { backgroundColor }],
-			[backgroundColor],
 		);
 		// https://github.com/gorhom/react-native-bottom-sheet/issues/770#issuecomment-1072113936
 		// do not activate BottomSheet if swipe horizontally, this allows using Swiper inside of it
@@ -119,7 +104,7 @@ const BottomSheetWrapper = forwardRef(
 
 		const _snapPoints = useMemo(() => snapPoints, [snapPoints]);
 		const initialSnapPoints = useMemo(() => ['60%', '95%'], []);
-		const { animatedHandleHeight, handleContentLayout } =
+		const { animatedHandleHeight, animatedContentHeight, handleContentLayout } =
 			useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
 		const _onOpen = useCallback(() => onOpen(), [onOpen]);
@@ -129,7 +114,7 @@ const BottomSheetWrapper = forwardRef(
 				toggleView({
 					view,
 					data: { isOpen: false, id: data?.id },
-				}).then();
+				});
 			}
 			onClose();
 		}, [view, onClose, data?.id]);
@@ -162,6 +147,16 @@ const BottomSheetWrapper = forwardRef(
 			[backdrop],
 		);
 
+		const backgroundComponent = useCallback(
+			({ style }) => (
+				<BottomSheetGradient
+					animatedContentHeight={animatedContentHeight}
+					style={style}
+				/>
+			),
+			[animatedContentHeight],
+		);
+
 		// Determine initial snapPoint index based on provided data.
 		let index = useMemo((): number => {
 			return data?.snapPoint && data?.snapPoint < 2 ? data.snapPoint : -1;
@@ -169,9 +164,9 @@ const BottomSheetWrapper = forwardRef(
 
 		return (
 			<BottomSheet
-				backgroundStyle={backgroundStyle}
+				backgroundComponent={backgroundComponent}
 				handleIndicatorStyle={handleIndicatorStyle}
-				handleStyle={handleStyle}
+				handleStyle={styles.handle}
 				animateOnMount
 				enablePanDownToClose
 				keyboardBlurBehavior="restore"
@@ -198,18 +193,13 @@ const styles = StyleSheet.create({
 		borderTopLeftRadius: 32,
 		borderTopRightRadius: 32,
 		height: '100%',
-	},
-	handleContainer: {
-		borderTopLeftRadius: 32,
-		borderTopRightRadius: 32,
+		position: 'relative',
 	},
 	handle: {
 		alignSelf: 'center',
-		height: 4,
+		height: 32,
 		width: 32,
-		borderRadius: 32,
-		marginTop: 12,
-		marginBottom: 11,
+		// marginBottom: 12,
 	},
 });
 

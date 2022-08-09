@@ -28,7 +28,7 @@ export default function useDisplayValues(
 			return defaultDisplayValues;
 		}
 
-		const exchangeRate = exchangeRates[selectedCurrency];
+		const exchangeRate = exchangeRates[selectedCurrency].rate;
 
 		return getDisplayValues({
 			satoshis: sats,

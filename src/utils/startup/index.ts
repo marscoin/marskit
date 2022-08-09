@@ -4,7 +4,7 @@ import {
 	updateExchangeRates,
 	updateWallet,
 } from '../../store/actions/wallet';
-import { err, ok, Result } from '../result';
+import { err, ok, Result } from '@synonymdev/result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
 //import { backupSetup, performFullBackup } from '../../store/actions/backup';
@@ -41,7 +41,7 @@ export const checkWalletExists = async (
 
 /**
  * Creates a new wallet from scratch
- * @returns {Promise<Ok<string> | Err<string>>}
+ * @returns {Promise<Result<string>>}
  */
 export const createNewWallet = async (): Promise<Result<string>> => {
 	//All seeds will get automatically created
@@ -75,7 +75,7 @@ const backupServiceStart = async (): Promise<void> => {
 
 /**
  * Starts all wallet services
- * @returns {Promise<Err<unknown> | Ok<string>>}
+ * @returns {Promise<Result<string>>}
  */
 const ENABLE_SERVICES = true;
 export const startWalletServices = async ({

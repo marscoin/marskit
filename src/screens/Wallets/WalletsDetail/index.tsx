@@ -23,7 +23,7 @@ import {
 	Rect,
 	rect,
 	useCanvas,
-	useDerivedValue,
+	useComputedValue,
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
@@ -69,7 +69,7 @@ interface Props extends PropsWithChildren<any> {
 
 const Glow = ({ colors }): ReactElement => {
 	const { size } = useCanvas();
-	const rct = useDerivedValue(
+	const rct = useComputedValue(
 		() => rect(0, 0, size.current.width, size.current.height),
 		[size],
 	);
