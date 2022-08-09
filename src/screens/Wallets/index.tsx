@@ -20,7 +20,6 @@ import { useBalance, useNoTransactions } from '../../hooks/wallet';
 import { updateSettings } from '../../store/actions/settings';
 import Store from '../../store/types';
 import { refreshWallet } from '../../utils/wallet';
-import { updateActivityList } from '../../store/actions/activity';
 
 const Wallets = ({ navigation }): ReactElement => {
 	const [refreshing, setRefreshing] = useState(false);
@@ -49,7 +48,6 @@ const Wallets = ({ navigation }): ReactElement => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
 		await Promise.all([refreshWallet({})]);
-		await updateActivityList();
 		setRefreshing(false);
 	};
 

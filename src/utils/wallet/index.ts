@@ -54,7 +54,7 @@ import {
 	ICustomElectrumPeer,
 	TCoinSelectPreference,
 } from '../../store/types/settings';
-import { updateOnChainActivityList } from '../../store/actions/activity';
+import { updateActivityList } from '../../store/actions/activity';
 import {
 	getByteCount,
 	getTotalFee,
@@ -110,7 +110,7 @@ export const refreshWallet = async ({
 			}),
 		]);
 
-		await updateOnChainActivityList();
+		await updateActivityList();
 
 		return ok('');
 	} catch (e) {
