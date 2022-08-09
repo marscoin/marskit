@@ -86,7 +86,10 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
 	const [amount, setAmount] = useState(0);
 	const [pkgRates, setPkgRates] = useState({});
-	const usdRate = useSelector((state: Store) => state.wallet.exchangeRates.USD);
+	const exchangeRates = useSelector(
+		(state: Store) => state.wallet.exchangeRates,
+	);
+	const usdRate = exchangeRates['USD']?.rate ?? 0;
 	const packages = spending ? PACKAGES_SPENDING : PACKAGES_RECEIVING;
 
 	useEffect(() => {

@@ -24,7 +24,7 @@ export default function useDisplayValues(
 
 	const displayValues: IDisplayValues = useMemo(() => {
 		//Exchange rates haven't loaded yet
-		if (!exchangeRates) {
+		if (Object.entries(exchangeRates).length === 0) {
 			return defaultDisplayValues;
 		}
 

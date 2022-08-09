@@ -38,9 +38,11 @@ const OnChainNumberPad = (): ReactElement => {
 	const currency = useSelector(
 		(store: Store) => store.settings.selectedCurrency,
 	);
-	const exchangeRate = useSelector(
-		(store: Store) => store.wallet.exchangeRates[currency].rate,
+
+	const exchangeRates = useSelector(
+		(state: Store) => state.wallet.exchangeRates,
 	);
+	const exchangeRate = exchangeRates[currency]?.rate ?? 0;
 
 	const transaction = useSelector(
 		(store: Store) =>

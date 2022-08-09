@@ -122,7 +122,7 @@ const CoinSelection = (): ReactElement => {
 	const exchangeRates = useSelector(
 		(state: Store) => state.wallet.exchangeRates,
 	);
-	const exchangeRate = exchangeRates[selectedCurrency].rate;
+	const exchangeRate = exchangeRates[selectedCurrency]?.rate ?? 0;
 
 	const getBtcValueText = (displayValue: IDisplayValues): string =>
 		`${
