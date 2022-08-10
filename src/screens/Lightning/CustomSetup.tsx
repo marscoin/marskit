@@ -1,7 +1,6 @@
 import React, { ReactElement, memo, useMemo, useState, useEffect } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSelector } from 'react-redux';
 
 import {
 	AnimatedView,
@@ -18,7 +17,6 @@ import Button from '../../components/Button';
 import useColors from '../../hooks/colors';
 import { useExchangeRate } from '../../hooks/displayValues';
 import AmountToggle from '../../components/AmountToggle';
-import Store from '../../store/types';
 import useDisplayValues from '../../hooks/displayValues';
 import NumberPadLightning from './NumberPadLightning';
 
