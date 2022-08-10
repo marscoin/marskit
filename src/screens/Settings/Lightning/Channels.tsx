@@ -81,7 +81,7 @@ const ChannelList = memo(
 					const channel = allChannels[channelId];
 					return (
 						<Channel
-							key={`${channelId}${i}`}
+							key={channelId}
 							channelId={channelId}
 							disabled={!channel.is_usable}
 							onPress={(): void => onChannelPress(channelId)}
