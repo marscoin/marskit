@@ -34,8 +34,10 @@ const Section = memo(
 				activeOpacity={onPress ? 0.5 : 1}
 				onPress={onPress}
 				style={styles.sectionRoot}>
-				<Caption13M>{name}</Caption13M>
-				{value}
+				<View style={styles.sectionName}>
+					<Caption13M>{name}</Caption13M>
+				</View>
+				<View style={styles.sectionValue}>{value}</View>
 			</TouchableOpacity>
 		);
 	},
@@ -53,20 +55,6 @@ const ChannelDetails = ({ route, navigation }): ReactElement => {
 		useLightningChannelBalance(channelId);
 	const channel = useLightningChannelData(channelId);
 
-	const counterPartyNodeId = useMemo(() => {
-		try {
-			const nodeId = channel.counterparty_node_id;
-			const len = channel.counterparty_node_id.length;
-			const appendLen = channel.counterparty_node_id.length / 5;
-			return `${nodeId.slice(0, appendLen)}...${nodeId.slice(
-				len - appendLen,
-				len - 1,
-			)}`;
-		} catch (e) {
-			console.log(e);
-			return ' ';
-		}
-	}, [channel.counterparty_node_id]);
 	return (
 		<ThemedView style={styles.root}>
 			<SafeAreaInsets type="top" />
@@ -165,7 +153,11 @@ const ChannelDetails = ({ route, navigation }): ReactElement => {
 				/>
 				<Section
 					name="Node ID"
-					value={<Caption13M>{counterPartyNodeId}</Caption13M>}
+					value={
+						<Caption13M ellipsizeMode={'middle'} numberOfLines={1}>
+							{channel.counterparty_node_id}
+						</Caption13M>
+					}
 					onPress={(): void => {
 						Clipboard.setString(channel.counterparty_node_id);
 						showSuccessNotification({
@@ -227,6 +219,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		borderBottomWidth: 1,
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+	},
+	sectionName: {
+		flex: 1,
+	},
+	sectionValue: {
+		flex: 1.5,
+		alignItems: 'flex-end',
+		justifyContent: 'center',
 	},
 });
 
