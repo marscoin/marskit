@@ -78,39 +78,52 @@ import * as bip32 from 'bip32';
 import { EFeeIds } from '../../store/types/fees';
 
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
+import { refreshLdk } from '../lightning';
 
 const BITKIT_WALLET_SEED_HASH_PREFIX = Buffer.from('@Bitkit/wallet-uuid');
 
 export const refreshWallet = async ({
 	showNotification = false,
+	onchain = true,
+	lightning = true,
 }: {
 	showNotification?: boolean;
+	onchain?: boolean;
+	lightning?: boolean;
 }): Promise<Result<string>> => {
 	try {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
-		await updateAddressIndexes({ selectedWallet, selectedNetwork });
-		await Promise.all([
-			subscribeToAddresses({
-				selectedWallet,
-				selectedNetwork,
-			}),
-			updateExchangeRates(),
-			updateUtxos({
-				selectedWallet,
-				selectedNetwork,
-			}),
-			updateTransactions({
-				selectedWallet,
-				selectedNetwork,
-				showNotification,
-			}),
-			deleteBoostedTransactions({
-				selectedWallet,
-				selectedNetwork,
-			}),
-		]);
+		if (onchain) {
+			await updateAddressIndexes({ selectedWallet, selectedNetwork });
+			await Promise.all([
+				subscribeToAddresses({
+					selectedWallet,
+					selectedNetwork,
+				}),
+				updateExchangeRates(),
+				updateUtxos({
+					selectedWallet,
+					selectedNetwork,
+				}),
+				updateTransactions({
+					selectedWallet,
+					selectedNetwork,
+					showNotification,
+				}),
+				deleteBoostedTransactions({
+					selectedWallet,
+					selectedNetwork,
+				}),
+			]);
+		}
 
-		await updateActivityList();
+		if (lightning) {
+			await refreshLdk({ selectedWallet, selectedNetwork });
+		}
+
+		if (onchain || lightning) {
+			await updateActivityList();
+		}
 
 		return ok('');
 	} catch (e) {

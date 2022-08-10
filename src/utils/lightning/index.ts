@@ -3,7 +3,11 @@ import lm, {
 	DefaultTransactionDataShape,
 	ENetworks,
 	TAccount,
+	TChannel,
+	TCloseChannelReq,
+	TCreatePaymentReq,
 	THeader,
+	TInvoice,
 	TTransactionData,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
@@ -24,10 +28,30 @@ import { getStore } from '../../store/helpers';
 import mmkvStorage from '../../store/mmkv-storage';
 import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
-import { updateLightning } from '../../store/actions/lightning';
+import {
+	updateLightningChannels,
+	updateLightningNodeId,
+	updateLightningNodeVersion,
+} from '../../store/actions/lightning';
 
 export const defaultNodePubKey =
-	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79'; //Our testnet server
+	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79';
+
+// TODO: Retrieve saved peers from LDK.
+export const peers = [
+	{
+		pubKey:
+			'02f61609212fd33845cb9688a3f8fec2a9355992ed8e3578d06bcb4a9b0ed6d1b1',
+		address: '35.233.47.252',
+		port: 9735,
+	},
+	{
+		pubKey:
+			'03b864f425a54e7d50e09cfda27c71d5414a08c6b36d91868a575b115ea2bf2a84',
+		address: '127.0.0.1',
+		port: 9836,
+	},
+];
 
 /**
  * Wipes LDK data from storage
@@ -61,11 +85,16 @@ const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
  * 5. Syncs LDK.
  */
 export const setupLdk = async ({
+	selectedWallet,
 	selectedNetwork,
 }: {
-	selectedNetwork: TAvailableNetworks;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
 	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
@@ -111,12 +140,55 @@ export const setupLdk = async ({
 			return err(nodeIdRes.error.message);
 		}
 
-		updateLightning({ nodeId: nodeIdRes.value });
-
-		await lm.syncLdk();
+		await Promise.all([
+			await updateLightningNodeId({
+				nodeId: nodeIdRes.value,
+				selectedNetwork,
+				selectedWallet,
+			}),
+			updateLightningNodeVersion(),
+			refreshLdk({ selectedWallet, selectedNetwork }),
+		]);
 		return ok(nodeIdRes.value);
 	} catch (e) {
 		return err(e.toString());
+	}
+};
+
+/**
+ * This method syncs LDK, re-adds peers & updates lightning channels.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const refreshLdk = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+
+		const syncRes = await lm.syncLdk();
+		if (syncRes.isErr()) {
+			return err(syncRes.error.message);
+		}
+
+		await Promise.all([
+			addPeers(),
+			updateLightningChannels({ selectedWallet, selectedNetwork }),
+		]);
+		return ok('');
+	} catch (e) {
+		console.log(e);
+		return err(e);
 	}
 };
 
@@ -294,6 +366,144 @@ export const getNodeId = async (): Promise<Result<string>> => {
 	try {
 		return await ldk.nodeId();
 	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns the current LDK node id.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const getNodeIdFromStorage = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		return (
+			getStore().lightning.nodes[selectedWallet].nodeId[selectedNetwork] ?? ''
+		);
+	} catch (e) {
+		return '';
+	}
+};
+
+/**
+ * Adds default peers from the peers object.
+ * @returns {Promise<Result<string[]>>}
+ */
+export const addPeers = async (): Promise<Result<string[]>> => {
+	try {
+		const addPeerRes = await Promise.all(
+			Object.keys(peers).map(async (peer) => {
+				const addPeer = await lm.addPeer({
+					...peers[peer],
+					port: Number(peers[peer].port),
+					timeout: 5000,
+				});
+				if (addPeer.isErr()) {
+					console.log(addPeer.error.message);
+					return addPeer.error.message;
+				}
+				return addPeer.value;
+			}),
+		);
+		return ok(addPeerRes);
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * Returns an array of pending and open channels
+ * @returns Promise<Result<TChannel[]>>
+ */
+export const getLightningChannels = async (): Promise<Result<TChannel[]>> => {
+	try {
+		return await ldk.listChannels();
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns LDK and c-bindings version.
+ * @returns {Promise<Result<{ c_bindings: string; ldk: string }>}
+ */
+export const getNodeVersion = async (): Promise<
+	Result<{ c_bindings: string; ldk: string }>
+> => {
+	try {
+		return await ldk.version();
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Attempts to close a channel given its channelId and counterPartyNodeId.
+ * @param {string} channelId
+ * @param {string} counterPartyNodeId
+ * @param {boolean} [force]
+ */
+export const closeChannel = async ({
+	channelId,
+	counterPartyNodeId,
+	force = false,
+}: TCloseChannelReq): Promise<Result<string>> => {
+	try {
+		// Ensure we're fully up-to-date.
+		await refreshLdk({});
+		return await ldk.closeChannel({ channelId, counterPartyNodeId, force });
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * Attempts to create a bolt11 invoice.
+ * @param {TCreatePaymentReq}
+ * @returns {Promise<Result<TInvoice>>}
+ */
+export const createLightningInvoice = async ({
+	amountSats = 0,
+	description = '',
+	expiryDeltaSeconds = 900,
+}: TCreatePaymentReq): Promise<Result<TInvoice>> => {
+	try {
+		return await ldk.createPaymentRequest({
+			amountSats,
+			description,
+			expiryDeltaSeconds,
+		});
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * Attempts to pay a bolt11 invoice.
+ * @param {string} invoice
+ * @returns {Promise<Result<string>>}
+ */
+export const payLightningInvoice = async (invoice): Promise<Result<string>> => {
+	try {
+		return await ldk.pay({ paymentRequest: invoice });
+	} catch (e) {
+		console.log(e);
 		return err(e);
 	}
 };
