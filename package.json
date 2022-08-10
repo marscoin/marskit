@@ -12,8 +12,9 @@
     "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf node_modules ios/Pods ios/Podfile.lock ios/build && yarn install && cd ios && pod deintegrate && pod install && cd ../",
-    "postinstall": "node postinstall.js",
-    "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon"
+    "bundle": "cd android && ./gradlew clean && cd ../ && react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.jsbundle --assets-dest android/app/build/intermediates/res/merged/release/ && cd android && ./gradlew assembleRelease --no-daemon",
+    "prepare": "husky install",
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.2.2",
@@ -103,6 +104,9 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "@ptsecurity/commitlint-config": "^2.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@tradle/react-native-http": "^2.0.1",
     "@types/jest": "^27.5.1",
@@ -125,9 +129,11 @@
     "eslint-plugin-react-native": "^4.0.0",
     "from": "^0.1.7",
     "https-browserify": "^1.0.0",
+    "husky": "^8.0.0",
     "jest": "^27.0.0",
     "metro-config": "^0.70.3",
     "metro-react-native-babel-preset": "^0.67.0",
+    "nano-staged": "^0.8.0",
     "node-fetch": "2.6.7",
     "node-libs-react-native": "^1.2.1",
     "prettier": "^2.6.2",
