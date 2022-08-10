@@ -50,7 +50,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 			showErrorNotification(
 				{
 					title: 'Error',
-					message: 'Failed to detect any address data',
+					message: 'Failed to detect any readable data',
 				},
 				'bottom',
 			);
