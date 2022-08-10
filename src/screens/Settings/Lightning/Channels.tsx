@@ -80,14 +80,12 @@ const ChannelList = memo(
 				{channelIds.map((channelId, i) => {
 					const channel = allChannels[channelId];
 					return (
-						<View key={`${channelId}${i}`}>
-							<Channel
-								key={`${channelId}${i}`}
-								channelId={channelId}
-								disabled={!channel.is_usable}
-								onPress={(): void => onChannelPress(channelId)}
-							/>
-						</View>
+						<Channel
+							key={`${channelId}${i}`}
+							channelId={channelId}
+							disabled={!channel.is_usable}
+							onPress={(): void => onChannelPress(channelId)}
+						/>
 					);
 				})}
 			</>
