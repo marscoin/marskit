@@ -77,7 +77,7 @@ const ChannelList = memo(
 	}): ReactElement => {
 		return (
 			<>
-				{channelIds.map((channelId, i) => {
+				{channelIds.map((channelId) => {
 					const channel = allChannels[channelId];
 					return (
 						<Channel
