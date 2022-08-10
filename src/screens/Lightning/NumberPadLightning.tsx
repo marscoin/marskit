@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Text02B, TouchableOpacity, SwitchIcon } from '../../styles/components';
 import NumberPad from '../../components/NumberPad';
 import Store from '../../store/types';
-import useDisplayValues from '../../hooks/displayValues';
+import useDisplayValues, { useExchangeRate } from '../../hooks/displayValues';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
 import { updateSettings } from '../../store/actions/settings';
 
@@ -26,10 +26,7 @@ const NumberPadLightning = ({
 	const currency = useSelector(
 		(store: Store) => store.settings.selectedCurrency,
 	);
-	const exchangeRate = useSelector(
-		(store: Store) => store.wallet.exchangeRates[currency],
-	);
-
+	const exchangeRate = useExchangeRate(currency);
 	const displayValue = useDisplayValues(sats);
 
 	const onPress = (key): void => {

@@ -43,7 +43,7 @@ export const fiatToBitcoinUnit = ({
 		currency = getStore().settings.selectedCurrency;
 	}
 	if (!exchangeRate) {
-		exchangeRate = getStore().wallet.exchangeRates[currency]?.rate ?? 0;
+		exchangeRate = getExchangeRate(currency);
 	}
 	if (!bitcoinUnit) {
 		bitcoinUnit = getStore().settings.bitcoinUnit;
@@ -175,5 +175,14 @@ export const getDisplayValues = ({
 	} catch (e) {
 		console.error(e);
 		return defaultDisplayValues;
+	}
+};
+
+export const getExchangeRate = (currency = 'EUR'): number => {
+	try {
+		const exchangeRates = getStore().wallet.exchangeRates;
+		return exchangeRates[currency]?.rate ?? 0;
+	} catch {
+		return 0;
 	}
 };

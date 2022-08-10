@@ -16,6 +16,7 @@ import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import useColors from '../../hooks/colors';
+import { useExchangeRate } from '../../hooks/displayValues';
 import AmountToggle from '../../components/AmountToggle';
 import Store from '../../store/types';
 import useDisplayValues from '../../hooks/displayValues';
@@ -86,10 +87,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
 	const [amount, setAmount] = useState(0);
 	const [pkgRates, setPkgRates] = useState({});
-	const exchangeRates = useSelector(
-		(state: Store) => state.wallet.exchangeRates,
-	);
-	const usdRate = exchangeRates['USD']?.rate ?? 0;
+	const usdRate = useExchangeRate('USD');
 	const packages = spending ? PACKAGES_SPENDING : PACKAGES_RECEIVING;
 
 	useEffect(() => {
