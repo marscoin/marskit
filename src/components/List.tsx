@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useCallback } from 'react';
-import { SectionList, StyleSheet } from 'react-native';
+import { SectionList, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import {
 	Text01S,
 	Caption13Up,
@@ -184,12 +184,17 @@ export interface IListData {
 
 const List = ({
 	data,
+	style,
+	bounces,
 	onScrollDownChange,
 }: {
 	data: IListData[];
+	style?: StyleProp<ViewStyle>;
+	bounces?: boolean;
 	onScrollDownChange?: (boolean) => void;
 }): ReactElement => {
 	const navigation = useNavigation();
+
 	return (
 		<SectionList
 			onScroll={
@@ -214,6 +219,8 @@ const List = ({
 				// eslint-disable-next-line react-hooks/exhaustive-deps
 			}, [])}
 			stickySectionHeadersEnabled={false}
+			contentContainerStyle={style}
+			bounces={bounces}
 		/>
 	);
 };

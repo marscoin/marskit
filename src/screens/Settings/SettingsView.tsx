@@ -45,7 +45,7 @@ const SettingsView = ({
 		}) ?? [];
 
 	return (
-		<View style={[fullHeight ? styles.fullHeight : null]} color="black">
+		<View style={fullHeight && styles.fullHeight} color="black">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
 
@@ -62,8 +62,17 @@ const SettingsView = ({
 			) : null}
 
 			{listData ? (
-				<View style={styles.listContent} color="black">
-					<List data={filteredListData} />
+				<View
+					style={[
+						styles.listContent,
+						fullHeight && styles.listContentFullHeight,
+					]}
+					color="black">
+					<List
+						style={fullHeight && styles.listFullHeight}
+						data={filteredListData}
+						bounces={!!fullHeight}
+					/>
 				</View>
 			) : null}
 
@@ -82,6 +91,12 @@ const styles = StyleSheet.create({
 	},
 	listContent: {
 		paddingHorizontal: 16,
+	},
+	listContentFullHeight: {
+		flex: 1,
+	},
+	listFullHeight: {
+		paddingBottom: 55,
 	},
 	childrenContent: {
 		flex: 1,
