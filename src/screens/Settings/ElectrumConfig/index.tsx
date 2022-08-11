@@ -30,6 +30,7 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import { getConnectedPeer, IPeerData } from '../../../utils/wallet/electrum';
+import SafeAreaInsets from '../../../components/SafeAreaInsets';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: 'TCP', value: 'tcp' },
@@ -243,6 +244,7 @@ const ElectrumConfig = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
+			<SafeAreaInsets type="top" />
 			<NavigationHeader title="Electrum Config" />
 			<View style={styles.content}>
 				{!!connectedPeer?.host && (
