@@ -3,11 +3,8 @@ import lm, {
 	DefaultTransactionDataShape,
 	ENetworks,
 	TAccount,
-	TChannel,
 	TCloseChannelReq,
-	TCreatePaymentReq,
 	THeader,
-	TInvoice,
 	TTransactionData,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
