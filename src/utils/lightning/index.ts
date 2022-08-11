@@ -441,15 +441,7 @@ export const getLightningChannels = async (): Promise<Result<TChannel[]>> => {
  * Returns LDK and c-bindings version.
  * @returns {Promise<Result<{ c_bindings: string; ldk: string }>}
  */
-export const getNodeVersion = async (): Promise<
-	Result<{ c_bindings: string; ldk: string }>
-> => {
-	try {
-		return await ldk.version();
-	} catch (e) {
-		return err(e);
-	}
-};
+export const getNodeVersion = ldk.version;
 
 /**
  * Attempts to close a channel given its channelId and counterPartyNodeId.
