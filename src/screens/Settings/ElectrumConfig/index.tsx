@@ -259,7 +259,7 @@ const ElectrumConfig = (): ReactElement => {
 							{!peersMatch(connectedPeer) && (
 								<View style={styles.savePeer}>
 									<Button
-										text="Save this peer"
+										text="Save This Peer"
 										color="surface"
 										onPress={saveConnectedPeer}
 									/>

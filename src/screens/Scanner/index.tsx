@@ -29,12 +29,14 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 
-const Blur = (props: ViewProps) => Platform.OS === 'ios' ? <BlurView {...props} /> : <View  {...props} />;
+const Blur = (props: ViewProps) =>
+	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const { white08, white5 } = useColors();
 	const dimensions = useWindowDimensions();
 	const [flashMode, setFlashMode] = useState(false);
+	const [error, setError] = useState('');
 
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
@@ -47,14 +49,16 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		const res = await decodeQRData(data, selectedNetwork);
 
 		if (res.isErr() || (res.isOk() && res.value.length === 0)) {
-			showErrorNotification(
-				{
-					title: 'Error',
-					message: 'Failed to detect any readable data',
-				},
-				'bottom',
-			);
+			// showErrorNotification(
+			// 	{
+			// 		title: 'Error',
+			// 		message: 'Failed to detect any readable data',
+			// 	},
+			// 	'bottom',
+			// );
+			setError('Sorry. Bitkit can’t read this QR code.');
 			return;
+
 		}
 
 		navigation.pop();
@@ -185,7 +189,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 							<Button
 								style={styles.pasteButton}
 								icon={<ClipboardTextIcon width={16} height={16} />}
-								text={'Paste QR code'}
+								text={'Paste QR Code'}
 								size="large"
 								onPress={async (): Promise<void> => {
 									let url = await Clipboard.getString();

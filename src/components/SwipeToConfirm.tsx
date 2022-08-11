@@ -28,7 +28,7 @@ interface ISwipeToConfirm {
 	confirmed: boolean;
 }
 const SwipeToConfirm = ({
-	text = 'Swipe to confirm',
+	text = 'Swipe To Confirm',
 	color,
 	onConfirm,
 	icon,

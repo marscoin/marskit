@@ -152,7 +152,7 @@ const BoostForm = ({ activityItem }): ReactElement => {
 
 			<View style={styles.nextButtonContainer}>
 				<SwipeToConfirm
-					text="Swipe to Boost"
+					text="Swipe To Boost"
 					color="yellow"
 					onConfirm={handleBoost}
 					icon={<TimerIconAlt width={30} height={30} color="black" />}

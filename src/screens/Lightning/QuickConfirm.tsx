@@ -91,7 +91,7 @@ const QuickConfirm = ({ navigation, route }): ReactElement => {
 							entering={FadeIn}
 							exiting={FadeOut}>
 							<SwipeToConfirm
-								text="Swipe to connect"
+								text="Swipe To Connect"
 								color="purple"
 								onConfirm={handleConfirm}
 								icon={<LightningIcon width={30} height={30} color="black" />}

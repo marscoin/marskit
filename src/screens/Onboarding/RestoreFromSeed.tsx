@@ -148,14 +148,14 @@ const RestoreFromSeed = (): ReactElement => {
 
 	if (showRestored || showFailed) {
 		const color = showRestored ? green : red;
-		const title = showRestored ? 'Wallet restored.' : 'Failed to restore.';
+		const title = showRestored ? 'Wallet Restored.' : 'Failed to restore.';
 		const subtitle = showRestored
 			? 'You have successfully restored your wallet from backup. Enjoy Bitkit!'
 			: 'The checksum for the recovery phrase appears to be incorrect.';
 		const onPress = showRestored
 			? (): void => Alert.alert('TODO')
 			: (): void => setShowFailed(false);
-		const buttonText = showRestored ? 'Get started' : 'Try again';
+		const buttonText = showRestored ? 'Get Started' : 'Try Again';
 
 		return (
 			<GlowingBackground topLeft={color}>
@@ -193,7 +193,7 @@ const RestoreFromSeed = (): ReactElement => {
 				<View style={styles.shadowContainer}>
 					<VerticalShadow />
 				</View>
-				<Display style={styles.title}>Restore your wallet</Display>
+				<Display style={styles.title}>Restore your Wallet</Display>
 				<Text01S color="white8">
 					Please type in your 12 seed words from any (paper) backup.
 				</Text01S>
@@ -222,7 +222,7 @@ const RestoreFromSeed = (): ReactElement => {
 						<Button
 							size="large"
 							onPress={handleRestore}
-							text="Restore wallet"
+							text="Restore Wallet"
 						/>
 					</View>
 				) : null}

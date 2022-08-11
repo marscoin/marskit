@@ -188,7 +188,7 @@ const Connections = ({ navigation }): ReactElement => {
 					{!closed && (
 						<Button
 							style={styles.button}
-							text="Show closed connections"
+							text="Show Closed Connections"
 							textStyle={{ color: colors.white8 }}
 							size="large"
 							variant="transparent"
@@ -197,7 +197,7 @@ const Connections = ({ navigation }): ReactElement => {
 					)}
 					<Button
 						style={styles.button}
-						text="Add new connection"
+						text="Add New Connection"
 						size="large"
 						onPress={handleAdd}
 					/>

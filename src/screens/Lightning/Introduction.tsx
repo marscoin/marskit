@@ -32,7 +32,7 @@ const Introduction = ({ navigation }): ReactElement => {
 
 				<View color="transparent" style={styles.buttonsContainer}>
 					<Button
-						text="Quick setup"
+						text="Quick Setup"
 						size="large"
 						style={[styles.button, styles.quickButton]}
 						onPress={(): void => {
@@ -41,7 +41,7 @@ const Introduction = ({ navigation }): ReactElement => {
 					/>
 
 					<Button
-						text="Custom setup"
+						text="Custom Setup"
 						size="large"
 						variant="secondary"
 						style={[styles.button, styles.customButton]}

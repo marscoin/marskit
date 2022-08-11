@@ -265,7 +265,7 @@ const BitcoinToLightning = (): ReactElement => {
 			<FeeSummary amount={value} lightning />
 
 			{!hasChannelId() ? (
-				<Button color={'onSurface'} text="Move funds" onPress={authCheck} />
+				<Button color={'onSurface'} text="Move Funds" onPress={authCheck} />
 			) : null}
 
 			{showConfirm ? (
