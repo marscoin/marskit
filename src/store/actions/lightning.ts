@@ -15,33 +15,6 @@ import { TLightningNodeVersion } from '../types/lightning';
 
 const dispatch = getDispatch();
 
-export const updateLightning = ({
-	payload,
-	selectedWallet,
-	selectedNetwork,
-}: {
-	payload: any;
-	selectedWallet?: string;
-	selectedNetwork?: TAvailableNetworks;
-}): Result<string> => {
-	if (!selectedWallet) {
-		selectedWallet = getSelectedWallet();
-	}
-	if (!selectedNetwork) {
-		selectedNetwork = getSelectedNetwork();
-	}
-
-	dispatch({
-		type: actions.UPDATE_LIGHTNING,
-		payload: {
-			...payload,
-			selectedNetwork,
-			selectedWallet,
-		},
-	});
-	return ok('');
-};
-
 /**
  * Attempts to update the node id for the given wallet and network.
  * @param {string} nodeId
