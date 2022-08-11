@@ -40,7 +40,7 @@ const Currencies = (): ReactElement => {
 			},
 			{
 				title: 'Other Currencies',
-				data: Object.keys(exchangeRates).map((ticker) => ({
+				data: Object.keys(exchangeRates).sort().map((ticker) => ({
 					title: ticker,
 					value: selectedCurrency === ticker,
 					type: 'button',
