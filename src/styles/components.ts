@@ -574,8 +574,7 @@ export const SubHeadM = styled.Text((props) => ({
 	fontSize: props.size ? props.size : '14px',
 }));
 
-export const Caption13M = styled.Text((props) => ({
-	...props,
+export const Caption13M = styled.Text.attrs((props) => props)((props) => ({
 	...sanFranciscoWeights.semibold,
 	color: props.color
 		? props.theme.colors[props.color]
