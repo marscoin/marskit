@@ -37,12 +37,12 @@ export const useLightningBalance = (
 	const localBalance = Object.values(channels).reduce((acc, cur) => {
 		if (openChannels.includes(cur.channel_id)) {
 			if (!includeReserveBalance) {
-				return acc + Number(cur.outbound_capacity_sat);
+				return acc + cur.outbound_capacity_sat;
 			} else {
 				return (
 					acc +
-					Number(cur.outbound_capacity_sat) +
-					Number(cur.unspendable_punishment_reserve)
+					cur.outbound_capacity_sat +
+					(cur?.unspendable_punishment_reserve ?? 0)
 				);
 			}
 		}
@@ -52,12 +52,12 @@ export const useLightningBalance = (
 	const remoteBalance = Object.values(channels).reduce((acc, cur) => {
 		if (openChannelIds.includes(cur.channel_id)) {
 			if (!includeReserveBalance) {
-				return acc + Number(cur.inbound_capacity_sat);
+				return acc + cur.inbound_capacity_sat;
 			} else {
 				return (
 					acc +
-					Number(cur.inbound_capacity_sat) +
-					Number(cur.unspendable_punishment_reserve)
+					cur.inbound_capacity_sat +
+					(cur?.unspendable_punishment_reserve ?? 0)
 				);
 			}
 		}
