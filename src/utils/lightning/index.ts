@@ -429,13 +429,7 @@ export const addPeers = async (): Promise<Result<string[]>> => {
  * Returns an array of pending and open channels
  * @returns Promise<Result<TChannel[]>>
  */
-export const getLightningChannels = async (): Promise<Result<TChannel[]>> => {
-	try {
-		return await ldk.listChannels();
-	} catch (e) {
-		return err(e);
-	}
-};
+export const getLightningChannels = ldk.listChannels;
 
 /**
  * Returns LDK and c-bindings version.
@@ -469,22 +463,7 @@ export const closeChannel = async ({
  * @param {TCreatePaymentReq}
  * @returns {Promise<Result<TInvoice>>}
  */
-export const createLightningInvoice = async ({
-	amountSats = 0,
-	description = '',
-	expiryDeltaSeconds = 900,
-}: TCreatePaymentReq): Promise<Result<TInvoice>> => {
-	try {
-		return await ldk.createPaymentRequest({
-			amountSats,
-			description,
-			expiryDeltaSeconds,
-		});
-	} catch (e) {
-		console.log(e);
-		return err(e);
-	}
-};
+export const createLightningInvoice = ldk.createPaymentRequest;
 
 /**
  * Attempts to pay a bolt11 invoice.
