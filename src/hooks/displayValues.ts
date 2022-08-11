@@ -28,12 +28,13 @@ export default function useDisplayValues(
 			return defaultDisplayValues;
 		}
 
-		const exchangeRate = exchangeRates[selectedCurrency].rate;
+		const { quote, rate, currencySymbol } = exchangeRates[selectedCurrency];
 
 		return getDisplayValues({
 			satoshis: sats,
-			exchangeRate,
-			currency: selectedCurrency,
+			exchangeRate: rate,
+			currency: quote,
+			currencySymbol: currencySymbol,
 			bitcoinUnit: bitcoinUnit,
 			locale: 'en-US', //TODO get from native module
 		});

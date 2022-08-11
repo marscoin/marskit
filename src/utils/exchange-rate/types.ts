@@ -3,6 +3,7 @@ export const mostUsedExchangeTickers = ['USD', 'GBP', 'CAD', 'CNY', 'EUR'];
 export interface IExchangeRates {
 	[key: string]: {
 		currencySymbol: string;
+		quote: string;
 		quoteName: string;
 		rate: number;
 	};

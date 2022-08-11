@@ -15,6 +15,7 @@ export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
 				...acc,
 				[ticker.quote]: {
 					currencySymbol: ticker.currencySymbol,
+					quote: ticker.quote,
 					quoteName: ticker.quoteName,
 					rate: Math.round(Number(ticker.lastPrice) * 100) / 100,
 				},
@@ -62,12 +63,14 @@ export const getDisplayValues = ({
 	satoshis,
 	exchangeRate,
 	currency,
+	currencySymbol,
 	bitcoinUnit,
 	locale = 'en-US',
 }: {
 	satoshis: number;
 	exchangeRate?: number;
 	currency?: string;
+	currencySymbol?: string;
 	bitcoinUnit?: TBitcoinUnit;
 	locale?: string;
 }): IDisplayValues => {
@@ -104,7 +107,7 @@ export const getDisplayValues = ({
 
 			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
 				if (part.type === 'currency') {
-					fiatSymbol = part.value;
+					fiatSymbol = currencySymbol ?? part.value;
 				} else if (part.type === 'integer' || part.type === 'group') {
 					fiatWhole = `${fiatWhole}${part.value}`;
 				} else if (part.type === 'fraction') {
