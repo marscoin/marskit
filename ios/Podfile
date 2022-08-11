@@ -19,8 +19,6 @@ target 'bitkit' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  pod 'RNQrGenerator', :path => '../node_modules/rn-qr-generator'
-
   target 'bitkitTests' do
     inherit! :complete
     # Pods for testing
