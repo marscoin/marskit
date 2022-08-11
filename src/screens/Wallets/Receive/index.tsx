@@ -178,7 +178,7 @@ const Receive = (): ReactElement => {
 					exiting={FadeOut.duration(500)}
 					color="transparent"
 					style={styles.tooltip}>
-					<Tooltip text="Address copied to clipboard" />
+					<Tooltip text="Invoice Copied To clipboard" />
 				</AnimatedView>
 			)}
 		</ThemedView>

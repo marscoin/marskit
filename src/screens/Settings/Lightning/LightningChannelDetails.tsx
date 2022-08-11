@@ -94,7 +94,7 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 						</View>
 					))}
 
-					<Button text={'Close channel'} onPress={onClose} />
+					<Button text={'Close Channel'} onPress={onClose} />
 				</View>
 			</ScrollView>
 		</View>

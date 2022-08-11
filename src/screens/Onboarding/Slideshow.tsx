@@ -180,7 +180,7 @@ const Slideshow = ({
 									size="large"
 									style={[styles.button, styles.restoreButton]}
 									onPress={onNewWallet}
-									text="New wallet"
+									text="New Wallet"
 								/>
 
 								<Button
@@ -224,8 +224,10 @@ const Slideshow = ({
 		);
 	}
 
+	const glowColor = slides[index]?.topLeftColor ?? colors.brand;
+
 	return (
-		<GlowingBackground topLeft={slides[index].topLeftColor}>
+		<GlowingBackground topLeft={glowColor}>
 			<>
 				<Swiper
 					ref={swiperRef}

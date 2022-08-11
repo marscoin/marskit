@@ -124,11 +124,8 @@ const Money = (props: IMoney): ReactElement => {
 					? [dv.fiatWhole, dv.fiatDecimal + dv.fiatDecimalValue]
 					: [dv.fiatFormatted];
 			case 'satoshi': {
-				const value = dv.bitcoinFormatted;
-				if (!hightlight || sats < 999999) {
-					return [value];
-				}
-				return [value.slice(0, -3), value.slice(-3)];
+				// No highlight effect for denomination in sats
+				return [dv.bitcoinFormatted];
 			}
 			default: {
 				const value = dv.bitcoinFormatted;

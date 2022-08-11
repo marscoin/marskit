@@ -50,7 +50,7 @@ const ActivityList = (): ReactElement => {
 			</View>
 			{groupedItems.map((item) => renderItem({ item }))}
 			<Button
-				text={<Text01M color="white8">Show all activity</Text01M>}
+				text={<Text01M color="white8">Show All Activity</Text01M>}
 				size="big"
 				variant="transparent"
 				onPress={(): void => {

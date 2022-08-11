@@ -86,7 +86,7 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 					<View style={styles.topRow} />
 					<ProfileLinks links={profile?.links} setLink={setLink} />
 					<Button
-						text="Add link or text"
+						text="Add Link Or Text"
 						style={styles.addLinkButton}
 						onPress={(): void => {
 							toggleView({
@@ -106,7 +106,7 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 				</ScrollView>
 				<Button
 					style={styles.saveButton}
-					text={onboardedProfile ? 'Save profile' : 'Continue'}
+					text={onboardedProfile ? 'Save Profile' : 'Continue'}
 					size="large"
 					disabled={
 						!profile.name || profile.name.replace(/\s/g, '').length === 0

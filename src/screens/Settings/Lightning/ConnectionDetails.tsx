@@ -140,7 +140,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 				<View style={styles.buttons}>
 					<Button
 						style={styles.button}
-						text="Close connection"
+						text="Close Connection"
 						size="large"
 						onPress={(): void =>
 							navigation.navigate('LightningCloseConnection')

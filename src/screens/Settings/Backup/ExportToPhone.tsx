@@ -121,7 +121,7 @@ const ExportToPhone = ({ navigation }): ReactElement => {
 					<Button
 						disabled={isCreating}
 						style={styles.button}
-						text={'Create backup file'}
+						text={'Create Backup File'}
 						onPress={onCreateBackup}
 					/>
 				</View>

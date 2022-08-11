@@ -166,7 +166,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 							))}
 						</View>
 						<Button
-							text="Enter custom amount"
+							text="Enter Custom Amount"
 							style={styles.buttonCustom}
 							onPress={(): void => setKeybrd((k) => !k)}
 						/>

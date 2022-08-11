@@ -404,7 +404,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 
 						<View style={styles.buttonDetailsContainer}>
 							<Button
-								text="Transaction details"
+								text="Transaction Details"
 								size="large"
 								onPress={(): void =>
 									props.navigation.push('ActivityDetail', {
@@ -449,7 +449,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 						)}
 						<View style={styles.buttonDetailsContainer}>
 							<Button
-								text="Open Block explorer"
+								text="Open Block Explorer"
 								size="large"
 								disabled={!blockExplorerUrl}
 								onPress={handleBlockExplorerOpen}
