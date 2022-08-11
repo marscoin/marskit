@@ -1,7 +1,6 @@
 import React, { ReactElement, memo, useMemo, useState, useEffect } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSelector } from 'react-redux';
 
 import {
 	AnimatedView,
@@ -16,8 +15,8 @@ import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import useColors from '../../hooks/colors';
+import { useExchangeRate } from '../../hooks/displayValues';
 import AmountToggle from '../../components/AmountToggle';
-import Store from '../../store/types';
 import useDisplayValues from '../../hooks/displayValues';
 import NumberPadLightning from './NumberPadLightning';
 
@@ -86,7 +85,7 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
 	const [amount, setAmount] = useState(0);
 	const [pkgRates, setPkgRates] = useState({});
-	const usdRate = useSelector((state: Store) => state.wallet.exchangeRates.USD);
+	const usdRate = useExchangeRate('USD');
 	const packages = spending ? PACKAGES_SPENDING : PACKAGES_RECEIVING;
 
 	useEffect(() => {

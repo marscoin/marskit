@@ -24,7 +24,7 @@ export default function useDisplayValues(
 
 	const displayValues: IDisplayValues = useMemo(() => {
 		//Exchange rates haven't loaded yet
-		if (!exchangeRates) {
+		if (Object.entries(exchangeRates).length === 0) {
 			return defaultDisplayValues;
 		}
 
@@ -41,3 +41,17 @@ export default function useDisplayValues(
 
 	return displayValues;
 }
+
+/**
+ * Returns 0 if no exchange rate for currency found or something goes wrong
+ */
+export const useExchangeRate = (currency = 'EUR'): number => {
+	try {
+		const exchangeRates = useSelector(
+			(state: Store) => state.wallet.exchangeRates,
+		);
+		return exchangeRates[currency]?.rate ?? 0;
+	} catch {
+		return 0;
+	}
+};

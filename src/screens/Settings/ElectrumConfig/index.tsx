@@ -298,7 +298,7 @@ const ElectrumConfig = (): ReactElement => {
 					keyboardType="number-pad"
 					autoCorrect={false}
 					onChangeText={setPort}
-					value={port}
+					value={port.toString()}
 				/>
 
 				<View style={styles.divider} />
