@@ -20,7 +20,7 @@ const Tooltip = ({ style, text = '' }: ITooltip): ReactElement => {
 				<ThemedView color="black92" style={styles.box} />
 			</View>
 			<ThemedView color="black92" style={styles.content}>
-				<Caption13M color="brand">{text}</Caption13M>
+				<Caption13M>{text}</Caption13M>
 			</ThemedView>
 		</View>
 	);

@@ -133,7 +133,7 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 							exiting={FadeOut.duration(500)}
 							color="transparent"
 							style={styles.tooltip}>
-							<Tooltip text="Slashtags key copied to clipboard" />
+							<Tooltip text="Slashtags Key Copied To clipboard" />
 						</AnimatedView>
 					)}
 				</View>
