@@ -99,9 +99,13 @@ export const getDisplayValues = ({
 		} = defaultDisplayValues;
 
 		if (!isNaN(fiatValue)) {
+			let currencyFormat = currency;
+			if (currency === 'EUT') currencyFormat = 'EUR';
+			if (currency === 'USDT') currencyFormat = 'USD';
+
 			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
 				style: 'currency',
-				currency,
+				currency: currencyFormat,
 			});
 			fiatFormatted = fiatFormattedIntl.format(fiatValue);
 
