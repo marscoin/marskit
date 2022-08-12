@@ -262,7 +262,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 				<View style={styles.tagsContainer}>
 					<Button
 						style={styles.button}
-						text="Add tag"
+						text="Add Tag"
 						icon={<TagIcon color="brand" width={16} />}
 						onPress={(): void => navigation.navigate('Tags')}
 					/>

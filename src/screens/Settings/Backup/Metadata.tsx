@@ -48,7 +48,7 @@ const Result = (): ReactElement => {
 			</View>
 
 			<View style={nextButtonContainer}>
-				<Button size="lg" text="Ok" onPress={handleButtonPress} />
+				<Button size="lg" text="OK" onPress={handleButtonPress} />
 			</View>
 		</ThemedView>
 	);

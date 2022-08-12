@@ -124,7 +124,7 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 						<Button
 							style={styles.button}
 							size="lg"
-							text="Back up"
+							text="Back Up"
 							onPress={handleBackup}
 						/>
 					</View>

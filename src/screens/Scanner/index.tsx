@@ -10,6 +10,7 @@ import {
 import { useSelector } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNQRGenerator from 'rn-qr-generator';
@@ -18,10 +19,11 @@ import {
 	ClipboardTextIcon,
 	PictureIcon,
 	FlashlightIcon,
+	AnimatedView,
+	Text02M,
 } from '../../styles/components';
 import useColors from '../../hooks/colors';
 import Camera from '../../components/Camera';
-import { showErrorNotification } from '../../utils/notifications';
 import { decodeQRData, handleData } from '../../utils/scanner';
 import Store from '../../store/types';
 import SafeAreaView from '../../components/SafeAreaView';
@@ -29,12 +31,14 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 
-const Blur = (props: ViewProps) => Platform.OS === 'ios' ? <BlurView {...props} /> : <View  {...props} />;
+const Blur = (props: ViewProps) =>
+	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const ScannerScreen = ({ navigation }): ReactElement => {
 	const { white08, white5 } = useColors();
 	const dimensions = useWindowDimensions();
 	const [flashMode, setFlashMode] = useState(false);
+	const [error, setError] = useState('');
 
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
@@ -43,17 +47,16 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		(state: Store) => state.wallet.selectedWallet,
 	);
 
+	const showError = (text) => {
+		setError(text);
+		setTimeout(() => setError(''), 5000);
+	};
+
 	const onRead = async (data): Promise<void> => {
 		const res = await decodeQRData(data, selectedNetwork);
 
 		if (res.isErr() || (res.isOk() && res.value.length === 0)) {
-			showErrorNotification(
-				{
-					title: 'Error',
-					message: 'Failed to detect any readable data',
-				},
-				'bottom',
-			);
+			showError('Sorry. Bitkit can’t read this QR code.');
 			return;
 		}
 
@@ -104,37 +107,22 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 					const { values } = await RNQRGenerator.detect({ uri });
 
 					if (values.length === 0) {
-						showErrorNotification(
-							{
-								title: 'Error',
-								message: 'Could not detect QR code in image',
-							},
-							'bottom',
+						showError(
+							'Sorry. Bitkit wasn’t able to detect a QR code in this image.',
 						);
 						return false;
 					}
 
 					onRead(values[0]);
-				} catch (error) {
-					console.error('Failed to read QR from image: ', error);
-					showErrorNotification(
-						{
-							title: 'Error',
-							message: 'Failed to read QR from image',
-						},
-						'bottom',
+				} catch {
+					showError(
+						'Sorry. Bitkit wasn’t able to detect a QR code in this image.',
 					);
 				}
 			}
-		} catch (error) {
-			console.error('Failed to open image file: ', error);
-			showErrorNotification(
-				{
-					title: 'Error',
-					message: 'Failed to open image file',
-				},
-				'bottom',
-			);
+		} catch (err) {
+			console.error('Failed to open image file: ', err);
+			showError('Sorry. An error occured when trying to open this image file.');
 		}
 	};
 
@@ -181,17 +169,28 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 							</View>
 							<Blur style={styles.mask} />
 						</View>
-						<Blur style={styles.mask}>
+						<Blur style={[styles.mask, styles.bottom]}>
 							<Button
 								style={styles.pasteButton}
 								icon={<ClipboardTextIcon width={16} height={16} />}
-								text={'Paste QR code'}
+								text={'Paste QR Code'}
 								size="large"
 								onPress={async (): Promise<void> => {
 									let url = await Clipboard.getString();
 									onRead(url);
 								}}
 							/>
+
+							{!!error && (
+								<AnimatedView
+									color="transparent"
+									entering={FadeIn}
+									exiting={FadeOut}>
+									<Text02M style={styles.error} color="brand">
+										{error}
+									</Text02M>
+								</AnimatedView>
+							)}
 						</Blur>
 					</View>
 				</>
@@ -207,6 +206,7 @@ const styles = StyleSheet.create({
 	mask: {
 		backgroundColor: 'rgba(0, 0, 0, 0.64)',
 		flex: 1,
+		alignItems: 'center',
 	},
 	maskCenter: {
 		flexDirection: 'row',
@@ -224,9 +224,18 @@ const styles = StyleSheet.create({
 		borderRadius: 50,
 		padding: 13,
 	},
+	bottom: {
+		paddingHorizontal: 16,
+	},
 	pasteButton: {
 		marginHorizontal: 16,
 		marginTop: 16,
+		width: '100%',
+	},
+	error: {
+		marginHorizontal: 16,
+		marginTop: 32,
+		textAlign: 'center',
 	},
 });
 

@@ -100,7 +100,7 @@ const CustomConfirm = ({ navigation, route }): ReactElement => {
 				{!keybrd && (
 					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>
 						<SwipeToConfirm
-							text="Swipe to pay & connect"
+							text="Swipe To Pay & Connect"
 							color="purple"
 							onConfirm={handleConfirm}
 							icon={<LightningIcon width={30} height={30} color="black" />}

@@ -46,14 +46,14 @@ const OnboardingWelcomeScreen = ({
 							<Button
 								size="large"
 								onPress={onGetStarted}
-								text="Get started"
+								text="Get Started"
 								style={[styles.button, styles.restoreButton]}
 							/>
 							<Button
 								size="large"
 								variant="secondary"
 								onPress={onSkipIntro}
-								text="Skip intro"
+								text="Skip Intro"
 								style={[styles.button, styles.skipButton]}
 							/>
 						</View>

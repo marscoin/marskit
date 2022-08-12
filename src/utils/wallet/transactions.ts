@@ -69,10 +69,6 @@ export const parseOnChainPaymentRequest = (
 			return err(data);
 		}
 
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-
 		let validateAddressResult = validateAddress({
 			address: data,
 			selectedNetwork:

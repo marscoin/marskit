@@ -203,7 +203,7 @@ const Order = (props: Props): ReactElement => {
 
 					{orderId ? (
 						<Button
-							text={isRefreshing ? 'Refreshing...' : 'Refresh order'}
+							text={isRefreshing ? 'Refreshing...' : 'Refresh Order'}
 							disabled={isRefreshing}
 							onPress={onRefreshOrder}
 						/>
@@ -224,7 +224,7 @@ const Order = (props: Props): ReactElement => {
 					) : null}
 					{showClaimButton ? (
 						<Button
-							text={isProcessing ? 'Claiming...' : 'Claim channel'}
+							text={isProcessing ? 'Claiming...' : 'Claim Channel'}
 							disabled={isProcessing}
 							onPress={onClaimChannel}
 						/>

@@ -40,16 +40,18 @@ const Currencies = (): ReactElement => {
 			},
 			{
 				title: 'Other Currencies',
-				data: Object.keys(exchangeRates).map((ticker) => ({
-					title: ticker,
-					value: selectedCurrency === ticker,
-					type: 'button',
-					onPress: (): void => {
-						navigation.goBack();
-						onSetCurrency(ticker);
-					},
-					hide: false,
-				})),
+				data: Object.keys(exchangeRates)
+					.sort()
+					.map((ticker) => ({
+						title: ticker,
+						value: selectedCurrency === ticker,
+						type: 'button',
+						onPress: (): void => {
+							navigation.goBack();
+							onSetCurrency(ticker);
+						},
+						hide: false,
+					})),
 			},
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps

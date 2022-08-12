@@ -34,7 +34,7 @@ export const ContactsOnboarding = ({ navigation }): JSX.Element => {
 					and follow their public profiles
 				</Text>
 				<Button
-					text={<Text01B>Add your first contact</Text01B>}
+					text={<Text01B>Add Your First Contact</Text01B>}
 					size="large"
 					onPress={(): void => {
 						setOnboardedContacts();
