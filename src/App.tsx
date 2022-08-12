@@ -9,7 +9,7 @@ import React, {
 	useCallback,
 	useState,
 } from 'react';
-import { Platform, UIManager } from 'react-native';
+import { Platform, UIManager, NativeModules } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ThemeProvider } from 'styled-components/native';
 import { SafeAreaProvider } from './styles/components';
@@ -43,6 +43,12 @@ const App = (): ReactElement => {
 	const [primaryKey, setPrimaryKey] = useState<Uint8Array>();
 
 	useEffect(() => {
+		// hide spash screen on android
+		if (Platform.OS === 'android') {
+			NativeModules.SplashScreenModule.hide();
+		}
+
+		// launch wallet services
 		(async (): Promise<void> => {
 			const _walletExists = await checkWalletExists();
 			if (_walletExists) {
