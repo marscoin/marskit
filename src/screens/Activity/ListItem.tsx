@@ -92,7 +92,7 @@ const ListItem = memo(
 				{showBoost && (
 					<View style={styles.showBoost}>
 						<Button
-							text="Boost transaction"
+							text="Boost Transaction"
 							color="yellow08"
 							icon={<TimerIconAlt color="yellow" />}
 							onPress={handleBoost}

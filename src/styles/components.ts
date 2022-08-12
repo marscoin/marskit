@@ -60,6 +60,8 @@ import {
 	plusIcon,
 	backIcon,
 	cornersOut,
+	pictureIcon,
+	flashlightIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -897,6 +899,20 @@ export const MediumIcon = styled(SvgXml).attrs((props) => ({
 
 export const TwitterIcon = styled(SvgXml).attrs((props) => ({
 	xml: twitterIcon(props?.color ? props.theme.colors[props.color] : '#FF6600'),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
+	color: undefined,
+}))({});
+
+export const PictureIcon = styled(SvgXml).attrs((props) => ({
+	xml: pictureIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '24px',
+	width: props?.width ?? '24px',
+	color: undefined,
+}))({});
+
+export const FlashlightIcon = styled(SvgXml).attrs((props) => ({
+	xml: flashlightIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '24px',
 	width: props?.width ?? '24px',
 	color: undefined,

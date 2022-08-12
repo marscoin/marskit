@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useCallback, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import {
@@ -50,6 +50,7 @@ const NavigationHeader = ({
 	size = 'lg',
 	onClosePress,
 	onAddPress,
+	style,
 }: {
 	title?: string;
 	displayBackButton?: boolean;
@@ -58,6 +59,7 @@ const NavigationHeader = ({
 	size?: 'lg' | 'sm';
 	onClosePress?: Function;
 	onAddPress?: Function;
+	style?: StyleProp<ViewStyle>;
 }): ReactElement => {
 	const navigation = useNavigation<any>();
 
@@ -81,7 +83,7 @@ const NavigationHeader = ({
 	);
 
 	return (
-		<View style={container}>
+		<View style={[container, style]}>
 			<View style={styles.leftColumn}>
 				{displayBackButton && <BackButton onPress={handleBackPress} />}
 			</View>

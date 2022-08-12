@@ -15,6 +15,7 @@ import {
 	getDisplayValues,
 } from '../../../utils/exchange-rate';
 import { btcToSats } from '../../../utils/helpers';
+import { useExchangeRate } from '../../../hooks/displayValues';
 
 /**
  * Handles the number pad logic (add/remove/clear) for on-chain transactions.
@@ -38,9 +39,7 @@ const OnChainNumberPad = (): ReactElement => {
 	const currency = useSelector(
 		(store: Store) => store.settings.selectedCurrency,
 	);
-	const exchangeRate = useSelector(
-		(store: Store) => store.wallet.exchangeRates[currency].rate,
-	);
+	const exchangeRate = useExchangeRate(currency);
 
 	const transaction = useSelector(
 		(store: Store) =>

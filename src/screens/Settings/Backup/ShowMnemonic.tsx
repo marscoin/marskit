@@ -81,7 +81,7 @@ const ShowMnemonic = ({ navigation }): ReactElement => {
 					<Blur style={styles.blur}>
 						<Button
 							size="lg"
-							text="Tap to reveal"
+							text="Tap To Reveal"
 							color="black5"
 							onPress={(): void => setShow(true)}
 						/>
@@ -98,7 +98,7 @@ const ShowMnemonic = ({ navigation }): ReactElement => {
 			<View style={nextButtonContainer}>
 				<Button
 					size="lg"
-					text="Next step"
+					text="Next Step"
 					disabled={!show}
 					onPress={(): void => navigation.navigate('ConfirmMnemonic', { seed })}
 				/>

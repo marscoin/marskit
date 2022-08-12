@@ -15,6 +15,7 @@ export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
 				...acc,
 				[ticker.quote]: {
 					currencySymbol: ticker.currencySymbol,
+					quote: ticker.quote,
 					quoteName: ticker.quoteName,
 					rate: Math.round(Number(ticker.lastPrice) * 100) / 100,
 				},
@@ -43,7 +44,7 @@ export const fiatToBitcoinUnit = ({
 		currency = getStore().settings.selectedCurrency;
 	}
 	if (!exchangeRate) {
-		exchangeRate = getStore().wallet.exchangeRates[currency].rate || 0;
+		exchangeRate = getExchangeRate(currency);
 	}
 	if (!bitcoinUnit) {
 		bitcoinUnit = getStore().settings.bitcoinUnit;
@@ -62,12 +63,14 @@ export const getDisplayValues = ({
 	satoshis,
 	exchangeRate,
 	currency,
+	currencySymbol,
 	bitcoinUnit,
 	locale = 'en-US',
 }: {
 	satoshis: number;
 	exchangeRate?: number;
 	currency?: string;
+	currencySymbol?: string;
 	bitcoinUnit?: TBitcoinUnit;
 	locale?: string;
 }): IDisplayValues => {
@@ -76,7 +79,7 @@ export const getDisplayValues = ({
 			currency = getStore().settings.selectedCurrency;
 		}
 		if (!exchangeRate) {
-			exchangeRate = getStore().wallet.exchangeRates[currency].rate || 0;
+			exchangeRate = getStore().wallet.exchangeRates[currency]?.rate ?? 0;
 		}
 		if (!bitcoinUnit) {
 			bitcoinUnit = getStore().settings.bitcoinUnit;
@@ -96,15 +99,19 @@ export const getDisplayValues = ({
 		} = defaultDisplayValues;
 
 		if (!isNaN(fiatValue)) {
+			let currencyFormat = currency;
+			if (currency === 'EUT') currencyFormat = 'EUR';
+			if (currency === 'USDT') currencyFormat = 'USD';
+
 			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
 				style: 'currency',
-				currency,
+				currency: currencyFormat,
 			});
 			fiatFormatted = fiatFormattedIntl.format(fiatValue);
 
 			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
 				if (part.type === 'currency') {
-					fiatSymbol = part.value;
+					fiatSymbol = currencySymbol ?? part.value;
 				} else if (part.type === 'integer' || part.type === 'group') {
 					fiatWhole = `${fiatWhole}${part.value}`;
 				} else if (part.type === 'fraction') {
@@ -175,5 +182,14 @@ export const getDisplayValues = ({
 	} catch (e) {
 		console.error(e);
 		return defaultDisplayValues;
+	}
+};
+
+export const getExchangeRate = (currency = 'EUR'): number => {
+	try {
+		const exchangeRates = getStore().wallet.exchangeRates;
+		return exchangeRates[currency]?.rate ?? 0;
+	} catch {
+		return 0;
 	}
 };

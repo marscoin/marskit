@@ -101,7 +101,10 @@ export interface QRData {
  * @param data
  * @returns {string}
  */
-export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
+export const decodeQRData = async (
+	data: string,
+	selectedNetwork?: TAvailableNetworks,
+): Promise<Result<QRData[]>> => {
 	if (data.startsWith('slashauth://')) {
 		return ok([{ qrDataType: EQRDataType.slashAuthURL, url: data }]);
 	} else if (data.startsWith('slash://')) {
@@ -168,7 +171,11 @@ export const decodeQRData = async (data: string): Promise<Result<QRData[]>> => {
 
 	//Plain bitcoin address or Bitcoin address URI
 	try {
-		const onChainParseResponse = parseOnChainPaymentRequest(data);
+		//Validate address for selected network
+		const onChainParseResponse = parseOnChainPaymentRequest(
+			data,
+			selectedNetwork,
+		);
 		if (onChainParseResponse.isOk()) {
 			const { address, sats, message, network } = onChainParseResponse.value;
 			foundNetworksInQR.push({
@@ -265,7 +272,7 @@ export const handleData = async ({
 					outputs: [{ address, value: amount }],
 				},
 			}).then();
-			refreshWallet({}).then();
+			refreshWallet({ showNotification: false });
 			break;
 		}
 		case EQRDataType.lightningPaymentRequest: {

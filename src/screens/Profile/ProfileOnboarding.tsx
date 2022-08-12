@@ -82,7 +82,7 @@ export const OfflinePayments = ({ navigation }): JSX.Element => {
 			highlighted="Payments."
 			text="Bitkit can also create a fixed Bitcoin address for you, so you’re able to receive payments even when you are offline."
 			nextStep="Done"
-			buttonText="Save profile"
+			buttonText="Save Profile"
 			onNext={savePaymentConfig}>
 			<View>
 				<View style={styles.enableOfflineRow}>

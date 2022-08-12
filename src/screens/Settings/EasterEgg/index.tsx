@@ -36,7 +36,7 @@ const EasterEgg = (): ReactElement => {
 				<Button
 					style={styles.button}
 					onPress={onShare}
-					text={'Share Bitkit with a friend'}
+					text={'Share Bitkit With A Friend'}
 				/>
 			</View>
 		</GlowingBackground>

@@ -50,7 +50,7 @@ const LightningChannel = ({
 			{
 				borderTopRightRadius: receivingSize,
 				borderBottomRightRadius: receivingSize,
-				marginLeft: 1,
+				marginLeft: 3,
 			},
 		],
 		[receivingSize],

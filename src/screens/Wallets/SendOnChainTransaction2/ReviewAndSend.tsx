@@ -350,7 +350,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 
 				<View style={nextButtonContainer}>
 					<SwipeToConfirm
-						text="Swipe to pay"
+						text="Swipe To Pay"
 						onConfirm={handleConfirm}
 						icon={<Checkmark width={30} height={30} color="black" />}
 						loading={isLoading}

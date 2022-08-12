@@ -107,7 +107,7 @@ const AddConnection = ({ navigation }): ReactElement => {
 				<View style={styles.buttons}>
 					<Button
 						style={styles.button}
-						text="Open connection"
+						text="Open Connection"
 						size="large"
 						onPress={(): void =>
 							navigation.navigate('LightningAddConnectionResult')

@@ -30,6 +30,7 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import { getConnectedPeer, IPeerData } from '../../../utils/wallet/electrum';
+import SafeAreaInsets from '../../../components/SafeAreaInsets';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: 'TCP', value: 'tcp' },
@@ -243,6 +244,7 @@ const ElectrumConfig = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
+			<SafeAreaInsets type="top" />
 			<NavigationHeader title="Electrum Config" />
 			<View style={styles.content}>
 				{!!connectedPeer?.host && (
@@ -257,7 +259,7 @@ const ElectrumConfig = (): ReactElement => {
 							{!peersMatch(connectedPeer) && (
 								<View style={styles.savePeer}>
 									<Button
-										text="Save this peer"
+										text="Save This Peer"
 										color="surface"
 										onPress={saveConnectedPeer}
 									/>
@@ -298,7 +300,7 @@ const ElectrumConfig = (): ReactElement => {
 					keyboardType="number-pad"
 					autoCorrect={false}
 					onChangeText={setPort}
-					value={port}
+					value={port.toString()}
 				/>
 
 				<View style={styles.divider} />

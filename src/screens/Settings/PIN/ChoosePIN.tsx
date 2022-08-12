@@ -30,7 +30,7 @@ const ChoosePIN = ({ navigation, route }): ReactElement => {
 	const handleOnPress = (n): void => {
 		setPin((p) => {
 			if (p.length === 4) {
-				return;
+				return p;
 			}
 			return p + String(n);
 		});

@@ -50,8 +50,8 @@ const Slideshow = ({
 	const illustrationStyles = useMemo(
 		() => ({
 			...styles.illustration,
-			width: dimensions.width * 0.75,
-			height: dimensions.width * 0.8,
+			width: dimensions.width * 0.6,
+			height: dimensions.width * 0.6,
 		}),
 		[dimensions.width],
 	);
@@ -143,8 +143,8 @@ const Slideshow = ({
 								<Display color="blue"> just a Tap.</Display>
 							</Display>
 							<Text01S color="gray1" style={styles.text}>
-								Experience the web without passwords. Use Slashtags to take
-								control of your accounts & contacts.
+								Experience the web without passwords. Use Slashtags to control
+								your profile, contacts & accounts.
 							</Text01S>
 						</View>
 						<SafeAreaInsets type="bottom" />
@@ -180,7 +180,7 @@ const Slideshow = ({
 									size="large"
 									style={[styles.button, styles.restoreButton]}
 									onPress={onNewWallet}
-									text="New wallet"
+									text="New Wallet"
 								/>
 
 								<Button
@@ -224,8 +224,10 @@ const Slideshow = ({
 		);
 	}
 
+	const glowColor = slides[index]?.topLeftColor ?? colors.brand;
+
 	return (
-		<GlowingBackground topLeft={slides[index].topLeftColor}>
+		<GlowingBackground topLeft={glowColor}>
 			<>
 				<Swiper
 					ref={swiperRef}
@@ -282,16 +284,15 @@ const styles = StyleSheet.create({
 	newButton: {
 		marginLeft: 6,
 	},
-
 	slide: {
 		flex: 1,
 		justifyContent: 'space-between',
-		alignItems: 'stretch',
+		alignItems: 'center',
 	},
 	imageContainer: {
-		flex: 4,
+		flex: 3,
 		alignItems: 'center',
-		paddingVertical: 25,
+		marginBottom: 25,
 		justifyContent: 'flex-end',
 		position: 'relative', // for first slide background image
 	},
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
 	},
 	textContent: {
 		flex: 3,
-		paddingHorizontal: 48,
+		width: 280,
 	},
 	pageDot: {
 		width: 7,
