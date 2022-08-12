@@ -1,5 +1,5 @@
 import React, { ReactElement, memo } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 
 import {
 	Caption13Up,
@@ -11,37 +11,57 @@ import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
 import LightningChannel from '../../../components/LightningChannel';
 import Money from '../../../components/Money';
+import {
+	useLightningChannelBalance,
+	useLightningChannelData,
+	useLightningChannelName,
+} from '../../../hooks/lightning';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { showSuccessNotification } from '../../../utils/notifications';
 
-const Section = ({
-	name,
-	value,
-}: {
-	name: string;
-	value: ReactElement;
-}): ReactElement => {
-	return (
-		<View style={styles.sectionRoot}>
-			<Caption13M>{name}</Caption13M>
-			{value}
-		</View>
-	);
-};
+const Section = memo(
+	({
+		name,
+		value,
+		onPress,
+	}: {
+		name: string;
+		value: ReactElement;
+		onPress?: () => void;
+	}): ReactElement => {
+		return (
+			<TouchableOpacity
+				activeOpacity={onPress ? 0.5 : 1}
+				onPress={onPress}
+				style={styles.sectionRoot}>
+				<View style={styles.sectionName}>
+					<Caption13M>{name}</Caption13M>
+				</View>
+				<View style={styles.sectionValue}>{value}</View>
+			</TouchableOpacity>
+		);
+	},
+);
 
-const ConnectionDetails = ({ route, navigation }): ReactElement => {
-	const { node } = route.params;
+const ChannelDetails = ({ route, navigation }): ReactElement => {
+	const {
+		channelId,
+	}: {
+		channelId: string;
+	} = route.params;
+
+	const name = useLightningChannelName(channelId);
+	const { spendingAvailable, receivingAvailable, capacity } =
+		useLightningChannelBalance(channelId);
+	const channel = useLightningChannelData(channelId);
 
 	return (
 		<ThemedView style={styles.root}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title={node.name} />
+			<NavigationHeader title={name} />
 			<ScrollView contentContainerStyle={styles.content}>
 				<View style={styles.channel}>
-					<LightningChannel
-						spendingTotal={node.spendingTotal}
-						spendingAvailable={node.spendingAvailable}
-						receivingTotal={node.receivingTotal}
-						receivingAvailable={node.receivingAvailable}
-					/>
+					<LightningChannel channelId={channelId} />
 				</View>
 
 				<View style={styles.sectionTitle}>
@@ -51,7 +71,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 					name="Receiving capacity"
 					value={
 						<Money
-							sats={100500}
+							sats={receivingAvailable}
 							size="caption13M"
 							symbol={true}
 							color="white"
@@ -63,7 +83,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 					name="Spending balance"
 					value={
 						<Money
-							sats={100500}
+							sats={spendingAvailable}
 							size="caption13M"
 							symbol={true}
 							color="white"
@@ -72,15 +92,14 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 					}
 				/>
 				<Section
-					name="Unsettled"
+					name="Reserve balance"
 					value={
 						<Money
-							sats={100500}
+							sats={Number(channel.unspendable_punishment_reserve)}
 							size="caption13M"
 							symbol={true}
 							color="white"
 							unit="satoshi"
-							sign="+"
 						/>
 					}
 				/>
@@ -88,7 +107,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 					name="Total channel size"
 					value={
 						<Money
-							sats={100500}
+							sats={capacity}
 							size="caption13M"
 							symbol={true}
 							color="white"
@@ -126,7 +145,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 				/>
 
 				<View style={styles.sectionTitle}>
-					<Caption13Up color="gray1">FEES</Caption13Up>
+					<Caption13Up color="gray1">Info</Caption13Up>
 				</View>
 				<Section
 					name="Opened on"
@@ -134,7 +153,18 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 				/>
 				<Section
 					name="Node ID"
-					value={<Caption13M>0296b2db..d73bf5c9</Caption13M>}
+					value={
+						<Caption13M ellipsizeMode={'middle'} numberOfLines={1}>
+							{channel.counterparty_node_id}
+						</Caption13M>
+					}
+					onPress={(): void => {
+						Clipboard.setString(channel.counterparty_node_id);
+						showSuccessNotification({
+							title: 'Copied Counterparty Node ID to Clipboard',
+							message: channel.counterparty_node_id,
+						});
+					}}
 				/>
 
 				<View style={styles.buttons}>
@@ -143,7 +173,7 @@ const ConnectionDetails = ({ route, navigation }): ReactElement => {
 						text="Close Connection"
 						size="large"
 						onPress={(): void =>
-							navigation.navigate('LightningCloseConnection')
+							navigation.navigate('CloseConnection', { channelId })
 						}
 					/>
 					<SafeAreaInsets type="bottom" />
@@ -190,6 +220,14 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 	},
+	sectionName: {
+		flex: 1,
+	},
+	sectionValue: {
+		flex: 1.5,
+		alignItems: 'flex-end',
+		justifyContent: 'center',
+	},
 });
 
-export default memo(ConnectionDetails);
+export default memo(ChannelDetails);

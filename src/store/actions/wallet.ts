@@ -69,7 +69,7 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  * @return {Promise<Result<string>>}
  */
 export const createWallet = async ({
-	walletName = 'wallet0',
+	walletName = EWallet.defaultWallet,
 	addressAmount = 1,
 	changeAddressAmount = 1,
 	mnemonic = '',

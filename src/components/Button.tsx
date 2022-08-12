@@ -66,7 +66,7 @@ const Button = ({
 			activeOpacity={0.6}
 			color={buttonColor}
 			style={buttonStyle}
-			disabled={disabled}
+			disabled={loading || disabled}
 			{...props}>
 			{icon ? (
 				<View style={styles.iconContainer} color="transparent">

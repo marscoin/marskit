@@ -47,5 +47,6 @@ export default Sentry.wrap(Root);
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: 'black',
 	},
 });

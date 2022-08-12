@@ -22,9 +22,9 @@ import AdvancedSettings from '../../screens/Settings/Advanced';
 import AboutSettings from '../../screens/Settings/About';
 import EasterEgg from '../../screens/Settings/EasterEgg';
 import BitcoinNetworkSelection from '../../screens/Settings/Bitcoin/BitcoinNetworkSelection';
-import Connections from '../../screens/Settings/Lightning/Connections';
-import ConnectionDetails from '../../screens/Settings/Lightning/ConnectionDetails';
-import CloseConnection from '../../screens/Settings/Lightning/CloseConnection';
+import Channels from '../../screens/Settings/Lightning/Channels';
+import ChannelDetails from '../../screens/Settings/Lightning/ChannelDetails';
+import CloseConnection from '../../screens/Settings/Lightning/CloseChannel';
 import AddConnection from '../../screens/Settings/Lightning/AddConnection';
 import AddConnectionResult from '../../screens/Settings/Lightning/AddConnectionResult';
 import ExportToPhone from '../../screens/Settings/Backup/ExportToPhone';
@@ -85,15 +85,9 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
-				<Stack.Screen name="LightningConnections" component={Connections} />
-				<Stack.Screen
-					name="LightningConnection"
-					component={ConnectionDetails}
-				/>
-				<Stack.Screen
-					name="LightningCloseConnection"
-					component={CloseConnection}
-				/>
+				<Stack.Screen name="Channels" component={Channels} />
+				<Stack.Screen name="ChannelDetails" component={ChannelDetails} />
+				<Stack.Screen name="CloseConnection" component={CloseConnection} />
 				<Stack.Screen name="LightningAddConnection" component={AddConnection} />
 				<Stack.Screen
 					name="LightningAddConnectionResult"

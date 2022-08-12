@@ -3,26 +3,24 @@ import { StyleSheet, View } from 'react-native';
 
 import { DownArrow, UpArrow, View as ThemedView } from '../styles/components';
 import Money from './Money';
+import { useLightningChannelBalance } from '../hooks/lightning';
 
 const LightningChannel = ({
-	spendingTotal,
-	spendingAvailable,
+	channelId,
 	spendingSize = 16,
-	receivingTotal,
-	receivingAvailable,
 	receivingSize = 16,
 	disabled = false,
 }: {
-	spendingTotal: number;
-	spendingAvailable: number;
+	channelId: string;
 	spendingSize?: number;
-	receivingTotal: number;
-	receivingAvailable: number;
 	receivingSize?: number;
 	disabled?: boolean;
 }): ReactElement => {
-	const spendingWidth = `${100 * (spendingAvailable / spendingTotal)}%`;
-	const receivingWidth = `${100 * (receivingAvailable / receivingTotal)}%`;
+	const { spendingAvailable, receivingAvailable, capacity } =
+		useLightningChannelBalance(channelId);
+
+	const spendingWidth = `${100 * (spendingAvailable / capacity)}%`;
+	const receivingWidth = `${100 * (receivingAvailable / capacity)}%`;
 
 	const spendingTotalStyle = useMemo(
 		() => [
@@ -73,7 +71,7 @@ const LightningChannel = ({
 				<View style={styles.balance}>
 					<UpArrow color="purple" width={14} height={14} />
 					<Money
-						sats={spendingTotal}
+						sats={spendingAvailable}
 						color="purple"
 						size="text02m"
 						unit="satoshi"
@@ -82,7 +80,7 @@ const LightningChannel = ({
 				<View style={styles.balance}>
 					<DownArrow color="white" width={14} height={14} />
 					<Money
-						sats={receivingTotal}
+						sats={receivingAvailable}
 						color="white"
 						size="text02m"
 						unit="satoshi"

@@ -59,6 +59,13 @@ export const objectTypeItems: IWalletItem<object> = {
 	timestamp: null,
 };
 
+export const stringTypeItems: IWalletItem<string> = {
+	bitcoin: '',
+	bitcoinTestnet: '',
+	bitcoinRegtest: '',
+	timestamp: null,
+};
+
 export const addressContent = {
 	index: 0,
 	path: '',
@@ -177,6 +184,6 @@ export const defaultWalletStoreShape: IWallet = {
 		bitcoinRegtest: { ...header },
 	},
 	wallets: {
-		wallet0: { ...defaultWalletShape },
+		[EWallet.defaultWallet]: { ...defaultWalletShape },
 	},
 };
