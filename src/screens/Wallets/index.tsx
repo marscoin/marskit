@@ -1,6 +1,6 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
 	View,
@@ -38,8 +38,6 @@ const Wallets = ({ navigation }): ReactElement => {
 	const navigateToProfile = (): void => {
 		navigation.navigate('Profile');
 	};
-
-	LayoutAnimation.easeInEaseOut();
 
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);

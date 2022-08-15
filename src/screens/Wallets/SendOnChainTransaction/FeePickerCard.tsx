@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { LayoutAnimation, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
 	AntDesign,
 	EvilIcon,
@@ -55,8 +55,6 @@ const FeePickerCard = ({
 	onPress?: Function;
 	isSelected?: boolean;
 }): ReactElement => {
-	LayoutAnimation.easeInEaseOut();
-
 	const totalFeeDisplay = useDisplayValues(sats);
 
 	const _description = useMemo(() => {
