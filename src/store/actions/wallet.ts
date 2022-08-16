@@ -46,6 +46,7 @@ import {
 import { EFeeIds } from '../types/fees';
 import { IHeader } from '../../utils/types/electrum';
 import { toggleView } from './user';
+import { GENERATE_ADDRESS_AMOUNT } from '../../utils/wallet/constants';
 
 const dispatch = getDispatch();
 
@@ -70,8 +71,8 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  */
 export const createWallet = async ({
 	walletName = EWallet.defaultWallet,
-	addressAmount = 1,
-	changeAddressAmount = 1,
+	addressAmount = GENERATE_ADDRESS_AMOUNT,
+	changeAddressAmount = GENERATE_ADDRESS_AMOUNT,
 	mnemonic = '',
 	addressTypes,
 }: ICreateWallet): Promise<Result<string>> => {

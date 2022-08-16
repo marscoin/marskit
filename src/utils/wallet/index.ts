@@ -79,22 +79,37 @@ import { EFeeIds } from '../../store/types/fees';
 
 import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
 import { refreshLdk } from '../lightning';
-
-const BITKIT_WALLET_SEED_HASH_PREFIX = Buffer.from('@Bitkit/wallet-uuid');
+import {
+	BITKIT_WALLET_SEED_HASH_PREFIX,
+	GENERATE_ADDRESS_AMOUNT,
+} from './constants';
 
 export const refreshWallet = async ({
 	showNotification = false,
 	onchain = true,
 	lightning = true,
+	updateAllAddressTypes = false, // If set to true, Bitkit will generate, check and update all available address types.
 }: {
 	showNotification?: boolean;
 	onchain?: boolean;
 	lightning?: boolean;
+	updateAllAddressTypes?: boolean;
 }): Promise<Result<string>> => {
 	try {
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		if (onchain) {
-			await updateAddressIndexes({ selectedWallet, selectedNetwork });
+			let addressType: TAddressType | undefined;
+			if (!updateAllAddressTypes) {
+				addressType = getSelectedAddressType({
+					selectedNetwork,
+					selectedWallet,
+				});
+			}
+			await updateAddressIndexes({
+				selectedWallet,
+				selectedNetwork,
+				addressType,
+			});
 			await Promise.all([
 				subscribeToAddresses({
 					selectedWallet,
@@ -879,11 +894,6 @@ export const getNextAvailableAddress = async ({
 			const addressTypes = getAddressTypes();
 			const { path } = addressTypes[addressType];
 
-			let addresses: IAddress | {} =
-				currentWallet.addresses[selectedNetwork][addressType];
-			let changeAddresses: IAddress | {} =
-				currentWallet.changeAddresses[selectedNetwork][addressType];
-
 			if (!selectedNetwork) {
 				selectedNetwork = getSelectedNetwork();
 			}
@@ -897,10 +907,6 @@ export const getNextAvailableAddress = async ({
 			}
 			const { pathObject: keyDerivationPath } = result.value;
 
-			//How many addresses/changeAddresses are currently stored
-			const addressCount = Object.values(addresses).length;
-			const changeAddressCount = Object.values(changeAddresses).length;
-
 			//The currently known/stored address index.
 			let addressIndex =
 				currentWallet.addressIndex[selectedNetwork][addressType];
@@ -910,7 +916,7 @@ export const getNextAvailableAddress = async ({
 				const generatedAddresses = await generateAddresses({
 					selectedWallet,
 					selectedNetwork,
-					addressAmount: 1,
+					addressAmount: GENERATE_ADDRESS_AMOUNT,
 					changeAddressAmount: 0,
 					keyDerivationPath,
 					addressType,
@@ -927,7 +933,7 @@ export const getNextAvailableAddress = async ({
 					selectedWallet,
 					selectedNetwork,
 					addressAmount: 0,
-					changeAddressAmount: 1,
+					changeAddressAmount: GENERATE_ADDRESS_AMOUNT,
 					keyDerivationPath,
 					addressType,
 				});
@@ -941,12 +947,21 @@ export const getNextAvailableAddress = async ({
 					generatedChangeAddresses.value.changeAddresses[key];
 			}
 
+			let addresses: IAddress | {} =
+				currentWallet.addresses[selectedNetwork][addressType];
+			let changeAddresses: IAddress | {} =
+				currentWallet.changeAddresses[selectedNetwork][addressType];
+
+			//How many addresses/changeAddresses are currently stored
+			const addressCount = Object.values(addresses).length;
+			const changeAddressCount = Object.values(changeAddresses).length;
+
 			/*
 			 *	Create more addresses if none exist or the highest address index matches the current address count
 			 */
 			if (addressCount <= 0 || addressIndex.index === addressCount) {
 				const newAddresses = await addAddresses({
-					addressAmount: 5,
+					addressAmount: GENERATE_ADDRESS_AMOUNT,
 					changeAddressAmount: 0,
 					addressIndex: addressIndex.index,
 					changeAddressIndex: 0,
@@ -970,7 +985,7 @@ export const getNextAvailableAddress = async ({
 			) {
 				const newChangeAddresses = await addAddresses({
 					addressAmount: 0,
-					changeAddressAmount: 5,
+					changeAddressAmount: GENERATE_ADDRESS_AMOUNT,
 					addressIndex: 0,
 					changeAddressIndex: changeAddressIndex.index,
 					selectedNetwork,
@@ -1103,7 +1118,7 @@ export const getNextAvailableAddress = async ({
 				//Create receiving addresses for the next round
 				if (!foundLastUsedAddress) {
 					const newAddresses = await addAddresses({
-						addressAmount: 5,
+						addressAmount: GENERATE_ADDRESS_AMOUNT,
 						changeAddressAmount: 0,
 						addressIndex: highestStoredIndex.value.addressIndex.index,
 						changeAddressIndex: 0,
@@ -1120,7 +1135,7 @@ export const getNextAvailableAddress = async ({
 				if (!foundLastUsedChangeAddress) {
 					const newChangeAddresses = await addAddresses({
 						addressAmount: 0,
-						changeAddressAmount: 5,
+						changeAddressAmount: GENERATE_ADDRESS_AMOUNT,
 						addressIndex: 0,
 						changeAddressIndex:
 							highestStoredIndex.value.changeAddressIndex.index,
@@ -1910,8 +1925,8 @@ export const formatRbfData = async (
  */
 export const createDefaultWallet = async ({
 	walletName = 'wallet0',
-	addressAmount = 1,
-	changeAddressAmount = 1,
+	addressAmount = GENERATE_ADDRESS_AMOUNT,
+	changeAddressAmount = GENERATE_ADDRESS_AMOUNT,
 	mnemonic = '',
 	addressTypes,
 	selectedNetwork,
@@ -1959,7 +1974,7 @@ export const createDefaultWallet = async ({
 		const changeAddressIndex = { ...defaultWalletShape.changeAddressIndex };
 		await Promise.all([
 			setKeychainSlashtagsPrimaryKey(seed),
-			...Object.values(addressTypes).map(async ({ type, path }) => {
+			Object.values(addressTypes).map(async ({ type, path }) => {
 				if (!selectedNetwork) {
 					selectedNetwork = getSelectedNetwork();
 				}
