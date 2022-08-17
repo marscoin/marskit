@@ -27,6 +27,7 @@ import { updateActivityList } from '../../store/actions/activity';
 import { refreshWallet } from '../../utils/wallet';
 import { groupActivityItems, filterActivityItems } from '../../utils/activity';
 import ListItem from './ListItem';
+import type { RootNavigationProp } from '../../navigation/root/RootNavigator';
 
 const ListHeaderComponent = memo(
 	(): ReactElement => {
@@ -54,7 +55,7 @@ const ActivityList = ({
 	showTitle?: boolean;
 	filter?: {};
 }): ReactElement => {
-	const navigation = useNavigation();
+	const navigation = useNavigation<RootNavigationProp>();
 	const items = useSelector((state: Store) => state.activity.items);
 	const tags = useSelector((state: Store) => state.metadata.tags);
 	const groupedItems = useMemo(() => {
@@ -81,7 +82,6 @@ const ActivityList = ({
 					key={item.id}
 					item={item}
 					onPress={(): void =>
-						// @ts-ignore
 						navigation.navigate('ActivityDetail', { activityItem: item })
 					}
 				/>

@@ -1,11 +1,12 @@
 import React, { memo, ReactElement, useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import AssetPickerList from '../../../components/AssetPickerList';
 import { toggleView } from '../../../store/actions/user';
 import { capitalize } from '../../../utils/helpers';
-import { useNavigation } from '@react-navigation/native';
+import { SendAssetPickerNavigationProp } from '../../../navigation/bottom-sheet/SendAssetPicker';
 
 const SendAssetPickerList = (): ReactElement => {
-	const navigation = useNavigation();
+	const navigation = useNavigation<SendAssetPickerNavigationProp>();
 	const onAssetPress = useCallback((asset) => {
 		toggleView({
 			view: 'sendAssetPicker',
@@ -16,7 +17,6 @@ const SendAssetPickerList = (): ReactElement => {
 				assetName: capitalize(asset),
 			},
 		});
-		// @ts-ignore
 		navigation.navigate('send');
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

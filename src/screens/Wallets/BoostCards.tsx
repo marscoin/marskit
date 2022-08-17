@@ -18,6 +18,7 @@ import { btcToSats } from '../../utils/helpers';
 import { getDisplayValues } from '../../utils/exchange-rate';
 import { canBoost } from '../../utils/wallet/transactions';
 import { useNavigation } from '@react-navigation/native';
+import { RootNavigationProp } from '../../navigation/root/RootNavigator';
 
 /**
  * Returns the appropriate text for the boost card.
@@ -45,7 +46,7 @@ const getBoostText = ({
 
 const BoostCard = memo(
 	({ text = '', txid = '' }: { text: string; txid: string }): ReactElement => {
-		const navigation = useNavigation();
+		const navigation = useNavigation<RootNavigationProp>();
 		const activityItems = useSelector((store: Store) => store.activity.items);
 		const activityItem = useMemo(
 			() => activityItems.filter((item) => item.id === txid),

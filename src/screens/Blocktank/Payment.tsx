@@ -40,6 +40,7 @@ import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
 import { IGetOrderResponse } from '@synonymdev/blocktank-client';
 import SafeAreaView from '../../components/SafeAreaView';
+import { RootNavigationProp } from '../../navigation/root/RootNavigator';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { order: IGetOrderResponse } };
@@ -48,7 +49,7 @@ interface Props extends PropsWithChildren<any> {
 const BlocktankPayment = (props: Props): ReactElement => {
 	const { order } = props.route.params;
 
-	const navigation = useNavigation();
+	const navigation = useNavigation<RootNavigationProp>();
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -190,9 +191,8 @@ const BlocktankPayment = (props: Props): ReactElement => {
 	const authCheck = (): void => {
 		const { pin, biometrics } = hasEnabledAuthentication();
 		if (pin || biometrics) {
-			navigation.navigate('AuthCheck', {
+			navigation.navigate('RootAuthCheck', {
 				onSuccess: () => {
-					// @ts-ignore
 					navigation.pop();
 					setTimeout(() => {
 						onCreateTransaction().catch();

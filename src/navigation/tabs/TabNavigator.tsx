@@ -2,7 +2,10 @@ import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
@@ -17,8 +20,17 @@ import { receiveIcon, sendIcon } from '../../assets/icons/tabs';
 import { toggleView } from '../../store/actions/user';
 import useColors from '../../hooks/colors';
 
+export type TabNavigationProp = NativeStackNavigationProp<TabStackParamList>;
+
+export type TabStackParamList = {
+	Wallets: undefined;
+	WalletsDetail: undefined;
+	BitcoinToLightning: undefined;
+	AuthCheck: { onSuccess: () => void };
+};
+
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<TabStackParamList>();
 const transitionPreset =
 	Platform.OS === 'ios'
 		? TransitionPresets.SlideFromRightIOS

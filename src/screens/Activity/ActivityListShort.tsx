@@ -8,9 +8,10 @@ import Store from '../../store/types';
 import { groupActivityItems } from '../../utils/activity';
 import Button from '../../components/Button';
 import ListItem from './ListItem';
+import { RootNavigationProp } from '../../navigation/root/RootNavigator';
 
 const ActivityList = (): ReactElement => {
-	const navigation = useNavigation();
+	const navigation = useNavigation<RootNavigationProp>();
 	const items = useSelector((state: Store) => state.activity.items);
 	const groupedItems = useMemo(() => {
 		const activityItems = items.slice(0, 3);
@@ -34,7 +35,6 @@ const ActivityList = (): ReactElement => {
 					key={item.id}
 					item={item}
 					onPress={(): void =>
-						// @ts-ignore
 						navigation.navigate('ActivityDetail', { activityItem: item })
 					}
 				/>
@@ -54,7 +54,6 @@ const ActivityList = (): ReactElement => {
 				size="big"
 				variant="transparent"
 				onPress={(): void => {
-					// @ts-ignore
 					navigation.navigate('ActivityFiltered');
 				}}
 			/>

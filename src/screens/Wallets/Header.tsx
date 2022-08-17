@@ -1,5 +1,7 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
 import {
 	View,
 	SettingsIcon,
@@ -7,28 +9,25 @@ import {
 	Title,
 	ProfileIcon,
 } from '../../styles/components';
-import { useNavigation } from '@react-navigation/native';
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
+import type { RootNavigationProp } from '../../navigation/root/RootNavigator';
 
 const Header = (): ReactElement => {
-	const navigation = useNavigation();
+	const navigation = useNavigation<RootNavigationProp>();
 
 	const { url, profile } = useSelectedSlashtag();
 
 	const openProfile = useCallback(
-		// @ts-ignore
 		() => navigation.navigate('Profile'),
 		[navigation],
 	);
 	const openContacts = useCallback(
-		// @ts-ignore
 		() => navigation.navigate('Contacts'),
 		[navigation],
 	);
 	const openSettings = useCallback(
-		// @ts-ignore
 		() => navigation.navigate('Settings'),
 		[navigation],
 	);
