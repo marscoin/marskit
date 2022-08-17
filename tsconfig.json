@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": false,
     "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "jsx": "react",
+    "jsx": "react-native",
     "lib": [
       "es6",
       "es2017",
@@ -23,7 +22,12 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "removeComments": true
+    "removeComments": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // TODO: remove these rules & add types
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false
   },
   "exclude": [
     "node_modules",
