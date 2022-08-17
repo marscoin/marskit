@@ -8,7 +8,6 @@ import {
 	ProfileIcon,
 } from '../../styles/components';
 import { useNavigation } from '@react-navigation/native';
-import { SlashtagURL } from '../../components/SlashtagURL';
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
@@ -47,7 +46,7 @@ const Header = (): ReactElement => {
 					{profile?.name ? (
 						<Title>{truncate(profile?.name, 20)}</Title>
 					) : (
-						<SlashtagURL url={url} />
+						<Title>Your name</Title>
 					)}
 				</View>
 			</TouchableOpacity>
