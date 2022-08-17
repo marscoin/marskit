@@ -10,7 +10,10 @@ import {
 } from '../../../store/actions/wallet';
 import { getNetworkData } from '../../../utils/helpers';
 import { startWalletServices } from '../../../utils/startup';
-import { getCurrentWallet } from '../../../utils/wallet';
+import {
+	getCurrentWallet,
+	getSelectedAddressType,
+} from '../../../utils/wallet';
 
 const BitcoinNetworkSelection = (): ReactElement => {
 	const selectedNetwork = useSelector(
@@ -30,9 +33,19 @@ const BitcoinNetworkSelection = (): ReactElement => {
 							// Switch to new network.
 							await updateWallet({ selectedNetwork: network });
 							// Grab the selectedWallet.
-							const { selectedWallet } = getCurrentWallet({ selectedNetwork });
+							const { selectedWallet } = getCurrentWallet({
+								selectedNetwork: network,
+							});
+							const addressType = getSelectedAddressType({
+								selectedNetwork: network,
+								selectedWallet,
+							});
 							// Generate addresses if none exist for the newly selected wallet and network.
-							await updateAddressIndexes({ selectedWallet, selectedNetwork });
+							await updateAddressIndexes({
+								selectedWallet,
+								selectedNetwork: network,
+								addressType,
+							});
 							// Start wallet services with the newly selected network.
 							await startWalletServices({});
 						},
