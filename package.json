@@ -98,7 +98,7 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.1",
-    "rn-electrum-client": "git+ssh://git@github.com/synonymdev/react-native-electrum-client#7060a07f672f9b9b66dcd29bd375d7a1eda34b1a",
+    "rn-electrum-client": "git+ssh://git@github.com/synonymdev/react-native-electrum-client#ee0fb0575bf84f970f6e9ede9a4487b2eaefe7b1",
     "rn-qr-generator": "^1.2.0",
     "secp256k1": "^4.0.3",
     "stream-browserify": "^3.0.0",

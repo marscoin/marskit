@@ -364,11 +364,9 @@ export interface ITransactionData {
 export const updateTransactions = ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
-	showNotification = false,
 }: {
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
-	showNotification?: boolean;
 }): Promise<Result<IFormattedTransaction>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -448,8 +446,11 @@ export const updateTransactions = ({
 				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
 			}
 
-			// if the tx is new show notification if needed
-			if (!storedTransactions[txid] && showNotification) {
+			// if the tx is new incoming - show notification
+			if (
+				!storedTransactions[txid] &&
+				formatTransactionsResponse.value[txid].type === 'received'
+			) {
 				notificationTxid = txid;
 			}
 		});

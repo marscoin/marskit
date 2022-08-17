@@ -115,7 +115,6 @@ export interface ISubscribeToAddress {
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
  * @param scriptHashes
- * @param showNotification
  * @param onReceive
  * @return {Promise<Result<string>>}
  */
@@ -123,36 +122,35 @@ export const subscribeToAddresses = async ({
 	selectedNetwork,
 	selectedWallet,
 	scriptHashes = [],
-	showNotification = true,
 	onReceive = (): null => null,
 }: {
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
 	scriptHashes?: string[];
-	showNotification?: boolean;
 	onReceive?: Function;
 }): Promise<Result<string>> => {
 	const addressTypes = getAddressTypes();
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
 	const { currentWallet } = getCurrentWallet({
 		selectedNetwork,
 		selectedWallet,
 	});
 	// Gather the receiving address scripthash for each address type if no scripthashes were provided.
 	if (!scriptHashes?.length) {
-		await Promise.all(
-			Object.keys(addressTypes).map(async (addressType) => {
-				if (!selectedNetwork) {
-					selectedNetwork = getSelectedNetwork();
-				}
-				if (!selectedWallet) {
-					selectedWallet = getSelectedWallet();
-				}
-				scriptHashes.push(
-					currentWallet.addressIndex[selectedNetwork][addressType].scriptHash,
-				);
-			}),
-		);
+		for (const addressType of Object.keys(addressTypes)) {
+			for (const scriptHash of Object.keys(
+				currentWallet.addresses[selectedNetwork][addressType],
+			)) {
+				scriptHashes.push(scriptHash);
+			}
+		}
 	}
+
 	// Subscribe to all provided scriphashes.
 	await Promise.all(
 		scriptHashes?.map(async (addressScriptHash) => {
@@ -161,9 +159,7 @@ export const subscribeToAddresses = async ({
 					scriptHash: addressScriptHash,
 					network: selectedNetwork,
 					onReceive: (): void => {
-						if (showNotification) {
-							refreshWallet({ showNotification: true });
-						}
+						refreshWallet({});
 						onReceive();
 					},
 				});
