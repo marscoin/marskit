@@ -1,5 +1,4 @@
 import { navigate } from '../../navigation/root/RootNavigator';
-// @ts-ignore
 import { SlashURL } from '@synonymdev/slashtags-sdk/dist/rn';
 import type { SDK } from '@synonymdev/slashtags-sdk';
 import {

@@ -202,6 +202,7 @@ const List = ({
 					? (e): void => onScrollDownChange(e.nativeEvent.contentOffset.y > 15)
 					: undefined
 			}
+			// @ts-ignore section title is not optional but it works
 			sections={data}
 			extraData={data}
 			keyExtractor={(item): string => item.title}

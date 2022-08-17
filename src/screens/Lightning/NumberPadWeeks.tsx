@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Text02B, TouchableOpacity } from '../../styles/components';
 import NumberPad from '../../components/NumberPad';
 
-const NumberPadWeeks = ({ weeks, onChange, onDone }): ReactElement => {
+const NumberPadWeeks = ({ weeks, style, onChange, onDone }): ReactElement => {
 	const onPress = (key): void => {
 		let amount = Number(`${weeks}${key}`);
 		// limit amount 12 weeks
@@ -34,7 +34,7 @@ const NumberPadWeeks = ({ weeks, onChange, onDone }): ReactElement => {
 
 	return (
 		<NumberPad
-			style={styles.numberpad}
+			style={[styles.numberpad, style]}
 			onPress={onPress}
 			onRemove={onRemove}
 			onClear={onClear}>

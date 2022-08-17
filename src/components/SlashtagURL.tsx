@@ -3,7 +3,6 @@ import { StyleSheet, ViewStyle } from 'react-native';
 import { Text } from '../styles/components';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-// @ts-ignore
 import { SlashURL } from '@synonymdev/slashtags-sdk/dist/rn.js';
 
 export const SlashtagURL = ({

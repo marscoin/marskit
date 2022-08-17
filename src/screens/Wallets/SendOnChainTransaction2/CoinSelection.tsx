@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
 		height: 72,
 		borderBottomWidth: 1,
 	},
+	coinAmount: {},
 	coinTagsScroll: {
 		marginHorizontal: 8,
 		flexDirection: 'row',

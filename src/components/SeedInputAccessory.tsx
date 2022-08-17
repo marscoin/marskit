@@ -3,11 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import * as bip39 from 'bip39';
 import { KeyboardAccessoryView } from 'react-native-keyboard-accessory';
 
-import Button from './Button';
+import Button, { IButton } from './Button';
 import { Text13UP } from '../styles/components';
 import seedSuggestions from '../utils/seed-suggestions';
 
-const Word = ({ ...props }: { text: string }): ReactElement => {
+const Word = (props: IButton): ReactElement => {
 	return <Button style={styles.wordContainer} {...props} />;
 };
 
@@ -15,7 +15,7 @@ const Word = ({ ...props }: { text: string }): ReactElement => {
  * Show keyboad accessory with seed suggestions
  */
 const SeedInputAccessory = ({ word, setWord }): ReactElement => {
-	const [suggestions, setSuggestions] = useState([]);
+	const [suggestions, setSuggestions] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (word !== null) {

@@ -319,7 +319,7 @@ export const getTotalFee = ({
 	fundingLightning = false,
 	transaction, // If left undefined, the method will retrieve the tx data from state.
 }: {
-	satsPerByte: number;
+	satsPerByte?: number;
 	selectedWallet?: undefined | string;
 	selectedNetwork?: undefined | TAvailableNetworks;
 	message?: string;
@@ -863,8 +863,7 @@ export const broadcastTransaction = async ({
 		if (transaction.isErr()) {
 			return err(transaction.error.message);
 		}
-		// @ts-ignore
-		const address = transaction?.value?.outputs[0]?.address;
+		const address = transaction.value.outputs?.[0].address;
 		if (address) {
 			const scriptHash = getScriptHash(address, selectedNetwork);
 			await subscribeToAddresses({

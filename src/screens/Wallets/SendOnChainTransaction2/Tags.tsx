@@ -57,7 +57,7 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 									key={tag}
 									value={tag}
 									style={styles.tag}
-									onPress={(): Promise<void> => handleTagChoose(tag)}
+									onPress={(): void => handleTagChoose(tag)}
 								/>
 							))}
 						</View>

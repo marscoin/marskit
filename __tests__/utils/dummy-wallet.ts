@@ -1,3 +1,4 @@
+// @ts-ignore
 test.skip('Workaround', () => 1);
 
 export const mnemonic =

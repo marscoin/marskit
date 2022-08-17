@@ -1,10 +1,10 @@
-import React, { ReactElement, memo } from 'react';
+import React, { ReactElement, ReactNode, memo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { TextInput, MagnifyingGlassIcon } from '../styles/components';
 
 type SearchInputProps = {
 	style?: StyleProp<ViewStyle>;
-	children?: ReactElement;
+	children?: ReactNode;
 	[x: string]: any;
 };
 

@@ -1,5 +1,8 @@
 import React, { memo, PropsWithChildren, ReactElement, useMemo } from 'react';
-import { SafeAreaView as SafeAreaViewRN } from 'react-native-safe-area-context';
+import {
+	Edge,
+	SafeAreaView as SafeAreaViewRN,
+} from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import themes from '../styles/themes';
@@ -27,7 +30,7 @@ const SafeAreaView = ({
 		};
 	}, [colors.background, style]);
 
-	const edges = useMemo(() => ['top'], []);
+	const edges: readonly Edge[] = useMemo(() => ['top'], []);
 
 	return (
 		<SafeAreaViewRN style={safeAreaStyles} edges={edges} {...props}>

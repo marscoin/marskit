@@ -1,5 +1,10 @@
 import React, { memo, ReactElement } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+	StyleSheet,
+	View,
+	TouchableOpacity,
+	GestureResponderEvent,
+} from 'react-native';
 
 import {
 	LightningIcon,
@@ -23,7 +28,7 @@ const FeeItem = ({
 }: {
 	id: EFeeIds;
 	sats: number;
-	onPress: Function;
+	onPress: (event: GestureResponderEvent) => void;
 	isSelected: boolean;
 }): ReactElement => {
 	const colors = useColors();
