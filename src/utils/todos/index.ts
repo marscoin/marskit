@@ -14,8 +14,8 @@ export const todoPresets: TTodoPresets = {
 	},
 	backupSeedPhrase: {
 		type: 'backupSeedPhrase',
-		title: 'Backup',
-		description: 'Store seed phrase',
+		title: 'Back up',
+		description: 'Store your money',
 		id: 'backupSeedPhrase',
 	},
 	boost: {
@@ -36,17 +36,24 @@ export const todoPresets: TTodoPresets = {
 		description: 'Set up a PIN code',
 		id: 'pin',
 	},
+	slashtagsProfile: {
+		type: 'slashtagsProfile',
+		title: 'Public Profile',
+		description: 'Add your details',
+		id: 'slashtagsProfile',
+	},
 };
 
 export const setupTodos = (): void => {
-	const todos = getStore().todos.todos ?? [];
-	const dismissedTodos = getStore().todos.dismissedTodos ?? [];
+	const store = getStore();
+	const todos = store.todos.todos ?? [];
+	const dismissedTodos = store.todos.dismissedTodos ?? [];
 
 	/*
 	 * Check for backup status.
 	 */
 	const backupTodo = todos.filter((todo) => todo.type === 'activateBackup');
-	const backupStatus = getStore().backup.remoteBackupsEnabled;
+	const backupStatus = store.backup.remoteBackupsEnabled;
 	const activateBackupIsDismissed = 'activateBackup' in dismissedTodos;
 	// Add backupTodo if status is false and is not included in the todos array.
 	if (!backupStatus && !backupTodo?.length && activateBackupIsDismissed) {
@@ -66,7 +73,7 @@ export const setupTodos = (): void => {
 	const seedPhraseTodo = todos.filter(
 		(todo) => todo.type === 'backupSeedPhrase',
 	);
-	const backupSeedPhraseStatus = !!getStore().user.backupVerified;
+	const backupSeedPhraseStatus = !!store.user.backupVerified;
 	// Add backupSeedPhrase to-do if it hasn't been previously dismissed and isn't included in the todos array
 	// and backup has not been verified
 	if (
@@ -107,6 +114,28 @@ export const setupTodos = (): void => {
 	// if (pin.length) {
 	// 	removeTodo(pin[0].id);
 	// }
+
+	/*
+	 * Check for PIN.
+	 */
+	const slashtagsProfile = todos.some(
+		(todo) => todo.type === 'slashtagsProfile',
+	);
+	const slashtagsProfileIsDismissed = 'slashtagsProfile' in dismissedTodos;
+	const slashtagsProfileStatus =
+		store.slashtags.onboardingProfileStep !== 'Intro';
+	// Add pin if status is false and is not included in the todos array.
+	if (
+		!slashtagsProfile &&
+		!slashtagsProfileIsDismissed &&
+		!slashtagsProfileStatus
+	) {
+		addTodo(todoPresets.slashtagsProfile);
+	}
+	// Remove slashtagsProfile if status is true and hasn't been removed from the todos array.
+	if (slashtagsProfile && slashtagsProfileStatus) {
+		removeTodo('slashtagsProfile');
+	}
 };
 
 export const handleOnPress = ({
@@ -136,6 +165,9 @@ export const handleOnPress = ({
 					view: 'backupPrompt',
 					data: { isOpen: true },
 				});
+				break;
+			case 'slashtagsProfile':
+				navigation.navigate('Profile');
 				break;
 			default:
 				Alert.alert('TODO: ' + type);

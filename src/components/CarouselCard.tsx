@@ -10,7 +10,7 @@ import useColors from '../hooks/colors';
 
 const Glow = memo(({ color }: { color: string }) => {
 	return (
-		<Rect x={0} y={0} width={160} height={160} opacity={0.4}>
+		<Rect x={0} y={0} width={160} height={160} opacity={0.3}>
 			<RadialGradient c={vec(0, 0)} r={250} colors={[color, 'transparent']} />
 		</Rect>
 	);
@@ -62,6 +62,16 @@ const CarouselCard = ({
 				/>
 			);
 			color = 'blue';
+			break;
+		case 'slashtagsProfile':
+			icon = (
+				<Image
+					resizeMode="contain"
+					style={styles.image}
+					source={require('../assets/illustrations/crown-no-margins.png')}
+				/>
+			);
+			color = 'brand';
 			break;
 		default:
 			// TODO: Swap out BitcoinLogo with the relevant image based on the provided id.

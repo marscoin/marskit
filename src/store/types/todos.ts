@@ -3,7 +3,8 @@ export type TTodoType =
 	| 'backupSeedPhrase'
 	| 'boost'
 	| 'pin'
-	| 'lightning';
+	| 'lightning'
+	| 'slashtagsProfile';
 
 export interface ITodo {
 	id: string;
