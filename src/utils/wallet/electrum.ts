@@ -62,6 +62,13 @@ export const getUtxos = async ({
 				if (!selectedWallet) {
 					selectedWallet = getSelectedWallet();
 				}
+				// Check if addresses of this type have been generated. If not, skip.
+				if (
+					Object.keys(currentWallet.addresses[selectedNetwork][addressTypeKey])
+						?.length <= 0
+				) {
+					return;
+				}
 				const unspentAddressResult =
 					await electrum.listUnspentAddressScriptHashes({
 						scriptHashes: {
@@ -143,10 +150,16 @@ export const subscribeToAddresses = async ({
 	// Gather the receiving address scripthash for each address type if no scripthashes were provided.
 	if (!scriptHashes?.length) {
 		for (const addressType of Object.keys(addressTypes)) {
-			for (const scriptHash of Object.keys(
-				currentWallet.addresses[selectedNetwork][addressType],
-			)) {
-				scriptHashes.push(scriptHash);
+			// Check if addresses of this type have been generated. If not, skip.
+			if (
+				Object.keys(currentWallet.addresses[selectedNetwork][addressType])
+					?.length > 0
+			) {
+				for (const scriptHash of Object.keys(
+					currentWallet.addresses[selectedNetwork][addressType],
+				)) {
+					scriptHashes.push(scriptHash);
+				}
 			}
 		}
 	}

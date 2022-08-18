@@ -113,6 +113,13 @@ export const startWalletServices = async ({
 							'Unable to connect to Electrum Server',
 					});
 				}
+				let onReceive = (): void => {};
+				// Ensure LDK syncs when a new block is detected.
+				if (lightning) {
+					onReceive = lm.syncLdk;
+				}
+				// Ensure we are subscribed to and save new header information.
+				await subscribeToHeader({ selectedNetwork, onReceive });
 			}
 
 			const walletExists = await checkWalletExists();
@@ -131,17 +138,9 @@ export const startWalletServices = async ({
 
 			// We need to start Electrum if either onchain or lightning is true.
 			if (onchain || lightning) {
-				let onReceive = (): void => {};
-				// Ensure LDK syncs when a new block is detected.
-				if (lightning) {
-					onReceive = lm.syncLdk;
-				}
-
 				await Promise.all([
-					// Ensure we are subscribed to and save new header information.
-					subscribeToHeader({ selectedNetwork, onReceive }),
 					updateOnchainFeeEstimates({ selectedNetwork }),
-					refreshWallet({ lightning: false }),
+					refreshWallet({ lightning }),
 				]);
 
 				// Setup LDK.

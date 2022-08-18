@@ -1483,13 +1483,19 @@ export const formatTransactions = async ({
 
 	await Promise.all([
 		Object.keys(addressTypes).map((addressType) => {
-			addresses = { ...addresses, ...currentAddresses[addressType] };
+			// Check if addresses of this type have been generated. If not, skip.
+			if (Object.keys(currentAddresses[addressType])?.length > 0) {
+				addresses = { ...addresses, ...currentAddresses[addressType] };
+			}
 		}),
 		Object.keys(addressTypes).map((addressType) => {
-			changeAddresses = {
-				...changeAddresses,
-				...currentChangeAddresses[addressType],
-			};
+			// Check if change addresses of this type have been generated. If not, skip.
+			if (Object.keys(currentChangeAddresses[addressType])?.length > 0) {
+				changeAddresses = {
+					...changeAddresses,
+					...currentChangeAddresses[addressType],
+				};
+			}
 		}),
 	]);
 	const addressScriptHashes = Object.keys(addresses);
