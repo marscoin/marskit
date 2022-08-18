@@ -15,7 +15,7 @@ const ASK_INTERVAL = 60_000; // how long this propt will be hidden if user taps 
 const CHECK_INTERVAL = 10_000; // how long user needs to stay on Wallets screen before he will see this prompt
 
 const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
-	const snapPoints = useMemo(() => [450], []);
+	const snapPoints = useMemo(() => [600], []);
 
 	const ignoreBackupTimestamp = useSelector(
 		(state: Store) => state.user.ignoreBackupTimestamp,
@@ -97,15 +97,15 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 			onClose={handleLater}
 			view="backupPrompt">
 			<View style={styles.root}>
-				<View style={styles.center}>
-					<Subtitle style={styles.title}>Wallet backup</Subtitle>
+				<View>
+					<Subtitle style={styles.title}>Wallet Backup</Subtitle>
 					<Text01S color="white5">
 						Now that you have some funds in your wallet, it is time to back up
 						your money!
 					</Text01S>
 				</View>
 				<View style={styles.imageContainer}>
-					<Glow color="blue" size={500} style={styles.glow} />
+					<Glow color="blue" size={700} style={styles.glow} />
 					<Image
 						style={styles.image}
 						source={require('../../../assets/illustrations/safe.png')}
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
 	root: {
 		alignItems: 'center',
 		flex: 1,
-		paddingHorizontal: 32,
+		marginHorizontal: 32,
 		justifyContent: 'space-between',
 	},
 	center: {
@@ -147,6 +147,7 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		marginBottom: 25,
+		alignSelf: 'center',
 	},
 	imageContainer: {
 		position: 'relative',
@@ -156,8 +157,8 @@ const styles = StyleSheet.create({
 		width: 210,
 	},
 	image: {
-		width: 250,
-		height: 250,
+		width: 170,
+		height: 170,
 	},
 	glow: {
 		position: 'absolute',
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	divider: {
-		width: 32,
+		width: 16,
 	},
 });
 
