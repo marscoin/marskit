@@ -14,7 +14,6 @@ import { setupTodos } from '../todos';
 import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { setupLdk } from '../lightning';
-import lm from '@synonymdev/react-native-ldk';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 
 /**
@@ -113,11 +112,10 @@ export const startWalletServices = async ({
 							'Unable to connect to Electrum Server',
 					});
 				}
-				let onReceive = (): void => {};
-				// Ensure LDK syncs when a new block is detected.
-				if (lightning) {
-					onReceive = lm.syncLdk;
-				}
+				// Ensure the on-chain wallet & LDK syncs when a new block is detected.
+				const onReceive = (): void => {
+					refreshWallet({ onchain, lightning });
+				};
 				// Ensure we are subscribed to and save new header information.
 				await subscribeToHeader({ selectedNetwork, onReceive });
 			}

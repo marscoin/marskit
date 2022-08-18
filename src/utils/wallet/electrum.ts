@@ -220,7 +220,6 @@ export const subscribeToHeader = async ({
 				header: { ...data[0], hash },
 			});
 			onReceive();
-			refreshWallet({}).then();
 		},
 	});
 	if (subscribeResponse.error) {
