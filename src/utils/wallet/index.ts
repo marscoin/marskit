@@ -85,12 +85,10 @@ import {
 } from './constants';
 
 export const refreshWallet = async ({
-	showNotification = false,
 	onchain = true,
 	lightning = true,
 	updateAllAddressTypes = false, // If set to true, Bitkit will generate, check and update all available address types.
 }: {
-	showNotification?: boolean;
 	onchain?: boolean;
 	lightning?: boolean;
 	updateAllAddressTypes?: boolean;
@@ -123,7 +121,6 @@ export const refreshWallet = async ({
 				updateTransactions({
 					selectedWallet,
 					selectedNetwork,
-					showNotification,
 				}),
 				deleteBoostedTransactions({
 					selectedWallet,

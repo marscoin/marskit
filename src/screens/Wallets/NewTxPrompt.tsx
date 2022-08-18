@@ -3,10 +3,16 @@ import { Image, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import Lottie from 'lottie-react-native';
 
-import { Subtitle, Caption13Up } from '../../styles/components';
+import {
+	Subtitle,
+	Caption13Up,
+	Text02M,
+	ClockIcon,
+} from '../../styles/components';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import Glow from '../../components/Glow';
 import AmountToggle from '../../components/AmountToggle';
+import SafeAreaInsets from '../../components/SafeAreaInsets';
 import Store from '../../store/types';
 import { toggleView } from '../../store/actions/user';
 
@@ -51,7 +57,7 @@ const NewTxPrompt = (): ReactElement => {
 					loop
 				/>
 				<View>
-					<Subtitle style={styles.title}>Payment received!</Subtitle>
+					<Subtitle style={styles.title}>Payment Received!</Subtitle>
 					<Caption13Up style={styles.received} color="gray1">
 						You just received
 					</Caption13Up>
@@ -60,12 +66,23 @@ const NewTxPrompt = (): ReactElement => {
 					)}
 				</View>
 
-				<View style={styles.imageContainer}>
-					<Glow style={styles.glow} size={600} color="white32" />
-					<Image source={source} style={styles.image3} />
-					<Image source={source} style={styles.image2} />
-					<Image source={source} style={styles.image1} />
-					<Image source={source} style={styles.image4} />
+				<View>
+					<View style={styles.imageContainer}>
+						<Glow style={styles.glow} size={600} color="white32" />
+						<Image source={source} style={styles.image3} />
+						<Image source={source} style={styles.image2} />
+						<Image source={source} style={styles.image1} />
+						<Image source={source} style={styles.image4} />
+					</View>
+					{isOpen && transaction?.height === 0 && (
+						<View style={styles.confirming}>
+							<ClockIcon color="gray1" />
+							<Text02M color="gray1" style={styles.confirmingText}>
+								Confirming
+							</Text02M>
+						</View>
+					)}
+					<SafeAreaInsets type="bottom" />
 				</View>
 			</View>
 		</BottomSheetWrapper>
@@ -88,11 +105,10 @@ const styles = StyleSheet.create({
 	imageContainer: {
 		alignSelf: 'center',
 		position: 'relative',
-		height: 250,
-		width: 250,
+		height: 200,
+		width: 200,
 		justifyContent: 'center',
 		alignItems: 'center',
-		marginBottom: 20,
 	},
 	image1: {
 		width: 220,
@@ -125,6 +141,15 @@ const styles = StyleSheet.create({
 	},
 	glow: {
 		position: 'absolute',
+	},
+	confirming: {
+		alignSelf: 'center',
+		justifyContent: 'center',
+		flexDirection: 'row',
+		marginBottom: 8,
+	},
+	confirmingText: {
+		marginLeft: 8,
 	},
 });
 

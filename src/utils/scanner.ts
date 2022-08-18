@@ -272,7 +272,7 @@ export const handleData = async ({
 					outputs: [{ address, value: amount }],
 				},
 			}).then();
-			refreshWallet({ showNotification: false });
+			refreshWallet({});
 			break;
 		}
 		case EQRDataType.lightningPaymentRequest: {
