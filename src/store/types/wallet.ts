@@ -73,6 +73,7 @@ export enum EKeyDerivationAccount {
 	onchain = 0,
 }
 
+// currently not used
 export enum EAddressTypeNames {
 	p2wpkh = 'Native Segwit',
 	p2sh = 'Legacy Bitcoin address',
