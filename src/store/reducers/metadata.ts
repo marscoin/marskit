@@ -74,6 +74,35 @@ const metadata = (
 			};
 		}
 
+		case actions.UPDATE_META_INC_TX_TAGS: {
+			const lastUsedTags = updateLastUsedTags(
+				state.lastUsedTags,
+				action.payload.tags,
+			);
+
+			return {
+				...state,
+				pendingTags: {
+					...state.pendingTags,
+					[action.payload.address]: action.payload.tags,
+					// TODO: handle Lightning
+					// [action.payload.payReq]: action.payload.tags,
+				},
+				lastUsedTags,
+			};
+		}
+
+		case actions.MOVE_META_INC_TX_TAG: {
+			return {
+				...state,
+				pendingTags: action.payload.pendingTags,
+				tags: { ...state.tags, ...action.payload.tags },
+			};
+		}
+
+		case actions.RESET_META_STORE:
+			return defaultMetadataShape;
+
 		default:
 			return state;
 	}
