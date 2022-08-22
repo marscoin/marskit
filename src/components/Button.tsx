@@ -12,7 +12,7 @@ import {
 } from '../styles/components';
 import useColors from '../hooks/colors';
 
-interface IButton extends TouchableOpacityProps {
+export interface IButton extends TouchableOpacityProps {
 	text: string | ReactElement;
 	color?: string;
 	variant?: 'primary' | 'secondary' | 'transparent';

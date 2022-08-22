@@ -80,6 +80,7 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 					<ProfileCard
 						url={url}
 						editable={true}
+						resolving={false}
 						profile={profile}
 						onChange={setField}
 					/>

@@ -42,7 +42,7 @@ const Slideshow = ({
 	route: { params: { skipIntro?: boolean } };
 }): ReactElement => {
 	const skipIntro = route?.params?.skipIntro;
-	const swiperRef = useRef(null);
+	const swiperRef = useRef<Swiper>(null);
 	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 	const colors = useColors();
 	// because we can't properly scala image inside the <Swiper let's calculate with by hand

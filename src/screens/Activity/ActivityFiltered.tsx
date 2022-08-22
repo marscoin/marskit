@@ -1,5 +1,12 @@
 import React, { ReactElement, memo, useMemo, useState } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+	Platform,
+	StyleSheet,
+	TouchableOpacity,
+	View,
+	ViewProps,
+	GestureResponderEvent,
+} from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,7 +19,8 @@ import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 
-const Blur = Platform.OS === 'ios' ? BlurView : View;
+const Blur = (props: ViewProps) =>
+	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const Tab = ({
 	text,
@@ -21,7 +29,7 @@ const Tab = ({
 }: {
 	text: string;
 	active?: boolean;
-	onPress: Function;
+	onPress: (event: GestureResponderEvent) => void;
 }): ReactElement => {
 	const colors = useColors();
 	const style = useMemo(

@@ -34,12 +34,13 @@ import AdjustValue from '../../../components/AdjustValue';
 import FeeSummary from './FeeSummary';
 import useDisplayValues from '../../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../../utils/settings';
+import { TabNavigationProp } from '../../../navigation/tabs/TabNavigator';
 
 const BitcoinToLightning = (): ReactElement => {
 	const [value, setValue] = useState('');
 	const [psbt] = useState(new Psbt());
 	const [channelID, setChannelID] = useState(new Uint8Array());
-	const navigation = useNavigation();
+	const navigation = useNavigation<TabNavigationProp>();
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -192,10 +193,8 @@ const BitcoinToLightning = (): ReactElement => {
 	const authCheck = (): void => {
 		const { pin, biometrics } = hasEnabledAuthentication();
 		if (pin || biometrics) {
-			// @ts-ignore
 			navigation.navigate('AuthCheck', {
 				onSuccess: () => {
-					// @ts-ignore
 					navigation.pop();
 					setTimeout(() => {
 						onStart().then();

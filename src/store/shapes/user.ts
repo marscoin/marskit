@@ -34,5 +34,8 @@ export const defaultUserShape = {
 		newTxPrompt: { ...defaultViewController },
 		coinSelection: { ...defaultViewController },
 		feePicker: { ...defaultViewController },
+		profileAddDataForm: { ...defaultViewController },
+		profileAddLinkForm: { ...defaultViewController },
+		addContactModal: { ...defaultViewController },
 	},
 };

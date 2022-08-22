@@ -30,6 +30,7 @@ import BottomSheet, {
 	useBottomSheetDynamicSnapPoints,
 	BottomSheetView,
 	BottomSheetBackdrop,
+	BottomSheetBackgroundProps,
 } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
@@ -148,10 +149,11 @@ const BottomSheetWrapper = forwardRef(
 		);
 
 		const backgroundComponent = useCallback(
-			({ style }) => (
+			({ style, ...props }: BottomSheetBackgroundProps) => (
 				<BottomSheetGradient
 					animatedContentHeight={animatedContentHeight}
 					style={style}
+					{...props}
 				/>
 			),
 			[animatedContentHeight],

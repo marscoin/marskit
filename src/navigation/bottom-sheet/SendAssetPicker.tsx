@@ -1,12 +1,23 @@
 import React, { ReactElement } from 'react';
-import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
+import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import Send from '../../screens/Wallets/Send';
 import SendAssetPickerList from '../../screens/Wallets/Send/SendAssetPickerList';
 import { NavigationContainer } from '../../styles/components';
 
-const Stack = createNativeStackNavigator();
+export type SendAssetPickerNavigationProp =
+	NativeStackNavigationProp<SendAssetPickerStackParamList>;
+
+export type SendAssetPickerStackParamList = {
+	sendAssetPickerList: undefined;
+	send: undefined;
+};
+
+const Stack = createNativeStackNavigator<SendAssetPickerStackParamList>();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,

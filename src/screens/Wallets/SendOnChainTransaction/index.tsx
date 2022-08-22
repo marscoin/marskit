@@ -41,6 +41,7 @@ import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import AmountToggle from '../../../components/AmountToggle';
 import FeePicker from './FeePicker';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
+import { SendNavigationProp } from '../../../navigation/bottom-sheet/SendNavigation';
 
 interface ISendOnChainTransaction {
 	onComplete?: Function;
@@ -62,7 +63,7 @@ const SendOnChainTransaction = ({
 	//const [spendMaxAmount, setSpendMaxAmount] = useState(false);
 	const [isCreatingTransaction, setIsCreatingTransaction] = useState(false);
 	const [rawTx, setRawTx] = useState<string | undefined>(undefined);
-	const navigation = useNavigation();
+	const navigation = useNavigation<SendNavigationProp>();
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -174,10 +175,8 @@ const SendOnChainTransaction = ({
 				}
 				const { pin, biometrics } = hasEnabledAuthentication();
 				if (pin || biometrics) {
-					// @ts-ignore
 					navigation.navigate('AuthCheck', {
 						onSuccess: () => {
-							// @ts-ignore
 							navigation.pop();
 							setRawTx(response.value.hex);
 						},

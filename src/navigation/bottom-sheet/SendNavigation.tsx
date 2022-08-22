@@ -1,5 +1,8 @@
 import React, { ReactElement, useMemo } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
@@ -20,7 +23,21 @@ import {
 } from '../../store/actions/wallet';
 import Store from '../../store/types';
 
-const Stack = createNativeStackNavigator();
+export type SendNavigationProp = NativeStackNavigationProp<SendStackParamList>;
+
+export type SendStackParamList = {
+	SendAssetPickerList: undefined;
+	AddressAndAmount: undefined;
+	CoinSelection: undefined;
+	FeeRate: undefined;
+	FeeCustom: undefined;
+	Tags: undefined;
+	ReviewAndSend: undefined;
+	Result: undefined;
+	AuthCheck: { onSuccess: () => void };
+};
+
+const Stack = createNativeStackNavigator<SendStackParamList>();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
@@ -45,6 +62,7 @@ const SendNavigation = (): ReactElement => {
 			<NavigationContainer key={initialRouteName}>
 				<Stack.Navigator
 					screenOptions={navOptions}
+					// @ts-ignore TODO: fix type
 					initialRouteName={initialRouteName}>
 					<Stack.Group screenOptions={navOptions}>
 						<Stack.Screen

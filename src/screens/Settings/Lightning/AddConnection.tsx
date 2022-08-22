@@ -40,12 +40,8 @@ const AddConnection = ({ navigation }): ReactElement => {
 				</View>
 				<Text01M>LNBIG Lightning Node</Text01M>
 				<View style={styles.channel}>
-					<LightningChannel
-						spendingTotal={100500}
-						spendingAvailable={10000}
-						receivingTotal={100500}
-						receivingAvailable={20000}
-					/>
+					{/* Example channel */}
+					<LightningChannel channelId="" />
 				</View>
 
 				<View style={styles.sectionTitle}>

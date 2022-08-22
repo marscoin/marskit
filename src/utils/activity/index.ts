@@ -65,21 +65,18 @@ export const mergeActivityItems = (
 	oldItems: IActivityItem[],
 	newItems: IActivityItem[],
 ): IActivityItem[] => {
-	oldItems.forEach((oldItem, index) => {
-		const updatedItemIndex = newItems.findIndex(
-			(newItem) =>
-				newItem.activityType === oldItem.activityType &&
-				newItem.id === oldItem.id,
-		);
+	const reduced = oldItems.filter(
+		(oldItem) =>
+			!newItems.find(
+				(newItem) =>
+					newItem.activityType === oldItem.activityType &&
+					newItem.id === oldItem.id,
+			),
+	);
+	const mergedItems = reduced.concat(newItems);
+	const sortedItems = mergedItems.sort((a, b) => b.timestamp - a.timestamp);
 
-		//Found an updated item so replace it
-		if (updatedItemIndex > -1) {
-			oldItems[index] = newItems[updatedItemIndex];
-			newItems.splice(updatedItemIndex, 1);
-		}
-	});
-
-	return [...oldItems, ...newItems].sort((a, b) => b.timestamp - a.timestamp);
+	return sortedItems;
 };
 
 /**

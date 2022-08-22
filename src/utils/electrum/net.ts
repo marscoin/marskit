@@ -68,6 +68,7 @@ function Socket(this: ISocket): void {
 		this._socket.on('close', (data): void => {
 			this._passOnEvent('close', data);
 		});
+		// @ts-ignore
 		this._socket.on('connect', (data): void => {
 			this._passOnEvent('connect', data);
 			if (this._socket) {

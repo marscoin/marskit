@@ -5,6 +5,7 @@ import React, {
 	useState,
 	useRef,
 	forwardRef,
+	MutableRefObject,
 } from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
@@ -64,7 +65,11 @@ const Slide = forwardRef(
 							if (!c || !ref) {
 								return;
 							}
-							c.toDataURL((data) => (ref.current[addressType] = data));
+							c.toDataURL(
+								(data) =>
+									((ref as MutableRefObject<object>).current[addressType] =
+										data),
+							);
 						}}
 					/>
 				</TouchableOpacity>

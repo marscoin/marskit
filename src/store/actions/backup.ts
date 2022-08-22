@@ -1,5 +1,5 @@
 import actions from './actions';
-import { ok, Result } from '@synonymdev/result';
+import { ok, err, Result } from '@synonymdev/result';
 import { getDispatch } from '../helpers';
 import { EBackupCategories, uploadBackup } from '../../utils/backup/backpack';
 import { stringToBytes } from '../../utils/converters';

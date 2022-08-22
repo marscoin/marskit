@@ -1,9 +1,11 @@
 import React, { forwardRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TextInputProps } from 'react-native';
 import { Text01S, TextInput } from '../styles/components';
 
+type SeedInputProps = TextInputProps & { index: number; valid: boolean };
+
 const SeedInput = forwardRef(
-	({ index, valid, ...props }: { index: number; valid: boolean }, ref) => {
+	({ index, valid, ...props }: SeedInputProps, ref) => {
 		return (
 			<View style={styles.inputWrapper}>
 				<TextInput

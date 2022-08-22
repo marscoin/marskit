@@ -82,7 +82,7 @@ const FancySlider = ({
 	value,
 	onValueChange,
 }: IFancySlider): ReactElement => {
-	const pan = useRef(new Animated.ValueXY()).current;
+	const pan = useRef<any>(new Animated.ValueXY()).current;
 	const active = useRef(false);
 	const colors = useColors();
 	const minTrackKolor = colors.purple;

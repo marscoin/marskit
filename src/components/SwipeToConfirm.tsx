@@ -35,7 +35,7 @@ const SwipeToConfirm = ({
 	loading,
 	confirmed,
 }: ISwipeToConfirm): ReactElement => {
-	const pan = useRef(new Animated.ValueXY()).current;
+	const pan = useRef<any>(new Animated.ValueXY()).current;
 	const loadingOpacity = useRef(new Animated.Value(0)).current;
 	const colors = useColors();
 	const kolor = color ? colors[color] : colors.green ?? colors.green;
