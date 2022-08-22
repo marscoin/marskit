@@ -1,11 +1,13 @@
 import React, { ReactElement, useMemo } from 'react';
 import { TransitionPresets } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Receive from '../../screens/Wallets/Receive';
-import ReceiveAssetPickerList from '../../screens/Wallets/Receive/ReceiveAssetPickerList';
+import ReceiveDetails from '../../screens/Wallets/Receive/ReceiveDetails';
+import ReceiveNumberPad from '../../screens/Wallets/Receive/ReceiveNumberPad';
+import Tags from '../../screens/Wallets/Receive/Tags';
 import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
 
@@ -21,7 +23,7 @@ const ReceiveNavigation = (): ReactElement => {
 		useSelector(
 			(store: Store) => store.user.viewController?.receiveNavigation,
 		) ?? {};
-	const snapPoints = useMemo(() => [600], []);
+	const snapPoints = useMemo(() => ['87%'], []);
 
 	const initialRouteName = !isOpen ? undefined : initial;
 
@@ -32,13 +34,13 @@ const ReceiveNavigation = (): ReactElement => {
 					screenOptions={navOptions}
 					initialRouteName={initialRouteName}>
 					<Stack.Group screenOptions={navOptions}>
-						<Stack.Screen
-							name="ReceiveAssetPickerList"
-							component={ReceiveAssetPickerList}
-						/>
 						<Stack.Screen name="Receive" component={Receive} />
+						<Stack.Screen name="ReceiveDetails" component={ReceiveDetails} />
+						<Stack.Screen name="Tags" component={Tags} />
 					</Stack.Group>
 				</Stack.Navigator>
+
+				<ReceiveNumberPad />
 			</NavigationContainer>
 		</BottomSheetWrapper>
 	);

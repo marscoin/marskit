@@ -289,7 +289,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
-			<NavigationHeader title="Review and send" size="sm" />
+			<NavigationHeader title="Review & Send" size="sm" />
 			<View style={styles.content}>
 				<AmountToggle sats={amount} style={styles.amountToggle} />
 

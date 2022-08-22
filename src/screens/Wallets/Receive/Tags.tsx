@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useState } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
@@ -8,17 +8,11 @@ import NavigationHeader from '../../../components/NavigationHeader';
 import Tag from '../../../components/Tag';
 import Store from '../../../store/types';
 import useColors from '../../../hooks/colors';
-import { addTxTag } from '../../../store/actions/wallet';
+import { updateInvoice } from '../../../store/actions/receive';
 
-const AddressAndAmount = ({ navigation }): ReactElement => {
+const Tags = ({ navigation }): ReactElement => {
 	const colors = useColors();
 	const [text, setText] = useState('');
-	const selectedWallet = useSelector(
-		(store: Store) => store.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(store: Store) => store.wallet.selectedNetwork,
-	);
 	const lastUsedTags = useSelector(
 		(store: Store) => store.metadata.lastUsedTags,
 	);
@@ -27,18 +21,12 @@ const AddressAndAmount = ({ navigation }): ReactElement => {
 		if (text.length === 0) {
 			return;
 		}
-		const res = addTxTag({ tag: text, selectedNetwork, selectedWallet });
-		if (res.isErr()) {
-			return Alert.alert(res.error.message);
-		}
+		updateInvoice({ tags: [text] });
 		navigation.goBack();
 	};
 
 	const handleTagChoose = (tag: string): void => {
-		const res = addTxTag({ tag, selectedNetwork, selectedWallet });
-		if (res.isErr()) {
-			return Alert.alert(res.error.message);
-		}
+		updateInvoice({ tags: [tag] });
 		navigation.goBack();
 	};
 
@@ -119,4 +107,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default memo(AddressAndAmount);
+export default memo(Tags);
