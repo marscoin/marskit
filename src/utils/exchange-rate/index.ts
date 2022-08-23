@@ -107,11 +107,12 @@ export const getDisplayValues = ({
 				currencyFormat = 'USD';
 			}
 
+			fiatFormatted = '';
+
 			const fiatFormattedIntl = new Intl.NumberFormat(locale, {
 				style: 'currency',
 				currency: currencyFormat,
 			});
-			fiatFormatted = fiatFormattedIntl.format(fiatValue);
 
 			fiatFormattedIntl.formatToParts(fiatValue).forEach((part) => {
 				if (part.type === 'currency') {
@@ -123,11 +124,13 @@ export const getDisplayValues = ({
 				} else if (part.type === 'decimal') {
 					fiatDecimal = part.value;
 				}
+
+				if (part.type !== 'currency') {
+					fiatFormatted = `${fiatFormatted}${part.value}`;
+				}
 			});
 
-			fiatFormatted = isNaN(fiatValue)
-				? '-'
-				: fiatFormatted.replace(fiatSymbol, '');
+			fiatFormatted = fiatFormatted.trim();
 		}
 
 		let bitcoinFormatted = bitcoinUnits(satoshis, 'satoshi')

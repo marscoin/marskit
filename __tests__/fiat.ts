@@ -33,18 +33,48 @@ describe('Pulls latest fiat exchange rates and checks the wallet store for valid
 
 	it('Formats all display values in USD formatted with correct locale', async () => {
 		//Testing the react hook
-		const { fiatFormatted, fiatSymbol, bitcoinFormatted, bitcoinSymbol } =
-			getDisplayValues({
-				satoshis: 1010101,
-				exchangeRate: 100000,
-				currency: 'USD',
-				bitcoinUnit: 'BTC',
-				locale: 'en-US',
-			});
+		const dv = getDisplayValues({
+			satoshis: 1010101,
+			exchangeRate: 100000,
+			currency: 'USD',
+			bitcoinUnit: 'BTC',
+			locale: 'en-US',
+		});
 
-		expect(fiatFormatted).toBe('1,010.10');
-		expect(fiatSymbol).toBe('$');
-		expect(bitcoinFormatted).toBe('0.01010101');
-		expect(bitcoinSymbol).toBe('₿');
+		expect(dv.fiatFormatted).toBe('1,010.10');
+		expect(dv.fiatWhole).toBe('1,010');
+		expect(dv.fiatDecimal).toBe('.');
+		expect(dv.fiatDecimalValue).toBe('10');
+		expect(dv.fiatSymbol).toBe('$');
+		expect(dv.fiatTicker).toBe('USD');
+		expect(dv.fiatValue).toBe(1010.1);
+		expect(dv.bitcoinFormatted).toBe('0.01010101');
+		expect(dv.bitcoinSymbol).toBe('₿');
+		expect(dv.bitcoinTicker).toBe('BTC');
+		expect(dv.satoshis).toBe(1010101);
+	});
+
+	it('Formats all display values in RUB formatted with correct locale', async () => {
+		//Testing the react hook
+		const dv = getDisplayValues({
+			satoshis: 1010101,
+			exchangeRate: 100000,
+			currency: 'RUB',
+			currencySymbol: '₽',
+			bitcoinUnit: 'satoshi',
+			locale: 'en-US',
+		});
+
+		expect(dv.fiatFormatted).toBe('1,010.10');
+		expect(dv.fiatWhole).toBe('1,010');
+		expect(dv.fiatDecimal).toBe('.');
+		expect(dv.fiatDecimalValue).toBe('10');
+		expect(dv.fiatSymbol).toBe('₽');
+		expect(dv.fiatTicker).toBe('RUB');
+		expect(dv.fiatValue).toBe(1010.1);
+		expect(dv.bitcoinFormatted).toBe('1 010 101');
+		expect(dv.bitcoinSymbol).toBe('⚡');
+		expect(dv.bitcoinTicker).toBe('sats');
+		expect(dv.satoshis).toBe(1010101);
 	});
 });
