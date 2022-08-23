@@ -45,7 +45,7 @@ const App = (): ReactElement => {
 	useEffect(() => {
 		// hide spash screen on android
 		if (Platform.OS === 'android') {
-			NativeModules.SplashScreenModule.hide();
+			setTimeout(NativeModules.SplashScreenModule.hide, 100);
 		}
 
 		// launch wallet services
