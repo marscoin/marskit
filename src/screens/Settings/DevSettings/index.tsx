@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement, useMemo, useState } from 'react';
 import Store from '../../../store/types';
 import { useSelector } from 'react-redux';
 import {
@@ -19,6 +19,7 @@ import { resetSlashtagsStore } from '../../../store/actions/slashtags';
 import { clearSlashtagsStorage } from '../../../components/SlashtagsProvider';
 
 const SettingsMenu = ({ navigation }): ReactElement => {
+	const [throwError, setThrowError] = useState(false);
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
@@ -118,7 +119,15 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						title: 'Trigger exception in React render',
 						type: 'button',
 						onPress: (): void => {
-							throw new Error('test render error');
+							setThrowError(true);
+						},
+						hide: false,
+					},
+					{
+						title: 'Trigger exception in action handler',
+						type: 'button',
+						onPress: (): void => {
+							throw new Error('test action error');
 						},
 						hide: false,
 					},
@@ -136,6 +145,10 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[hasPin, selectedWallet, rbf],
 	);
+
+	if (throwError) {
+		throw new Error('test render error');
+	}
 
 	return (
 		<SettingsView
