@@ -1,4 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -9,6 +10,7 @@ import { updateSettings } from '../../../store/actions/settings';
 import { UnitBitcoinIcon, UnitSatoshiIcon } from '../../../styles/components';
 
 const BitcoinUnitSettings = (): ReactElement => {
+	const navigation = useNavigation();
 	const selectedBitcoinUnit = useSelector(
 		(state: Store) => state.settings.bitcoinUnit,
 	);
@@ -36,7 +38,10 @@ const BitcoinUnitSettings = (): ReactElement => {
 					title: `${bitcoinUnit.label} ${bitcoinUnit.labelExample}`,
 					value: bitcoinUnit.unit === selectedBitcoinUnit,
 					type: 'button',
-					onPress: (): any => updateSettings({ bitcoinUnit: bitcoinUnit.unit }),
+					onPress: (): void => {
+						navigation.goBack();
+						updateSettings({ bitcoinUnit: bitcoinUnit.unit });
+					},
 					hide: false,
 					Icon: bitcoinUnit.Icon,
 				})),
