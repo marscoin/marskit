@@ -93,7 +93,7 @@ const AddressTypeSettings = (): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Bitcoin Address Types'}
+			title={'Bitcoin Address Type'}
 			listData={AddressTypeListData}
 			showBackNavigation
 		/>
