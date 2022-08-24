@@ -1,4 +1,9 @@
-import { IWalletItem, TBitcoinUnit, TBalanceUnit } from './wallet';
+import {
+	IWalletItem,
+	TBitcoinUnit,
+	TBalanceUnit,
+	TAddressType,
+} from './wallet';
 
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
@@ -38,6 +43,7 @@ export interface ISettings {
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
+	addressType: TAddressType;
 	[key: string]: any;
 }
 

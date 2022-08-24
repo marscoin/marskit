@@ -1,4 +1,5 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -8,14 +9,19 @@ import { getSelectedAddressType } from '../../../utils/wallet';
 import { capitalize } from '../../../utils/helpers';
 import { updateSelectedAddressType } from '../../../store/actions/wallet';
 import { TAddressType } from '../../../store/types/wallet';
+import { updateSettings } from '../../../store/actions/settings';
 
 const AddressTypeSettings = (): ReactElement => {
+	const navigation = useNavigation();
 	const [addressTypeState, setAddressTypeState] = useState<TAddressType>('');
 
 	const typesDescriptions = {
-		p2pkh: 'Pay-to-public-key-hash',
-		p2wpkh: 'Pay-to-witness-public-key-hash',
-		p2sh: 'Pay-to-Script-Hash',
+		p2wpkh: {
+			description: 'Pay-to-witness-public-key-hash',
+			example: '(bc1x...)',
+		},
+		p2sh: { description: 'Pay-to-Script-Hash', example: '(3x...)' },
+		p2pkh: { description: 'Pay-to-public-key-hash', example: '(1x...)' },
 	};
 
 	const selectedWallet = useSelector(
@@ -63,14 +69,20 @@ const AddressTypeSettings = (): ReactElement => {
 	const AddressTypeListData: IListData[] = useMemo(
 		() => [
 			{
-				title: 'Default Bitcoin address type',
+				title: 'Bitcoin address type',
 				data: addressTypesList.map((bitcoinUnit) => ({
 					useCheckmark: true,
 					value: checkAddressTypeListCheckmark(bitcoinUnit.value),
-					description: typesDescriptions[bitcoinUnit.value],
-					title: `${bitcoinUnit.label}`,
+					description: typesDescriptions[bitcoinUnit.value].description,
+					title: `${bitcoinUnit.label} ${
+						typesDescriptions[bitcoinUnit.value].example
+					}`,
 					type: 'button',
-					onPress: (): void => setAddressTypePreference(bitcoinUnit.value),
+					onPress: (): void => {
+						navigation.goBack();
+						updateSettings({ addressType: bitcoinUnit.value });
+						setAddressTypePreference(bitcoinUnit.value);
+					},
 					hide: false,
 				})),
 			},
@@ -81,7 +93,7 @@ const AddressTypeSettings = (): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Address types preference'}
+			title={'Bitcoin Address Types'}
 			listData={AddressTypeListData}
 			showBackNavigation
 		/>
