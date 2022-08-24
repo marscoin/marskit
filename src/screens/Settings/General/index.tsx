@@ -9,11 +9,21 @@ import { updateSettings } from '../../../store/actions/settings';
 import { setupTodos } from '../../../utils/todos';
 import { resetTodo } from '../../../store/actions/todos';
 
+const typesDescriptions = {
+	p2wpkh: 'Bech32',
+	p2sh: 'Segwit',
+	p2pkh: 'Legacy',
+};
+
 const General = ({ navigation }): ReactElement => {
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const showSuggestions = useSelector(
 		(state: Store) => state.settings.showSuggestions,
+	);
+
+	const selectedAddressType = useSelector(
+		(store: Store) => store.settings.addressType,
 	);
 
 	// set a default value to transaction speed if it's not set
@@ -69,6 +79,13 @@ const General = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
+						title: 'Bitcoin address type',
+						type: 'button',
+						value: typesDescriptions[selectedAddressType],
+						onPress: (): void => navigation.navigate('AddressTypePreference'),
+						hide: false,
+					},
+					{
 						title: 'Default transaction speed',
 						value: transactionSpeeds[selectedTransactionSpeed],
 						type: 'button',
@@ -96,12 +113,15 @@ const General = ({ navigation }): ReactElement => {
 				],
 			},
 		],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
-			showSuggestions,
 			selectedCurrency,
+			unitsBitcoin,
 			selectedBitcoinUnit,
+			selectedAddressType,
+			transactionSpeeds,
 			selectedTransactionSpeed,
+			showSuggestions,
+			navigation,
 		],
 	);
 

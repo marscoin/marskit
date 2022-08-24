@@ -1,31 +1,12 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import Store from './../../../store/types';
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
 
-const typesDescriptions = {
-	p2wpkh: 'Bech32',
-	p2sh: 'Segwit',
-	p2pkh: 'Legacy',
-};
-
 const AdvancedSettings = ({ navigation }): ReactElement => {
-	const selectedAddressType = useSelector(
-		(store: Store) => store.settings.addressType,
-	);
-
 	const SettingsListData: IListData[] = useMemo(
 		() => [
 			{
 				data: [
-					{
-						title: 'Bitcoin address type',
-						type: 'button',
-						value: typesDescriptions[selectedAddressType],
-						onPress: (): void => navigation.navigate('AddressTypePreference'),
-						hide: false,
-					},
 					{
 						title: 'Coin selection',
 						type: 'button',
@@ -47,7 +28,7 @@ const AdvancedSettings = ({ navigation }): ReactElement => {
 				],
 			},
 		],
-		[navigation, selectedAddressType],
+		[navigation],
 	);
 
 	return (
