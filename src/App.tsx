@@ -11,13 +11,16 @@ import React, {
 } from 'react';
 import { Platform, UIManager, NativeModules } from 'react-native';
 import { useSelector } from 'react-redux';
+import NetInfo from '@react-native-community/netinfo';
+import Toast from 'react-native-toast-message';
+
 import { ThemeProvider } from 'styled-components/native';
 import { SafeAreaProvider } from './styles/components';
 import { StatusBar } from './styles/components';
 import RootNavigator from './navigation/root/RootNavigator';
 import Store from './store/types';
+import { updateUser } from './store/actions/user';
 import themes from './styles/themes';
-import Toast from 'react-native-toast-message';
 import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
@@ -55,6 +58,15 @@ const App = (): ReactElement => {
 				await startWalletServices({});
 			}
 		})();
+
+		// subscribe to connection information
+		const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
+			updateUser({ isOnline: state.isConnected });
+		});
+
+		return () => {
+			unsubscribeNetInfo();
+		};
 	}, []);
 
 	useEffect(() => {
