@@ -44,7 +44,6 @@ export interface ISettings {
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
 	addressType: TAddressType;
-	[key: string]: any;
 }
 
 export type RadioButtonItem = { label: string; value: string };
