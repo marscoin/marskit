@@ -119,8 +119,7 @@ export interface IWallet {
 	addressTypes: IAddressType;
 	exchangeRates: IExchangeRates;
 	header: IWalletItem<IHeader>;
-	wallets: { [key: string]: IDefaultWalletShape } | {};
-	[key: string]: any;
+	wallets: { [key: string]: IDefaultWalletShape };
 }
 
 export interface IWalletItem<T> {

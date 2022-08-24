@@ -142,7 +142,7 @@ export const displayAlert = (msg = '', title = ''): void => {
 	} catch {}
 };
 
-export const btcToSats = (balance = 0): number => {
+export const btcToSats = (balance: number): number => {
 	try {
 		return Number(
 			bitcoinUnits(balance, 'BTC').to('satoshi').value().toFixed(0),

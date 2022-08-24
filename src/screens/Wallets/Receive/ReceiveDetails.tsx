@@ -82,10 +82,7 @@ const ReceiveDetails = ({ navigation }): ReactElement => {
 						selectTextOnFocus={true}
 						multiline={true}
 						placeholder="Optional note to payer"
-						fontSize={15}
-						fontWeight="600"
 						autoCapitalize="none"
-						autoCompleteType="off"
 						autoCorrect={false}
 						onChangeText={(txt): void => {
 							updateInvoice({ message: txt });
@@ -159,6 +156,7 @@ const styles = StyleSheet.create({
 		paddingRight: 130,
 		borderRadius: 8,
 		fontSize: 15,
+		fontWeight: '600',
 		minHeight: 70,
 	},
 	tagsContainer: {
