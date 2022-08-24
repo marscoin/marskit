@@ -747,6 +747,8 @@ export const updateOnChainTransaction = async ({
 							foundOutputs.forEach((foundOutput) => {
 								if (foundOutput.index) {
 									outputs[foundOutput.index] = output;
+								} else {
+									outputs[0] = output;
 								}
 							});
 						} else {
