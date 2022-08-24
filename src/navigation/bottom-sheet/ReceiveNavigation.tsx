@@ -10,6 +10,10 @@ import ReceiveNumberPad from '../../screens/Wallets/Receive/ReceiveNumberPad';
 import Tags from '../../screens/Wallets/Receive/Tags';
 import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
+import {
+	useSafeAreaFrame,
+	useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 const navOptions = {
@@ -19,11 +23,13 @@ const navOptions = {
 	detachInactiveScreens: true,
 };
 const ReceiveNavigation = (): ReactElement => {
+	const insets = useSafeAreaInsets();
+	const { height } = useSafeAreaFrame();
+	const snapPoints = useMemo(() => [height - (60 + insets.top)], []);
 	const { isOpen, initial } =
 		useSelector(
 			(store: Store) => store.user.viewController?.receiveNavigation,
 		) ?? {};
-	const snapPoints = useMemo(() => ['87%'], []);
 
 	const initialRouteName = !isOpen ? undefined : initial;
 
