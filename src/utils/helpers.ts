@@ -276,6 +276,35 @@ export const objectsMatch = (obj1, obj2): boolean => {
 };
 
 /**
+ * Removes keys from an object and returns the result as a new object
+ * @param object
+ * @param keysToRemove
+ * @return { [key]: string }
+ */
+export const removeKeysFromObject = (
+	object: {},
+	keysToRemove: string | string[],
+) => {
+	let condition;
+
+	if (typeof keysToRemove === 'string') {
+		condition = (key) => !key.includes(keysToRemove);
+	} else {
+		condition = (key) => {
+			return !keysToRemove.some((keyToRemove) => key.includes(keyToRemove));
+		};
+	}
+
+	return Object.keys(object)
+		.filter(condition)
+		.reduce((prevValue, key) => {
+			return Object.assign(prevValue, {
+				[key]: object[key],
+			});
+		}, {});
+};
+
+/**
  * Returns the new value and abbreviation of the provided number for display.
  * @param value
  * @return { newValue: string; abbreviation: string }
