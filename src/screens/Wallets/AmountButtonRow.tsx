@@ -1,16 +1,24 @@
 import React, { memo, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity, View, SwitchIcon } from '../../../styles/components';
+import { StyleSheet, GestureResponderEvent } from 'react-native';
 import { useSelector } from 'react-redux';
-import Store from '../../../store/types';
-import { sendMax } from '../../../utils/wallet/transactions';
-import { Text02B } from '../../../styles/components';
-import { getStore } from '../../../store/helpers';
-import { updateSettings } from '../../../store/actions/settings';
-import { toggleView } from '../../../store/actions/user';
-import useDisplayValues from '../../../hooks/displayValues';
 
-const AmountButtonRow = (): ReactElement => {
+import { TouchableOpacity, View, SwitchIcon } from '../../styles/components';
+import Store from '../../store/types';
+import { sendMax } from '../../utils/wallet/transactions';
+import { Text02B } from '../../styles/components';
+import { getStore } from '../../store/helpers';
+import { updateSettings } from '../../store/actions/settings';
+import useDisplayValues from '../../hooks/displayValues';
+
+type AmountButtonRowProps = {
+	showMaxButton?: boolean;
+	onDone: (event: GestureResponderEvent) => void;
+};
+
+const AmountButtonRow = ({
+	showMaxButton = true,
+	onDone,
+}: AmountButtonRowProps): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -34,26 +42,30 @@ const AmountButtonRow = (): ReactElement => {
 			state.wallet.wallets[selectedWallet].transaction[selectedNetwork].max,
 	);
 
+	const onChangeUnit = (): void => {
+		const unit =
+			getStore().settings?.unitPreference === 'asset' ? 'fiat' : 'asset';
+		updateSettings({ unitPreference: unit });
+	};
+
 	return (
 		<View style={styles.topRow}>
-			<TouchableOpacity
-				style={styles.topRowButtons}
-				color={'onSurface'}
-				disabled={balance <= 0}
-				onPress={sendMax}>
-				<Text02B size="12px" color={max ? 'orange' : 'brand'}>
-					MAX
-				</Text02B>
-			</TouchableOpacity>
+			{showMaxButton && (
+				<TouchableOpacity
+					style={styles.topRowButtons}
+					color={'onSurface'}
+					disabled={balance <= 0}
+					onPress={sendMax}>
+					<Text02B size="12px" color={max ? 'orange' : 'brand'}>
+						MAX
+					</Text02B>
+				</TouchableOpacity>
+			)}
 
 			<TouchableOpacity
 				color={'onSurface'}
 				style={styles.topRowButtons}
-				onPress={(): void => {
-					const newUnitPreference =
-						getStore().settings?.unitPreference === 'asset' ? 'fiat' : 'asset';
-					updateSettings({ unitPreference: newUnitPreference });
-				}}>
+				onPress={onChangeUnit}>
 				<SwitchIcon color="brand" width={16.44} height={13.22} />
 				<Text02B size="12px" color="brand" style={styles.middleButtonText}>
 					{unitPreference === 'asset'
@@ -65,9 +77,7 @@ const AmountButtonRow = (): ReactElement => {
 			<TouchableOpacity
 				style={styles.topRowButtons}
 				color={'onSurface'}
-				onPress={(): void => {
-					toggleView({ view: 'numberPad', data: { isOpen: false } });
-				}}>
+				onPress={onDone}>
 				<Text02B size="12px" color="brand">
 					DONE
 				</Text02B>

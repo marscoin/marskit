@@ -31,7 +31,7 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 
-const Blur = (props: ViewProps) =>
+const Blur = (props: ViewProps): ReactElement =>
 	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const ScannerScreen = ({ navigation }): ReactElement => {
@@ -47,7 +47,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		(state: Store) => state.wallet.selectedWallet,
 	);
 
-	const showError = (text) => {
+	const showError = (text: string): void => {
 		setError(text);
 		setTimeout(() => setError(''), 5000);
 	};
@@ -90,7 +90,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 		}
 	};
 
-	const onPickFile = async () => {
+	const onPickFile = async (): Promise<void> => {
 		try {
 			const result = await launchImageLibrary({
 				// Use 'mixed' so the user can search folders other than "Photos"
@@ -110,7 +110,7 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 						showError(
 							'Sorry. Bitkit wasn’t able to detect a QR code in this image.',
 						);
-						return false;
+						return;
 					}
 
 					onRead(values[0]);
@@ -162,7 +162,9 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 											{ backgroundColor: flashMode ? white5 : white08 },
 										]}
 										activeOpacity={1}
-										onPress={() => setFlashMode((prevState) => !prevState)}>
+										onPress={(): void =>
+											setFlashMode((prevState) => !prevState)
+										}>
 										<FlashlightIcon width={24} height={24} />
 									</TouchableOpacity>
 								</View>

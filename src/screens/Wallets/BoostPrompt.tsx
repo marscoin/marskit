@@ -22,8 +22,13 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { btcToSats } from '../../utils/helpers';
+import { IActivityItem } from '../../store/types/activity';
 
-const BoostForm = ({ activityItem }): ReactElement => {
+const BoostForm = ({
+	activityItem,
+}: {
+	activityItem: IActivityItem;
+}): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -38,17 +43,21 @@ const BoostForm = ({ activityItem }): ReactElement => {
 	const [preparing, setPreparing] = useState(true);
 	const boostData = useMemo(() => canBoost(activityItem.id), [activityItem.id]);
 
+	// Fallback values
+	const transactionFee = transaction.fee ?? 0;
+	const minFee = transaction.minFee ?? 0;
+	const satsPerByte = transaction.satsPerByte ?? 0;
+	const activityItemFee = activityItem.fee ? btcToSats(activityItem.fee) : 0;
+
 	const boostFee = useMemo(() => {
 		if (!boostData.canBoost) {
 			return 0;
 		}
 		if (!boostData.rbf) {
-			return transaction.fee;
+			return transactionFee;
 		}
-		return Math.abs(
-			transaction.fee - (btcToSats(Number(activityItem.fee)) ?? 0),
-		);
-	}, [boostData.canBoost, boostData.rbf, transaction.fee, activityItem.fee]);
+		return Math.abs(transactionFee - activityItemFee);
+	}, [boostData.canBoost, boostData.rbf, transactionFee, activityItemFee]);
 
 	useEffect(() => {
 		setupBoost({
@@ -123,11 +132,11 @@ const BoostForm = ({ activityItem }): ReactElement => {
 	return (
 		<>
 			<AdjustValue
-				value={`${transaction.satsPerByte} sat${
-					transaction.satsPerByte > 1 ? 's' : ''
+				value={`${satsPerByte} sat${
+					satsPerByte > 1 ? 's' : ''
 				}/B\n+${boostFee.toFixed(0)} sats`}
 				decreaseValue={(): void => {
-					if (transaction.satsPerByte - 1 > transaction.minFee) {
+					if (satsPerByte - 1 > minFee) {
 						const res = adjustFee({
 							selectedNetwork,
 							selectedWallet,

@@ -205,11 +205,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						selectTextOnFocus={true}
 						multiline={true}
 						placeholder="Paste or scan an address, invoice or select a contact"
-						// @ts-ignore fontSize is not in propTypes but it works
-						fontSize={15}
-						fontWeight="600"
 						autoCapitalize="none"
-						autoCompleteType="off"
 						autoCorrect={false}
 						onChangeText={(txt): void => {
 							updateOnChainTransaction({
@@ -310,6 +306,7 @@ const styles = StyleSheet.create({
 		paddingRight: 130,
 		borderRadius: 8,
 		fontSize: 15,
+		fontWeight: '600',
 		minHeight: 70,
 	},
 	inputActions: {

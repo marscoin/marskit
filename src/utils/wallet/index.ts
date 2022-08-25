@@ -83,6 +83,7 @@ import {
 	BITKIT_WALLET_SEED_HASH_PREFIX,
 	GENERATE_ADDRESS_AMOUNT,
 } from './constants';
+import { moveMetaIncTxTags } from '../../store/actions/metadata';
 
 export const refreshWallet = async ({
 	onchain = true,
@@ -135,6 +136,7 @@ export const refreshWallet = async ({
 
 		if (onchain || lightning) {
 			await updateActivityList();
+			await moveMetaIncTxTags();
 		}
 
 		return ok('');
@@ -2406,6 +2408,52 @@ export const getReceiveAddress = ({
 		if (!receiveAddress) {
 			return err('No receive address available.');
 		}
+		return ok(receiveAddress);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+// TODO: mock function, replace
+/**
+ * Returns a new receive address for the given network and wallet.
+ * @param {TAddressType} [addressType]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @return {Result<string>}
+ */
+export const getNewReceiveAddress = ({
+	addressType,
+	selectedNetwork,
+	selectedWallet,
+}: {
+	addressType?: TAddressType;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Result<string> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!addressType) {
+			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
+		}
+
+		// TODO:
+		// - generate new receiving address
+		// - if gap limit is reached, cycle through unused addresses again
+		// - test tags again when implemented
+
+		const wallet = getStore().wallet?.wallets[selectedWallet];
+		const addressIndex = wallet?.addressIndex[selectedNetwork];
+		const receiveAddress = addressIndex[addressType]?.address;
+		if (!receiveAddress) {
+			return err('No receive address available.');
+		}
+
 		return ok(receiveAddress);
 	} catch (e) {
 		return err(e);

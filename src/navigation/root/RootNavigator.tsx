@@ -138,20 +138,21 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Contact" component={Contact} />
 				</Stack.Group>
 			</Stack.Navigator>
-			<SendBottomSheet />
 			<SendNavigation />
 			<ReceiveNavigation />
 			<BackupNavigation />
 			<PINNavigation />
-
-			<SendAssetPicker />
-			<CoinSelection />
 			<OnChainNumberPad />
 			<FeeNumberPad />
 			<PINPrompt />
 			<BoostPrompt />
 			<ActivityTagsPrompt />
 			<NewTxPrompt />
+
+			{/* Not used */}
+			<SendBottomSheet />
+			<SendAssetPicker />
+			<CoinSelection />
 		</NavigationContainer>
 	);
 };

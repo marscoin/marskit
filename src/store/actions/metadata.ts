@@ -1,8 +1,17 @@
-import actions from './actions';
 import { ok, Result } from '@synonymdev/result';
-import { getDispatch } from '../helpers';
+import actions from './actions';
+import { getDispatch, getStore } from '../helpers';
+import { getCurrentWallet } from '../../utils/wallet';
 
 const dispatch = getDispatch();
+
+/*
+ * This resets the metadata store to defaultMetadataShape
+ */
+export const resetMetaStore = (): Result<string> => {
+	dispatch({ type: actions.RESET_META_STORE });
+	return ok('');
+};
 
 /*
  * This action updates transactions tags
@@ -38,4 +47,73 @@ export const deleteMetaTxTag = (txid: string, tag: string): Result<string> => {
 		payload: { txid, tag },
 	});
 	return ok('');
+};
+
+/*
+ * This action updates transactions tags
+ */
+export const updateMetaIncTxTags = (
+	address: string,
+	payReq: string,
+	tags: Array<string> = [],
+): Result<string> => {
+	dispatch({
+		type: actions.UPDATE_META_INC_TX_TAGS,
+		payload: { address, payReq, tags },
+	});
+	return ok('');
+};
+
+/**
+ * Moves pending tags to metadata store linked to received transactions
+ * @returns {Result<string>}
+ */
+export const moveMetaIncTxTags = (): Result<string> => {
+	const store = getStore();
+	const { selectedWallet, selectedNetwork } = getCurrentWallet({});
+	if (!store.wallet.wallets[selectedWallet]) {
+		console.warn('No wallet found. Cannot update metadata with transactions.');
+		return ok('');
+	}
+
+	const transactions =
+		store.wallet.wallets[selectedWallet].transactions[selectedNetwork];
+
+	const receivedTxs = Object.entries(transactions).filter(
+		([_, txContent]) => txContent.type === 'received',
+	);
+
+	const { tags, pendingTags } = store.metadata;
+	const pendingAddresses = Object.keys(pendingTags);
+
+	const matchedTxs = receivedTxs.filter(([_, txContent]) =>
+		pendingAddresses.find((address) => address === txContent.address),
+	);
+
+	const matchedAddresses = matchedTxs.map(
+		([_, txContent]) => txContent.address,
+	);
+
+	const newPendingTags = pendingAddresses
+		.filter((key) => !matchedAddresses.includes(key))
+		.reduce((obj, key) => {
+			return Object.assign(obj, {
+				[key]: pendingTags[key],
+			});
+		}, {});
+
+	const newTags = matchedTxs
+		.filter(([_, txContent]) => !Object.keys(tags).includes(txContent.txid))
+		.map(([_, txContent]) => ({
+			[txContent.txid]: pendingTags[txContent.address],
+		}));
+
+	const newTagsObj = Object.assign({}, ...newTags);
+
+	dispatch({
+		type: actions.MOVE_META_INC_TX_TAG,
+		payload: { tags: newTagsObj, pendingTags: newPendingTags },
+	});
+
+	return ok('Metadata tags resynced with transactions.');
 };

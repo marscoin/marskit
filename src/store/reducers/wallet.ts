@@ -15,7 +15,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 	if (action.payload?.selectedNetwork) {
 		selectedNetwork = action.payload.selectedNetwork;
 	}
-	let addressType = state.wallets[selectedWallet]?.selectedAddressType;
+	let addressType = state.wallets[selectedWallet]?.addressType[selectedNetwork];
 	if (action.payload?.addressType) {
 		addressType = action.payload.addressType;
 	}
@@ -293,7 +293,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 					[selectedWallet]: {
 						...state.wallets[selectedWallet],
 						boostedTransactions: {
-							...state.wallets[selectedWallet].transactions,
+							...state.wallets[selectedWallet].boostedTransactions,
 							[selectedNetwork]: boostedTransactions,
 						},
 					},
@@ -308,7 +308,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 					[selectedWallet]: {
 						...state.wallets[selectedWallet],
 						boostedTransactions: {
-							...state.wallets[selectedWallet].transactions,
+							...state.wallets[selectedWallet].boostedTransactions,
 							[selectedNetwork]: [
 								...state.wallets[selectedWallet].boostedTransactions[
 									selectedNetwork

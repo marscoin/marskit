@@ -73,6 +73,7 @@ export enum EKeyDerivationAccount {
 	onchain = 0,
 }
 
+// currently not used
 export enum EAddressTypeNames {
 	p2wpkh = 'Native Segwit',
 	p2sh = 'Legacy Bitcoin address',
@@ -118,8 +119,7 @@ export interface IWallet {
 	addressTypes: IAddressType;
 	exchangeRates: IExchangeRates;
 	header: IWalletItem<IHeader>;
-	wallets: { [key: string]: IDefaultWalletShape } | {};
-	[key: string]: any;
+	wallets: { [key: string]: IDefaultWalletShape };
 }
 
 export interface IWalletItem<T> {

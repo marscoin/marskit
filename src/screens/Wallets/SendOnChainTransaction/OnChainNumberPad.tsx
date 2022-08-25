@@ -5,9 +5,10 @@ import {
 	getTransactionOutputValue,
 	updateAmount,
 } from '../../../utils/wallet/transactions';
-import AmountButtonRow from './AmountButtonRow';
+import AmountButtonRow from '../AmountButtonRow';
 import NumberPad from '../../../components/NumberPad';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
+import { toggleView } from '../../../store/actions/user';
 import Store from '../../../store/types';
 import { defaultOnChainTransactionData } from '../../../store/types/wallet';
 import {
@@ -144,7 +145,11 @@ const OnChainNumberPad = (): ReactElement => {
 			backdrop={false}
 			view="numberPad">
 			<NumberPad onPress={onPress} onRemove={onRemove} onClear={onClear}>
-				<AmountButtonRow />
+				<AmountButtonRow
+					onDone={(): void => {
+						toggleView({ view: 'numberPad', data: { isOpen: false } });
+					}}
+				/>
 			</NumberPad>
 		</BottomSheetWrapper>
 	);
