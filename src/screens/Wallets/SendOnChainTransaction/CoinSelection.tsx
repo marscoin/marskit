@@ -70,7 +70,7 @@ const CoinSelection = (): ReactElement => {
 	);
 	const transaction = useSelector(
 		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork],
+			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ?? {},
 	);
 	const utxos: IUtxo[] =
 		useSelector(
@@ -87,7 +87,10 @@ const CoinSelection = (): ReactElement => {
 		[coinSelectPreference],
 	);
 
-	const inputs = useMemo(() => transaction.inputs, [transaction?.inputs]);
+	const inputs = useMemo(
+		() => transaction?.inputs ?? [],
+		[transaction?.inputs],
+	);
 
 	const [autoSelectionEnabled, setAutoSelectionEnabled] = useState(
 		inputs?.length === utxos?.length,
@@ -108,7 +111,7 @@ const CoinSelection = (): ReactElement => {
 	};
 
 	const inputKeys = useMemo(
-		() => inputs.map((input) => getUtxoKey(input)),
+		() => (inputs ? inputs.map((input) => getUtxoKey(input)) : []),
 		[inputs],
 	);
 
