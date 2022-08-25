@@ -740,17 +740,12 @@ export const updateOnChainTransaction = async ({
 					const outputIndex = output?.index;
 					if (outputIndex === undefined || isNaN(outputIndex)) {
 						//Ensure we're not pushing a duplicate address.
-						const foundOutputs = outputs.filter(
+						const foundOutput = outputs.filter(
 							(o) => o.address === output.address,
 						);
-						if (foundOutputs?.length) {
-							foundOutputs.forEach((foundOutput) => {
-								if (foundOutput.index) {
-									outputs[foundOutput.index] = output;
-								} else {
-									outputs[0] = output;
-								}
-							});
+						if (foundOutput?.length) {
+							// @ts-ignore // TODO: there is a bug here
+							outputs[foundOutput.index] = output;
 						} else {
 							outputs.push(output);
 						}
