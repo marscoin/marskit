@@ -1,7 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { Platform, NativeModules } from 'react-native';
+import { ENABLE_I18NEXT_DEBUGGER } from '@env';
+
 import resources from './locales';
+
+const __enableDebugger__ = ENABLE_I18NEXT_DEBUGGER
+	? ENABLE_I18NEXT_DEBUGGER === 'true'
+	: __DEV__;
 
 const getDeviceLanguage = (): string => {
 	let language = '';
@@ -31,7 +37,7 @@ i18n
 		resources,
 		ns: Object.keys(resources),
 		defaultNS: 'common',
-		debug: __DEV__,
+		debug: __enableDebugger__,
 		cache: {
 			enabled: true,
 		},

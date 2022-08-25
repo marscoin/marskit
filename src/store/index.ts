@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import * as Sentry from '@sentry/react-native';
+import createDebugger from 'redux-flipper';
 import logger from 'redux-logger';
 import {
 	persistReducer,
@@ -10,30 +11,58 @@ import {
 	PURGE,
 	REGISTER,
 } from 'redux-persist';
+import {
+	ENABLE_REDUX_FLIPPER,
+	ENABLE_REDUX_LOGGER,
+	ENABLE_REDUX_IMMUTABLE_CHECK,
+} from '@env';
 
 import mmkvStorage from './mmkv-storage';
 import reducers from './reducers';
 
 const __JEST__ = process.env.JEST_WORKER_ID !== undefined;
+const __enableDebugger__ = ENABLE_REDUX_FLIPPER
+	? ENABLE_REDUX_FLIPPER === 'true'
+	: false;
+const __enableLogger__ = ENABLE_REDUX_LOGGER
+	? ENABLE_REDUX_LOGGER === 'true'
+	: true;
+const __enableImmutableCheck__ = ENABLE_REDUX_IMMUTABLE_CHECK
+	? ENABLE_REDUX_IMMUTABLE_CHECK === 'true'
+	: true;
 
-// Switch off logging for unit tests and prod env
-const devMiddleware = __DEV__ && !__JEST__ ? [logger] : [];
-const sentryReduxEnhancer = Sentry.createReduxEnhancer();
+const middleware = [];
+const devMiddleware = [
+	...(__enableDebugger__ ? [createDebugger()] : []),
+	...(__enableLogger__ ? [logger] : []),
+];
+
+const enhancers = [Sentry.createReduxEnhancer()];
 
 const persistConfig = { key: 'root', storage: mmkvStorage };
 const persistedReducer = persistReducer(persistConfig, reducers);
 
 const store = configureStore({
 	reducer: persistedReducer,
-	enhancers: [sentryReduxEnhancer],
-	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware({
+	enhancers: enhancers,
+	middleware: (getDefaultMiddleware) => {
+		const defaultMiddleware = getDefaultMiddleware({
 			// specifically ignore redux-persist action types
 			// https://redux-toolkit.js.org/usage/usage-guide#use-with-redux-persist
 			serializableCheck: {
 				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
 			},
-		}).concat(devMiddleware),
+			// if things are slow in development disable this
+			// https://github.com/reduxjs/redux-toolkit/issues/415
+			immutableCheck: __enableImmutableCheck__,
+		});
+
+		if (__DEV__ && !__JEST__) {
+			return defaultMiddleware.concat([...middleware, ...devMiddleware]);
+		} else {
+			return defaultMiddleware.concat(middleware);
+		}
+	},
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
