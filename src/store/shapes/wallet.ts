@@ -183,7 +183,5 @@ export const defaultWalletStoreShape: IWallet = {
 		bitcoinTestnet: { ...header },
 		bitcoinRegtest: { ...header },
 	},
-	wallets: {
-		[EWallet.defaultWallet]: { ...defaultWalletShape },
-	},
+	wallets: {},
 };

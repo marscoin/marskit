@@ -47,8 +47,12 @@ export function useNoTransactions(): boolean {
 	const empty = useSelector((store: Store) => {
 		const wallet = store.wallet.selectedWallet;
 		const network = store.wallet.selectedNetwork;
-		const transactions = store.wallet?.wallets[wallet]?.transactions[network];
-		return Object.keys(transactions).length === 0;
+		if (wallet && store.wallet?.wallets[wallet]) {
+			const transactions =
+				store.wallet?.wallets[wallet]?.transactions[network] ?? {};
+			return Object.keys(transactions).length === 0;
+		}
+		return true;
 	});
 
 	return empty;

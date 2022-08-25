@@ -39,7 +39,8 @@ const AmountButtonRow = ({
 
 	const max = useSelector(
 		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork].max,
+			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]?.max ??
+			false,
 	);
 
 	const onChangeUnit = (): void => {
