@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import {
 	defaultOnChainTransactionData,
+	IAddressContent,
 	IOnChainTransactionData,
 } from '../store/types/wallet';
 import { reduceValue } from '../utils/helpers';
@@ -51,7 +52,7 @@ export function useBalance(): number {
 	return 0;
 }
 
-export function useChangeAddress(): string {
+export function useChangeAddress(): IAddressContent {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);

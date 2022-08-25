@@ -12,6 +12,7 @@ import {
 } from '../../../store/actions/wallet';
 import { resetUserStore } from '../../../store/actions/user';
 import { resetActivityStore } from '../../../store/actions/activity';
+import { resetMetaStore } from '../../../store/actions/metadata';
 import { resetLightningStore } from '../../../store/actions/lightning';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
@@ -100,6 +101,7 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 							await Promise.all([
 								resetWalletStore(),
 								resetLightningStore(),
+								resetMetaStore(),
 								resetSettingsStore(),
 								resetActivityStore(),
 								resetUserStore(),

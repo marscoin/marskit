@@ -137,7 +137,6 @@ const RootNavigator = (): ReactElement => {
 			<ReceiveNavigation />
 			<BackupNavigation />
 			<PINNavigation />
-
 			<PINPrompt />
 			<BoostPrompt />
 			<ActivityTagsPrompt />

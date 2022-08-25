@@ -1,5 +1,6 @@
 import { IUser } from './user';
 import { IWallet } from './wallet';
+import { IReceive } from './receive';
 import { ISettings } from './settings';
 import { ILightning } from './lightning';
 import { IActivity } from './activity';
@@ -13,6 +14,7 @@ import { ISlashtags } from './slashtags';
 export default interface Store {
 	user: IUser;
 	wallet: IWallet;
+	receive: IReceive;
 	settings: ISettings;
 	lightning: ILightning;
 	activity: IActivity;

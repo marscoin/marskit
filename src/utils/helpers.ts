@@ -142,7 +142,7 @@ export const displayAlert = (msg = '', title = ''): void => {
 	} catch {}
 };
 
-export const btcToSats = (balance = 0): number => {
+export const btcToSats = (balance: number): number => {
 	try {
 		return Number(
 			bitcoinUnits(balance, 'BTC').to('satoshi').value().toFixed(0),
@@ -273,6 +273,35 @@ export const objectsMatch = (obj1, obj2): boolean => {
 	} else {
 		return false;
 	}
+};
+
+/**
+ * Removes keys from an object and returns the result as a new object
+ * @param object
+ * @param keysToRemove
+ * @return { [key]: string }
+ */
+export const removeKeysFromObject = (
+	object: object,
+	keysToRemove: string | string[],
+): object => {
+	let condition;
+
+	if (typeof keysToRemove === 'string') {
+		condition = (key): boolean => !key.includes(keysToRemove);
+	} else {
+		condition = (key): boolean => {
+			return !keysToRemove.some((keyToRemove) => key.includes(keyToRemove));
+		};
+	}
+
+	return Object.keys(object)
+		.filter(condition)
+		.reduce((prevValue, key) => {
+			return Object.assign(prevValue, {
+				[key]: object[key],
+			});
+		}, {});
 };
 
 /**

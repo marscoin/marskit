@@ -6,6 +6,7 @@ export type TViewController =
 	| 'receiveNavigation'
 	| 'numberPad'
 	| 'numberPadFee'
+	| 'numberPadReceive'
 	| 'backupPrompt'
 	| 'backupNavigation'
 	| 'PINPrompt'

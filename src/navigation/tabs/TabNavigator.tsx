@@ -94,27 +94,15 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	}, [state]);
 
 	const onReceivePress = useCallback((): void => {
-		if (screen === 'WalletsDetail') {
-			toggleView({
-				view: 'receiveNavigation',
-				data: {
-					isOpen: true,
-					snapPoint: 0,
-					initial: 'Receive',
-					assetName: params.assetType,
-				},
-			});
-		} else {
-			toggleView({
-				view: 'receiveNavigation',
-				data: {
-					isOpen: true,
-					snapPoint: 0,
-					initial: 'ReceiveAssetPickerList',
-				},
-			});
-		}
-	}, [screen, params]);
+		toggleView({
+			view: 'receiveNavigation',
+			data: {
+				isOpen: true,
+				snapPoint: 0,
+				initial: 'Receive',
+			},
+		});
+	}, []);
 
 	const onSendPress = useCallback((): void => {
 		if (screen === 'WalletsDetail') {

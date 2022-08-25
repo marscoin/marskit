@@ -744,6 +744,7 @@ export const updateOnChainTransaction = async ({
 							(o) => o.address === output.address,
 						);
 						if (foundOutput?.length) {
+							// @ts-ignore // TODO: there is a bug here
 							outputs[foundOutput.index] = output;
 						} else {
 							outputs.push(output);
