@@ -15,7 +15,7 @@ export const getUnifiedUri = ({
 	label: string;
 	message: string;
 	lightning: string;
-}) => {
+}): string => {
 	const amountBTC = bitcoinUnits(amount, 'satoshi').to('btc').value();
 	const params = new URLSearchParams({
 		amount: amountBTC,

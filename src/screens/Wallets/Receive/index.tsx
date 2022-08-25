@@ -75,12 +75,14 @@ const Receive = ({ navigation }): ReactElement => {
 	}, [amount]);
 
 	useEffect(() => {
-		const getLightningInvoice = async () => {
+		const getLightningInvoice = async (): Promise<void> => {
 			const response = await createLightningInvoice({
 				amountSats: amount,
 				description: message,
 				expiryDeltaSeconds: 180,
 			});
+
+			// TODO: add error handling
 
 			if (response.isOk()) {
 				setLightningInvoice(response.value.to_str);
@@ -93,9 +95,10 @@ const Receive = ({ navigation }): ReactElement => {
 		if (tags.length !== 0 && receiveAddress) {
 			updateMetaIncTxTags(receiveAddress, lightningInvoice, tags);
 		}
-	}, [tags]);
+	}, [receiveAddress, lightningInvoice, tags]);
 
 	// Getting receive address shouldn't take long, so we don't show a spinner
+	// TODO: add error handling
 	if (!receiveAddress) {
 		return <></>;
 	}

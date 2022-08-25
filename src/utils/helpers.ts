@@ -282,15 +282,15 @@ export const objectsMatch = (obj1, obj2): boolean => {
  * @return { [key]: string }
  */
 export const removeKeysFromObject = (
-	object: {},
+	object: object,
 	keysToRemove: string | string[],
-) => {
+): object => {
 	let condition;
 
 	if (typeof keysToRemove === 'string') {
-		condition = (key) => !key.includes(keysToRemove);
+		condition = (key): boolean => !key.includes(keysToRemove);
 	} else {
-		condition = (key) => {
+		condition = (key): boolean => {
 			return !keysToRemove.some((keyToRemove) => key.includes(keyToRemove));
 		};
 	}
