@@ -467,7 +467,9 @@ export const createLightningInvoice = ldk.createPaymentRequest;
  * @param {string} invoice
  * @returns {Promise<Result<string>>}
  */
-export const payLightningInvoice = async (invoice): Promise<Result<string>> => {
+export const payLightningInvoice = async (
+	invoice: string,
+): Promise<Result<string>> => {
 	try {
 		return await ldk.pay({ paymentRequest: invoice });
 	} catch (e) {

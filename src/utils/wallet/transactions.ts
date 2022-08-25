@@ -1417,7 +1417,6 @@ export const canBoost = (txid: string): ICanBoostResponse => {
  * @param transaction
  * @param selectedNetwork
  * @param selectedWallet
- * @param selectedAddressType
  * @param index
  */
 export const sendMax = ({

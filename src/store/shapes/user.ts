@@ -29,6 +29,7 @@ export const defaultUserShape = {
 		PINNavigation: { ...defaultViewController },
 		numberPad: { ...defaultViewController },
 		numberPadFee: { ...defaultViewController },
+		numberPadReceive: { ...defaultViewController },
 		boostPrompt: { ...defaultViewController },
 		activityTagsPrompt: { ...defaultViewController },
 		newTxPrompt: { ...defaultViewController },

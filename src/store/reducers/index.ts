@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import user from './user';
 import wallet from './wallet';
+import receive from './receive';
 import settings from './settings';
 import lightning from './lightning';
 import activity from './activity';
@@ -14,6 +15,7 @@ import slashtags from './slashtags';
 const appReducers = combineReducers({
 	user,
 	wallet,
+	receive,
 	settings,
 	lightning,
 	activity,

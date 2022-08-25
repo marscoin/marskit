@@ -1,3 +1,5 @@
+// @ts-nocheck File is not in use
+
 import React, {
 	memo,
 	ReactElement,

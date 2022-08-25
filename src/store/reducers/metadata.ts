@@ -1,6 +1,7 @@
 import actions from '../actions/actions';
 import { IMetadata } from '../types/metadata';
 import { defaultMetadataShape } from '../shapes/metadata';
+import { removeKeysFromObject } from '../../utils/helpers';
 
 const updateLastUsedTags = (
 	oldTags: Array<string>,
@@ -18,12 +19,12 @@ const metadata = (
 ): IMetadata => {
 	switch (action.type) {
 		case actions.UPDATE_META_TX_TAGS: {
-			const tags = state.tags;
+			let tags = {};
 
 			if (action.payload.tags.length === 0) {
-				delete tags[action.payload.txid];
+				tags = removeKeysFromObject(state.tags, action.payload.txid);
 			} else {
-				tags[action.payload.txid] = action.payload.tags;
+				tags = { ...state.tags, [action.payload.txid]: action.payload.tags };
 			}
 
 			const lastUsedTags = updateLastUsedTags(
@@ -33,7 +34,7 @@ const metadata = (
 
 			return {
 				...state,
-				tags: { ...tags },
+				tags,
 				lastUsedTags,
 			};
 		}
@@ -73,6 +74,35 @@ const metadata = (
 				tags: { ...tags },
 			};
 		}
+
+		case actions.UPDATE_META_INC_TX_TAGS: {
+			const lastUsedTags = updateLastUsedTags(
+				state.lastUsedTags,
+				action.payload.tags,
+			);
+
+			return {
+				...state,
+				pendingTags: {
+					...state.pendingTags,
+					[action.payload.address]: action.payload.tags,
+					// TODO: handle Lightning
+					// [action.payload.payReq]: action.payload.tags,
+				},
+				lastUsedTags,
+			};
+		}
+
+		case actions.MOVE_META_INC_TX_TAG: {
+			return {
+				...state,
+				pendingTags: action.payload.pendingTags,
+				tags: { ...state.tags, ...action.payload.tags },
+			};
+		}
+
+		case actions.RESET_META_STORE:
+			return defaultMetadataShape;
 
 		default:
 			return state;
