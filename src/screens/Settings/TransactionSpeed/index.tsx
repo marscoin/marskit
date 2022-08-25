@@ -1,4 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -14,6 +15,7 @@ import {
 } from '../../../styles/components';
 
 const TransactionSpeedSettings = (): ReactElement => {
+	const navigation = useNavigation();
 	const selectedTransactionSpeed = useSelector(
 		(state: Store) => state.settings.transactionSpeed,
 	);
@@ -57,8 +59,10 @@ const TransactionSpeedSettings = (): ReactElement => {
 					title: `${txSpeed.label}`,
 					value: txSpeed.value === selectedTransactionSpeed,
 					type: 'button',
-					onPress: (): any =>
-						updateSettings({ transactionSpeed: txSpeed.value }),
+					onPress: (): void => {
+						navigation.goBack();
+						updateSettings({ transactionSpeed: txSpeed.value });
+					},
 					hide: false,
 					Icon: txSpeed.Icon,
 					iconColor: txSpeed.iconColor,
