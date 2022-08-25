@@ -32,6 +32,8 @@ import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
 
+const bitcoinLogo = require('../../../assets/bitcoin-logo.png');
+
 const Receive = ({ navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();
 	const dimensions = useWindowDimensions();
@@ -127,6 +129,10 @@ const Receive = ({ navigation }): ReactElement => {
 		}
 	};
 
+	const qrMaxHeight = dimensions.height / 2.5;
+	const qrMaxWidth = dimensions.width - 16 * 4;
+	const qrSize = Math.min(qrMaxWidth, qrMaxHeight);
+
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
 			<NavigationHeader
@@ -141,13 +147,13 @@ const Receive = ({ navigation }): ReactElement => {
 					onPress={handleCopy}
 					style={styles.qrCode}>
 					<QRCode
-						logo={require('../../../assets/bitcoin-logo.png')}
+						logo={bitcoinLogo}
 						logoSize={70}
 						logoBackgroundColor="white"
 						logoBorderRadius={100}
 						logoMargin={11}
 						value={uri}
-						size={dimensions.width - 16 * 4}
+						size={qrSize}
 						getRef={(c): void => {
 							if (!c || !qrRef) {
 								return;
