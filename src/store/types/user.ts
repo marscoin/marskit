@@ -2,10 +2,6 @@ import { TAssetNetwork } from './wallet';
 import { IActivityItem } from './activity';
 
 export type TViewController =
-	| 'send'
-	| 'sendAssetPicker'
-	| 'coinSelection'
-	| 'feePicker'
 	| 'sendNavigation'
 	| 'receiveNavigation'
 	| 'numberPad'

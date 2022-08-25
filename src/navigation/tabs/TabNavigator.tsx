@@ -12,7 +12,6 @@ import { BlurView } from '@react-native-community/blur';
 
 import WalletsScreen from '../../screens/Wallets';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
-import BitcoinToLightningModal from '../../screens/Wallets/SendOnChainTransaction/BitcoinToLightningModal';
 import BackupPrompt from '../../screens/Settings/Backup/BackupPrompt';
 import { ScanIcon, Text02M, View } from '../../styles/components';
 import AuthCheck from '../../components/AuthCheck';
@@ -25,7 +24,6 @@ export type TabNavigationProp = NativeStackNavigationProp<TabStackParamList>;
 export type TabStackParamList = {
 	Wallets: undefined;
 	WalletsDetail: undefined;
-	BitcoinToLightning: undefined;
 	AuthCheck: { onSuccess: () => void };
 };
 
@@ -75,10 +73,6 @@ const WalletsStack = (): ReactElement => {
 			/>
 			<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
 			<Stack.Group screenOptions={modalOptions}>
-				<Stack.Screen
-					name="BitcoinToLightning"
-					component={BitcoinToLightningModal}
-				/>
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 			</Stack.Group>
 		</Stack.Navigator>

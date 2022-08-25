@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useMemo, memo } from 'react';
 import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
@@ -40,4 +40,4 @@ const BackupNavigation = (): ReactElement => {
 	);
 };
 
-export default BackupNavigation;
+export default memo(BackupNavigation);

@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, useMemo, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -41,4 +41,4 @@ const PINNavigation = (): ReactElement => {
 	);
 };
 
-export default PINNavigation;
+export default memo(PINNavigation);

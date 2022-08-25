@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo, memo } from 'react';
 import { useSelector } from 'react-redux';
 import {
 	createStackNavigator,
@@ -18,18 +18,13 @@ import ActivityFiltered from '../../screens/Activity/ActivityFiltered';
 import ActivityTagsPrompt from '../../screens/Activity/ActivityTagsPrompt';
 import ScannerScreen from '../../screens/Scanner';
 import WalletsDetail from '../../screens/Wallets/WalletsDetail';
-import SendBottomSheet from '../../screens/Wallets/Send/SendBottomSheet';
 import SettingsNavigator from '../settings/SettingsNavigator';
-import SendAssetPicker from '../bottom-sheet/SendAssetPicker';
 import SendNavigation from '../bottom-sheet/SendNavigation';
 import ReceiveNavigation from '../bottom-sheet/ReceiveNavigation';
 import BackupNavigation from '../bottom-sheet/BackupNavigation';
 import PINNavigation from '../bottom-sheet/PINNavigation';
 import { NavigationContainer } from '../../styles/components';
-import CoinSelection from '../../screens/Wallets/SendOnChainTransaction/CoinSelection';
 import LightningNavigator from '../lightning/LightningNavigator';
-import OnChainNumberPad from '../../screens/Wallets/SendOnChainTransaction/OnChainNumberPad';
-import FeeNumberPad from '../../screens/Wallets/SendOnChainTransaction2/FeeNumberPad';
 import PINPrompt from '../../screens/Settings/PIN/PINPrompt';
 import BoostPrompt from '../../screens/Wallets/BoostPrompt';
 import NewTxPrompt from '../../screens/Wallets/NewTxPrompt';
@@ -138,16 +133,11 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Contact" component={Contact} />
 				</Stack.Group>
 			</Stack.Navigator>
-			<SendBottomSheet />
 			<SendNavigation />
 			<ReceiveNavigation />
 			<BackupNavigation />
 			<PINNavigation />
 
-			<SendAssetPicker />
-			<CoinSelection />
-			<OnChainNumberPad />
-			<FeeNumberPad />
 			<PINPrompt />
 			<BoostPrompt />
 			<ActivityTagsPrompt />
@@ -156,4 +146,4 @@ const RootNavigator = (): ReactElement => {
 	);
 };
 
-export default RootNavigator;
+export default memo(RootNavigator);
