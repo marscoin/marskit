@@ -15,6 +15,7 @@ import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { setupLdk } from '../lightning';
 import { ICustomElectrumPeer } from '../../store/types/settings';
+import { setupBlocktank } from '../blocktank';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -158,7 +159,10 @@ export const startWalletServices = async ({
 			setupTodos();
 
 			await updateExchangeRates();
-			await refreshServiceList();
+			if (lightning) {
+				await setupBlocktank(selectedNetwork);
+				await refreshServiceList();
+			}
 			//backupServiceStart().then();
 		});
 

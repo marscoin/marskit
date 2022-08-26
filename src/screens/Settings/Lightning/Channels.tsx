@@ -41,6 +41,8 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
+import { autoBuyChannel } from '../../../store/actions/blocktank';
+import { sleep } from '../../../utils/helpers';
 
 const Channel = memo(
 	({
@@ -97,6 +99,7 @@ const Channels = ({ navigation }): ReactElement => {
 	const [closed, setClosed] = useState<boolean>(false);
 	const [payingInvoice, setPayingInvoice] = useState<boolean>(false);
 	const [refreshingWallet, setRefreshingWallet] = useState<boolean>(false);
+	const [autobuying, setAutobuying] = useState(false);
 
 	const colors = useColors();
 	const selectedWallet = useSelector(
@@ -148,6 +151,28 @@ const Channels = ({ navigation }): ReactElement => {
 		navigation.navigate('ChannelDetails', { channelId });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	const createInvoice = async (amountSats = 100): Promise<void> => {
+		const createPaymentRequest = await createLightningInvoice({
+			amountSats,
+			description: '',
+			expiryDeltaSeconds: 99999,
+		});
+		if (createPaymentRequest.isErr()) {
+			showErrorNotification({
+				title: 'Failed to Create Invoice',
+				message: createPaymentRequest.error.message,
+			});
+			return;
+		}
+		const { to_str } = createPaymentRequest.value;
+		console.log(to_str);
+		Clipboard.setString(to_str);
+		showSuccessNotification({
+			title: 'Copied Invoice to Clipboard',
+			message: to_str,
+		});
+	};
 
 	return (
 		<ThemedView style={styles.root}>
@@ -247,57 +272,90 @@ const Channels = ({ navigation }): ReactElement => {
 					}}
 				/>
 
+				{openChannelIds.length <= 0 && pendingChannels.length <= 0 && (
+					<Button
+						text={'Auto Buy'}
+						loading={autobuying}
+						disabled={autobuying}
+						onPress={async () => {
+							setAutobuying(true);
+							const response = await autoBuyChannel({});
+							console.log(response);
+							setAutobuying(false);
+							if (response.isErr()) {
+								showErrorNotification({
+									title: 'Unable To Buy Channel',
+									message: response.error.message,
+								});
+								return;
+							}
+							showSuccessNotification({
+								title: 'Successfully Bought A Channel',
+								message: 'Blocktank will initiate a channel open shortly.',
+							});
+							console.log(
+								'Waiting 15s for Blocktank to initiate the open and then refreshing LDK...',
+							);
+							await sleep(15000);
+							await refreshLdk({ selectedNetwork, selectedWallet });
+						}}
+					/>
+				)}
+
 				{openChannelIds.length > 0 && (
 					<>
-						<Button
-							text={'Create Invoice: 5000 sats'}
-							onPress={async (): Promise<void> => {
-								const createPaymentRequest = await createLightningInvoice({
-									amountSats: 5000,
-									description: '',
-									expiryDeltaSeconds: 99999,
-								});
-								if (createPaymentRequest.isErr()) {
-									showErrorNotification({
-										title: 'Failed to Create Invoice',
-										message: createPaymentRequest.error.message,
-									});
-									return;
-								}
-								const { to_str } = createPaymentRequest.value;
-								console.log(to_str);
-								Clipboard.setString(to_str);
-								showSuccessNotification({
-									title: 'Copied Invoice to Clipboard',
-									message: to_str,
-								});
-							}}
-						/>
-						<Button
-							text={'Pay invoice'}
-							loading={payingInvoice}
-							onPress={async (): Promise<void> => {
-								setPayingInvoice(true);
-								const invoice = await Clipboard.getString();
-								const response = await payLightningInvoice(invoice);
-								if (response.isErr()) {
-									showErrorNotification({
-										title: 'Invoice Payment Failed',
-										message: response.error.message,
-									});
-									setPayingInvoice(false);
-									return;
-								}
-								await Promise.all([
-									refreshLdk({ selectedWallet, selectedNetwork }),
-								]);
-								setPayingInvoice(false);
-								showSuccessNotification({
-									title: 'Invoice Payment Success',
-									message: response.value,
-								});
-							}}
-						/>
+						{remoteBalance > 100 && (
+							<Button
+								text={'Create Invoice: 100 sats'}
+								onPress={async (): Promise<void> => {
+									createInvoice(100).then();
+								}}
+							/>
+						)}
+						{remoteBalance > 5000 && (
+							<Button
+								text={'Create Invoice: 5000 sats'}
+								onPress={async (): Promise<void> => {
+									createInvoice(5000).then();
+								}}
+							/>
+						)}
+						{localBalance > 0 && (
+							<>
+								<Button
+									text={'Pay Invoice From Clipboard'}
+									loading={payingInvoice}
+									onPress={async (): Promise<void> => {
+										setPayingInvoice(true);
+										const invoice = await Clipboard.getString();
+										if (!invoice) {
+											showErrorNotification({
+												title: 'No Invoice Detected',
+												message:
+													'Unable to retrieve anything from the clipboard.',
+											});
+										}
+										const response = await payLightningInvoice(invoice);
+										if (response.isErr()) {
+											showErrorNotification({
+												title: 'Invoice Payment Failed',
+												message: response.error.message,
+											});
+											setPayingInvoice(false);
+											return;
+										}
+										await Promise.all([
+											refreshLdk({ selectedWallet, selectedNetwork }),
+										]);
+										setPayingInvoice(false);
+										showSuccessNotification({
+											title: 'Invoice Payment Success',
+											message: response.value,
+										});
+									}}
+								/>
+							</>
+						)}
 					</>
 				)}
 
