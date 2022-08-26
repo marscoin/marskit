@@ -13,6 +13,7 @@ export const defaultSettingsShape: ISettings = {
 	balanceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
 	selectedLanguage: 'english',
+	selectedNetwork: 'bitcoinRegtest',
 	customElectrumPeers: {
 		bitcoin: [],
 		bitcoinTestnet: [],

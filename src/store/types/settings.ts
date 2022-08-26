@@ -38,12 +38,14 @@ export interface ISettings {
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
 	selectedLanguage: string;
+	selectedNetwork: string;
 	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
 	addressType: TAddressType;
+	hideBalance: boolean;
 }
 
 export type RadioButtonItem = { label: string; value: string };
