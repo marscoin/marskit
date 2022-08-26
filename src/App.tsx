@@ -28,6 +28,7 @@ import { SlashtagsProvider } from './components/SlashtagsProvider';
 import { showErrorNotification } from './utils/notifications';
 import { getSlashtagsPrimaryKey } from './utils/wallet';
 import { SlashtagsContactsProvider } from './components/SlashtagContactsProvider';
+import { toastConfig } from './components/Toast';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -103,7 +104,7 @@ const App = (): ReactElement => {
 						<StatusBar />
 						<RootComponent />
 					</SafeAreaProvider>
-					<Toast />
+					<Toast config={toastConfig} />
 				</SlashtagsContactsProvider>
 			</SlashtagsProvider>
 		</ThemeProvider>
