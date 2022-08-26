@@ -1281,7 +1281,12 @@ export const getSelectedAddressType = ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
-	return getStore().wallet.wallets[selectedWallet].addressType[selectedNetwork];
+	const wallet = getStore().wallet?.wallets[selectedWallet];
+	if (wallet && wallet?.addressType[selectedNetwork]) {
+		return wallet.addressType[selectedNetwork];
+	} else {
+		return defaultWalletShape.addressType[selectedNetwork];
+	}
 };
 
 /**
