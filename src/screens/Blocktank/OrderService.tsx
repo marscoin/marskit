@@ -100,7 +100,7 @@ const Order = (props: Props): ReactElement => {
 
 		setIsProcessing(true);
 
-		const { tag, uri, k1, callback } = order.lnurl;
+		const { tag, uri, k1, callback } = order.lnurl_decoded;
 		const res = await claimChannel({ tag, uri, k1, callback, domain: '' });
 		if (res.isErr()) {
 			showErrorNotification({
