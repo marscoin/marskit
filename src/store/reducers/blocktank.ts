@@ -12,7 +12,7 @@ const blocktank = (
 			return {
 				...state,
 				serviceList: action.payload,
-				serviceListLastUpdated: new Date(),
+				serviceListLastUpdated: new Date().getTime(),
 			};
 		case actions.UPDATE_BLOCKTANK_ORDER:
 			//Find existing order and update it if it exists, else append to list
