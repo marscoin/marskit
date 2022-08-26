@@ -1,83 +1,99 @@
-// @ts-nocheck File is not in use
-
-import React, {
-	memo,
-	ReactElement,
-	useCallback,
-	useMemo,
-	useState,
-} from 'react';
-import { StyleSheet, RefreshControl, FlatList } from 'react-native';
-import { View, Text02S, Text02M, Caption13S } from '../../../styles/components';
-import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
-import NavigationHeader from '../../../components/NavigationHeader';
+import React, { ReactElement, memo, useMemo, useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
-import Store from '../../../store/types';
-import { getTransactionInputValue } from '../../../utils/wallet/transactions';
-import { IUtxo } from '../../../store/types/wallet';
-import { TAvailableNetworks } from '../../../utils/networks';
-import { addTxInput, removeTxInput } from '../../../store/actions/wallet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+
+import {
+	Caption13Up,
+	Subtitle,
+	Switch,
+	Text01M,
+	Text02M,
+	View as ThemedView,
+} from '../../../styles/components';
+import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
-import { toggleView } from '../../../store/actions/user';
-import { useExchangeRate } from '../../../hooks/displayValues';
-import { getDisplayValues } from '../../../utils/exchange-rate';
-import { IDisplayValues } from '../../../utils/exchange-rate/types';
-import SwitchRow from '../../../components/SwitchRow';
+import Tag from '../../../components/Tag';
+import Store from '../../../store/types';
+import { useTransactionDetails } from '../../../hooks/transaction';
+import useColors from '../../../hooks/colors';
+import useDisplayValues from '../../../hooks/displayValues';
+import {
+	getTotalFee,
+	getTransactionInputValue,
+	getTransactionOutputValue,
+} from '../../../utils/wallet/transactions';
+import { addTxInput, removeTxInput } from '../../../store/actions/wallet';
+import { IUtxo } from '../../../store/types/wallet';
+
+/**
+ * Some UTXO's may contain the same tx_hash.
+ * So we include the tx_pos to ensure we can quickly distinguish.
+ * @param {IUtxo} utxo
+ * @return string
+ */
+const getUtxoKey = (utxo: IUtxo): string => `${utxo.tx_hash}${utxo.tx_pos}`;
+
 const preferences = {
 	small: "Small: Use smallest UTXO's first.",
 	large: "Large: Use largest UTXO's first.",
 	consolidate: "Consolidate: Combine all UTXO's.",
 };
 
-/**
- * Adds/Removes the specified input from the current transaction.
- * @param {IUtxo} input
- * @param {boolean} isEnabled
- * @param {string} selectedWallet
- * @param {TAvailableNetworks} selectedNetwork
- */
-const onSwitchPress = ({
-	input,
-	isEnabled,
-	selectedWallet,
-	selectedNetwork,
-}: {
-	input: IUtxo;
-	isEnabled: boolean;
-	selectedWallet?: string;
-	selectedNetwork?: TAvailableNetworks;
-}): void => {
-	if (isEnabled) {
-		removeTxInput({ input, selectedWallet, selectedNetwork });
-	} else {
-		addTxInput({ input, selectedWallet, selectedNetwork });
-	}
+const UtxoRow = ({ item, isEnabled, onPress }): ReactElement => {
+	const displayValue = useDisplayValues(item.value);
+	const { gray4 } = useColors();
+	const tags = useSelector((store: Store) => store.metadata.tags[item.tx_hash]);
+
+	return (
+		<View style={[styles.coinRoot, { borderBottomColor: gray4 }]}>
+			<View>
+				<Text01M>{displayValue.bitcoinFormatted}</Text01M>
+				<Text02M color="gray">
+					{displayValue.fiatSymbol} {displayValue.fiatFormatted}
+				</Text02M>
+			</View>
+
+			{tags && (
+				<ScrollView
+					horizontal={true}
+					centerContent={true}
+					style={styles.coinTagsScroll}>
+					{tags.map((t) => (
+						<Tag style={styles.tag} key={t} value={t} />
+					))}
+				</ScrollView>
+			)}
+
+			<Switch value={isEnabled} onValueChange={onPress} />
+		</View>
+	);
 };
 
-const closeList = (): void => {
-	toggleView({
-		view: 'coinSelection',
-		data: {
-			isOpen: false,
-		},
-	});
-};
+const CoinSelection = ({ navigation }): ReactElement => {
+	const insets = useSafeAreaInsets();
+	const { gray4 } = useColors();
 
-const CoinSelection = (): ReactElement => {
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
+	const nextButtonContainer = useMemo(
+		() => ({
+			...styles.nextButtonContainer,
+			paddingBottom: insets.bottom + 10,
+		}),
+		[insets.bottom],
 	);
 	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
+		(store: Store) => store.wallet.selectedWallet,
 	);
-	const transaction = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ?? {},
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
 	);
+
+	const transaction = useTransactionDetails();
 	const utxos: IUtxo[] =
 		useSelector(
 			(state: Store) =>
-				state.wallet.wallets[selectedWallet]?.utxos[selectedNetwork],
+				state.wallet.wallets[selectedWallet].utxos[selectedNetwork],
 		) ?? [];
 
 	const coinSelectPreference = useSelector(
@@ -89,164 +105,121 @@ const CoinSelection = (): ReactElement => {
 		[coinSelectPreference],
 	);
 
-	const inputs = useMemo(
-		() => transaction?.inputs ?? [],
-		[transaction?.inputs],
-	);
+	const inputs = useMemo(() => transaction.inputs ?? [], [transaction.inputs]);
 
 	const [autoSelectionEnabled, setAutoSelectionEnabled] = useState(
 		inputs?.length === utxos?.length,
 	);
 
-	/**
-	 * Some UTXO's may contain the same tx_hash.
-	 * So we include the tx_pos to ensure we can quickly distinguish.
-	 * @param {IUtxo} utxo
-	 * @return string
-	 */
-	const getUtxoKey = (utxo: IUtxo): string => {
-		try {
-			return `${utxo.tx_hash}${utxo.tx_pos}`;
-		} catch {
-			return '';
-		}
-	};
-
-	const inputKeys = useMemo(
-		() => (inputs ? inputs.map((input) => getUtxoKey(input)) : []),
-		[inputs],
-	);
-
 	const txInputValue = useMemo(
 		() => getTransactionInputValue({ selectedNetwork, selectedWallet }),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[selectedWallet, selectedNetwork, transaction?.inputs],
+		[selectedWallet, selectedNetwork, transaction.inputs],
 	);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
+	const txInputDV = useDisplayValues(txInputValue);
+	const inputKeys = useMemo(
+		() => inputs.map((input) => getUtxoKey(input)),
+		[inputs],
 	);
-	const exchangeRate = useExchangeRate(selectedCurrency);
 
-	const getBtcValueText = (displayValue: IDisplayValues): string =>
-		`${
-			displayValue.bitcoinFormatted
-		} ${displayValue.bitcoinTicker.toLocaleLowerCase()}`;
-	const getFiatValueText = (displayValue: IDisplayValues): string =>
-		`${displayValue.fiatSymbol} ${displayValue.fiatFormatted}`;
+	const txOutputValue = useMemo(() => {
+		const amount = getTransactionOutputValue({
+			selectedWallet,
+			selectedNetwork,
+		});
+		const fee = getTotalFee({
+			satsPerByte: transaction.satsPerByte,
+			message: transaction.message,
+			selectedWallet,
+			selectedNetwork,
+		});
+		return fee + amount;
+	}, [selectedNetwork, selectedWallet, transaction]);
+	const txOutputDV = useDisplayValues(txOutputValue);
 
-	const onAutoSelectionPress = async (): Promise<void> => {
-		// If disabled, iterate over all utxos and re-add them to inputs if previously removed.
-		if (!autoSelectionEnabled) {
-			setAutoSelectionEnabled(true);
-			await Promise.all(
-				utxos.map((utxo) => {
-					const key = getUtxoKey(utxo);
-					const isEnabled = inputKeys.includes(key);
-					if (!isEnabled) {
-						addTxInput({ input: utxo, selectedWallet, selectedNetwork });
-					}
-				}),
-			);
-		} else {
-			setAutoSelectionEnabled(false);
+	const onAutoSelectionPress = (): void => {
+		if (autoSelectionEnabled) {
+			return setAutoSelectionEnabled(false);
 		}
+
+		// If disabled, iterate over all utxos and re-add them to inputs if previously removed.
+		utxos.forEach((utxo) => {
+			const key = getUtxoKey(utxo);
+			const isEnabled = inputKeys.includes(key);
+			if (!isEnabled) {
+				addTxInput({ input: utxo, selectedWallet, selectedNetwork });
+			}
+		});
+		setAutoSelectionEnabled(true);
 	};
 
-	const UtxoRow = useCallback(
-		({ item }): ReactElement => {
-			const key = getUtxoKey(item);
-			const isEnabled = inputKeys.includes(key);
-			const displayValue = getDisplayValues({
-				satoshis: item.value,
-				exchangeRate,
-			});
-			const utxoValue = getBtcValueText(displayValue);
-			const flatValue = getFiatValueText(displayValue);
-			const onPress = (): void => {
-				onSwitchPress({
-					input: item,
-					isEnabled,
-					selectedWallet,
-					selectedNetwork,
-				});
-				if (autoSelectionEnabled) {
-					setAutoSelectionEnabled(false);
-				}
-			};
-			return (
-				<SwitchRow onPress={onPress} isEnabled={isEnabled}>
-					<View color="onSurface" style={styles.row}>
-						<Text02M>{utxoValue}</Text02M>
-						<View style={styles.dot} />
-						<Caption13S>{flatValue}</Caption13S>
-					</View>
-				</SwitchRow>
-			);
-		},
-		//eslint-disable-next-line react-hooks/exhaustive-deps
-		[utxos, transaction?.inputs?.length, autoSelectionEnabled],
-	);
-
-	const displayValue = useMemo(() => {
-		return getDisplayValues({
-			satoshis: txInputValue,
-			exchangeRate,
-		});
-	}, [txInputValue, exchangeRate]);
-
-	const totalUtxoValues = useMemo(
-		() => getBtcValueText(displayValue),
-		[displayValue],
-	);
-
-	const totalFiatValue = useMemo(
-		() => getFiatValueText(displayValue),
-		[displayValue],
-	);
-
 	return (
-		<BottomSheetWrapper view="coinSelection">
-			<View color="onSurface" style={styles.container}>
-				<NavigationHeader title="Coin Selection" displayBackButton={false} />
-
-				<SwitchRow
-					onPress={onAutoSelectionPress}
-					isEnabled={autoSelectionEnabled}>
-					<>
-						<Text02M>Auto</Text02M>
-						<Caption13S>{preference}</Caption13S>
-					</>
-				</SwitchRow>
-
-				<FlatList
-					style={styles.flatList}
-					data={utxos}
-					renderItem={UtxoRow}
-					keyExtractor={(item): string => `${item.tx_hash}${item.tx_pos}`}
-					refreshControl={
-						<RefreshControl refreshing={false} onRefresh={closeList} />
-					}
-				/>
-				<View color="onSurface" style={styles.footer}>
-					<View color="onSurface" style={styles.row}>
-						<View color="onSurface" style={styles.leftColumn}>
-							<Text02S>Total Selected:</Text02S>
+		<ThemedView color="onSurface" style={styles.container}>
+			<NavigationHeader title="Coin selection" size="sm" />
+			<View style={styles.content}>
+				<BottomSheetScrollView style={styles.scroll}>
+					<View style={[styles.coinRoot, { borderBottomColor: gray4 }]}>
+						<View style={styles.coinAmount}>
+							<Text01M>Auto</Text01M>
+							<Text02M color="gray">{preference}</Text02M>
 						</View>
-						<View color="onSurface" style={styles.rightColumn}>
-							<Text02M>{totalFiatValue}</Text02M>
-							<Text02M color={'gray'}>{totalUtxoValues}</Text02M>
-						</View>
+						<Switch
+							value={autoSelectionEnabled}
+							onValueChange={onAutoSelectionPress}
+						/>
 					</View>
 
+					{utxos.map((item) => {
+						const key = getUtxoKey(item);
+						const isEnabled = inputKeys.includes(key);
+						const onPress = (): void => {
+							if (isEnabled) {
+								removeTxInput({ input: item, selectedWallet, selectedNetwork });
+							} else {
+								addTxInput({ input: item, selectedWallet, selectedNetwork });
+							}
+							if (autoSelectionEnabled) {
+								setAutoSelectionEnabled(false);
+							}
+						};
+
+						return (
+							<UtxoRow
+								key={getUtxoKey(item)}
+								item={item}
+								isEnabled={isEnabled}
+								onPress={onPress}
+							/>
+						);
+					})}
+				</BottomSheetScrollView>
+
+				<View style={styles.total}>
+					<View
+						style={[
+							styles.totalRow,
+							styles.totalBorder,
+							{ borderBottomColor: gray4 },
+						]}>
+						<Caption13Up color="gray1">TOTAL REQUIRED</Caption13Up>
+						<Subtitle>{txOutputDV.bitcoinFormatted}</Subtitle>
+					</View>
+					<View style={styles.totalRow}>
+						<Caption13Up color="gray1">TOTAL SELECTED</Caption13Up>
+						<Subtitle color="green">{txInputDV.bitcoinFormatted}</Subtitle>
+					</View>
+				</View>
+
+				<View style={nextButtonContainer}>
 					<Button
-						style={styles.footerButton}
-						color={'gray4'}
-						text="Done"
-						onPress={closeList}
+						size="lg"
+						text="Next"
+						disabled={txInputValue < txOutputValue}
+						onPress={(): void => navigation.navigate('ReviewAndSend')}
 					/>
 				</View>
 			</View>
-		</BottomSheetWrapper>
+		</ThemedView>
 	);
 };
 
@@ -254,46 +227,43 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	flatList: {
+	content: {
+		flex: 1,
+		paddingHorizontal: 16,
+	},
+	nextButtonContainer: {
+		justifyContent: 'flex-end',
+	},
+	scroll: {
 		flex: 1,
 	},
-	row: {
+	coinRoot: {
 		flexDirection: 'row',
-		flex: 1,
+		justifyContent: 'space-between',
 		alignItems: 'center',
+		height: 72,
+		borderBottomWidth: 1,
 	},
-	dot: {
+	coinAmount: {},
+	coinTagsScroll: {
+		marginHorizontal: 8,
+		flexDirection: 'row',
+		overflow: 'hidden',
+	},
+	tag: {
 		marginHorizontal: 4,
-		height: 2,
-		width: 2,
-		backgroundColor: 'white',
-		alignSelf: 'center',
-		borderRadius: 100,
 	},
-	leftColumn: {
-		flex: 1,
-		justifyContent: 'center',
-		paddingLeft: 16,
+	total: {
+		marginVertical: 16,
 	},
-	rightColumn: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'flex-end',
-		alignSelf: 'center',
-		paddingRight: 10,
+	totalRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingVertical: 8,
 	},
-	footer: {
-		position: 'absolute',
-		bottom: 20,
-		left: 0,
-		right: 0,
-	},
-	footerButton: {
-		marginTop: 20,
-		borderRadius: 76,
-		width: '75%',
-		paddingVertical: 10,
-		alignSelf: 'center',
+	totalBorder: {
+		borderBottomWidth: 1,
 	},
 });
 

@@ -72,18 +72,20 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
+	const slashTagsOnError = useCallback((error: Error): void => {
+		showErrorNotification({
+			title: 'SlashtagsProvider Error',
+			message: error.message,
+		});
+	}, []);
+
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
 				primaryKey={primaryKey}
 				// TODO(slashtags): add settings to customize this relay
 				relay={'wss://dht-relay.synonym.to'}
-				onError={(error: Error): void => {
-					showErrorNotification({
-						title: 'SlashtagsProvider Error',
-						message: error.message,
-					});
-				}}>
+				onError={slashTagsOnError}>
 				<SlashtagsContactsProvider>
 					<SafeAreaProvider>
 						<StatusBar />
