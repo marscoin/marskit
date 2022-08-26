@@ -2,8 +2,10 @@ import actions from './actions';
 import {
 	EWallet,
 	IAddress,
+	IAddressContent,
 	ICreateWallet,
 	IFormattedTransaction,
+	IKeyDerivationPath,
 	IOnChainTransactionData,
 	IOutput,
 	IUtxo,
@@ -15,6 +17,7 @@ import {
 	generateAddresses,
 	getAddressTypes,
 	getCurrentWallet,
+	getGapLimit,
 	getKeyDerivationPathObject,
 	getNextAvailableAddress,
 	getSelectedAddressType,
@@ -46,7 +49,10 @@ import {
 import { EFeeIds } from '../types/fees';
 import { IHeader } from '../../utils/types/electrum';
 import { toggleView } from './user';
-import { GENERATE_ADDRESS_AMOUNT } from '../../utils/wallet/constants';
+import {
+	GAP_LIMIT,
+	GENERATE_ADDRESS_AMOUNT,
+} from '../../utils/wallet/constants';
 
 const dispatch = getDispatch();
 
@@ -152,7 +158,7 @@ export const updateAddressIndexes = async ({
 		);
 	}
 
-	addressTypesToCheck.map(async (key) => {
+	addressTypesToCheck.map(async (addressTypeKey) => {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
@@ -162,21 +168,30 @@ export const updateAddressIndexes = async ({
 		const response = await getNextAvailableAddress({
 			selectedWallet,
 			selectedNetwork,
-			addressType: key,
+			addressType: addressTypeKey,
 		});
 		if (response.isErr()) {
 			return err(response.error);
 		}
 
-		const { type } = addressTypes[key];
+		const { type } = addressTypes[addressTypeKey];
 		let addressIndex = currentWallet.addressIndex[selectedNetwork][type];
 		let changeAddressIndex =
 			currentWallet.changeAddressIndex[selectedNetwork][type];
+		let lastUsedAddressIndex =
+			currentWallet.lastUsedAddressIndex[selectedNetwork][type];
+		let lastUsedChangeAddressIndex =
+			currentWallet.lastUsedChangeAddressIndex[selectedNetwork][type];
+
 		if (
-			response.value?.addressIndex?.path !==
-				currentWallet.addressIndex[selectedNetwork][type].path ||
-			response.value?.changeAddressIndex?.path !==
-				currentWallet.changeAddressIndex[selectedNetwork][type].path
+			response.value?.addressIndex?.index >
+				currentWallet.addressIndex[selectedNetwork][type]?.index ||
+			response.value?.changeAddressIndex?.index >
+				currentWallet.changeAddressIndex[selectedNetwork][type]?.index ||
+			response.value?.lastUsedAddressIndex?.index >
+				currentWallet.lastUsedAddressIndex[selectedNetwork][type]?.index ||
+			response.value?.lastUsedChangeAddressIndex?.index >
+				currentWallet.lastUsedChangeAddressIndex[selectedNetwork][type]?.index
 		) {
 			if (response.value?.addressIndex) {
 				addressIndex = response.value.addressIndex;
@@ -186,18 +201,137 @@ export const updateAddressIndexes = async ({
 				changeAddressIndex = response.value?.changeAddressIndex;
 			}
 
+			if (response.value?.lastUsedAddressIndex) {
+				lastUsedAddressIndex = response.value.lastUsedAddressIndex;
+			}
+
+			if (response.value?.lastUsedChangeAddressIndex) {
+				lastUsedChangeAddressIndex = response.value?.lastUsedChangeAddressIndex;
+			}
+
 			await dispatch({
 				type: actions.UPDATE_ADDRESS_INDEX,
 				payload: {
 					addressIndex,
 					changeAddressIndex,
-					addressType: key,
+					lastUsedAddressIndex,
+					lastUsedChangeAddressIndex,
+					addressType: addressTypeKey,
 				},
 			});
 			return ok('Successfully updated indexes.');
 		}
 	});
 	return ok('No update needed.');
+};
+
+export const generateNewReceiveAddress = async ({
+	selectedWallet,
+	selectedNetwork,
+	addressType = EWallet.addressType,
+	keyDerivationPath,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: TAddressType;
+	keyDerivationPath?: IKeyDerivationPath;
+}): Promise<Result<IAddressContent>> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const addressTypes = getAddressTypes();
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		const getGapLimitResponse = getGapLimit({
+			selectedWallet,
+			selectedNetwork,
+			addressType,
+		});
+		if (getGapLimitResponse.isErr()) {
+			return err(getGapLimitResponse.error.message);
+		}
+		const { addressDelta } = getGapLimitResponse.value;
+
+		// If the address delta exceeds the default gap limit, only return the current address index.
+		if (addressDelta >= GAP_LIMIT) {
+			const addressIndex = currentWallet.addressIndex[selectedNetwork];
+			const receiveAddress = addressIndex[addressType];
+			return ok(receiveAddress);
+		}
+
+		const { path } = addressTypes[addressType];
+		if (!keyDerivationPath) {
+			const keyDerivationPathResponse = getKeyDerivationPathObject({
+				selectedNetwork,
+				path,
+			});
+			if (keyDerivationPathResponse.isErr()) {
+				return err(keyDerivationPathResponse.error.message);
+			}
+			keyDerivationPath = keyDerivationPathResponse.value;
+		}
+		const addresses: IAddress =
+			currentWallet.addresses[selectedNetwork][addressType];
+		const currentAddressIndex =
+			currentWallet.addressIndex[selectedNetwork][addressType].index;
+		const nextAddressIndex = await Promise.all(
+			Object.values(addresses).filter((address) => {
+				return address.index === currentAddressIndex + 1;
+			}),
+		);
+
+		// Check if the next address index already exists or if it needs to be generated.
+		if (nextAddressIndex?.length > 0) {
+			// Update addressIndex and return the address content.
+			await dispatch({
+				type: actions.UPDATE_ADDRESS_INDEX,
+				payload: {
+					addressIndex: nextAddressIndex[0],
+					addressType,
+				},
+			});
+			return ok(nextAddressIndex[0]);
+		}
+
+		// We need to generate, save and return the new address.
+		const addAddressesRes = await addAddresses({
+			addressAmount: 1,
+			changeAddressAmount: 0,
+			addressIndex: currentAddressIndex + 1,
+			changeAddressIndex: 0,
+			selectedNetwork,
+			selectedWallet,
+			keyDerivationPath,
+			addressType,
+		});
+		if (addAddressesRes.isErr()) {
+			return err(addAddressesRes.error.message);
+		}
+		const addressKeys = Object.keys(addAddressesRes.value.addresses);
+		// If for any reason the phone was unable to generate the new address, return error.
+		if (!addressKeys.length) {
+			return err('Unable to generate addresses at this time.');
+		}
+		const newAddressIndex = addAddressesRes.value.addresses[addressKeys[0]];
+		await dispatch({
+			type: actions.UPDATE_ADDRESS_INDEX,
+			payload: {
+				addressIndex: newAddressIndex,
+				addressType,
+			},
+		});
+		return ok(newAddressIndex);
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
 
 /**
@@ -214,14 +348,15 @@ export const updateAddressIndexes = async ({
  * @return {Promise<Result<IGenerateAddressesResponse>>}
  */
 export const addAddresses = async ({
-	selectedWallet = undefined,
+	selectedWallet,
 	addressAmount = 5,
 	changeAddressAmount = 5,
 	addressIndex = 0,
 	changeAddressIndex = 0,
-	selectedNetwork = undefined,
+	selectedNetwork,
 	addressType = EWallet.addressType,
 	keyDerivationPath,
+	seed,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
@@ -250,14 +385,15 @@ export const addAddresses = async ({
 		selectedWallet,
 		keyDerivationPath,
 		addressType: type,
+		seed,
 	});
 	if (generatedAddresses.isErr()) {
 		return err(generatedAddresses.error);
 	}
 
 	const removeDuplicateResponse = await removeDuplicateAddresses({
-		addresses: generatedAddresses.value.addresses,
-		changeAddresses: generatedAddresses.value.changeAddresses,
+		addresses: { ...generatedAddresses.value.addresses },
+		changeAddresses: { ...generatedAddresses.value.changeAddresses },
 		selectedWallet,
 		selectedNetwork,
 	});
@@ -276,7 +412,7 @@ export const addAddresses = async ({
 		type: actions.ADD_ADDRESSES,
 		payload,
 	});
-	return ok(payload);
+	return ok({ ...generatedAddresses.value, addressType: type });
 };
 
 /**

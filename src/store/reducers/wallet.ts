@@ -47,7 +47,11 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 							...state.wallets[selectedWallet].addressIndex,
 							[selectedNetwork]: {
 								...state.wallets[selectedWallet].addressIndex[selectedNetwork],
-								[addressType]: action.payload.addressIndex,
+								[addressType]:
+									action.payload?.addressIndex ??
+									state.wallets[selectedWallet].addressIndex[selectedNetwork][
+										addressType
+									],
 							},
 						},
 						changeAddressIndex: {
@@ -56,7 +60,37 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 								...state.wallets[selectedWallet].changeAddressIndex[
 									selectedNetwork
 								],
-								[addressType]: action.payload.changeAddressIndex,
+								[addressType]:
+									action.payload?.changeAddressIndex ??
+									state.wallets[selectedWallet].changeAddressIndex[
+										selectedNetwork
+									][addressType],
+							},
+						},
+						lastUsedAddressIndex: {
+							...state.wallets[selectedWallet].lastUsedAddressIndex,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].lastUsedAddressIndex[
+									selectedNetwork
+								],
+								[addressType]:
+									action.payload?.lastUsedAddressIndex ??
+									state.wallets[selectedWallet].lastUsedAddressIndex[
+										selectedNetwork
+									][addressType],
+							},
+						},
+						lastUsedChangeAddressIndex: {
+							...state.wallets[selectedWallet].lastUsedChangeAddressIndex,
+							[selectedNetwork]: {
+								...state.wallets[selectedWallet].lastUsedChangeAddressIndex[
+									selectedNetwork
+								],
+								[addressType]:
+									action.payload?.lastUsedChangeAddressIndex ??
+									state.wallets[selectedWallet].lastUsedChangeAddressIndex[
+										selectedNetwork
+									][addressType],
 							},
 						},
 					},

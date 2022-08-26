@@ -3,12 +3,12 @@ import {
 	IDefaultWalletShape,
 	EWallet,
 	IWallet,
-	IAddressContent,
 	IOnChainTransactionData,
 	defaultOnChainTransactionData,
 	IKeyDerivationPath,
 	IAddressType,
 	TAssetNetwork,
+	IAddress,
 } from '../types/wallet';
 import { IHeader } from '../../utils/types/electrum';
 
@@ -67,7 +67,7 @@ export const stringTypeItems: IWalletItem<string> = {
 };
 
 export const addressContent = {
-	index: 0,
+	index: -1,
 	path: '',
 	address: '',
 	scriptHash: '',
@@ -86,36 +86,13 @@ export type IAddressTypeContent<T> = {
 	[key: string]: T;
 };
 
-export const addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>> = {
-	bitcoin: getAddressTypeContent({ ...addressContent }),
-	bitcoinTestnet: getAddressTypeContent({ ...addressContent }),
-	bitcoinRegtest: getAddressTypeContent({ ...addressContent }),
-	timestamp: null,
-};
-
-export const changeAddressIndex: IWalletItem<
-	IAddressTypeContent<IAddressContent>
-> = {
-	bitcoin: getAddressTypeContent(addressContent),
-	bitcoinTestnet: getAddressTypeContent(addressContent),
-	bitcoinRegtest: getAddressTypeContent(addressContent),
-	timestamp: null,
-};
-
-export const addresses: IWalletItem<IAddressTypeContent<IAddressContent>> = {
-	bitcoin: getAddressTypeContent({}),
-	bitcoinTestnet: getAddressTypeContent({}),
-	bitcoinRegtest: getAddressTypeContent({}),
-	timestamp: null,
-};
-
-export const changeAddresses: IWalletItem<
-	IAddressTypeContent<IAddressContent>
-> = {
-	bitcoin: getAddressTypeContent({}),
-	bitcoinTestnet: getAddressTypeContent({}),
-	bitcoinRegtest: getAddressTypeContent({}),
-	timestamp: null,
+export const getAddressTypeContentShape = (content): IWalletItem<IAddress> => {
+	return {
+		bitcoin: getAddressTypeContent(content),
+		bitcoinTestnet: getAddressTypeContent(content),
+		bitcoinRegtest: getAddressTypeContent(content),
+		timestamp: null,
+	};
 };
 
 export const defaultKeyDerivationPath: IKeyDerivationPath = {
@@ -136,10 +113,12 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
 	type: 'default',
-	addresses,
-	addressIndex,
-	changeAddresses,
-	changeAddressIndex,
+	addresses: getAddressTypeContentShape({}),
+	addressIndex: getAddressTypeContentShape(addressContent),
+	lastUsedAddressIndex: getAddressTypeContentShape(addressContent),
+	changeAddresses: getAddressTypeContentShape({}),
+	changeAddressIndex: getAddressTypeContentShape(addressContent),
+	lastUsedChangeAddressIndex: getAddressTypeContentShape(addressContent),
 	utxos: arrayTypeItems,
 	boostedTransactions: arrayTypeItems,
 	transactions: objectTypeItems,
