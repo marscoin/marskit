@@ -9,6 +9,7 @@ import {
 	IAddressType,
 	TAssetNetwork,
 	IAddress,
+	IAddressContent,
 } from '../types/wallet';
 import { IHeader } from '../../utils/types/electrum';
 
@@ -86,11 +87,22 @@ export type IAddressTypeContent<T> = {
 	[key: string]: T;
 };
 
-export const getAddressTypeContentShape = (content): IWalletItem<IAddress> => {
+export const getAddressIndexShape = (): IWalletItem<IAddress> => {
 	return {
-		bitcoin: getAddressTypeContent(content),
-		bitcoinTestnet: getAddressTypeContent(content),
-		bitcoinRegtest: getAddressTypeContent(content),
+		bitcoin: getAddressTypeContent(addressContent),
+		bitcoinTestnet: getAddressTypeContent(addressContent),
+		bitcoinRegtest: getAddressTypeContent(addressContent),
+		timestamp: null,
+	};
+};
+
+export const getAddressesShape = (): IWalletItem<
+	IAddressTypeContent<IAddressContent>
+> => {
+	return {
+		bitcoin: getAddressTypeContent({}),
+		bitcoinTestnet: getAddressTypeContent({}),
+		bitcoinRegtest: getAddressTypeContent({}),
 		timestamp: null,
 	};
 };
@@ -113,12 +125,12 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	id: '',
 	name: '',
 	type: 'default',
-	addresses: getAddressTypeContentShape({}),
-	addressIndex: getAddressTypeContentShape(addressContent),
-	lastUsedAddressIndex: getAddressTypeContentShape(addressContent),
-	changeAddresses: getAddressTypeContentShape({}),
-	changeAddressIndex: getAddressTypeContentShape(addressContent),
-	lastUsedChangeAddressIndex: getAddressTypeContentShape(addressContent),
+	addresses: getAddressesShape(),
+	addressIndex: getAddressIndexShape(),
+	lastUsedAddressIndex: getAddressIndexShape(),
+	changeAddresses: getAddressesShape(),
+	changeAddressIndex: getAddressIndexShape(),
+	lastUsedChangeAddressIndex: getAddressIndexShape(),
 	utxos: arrayTypeItems,
 	boostedTransactions: arrayTypeItems,
 	transactions: objectTypeItems,
