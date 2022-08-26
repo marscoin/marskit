@@ -1,5 +1,4 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -11,8 +10,7 @@ import { updateSelectedAddressType } from '../../../store/actions/wallet';
 import { TAddressType } from '../../../store/types/wallet';
 import { updateSettings } from '../../../store/actions/settings';
 
-const AddressTypeSettings = (): ReactElement => {
-	const navigation = useNavigation();
+const AddressTypeSettings = ({ navigation }): ReactElement => {
 	const [addressTypeState, setAddressTypeState] = useState<TAddressType>('');
 
 	const typesDescriptions = {

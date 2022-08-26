@@ -1,5 +1,4 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -8,9 +7,7 @@ import Store from '../../../store/types';
 import { mostUsedExchangeTickers } from '../../../utils/exchange-rate/types';
 import { updateSettings } from '../../../store/actions/settings';
 
-const Currencies = (): ReactElement => {
-	const navigation = useNavigation();
-
+const Currencies = ({ navigation }): ReactElement => {
 	const exchangeRates = useSelector(
 		(state: Store) => state.wallet.exchangeRates,
 	);
