@@ -1,4 +1,9 @@
-import { IWalletItem, TBitcoinUnit, TBalanceUnit } from './wallet';
+import {
+	IWalletItem,
+	TBitcoinUnit,
+	TBalanceUnit,
+	TAddressType,
+} from './wallet';
 
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
@@ -33,12 +38,14 @@ export interface ISettings {
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
 	selectedLanguage: string;
+	selectedNetwork: string;
 	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
-	[key: string]: any;
+	addressType: TAddressType;
+	hideBalance: boolean;
 }
 
 export type RadioButtonItem = { label: string; value: string };

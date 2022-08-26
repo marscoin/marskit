@@ -13,6 +13,7 @@ export const defaultSettingsShape: ISettings = {
 	balanceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
 	selectedLanguage: 'english',
+	selectedNetwork: 'bitcoinRegtest',
 	customElectrumPeers: {
 		bitcoin: [],
 		bitcoinTestnet: [],
@@ -32,4 +33,5 @@ export const defaultSettingsShape: ISettings = {
 	showSuggestions: true,
 	transactionSpeed: 'normal',
 	hideBalance: false,
+	addressType: 'p2wpkh',
 };

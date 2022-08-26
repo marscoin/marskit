@@ -20,12 +20,6 @@ const AdvancedSettings = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Address types preference',
-						type: 'button',
-						onPress: (): void => navigation.navigate('AddressTypePreference'),
-						hide: false,
-					},
-					{
 						title: 'Dev settings',
 						type: 'button',
 						onPress: (): void => navigation.navigate('DevSettings'),

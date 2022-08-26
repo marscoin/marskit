@@ -1,5 +1,4 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { useNavigation } from '@react-navigation/native';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
@@ -14,8 +13,7 @@ import {
 	SettingsIcon,
 } from '../../../styles/components';
 
-const TransactionSpeedSettings = (): ReactElement => {
-	const navigation = useNavigation();
+const TransactionSpeedSettings = ({ navigation }): ReactElement => {
 	const selectedTransactionSpeed = useSelector(
 		(state: Store) => state.settings.transactionSpeed,
 	);
