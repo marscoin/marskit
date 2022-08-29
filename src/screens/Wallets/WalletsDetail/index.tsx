@@ -10,6 +10,7 @@ import {
 	LayoutAnimation,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
+	Platform,
 	StyleSheet,
 	TouchableOpacity,
 } from 'react-native';
@@ -41,6 +42,8 @@ import { updateSettings } from '../../../store/actions/settings';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 import { capitalize } from '../../../utils/helpers';
 import type { RootStackParamList } from '../../../navigation/types';
+
+const Blur = Platform.OS === 'ios' ? BlurView : View;
 
 const updateHeight = ({
 	height = new Animated.Value(0),
@@ -144,7 +147,7 @@ const WalletsDetail = (props: Props): ReactElement => {
 				/>
 			</View>
 			<View color={'transparent'} style={styles.radiusContainer}>
-				<BlurView style={styles.blur} />
+				<Blur style={styles.blur} />
 				<Canvas style={styles.glowCanvas}>
 					<Glow colors={colors} />
 				</Canvas>
