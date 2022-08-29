@@ -132,7 +132,6 @@ const Receive = ({ navigation }): ReactElement => {
 
 	useEffect(() => {
 		setInvoiceDetails().then();
-		getLightningInvoice().then();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [amount, message, selectedNetwork, selectedWallet]);
 
