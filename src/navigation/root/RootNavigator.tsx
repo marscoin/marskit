@@ -108,6 +108,10 @@ const RootNavigator = (): ReactElement => {
 		<NavigationContainer ref={navigationRef}>
 			<Stack.Navigator
 				screenOptions={navOptions}
+				// adding this because we are using @react-navigation/stack instead of
+				// @react-navigation/native-stack header
+				// https://github.com/react-navigation/react-navigation/issues/9015#issuecomment-828700138
+				detachInactiveScreens={false}
 				initialRouteName={initialRouteName}>
 				<Stack.Group screenOptions={navOptions}>
 					<Stack.Screen name="RootAuthCheck" component={AuthCheckComponent} />
