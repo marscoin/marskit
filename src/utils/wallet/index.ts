@@ -2571,20 +2571,21 @@ export const getGapLimit = ({
 			selectedWallet,
 			selectedNetwork,
 		});
-		const addressIndex = currentWallet.addressIndex[addressType].index;
+		const addressIndex =
+			currentWallet.addressIndex[selectedNetwork][addressType].index;
 		const lastUsedAddressIndex =
-			currentWallet.lastUsedAddressIndex[addressType].index;
-
+			currentWallet.lastUsedAddressIndex[selectedNetwork][addressType].index;
 		const changeAddressIndex =
-			currentWallet.changeAddressIndex[addressType].index;
+			currentWallet.changeAddressIndex[selectedNetwork][addressType].index;
 		const lastUsedChangeAddressIndex =
-			currentWallet.lastUsedChangeAddressIndex[addressType].index;
+			currentWallet.lastUsedChangeAddressIndex[selectedNetwork][addressType]
+				.index;
 		const addressDelta = Math.abs(
-			addressIndex - (lastUsedAddressIndex >= 0 ? lastUsedAddressIndex : 0),
+			addressIndex - (lastUsedAddressIndex > 0 ? lastUsedAddressIndex : 0),
 		);
 		const changeAddressDelta = Math.abs(
 			changeAddressIndex -
-				(lastUsedChangeAddressIndex >= 0 ? lastUsedChangeAddressIndex : 0),
+				(lastUsedChangeAddressIndex > 0 ? lastUsedChangeAddressIndex : 0),
 		);
 
 		return ok({ addressDelta, changeAddressDelta });
