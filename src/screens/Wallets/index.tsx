@@ -1,14 +1,9 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 
-import {
-	View,
-	Subtitle,
-	BitcoinCircleIcon,
-	RefreshControl,
-} from '../../styles/components';
+import { BitcoinCircleIcon, Subtitle, View } from '../../styles/components';
 import Header from './Header';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
@@ -19,6 +14,7 @@ import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
 import EmptyWallet from '../../screens/Activity/EmptyWallet';
 import { useBalance, useNoTransactions } from '../../hooks/wallet';
+import useColors from '../../hooks/colors';
 import { updateSettings } from '../../store/actions/settings';
 import Store from '../../store/types';
 import { refreshWallet } from '../../utils/wallet';
@@ -28,6 +24,7 @@ const Wallets = ({ navigation }): ReactElement => {
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
 	const empty = useNoTransactions();
 	const { satoshis } = useBalance({ onchain: true, lightning: true });
+	const colors = useColors();
 
 	const toggleHideBalance = (): void => {
 		updateSettings({ hideBalance: !hideBalance });
@@ -59,7 +56,11 @@ const Wallets = ({ navigation }): ReactElement => {
 					disableScrollViewPanResponder={true}
 					showsVerticalScrollIndicator={false}
 					refreshControl={
-						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+						<RefreshControl
+							refreshing={refreshing}
+							onRefresh={onRefresh}
+							tintColor={colors.refreshControl}
+						/>
 					}>
 					<DetectSwipe
 						onSwipeLeft={toggleHideBalance}
