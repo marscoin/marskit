@@ -39,6 +39,7 @@ export interface IUser {
 	error: boolean;
 	isHydrated: boolean;
 	isOnline: boolean;
+	isConnectedToElectrum: boolean;
 	viewController: TUserViewController;
 	[key: string]: any;
 }

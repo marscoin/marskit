@@ -25,8 +25,12 @@ import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
 import { SlashtagsProvider } from './components/SlashtagsProvider';
-import { showErrorNotification } from './utils/notifications';
 import { getSlashtagsPrimaryKey } from './utils/wallet';
+import { electrumConnection } from './utils/electrum';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from './utils/notifications';
 import { SlashtagsContactsProvider } from './components/SlashtagContactsProvider';
 import { toastConfig } from './components/Toast';
 
@@ -37,6 +41,7 @@ if (Platform.OS === 'android') {
 }
 
 const App = (): ReactElement => {
+	const isOnline = useSelector((state: Store) => state.user.isOnline);
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
 	const selectedWallet = useSelector(
@@ -60,15 +65,52 @@ const App = (): ReactElement => {
 			}
 		})();
 
+		const unsubscribeElectrum = electrumConnection.subscribe((isConnected) => {
+			if (isConnected) {
+				updateUser({ isConnectedToElectrum: isConnected });
+				showSuccessNotification({
+					title: 'Electrum Server Connectivity',
+					message: `Successfully reconnected to Electrum server`,
+				});
+			} else {
+				updateUser({ isConnectedToElectrum: isConnected });
+				showErrorNotification({
+					title: 'Electrum Server Connectivity',
+					message: 'Lost connection to server, trying to reconnect...',
+				});
+			}
+		});
+
+		return () => {
+			unsubscribeElectrum();
+		};
+	}, []);
+
+	useEffect(() => {
 		// subscribe to connection information
-		const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-			updateUser({ isOnline: state.isConnected });
+		const unsubscribeNetInfo = NetInfo.addEventListener(({ isConnected }) => {
+			if (isConnected) {
+				// prevent toast from showing on startup
+				if (isOnline !== isConnected) {
+					showSuccessNotification({
+						title: "You're back online!",
+						message: 'Reconnected to the Internet.',
+					});
+				}
+				updateUser({ isOnline: isConnected });
+			} else {
+				showErrorNotification({
+					title: 'Internet Connectivity Issues',
+					message: 'Please check your network connection.',
+				});
+				updateUser({ isOnline: isConnected });
+			}
 		});
 
 		return () => {
 			unsubscribeNetInfo();
 		};
-	}, []);
+	}, [isOnline]);
 
 	useEffect(() => {
 		seedHash &&

@@ -12,9 +12,11 @@ import {
 } from '../styles/components';
 
 const ConnectivityIndicator = (): ReactElement => {
-	const isOnline = useAppSelector((state) => state.user.isOnline);
+	const { isOnline, isConnectedToElectrum } = useAppSelector(
+		(state) => state.user,
+	);
 
-	if (isOnline) {
+	if (isOnline && isConnectedToElectrum) {
 		return <></>;
 	}
 

@@ -15,6 +15,7 @@ export const defaultUserShape = {
 	error: false,
 	isHydrated: false,
 	isOnline: true,
+	isConnectedToElectrum: true,
 	ignoreBackupTimestamp: 0,
 	backupVerified: false,
 	// Used to control various views throughout the app. (Modals, bottom-sheets, etc.)

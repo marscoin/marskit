@@ -3,6 +3,7 @@ import { getSelectedNetwork } from '../wallet';
 import * as electrum from 'rn-electrum-client/helpers';
 const hardcodedPeers = require('rn-electrum-client/helpers/peers.json');
 import { err, ok, Result } from '@synonymdev/result';
+import { connectToElectrum } from '../wallet/electrum';
 
 export const defaultElectrumPorts = ['51002', '50002', '51001', '50001'];
 
@@ -112,3 +113,65 @@ export const getPeers = async ({
 		return err(e);
 	}
 };
+
+const POLLING_INTERVAL = 1000 * 10;
+
+/**
+ * PubSub for Electrum server connection
+ * If connection was lost this will try to reconnect in the specified interval
+ */
+export const electrumConnection = (() => {
+	let subscribers: Array<(isConnected: boolean) => void> = [];
+	let latestState: boolean | null = null;
+
+	function publish(isConnected: boolean): void {
+		// Skip if no subscribers
+		if (!Array.isArray(subscribers)) {
+			return;
+		}
+
+		// Skip the first check
+		if (latestState === null) {
+			latestState = isConnected;
+			return;
+		}
+
+		// Skip if state hasn't changed
+		if (isConnected === latestState) {
+			return;
+		}
+
+		latestState = isConnected;
+		subscribers.forEach((callback) => callback(isConnected));
+	}
+
+	function subscribe(callback: (isConnected: boolean) => void): () => void {
+		// Create the subscribers array if not initialized yet
+		if (!Array.isArray(subscribers)) {
+			subscribers = [];
+		}
+		subscribers.push(callback);
+
+		const timerId = setInterval(async () => {
+			// Check the connection
+			const { error } = await electrum.pingServer();
+			electrumConnection.publish(!error);
+
+			// Try to reconnect
+			if (error) {
+				connectToElectrum({});
+			}
+		}, POLLING_INTERVAL);
+
+		// unsubscribe
+		return () => {
+			clearInterval(timerId);
+			subscribers = subscribers.filter((cb) => !(cb === callback));
+		};
+	}
+
+	return {
+		publish,
+		subscribe,
+	};
+})();
