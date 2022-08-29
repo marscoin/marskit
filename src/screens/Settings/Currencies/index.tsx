@@ -16,7 +16,7 @@ const Currencies = ({ navigation }): ReactElement => {
 		(state: Store) => state.settings.selectedCurrency,
 	);
 
-	const onSetCurrency = (currency: String): void => {
+	const onSetCurrency = (currency: string): void => {
 		updateSettings({ selectedCurrency: currency });
 	};
 
@@ -24,16 +24,22 @@ const Currencies = ({ navigation }): ReactElement => {
 		() => [
 			{
 				title: 'Most Used',
-				data: mostUsedExchangeTickers.map((ticker) => ({
-					title: `${ticker} (${exchangeRates[ticker].currencySymbol})`,
-					value: selectedCurrency === ticker,
-					type: 'button',
-					onPress: (): void => {
-						navigation.goBack();
-						onSetCurrency(ticker);
-					},
-					hide: false,
-				})),
+				data: mostUsedExchangeTickers.map((ticker) => {
+					const currencySymbol = exchangeRates[ticker]
+						? `(${exchangeRates[ticker].currencySymbol})`
+						: '';
+
+					return {
+						title: `${ticker} ${currencySymbol}`,
+						value: selectedCurrency === ticker,
+						type: 'button',
+						hide: false,
+						onPress: (): void => {
+							navigation.goBack();
+							onSetCurrency(ticker);
+						},
+					};
+				}),
 			},
 			{
 				title: 'Other Currencies',
@@ -43,11 +49,11 @@ const Currencies = ({ navigation }): ReactElement => {
 						title: ticker,
 						value: selectedCurrency === ticker,
 						type: 'button',
+						hide: false,
 						onPress: (): void => {
 							navigation.goBack();
 							onSetCurrency(ticker);
 						},
-						hide: false,
 					})),
 			},
 		],
@@ -57,7 +63,7 @@ const Currencies = ({ navigation }): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Local currency'}
+			title={'Local Currency'}
 			listData={CurrencyListData}
 			showBackNavigation
 			showSearch
