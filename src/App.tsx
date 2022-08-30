@@ -70,7 +70,7 @@ const App = (): ReactElement => {
 				updateUser({ isConnectedToElectrum: isConnected });
 				showSuccessNotification({
 					title: 'Electrum Server Connectivity',
-					message: `Successfully reconnected to Electrum server`,
+					message: 'Successfully reconnected to Electrum server',
 				});
 			} else {
 				updateUser({ isConnectedToElectrum: isConnected });

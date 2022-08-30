@@ -277,7 +277,7 @@ const Channels = ({ navigation }): ReactElement => {
 						text={'Auto Buy'}
 						loading={autobuying}
 						disabled={autobuying}
-						onPress={async () => {
+						onPress={async (): Promise<void> => {
 							setAutobuying(true);
 							const response = await autoBuyChannel({});
 							console.log(response);

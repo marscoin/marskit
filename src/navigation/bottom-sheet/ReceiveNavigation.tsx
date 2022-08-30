@@ -25,7 +25,10 @@ const navOptions = {
 const ReceiveNavigation = (): ReactElement => {
 	const insets = useSafeAreaInsets();
 	const { height } = useSafeAreaFrame();
-	const snapPoints = useMemo(() => [height - (60 + insets.top)], []);
+	const snapPoints = useMemo(
+		() => [height - (60 + insets.top)],
+		[height, insets.top],
+	);
 	const { isOpen, initial } =
 		useSelector(
 			(store: Store) => store.user.viewController?.receiveNavigation,

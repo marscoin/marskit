@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { BlurView } from '@react-native-community/blur';
 import { ToastConfig, ToastConfigParams } from 'react-native-toast-message';
 import {
@@ -18,7 +18,7 @@ type BlurViewProps = {
 	[x: string]: any;
 };
 
-const Blur = ({ style, ...props }: BlurViewProps) => {
+const Blur = ({ style, ...props }: BlurViewProps): ReactElement => {
 	return Platform.OS === 'ios' ? (
 		<BlurView {...props} style={[style, styles.containerIos]} />
 	) : (
@@ -29,7 +29,11 @@ const Blur = ({ style, ...props }: BlurViewProps) => {
 const isAndroid = Platform.OS === 'android';
 const isIos = Platform.OS === 'ios';
 
-const Toast = ({ type, text1, text2 }: ToastConfigParams<any>) => {
+const Toast = ({
+	type,
+	text1,
+	text2,
+}: ToastConfigParams<any>): ReactElement => {
 	const dimensions = useWindowDimensions();
 
 	let typeStyle = {};

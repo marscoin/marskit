@@ -33,7 +33,7 @@ const Camera = ({
 		</View>
 	);
 
-	const onMountError = () => {
+	const onMountError = (): void => {
 		console.error(
 			'An error was encountered when loading the camera. Please ensure BitKit has permission to use this feature in your phone settings.',
 		);

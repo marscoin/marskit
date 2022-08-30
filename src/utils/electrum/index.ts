@@ -116,11 +116,16 @@ export const getPeers = async ({
 
 const POLLING_INTERVAL = 1000 * 10;
 
+type ElectrumConnectionPubSub = {
+	publish: (isConnected: boolean) => void;
+	subscribe: (callback: (isConnected: boolean) => void) => () => void;
+};
+
 /**
  * PubSub for Electrum server connection
  * If connection was lost this will try to reconnect in the specified interval
  */
-export const electrumConnection = (() => {
+export const electrumConnection = ((): ElectrumConnectionPubSub => {
 	let subscribers: Array<(isConnected: boolean) => void> = [];
 	let latestState: boolean | null = null;
 
