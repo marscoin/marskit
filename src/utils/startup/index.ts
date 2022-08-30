@@ -15,6 +15,7 @@ import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { setupLdk } from '../lightning';
 import { ICustomElectrumPeer } from '../../store/types/settings';
+import { updateUser } from '../../store/actions/user';
 import { setupBlocktank } from '../blocktank';
 
 /**
@@ -106,6 +107,7 @@ export const startWalletServices = async ({
 					customPeers,
 				});
 				if (electrumResponse.isErr()) {
+					updateUser({ isConnectedToElectrum: false });
 					showErrorNotification({
 						title: 'Unable to connect to Electrum Server.',
 						message:
@@ -113,6 +115,9 @@ export const startWalletServices = async ({
 							'Unable to connect to Electrum Server',
 					});
 				}
+
+				updateUser({ isConnectedToElectrum: true });
+
 				// Ensure the on-chain wallet & LDK syncs when a new block is detected.
 				const onReceive = (): void => {
 					refreshWallet({ onchain, lightning });

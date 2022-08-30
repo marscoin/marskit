@@ -19,7 +19,7 @@ import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 
-const Blur = (props: ViewProps) =>
+const Blur = (props: ViewProps): ReactElement =>
 	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const Tab = ({

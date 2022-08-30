@@ -12,6 +12,7 @@ import {
 	RadioButtonItem,
 	TProtocol,
 } from '../../../store/types/settings';
+import { updateUser } from '../../../store/actions/user';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { connectToElectrum } from '../../../utils/wallet/electrum';
@@ -180,6 +181,7 @@ const ElectrumConfig = (): ReactElement => {
 			setLoading(false);
 			if (connectResponse.isOk()) {
 				addElectrumPeer({ selectedNetwork, peer: connectData });
+				updateUser({ isConnectedToElectrum: true });
 				showSuccessNotification({
 					title: 'Electrum Server Updated',
 					message: `Successfully connected to ${host}:${port}`,
@@ -190,6 +192,7 @@ const ElectrumConfig = (): ReactElement => {
 					setRandomPeers(getPeersResult.value);
 				}
 			} else {
+				updateUser({ isConnectedToElectrum: false });
 				showErrorNotification({
 					title: 'Unable to connect to Electrum Server.',
 					message: connectResponse.error.message,

@@ -2,6 +2,7 @@ import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+
 import {
 	View,
 	Subtitle,
@@ -12,6 +13,7 @@ import Header from './Header';
 import DetectSwipe from '../../components/DetectSwipe';
 import BalanceHeader from '../../components/BalanceHeader';
 import TodoCarousel from '../../components/TodoCarousel';
+import ConnectivityIndicator from '../../components/ConnectivityIndicator';
 import SafeAreaView from '../../components/SafeAreaView';
 import AssetCard from '../../components/AssetCard';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
@@ -73,6 +75,7 @@ const Wallets = ({ navigation }): ReactElement => {
 						<>
 							<TodoCarousel />
 							<View style={styles.content}>
+								<ConnectivityIndicator />
 								<Subtitle style={styles.assetsTitle}>Assets</Subtitle>
 								<AssetCard
 									name={'Bitcoin'}

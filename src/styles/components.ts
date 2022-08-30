@@ -62,6 +62,7 @@ import {
 	cornersOut,
 	pictureIcon,
 	flashlightIcon,
+	brokenLinkIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -915,5 +916,14 @@ export const FlashlightIcon = styled(SvgXml).attrs((props) => ({
 	xml: flashlightIcon(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '24px',
 	width: props?.width ?? '24px',
+	color: undefined,
+}))({});
+
+export const BrokenLinkIcon = styled(SvgXml).attrs((props) => ({
+	xml: brokenLinkIcon(
+		props?.color ? props.theme.colors[props.color] : '#FF6600',
+	),
+	height: props?.height ?? '32px',
+	width: props?.width ?? '32px',
 	color: undefined,
 }))({});

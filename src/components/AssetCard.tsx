@@ -1,6 +1,6 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
-import { View, Pressable, Text02M, Caption13M } from '../styles/components';
+import { View, Pressable, Text01M, Caption13M } from '../styles/components';
 import Money from '../components/Money';
 
 const AssetCard = ({
@@ -21,7 +21,7 @@ const AssetCard = ({
 			<View color="transparent" style={styles.col1}>
 				{icon}
 				<View color="transparent" style={styles.titleContainer}>
-					<Text02M>{name}</Text02M>
+					<Text01M>{name}</Text01M>
 					<Caption13M color="gray1">{ticker}</Caption13M>
 				</View>
 			</View>
