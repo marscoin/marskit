@@ -6,9 +6,15 @@ import React, {
 	useEffect,
 	useRef,
 	MutableRefObject,
+	useCallback,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+	ActivityIndicator,
+	StyleSheet,
+	useWindowDimensions,
+	View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import QRCode from 'react-native-qrcode-svg';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -25,12 +31,14 @@ import {
 import Store from '../../../store/types';
 import { resetInvoice } from '../../../store/actions/receive';
 import { updateMetaIncTxTags } from '../../../store/actions/metadata';
-import { getReceiveAddress, getNewReceiveAddress } from '../../../utils/wallet';
+import { getReceiveAddress } from '../../../utils/wallet';
 import { getUnifiedUri } from '../../../utils/receive';
 import { createLightningInvoice } from '../../../utils/lightning';
 import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
+import { generateNewReceiveAddress } from '../../../store/actions/wallet';
+import { showErrorNotification } from '../../../utils/notifications';
 
 const bitcoinLogo = require('../../../assets/bitcoin-logo.png');
 
@@ -40,9 +48,75 @@ const Receive = ({ navigation }): ReactElement => {
 	const { amount, message, tags } = useSelector(
 		(store: Store) => store.receive,
 	);
+	const receiveNavigationIsOpen = useSelector(
+		(store: Store) => store.user.viewController.receiveNavigation.isOpen,
+	);
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+	const [loading, setLoading] = useState(true);
 	const [showCopy, setShowCopy] = useState(false);
+	const [receiveAddress, setReceiveAddress] = useState('');
 	const [lightningInvoice, setLightningInvoice] = useState('');
 	const qrRef = useRef<object>(null);
+
+	const getLightningInvoice = useCallback(async (): Promise<void> => {
+		if (!receiveNavigationIsOpen) {
+			return;
+		}
+		const response = await createLightningInvoice({
+			amountSats: amount,
+			description: message,
+			expiryDeltaSeconds: 180,
+		});
+
+		if (response.isErr()) {
+			showErrorNotification({
+				title: 'Unable to generate lightning invoice.',
+				message: response.error.message,
+			});
+			return;
+		}
+
+		if (response.isOk()) {
+			setLightningInvoice(response.value.to_str);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [amount, message]);
+
+	const getAddress = useCallback(async (): Promise<void> => {
+		if (!receiveNavigationIsOpen) {
+			return;
+		}
+		if (amount > 0) {
+			console.info('getting fresh address');
+			const response = await generateNewReceiveAddress({
+				selectedNetwork,
+				selectedWallet,
+			});
+			if (response.isOk()) {
+				console.info(`generated fresh address ${response.value.address}`);
+				setReceiveAddress(response.value.address);
+			}
+		} else {
+			const response = getReceiveAddress({});
+			if (response.isOk()) {
+				console.info(`reusing address ${response.value}`);
+				setReceiveAddress(response.value);
+			}
+		}
+	}, [amount, receiveNavigationIsOpen, selectedNetwork, selectedWallet]);
+
+	const setInvoiceDetails = useCallback(async (): Promise<void> => {
+		if (!loading) {
+			setLoading(true);
+		}
+		await Promise.all([getLightningInvoice(), getAddress()]);
+		setLoading(false);
+	}, [getAddress, getLightningInvoice, loading]);
 
 	const buttonContainer = useMemo(
 		() => ({
@@ -56,40 +130,10 @@ const Receive = ({ navigation }): ReactElement => {
 		resetInvoice();
 	}, []);
 
-	const receiveAddress = useMemo(() => {
-		if (amount > 0) {
-			console.info('getting fresh address');
-			const response = getNewReceiveAddress({});
-
-			if (response.isOk()) {
-				return response.value;
-			}
-		} else {
-			const response = getReceiveAddress({});
-
-			if (response.isOk()) {
-				console.info(`reusing address ${response.value}`);
-				return response.value;
-			}
-		}
-	}, [amount]);
-
 	useEffect(() => {
-		const getLightningInvoice = async (): Promise<void> => {
-			const response = await createLightningInvoice({
-				amountSats: amount,
-				description: message,
-				expiryDeltaSeconds: 180,
-			});
-
-			// TODO: add error handling
-
-			if (response.isOk()) {
-				setLightningInvoice(response.value.to_str);
-			}
-		};
-		getLightningInvoice();
-	}, [amount, message]);
+		setInvoiceDetails().then();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [amount, message, selectedNetwork, selectedWallet]);
 
 	useEffect(() => {
 		if (tags.length !== 0 && receiveAddress) {
@@ -97,19 +141,15 @@ const Receive = ({ navigation }): ReactElement => {
 		}
 	}, [receiveAddress, lightningInvoice, tags]);
 
-	// Getting receive address shouldn't take long, so we don't show a spinner
-	// TODO: add error handling
-	if (!receiveAddress) {
-		return <></>;
-	}
-
-	const uri = getUnifiedUri({
-		bitcoin: receiveAddress,
-		amount,
-		label: message,
-		message,
-		lightning: lightningInvoice,
-	});
+	const uri = useMemo((): string => {
+		return getUnifiedUri({
+			bitcoin: receiveAddress,
+			amount,
+			label: message,
+			message,
+			lightning: lightningInvoice,
+		});
+	}, [amount, lightningInvoice, message, receiveAddress]);
 
 	const handleCopy = (): void => {
 		setShowCopy(() => true);
@@ -132,9 +172,18 @@ const Receive = ({ navigation }): ReactElement => {
 		}
 	};
 
-	const qrMaxHeight = dimensions.height / 2.5;
-	const qrMaxWidth = dimensions.width - 16 * 4;
-	const qrSize = Math.min(qrMaxWidth, qrMaxHeight);
+	const qrMaxHeight = useMemo(
+		() => dimensions.height / 2.5,
+		[dimensions?.height],
+	);
+	const qrMaxWidth = useMemo(
+		() => dimensions.width - 16 * 4,
+		[dimensions?.width],
+	);
+	const qrSize = useMemo(
+		() => Math.min(qrMaxWidth, qrMaxHeight),
+		[qrMaxHeight, qrMaxWidth],
+	);
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
@@ -144,29 +193,37 @@ const Receive = ({ navigation }): ReactElement => {
 				size="sm"
 			/>
 			<View style={styles.qrCodeContainer}>
-				<TouchableOpacity
-					color="white"
-					activeOpacity={1}
-					onPress={handleCopy}
-					style={styles.qrCode}>
-					<QRCode
-						logo={bitcoinLogo}
-						logoSize={70}
-						logoBackgroundColor="white"
-						logoBorderRadius={100}
-						logoMargin={11}
-						value={uri}
-						size={qrSize}
-						getRef={(c): void => {
-							if (!c || !qrRef) {
-								return;
-							}
-							c.toDataURL(
-								(data) => ((qrRef as MutableRefObject<object>).current = data),
-							);
-						}}
-					/>
-				</TouchableOpacity>
+				{loading && (
+					<View style={[styles.loading, { height: qrSize, width: qrSize }]}>
+						<ActivityIndicator color="white" />
+					</View>
+				)}
+				{!loading && (
+					<TouchableOpacity
+						color="white"
+						activeOpacity={1}
+						onPress={handleCopy}
+						style={styles.qrCode}>
+						<QRCode
+							logo={bitcoinLogo}
+							logoSize={70}
+							logoBackgroundColor="white"
+							logoBorderRadius={100}
+							logoMargin={11}
+							value={uri}
+							size={qrSize}
+							getRef={(c): void => {
+								if (!c || !qrRef) {
+									return;
+								}
+								c.toDataURL(
+									(data) =>
+										((qrRef as MutableRefObject<object>).current = data),
+								);
+							}}
+						/>
+					</TouchableOpacity>
+				)}
 
 				{showCopy && (
 					<AnimatedView
@@ -232,6 +289,10 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'flex-end',
 		minHeight: 100,
+	},
+	loading: {
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 });
 

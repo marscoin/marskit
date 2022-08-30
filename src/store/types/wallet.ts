@@ -230,8 +230,10 @@ export interface IDefaultWalletShape {
 	seedHash?: string; // Help components/hooks recognize when a seed is set/updated for the same wallet id/name.
 	addresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	addressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
+	lastUsedAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	changeAddresses: IWalletItem<IAddress> | IWalletItem<{}>;
 	changeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
+	lastUsedChangeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	utxos: IWalletItem<IUtxo[]>;
 	boostedTransactions: IWalletItem<string[]>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;

@@ -850,7 +850,9 @@ interface ITxHashes extends TTxResult {
 }
 interface IGetNextAvailableAddressResponse {
 	addressIndex: IAddressContent;
+	lastUsedAddressIndex: IAddressContent;
 	changeAddressIndex: IAddressContent;
+	lastUsedChangeAddressIndex: IAddressContent;
 }
 interface IGetNextAvailableAddress {
 	selectedWallet?: string | undefined;
@@ -909,8 +911,19 @@ export const getNextAvailableAddress = async ({
 			//The currently known/stored address index.
 			let addressIndex =
 				currentWallet.addressIndex[selectedNetwork][addressType];
+			let lastUsedAddressIndex =
+				currentWallet.lastUsedAddressIndex[selectedNetwork][addressType];
 			let changeAddressIndex =
 				currentWallet.changeAddressIndex[selectedNetwork][addressType];
+			let lastUsedChangeAddressIndex =
+				currentWallet.lastUsedChangeAddressIndex[selectedNetwork][addressType];
+
+			const seedResponse = await getSeed(selectedWallet);
+			if (seedResponse.isErr()) {
+				return err(seedResponse.error.message);
+			}
+			const seed = seedResponse.value;
+
 			if (!addressIndex?.address) {
 				const generatedAddresses = await generateAddresses({
 					selectedWallet,
@@ -919,6 +932,7 @@ export const getNextAvailableAddress = async ({
 					changeAddressAmount: 0,
 					keyDerivationPath,
 					addressType,
+					seed,
 				});
 				if (generatedAddresses.isErr()) {
 					return resolve(err(generatedAddresses.error));
@@ -935,6 +949,7 @@ export const getNextAvailableAddress = async ({
 					changeAddressAmount: GENERATE_ADDRESS_AMOUNT,
 					keyDerivationPath,
 					addressType,
+					seed,
 				});
 				if (generatedChangeAddresses.isErr()) {
 					return resolve(err(generatedChangeAddresses.error));
@@ -968,6 +983,7 @@ export const getNextAvailableAddress = async ({
 					selectedWallet,
 					keyDerivationPath,
 					addressType,
+					seed,
 				});
 				if (!newAddresses.isErr()) {
 					addresses = newAddresses.value.addresses;
@@ -991,6 +1007,7 @@ export const getNextAvailableAddress = async ({
 					selectedWallet,
 					keyDerivationPath,
 					addressType,
+					seed,
 				});
 				if (!newChangeAddresses.isErr()) {
 					changeAddresses = newChangeAddresses.value.changeAddresses;
@@ -1030,7 +1047,7 @@ export const getNextAvailableAddress = async ({
 				});
 
 				if (addressHistory.isErr()) {
-					return resolve(ok({ addressIndex, changeAddressIndex }));
+					return resolve(err(addressHistory.error.message));
 				}
 
 				const txHashes: IGetAddressHistoryResponse[] = addressHistory.value;
@@ -1065,16 +1082,22 @@ export const getNextAvailableAddress = async ({
 					return resolve(err(highestStoredIndex.error));
 				}
 
-				if (
-					highestUsedIndex.value.addressIndex.index <
-					highestStoredIndex.value.addressIndex.index
-				) {
+				const {
+					addressIndex: highestUsedAddressIndex,
+					changeAddressIndex: highestUsedChangeAddressIndex,
+				} = highestUsedIndex.value;
+				const {
+					addressIndex: highestStoredAddressIndex,
+					changeAddressIndex: highestStoredChangeAddressIndex,
+				} = highestStoredIndex.value;
+
+				if (highestUsedAddressIndex.index < highestStoredAddressIndex.index) {
 					foundLastUsedAddress = true;
 				}
 
 				if (
-					highestUsedIndex.value.changeAddressIndex.index <
-					highestStoredIndex.value.changeAddressIndex.index
+					highestUsedChangeAddressIndex.index <
+					highestStoredChangeAddressIndex.index
 				) {
 					foundLastUsedChangeAddress = true;
 				}
@@ -1083,37 +1106,54 @@ export const getNextAvailableAddress = async ({
 					//Increase index by one if the current index was found in a txHash or is greater than the previous index.
 					let newAddressIndex = addressIndex.index;
 					if (
-						highestUsedIndex.value.addressIndex.index > addressIndex.index ||
+						highestUsedAddressIndex.index > addressIndex.index ||
 						addressHasBeenUsed
 					) {
-						newAddressIndex = highestUsedIndex.value.addressIndex.index + 1;
+						const index = highestUsedAddressIndex.index;
+						if (
+							highestUsedAddressIndex &&
+							index >= 0 &&
+							highestUsedIndex.value.foundAddressIndex
+						) {
+							lastUsedAddressIndex = highestUsedAddressIndex;
+						}
+						newAddressIndex = index >= 0 ? index + 1 : index;
 					}
 
 					let newChangeAddressIndex = changeAddressIndex.index;
 					if (
-						highestUsedIndex.value.changeAddressIndex.index >
-							changeAddressIndex.index ||
+						highestUsedChangeAddressIndex.index > changeAddressIndex.index ||
 						changeAddressHasBeenUsed
 					) {
-						newChangeAddressIndex =
-							highestUsedIndex.value.changeAddressIndex.index + 1;
+						const index = highestUsedChangeAddressIndex.index;
+						if (
+							highestUsedChangeAddressIndex &&
+							index >= 0 &&
+							highestUsedIndex.value.foundChangeAddressIndex
+						) {
+							lastUsedChangeAddressIndex = highestUsedChangeAddressIndex;
+						}
+						newChangeAddressIndex = index >= 0 ? index + 1 : index;
 					}
 
 					//Filter for and return the new index.
-					const nextAvailableAddress = Object.values(allAddresses).filter(
+					const allAddressValues = Object.values(allAddresses);
+					const nextAvailableAddress = allAddressValues.filter(
 						({ index }) => index === newAddressIndex,
 					);
-					const nextAvailableChangeAddress = Object.values(
-						allChangeAddresses,
-					).filter(({ index }) => index === newChangeAddressIndex);
-
+					const nextAvailableChangeAddress = allAddressValues.filter(
+						({ index }) => index === newChangeAddressIndex,
+					);
 					return resolve(
 						ok({
 							addressIndex: nextAvailableAddress[0],
+							lastUsedAddressIndex,
 							changeAddressIndex: nextAvailableChangeAddress[0],
+							lastUsedChangeAddressIndex,
 						}),
 					);
 				}
+
 				//Create receiving addresses for the next round
 				if (!foundLastUsedAddress) {
 					const newAddresses = await addAddresses({
@@ -1125,6 +1165,7 @@ export const getNextAvailableAddress = async ({
 						selectedWallet,
 						keyDerivationPath,
 						addressType,
+						seed,
 					});
 					if (!newAddresses.isErr()) {
 						addresses = newAddresses.value.addresses || {};
@@ -1142,6 +1183,7 @@ export const getNextAvailableAddress = async ({
 						selectedWallet,
 						keyDerivationPath,
 						addressType,
+						seed,
 					});
 					if (!newChangeAddresses.isErr()) {
 						changeAddresses = newChangeAddresses.value.changeAddresses || {};
@@ -1978,10 +2020,13 @@ export const createDefaultWallet = async ({
 		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
 
 		//Generate a set of addresses & changeAddresses for each network.
-		const addressesObj = { ...defaultWalletShape.addresses };
-		const changeAddressesObj = { ...defaultWalletShape.changeAddresses };
-		const addressIndex = { ...defaultWalletShape.addressIndex };
-		const changeAddressIndex = { ...defaultWalletShape.changeAddressIndex };
+		const addressesObj = defaultWalletShape.addresses;
+		const changeAddressesObj = defaultWalletShape.changeAddresses;
+		const addressIndex = defaultWalletShape.addressIndex;
+		const changeAddressIndex = defaultWalletShape.changeAddressIndex;
+		const lastUsedAddressIndex = defaultWalletShape.lastUsedAddressIndex;
+		const lastUsedChangeAddressIndex =
+			defaultWalletShape.lastUsedChangeAddressIndex;
 		await Promise.all([
 			setKeychainSlashtagsPrimaryKey(seed),
 			Object.values(addressTypes).map(async ({ type, path }) => {
@@ -2014,8 +2059,8 @@ export const createDefaultWallet = async ({
 				addressIndex[selectedNetwork][type] = Object.values(addresses)[0];
 				changeAddressIndex[selectedNetwork][type] =
 					Object.values(changeAddresses)[0];
-				addressesObj[selectedNetwork][type] = { ...addresses };
-				changeAddressesObj[selectedNetwork][type] = { ...changeAddresses };
+				addressesObj[selectedNetwork][type] = addresses;
+				changeAddressesObj[selectedNetwork][type] = changeAddresses;
 			}),
 		]);
 		const payload: IDefaultWallet = {
@@ -2031,6 +2076,8 @@ export const createDefaultWallet = async ({
 				changeAddressIndex,
 				addresses: { ...addressesObj },
 				changeAddresses: { ...changeAddressesObj },
+				lastUsedAddressIndex,
+				lastUsedChangeAddressIndex,
 				id: walletName,
 			},
 		};
@@ -2419,52 +2466,6 @@ export const getReceiveAddress = ({
 	}
 };
 
-// TODO: mock function, replace
-/**
- * Returns a new receive address for the given network and wallet.
- * @param {TAddressType} [addressType]
- * @param {TAvailableNetworks} [selectedNetwork]
- * @param {string} [selectedWallet]
- * @return {Result<string>}
- */
-export const getNewReceiveAddress = ({
-	addressType,
-	selectedNetwork,
-	selectedWallet,
-}: {
-	addressType?: TAddressType;
-	selectedNetwork?: TAvailableNetworks;
-	selectedWallet?: string;
-}): Result<string> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		if (!addressType) {
-			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
-		}
-
-		// TODO:
-		// - generate new receiving address
-		// - if gap limit is reached, cycle through unused addresses again
-		// - test tags again when implemented
-
-		const wallet = getStore().wallet?.wallets[selectedWallet];
-		const addressIndex = wallet?.addressIndex[selectedNetwork];
-		const receiveAddress = addressIndex[addressType]?.address;
-		if (!receiveAddress) {
-			return err('No receive address available.');
-		}
-
-		return ok(receiveAddress);
-	} catch (e) {
-		return err(e);
-	}
-};
-
 /**
  * Determines the asset network based on the provided asset name.
  * @param {string} asset
@@ -2538,4 +2539,58 @@ export const getBalance = ({
 	}
 
 	return getDisplayValues({ satoshis: balance });
+};
+
+/**
+ * Returns the difference between the current address index and the last used address index.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TAddressType} [addressType]
+ * @returns {Result<{ addressDelta: number; changeAddressDelta: number }>}
+ */
+export const getGapLimit = ({
+	selectedWallet,
+	selectedNetwork,
+	addressType,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: TAddressType;
+}): Result<{ addressDelta: number; changeAddressDelta: number }> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!addressType) {
+			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
+		}
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+		const addressIndex =
+			currentWallet.addressIndex[selectedNetwork][addressType].index;
+		const lastUsedAddressIndex =
+			currentWallet.lastUsedAddressIndex[selectedNetwork][addressType].index;
+		const changeAddressIndex =
+			currentWallet.changeAddressIndex[selectedNetwork][addressType].index;
+		const lastUsedChangeAddressIndex =
+			currentWallet.lastUsedChangeAddressIndex[selectedNetwork][addressType]
+				.index;
+		const addressDelta = Math.abs(
+			addressIndex - (lastUsedAddressIndex > 0 ? lastUsedAddressIndex : 0),
+		);
+		const changeAddressDelta = Math.abs(
+			changeAddressIndex -
+				(lastUsedChangeAddressIndex > 0 ? lastUsedChangeAddressIndex : 0),
+		);
+
+		return ok({ addressDelta, changeAddressDelta });
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
