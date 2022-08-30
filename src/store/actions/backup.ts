@@ -65,7 +65,10 @@ export const setRemoteBackupsEnabled = (
 ): void => {
 	dispatch({
 		type: actions.BACKUP_UPDATE,
-		payload: { remoteBackupsEnabled, remoteLdkBackupLastSync: new Date() },
+		payload: {
+			remoteBackupsEnabled,
+			remoteLdkBackupLastSync: new Date().getTime(),
+		},
 	});
 };
 
