@@ -40,7 +40,7 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, 'Slideshow'>;
  * Slideshow for Welcome screen
  */
 const Slideshow = ({ navigation, route }: Props): ReactElement => {
-	const skipIntro = route.params.skipIntro;
+	const skipIntro = route.params?.skipIntro ?? false;
 	const swiperRef = useRef<Swiper>(null);
 	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 	const colors = useColors();
