@@ -2123,22 +2123,7 @@
     sodium-universal "^3.1.0"
     z32 "^1.0.0"
 
-"@synonymdev/slashtags-sdk@1.0.0-alpha.12":
-  version "1.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.12.tgz#d73a50cf64ed9ac7b97882e71bf4b7a3a553625a"
-  integrity sha512-eVAC+JEZQDaYcXfIvYuuItF0PDHDXUDv1swbiQ0YSuTeyVRwG7NyXQL0i0TsPF49Yvx1TRLFmT1CIp9XZCdEFA==
-  dependencies:
-    "@synonymdev/slashauth" "^1.0.0-alpha.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.9"
-    b4a "^1.3.1"
-    corestore "^6.0.1-alpha.16"
-    debug "^4.3.4"
-    graceful-goodbye "^1.0.0"
-    random-access-memory "^4.0.0"
-    random-access-web "^2.0.3"
-    sodium-universal "^3.1.0"
-
-"@synonymdev/slashtags-sdk@1.0.0-alpha.13":
+"@synonymdev/slashtags-sdk@1.0.0-alpha.13", "@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
   version "1.0.0-alpha.13"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.13.tgz#8a2884d44f80edb659ec0aa1ed776c042e086fb8"
   integrity sha512-qOnClERoyIiXc+RMnxEblgnRcPlWqQWF1GBSR6cJPBsjqiyHR9amlEOgfcD88Z3nTQam5AumAFGXOYzeVS51JQ==
@@ -3101,9 +3086,9 @@ babel-preset-jest@^27.5.1:
 
 "backpack-client@git+ssh://git@github.com/synonymdev/backpack-client":
   version "1.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-client#a51bc347d36caf5ebf8ffe308961b997242b40c7"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-client#3be3d23db241b4cd1839d476e91f7f81b28867eb"
   dependencies:
-    "@synonymdev/slashtags-sdk" "1.0.0-alpha.12"
+    "@synonymdev/slashtags-sdk" "^1.0.0-alpha.13"
     compact-encoding "^2.7.0"
     compact-encoding-struct "^1.3.0"
     sodium-universal "^3.1.0"
