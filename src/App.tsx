@@ -69,14 +69,14 @@ const App = (): ReactElement => {
 			if (isConnected) {
 				updateUser({ isConnectedToElectrum: isConnected });
 				showSuccessNotification({
-					title: 'Electrum Server Connectivity',
-					message: 'Successfully reconnected to Electrum server',
+					title: 'Electrum Server Reconnected',
+					message: 'Successfully reconnected to Electrum Server.',
 				});
 			} else {
 				updateUser({ isConnectedToElectrum: isConnected });
 				showErrorNotification({
-					title: 'Electrum Server Connectivity',
-					message: 'Lost connection to server, trying to reconnect...',
+					title: 'Electrum Connectivity Issues',
+					message: 'Lost connection to server, trying to reconnect..',
 				});
 			}
 		});
@@ -93,8 +93,8 @@ const App = (): ReactElement => {
 				// prevent toast from showing on startup
 				if (isOnline !== isConnected) {
 					showSuccessNotification({
-						title: "You're back online!",
-						message: 'Reconnected to the Internet.',
+						title: 'You’re Back Online!',
+						message: 'Successfully reconnected to the Internet.',
 					});
 				}
 				updateUser({ isOnline: isConnected });
