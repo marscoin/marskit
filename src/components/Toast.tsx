@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { BlurView } from '@react-native-community/blur';
 import { ToastConfig, ToastConfigParams } from 'react-native-toast-message';
+import LinearGradient from 'react-native-linear-gradient';
 import {
 	View,
 	StyleSheet,
@@ -20,14 +21,11 @@ type BlurViewProps = {
 
 const Blur = ({ style, ...props }: BlurViewProps): ReactElement => {
 	return Platform.OS === 'ios' ? (
-		<BlurView {...props} style={[style, styles.containerIos]} />
+		<BlurView {...props} style={style} />
 	) : (
 		<View {...props} style={[style, styles.containerAndroid]} />
 	);
 };
-
-const isAndroid = Platform.OS === 'android';
-const isIos = Platform.OS === 'ios';
 
 const Toast = ({
 	type,
@@ -36,57 +34,52 @@ const Toast = ({
 }: ToastConfigParams<any>): ReactElement => {
 	const dimensions = useWindowDimensions();
 
-	let typeStyle = {};
+	let titleColor = 'white';
+	let gradientColor = colors.black;
 
 	if (type === 'success') {
-		typeStyle = {
-			...(isAndroid ? { borderColor: colors.green } : {}),
-			...(isIos ? { backgroundColor: 'rgba(0, 255, 90, 0.3)' } : {}),
-		};
+		titleColor = 'green';
+		gradientColor = '#1d2f1c';
 	}
 
 	if (type === 'info') {
-		typeStyle = {
-			...(isAndroid ? { borderColor: colors.indigo } : {}),
-			...(isIos ? { backgroundColor: 'rgba(0, 90, 255, 0.3)' } : {}),
-		};
+		titleColor = 'blue';
+		gradientColor = '#00294e';
 	}
 
 	if (type === 'error') {
-		typeStyle = {
-			...(isAndroid ? { borderColor: colors.red } : {}),
-			...(isIos ? { backgroundColor: 'rgba(255, 90, 0, 0.3)' } : {}),
-		};
+		titleColor = 'brand';
+		gradientColor = '#552200';
 	}
 
 	return (
-		<Blur
-			style={[
-				{ width: dimensions.width - 16 * 2 },
-				styles.container,
-				typeStyle,
-			]}>
-			<Text01M style={styles.title} color="brand">
-				{text1}
-			</Text01M>
-			<Text13S style={styles.description} color="gray1">
-				{text2}
-			</Text13S>
-		</Blur>
+		<LinearGradient
+			start={{ x: 1, y: 0 }}
+			end={{ x: 0, y: 0 }}
+			colors={['rgba(0, 15, 28, 0.5)', gradientColor]}
+			locations={[0, 0.5]}
+			style={[{ width: dimensions.width - 16 * 2 }, styles.linearGradient]}>
+			<Blur style={styles.container}>
+				<Text01M color={titleColor}>{text1}</Text01M>
+				<Text13S style={styles.description} color="gray1">
+					{text2}
+				</Text13S>
+			</Blur>
+		</LinearGradient>
 	);
 };
 
 const styles = StyleSheet.create({
+	linearGradient: {
+		borderRadius: 8,
+	},
 	container: {
 		borderRadius: 8,
-		borderLeftWidth: 3,
 		padding: 16,
 	},
-	containerIos: {},
 	containerAndroid: {
-		backgroundColor: 'white',
+		backgroundColor: 'rgba(30, 30, 30, 0.7)',
 	},
-	title: {},
 	description: {
 		marginTop: 3,
 	},
