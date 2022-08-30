@@ -3,7 +3,6 @@ import {
 	createNativeStackNavigator,
 	NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
-import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
@@ -41,7 +40,6 @@ const Stack = createNativeStackNavigator<SendStackParamList>();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
 

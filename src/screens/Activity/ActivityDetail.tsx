@@ -1,5 +1,4 @@
 import React, {
-	PropsWithChildren,
 	ReactElement,
 	memo,
 	useCallback,
@@ -24,6 +23,7 @@ import {
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import {
 	Caption13M,
@@ -58,6 +58,7 @@ import { toggleView } from '../../store/actions/user';
 import { deleteMetaTxTag } from '../../store/actions/metadata';
 import { getTransactions } from '../../utils/wallet/electrum';
 import { ITransaction, ITxHash } from '../../utils/wallet';
+import type { RootStackParamList } from '../../navigation/types';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -103,10 +104,7 @@ const ZigZag = ({ color }): ReactElement => {
 	return <Path path={path} color={color} />;
 };
 
-interface Props extends PropsWithChildren<any> {
-	navigation: any;
-	route: { params: { activityItem: IActivityItem; extended: boolean } };
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'ActivityDetail'>;
 
 const emptyActivityItem: IActivityItem = {
 	id: '',

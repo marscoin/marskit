@@ -3,14 +3,11 @@
  * @flow strict-local
  */
 
-import React, {
-	memo,
-	PropsWithChildren,
-	ReactElement,
-	useCallback,
-	useEffect,
-} from 'react';
+import React, { memo, ReactElement, useCallback, useEffect } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { Text } from '../../styles/components';
 import {
 	resetOnChainTransaction,
@@ -30,26 +27,20 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
-import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import { useNavigation } from '@react-navigation/native';
 import AdjustValue from '../../components/AdjustValue';
 import FeeSummary from '../Wallets/SendOnChainTransaction/FeeSummary';
 import useDisplayValues from '../../hooks/displayValues';
 import { hasEnabledAuthentication } from '../../utils/settings';
 import NavigationHeader from '../../components/NavigationHeader';
-import { IGetOrderResponse } from '@synonymdev/blocktank-client';
 import SafeAreaView from '../../components/SafeAreaView';
-import { RootNavigationProp } from '../../navigation/root/RootNavigator';
+import { RootStackParamList } from '../../navigation/types';
 
-interface Props extends PropsWithChildren<any> {
-	route: { params: { order: IGetOrderResponse } };
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'BlocktankPayment'>;
 
 const BlocktankPayment = (props: Props): ReactElement => {
-	const { order } = props.route.params;
-
-	const navigation = useNavigation<RootNavigationProp>();
+	const { navigation, route } = props;
+	const { order } = route.params;
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,

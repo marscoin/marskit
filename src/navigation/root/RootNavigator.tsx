@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import {
 	createStackNavigator,
 	TransitionPresets,
-	StackNavigationProp,
 } from '@react-navigation/stack';
 
 import TabNavigator from '../tabs/TabNavigator';
@@ -33,29 +32,7 @@ import ProfileEdit from '../../screens/Profile/ProfileEdit';
 import Contacts from '../../screens/Contacts/Contacts';
 import Contact from '../../screens/Contacts/Contact';
 import ContactEdit from '../../screens/Contacts/ContactEdit';
-import type { IActivityItem } from '../../store/types/activity';
-
-export type RootNavigationProp = StackNavigationProp<RootStackParamList>;
-
-export type RootStackParamList = {
-	RootAuthCheck: { onSuccess: () => void };
-	Tabs: undefined;
-	Biometrics: undefined;
-	Blocktank: undefined;
-	BlocktankOrder: undefined;
-	BlocktankPayment: undefined;
-	ActivityDetail: { activityItem: IActivityItem };
-	ActivityFiltered: undefined;
-	Scanner: undefined;
-	WalletsDetail: undefined;
-	LightningRoot: undefined;
-	Settings: undefined;
-	Profile: undefined;
-	ProfileEdit: undefined;
-	Contacts: undefined;
-	ContactEdit: undefined;
-	Contact: undefined;
-};
+import type { RootStackParamList } from '../types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 

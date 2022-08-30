@@ -1,7 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TransitionPresets } from '@react-navigation/stack';
 
 import Introduction from '../../screens/Lightning/Introduction';
 import CustomSetup from '../../screens/Lightning/CustomSetup';
@@ -12,15 +10,9 @@ import QuickConfirm from '../../screens/Lightning/QuickConfirm';
 
 const Stack = createNativeStackNavigator();
 
-const transitionPreset =
-	Platform.OS === 'ios'
-		? TransitionPresets.SlideFromRightIOS
-		: TransitionPresets.DefaultTransition;
-
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...transitionPreset,
 	detachInactiveScreens: true,
 };
 

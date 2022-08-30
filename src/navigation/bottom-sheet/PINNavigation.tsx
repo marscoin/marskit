@@ -1,6 +1,5 @@
 import React, { ReactElement, useMemo, memo } from 'react';
 import { useSelector } from 'react-redux';
-import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
@@ -14,7 +13,6 @@ const Stack = createNativeStackNavigator();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
 const PINNavigation = (): ReactElement => {

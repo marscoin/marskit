@@ -1,17 +1,28 @@
 import React, { ReactElement } from 'react';
-import { TransitionPresets } from '@react-navigation/stack';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 
 import WelcomeScreen from '../../screens/Onboarding/Welcome';
 import SlideshowScreen from '../../screens/Onboarding/Slideshow';
 import RestoreFromSeed from '../../screens/Onboarding/RestoreFromSeed';
 import { NavigationContainer } from '../../styles/components';
-const Stack = createNativeStackNavigator();
+
+export type OnboardingNavigationProp =
+	NativeStackNavigationProp<OnboardingStackParamList>;
+
+export type OnboardingStackParamList = {
+	Welcome: undefined;
+	Slideshow: { skipIntro?: boolean } | undefined;
+	RestoreFromSeed: undefined;
+};
+
+const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 
 const navOptionHandler = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
 	detachPreviousScreen: false,
 };
 

@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import {
 	AnimatedView,
 	Display,
@@ -24,6 +26,7 @@ import { showErrorNotification } from '../../utils/notifications';
 import { sleep } from '../../utils/helpers';
 import useColors from '../../hooks/colors';
 import LoadingWalletScreen from './Loading';
+import { OnboardingStackParamList } from '../../navigation/onboarding/OnboardingNavigator';
 
 const Dot = ({ active }: { active?: boolean }): ReactElement => {
 	return (
@@ -31,17 +34,13 @@ const Dot = ({ active }: { active?: boolean }): ReactElement => {
 	);
 };
 
+type Props = NativeStackScreenProps<OnboardingStackParamList, 'Slideshow'>;
+
 /**
  * Slideshow for Welcome screen
  */
-const Slideshow = ({
-	navigation,
-	route,
-}: {
-	navigation: any;
-	route: { params: { skipIntro?: boolean } };
-}): ReactElement => {
-	const skipIntro = route?.params?.skipIntro;
+const Slideshow = ({ navigation, route }: Props): ReactElement => {
+	const skipIntro = route.params?.skipIntro ?? false;
 	const swiperRef = useRef<Swiper>(null);
 	const [isCreatingWallet, setIsCreatingWallet] = useState(false);
 	const colors = useColors();

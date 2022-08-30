@@ -12,7 +12,7 @@ import {
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
-import type { RootNavigationProp } from '../../navigation/root/RootNavigator';
+import { RootNavigationProp } from '../../navigation/types';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
