@@ -321,6 +321,8 @@ PODS:
     - React-Core
   - react-native-document-picker (8.1.0):
     - React-Core
+  - react-native-flipper (0.162.0):
+    - React-Core
   - react-native-image-picker (4.8.4):
     - React-Core
   - react-native-ldk (0.0.51):
@@ -562,6 +564,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-ldk (from `../node_modules/@synonymdev/react-native-ldk`)"
   - react-native-libsodium (from `../node_modules/react-native-libsodium`)
@@ -674,6 +677,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-flipper:
+    :path: "../node_modules/react-native-flipper"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-ldk:
@@ -789,6 +794,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-document-picker: 5663fe4bcdb646200683a41790464d2793307ac8
+  react-native-flipper: 7eeb9b59b667dd0619372c7349cf7c78032d1de2
   react-native-image-picker: cffb727cf2f59bd5c0408e30b3dbe0b935f88835
   react-native-ldk: ad26f1f6932bfa7eb07a35a9b8ea74a7aa794c44
   react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
