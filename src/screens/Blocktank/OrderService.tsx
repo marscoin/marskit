@@ -1,16 +1,13 @@
-import React, {
-	PropsWithChildren,
-	ReactElement,
-	useCallback,
-	useEffect,
-	useState,
-} from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
+import Clipboard from '@react-native-clipboard/clipboard';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Divider from '../../components/Divider';
 import useDisplayValues from '../../hooks/displayValues';
-import { IService } from '@synonymdev/blocktank-client';
 import Button from '../../components/Button';
 import { buyChannel, refreshOrder } from '../../store/actions/blocktank';
 import {
@@ -18,22 +15,14 @@ import {
 	showSuccessNotification,
 } from '../../utils/notifications';
 import { claimChannel } from '../../store/actions/lightning';
-import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import Clipboard from '@react-native-clipboard/clipboard';
 import SafeAreaView from '../../components/SafeAreaView';
+import type { RootStackParamList } from '../../navigation/types';
 
-interface Props extends PropsWithChildren<any> {
-	route: {
-		params: {
-			service: IService;
-			existingOrderId: string;
-		};
-	};
-	navigation: any;
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'BlocktankOrder'>;
 
 const Order = (props: Props): ReactElement => {
+	const { navigation, route } = props;
 	const {
 		service: {
 			product_id,
@@ -43,8 +32,7 @@ const Order = (props: Props): ReactElement => {
 			max_chan_expiry,
 		},
 		existingOrderId,
-	} = props.route.params;
-	const { navigation } = props;
+	} = route.params;
 
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);

@@ -8,7 +8,7 @@ import Store from '../../store/types';
 import { groupActivityItems } from '../../utils/activity';
 import Button from '../../components/Button';
 import ListItem from './ListItem';
-import { RootNavigationProp } from '../../navigation/root/RootNavigator';
+import { RootNavigationProp } from '../../navigation/types';
 
 const ActivityList = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();

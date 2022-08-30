@@ -1,5 +1,8 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import Clipboard from '@react-native-clipboard/clipboard';
+
 import {
 	Subtitle,
 	Title,
@@ -9,18 +12,10 @@ import {
 import NavigationHeader from '../../../components/NavigationHeader';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { getNodeId } from '../../../utils/lightning';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { showSuccessNotification } from '../../../utils/notifications';
-import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
-const LightningNodeInfo = ({
-	title,
-	showBackNavigation = true,
-}: {
-	title: string;
-	showBackNavigation: boolean;
-}): ReactElement => {
+const LightningNodeInfo = (): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -45,7 +40,7 @@ const LightningNodeInfo = ({
 	return (
 		<View style={styles.container} color="black">
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
+			<NavigationHeader displayBackButton />
 
 			<View style={styles.content} color="black">
 				<TouchableOpacity
@@ -72,7 +67,6 @@ const LightningNodeInfo = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: 'rgba(255, 255, 255, 0)',
 		alignItems: 'center',
 	},
 	content: {

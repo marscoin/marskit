@@ -18,7 +18,7 @@ import { btcToSats } from '../../utils/helpers';
 import { getDisplayValues } from '../../utils/exchange-rate';
 import { canBoost } from '../../utils/wallet/transactions';
 import { useNavigation } from '@react-navigation/native';
-import { RootNavigationProp } from '../../navigation/root/RootNavigator';
+import { RootNavigationProp } from '../../navigation/types';
 
 /**
  * Returns the appropriate text for the boost card.

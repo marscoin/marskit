@@ -27,7 +27,7 @@ import { updateActivityList } from '../../store/actions/activity';
 import { refreshWallet } from '../../utils/wallet';
 import { groupActivityItems, filterActivityItems } from '../../utils/activity';
 import ListItem from './ListItem';
-import type { RootNavigationProp } from '../../navigation/root/RootNavigator';
+import { RootNavigationProp } from '../../navigation/types';
 
 const ListHeaderComponent = memo(
 	(): ReactElement => {

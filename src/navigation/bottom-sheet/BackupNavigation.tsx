@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo, memo } from 'react';
-import { TransitionPresets } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
@@ -15,7 +14,6 @@ const Stack = createNativeStackNavigator();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
 const BackupNavigation = (): ReactElement => {

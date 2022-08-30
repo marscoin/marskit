@@ -1,5 +1,4 @@
 import React, { ReactElement, useMemo, memo } from 'react';
-import { TransitionPresets } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 
@@ -19,7 +18,6 @@ const Stack = createNativeStackNavigator();
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...TransitionPresets.SlideFromRightIOS,
 	detachInactiveScreens: true,
 };
 const ReceiveNavigation = (): ReactElement => {

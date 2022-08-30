@@ -1,5 +1,4 @@
 import React, {
-	PropsWithChildren,
 	ReactElement,
 	memo,
 	useCallback,
@@ -27,6 +26,7 @@ import {
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AnimatedView, Title, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
@@ -39,9 +39,9 @@ import Money from '../../../components/Money';
 import { EActivityTypes } from '../../../store/types/activity';
 import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
-import { TAssetType } from '../../../store/types/wallet';
 import BitcoinLogo from '../../../assets/bitcoin-logo.svg';
 import { capitalize } from '../../../utils/helpers';
+import type { RootStackParamList } from '../../../navigation/types';
 
 const Blur = Platform.OS === 'ios' ? BlurView : View;
 
@@ -59,13 +59,7 @@ const updateHeight = ({
 	} catch {}
 };
 
-interface Props extends PropsWithChildren<any> {
-	route: {
-		params: {
-			assetType: TAssetType;
-		};
-	};
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'WalletsDetail'>;
 
 const Glow = ({ colors }): ReactElement => {
 	const { size } = useCanvas();

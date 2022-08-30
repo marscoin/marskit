@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
 import { Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { TransitionPresets } from '@react-navigation/stack';
 import {
 	createNativeStackNavigator,
 	NativeStackNavigationProp,
@@ -18,26 +17,24 @@ import AuthCheck from '../../components/AuthCheck';
 import { receiveIcon, sendIcon } from '../../assets/icons/tabs';
 import { toggleView } from '../../store/actions/user';
 import useColors from '../../hooks/colors';
+import { TAssetType } from '../../store/types/wallet';
 
 export type TabNavigationProp = NativeStackNavigationProp<TabStackParamList>;
 
 export type TabStackParamList = {
 	Wallets: undefined;
-	WalletsDetail: undefined;
+	WalletsDetail: {
+		assetType: TAssetType;
+	};
 	AuthCheck: { onSuccess: () => void };
 };
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<TabStackParamList>();
-const transitionPreset =
-	Platform.OS === 'ios'
-		? TransitionPresets.SlideFromRightIOS
-		: TransitionPresets.DefaultTransition;
 
 const navOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	...transitionPreset,
 	detachInactiveScreens: true,
 };
 
@@ -47,7 +44,6 @@ const screenOptions = {
 
 const modalOptions = {
 	...navOptions,
-	...TransitionPresets.ModalSlideFromBottomIOS,
 };
 
 // BlurView + bottomtabsnavigation doesn't work on android
