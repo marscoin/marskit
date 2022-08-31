@@ -1,10 +1,8 @@
 import React, { ReactElement, memo, useMemo, useState } from 'react';
 import {
-	Platform,
 	StyleSheet,
 	TouchableOpacity,
 	View,
-	ViewProps,
 	GestureResponderEvent,
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
@@ -18,9 +16,6 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
-
-const Blur = (props: ViewProps): ReactElement =>
-	Platform.OS === 'ios' ? <BlurView {...props} /> : <View {...props} />;
 
 const Tab = ({
 	text,
@@ -97,39 +92,38 @@ const ActivityFiltered = (): ReactElement => {
 						const hh = e.nativeEvent.layout.height;
 						setRadiusContainerHeight((h) => (h === 0 ? hh : h));
 					}}>
-					<Blur>
-						<SafeAreaInsets type="top" />
-						<NavigationHeader title="All Activity" />
-						<View style={styles.formContainer}>
-							<SearchInput
-								style={styles.searchInput}
-								value={search}
-								onChangeText={setSearch}>
-								{tags.length > 0 && (
-									<View style={styles.tags}>
-										{tags.map((t) => (
-											<Tag
-												style={styles.tag}
-												key={t}
-												value={t}
-												onClose={(): void => removeTag(t)}
-											/>
-										))}
-									</View>
-								)}
-							</SearchInput>
-							<View style={styles.tabContainer}>
-								{Object.entries(filterTabsLabels).map(([key, label]) => (
-									<Tab
-										key={key}
-										text={label}
-										active={tab === key}
-										onPress={(): void => setTab(key)}
-									/>
-								))}
-							</View>
+					<BlurView style={styles.blur} />
+					<SafeAreaInsets type="top" />
+					<NavigationHeader title="All Activity" />
+					<View style={styles.formContainer}>
+						<SearchInput
+							style={styles.searchInput}
+							value={search}
+							onChangeText={setSearch}>
+							{tags.length > 0 && (
+								<View style={styles.tags}>
+									{tags.map((t) => (
+										<Tag
+											style={styles.tag}
+											key={t}
+											value={t}
+											onClose={(): void => removeTag(t)}
+										/>
+									))}
+								</View>
+							)}
+						</SearchInput>
+						<View style={styles.tabContainer}>
+							{Object.entries(filterTabsLabels).map(([key, label]) => (
+								<Tab
+									key={key}
+									text={label}
+									active={tab === key}
+									onPress={(): void => setTab(key)}
+								/>
+							))}
 						</View>
-					</Blur>
+					</View>
 				</View>
 			</ThemedView>
 			<FilterAccessory tags={tags} addTag={addTag} />
@@ -183,6 +177,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		marginTop: 8,
+	},
+	blur: {
+		...StyleSheet.absoluteFillObject,
 	},
 });
 

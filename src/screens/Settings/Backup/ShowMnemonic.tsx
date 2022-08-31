@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo, useState, useEffect } from 'react';
-import { StyleSheet, View, Platform, Alert } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@react-native-community/blur';
 
@@ -12,8 +12,6 @@ import {
 import NavigationHeader from '../../../components/NavigationHeader';
 import Button from '../../../components/Button';
 import { getMnemonicPhrase } from '../../../utils/wallet';
-
-const Blur = Platform.OS === 'ios' ? BlurView : ThemedView;
 
 const Word = ({
 	number,
@@ -78,14 +76,15 @@ const ShowMnemonic = ({ navigation }): ReactElement => {
 					</View>
 				</ThemedView>
 				{!show && (
-					<Blur style={styles.blur}>
+					<View style={styles.blurContainer}>
+						<BlurView style={styles.blur} />
 						<Button
 							size="lg"
 							text="Tap To Reveal"
 							color="black5"
 							onPress={(): void => setShow(true)}
 						/>
-					</Blur>
+					</View>
 				)}
 			</View>
 
@@ -127,7 +126,7 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 		flex: 1,
 	},
-	blur: {
+	blurContainer: {
 		position: 'absolute',
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -136,6 +135,9 @@ const styles = StyleSheet.create({
 		left: 5,
 		bottom: 5,
 		borderRadius: 10,
+	},
+	blur: {
+		...StyleSheet.absoluteFillObject,
 	},
 	nextButtonContainer: {
 		width: '100%',
