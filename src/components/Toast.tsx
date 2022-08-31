@@ -1,31 +1,11 @@
 import React, { ReactElement } from 'react';
-import { BlurView } from '@react-native-community/blur';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { ToastConfig, ToastConfigParams } from 'react-native-toast-message';
-import LinearGradient from 'react-native-linear-gradient';
-import {
-	View,
-	StyleSheet,
-	StyleProp,
-	ViewStyle,
-	Platform,
-	useWindowDimensions,
-} from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 
 import colors from '../styles/colors';
 import { Text01M, Text13S } from '../styles/components';
-
-type BlurViewProps = {
-	style: StyleProp<ViewStyle>;
-	[x: string]: any;
-};
-
-const Blur = ({ style, ...props }: BlurViewProps): ReactElement => {
-	return Platform.OS === 'ios' ? (
-		<BlurView {...props} style={style} />
-	) : (
-		<View {...props} style={[style, styles.containerAndroid]} />
-	);
-};
+import ToastGradient from '../components/HorizontalGradient';
 
 const Toast = ({
 	type,
@@ -49,36 +29,34 @@ const Toast = ({
 
 	if (type === 'error') {
 		titleColor = 'brand';
-		gradientColor = '#552200';
+		gradientColor = '#411a00';
 	}
 
 	return (
-		<LinearGradient
-			start={{ x: 1, y: 0 }}
-			end={{ x: 0, y: 0 }}
-			colors={['rgba(0, 15, 28, 0.5)', gradientColor]}
-			locations={[0, 0.5]}
-			style={[{ width: dimensions.width - 16 * 2 }, styles.linearGradient]}>
-			<Blur style={styles.container}>
-				<Text01M color={titleColor}>{text1}</Text01M>
-				<Text13S style={styles.description} color="gray1">
-					{text2}
-				</Text13S>
-			</Blur>
-		</LinearGradient>
+		<View style={[{ width: dimensions.width - 16 * 2 }, styles.container]}>
+			<BlurView style={styles.blur} />
+			<ToastGradient style={styles.gradient} color={gradientColor} />
+			<Text01M color={titleColor}>{text1}</Text01M>
+			<Text13S style={styles.description} color="gray1">
+				{text2}
+			</Text13S>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	linearGradient: {
-		borderRadius: 8,
-	},
 	container: {
 		borderRadius: 8,
 		padding: 16,
+		position: 'relative',
+		overflow: 'hidden',
 	},
-	containerAndroid: {
-		backgroundColor: 'rgba(30, 30, 30, 0.7)',
+	blur: {
+		...StyleSheet.absoluteFillObject,
+		padding: 16,
+	},
+	gradient: {
+		...StyleSheet.absoluteFillObject,
 	},
 	description: {
 		marginTop: 3,
