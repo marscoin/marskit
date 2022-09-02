@@ -26,6 +26,7 @@ import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { handleSlashtagURL } from '../../utils/slashtags';
 import { IContactRecord } from '../../store/types/slashtags';
 import { useSlashtagsContacts } from '../../components/SlashtagContactsProvider';
+import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
 
 export const Contacts = ({ navigation }): JSX.Element => {
 	const onboardedContacts = useSelector(
@@ -59,6 +60,8 @@ const ContactsScreen = ({ navigation }): JSX.Element => {
 	);
 
 	const { url: myProfileURL, profile } = useSelectedSlashtag();
+
+	useBottomSheetBackPress('addContactModal');
 
 	const sectionedContacts = useMemo(() => {
 		const sections: { [char: string]: IContactRecord[] } = {};

@@ -21,6 +21,7 @@ import ProfileLinks from '../../components/ProfileLinks';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
+import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
 
 export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
@@ -36,6 +37,8 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const onboardedProfile =
 		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
 		'Done';
+
+	useBottomSheetBackPress('profileAddLinkForm');
 
 	useEffect(() => {
 		const savedLinks = savedProfile?.links || [];
