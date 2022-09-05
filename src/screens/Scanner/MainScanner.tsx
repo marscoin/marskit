@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { handleData, decodeQRData } from '../../utils/scanner';
+import { processInputData } from '../../utils/scanner';
 import Store from '../../store/types';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -18,22 +18,19 @@ const ScannerScreen = ({ navigation }): ReactElement => {
 	);
 
 	const onRead = async (data): Promise<void> => {
-		const res = await decodeQRData(data, selectedNetwork);
-		if (res.isErr() || (res.isOk() && res.value.length === 0)) {
+		if (!data) {
 			showErrorNotification({
-				title: 'QR code',
-				message: 'Sorry. Bitkit can’t read this QR code.',
+				title: 'No Data Detected',
+				message: 'Sorry. Bitkit is not able to read this QR code.',
 			});
 			return;
 		}
-
 		navigation.pop();
-
-		await handleData({
-			qrData: res.value,
+		processInputData({
+			data,
 			selectedNetwork,
 			selectedWallet,
-		});
+		}).then();
 	};
 
 	return (
@@ -53,4 +50,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ScannerScreen;
+export default memo(ScannerScreen);
