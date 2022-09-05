@@ -3,8 +3,8 @@ import {
 	IDefaultWalletShape,
 	EWallet,
 	IWallet,
-	IOnChainTransactionData,
-	defaultOnChainTransactionData,
+	IBitcoinTransactionData,
+	defaultBitcoinTransactionData,
 	IKeyDerivationPath,
 	IAddressType,
 	TAssetNetwork,
@@ -33,10 +33,10 @@ export const addressTypes: IAddressType = {
 	},
 };
 
-export const onChainTransaction: IWalletItem<IOnChainTransactionData> = {
-	bitcoin: defaultOnChainTransactionData,
-	bitcoinTestnet: defaultOnChainTransactionData,
-	bitcoinRegtest: defaultOnChainTransactionData,
+export const bitcoinTransaction: IWalletItem<IBitcoinTransactionData> = {
+	bitcoin: defaultBitcoinTransactionData,
+	bitcoinTestnet: defaultBitcoinTransactionData,
+	bitcoinRegtest: defaultBitcoinTransactionData,
 };
 
 export const numberTypeItems: IWalletItem<number> = {
@@ -158,7 +158,7 @@ export const defaultWalletShape: IDefaultWalletShape = {
 		bitcoinRegtest: EWallet.addressType,
 	},
 	rbfData: objectTypeItems,
-	transaction: onChainTransaction,
+	transaction: bitcoinTransaction,
 };
 
 export const defaultWalletStoreShape: IWallet = {

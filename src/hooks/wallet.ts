@@ -31,7 +31,17 @@ export function useBalance({
 		}
 
 		if (lightning) {
-			//TODO: Iterate over each lightning channel and acquire the total balance.
+			const channels =
+				store.lightning.nodes[selectedWallet]?.channels[selectedNetwork];
+			balance = Object.values(channels).reduce(
+				(previousValue, currentChannel) => {
+					if (currentChannel?.short_channel_id) {
+						return previousValue + currentChannel.balance_sat;
+					}
+					return previousValue;
+				},
+				balance,
+			);
 		}
 
 		return balance;

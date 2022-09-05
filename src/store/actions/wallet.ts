@@ -6,7 +6,7 @@ import {
 	ICreateWallet,
 	IFormattedTransaction,
 	IKeyDerivationPath,
-	IOnChainTransactionData,
+	IBitcoinTransactionData,
 	IOutput,
 	IUtxo,
 	TAddressType,
@@ -345,6 +345,7 @@ export const generateNewReceiveAddress = async ({
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {IKeyDerivationPath} [keyDerivationPath]
  * @param {TAddressType} [addressType]
+ * @param {string} [seed]
  * @return {Promise<Result<IGenerateAddressesResponse>>}
  */
 export const addAddresses = async ({
@@ -768,7 +769,7 @@ export const setupOnChainTransaction = async ({
 	addressType?: TAddressType; // Preferred address type for change address.
 	rbf?: boolean; // Enable or disable rbf.
 	submitDispatch?: boolean; //Should we dispatch this and update the store.
-} = {}): Promise<Result<IOnChainTransactionData>> => {
+} = {}): Promise<Result<IBitcoinTransactionData>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -816,13 +817,16 @@ export const setupOnChainTransaction = async ({
 			}
 		});
 
+		const lightningInvoice =
+			currentWallet.transaction[selectedNetwork]?.lightningInvoice;
+
 		const payload = {
 			selectedNetwork,
 			selectedWallet,
 			inputs,
 			changeAddress,
 			fee,
-			outputs: newOutputs,
+			outputs: lightningInvoice ? outputs : newOutputs, // This will ensure we keep the specified output or invoice value.
 			rbf,
 		};
 
@@ -849,12 +853,12 @@ export interface IUpdateOutput extends IOutput {
  * @param transaction
  * @return {Promise<void>}
  */
-export const updateOnChainTransaction = async ({
+export const updateBitcoinTransaction = async ({
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 	transaction,
 }: {
-	transaction: IOnChainTransactionData;
+	transaction: IBitcoinTransactionData;
 	selectedWallet?: string | undefined;
 	selectedNetwork?: TAvailableNetworks | undefined;
 }): Promise<void> => {
@@ -931,7 +935,7 @@ export const updateSelectedFeeId = async ({
 		}
 		const transaction = transactionResponse.value;
 		transaction.selectedFeeId = feeId;
-		return await updateOnChainTransaction({ transaction });
+		return await updateBitcoinTransaction({ transaction });
 	} catch {}
 };
 
@@ -1025,7 +1029,7 @@ export const removeTxInput = ({
 				return txInput;
 			}
 		});
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {
@@ -1070,7 +1074,7 @@ export const addTxInput = ({
 		}
 		const inputs = txData.value?.inputs ?? [];
 		const newInputs = [...inputs, input];
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {
@@ -1117,7 +1121,7 @@ export const addTxTag = ({
 		let tags = [...(txData.value?.tags ?? []), tag];
 		tags = [...new Set(tags)]; // remove duplicates
 
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {
@@ -1165,7 +1169,7 @@ export const removeTxTag = ({
 		const tags = txData.value?.tags ?? [];
 		const newTags = tags.filter((t) => t !== tag);
 
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {

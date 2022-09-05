@@ -1,6 +1,6 @@
 import actions from '../actions/actions';
 import {
-	defaultOnChainTransactionData,
+	defaultBitcoinTransactionData,
 	EOutput,
 	IWallet,
 } from '../types/wallet';
@@ -270,7 +270,7 @@ const wallet = (state = { ...defaultWalletStoreShape }, action): IWallet => {
 						transaction: {
 							...state.wallets[selectedWallet].transaction,
 							[selectedNetwork]: {
-								...defaultOnChainTransactionData,
+								...defaultBitcoinTransactionData,
 								outputs: [EOutput],
 							},
 						},

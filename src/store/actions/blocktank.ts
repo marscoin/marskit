@@ -7,7 +7,7 @@ import {
 	IFinalizeChannelResponse,
 } from '@synonymdev/blocktank-client';
 import * as blocktank from '../../utils/blocktank';
-import { setupOnChainTransaction, updateOnChainTransaction } from './wallet';
+import { setupOnChainTransaction, updateBitcoinTransaction } from './wallet';
 import {
 	getBalance,
 	getSelectedNetwork,
@@ -147,7 +147,11 @@ export const autoBuyChannel = async ({
 		return err(nodeId.error.message);
 	}
 
-	const { satoshis } = getBalance({ onchain: true, selectedNetwork });
+	const { satoshis } = getBalance({
+		onchain: true,
+		selectedNetwork,
+		selectedWallet,
+	});
 	if (!satoshis || satoshis < 2000) {
 		return err('Please send at least 2000 satoshis to your wallet.');
 	}
@@ -168,8 +172,12 @@ export const autoBuyChannel = async ({
 	if (buyChannelResponse.isErr()) {
 		return err(buyChannelResponse.error.message);
 	}
-	await setupOnChainTransaction({ rbf: false });
-	await updateOnChainTransaction({
+	await setupOnChainTransaction({
+		rbf: false,
+		selectedNetwork,
+		selectedWallet,
+	});
+	await updateBitcoinTransaction({
 		transaction: {
 			outputs: [
 				{
@@ -179,10 +187,12 @@ export const autoBuyChannel = async ({
 				},
 			],
 		},
+		selectedNetwork,
+		selectedWallet,
 	});
-	await updateFee({ satsPerByte: 4, selectedNetwork });
+	await updateFee({ satsPerByte: 4, selectedNetwork, selectedWallet });
 	console.log('Creating Transaction...');
-	const rawTx = await createTransaction({ selectedNetwork });
+	const rawTx = await createTransaction({ selectedNetwork, selectedWallet });
 	console.log('rawTx:', rawTx);
 	if (rawTx.isErr()) {
 		return err(rawTx.error.message);
@@ -191,6 +201,7 @@ export const autoBuyChannel = async ({
 	const broadcastResponse = await broadcastTransaction({
 		rawTx: rawTx.value.hex,
 		selectedNetwork,
+		selectedWallet,
 	});
 	console.log('broadcastResponse: ', broadcastResponse);
 	if (broadcastResponse.isErr()) {

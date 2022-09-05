@@ -16,7 +16,7 @@ import NumberPad from '../../../components/NumberPad';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import { toggleView } from '../../../store/actions/user';
 import Store from '../../../store/types';
-import { defaultOnChainTransactionData } from '../../../store/types/wallet';
+import { defaultBitcoinTransactionData } from '../../../store/types/wallet';
 import {
 	fiatToBitcoinUnit,
 	getDisplayValues,
@@ -54,7 +54,7 @@ const OnChainNumberPad = (): ReactElement => {
 	const transaction = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			defaultOnChainTransactionData,
+			defaultBitcoinTransactionData,
 	);
 
 	useBottomSheetBackPress('numberPad');

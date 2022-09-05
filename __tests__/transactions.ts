@@ -1,7 +1,7 @@
 import {
 	createWallet,
 	setupOnChainTransaction,
-	updateOnChainTransaction,
+	updateBitcoinTransaction,
 	updateWallet,
 } from '../src/store/actions/wallet';
 import { getSelectedWallet } from '../src/utils/wallet';
@@ -28,7 +28,7 @@ describe('On chain transactions', () => {
 	it('Creates an on chain transaction from the transaction store', async () => {
 		const selectedWallet = getSelectedWallet();
 
-		await updateOnChainTransaction({
+		await updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: {

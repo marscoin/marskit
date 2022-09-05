@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useEffect,
 	useMemo,
+	useState,
 } from 'react';
 import {
 	StyleSheet,
@@ -32,17 +33,26 @@ import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
 import OnChainNumberPad from '../SendOnChainTransaction/OnChainNumberPad';
 import Store from '../../../store/types';
-import { IOutput } from '../../../store/types/wallet';
+import { ETransactionDefaults, IOutput } from '../../../store/types/wallet';
 import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
 import {
-	updateOnChainTransaction,
 	removeTxTag,
+	updateBitcoinTransaction,
 } from '../../../store/actions/wallet';
-import { showErrorNotification } from '../../../utils/notifications';
+import {
+	showErrorNotification,
+	showInfoNotification,
+} from '../../../utils/notifications';
 import { useTransactionDetails } from '../../../hooks/transaction';
 import useColors from '../../../hooks/colors';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 import { toggleView } from '../../../store/actions/user';
+import {
+	decodeLightningInvoice,
+	milliSatoshisToSatoshis,
+} from '../../../utils/lightning';
+import { TInvoice } from '@synonymdev/react-native-ldk';
+import { processInputData } from '../../../utils/scanner';
 
 const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();
@@ -66,8 +76,37 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const coinSelectAuto = useSelector(
 		(state: Store) => state.settings.coinSelectAuto,
 	);
+
+	const [decodedInvoice, setDecodedInvoice] = useState<undefined | TInvoice>(
+		undefined,
+	);
 	const transaction = useTransactionDetails();
 	const displayBackButton = initial === 'SendAssetPickerList';
+
+	const getDecodeAndSetLightningInvoice = async (): Promise<void> => {
+		try {
+			if (!transaction?.lightningInvoice) {
+				setDecodedInvoice(undefined);
+				return;
+			}
+			const decodeInvoiceResponse = await decodeLightningInvoice({
+				paymentRequest: transaction.lightningInvoice,
+			});
+			if (decodeInvoiceResponse.isErr()) {
+				setDecodedInvoice(undefined);
+				return;
+			}
+			setDecodedInvoice(decodeInvoiceResponse.value);
+		} catch (e) {
+			setDecodedInvoice(undefined);
+			console.log(e);
+		}
+	};
+
+	useEffect(() => {
+		getDecodeAndSetLightningInvoice().then();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [transaction.lightningInvoice]);
 
 	/*
 	 * Total value of all outputs. Excludes change address.
@@ -82,7 +121,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 			return 0;
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [transaction.outputs, selectedNetwork, selectedWallet]);
+	}, [transaction?.outputs, selectedNetwork, selectedWallet]);
 
 	/**
 	 * Returns the current output by index.
@@ -108,59 +147,69 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	}, [getOutput?.address]);
 
 	/**
+	 * Returns the current lightningInvoice.
+	 */
+	const lightningInvoice = useMemo((): string => {
+		try {
+			return transaction?.lightningInvoice || '';
+		} catch (e) {
+			console.log(e);
+			return '';
+		}
+	}, [transaction?.lightningInvoice]);
+
+	// Holds decoded lightning invoice amount in satoshis
+	const decodedInvoiceAmount = useMemo(() => {
+		if (
+			lightningInvoice &&
+			decodedInvoice?.amount_milli_satoshis &&
+			decodedInvoice?.amount_milli_satoshis > 0
+		) {
+			return milliSatoshisToSatoshis(decodedInvoice?.amount_milli_satoshis);
+		}
+		return 0;
+	}, [decodedInvoice?.amount_milli_satoshis, lightningInvoice]);
+
+	/**
 	 * Returns the value of the current output.
 	 */
 	const value = useMemo((): number => {
 		try {
-			return getOutput?.value || 0;
+			return lightningInvoice ? decodedInvoiceAmount : getOutput?.value ?? 0;
 		} catch (e) {
 			return 0;
 		}
-	}, [getOutput?.value]);
+	}, [decodedInvoiceAmount, getOutput?.value, lightningInvoice]);
 
 	const handlePaste = useCallback(async () => {
-		const data = await Clipboard.getString();
-		if (!data) {
+		const clipboardData = await Clipboard.getString();
+		if (!clipboardData) {
 			showErrorNotification({
 				title: 'Clipboard is empty',
 				message: 'No address data available.',
 			});
 			return;
 		}
-		data.replace('bitcoinRegtest:', '');
-		data.replace('bitcoinTestnet:', '');
-		data.replace('bitcoin:', '');
-		const addressIsValid = validate(data);
-		if (!addressIsValid) {
-			showErrorNotification({
-				title: 'Address is not valid.',
-				message: 'No address data available.',
-			});
-			return;
-		}
-		updateOnChainTransaction({
-			selectedWallet,
+		const result = await processInputData({
+			data: clipboardData,
 			selectedNetwork,
-			transaction: {
-				outputs: [{ address: data, value, index }],
-			},
-		}).then();
-	}, [index, selectedNetwork, selectedWallet, value]);
-
-	const handleScan = useCallback(async () => {
-		const onScan = (data): void => {
-			const newAddress = data.address ?? address;
-			const newValue = data.sats ?? value;
-			updateOnChainTransaction({
+			selectedWallet,
+		});
+		if (result.isErr()) {
+			// Even though we're not able to interpret the data, pass it to the text input for editing.
+			updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
 				transaction: {
-					outputs: [{ address: newAddress, value: newValue, index }],
+					outputs: [{ address: clipboardData, value, index }],
 				},
 			}).then();
-		};
-		navigation.navigate('Scanner', { onScan });
-	}, [address, value, index, selectedNetwork, selectedWallet, navigation]);
+		}
+	}, [index, selectedNetwork, selectedWallet, value]);
+
+	const handleScan = useCallback(async () => {
+		navigation.navigate('Scanner');
+	}, [navigation]);
 
 	const handleTagRemove = useCallback(
 		(tag) => {
@@ -183,10 +232,55 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		});
 	}, []);
 
+	const onBlur = useCallback(async (): Promise<void> => {
+		// Continue updating the on-chain information as we would previously.
+		let tx = {
+			outputs: [{ address, value, index }],
+			lightningInvoice: '',
+		};
+		// Attempt to decode what may be a lightning invoice.
+		const decodeInvoiceResponse = await decodeLightningInvoice({
+			paymentRequest: address,
+		});
+		// Set lightning invoice if successfully decoded.
+		if (decodeInvoiceResponse.isOk()) {
+			tx.lightningInvoice = address;
+		}
+		updateBitcoinTransaction({
+			selectedWallet,
+			selectedNetwork,
+			transaction: tx,
+		}).then();
+	}, [address, index, selectedNetwork, selectedWallet, value]);
+
+	const onChangeText = useCallback(
+		(txt: string) => {
+			updateBitcoinTransaction({
+				selectedWallet,
+				selectedNetwork,
+				transaction: {
+					outputs: [{ address: txt, value, index }],
+					lightningInvoice: '',
+				},
+			}).then();
+		},
+		[index, selectedNetwork, selectedWallet, value],
+	);
+
 	useEffect(() => {
 		// try to update fees on this screen, because they will be used on next one
-		updateOnchainFeeEstimates({ selectedNetwork });
+		updateOnchainFeeEstimates({ selectedNetwork }).then();
 	}, [selectedNetwork]);
+
+	const nextButtonIsDisabled = useCallback(() => {
+		if (
+			validate(address) &&
+			amount <= ETransactionDefaults.recommendedBaseFee
+		) {
+			return true;
+		}
+		return !validate(address) && !transaction?.lightningInvoice;
+	}, [address, amount, transaction?.lightningInvoice]);
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
@@ -198,7 +292,17 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 			<View style={styles.content}>
 				<AmountToggle
 					sats={amount}
-					onPress={onTogglePress}
+					onPress={(): void => {
+						// If the decoded invoice amount is set to anything greater than 0 we are not able to adjust the amount.
+						if (lightningInvoice && decodedInvoiceAmount > 0) {
+							showInfoNotification({
+								title: 'Unable To Update Amount',
+								message: `The invoice requires that ${amount} sats be paid`,
+							});
+							return;
+						}
+						onTogglePress();
+					}}
 					style={styles.amountToggle}
 					reverse={true}
 					space={16}
@@ -223,16 +327,9 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						placeholder="Paste or scan an address, invoice or select a contact"
 						autoCapitalize="none"
 						autoCorrect={false}
-						onChangeText={(txt): void => {
-							updateOnChainTransaction({
-								selectedWallet,
-								selectedNetwork,
-								transaction: {
-									outputs: [{ address: txt, value, index }],
-								},
-							}).then();
-						}}
-						value={address}
+						onBlur={onBlur}
+						onChangeText={onChangeText}
+						value={lightningInvoice || address}
 						blurOnSubmit={true}
 					/>
 					<View style={styles.inputActions}>
@@ -274,12 +371,15 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 					<Button
 						size="lg"
 						text="Next"
-						disabled={!validate(address) || !value}
-						onPress={(): void =>
-							navigation.navigate(
-								coinSelectAuto ? 'ReviewAndSend' : 'CoinSelection',
-							)
-						}
+						disabled={nextButtonIsDisabled()}
+						onPress={(): void => {
+							let view = 'ReviewAndSend';
+							// If coin select is enabled and there is no lightning invoice.
+							if (coinSelectAuto && !transaction?.lightningInvoice) {
+								view = 'CoinSelection';
+							}
+							navigation.navigate(view);
+						}}
 					/>
 				</View>
 			</View>
@@ -315,6 +415,7 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		fontWeight: '600',
 		minHeight: 70,
+		maxHeight: 100,
 	},
 	inputActions: {
 		position: 'absolute',

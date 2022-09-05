@@ -1,45 +1,35 @@
-import React, { ReactElement } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { decodeQRData, EQRDataType } from '../../../utils/scanner';
+import { processInputData } from '../../../utils/scanner';
 import Store from '../../../store/types';
 import NavigationHeader from '../../../components/NavigationHeader';
 import ScannerComponent from '../../Scanner/ScannerComponent';
 import { showErrorNotification } from '../../../utils/notifications';
 
-const ScannerScreen = ({ navigation, route }): ReactElement => {
-	const { onScan } = route.params;
-
+const ScannerScreen = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
 
 	const onRead = async (data): Promise<void> => {
-		const res = await decodeQRData(data, selectedNetwork);
-
-		if (res.isErr()) {
+		if (!data) {
 			showErrorNotification({
-				title: 'Sorry. Bitkit can’t read this QR code.',
-				message: res.error.message,
+				title: 'No Data Detected',
+				message: 'Sorry. Bitkit is not able to read this QR code.',
 			});
 			return;
 		}
-
-		const bitcoinAddress = res.value.find(
-			({ qrDataType }) => qrDataType === EQRDataType.bitcoinAddress,
-		);
-
-		if (!bitcoinAddress) {
-			showErrorNotification({
-				title: 'QR code',
-				message: "Sorry. We couldn't find Bitcoin address.",
-			});
-			return;
-		}
-
 		navigation.pop();
-		onScan(bitcoinAddress);
+		processInputData({
+			data,
+			selectedNetwork,
+			selectedWallet,
+		}).then();
 	};
 
 	return (
@@ -55,4 +45,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ScannerScreen;
+export default memo(ScannerScreen);
