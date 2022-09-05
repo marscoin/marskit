@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import {
-	defaultOnChainTransactionData,
+	defaultBitcoinTransactionData,
 	IAddressContent,
-	IOnChainTransactionData,
+	IBitcoinTransactionData,
 } from '../store/types/wallet';
 import { reduceValue } from '../utils/helpers';
 import { EFeeIds } from '../store/types/fees';
@@ -11,7 +11,7 @@ import { EFeeIds } from '../store/types/fees';
 /**
  * Current transaction object of the selectedWallet/Network.
  */
-export function useTransactionDetails(): IOnChainTransactionData {
+export function useTransactionDetails(): IBitcoinTransactionData {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
@@ -22,7 +22,7 @@ export function useTransactionDetails(): IOnChainTransactionData {
 	const transaction = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			defaultOnChainTransactionData,
+			defaultBitcoinTransactionData,
 	);
 
 	return transaction;

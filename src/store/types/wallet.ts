@@ -189,7 +189,7 @@ export interface IFormattedTransaction {
 	[key: string]: IFormattedTransactionContent;
 }
 
-export interface IOnChainTransactionData {
+export interface IBitcoinTransactionData {
 	outputs?: IOutput[];
 	inputs?: IUtxo[];
 	changeAddress?: string;
@@ -204,9 +204,10 @@ export interface IOnChainTransactionData {
 	minFee?: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
 	max?: boolean; // If the user intends to send the max amount.
 	tags?: string[];
+	lightningInvoice?: string;
 }
 
-export const defaultOnChainTransactionData: IOnChainTransactionData = {
+export const defaultBitcoinTransactionData: IBitcoinTransactionData = {
 	outputs: [],
 	inputs: [],
 	changeAddress: '',
@@ -221,6 +222,7 @@ export const defaultOnChainTransactionData: IOnChainTransactionData = {
 	minFee: 1,
 	max: false,
 	tags: [],
+	lightningInvoice: '',
 };
 
 export interface IDefaultWalletShape {
@@ -250,7 +252,7 @@ export interface IDefaultWalletShape {
 		bitcoinRegtest: TAddressType;
 	};
 	rbfData: IWalletItem<object>;
-	transaction: IWalletItem<IOnChainTransactionData>;
+	transaction: IWalletItem<IBitcoinTransactionData>;
 }
 
 export interface IDefaultWallet {

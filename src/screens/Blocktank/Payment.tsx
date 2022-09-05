@@ -12,7 +12,7 @@ import { Text } from '../../styles/components';
 import {
 	resetOnChainTransaction,
 	setupOnChainTransaction,
-	updateOnChainTransaction,
+	updateBitcoinTransaction,
 	updateWalletBalance,
 } from '../../store/actions/wallet';
 import { useBalance, useTransactionDetails } from '../../hooks/transaction';
@@ -60,7 +60,7 @@ const BlocktankPayment = (props: Props): ReactElement => {
 			selectedNetwork,
 		});
 
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedWallet,
 			selectedNetwork,
 			transaction: {

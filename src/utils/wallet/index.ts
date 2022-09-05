@@ -14,7 +14,7 @@ import {
 	IDefaultWalletShape,
 	IFormattedTransaction,
 	IKeyDerivationPath,
-	IOnChainTransactionData,
+	IBitcoinTransactionData,
 	IOutput,
 	IUtxo,
 	TAddressType,
@@ -1903,12 +1903,12 @@ export const getRbfData = async ({
 };
 
 /**
- * Converts IRbfData to IOnChainTransactionData.
+ * Converts IRbfData to IBitcoinTransactionData.
  * @param data
  */
 export const formatRbfData = async (
 	data: IRbfData,
-): Promise<IOnChainTransactionData> => {
+): Promise<IBitcoinTransactionData> => {
 	const { selectedWallet, inputs, outputs, fee, selectedNetwork, message } =
 		data;
 
@@ -2535,7 +2535,17 @@ export const getBalance = ({
 	}
 
 	if (lightning) {
-		// TODO: Get LDK channel balance.
+		const channels =
+			getStore().lightning.nodes[selectedWallet]?.channels[selectedNetwork];
+		balance = Object.values(channels).reduce(
+			(previousValue, currentChannel) => {
+				if (currentChannel?.short_channel_id) {
+					return previousValue + currentChannel.balance_sat;
+				}
+				return previousValue;
+			},
+			balance,
+		);
 	}
 
 	return getDisplayValues({ satoshis: balance });

@@ -4,9 +4,9 @@ import { validateAddress } from '../scanner';
 import { EAvailableNetworks, networks, TAvailableNetworks } from '../networks';
 import { btcToSats, getKeychainValue, reduceValue } from '../helpers';
 import {
-	defaultOnChainTransactionData,
+	defaultBitcoinTransactionData,
 	ETransactionDefaults,
-	IOnChainTransactionData,
+	IBitcoinTransactionData,
 	IOutput,
 	IUtxo,
 	TAddressType,
@@ -36,7 +36,7 @@ import {
 	addBoostedTransaction,
 	deleteOnChainTransactionById,
 	setupOnChainTransaction,
-	updateOnChainTransaction,
+	updateBitcoinTransaction,
 } from '../../store/actions/wallet';
 import { TCoinSelectPreference } from '../../store/types/settings';
 import { showErrorNotification } from '../notifications';
@@ -324,7 +324,7 @@ export const getTotalFee = ({
 	selectedNetwork?: undefined | TAvailableNetworks;
 	message?: string;
 	fundingLightning?: boolean | undefined;
-	transaction?: IOnChainTransactionData | undefined;
+	transaction?: IBitcoinTransactionData;
 }): number => {
 	const fallBackFee = ETransactionDefaults.recommendedBaseFee;
 	try {
@@ -381,7 +381,7 @@ export const getTotalFee = ({
 export interface ICreateTransaction {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-	transactionData?: IOnChainTransactionData;
+	transactionData?: IBitcoinTransactionData;
 }
 
 export interface ICreatePsbt {
@@ -441,7 +441,7 @@ const createPsbtFromTransactionData = async ({
 }: {
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
-	transactionData: IOnChainTransactionData;
+	transactionData: IBitcoinTransactionData;
 }): Promise<Result<Psbt>> => {
 	const {
 		inputs = [],
@@ -633,7 +633,7 @@ export const signPsbt = ({
  * Creates complete signed transaction using the transaction data store
  * @param selectedWallet
  * @param selectedNetwork
- * @param {IOnChainTransactionData} [transactionData]
+ * @param {IBitcoinTransactionData} [transactionData]
  * @returns {Promise<Result<{id: string, hex: string}>>}
  */
 export const createTransaction = ({
@@ -729,7 +729,7 @@ export const getOnchainTransactionData = ({
 }: {
 	selectedWallet: string | undefined;
 	selectedNetwork: TAvailableNetworks | undefined;
-}): Result<IOnChainTransactionData> => {
+}): Result<IBitcoinTransactionData> => {
 	try {
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
@@ -1013,7 +1013,7 @@ export const getTransactionInputs = ({
  * @param {EFeeIds} [selectedFeeId]
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
- * @param {IOnChainTransactionData} [transaction]
+ * @param {IBitcoinTransactionData} [transaction]
  */
 export const updateFee = ({
 	satsPerByte = 1,
@@ -1026,7 +1026,7 @@ export const updateFee = ({
 	selectedFeeId?: EFeeIds;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 }): Result<string> => {
 	// if (!satsPerByte || satsPerByte < 1) {
 	if (satsPerByte === undefined) {
@@ -1047,7 +1047,7 @@ export const updateFee = ({
 			return err(transactionDataResponse.error.message);
 		}
 		transaction =
-			transactionDataResponse?.value ?? defaultOnChainTransactionData;
+			transactionDataResponse?.value ?? defaultBitcoinTransactionData;
 	}
 	const inputTotal = getTransactionInputValue({
 		selectedNetwork,
@@ -1067,13 +1067,13 @@ export const updateFee = ({
 		selectedNetwork,
 	});
 	const newTotalAmount = Number(totalTransactionValue) + Number(newFee);
-	const _transaction: IOnChainTransactionData = {
+	const _transaction: IBitcoinTransactionData = {
 		satsPerByte,
 		fee: newFee,
 		selectedFeeId,
 	};
 	if (newTotalAmount <= inputTotal) {
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: _transaction,
@@ -1277,11 +1277,11 @@ export const autoCoinSelect = async ({
 
 /**
  * Used to validate transaction form data.
- * @param {IOnChainTransactionData} transaction
+ * @param {IBitcoinTransactionData} transaction
  * @return {Result<string>}
  */
 export const validateTransaction = (
-	transaction: IOnChainTransactionData,
+	transaction: IBitcoinTransactionData,
 ): Result<string> => {
 	try {
 		if (!transaction) {
@@ -1427,7 +1427,7 @@ export const sendMax = ({
 	index = 0,
 }: {
 	address?: string;
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
 	index?: number;
@@ -1480,19 +1480,19 @@ export const sendMax = ({
 			const totalNewAmount = totalTransactionValue + newFee;
 
 			if (totalNewAmount <= inputTotal) {
-				const _transaction: IOnChainTransactionData = {
+				const _transaction: IBitcoinTransactionData = {
 					fee: newFee,
 					outputs: [{ address, value: inputTotal - newFee, index }],
 					max: !max,
 				};
-				updateOnChainTransaction({
+				updateBitcoinTransaction({
 					selectedWallet,
 					selectedNetwork,
 					transaction: _transaction,
 				}).then();
 			}
 		} else {
-			updateOnChainTransaction({
+			updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
 				transaction: { max: !max },
@@ -1506,7 +1506,7 @@ export const sendMax = ({
 
 /**
  * Increases the fee by a given sat per byte.
- * @param {IOnChainTransactionData} [transaction]
+ * @param {IBitcoinTransactionData} [transaction]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
  * @param {number} [index]
@@ -1519,7 +1519,7 @@ export const adjustFee = ({
 	index = 0,
 	adjustBy = 1,
 }: {
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
 	index?: number;
@@ -1574,14 +1574,14 @@ export const adjustFee = ({
 					'Unable to increase the fee any further. Otherwise, it will exceed half the current balance.',
 				);
 			}
-			const _transaction: IOnChainTransactionData = {
+			const _transaction: IBitcoinTransactionData = {
 				satsPerByte: newSatsPerByte,
 				selectedFeeId: EFeeIds.custom,
 				fee: newFee,
 			};
 			//Update the tx value with the new fee to continue sending the max amount.
 			_transaction.outputs = [{ address, value: inputTotal - newFee, index }];
-			updateOnChainTransaction({
+			updateBitcoinTransaction({
 				selectedNetwork,
 				selectedWallet,
 				transaction: _transaction,
@@ -1607,7 +1607,7 @@ export const adjustFee = ({
  * Updates the amount to send for the currently selected output.
  * @param {string} amount
  * @param {number} [index]
- * @param {IOnChainTransactionData} [transaction]
+ * @param {IBitcoinTransactionData} [transaction]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
  * @param {boolean} [max]
@@ -1622,7 +1622,7 @@ export const updateAmount = async ({
 }: {
 	amount: string;
 	index?: number;
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
 	max?: boolean;
@@ -1693,7 +1693,7 @@ export const updateAmount = async ({
 	}
 
 	const output = { address, value: newAmount, index };
-	await updateOnChainTransaction({
+	await updateBitcoinTransaction({
 		selectedWallet,
 		selectedNetwork,
 		transaction: {
@@ -1707,7 +1707,7 @@ export const updateAmount = async ({
 /**
  * Updates the OP_RETURN message.
  * @param {string} message
- * @param {IOnChainTransactionData} [transaction]
+ * @param {IBitcoinTransactionData} [transaction]
  * @param {number} [index]
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
@@ -1720,7 +1720,7 @@ export const updateMessage = async ({
 	selectedNetwork,
 }: {
 	message: string;
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 	index?: number;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
@@ -1762,33 +1762,33 @@ export const updateMessage = async ({
 	if (outputs?.length > index) {
 		address = outputs[index].address ?? '';
 	}
-	const _transaction: IOnChainTransactionData = {
+	const _transaction: IBitcoinTransactionData = {
 		message,
 		fee: newFee,
 	};
 	if (max) {
 		_transaction.outputs = [{ address, value: inputTotal - newFee, index }];
 		//Update the tx value with the new fee to continue sending the max amount.
-		updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: _transaction,
-		});
+		}).then();
 		return ok('Successfully updated the message.');
 	}
 	if (totalNewAmount <= inputTotal) {
-		await updateOnChainTransaction({
+		updateBitcoinTransaction({
 			selectedNetwork,
 			selectedWallet,
 			transaction: _transaction,
-		});
+		}).then();
 	}
 	return ok('Successfully updated the message.');
 };
 
 /**
  * Runs & Applies the autoCoinSelect method to the current transaction.
- * @param {IOnChainTransactionData} [transaction]
+ * @param {IBitcoinTransactionData} [transaction]
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  */
@@ -1799,7 +1799,7 @@ const runCoinSelect = async ({
 	selectedWallet,
 	selectedNetwork,
 }: {
-	transaction?: IOnChainTransactionData;
+	transaction?: IBitcoinTransactionData;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
 }): Promise<Result<string>> => {
@@ -1844,11 +1844,11 @@ const runCoinSelect = async ({
 		if (
 			transaction?.inputs?.length !== autoCoinSelectResponse.value.inputs.length
 		) {
-			const updatedTx: IOnChainTransactionData = {
+			const updatedTx: IBitcoinTransactionData = {
 				fee: autoCoinSelectResponse.value.fee,
 				inputs: autoCoinSelectResponse.value.inputs,
 			};
-			updateOnChainTransaction({
+			updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
 				transaction: updatedTx,
@@ -1955,7 +1955,7 @@ export const setupRbf = async ({
 	txid: string;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<Result<IOnChainTransactionData>> => {
+}): Promise<Result<IBitcoinTransactionData>> => {
 	try {
 		if (!txid) {
 			return err('No txid provided.');
@@ -2007,7 +2007,7 @@ export const setupRbf = async ({
 			rbf: true,
 		};
 
-		await updateOnChainTransaction({
+		await updateBitcoinTransaction({
 			selectedWallet,
 			selectedNetwork,
 			transaction: newTransaction,
