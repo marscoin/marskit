@@ -43,6 +43,13 @@ import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
 import { hasEnabledAuthentication } from '../../../utils/settings';
 import { EFeeIds } from '../../../store/types/fees';
+import {
+	decodeLightningInvoice,
+	milliSatoshisToSatoshis,
+	payLightningInvoice,
+} from '../../../utils/lightning';
+import { refreshWallet } from '../../../utils/wallet';
+import { TInvoice } from '@synonymdev/react-native-ldk';
 
 const Section = memo(
 	({
@@ -74,6 +81,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string } | undefined>(
 		undefined,
 	);
+	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 	const nextButtonContainer = useMemo(
 		() => ({
 			...styles.nextButtonContainer,
@@ -93,6 +101,29 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	);
 
 	const transaction = useTransactionDetails();
+
+	const decodeAndSetLightningInvoice = async (): Promise<void> => {
+		try {
+			if (!transaction?.lightningInvoice) {
+				return;
+			}
+			const decodeInvoiceResponse = await decodeLightningInvoice({
+				paymentRequest: transaction.lightningInvoice,
+			});
+			if (decodeInvoiceResponse.isErr()) {
+				return;
+			}
+			setDecodedInvoice(decodeInvoiceResponse.value);
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
+	useEffect(() => {
+		decodeAndSetLightningInvoice().then();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [transaction.lightningInvoice]);
+
 	const totalFee = transaction.fee;
 
 	/*
@@ -187,14 +218,58 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		[navigation],
 	);
 
-	const _createTransaction = useCallback(async (): Promise<void> => {
+	const createLightningTransaction = useCallback(async () => {
+		if (!transaction?.lightningInvoice) {
+			_onError('Error creating transaction', 'No lightning invoice found.');
+			setIsLoading(false);
+			return;
+		}
+		const amountRequestedFromInvoice = milliSatoshisToSatoshis(
+			decodedInvoice?.amount_milli_satoshis ?? 0,
+		);
+		// Determine if we should add a custom sat value to the lightning invoice.
+		let customSatAmount = 0;
+		if (
+			amountRequestedFromInvoice <= 0 &&
+			transaction?.outputs &&
+			(transaction?.outputs[0].value ?? 0) > 0
+		) {
+			customSatAmount = transaction?.outputs[0].value ?? 0;
+		}
+		const payInvoiceResponse = await payLightningInvoice(
+			transaction.lightningInvoice,
+			customSatAmount,
+		);
+		if (payInvoiceResponse.isErr()) {
+			_onError('Error creating transaction', payInvoiceResponse.error.message);
+			setIsLoading(false);
+			return;
+		}
+
+		//TODO: Add lightning transaction to activity list.
+
+		// save tags to metadata
+		updateMetaTxTags(transaction.lightningInvoice, transaction?.tags);
+		refreshWallet({ onchain: false, lightning: true }).then();
+		navigation.navigate('Result', { success: true });
+		setIsLoading(false);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		_onError,
+		decodedInvoice?.amount_milli_satoshis,
+		transaction.lightningInvoice,
+		transaction?.outputs,
+		transaction?.tags,
+	]);
+
+	const createOnChainTransaction = useCallback(async (): Promise<void> => {
 		try {
 			setIsLoading(true);
 			const transactionIsValid = validateTransaction(transaction);
 			if (transactionIsValid.isErr()) {
 				setIsLoading(false);
 				_onError(
-					'Error creating transaction.',
+					'Error creating transaction',
 					transactionIsValid.error.message,
 				);
 				return;
@@ -205,30 +280,18 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			});
 			if (response.isErr()) {
 				setIsLoading(false);
-				_onError('Error creating transaction.', response.error.message);
+				_onError('Error creating transaction', response.error.message);
 				return;
 			}
 			if (__DEV__) {
 				console.log(response.value);
 			}
-
-			const { pin, pinForPayments } = hasEnabledAuthentication();
-			if (pin && pinForPayments) {
-				navigation.navigate('AuthCheck', {
-					onSuccess: () => {
-						navigation.pop();
-						setRawTx(response.value);
-					},
-				});
-				return;
-			}
-
 			setRawTx(response.value);
 		} catch (error) {
-			_onError('Error creating transaction.', (error as Error).message);
+			_onError('Error creating transaction', (error as Error).message);
 			setIsLoading(false);
 		}
-	}, [selectedNetwork, selectedWallet, transaction, _onError, navigation]);
+	}, [selectedNetwork, selectedWallet, transaction, _onError]);
 
 	const _broadcast = useCallback(async () => {
 		if (!rawTx || !rawTx?.id || !rawTx?.hex) {
@@ -280,9 +343,33 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		}
 	}, [rawTx, _broadcast]);
 
-	const handleConfirm = useCallback(() => {
-		_createTransaction();
-	}, [_createTransaction]);
+	const handleConfirm = useCallback(async () => {
+		setIsLoading(true);
+		const { pin, pinForPayments } = hasEnabledAuthentication();
+		const runCreateTxMethods = (): void => {
+			if (transaction?.lightningInvoice) {
+				createLightningTransaction().then();
+			} else {
+				createOnChainTransaction().then();
+			}
+		};
+
+		if (pin && pinForPayments) {
+			navigation.navigate('AuthCheck', {
+				onSuccess: () => {
+					navigation.pop();
+					runCreateTxMethods();
+				},
+			});
+		} else {
+			runCreateTxMethods();
+		}
+	}, [
+		createLightningTransaction,
+		createOnChainTransaction,
+		navigation,
+		transaction?.lightningInvoice,
+	]);
 
 	const feeSats = getFee(satsPerByte);
 	const totalFeeDisplay = useDisplayValues(feeSats);
@@ -298,41 +385,44 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 						title="TO"
 						value={
 							<Text02M numberOfLines={1} ellipsizeMode="middle">
-								{address}
+								{decodedInvoice
+									? decodedInvoice?.description ?? decodedInvoice?.to_str
+									: address}
 							</Text02M>
 						}
 					/>
 				</View>
-				<View style={styles.sectionContainer}>
-					<Section
-						title="SPEED AND FEE"
-						onPress={(): void => navigation.navigate('FeeRate')}
-						value={
-							<>
-								<TimerIcon color="brand" />
-								<Text02M>
-									{' '}
-									{FeeText[selectedFeeId]?.title}
-									{' ('}
-									{totalFeeDisplay.fiatSymbol}
-									{totalFeeDisplay.fiatFormatted})
-								</Text02M>
-								<PenIcon height={16} width={20} />
-							</>
-						}
-					/>
-					<Section
-						title="CONFIRMING IN"
-						onPress={(): void => navigation.navigate('FeeRate')}
-						value={
-							<>
-								<ClockIcon color="brand" />
-								<Text02M> {FeeText[selectedFeeId]?.description}</Text02M>
-							</>
-						}
-					/>
-				</View>
-
+				{!transaction?.lightningInvoice && (
+					<View style={styles.sectionContainer}>
+						<Section
+							title="SPEED AND FEE"
+							onPress={(): void => navigation.navigate('FeeRate')}
+							value={
+								<>
+									<TimerIcon color="brand" />
+									<Text02M>
+										{' '}
+										{FeeText[selectedFeeId]?.title}
+										{' ('}
+										{totalFeeDisplay.fiatSymbol}
+										{totalFeeDisplay.fiatFormatted})
+									</Text02M>
+									<PenIcon height={16} width={20} />
+								</>
+							}
+						/>
+						<Section
+							title="CONFIRMING IN"
+							onPress={(): void => navigation.navigate('FeeRate')}
+							value={
+								<>
+									<ClockIcon color="brand" />
+									<Text02M> {FeeText[selectedFeeId]?.description}</Text02M>
+								</>
+							}
+						/>
+					</View>
+				)}
 				{transaction.tags?.length ? (
 					<View style={styles.sectionContainer}>
 						<Section
