@@ -4,8 +4,18 @@
 
 import bip21 from 'bip21';
 import { err, ok, Result } from '@synonymdev/result';
-import { Alert } from 'react-native';
+import {
+	availableNetworks,
+	EAvailableNetworks,
+	networks,
+	TAvailableNetworks,
+} from './networks';
 import { address as bitcoinJSAddress } from 'bitcoinjs-lib';
+import {
+	getOnchainTransactionData,
+	parseOnChainPaymentRequest,
+} from './wallet/transactions';
+import { getStore } from '../store/helpers';
 import {
 	getLNURLParams,
 	LNURLAuthParams,
@@ -14,23 +24,41 @@ import {
 	LNURLResponse,
 	LNURLWithdrawParams,
 } from '@synonymdev/react-native-lnurl';
-
-import {
-	availableNetworks,
-	EAvailableNetworks,
-	networks,
-	TAvailableNetworks,
-} from './networks';
-import { parseOnChainPaymentRequest } from './wallet/transactions';
-import { getStore } from '../store/helpers';
-import { showErrorNotification } from './notifications';
-import { updateOnChainTransaction } from '../store/actions/wallet';
-import { getSelectedNetwork, getSelectedWallet, refreshWallet } from './wallet';
+import { showErrorNotification, showInfoNotification } from './notifications';
+import { updateBitcoinTransaction } from '../store/actions/wallet';
+import { getBalance, getSelectedNetwork, getSelectedWallet } from './wallet';
 import { toggleView } from '../store/actions/user';
 import { sleep } from './helpers';
 import { handleSlashtagURL } from './slashtags';
+import { decodeLightningInvoice, milliSatoshisToSatoshis } from './lightning';
 
 const availableNetworksList = availableNetworks();
+
+export enum EQRDataType {
+	bitcoinAddress = 'bitcoinAddress',
+	lightningPaymentRequest = 'lightningPaymentRequest',
+	lnurlAuth = 'lnurlAuth',
+	lnurlWithdraw = 'lnurlWithdraw',
+	slashAuthURL = 'slashAuthURL',
+	slasthagURL = 'slashURL',
+	//TODO add xpub, lightning node peer etc
+}
+
+export interface QRData {
+	network?: TAvailableNetworks | EAvailableNetworks;
+	qrDataType: EQRDataType;
+	sats?: number;
+	address?: string;
+	lightningPaymentRequest?: string;
+	message?: string;
+	lnUrlParams?:
+		| LNURLAuthParams
+		| LNURLWithdrawParams
+		| LNURLChannelParams
+		| LNURLPayParams
+		| LNURLResponse;
+	url?: string;
+}
 
 export const validateAddress = ({
 	address = '',
@@ -71,36 +99,87 @@ export const validateAddress = ({
 	}
 };
 
-export enum EQRDataType {
-	bitcoinAddress = 'bitcoinAddress',
-	lightningPaymentRequest = 'lightningPaymentRequest',
-	lnurlAuth = 'lnurlAuth',
-	lnurlWithdraw = 'lnurlWithdraw',
-	slashAuthURL = 'slashAuthURL',
-	slasthagURL = 'slashURL',
-	//TODO add rgb, xpub, lightning node peer etc
-}
+/**
+ * This method processes, decodes and handles all scanned/pasted information provided by the user.
+ * @param {string} data
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ */
+export const processInputData = async ({
+	data = '',
+	selectedNetwork,
+	selectedWallet,
+}: {
+	data: string;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<EQRDataType>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
 
-export interface QRData {
-	network?: TAvailableNetworks | EAvailableNetworks;
-	qrDataType: EQRDataType;
-	sats?: number;
-	address?: string;
-	lightningPaymentRequest?: string;
-	message?: string;
-	lnUrlParams?:
-		| LNURLAuthParams
-		| LNURLWithdrawParams
-		| LNURLChannelParams
-		| LNURLPayParams
-		| LNURLResponse;
-	url?: string;
-}
+		const decodeRes = await decodeQRData(data, selectedNetwork);
+		if (decodeRes.isErr()) {
+			const title = 'Bitkit is unable to read the provided data.';
+			showErrorNotification({
+				title,
+				message: decodeRes.error.message,
+			});
+			return err(title);
+		}
+
+		// Unable to interpret any of the provided data.
+		if (!decodeRes?.value.length) {
+			const message = 'Bitkit is unable to interpret the provided data.';
+			showErrorNotification({
+				title: 'Unable To Interpret Provided Data',
+				message,
+			});
+			return err(message);
+		}
+
+		let dataToHandle;
+
+		// Check if we're dealing with a Bitcoin payment request.
+		if (
+			decodeRes.value.length > 1 ||
+			decodeRes.value[0].qrDataType === 'bitcoinAddress' ||
+			decodeRes.value[0].qrDataType === 'lightningPaymentRequest'
+		) {
+			// Attempt to handle a unified Bitcoin transaction.
+			const processBitcoinTxResponse = await processBitcoinTransactionData({
+				data: decodeRes.value,
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (processBitcoinTxResponse.isErr()) {
+				return err(processBitcoinTxResponse.error.message);
+			}
+			dataToHandle = processBitcoinTxResponse.value;
+		} else {
+			dataToHandle = decodeRes.value[0];
+		}
+
+		return await handleData({
+			data: dataToHandle,
+			selectedNetwork,
+			selectedWallet,
+		});
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
 
 /**
  * Return all networks and their payment request details if found in QR data.
  * Can also be used to read clipboard data for any addresses or payment requests.
  * @param data
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {string}
  */
 export const decodeQRData = async (
@@ -193,63 +272,193 @@ export const decodeQRData = async (
 
 		//If a lightning invoice was passed as a param
 		if (options.lightning) {
-			lightningInvoice = options.lightning;
+			const decodedInvoice = await decodeLightningInvoice({
+				paymentRequest: options.lightning,
+			});
+			if (decodedInvoice.isOk()) {
+				foundNetworksInQR.push({
+					qrDataType: EQRDataType.lightningPaymentRequest,
+					lightningPaymentRequest: options.lightning,
+					network: selectedNetwork,
+					sats: milliSatoshisToSatoshis(
+						decodedInvoice.value?.amount_milli_satoshis ?? 0,
+					),
+					message: decodedInvoice.value?.description ?? '',
+				});
+				lightningInvoice = options.lightning;
+			}
 		}
 	} catch (e) {}
 
 	if (lightningInvoice) {
-		// TODO: Decode Lightning Invoice
-	}
-
-	// If we've found any of the above bitcoin QR data don't decode for other networks
-	if (foundNetworksInQR.length > 0) {
-		return ok(foundNetworksInQR);
+		const decodedInvoice = await decodeLightningInvoice({
+			paymentRequest: data,
+		});
+		if (decodedInvoice.isOk()) {
+			foundNetworksInQR.push({
+				qrDataType: EQRDataType.lightningPaymentRequest,
+				lightningPaymentRequest: data,
+				network: selectedNetwork,
+				sats: milliSatoshisToSatoshis(
+					decodedInvoice.value?.amount_milli_satoshis ?? 0,
+				),
+				message: decodedInvoice.value?.description ?? '',
+			});
+		}
 	}
 
 	return ok(foundNetworksInQR);
 };
 
+/**
+ * This method will ensure the app is able to pay a given invoice amount for lightning and/or on-chain invoices.
+ * If unable to pay the provided lightning invoice it will defer to on-chain.
+ * If unable to pay the requested on-chain amount it will return only the on-chain address and set sats to zero.
+ * @param {QRData[]} data
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ */
+export const processBitcoinTransactionData = async ({
+	data = [],
+	selectedNetwork,
+	selectedWallet,
+}: {
+	data: QRData[];
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<QRData>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		let response;
+
+		const lightningBalance = getBalance({
+			lightning: true,
+			selectedWallet,
+			selectedNetwork,
+		});
+		const openLightningChannels =
+			getStore().lightning.nodes[selectedWallet].openChannelIds[
+				selectedNetwork
+			];
+
+		const onchainBalance = getBalance({
+			onchain: true,
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		// Attempt to pay with lightning first.
+		// Check that we have some open channels.
+		if (openLightningChannels?.length) {
+			// Filter for the lightning invoice.
+			const filteredLightningInvoice = data.filter(
+				(d) => d.qrDataType === EQRDataType.lightningPaymentRequest,
+			);
+			// Check that we have a lightning invoice, decode it and determine if we can afford to pay it.
+			if (filteredLightningInvoice.length && lightningBalance?.satoshis) {
+				const decodedLightningInvoice = await decodeLightningInvoice({
+					paymentRequest:
+						filteredLightningInvoice[0]?.lightningPaymentRequest ?? '',
+				});
+				if (decodedLightningInvoice.isOk()) {
+					// Ensure the invoice has not expired.
+					if (decodedLightningInvoice.value.is_expired) {
+						showInfoNotification({
+							title: 'Lightning Invoice Expired',
+							message: 'Unfortunately, this lightning invoice has expired.',
+						});
+					} else {
+						// Ensure we can afford to pay the lightning invoice. If so, pass it through.
+						if (
+							lightningBalance.satoshis >
+							milliSatoshisToSatoshis(
+								decodedLightningInvoice.value?.amount_milli_satoshis ?? 0,
+							)
+						) {
+							response = filteredLightningInvoice[0];
+						}
+					}
+				}
+			}
+		}
+
+		// Attempt to pay the on-chain invoice if unable to pay with lightning.
+		// Check that we have a bitcoin invoice and can afford to pay it.
+		if (!response) {
+			// Filter for the bitcoin address or on-chain invoice
+			const filteredBitcoinInvoice = data.filter(
+				(d) => d.qrDataType === EQRDataType.bitcoinAddress,
+			);
+			// Check that we have a Bitcoin invoice and determine if we can afford to pay it.
+			if (
+				filteredBitcoinInvoice?.length > 0 &&
+				filteredBitcoinInvoice[0]?.sats !== undefined
+			) {
+				// If we can afford to pay it, pass it through.
+				// Otherwise, set the provided address and set sats to 0.
+				if (onchainBalance.satoshis > filteredBitcoinInvoice[0]?.sats) {
+					response = filteredBitcoinInvoice[0];
+				} else {
+					// If the user already specified an amount, don't override it.
+					const transaction = getOnchainTransactionData({
+						selectedWallet,
+						selectedNetwork,
+					});
+
+					// If we have enough sats to cover the requested amount, set the value accordingly.
+					// Otherwise, set sats to 0.
+					let sats = 0;
+					if (transaction.isOk() && transaction.value?.outputs) {
+						sats = transaction.value?.outputs[0]?.value ?? 0;
+					}
+					response = {
+						...filteredBitcoinInvoice[0],
+						sats,
+					};
+				}
+			}
+		}
+		if (response) {
+			return ok(response);
+		}
+		return err('Unable to pay provided invoice.');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
+};
+
+/**
+ * This method will handle all actions required for each valid EQRDataType passed as data.
+ * @param {QRData} data
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
 export const handleData = async ({
-	qrData,
+	data,
 	selectedWallet,
 	selectedNetwork,
 }: {
-	qrData: QRData[];
+	data: QRData;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
-	if (!qrData) {
-		return showErrorNotification(
+}): Promise<Result<EQRDataType>> => {
+	if (!data) {
+		const message = 'Unable to read or interpret the provided data.';
+		showErrorNotification(
 			{
 				title: 'No data provided',
-				message: 'Unable to read or interpret data from the provided QR code.',
+				message,
 			},
 			'bottom',
 		);
-	}
-
-	// Multiple payment requests, like bitcoin and lightning in on QR. Show them the options they have and then handle the selected one.
-	let data: undefined | QRData;
-	if (qrData.length > 1) {
-		data = await new Promise((resolve) => {
-			Alert.alert('Which one to use?', '', [
-				{
-					text: 'Cancel',
-					onPress: (): void => resolve(undefined),
-					style: 'cancel',
-				},
-				...qrData.map((selectedOption) => ({
-					text: selectedOption.qrDataType,
-					onPress: (): void => resolve(selectedOption),
-				})),
-			]);
-		});
-	} else {
-		data = qrData[0];
-	}
-
-	if (data === undefined) {
-		return;
+		return err(message);
 	}
 
 	if (!selectedNetwork) {
@@ -259,17 +468,20 @@ export const handleData = async ({
 		selectedWallet = getSelectedWallet();
 	}
 	if (data?.network && data?.network !== selectedNetwork) {
-		return showErrorNotification(
+		const message = `App is currently set to ${selectedNetwork} but data is for ${data.network}.`;
+		showErrorNotification(
 			{
-				title: 'Unsupported network',
-				message: `App is currently set to ${selectedNetwork} but QR is for ${data.network}.`,
+				title: 'Incorrect network',
+				message,
 			},
 			'bottom',
 		);
+		return err(message);
 	}
 
 	const qrDataType = data?.qrDataType;
 	const address = data?.address ?? '';
+	const lightningPaymentRequest = data?.lightningPaymentRequest ?? '';
 	const amount = data?.sats ?? 0;
 	const message = data?.message ?? '';
 
@@ -278,7 +490,7 @@ export const handleData = async ({
 	switch (qrDataType) {
 		case EQRDataType.slasthagURL: {
 			handleSlashtagURL(data.url as string);
-			break;
+			return ok(EQRDataType.slasthagURL);
 		}
 		case EQRDataType.bitcoinAddress: {
 			toggleView({
@@ -291,38 +503,65 @@ export const handleData = async ({
 				},
 			});
 			await sleep(5); //This is only needed to prevent the view from briefly displaying the SendAssetList
-			updateOnChainTransaction({
+			await updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
 				transaction: {
 					label: message,
-					outputs: [{ address, value: amount }],
+					outputs: [{ address, value: amount, index: 0 }],
 				},
-			}).then();
-			refreshWallet({});
-			break;
+			});
+			return ok(EQRDataType.bitcoinAddress);
 		}
 		case EQRDataType.lightningPaymentRequest: {
-			// TODO: LDK
-			break;
-			/*const { pin, biometrics } = hasEnabledAuthentication();
-			if (pin || biometrics) {
-				navigation.navigate('AuthCheck', {
-					onSuccess: () => {
-						navigation.pop();
-						setTimeout(() => {
-							payLightningInvoicePrompt(data);
-						}, 500);
+			const decodedInvoice = await decodeLightningInvoice({
+				paymentRequest: lightningPaymentRequest,
+			});
+			if (decodedInvoice.isErr()) {
+				showErrorNotification(
+					{
+						title: 'Unable To Decode Invoice',
+						message: decodedInvoice.error.message,
 					},
-				});
-			} else {
-				payLightningInvoicePrompt(data);
+					'bottom',
+				);
+				return err(decodedInvoice.error.message);
 			}
-			break;*/
+			toggleView({
+				view: 'sendNavigation',
+				data: {
+					isOpen: true,
+					snapPoint: 0,
+					initial: 'AddressAndAmount',
+					assetName: 'Bitcoin',
+				},
+			});
+			await sleep(5); //This is only needed to prevent the view from briefly displaying the SendAssetList
+			await updateBitcoinTransaction({
+				selectedWallet,
+				selectedNetwork,
+				transaction: {
+					outputs: [
+						{
+							address: '',
+							value: milliSatoshisToSatoshis(
+								decodedInvoice.value?.amount_milli_satoshis ?? 0,
+							),
+							index: 0,
+						},
+					],
+					lightningInvoice: lightningPaymentRequest,
+				},
+			});
+			return ok(EQRDataType.lightningPaymentRequest);
 		}
 		case EQRDataType.lnurlAuth: {
 			// TODO: LDK
-			break;
+			showInfoNotification({
+				title: 'Not Supported',
+				message: 'LNURL Auth is not yet supported.',
+			});
+			return ok(EQRDataType.lnurlAuth);
 			/*const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
 			if (getMnemonicPhraseResponse.isErr()) {
 				return;
@@ -352,7 +591,12 @@ export const handleData = async ({
 			//let params = data.lnUrlParams as LNURLWithdrawParams;
 			//const sats = params.maxWithdrawable / 1000; //LNURL unit is msats
 			//TODO: Create invoice
-			break;
+			showInfoNotification({
+				title: 'Not Supported',
+				message: 'LNURL Withdraw is not yet supported.',
+			});
+			return ok(EQRDataType.lnurlWithdraw);
 		}
 	}
+	return err('Unable to read or interpret the provided data.');
 };
