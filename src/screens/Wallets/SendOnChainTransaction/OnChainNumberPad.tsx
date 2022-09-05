@@ -216,12 +216,14 @@ const OnChainNumberPad = (): ReactElement => {
 		}).then();
 	};
 
+	const showDot = !(unitPreference === 'asset' && bitcoinUnit === 'satoshi');
+
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
 			backdrop={false}
 			view="numberPad">
-			<NumberPad onPress={onPress} onRemove={onRemove}>
+			<NumberPad showDot={showDot} onPress={onPress} onRemove={onRemove}>
 				<AmountButtonRow
 					onDone={(): void => {
 						toggleView({ view: 'numberPad', data: { isOpen: false } });

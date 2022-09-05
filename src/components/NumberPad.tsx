@@ -1,5 +1,6 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
+import { GestureResponderEvent } from 'react-native-modal';
 import { Text, TouchableOpacity, Ionicons, View } from '../styles/components';
 
 const { vibrate } = require('../utils/helpers');
@@ -8,20 +9,27 @@ const ACTIVE_OPACITY = 0.2;
 const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
 interface NumberPad {
-	onPress: Function;
+	onPress: (key: number | string) => void;
 	onRemove: Function;
 	style?: object | Array<object>;
 	children?: ReactElement;
+	showDot?: boolean;
 }
 
 const Button = memo(
-	({ num, onPress }: { num: number; onPress: Function }): ReactElement => {
+	({
+		num,
+		onPress,
+	}: {
+		num: number;
+		onPress: (event: GestureResponderEvent) => void;
+	}): ReactElement => {
 		return (
 			<TouchableOpacity
 				onPress={onPress}
 				activeOpacity={ACTIVE_OPACITY}
 				style={styles.buttonContainer}
-				color={'transparent'}>
+				color="transparent">
 				<Text style={styles.button}>{num}</Text>
 			</TouchableOpacity>
 		);
@@ -31,6 +39,7 @@ const Button = memo(
 const NumberPad = ({
 	onPress,
 	onRemove,
+	showDot = true,
 	style,
 	children,
 }: NumberPad): ReactElement => {
@@ -71,13 +80,23 @@ const NumberPad = ({
 			</View>
 
 			<View style={styles.row}>
-				<TouchableOpacity
-					onPress={(): void => handlePress('.')}
-					activeOpacity={ACTIVE_OPACITY}
-					style={styles.buttonContainer}
-					color={'transparent'}>
-					<Text style={styles.button}>.</Text>
-				</TouchableOpacity>
+				{showDot ? (
+					<TouchableOpacity
+						onPress={(): void => handlePress('.')}
+						activeOpacity={ACTIVE_OPACITY}
+						style={styles.buttonContainer}
+						color={'transparent'}>
+						<Text style={styles.button}>.</Text>
+					</TouchableOpacity>
+				) : (
+					<TouchableOpacity
+						onPress={(): void => handlePress('000')}
+						activeOpacity={ACTIVE_OPACITY}
+						style={styles.buttonContainer}
+						color={'transparent'}>
+						<Text style={styles.button}>000</Text>
+					</TouchableOpacity>
+				)}
 				<Button onPress={(): void => handlePress(digits[9])} num={digits[9]} />
 				<TouchableOpacity
 					onPress={handleRemove}
