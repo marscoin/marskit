@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import inquirer from 'inquirer';
-import { SDK } from '@synonymdev/slashtags-sdk';
 import fs from 'fs';
 import path from 'path';
 import falso from '@ngneat/falso';
 import fetch from 'node-fetch';
+import SDK, { SlashURL } from '@synonymdev/slashtags-sdk';
+import c from 'compact-encoding';
+import RAM from 'random-access-memory';
+import b4a from 'b4a';
 
 const cacheLocation = path.join(
 	import.meta.url.replace('file:/', ''),
@@ -12,9 +15,7 @@ const cacheLocation = path.join(
 	'cache.json',
 );
 
-const sdk = await SDK.init({
-	persist: false,
-});
+const sdk = new SDK({ storage: RAM });
 
 let cached = loadCache();
 
@@ -67,7 +68,7 @@ while (!closed) {
 	}
 }
 
-async function resolveProfile() {
+async function resolveProfile () {
 	const { url } = await inquirer.prompt([
 		{
 			type: 'input',
@@ -82,25 +83,26 @@ async function resolveProfile() {
 	}
 	cache({ lastUsedURL: url });
 
-	const slashtag = sdk.slashtag({ url });
+	const key = SlashURL.parse(url).key;
+	const drive = sdk.drive(key);
 	console.log('Resolving public drive ...');
-	console.time('-- resolved drive in');
-	await slashtag.ready();
-	await slashtag.publicDrive?.getContent();
+	await drive.ready();
 
-	const profile = await slashtag.getProfile();
+	const profile = await drive
+		.get('/profile.json')
+		.then(buf => buf && c.decode(c.json, buf));
+	console.time('-- resolved drive in');
 	console.log('resolved profile');
 
-	const slashpay = await slashtag.publicDrive
+	const slashpay = await drive
 		.get('/slashpay.json')
-		.then((buf) => JSON.parse(buf.toString()))
-		.catch(noop);
+		.then(buf => buf && c.decode(c.json, buf));
 	console.timeEnd('-- resolved drive in');
 
 	console.dir(
 		{
-			url: slashtag.url.origin,
-			version: slashtag.publicDrive.version,
+			url: url,
+			version: drive.files.version,
 			profile: formatProfile(profile),
 			slashpay,
 		},
@@ -111,20 +113,42 @@ async function resolveProfile() {
 /**
  * Creates a contact and returns its url
  * @param {boolean} log
- * @returns {string}
  */
-async function createContact(log = true) {
-	const name = Math.random().toString(16).slice(2);
-	const slashtag = sdk.slashtag({ name });
-	const contact = await generateContact(slashtag.url.origin);
-	saveContact(slashtag, contact);
+async function createContact (log = true) {
+	const name = Math.random()
+		.toString(16)
+		.slice(2);
+	const slashtag = sdk.slashtag(name);
+	const contact = await generateContact(slashtag.url);
+	await saveContact(slashtag, contact);
 	contacts[contact.url] = name;
+
+	// TODO fix seeder!!
+	const drive = slashtag.drivestore.get();
+	await drive.ready();
+
+	{
+		const key = b4a.toString(drive.key, 'hex');
+		await fetch('http://35.233.47.252:443/seeding/hypercore', {
+			method: 'POST',
+			body: JSON.stringify({ publicKey: key }),
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
+	{
+		const key = b4a.toString(drive.blobs.core.key, 'hex');
+		await fetch('http://35.233.47.252:443/seeding/hypercore', {
+			method: 'POST',
+			body: JSON.stringify({ publicKey: key }),
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
 
 	log && console.dir(formatContact(contact), { depth: null });
 	return contact.url;
 }
 
-async function createBulkContacts() {
+async function createBulkContacts () {
 	const { count } = await inquirer.prompt([
 		{
 			type: 'input',
@@ -142,7 +166,7 @@ async function createBulkContacts() {
 	console.log(urls);
 }
 
-async function updateContact() {
+async function updateContact () {
 	const { selected } = await inquirer.prompt([
 		{
 			type: 'list',
@@ -153,7 +177,7 @@ async function updateContact() {
 	]);
 
 	const nameUsedForCreatingSlasthag = contacts[selected];
-	const slashtag = sdk.slashtag({ name: nameUsedForCreatingSlasthag });
+	const slashtag = sdk.slashtag(nameUsedForCreatingSlasthag);
 	const newContact = await generateContact(selected);
 	await saveContact(slashtag, newContact);
 	console.dir(formatContact(newContact), { depth: null });
@@ -163,12 +187,12 @@ async function updateContact() {
  *
  * @param {object} toCache
  */
-function cache(toCache) {
+function cache (toCache) {
 	cached = { ...cached, ...toCache };
 	fs.writeFile(cacheLocation, JSON.stringify(cached), noop);
 }
 
-function loadCache() {
+function loadCache () {
 	try {
 		const str = fs.readFileSync(cacheLocation);
 		return JSON.parse(str.toString());
@@ -177,9 +201,9 @@ function loadCache() {
 	}
 }
 
-function noop() {}
+function noop () {}
 
-function formatProfile(profile) {
+function formatProfile (profile) {
 	return (
 		profile && {
 			...profile,
@@ -188,38 +212,37 @@ function formatProfile(profile) {
 	);
 }
 
-function formatContact(contact) {
+function formatContact (contact) {
 	return {
 		...contact,
 		profile: formatProfile(contact.profile),
 	};
 }
 
-async function saveContact(slashtag, contact) {
-	await slashtag.setProfile(contact.profile);
-	await slashtag.publicDrive.put(
-		'/slashpay.json',
-		Buffer.from(JSON.stringify(contact.slashpay)),
-	);
+async function saveContact (slashtag, contact) {
+	const drive = slashtag.drivestore.get();
+	await drive.put('/profile.json', c.encode(c.json, contact.profile));
+	await drive.put('/slashpay.json', c.encode(c.json, contact.slashpay));
 
 	return formatContact(contact);
 }
 
-async function generateContact(url) {
+async function generateContact (url) {
 	const name = falso.randFullName();
-	const imageURL = falso.randAvatar();
-	const response = await fetch(imageURL);
-	const body = await response.buffer();
+	// const imageURL = falso.randAvatar();
+	// const response = await fetch(imageURL);
+	// console.log({response})
+	// const body = await response.buffer();
 
 	return {
 		url,
 		profile: {
 			name,
-			image:
-				'data:' +
-				response.headers['content-type'] +
-				';base64,' +
-				Buffer.from(body).toString('base64'),
+			// image:
+			// 'data:' +
+			// response.headers['content-type'] +
+			// ';base64,' +
+			// Buffer.from(body).toString('base64'),
 			bio: falso.randPhrase().slice(0, 160),
 			links: [
 				{

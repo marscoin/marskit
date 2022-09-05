@@ -3,7 +3,9 @@
   "type": "module",
   "dependencies": {
     "@ngneat/falso": "^6.0.3",
+    "@synonymdev/slashtags-sdk": "file:../../slashtags/packages/sdk",
     "@types/node-fetch": "^2.6.2",
+    "b4a": "^1.6.0",
     "inquirer": "^9.0.1"
   }
 }
