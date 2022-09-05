@@ -5,6 +5,8 @@ import lm, {
 	TAccount,
 	TCloseChannelReq,
 	THeader,
+	TInvoice,
+	TPaymentReq,
 	TTransactionData,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
@@ -35,7 +37,7 @@ export const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79';
 
 // TODO: Retrieve saved peers from LDK.
-export const peers = [
+export const PEERS = [
 	{
 		pubKey:
 			'02f61609212fd33845cb9688a3f8fec2a9355992ed8e3578d06bcb4a9b0ed6d1b1',
@@ -408,10 +410,10 @@ export const getNodeIdFromStorage = ({
 export const addPeers = async (): Promise<Result<string[]>> => {
 	try {
 		const addPeerRes = await Promise.all(
-			Object.keys(peers).map(async (peer) => {
+			Object.keys(PEERS).map(async (peer) => {
 				const addPeer = await lm.addPeer({
-					...peers[peer],
-					port: Number(peers[peer].port),
+					...PEERS[peer],
+					port: Number(PEERS[peer].port),
 					timeout: 5000,
 				});
 				if (addPeer.isErr()) {
@@ -471,13 +473,32 @@ export const createLightningInvoice = ldk.createPaymentRequest;
 /**
  * Attempts to pay a bolt11 invoice.
  * @param {string} invoice
+ * @param {number} [sats]
  * @returns {Promise<Result<string>>}
  */
-export const payLightningInvoice = async (invoice): Promise<Result<string>> => {
+export const payLightningInvoice = async (
+	invoice: string,
+	sats?: number,
+): Promise<Result<string>> => {
 	try {
+		if (sats) {
+			// @ts-ignore
+			return await ldk.pay({ paymentRequest: invoice, amountSats: sats });
+		}
 		return await ldk.pay({ paymentRequest: invoice });
 	} catch (e) {
 		console.log(e);
 		return err(e);
 	}
+};
+
+export const decodeLightningInvoice = ({
+	paymentRequest = '',
+}: TPaymentReq): Promise<Result<TInvoice>> => {
+	paymentRequest = paymentRequest.replace('lightning:', '').trim();
+	return ldk.decode({ paymentRequest });
+};
+
+export const milliSatoshisToSatoshis = (milliSatoshis = 0): number => {
+	return milliSatoshis * 0.001;
 };
