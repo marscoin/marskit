@@ -19,10 +19,11 @@ export const getUnifiedUri = ({
 	const amountBTC = bitcoinUnits(amount, 'satoshi').to('btc').value();
 	const params = new URLSearchParams({
 		amount: amountBTC,
-		label,
-		message,
-		lightning: lightning.toUpperCase(),
+		...(label !== '' ? { label } : {}),
+		// do wallet apps still use "message"?
+		...(message !== '' ? { message } : {}),
+		...(lightning !== '' ? { lightning: lightning.toUpperCase() } : {}),
 	});
 
-	return `bitcoin:${bitcoin.toUpperCase()}?${params.toString()}`;
+	return `bitcoin:${bitcoin}?${params.toString()}`;
 };
