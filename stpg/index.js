@@ -229,20 +229,19 @@ async function saveContact (slashtag, contact) {
 
 async function generateContact (url) {
 	const name = falso.randFullName();
-	// const imageURL = falso.randAvatar();
-	// const response = await fetch(imageURL);
-	// console.log({response})
-	// const body = await response.buffer();
+	const imageURL = falso.randAvatar();
+	const response = await fetch(imageURL);
+	const body = await response.buffer();
 
 	return {
 		url,
 		profile: {
 			name,
-			// image:
-			// 'data:' +
-			// response.headers['content-type'] +
-			// ';base64,' +
-			// Buffer.from(body).toString('base64'),
+			image:
+			'data:' +
+			response.headers['content-type'] +
+			';base64,' +
+			Buffer.from(body).toString('base64'),
 			bio: falso.randPhrase().slice(0, 160),
 			links: [
 				{
