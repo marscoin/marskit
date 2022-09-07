@@ -170,12 +170,14 @@ const ReceiveNumberPad = (): ReactElement => {
 		toggleView({ view: 'numberPadReceive', data: { isOpen: false } });
 	};
 
+	const showDot = !(unitPreference === 'asset' && bitcoinUnit === 'satoshi');
+
 	return (
 		<BottomSheetWrapper
 			snapPoints={snapPoints}
 			backdrop={false}
 			view="numberPadReceive">
-			<NumberPad onPress={onPress} onRemove={onRemove}>
+			<NumberPad showDot={showDot} onPress={onPress} onRemove={onRemove}>
 				<AmountButtonRow showMaxButton={false} onDone={onDone} />
 			</NumberPad>
 		</BottomSheetWrapper>
