@@ -17,13 +17,13 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						hide: false,
 					},
 					{
-						title: 'Security and privacy',
+						title: 'Security and Privacy',
 						type: 'button',
 						onPress: (): void => navigation.navigate('SecuritySettings'),
 						hide: false,
 					},
 					{
-						title: 'Backup or restore',
+						title: 'Back up or Restore',
 						type: 'button',
 						onPress: (): void => navigation.navigate('BackupMenu'),
 						hide: false,
