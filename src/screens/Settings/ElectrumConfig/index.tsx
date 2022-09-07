@@ -1,10 +1,11 @@
 import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import {
 	Text,
 	View,
 	TextInput,
 	RadioButtonRN,
+	ScrollView,
 } from '../../../styles/components';
 import { addElectrumPeer } from '../../../store/actions/settings';
 import {
@@ -249,101 +250,106 @@ const ElectrumConfig = (): ReactElement => {
 		<View style={styles.container}>
 			<SafeAreaInsets type="top" />
 			<NavigationHeader title="Electrum Config" />
-			<View style={styles.content}>
-				{!!connectedPeer?.host && (
-					<>
-						<Text style={styles.title}>Connected to:</Text>
-						<View style={styles.row}>
-							<View style={styles.connectedPeer}>
-								<Text>
-									{connectedPeer.host}:{connectedPeer.port}
-								</Text>
-							</View>
-							{!peersMatch(connectedPeer) && (
-								<View style={styles.savePeer}>
-									<Button
-										text="Save This Peer"
-										color="surface"
-										onPress={saveConnectedPeer}
-									/>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={styles.content}>
+				<ScrollView bounces={false}>
+					{!!connectedPeer?.host && (
+						<>
+							<Text style={styles.title}>Connected to:</Text>
+							<View style={styles.row}>
+								<View style={styles.connectedPeer}>
+									<Text>
+										{connectedPeer.host}:{connectedPeer.port}
+									</Text>
 								</View>
-							)}
-						</View>
-					</>
-				)}
-
-				<View style={styles.divider} />
-
-				<Text style={styles.title}>Custom Peer:</Text>
-
-				<View style={styles.divider} />
-
-				<Text style={styles.title}>Host</Text>
-				<TextInput
-					style={styles.textInput}
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					keyboardType="default"
-					autoCorrect={false}
-					onChangeText={setHost}
-					value={host}
-				/>
-
-				<View style={styles.divider} />
-
-				<Text style={styles.title}>Port</Text>
-				<TextInput
-					style={styles.textInput}
-					textAlignVertical={'center'}
-					underlineColorAndroid="transparent"
-					autoCapitalize="none"
-					autoCompleteType="off"
-					keyboardType="number-pad"
-					autoCorrect={false}
-					onChangeText={setPort}
-					value={port.toString()}
-				/>
-
-				<View style={styles.divider} />
-
-				<Text style={styles.title}>Protocol</Text>
-				<RadioButtonRN
-					data={radioButtons}
-					selectedBtn={(e): void => {
-						let value = '';
-						try {
-							value = e.value;
-						} catch {}
-						setProtocol(value);
-						//Toggle the port if the protocol changes and the default ports are still set.
-						if (!port || defaultElectrumPorts.includes(port.toString())) {
-							setPort(getDefaultPort(selectedNetwork, value));
-						}
-					}}
-					initial={initialIndex}
-				/>
-
-				<View style={styles.divider} />
-				<View style={styles.bottomRow}>
-					<Button
-						text="Randomize Peer"
-						color="surface"
-						onPress={getRandomPeer}
-					/>
-					{!peersMatch({ host, port, protocol }) && (
-						<Button
-							text="Save Peer"
-							color="surface"
-							loading={loading}
-							onPress={(): void => {
-								connectAndAddPeer({ host, port, protocol });
-							}}
-						/>
+								{!peersMatch(connectedPeer) && (
+									<View style={styles.savePeer}>
+										<Button
+											text="Save This Peer"
+											color="surface"
+											onPress={saveConnectedPeer}
+										/>
+									</View>
+								)}
+							</View>
+						</>
 					)}
-				</View>
-			</View>
+
+					<View style={styles.divider} />
+
+					<Text style={styles.title}>Custom Peer:</Text>
+
+					<View style={styles.divider} />
+
+					<Text style={styles.title}>Host</Text>
+					<TextInput
+						style={styles.textInput}
+						textAlignVertical={'center'}
+						underlineColorAndroid="transparent"
+						autoCapitalize="none"
+						autoCompleteType="off"
+						keyboardType="default"
+						autoCorrect={false}
+						onChangeText={setHost}
+						value={host}
+						returnKeyType="done"
+					/>
+
+					<View style={styles.divider} />
+
+					<Text style={styles.title}>Port</Text>
+					<TextInput
+						style={styles.textInput}
+						textAlignVertical={'center'}
+						underlineColorAndroid="transparent"
+						autoCapitalize="none"
+						autoCompleteType="off"
+						keyboardType="number-pad"
+						autoCorrect={false}
+						onChangeText={setPort}
+						value={port.toString()}
+					/>
+
+					<View style={styles.divider} />
+
+					<Text style={styles.title}>Protocol</Text>
+					<RadioButtonRN
+						data={radioButtons}
+						selectedBtn={(e): void => {
+							let value = '';
+							try {
+								value = e.value;
+							} catch {}
+							setProtocol(value);
+							//Toggle the port if the protocol changes and the default ports are still set.
+							if (!port || defaultElectrumPorts.includes(port.toString())) {
+								setPort(getDefaultPort(selectedNetwork, value));
+							}
+						}}
+						initial={initialIndex}
+					/>
+
+					<View style={styles.divider} />
+					<View style={styles.bottomRow}>
+						<Button
+							text="Randomize Peer"
+							color="surface"
+							onPress={getRandomPeer}
+						/>
+						{!peersMatch({ host, port, protocol }) && (
+							<Button
+								text="Save Peer"
+								color="surface"
+								loading={loading}
+								onPress={(): void => {
+									connectAndAddPeer({ host, port, protocol });
+								}}
+							/>
+						)}
+					</View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</View>
 	);
 };
@@ -354,6 +360,7 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		paddingHorizontal: 20,
+		flex: 1,
 	},
 	row: {
 		flexDirection: 'row',
