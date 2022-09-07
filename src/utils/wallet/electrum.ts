@@ -83,7 +83,7 @@ export const getUtxos = async ({
 						network: selectedNetwork,
 					});
 				if (unspentAddressResult.error) {
-					return err(unspentAddressResult.data);
+					throw unspentAddressResult.data;
 				}
 				await Promise.all(
 					unspentAddressResult.data.map(({ data, result }) => {
