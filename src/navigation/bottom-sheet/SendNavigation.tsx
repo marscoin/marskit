@@ -1,9 +1,10 @@
 import React, { ReactElement, useMemo, memo } from 'react';
+import { useSelector } from 'react-redux';
 import {
 	createNativeStackNavigator,
+	NativeStackNavigationOptions,
 	NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
-import { useSelector } from 'react-redux';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import AddressAndAmount from '../../screens/Wallets/SendOnChainTransaction/AddressAndAmount';
@@ -39,10 +40,9 @@ export type SendStackParamList = {
 };
 
 const Stack = createNativeStackNavigator<SendStackParamList>();
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
 
 const SendNavigation = (): ReactElement => {

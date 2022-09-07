@@ -19,6 +19,7 @@ import { useExchangeRate } from '../../hooks/displayValues';
 import AmountToggle from '../../components/AmountToggle';
 import useDisplayValues from '../../hooks/displayValues';
 import NumberPadLightning from './NumberPadLightning';
+import type { LightningScreenProps } from '../../navigation/types';
 
 const PACKAGES_SPENDING = [
 	{
@@ -78,8 +79,11 @@ const Barrel = ({ active, id, amount, img, onPress }): ReactElement => {
 	);
 };
 
-const CustomSetup = ({ navigation, route }): ReactElement => {
-	const spending = route?.params?.spending;
+const CustomSetup = ({
+	navigation,
+	route,
+}: LightningScreenProps<'CustomSetup'>): ReactElement => {
+	const spending = route.params?.spending;
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
@@ -118,7 +122,12 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title="Add instant payments" />
+			<NavigationHeader
+				title="Add Instant Payments"
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.root}>
 				<View>
 					<Display>
@@ -198,13 +207,14 @@ const CustomSetup = ({ navigation, route }): ReactElement => {
 							size="large"
 							onPress={(): void => {
 								if (spending) {
+									// go to second setup screen
 									navigation.push('CustomSetup', {
 										spending: false,
 										spendingAmount: amount,
 									});
 								} else {
 									navigation.navigate('CustomConfirm', {
-										spendingAmount: route.params.spendingAmount,
+										spendingAmount: route.params.spendingAmount ?? 0,
 										receivingAmount: amount,
 										receivingCost: 123456,
 									});

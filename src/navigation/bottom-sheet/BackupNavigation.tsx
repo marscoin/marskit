@@ -1,8 +1,11 @@
 import React, { ReactElement, useMemo, memo } from 'react';
 import { useSelector } from 'react-redux';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ShowMnemonic from '../../screens/Settings/Backup/ShowMnemonic';
 import ConfirmMnemonic from '../../screens/Settings/Backup/ConfirmMnemonic';
 import Result from '../../screens/Settings/Backup/Result';
@@ -11,11 +14,11 @@ import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
 
 const Stack = createNativeStackNavigator();
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
+
 const BackupNavigation = (): ReactElement => {
 	const isOpen = useSelector(
 		(store: Store) => store.user.viewController?.backupNavigation?.isOpen,

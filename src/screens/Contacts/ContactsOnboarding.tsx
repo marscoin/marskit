@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
@@ -7,8 +8,13 @@ import { Display, Text01S, View } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { setOnboardedContacts } from '../../store/actions/slashtags';
+import { RootStackParamList } from '../../navigation/types';
 
-export const ContactsOnboarding = ({ navigation }): JSX.Element => {
+type ContactsOnboardingProps = StackScreenProps<RootStackParamList, 'Contacts'>;
+
+export const ContactsOnboarding = ({
+	navigation,
+}: ContactsOnboardingProps): JSX.Element => {
 	return (
 		<GlowingBackground topLeft="brand">
 			<SafeAreaInsets type={'top'} />

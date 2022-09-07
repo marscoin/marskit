@@ -1,5 +1,9 @@
 import React, { ReactElement } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
+
 import SettingsMenu from '../../screens/Settings';
 import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 import CurrenciesSettings from '../../screens/Settings/Currencies';
@@ -30,10 +34,9 @@ import ExportToPhone from '../../screens/Settings/Backup/ExportToPhone';
 
 const Stack = createNativeStackNavigator();
 
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
 
 const SettingsNavigator = (): ReactElement => {
@@ -41,7 +44,6 @@ const SettingsNavigator = (): ReactElement => {
 		<Stack.Navigator screenOptions={navOptions} initialRouteName="SettingsMenu">
 			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
-
 				<Stack.Screen name="GeneralSettings" component={GeneralSettings} />
 				<Stack.Screen name="SecuritySettings" component={SecuritySettings} />
 				<Stack.Screen name="BackupMenu" component={BackupMenu} />
@@ -49,7 +51,6 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen name="AdvancedSettings" component={AdvancedSettings} />
 				<Stack.Screen name="AboutSettings" component={AboutSettings} />
 				<Stack.Screen name="EasterEgg" component={EasterEgg} />
-
 				<Stack.Screen
 					name="CurrenciesSettings"
 					component={CurrenciesSettings}

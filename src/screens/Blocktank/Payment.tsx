@@ -1,12 +1,7 @@
-/**
- * @format
- * @flow strict-local
- */
-
 import React, { memo, ReactElement, useCallback, useEffect } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { Text } from '../../styles/components';
 import {
@@ -36,7 +31,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import SafeAreaView from '../../components/SafeAreaView';
 import { RootStackParamList } from '../../navigation/types';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'BlocktankPayment'>;
+type Props = StackScreenProps<RootStackParamList, 'BlocktankPayment'>;
 
 const BlocktankPayment = (props: Props): ReactElement => {
 	const { navigation, route } = props;

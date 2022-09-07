@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
 	createNativeStackNavigator,
+	NativeStackNavigationOptions,
 	NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
 import { SvgXml } from 'react-native-svg';
@@ -32,10 +33,9 @@ export type TabStackParamList = {
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<TabStackParamList>();
 
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
 
 const screenOptions = {

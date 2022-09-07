@@ -1,6 +1,13 @@
 import React, { ReactElement, useMemo, memo } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
+import {
+	useSafeAreaFrame,
+	useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import Receive from '../../screens/Wallets/Receive';
@@ -9,17 +16,13 @@ import ReceiveNumberPad from '../../screens/Wallets/Receive/ReceiveNumberPad';
 import Tags from '../../screens/Wallets/Receive/Tags';
 import { NavigationContainer } from '../../styles/components';
 import Store from '../../store/types';
-import {
-	useSafeAreaFrame,
-	useSafeAreaInsets,
-} from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
+
 const ReceiveNavigation = (): ReactElement => {
 	const insets = useSafeAreaInsets();
 	const { height } = useSafeAreaFrame();
