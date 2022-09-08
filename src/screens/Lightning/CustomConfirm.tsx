@@ -19,8 +19,12 @@ import Money from '../../components/Money';
 import useColors from '../../hooks/colors';
 import useDisplayValues from '../../hooks/displayValues';
 import NumberPadWeeks from './NumberPadWeeks';
+import { LightningScreenProps } from '../../navigation/types';
 
-const CustomConfirm = ({ navigation, route }): ReactElement => {
+const CustomConfirm = ({
+	navigation,
+	route,
+}: LightningScreenProps<'CustomConfirm'>): ReactElement => {
 	const { spendingAmount, receivingAmount, receivingCost } = route.params;
 	const cost = useDisplayValues(receivingCost);
 	const colors = useColors();
@@ -36,7 +40,12 @@ const CustomConfirm = ({ navigation, route }): ReactElement => {
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title="Add instant payments" />
+			<NavigationHeader
+				title="Add Instant Payments"
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.root}>
 				{!keybrd && (
 					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>

@@ -1,11 +1,14 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { View } from '../../styles/components';
 import SearchInput from '../../components/SearchInput';
 import List, { IListData } from '../../components/List';
 import NavigationHeader from '../../components/NavigationHeader';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
+import { SettingsScreenProps } from '../../navigation/types';
+import { SettingsStackParamList } from '../../navigation/settings/SettingsNavigator';
 
 /**
  * Generic settings view
@@ -32,6 +35,11 @@ const SettingsView = ({
 	children?: ReactElement | ReactElement[] | undefined;
 	childrenPosition?: 'top' | 'bottom';
 }): ReactElement => {
+	const navigation =
+		useNavigation<
+			SettingsScreenProps<keyof SettingsStackParamList>['navigation']
+		>();
+
 	const [search, setSearch] = useState('');
 	const filteredListData =
 		listData?.map((section) => {
@@ -47,7 +55,13 @@ const SettingsView = ({
 	return (
 		<View style={fullHeight && styles.fullHeight} color="black">
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title={title} displayBackButton={showBackNavigation} />
+			<NavigationHeader
+				title={title}
+				displayBackButton={showBackNavigation}
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 
 			{showSearch ? (
 				<SearchInput

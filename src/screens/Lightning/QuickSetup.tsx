@@ -25,8 +25,8 @@ import Money from '../../components/Money';
 import useColors from '../../hooks/colors';
 import AmountToggle from '../../components/AmountToggle';
 import FancySlider from '../../components/FancySlider';
-
 import NumberPadLightning from './NumberPadLightning';
+import type { LightningScreenProps } from '../../navigation/types';
 
 import { err, ok, Result } from '@synonymdev/result';
 import { getNodeId } from '../../utils/lightning';
@@ -59,7 +59,9 @@ export const Percentage = ({ value, type }): ReactElement => {
 	);
 };
 
-const QuickSetup = ({ navigation }): ReactElement => {
+const QuickSetup = ({
+	navigation,
+}: LightningScreenProps<'QuickSetup'>): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -190,7 +192,12 @@ const QuickSetup = ({ navigation }): ReactElement => {
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title="Add instant payments" />
+			<NavigationHeader
+				title="Add Instant Payments"
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.root}>
 				<View>
 					{keybrd ? (

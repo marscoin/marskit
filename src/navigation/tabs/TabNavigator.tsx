@@ -3,6 +3,7 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
 	createNativeStackNavigator,
+	NativeStackNavigationOptions,
 	NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
 import { SvgXml } from 'react-native-svg';
@@ -32,10 +33,9 @@ export type TabStackParamList = {
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<TabStackParamList>();
 
-const navOptions = {
+const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
-	detachInactiveScreens: true,
 };
 
 const screenOptions = {
@@ -66,7 +66,7 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	const { white08 } = useColors();
 	const insets = useSafeAreaInsets();
 
-	const [screen, params] = useMemo(() => {
+	const [screen] = useMemo(() => {
 		const wsState = state.routes.find((r) => r.name === 'WalletsStack')?.state;
 		// wsState is undefined on Wallets screen on initial render
 		if (wsState === undefined) {
@@ -88,27 +88,15 @@ export const TabBar = ({ navigation, state }): ReactElement => {
 	}, []);
 
 	const onSendPress = useCallback((): void => {
-		if (screen === 'WalletsDetail') {
-			toggleView({
-				view: 'sendNavigation',
-				data: {
-					isOpen: true,
-					snapPoint: 0,
-					initial: 'AddressAndAmount',
-					assetName: params.assetType,
-				},
-			});
-		} else {
-			toggleView({
-				view: 'sendNavigation',
-				data: {
-					isOpen: true,
-					snapPoint: 0,
-					initial: 'SendAssetPickerList',
-				},
-			});
-		}
-	}, [screen, params]);
+		toggleView({
+			view: 'sendNavigation',
+			data: {
+				isOpen: true,
+				snapPoint: 0,
+				initial: 'AddressAndAmount',
+			},
+		});
+	}, []);
 
 	const openScanner = useCallback(
 		() => navigation.navigate('Scanner'),

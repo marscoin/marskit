@@ -1,7 +1,9 @@
 import React, { ReactElement, useCallback, useMemo, memo } from 'react';
 import { useSelector } from 'react-redux';
+import type { NavigationContainerRef } from '@react-navigation/native';
 import {
 	createStackNavigator,
+	StackNavigationOptions,
 	TransitionPresets,
 } from '@react-navigation/stack';
 
@@ -41,19 +43,21 @@ import Result from '../../screens/Lightning/Result';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const navOptions = {
+const navOptions: StackNavigationOptions = {
 	headerShown: false,
 	gestureEnabled: true,
 	...TransitionPresets.SlideFromRightIOS,
-	detachInactiveScreens: true,
 };
 
-export const navigationRef: any = React.createRef();
+const navigationRef =
+	React.createRef<NavigationContainerRef<RootStackParamList>>();
+
 /**
  * Helper function to navigate from utils.
  */
-export const navigate = (name: string, params: object): void =>
+export const navigate = (name: keyof RootStackParamList, params): void => {
 	navigationRef.current?.navigate(name, params);
+};
 
 export type TInitialRoutes = 'Tabs' | 'RootAuthCheck';
 

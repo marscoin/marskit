@@ -1,5 +1,9 @@
 import React, { ReactElement } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+	createNativeStackNavigator,
+	NativeStackNavigationOptions,
+	NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
 
 import Introduction from '../../screens/Lightning/Introduction';
 import CustomSetup from '../../screens/Lightning/CustomSetup';
@@ -8,22 +12,39 @@ import Result from '../../screens/Lightning/Result';
 import QuickSetup from '../../screens/Lightning/QuickSetup';
 import QuickConfirm from '../../screens/Lightning/QuickConfirm';
 
-const Stack = createNativeStackNavigator();
+export type LightningNavigationProp =
+	NativeStackNavigationProp<LightningStackParamList>;
 
-const navOptions = {
-	headerShown: false,
-	gestureEnabled: true,
-	detachInactiveScreens: true,
+export type LightningStackParamList = {
+	Introduction: undefined;
+	CustomSetup: {
+		spending: boolean;
+		spendingAmount?: number;
+	};
+	CustomConfirm: {
+		spendingAmount: number;
+		receivingAmount: number;
+		receivingCost: number;
+	};
+	Result: undefined;
+	QuickSetup: undefined;
+	QuickConfirm: {
+		spendingAmount: number;
+		total: number;
+	};
 };
 
-const screenOptions = {
-	...navOptions,
+const Stack = createNativeStackNavigator<LightningStackParamList>();
+
+const navOptions: NativeStackNavigationOptions = {
+	headerShown: false,
+	gestureEnabled: true,
 };
 
 const LightningStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Introduction">
-			<Stack.Group screenOptions={screenOptions}>
+			<Stack.Group screenOptions={navOptions}>
 				<Stack.Screen name="Introduction" component={Introduction} />
 				<Stack.Screen name="CustomSetup" component={CustomSetup} />
 				<Stack.Screen name="CustomConfirm" component={CustomConfirm} />

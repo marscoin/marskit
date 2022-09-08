@@ -15,6 +15,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import useColors from '../../hooks/colors';
 import AmountToggle from '../../components/AmountToggle';
 import SwipeToConfirm from '../../components/SwipeToConfirm';
+import type { LightningScreenProps } from '../../navigation/types';
 
 import { Percentage } from './QuickSetup';
 import PieChart from './PieChart';
@@ -37,7 +38,10 @@ import { showErrorNotification } from '../../utils/notifications';
 const PIE_SIZE = 140;
 const PIE_SHIFT = 70;
 
-const QuickConfirm = ({ navigation, route }): ReactElement => {
+const QuickConfirm = ({
+	navigation,
+	route,
+}: LightningScreenProps<'QuickConfirm'>): ReactElement => {
 	const colors = useColors();
 	const { total } = route.params;
 	const [spendingAmount, setSpendingAmount] = useState(
@@ -107,7 +111,12 @@ const QuickConfirm = ({ navigation, route }): ReactElement => {
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title="Add instant payments" />
+			<NavigationHeader
+				title="Add Instant Payments"
+				onClosePress={(): void => {
+					navigation.navigate('Tabs');
+				}}
+			/>
 			<View style={styles.root}>
 				<View>
 					<Display color="purple">Please {'\n'}confirm.</Display>

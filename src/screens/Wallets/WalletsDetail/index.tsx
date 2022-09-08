@@ -24,7 +24,7 @@ import {
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
 import { AnimatedView, Title, View } from '../../../styles/components';
 import NavigationHeader from '../../../components/NavigationHeader';
@@ -56,7 +56,7 @@ const updateHeight = ({
 	} catch {}
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'WalletsDetail'>;
+type Props = StackScreenProps<RootStackParamList, 'WalletsDetail'>;
 
 const Glow = ({ colors }): ReactElement => {
 	const { size } = useCanvas();

@@ -1,20 +1,28 @@
 import React, { ReactElement } from 'react';
 import { Image, StyleSheet } from 'react-native';
+
 import { Display, Text01S, View } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import useColors from '../../hooks/colors';
+import type { LightningScreenProps } from '../../navigation/types';
 
-const Introduction = ({ navigation }): ReactElement => {
+const Introduction = ({
+	navigation,
+}: LightningScreenProps<'Introduction'>): ReactElement => {
 	const colors = useColors();
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<View color="transparent" style={styles.slide}>
 				<SafeAreaInsets type="top" />
-				<NavigationHeader />
+				<NavigationHeader
+					onClosePress={(): void => {
+						navigation.navigate('Tabs');
+					}}
+				/>
 				<View color="transparent" style={styles.imageContainer}>
 					<Image
 						style={styles.image2}
