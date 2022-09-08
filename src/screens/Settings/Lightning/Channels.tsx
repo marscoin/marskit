@@ -41,8 +41,6 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
-import { autoBuyChannel } from '../../../store/actions/blocktank';
-import { sleep } from '../../../utils/helpers';
 
 const Channel = memo(
 	({
@@ -99,7 +97,6 @@ const Channels = ({ navigation }): ReactElement => {
 	const [closed, setClosed] = useState<boolean>(false);
 	const [payingInvoice, setPayingInvoice] = useState<boolean>(false);
 	const [refreshingWallet, setRefreshingWallet] = useState<boolean>(false);
-	const [autobuying, setAutobuying] = useState(false);
 
 	const colors = useColors();
 	const selectedWallet = useSelector(
@@ -143,7 +140,11 @@ const Channels = ({ navigation }): ReactElement => {
 	}, [channels, openChannelIds]);
 
 	const handleAdd = useCallback((): void => {
-		navigation.navigate('LightningAddConnection');
+		navigation.navigate('Introduction');
+
+		// TODO: Update this view once we enable creating channels with nodes other than Blocktank.
+		//navigation.navigate('LightningAddConnection');
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -271,36 +272,6 @@ const Channels = ({ navigation }): ReactElement => {
 						});
 					}}
 				/>
-
-				{openChannelIds.length <= 0 && pendingChannels.length <= 0 && (
-					<Button
-						text={'Auto Buy'}
-						loading={autobuying}
-						disabled={autobuying}
-						onPress={async (): Promise<void> => {
-							setAutobuying(true);
-							const response = await autoBuyChannel({});
-							console.log(response);
-							setAutobuying(false);
-							if (response.isErr()) {
-								showErrorNotification({
-									title: 'Unable To Buy Channel',
-									message: response.error.message,
-								});
-								return;
-							}
-							showSuccessNotification({
-								title: 'Successfully Bought A Channel',
-								message: 'Blocktank will initiate a channel open shortly.',
-							});
-							console.log(
-								'Waiting 15s for Blocktank to initiate the open and then refreshing LDK...',
-							);
-							await sleep(15000);
-							await refreshLdk({ selectedNetwork, selectedWallet });
-						}}
-					/>
-				)}
 
 				{openChannelIds.length > 0 && (
 					<>

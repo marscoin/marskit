@@ -16,7 +16,7 @@ import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { setupLdk } from '../lightning';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateUser } from '../../store/actions/user';
-import { setupBlocktank } from '../blocktank';
+import { setupBlocktank, watchPendingOrders } from '../blocktank';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -167,6 +167,7 @@ export const startWalletServices = async ({
 			if (lightning) {
 				await setupBlocktank(selectedNetwork);
 				await refreshServiceList();
+				watchPendingOrders();
 			}
 			//backupServiceStart().then();
 		});

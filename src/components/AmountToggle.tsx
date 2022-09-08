@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { LayoutAnimation, View } from 'react-native';
 
@@ -15,12 +15,14 @@ const AmountToggle = ({
 	onPress,
 	reverse = false,
 	space = 0, // space between the rows
+	disable = false,
 }: {
 	sats: number;
 	style?: object;
 	onPress?: Function;
 	reverse?: boolean;
 	space?: number;
+	disable?: boolean;
 }): ReactElement => {
 	const primary = useSelector((state: Store) => state.settings.unitPreference);
 
@@ -49,8 +51,14 @@ const AmountToggle = ({
 
 	LayoutAnimation.easeInEaseOut();
 
+	const _onPress = useCallback((): void => {
+		if (!disable && onPress) {
+			onPress();
+		}
+	}, [disable, onPress]);
+
 	return (
-		<Pressable onPress={onPress} color="transparent" style={style}>
+		<Pressable onPress={_onPress} color="transparent" style={style}>
 			{components}
 		</Pressable>
 	);

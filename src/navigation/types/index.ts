@@ -23,6 +23,11 @@ export type RootStackParamList = {
 	WalletsDetail: {
 		assetType: TAssetType;
 	};
+	Introduction: undefined;
+	QuickSetup: undefined;
+	CustomSetup: undefined;
+	QuickConfirm: undefined;
+	Result: undefined;
 	LightningRoot: undefined;
 	Settings: undefined;
 	Profile: undefined;

@@ -47,8 +47,9 @@ const App = (): ReactElement => {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
 	);
-	const wallets = useSelector((store: Store) => store.wallet.wallets);
-	const seedHash = wallets[selectedWallet]?.seedHash;
+	const seedHash = useSelector(
+		(store: Store) => store.wallet.wallets[selectedWallet]?.seedHash,
+	);
 	const [primaryKey, setPrimaryKey] = useState<Uint8Array>();
 
 	useEffect(() => {

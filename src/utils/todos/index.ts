@@ -3,6 +3,8 @@ import { ITodo, TTodoType } from '../../store/types/todos';
 import { getStore } from '../../store/helpers';
 import { addTodo, removeTodo } from '../../store/actions/todos';
 import { toggleView } from '../../store/actions/user';
+import { getLightningChannels } from '../lightning';
+import { TChannel } from '@synonymdev/react-native-ldk';
 
 type TTodoPresets = { [key in TTodoType]: ITodo };
 export const todoPresets: TTodoPresets = {
@@ -44,7 +46,7 @@ export const todoPresets: TTodoPresets = {
 	},
 };
 
-export const setupTodos = (): void => {
+export const setupTodos = async (): Promise<void> => {
 	const store = getStore();
 	const todos = store.todos.todos ?? [];
 	const dismissedTodos = store.todos.dismissedTodos ?? [];
@@ -91,11 +93,18 @@ export const setupTodos = (): void => {
 	 * Check for lightning.
 	 */
 	const lightning = todos.some((todo) => todo.type === 'lightning');
-	const lightningIsDismissed = 'lightning' in dismissedTodos;
-	// Add lightning if status is false and is not included in the todos array.
-	if (!lightning && !lightningIsDismissed) {
+	const getLightningChannelsResponse = await getLightningChannels();
+	let lightningChannels: TChannel[] = [];
+	if (getLightningChannelsResponse.isOk()) {
+		lightningChannels = getLightningChannelsResponse.value;
+	} else {
+		lightningChannels = [];
+	}
+	// Add lightning if not included in the todos array, hasn't been previously dismissed and no channels exist.
+	if (!lightning && lightningChannels.length <= 0) {
 		addTodo(todoPresets.lightning);
 	}
+
 	// Remove lightning if status is true and hasn't been removed from the todos array.
 	// if (lightning.length) {
 	// 	removeTodo(lightning[0].id);
