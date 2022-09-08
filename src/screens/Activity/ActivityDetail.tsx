@@ -23,7 +23,7 @@ import {
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
 import {
 	Caption13M,
@@ -104,7 +104,7 @@ const ZigZag = ({ color }): ReactElement => {
 	return <Path path={path} color={color} />;
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ActivityDetail'>;
+type Props = StackScreenProps<RootStackParamList, 'ActivityDetail'>;
 
 const emptyActivityItem: IActivityItem = {
 	id: '',

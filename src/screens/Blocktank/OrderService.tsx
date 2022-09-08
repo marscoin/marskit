@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import Clipboard from '@react-native-clipboard/clipboard';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
 
 import { Text, TextInput, View } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -19,7 +19,7 @@ import Store from '../../store/types';
 import SafeAreaView from '../../components/SafeAreaView';
 import type { RootStackParamList } from '../../navigation/types';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'BlocktankOrder'>;
+type Props = StackScreenProps<RootStackParamList, 'BlocktankOrder'>;
 
 const Order = (props: Props): ReactElement => {
 	const { navigation, route } = props;

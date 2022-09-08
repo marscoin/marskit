@@ -1,6 +1,7 @@
 import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
+import { StackScreenProps } from '@react-navigation/stack';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 import {
@@ -27,20 +28,23 @@ import { handleSlashtagURL } from '../../utils/slashtags';
 import { IContactRecord } from '../../store/types/slashtags';
 import { useSlashtagsContacts } from '../../components/SlashtagContactsProvider';
 import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
+import { RootStackParamList } from '../../navigation/types';
 
-export const Contacts = ({ navigation }): JSX.Element => {
+type ContactsScreenProps = StackScreenProps<RootStackParamList, 'Contacts'>;
+
+export const Contacts = (props: ContactsScreenProps): JSX.Element => {
 	const onboardedContacts = useSelector(
 		(state: Store) => state.slashtags.onboardedContacts,
 	);
 
 	return onboardedContacts ? (
-		<ContactsScreen navigation={navigation} />
+		<ContactsScreen {...props} />
 	) : (
-		<ContactsOnboarding navigation={navigation} />
+		<ContactsOnboarding {...props} />
 	);
 };
 
-const ContactsScreen = ({ navigation }): JSX.Element => {
+const ContactsScreen = ({ navigation }: ContactsScreenProps): JSX.Element => {
 	const [searchFilter, setSearchFilter] = useState('');
 	const [addContactURL, setAddContactURL] = useState('');
 	const [addContacInvalid, setAddContactInvalid] = useState(false);
