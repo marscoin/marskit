@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -20,6 +20,20 @@ import type { LightningScreenProps } from '../../navigation/types';
 import { Percentage } from './QuickSetup';
 import PieChart from './PieChart';
 import NumberPadLightning from './NumberPadLightning';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
+import { IGetOrderResponse } from '@synonymdev/blocktank-client';
+import {
+	broadcastTransaction,
+	createTransaction,
+} from '../../utils/wallet/transactions';
+import { err, ok, Result } from '@synonymdev/result';
+import { sleep } from '../../utils/helpers';
+import { defaultOrderResponse } from '../../store/shapes/blocktank';
+import { watchOrder } from '../../utils/blocktank';
+import { addTodo, removeTodo } from '../../store/actions/todos';
+import { ITodo } from '../../store/types/todos';
+import { showErrorNotification } from '../../utils/notifications';
 
 const PIE_SIZE = 140;
 const PIE_SHIFT = 70;
@@ -33,6 +47,22 @@ const QuickConfirm = ({
 	const [spendingAmount, setSpendingAmount] = useState(
 		route.params.spendingAmount,
 	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const orderId = useMemo(
+		() => route.params?.orderId ?? '',
+		[route.params?.orderId],
+	);
+	const orders = useSelector((state: Store) => state.blocktank?.orders ?? []);
+
+	const order: IGetOrderResponse = useMemo(() => {
+		const filteredOrders = orders.filter((o) => o._id === orderId);
+		if (filteredOrders.length) {
+			return filteredOrders[0];
+		}
+		return defaultOrderResponse;
+	}, [orderId, orders]);
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -40,9 +70,42 @@ const QuickConfirm = ({
 	const spendingPercentage = Math.round((spendingAmount / total) * 100);
 	const savingsPercentage = Math.round((savingsAmount / total) * 100);
 
-	const handleConfirm = (): void => {
+	const handleConfirm = async (): Promise<Result<string>> => {
 		setLoading(true);
+		await sleep(5);
+		const rawTx = await createTransaction({ selectedNetwork });
+		if (rawTx.isErr()) {
+			setLoading(false);
+			showErrorNotification({
+				title: 'Unable To Create Transaction',
+				message: rawTx.error.message,
+			});
+			return err(rawTx.error.message);
+		}
+		const broadcastResponse = await broadcastTransaction({
+			rawTx: rawTx.value.hex,
+			selectedNetwork,
+		});
+		if (broadcastResponse.isErr()) {
+			setLoading(false);
+			showErrorNotification({
+				title: 'Unable To Broadcast Transaction',
+				message: broadcastResponse.error.message,
+			});
+			return err(broadcastResponse.error.message);
+		}
+
+		watchOrder(orderId).then();
+		await removeTodo('lightning');
+		const todo: ITodo = {
+			id: 'lightning',
+			type: 'lightning',
+			title: 'Setting Up',
+			description: 'Ready in ~20min',
+		};
+		await addTodo(todo);
 		navigation.navigate('Result');
+		return ok('Waiting to finalize channel open.');
 	};
 
 	return (
@@ -58,8 +121,8 @@ const QuickConfirm = ({
 				<View>
 					<Display color="purple">Please {'\n'}confirm.</Display>
 					<Text01S color="gray1" style={styles.text}>
-						It costs <Text01S>$TODO</Text01S> to connect you to Lightning and
-						set up your spending balance.
+						It costs <Text01S>{order.price} sats</Text01S> to connect you to
+						Lightning and set up your spending balance.
 					</Text01S>
 				</View>
 
@@ -88,6 +151,7 @@ const QuickConfirm = ({
 								SPENDING BALANCE
 							</Caption13Up>
 							<AmountToggle
+								disable={true}
 								sats={spendingAmount}
 								onPress={(): void => setKeybrd(true)}
 							/>

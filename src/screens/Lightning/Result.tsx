@@ -24,7 +24,7 @@ const Result = ({ navigation }): ReactElement => {
 					<Display color="purple">You’re Connected!</Display>
 					<Text01S color="gray1" style={styles.text}>
 						You are now connected to the Lightning network. Enjoy instant
-						payments! (Your instant balance will be ready in ±10-20min)
+						payments!
 					</Text01S>
 
 					<View style={styles.imageContainer}>

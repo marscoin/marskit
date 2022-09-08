@@ -3,6 +3,7 @@ import lm, {
 	DefaultTransactionDataShape,
 	ENetworks,
 	TAccount,
+	TChannel,
 	TCloseChannelReq,
 	THeader,
 	TInvoice,
@@ -435,6 +436,59 @@ export const addPeers = async (): Promise<Result<string[]>> => {
  * @returns Promise<Result<TChannel[]>>
  */
 export const getLightningChannels = ldk.listChannels;
+
+/**
+ * Returns an array of unconfirmed/pending lightning channels from either storage or directly from the LDK node.
+ * @param {boolean} [fromStorage]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<TChannel[]>>}
+ */
+export const getPendingChannels = async ({
+	fromStorage = false,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	fromStorage?: boolean;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<TChannel[]>> => {
+	let channels;
+	if (fromStorage) {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		channels =
+			getStore().lightning.nodes[selectedWallet].channels[selectedNetwork];
+	} else {
+		channels = await getLightningChannels();
+		if (channels.isErr()) {
+			return err(channels.error.message);
+		}
+	}
+	const pendingChannels = channels.value.filter(
+		(channel) => !channel?.short_channel_id,
+	);
+	return ok(pendingChannels);
+};
+
+/**
+ * Returns an array of confirmed/open lightning channels.
+ * @returns {Promise<Result<TChannel[]>>}
+ */
+export const getOpenChannels = async (): Promise<Result<TChannel[]>> => {
+	const channels = await getLightningChannels();
+	if (channels.isErr()) {
+		return err(channels.error.message);
+	}
+	const openChannels = channels.value.filter(
+		(channel) => channel?.short_channel_id !== undefined,
+	);
+	return ok(openChannels);
+};
 
 /**
  * Returns LDK and c-bindings version.

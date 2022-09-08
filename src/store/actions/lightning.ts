@@ -12,6 +12,7 @@ import {
 } from '../../utils/lightning';
 import { TChannel } from '@synonymdev/react-native-ldk';
 import { TLightningNodeVersion } from '../types/lightning';
+import { showSuccessNotification } from '../../utils/notifications';
 
 const dispatch = getDispatch();
 
@@ -73,6 +74,8 @@ export const updateLightningChannels = async ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
+	const oldOpenChannelIds =
+		getStore().lightning.nodes[selectedWallet].openChannelIds[selectedNetwork];
 	const lightningChannels = await getLightningChannels();
 	if (lightningChannels.isErr()) {
 		return err(lightningChannels.error.message);
@@ -88,6 +91,13 @@ export const updateLightningChannels = async ({
 			}
 		}),
 	);
+	// TODO: Remove this once listeners are added in the next react-native-ldk version.
+	if (oldOpenChannelIds.length < openChannelIds.length) {
+		showSuccessNotification({
+			title: 'Lightning Channel Opened',
+			message: 'Congrats! A new lightning channel was successfully opened.',
+		});
+	}
 	const payload = {
 		channels,
 		openChannelIds,

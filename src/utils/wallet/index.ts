@@ -84,6 +84,7 @@ import {
 	GENERATE_ADDRESS_AMOUNT,
 } from './constants';
 import { moveMetaIncTxTags } from '../../store/actions/metadata';
+import { refreshOrdersList } from '../../store/actions/blocktank';
 
 export const refreshWallet = async ({
 	onchain = true,
@@ -132,6 +133,7 @@ export const refreshWallet = async ({
 
 		if (lightning) {
 			await refreshLdk({ selectedWallet, selectedNetwork });
+			await refreshOrdersList();
 		}
 
 		if (onchain || lightning) {

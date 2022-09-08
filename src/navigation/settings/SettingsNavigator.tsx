@@ -32,6 +32,10 @@ import CloseConnection from '../../screens/Settings/Lightning/CloseChannel';
 import AddConnection from '../../screens/Settings/Lightning/AddConnection';
 import AddConnectionResult from '../../screens/Settings/Lightning/AddConnectionResult';
 import ExportToPhone from '../../screens/Settings/Backup/ExportToPhone';
+import LightningNavigator, {
+	LightningStackParamList,
+} from '../lightning/LightningNavigator';
+import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type SettingsNavigationProp =
 	NativeStackNavigationProp<SettingsStackParamList>;
@@ -64,6 +68,7 @@ export type SettingsStackParamList = {
 	CloseConnection: undefined;
 	LightningAddConnection: undefined;
 	LightningAddConnectionResult: undefined;
+	LightningRoot: NavigatorScreenParams<LightningStackParamList>;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -126,6 +131,7 @@ const SettingsNavigator = (): ReactElement => {
 					name="LightningAddConnectionResult"
 					component={AddConnectionResult}
 				/>
+				<Stack.Screen name="LightningRoot" component={LightningNavigator} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);

@@ -10,6 +10,8 @@ import {
 } from '../../../styles/components';
 import { useBalance } from '../../../hooks/wallet';
 import Money from '../../../components/Money';
+import { useNavigation } from '@react-navigation/native';
+import { RootNavigationProp } from '../../../navigation/types';
 
 const NetworkRow = ({
 	title,
@@ -49,6 +51,7 @@ const NetworkRow = ({
 };
 
 const BitcoinBreakdown = (): ReactElement => {
+	const navigation = useNavigation<RootNavigationProp>();
 	const { satoshis: onchain } = useBalance({ onchain: true });
 	const { satoshis: lightning } = useBalance({ lightning: true });
 
@@ -63,7 +66,12 @@ const BitcoinBreakdown = (): ReactElement => {
 			/>
 			<View color={'transparent'} style={styles.transferRow}>
 				<View color={'gray4'} style={styles.line} />
-				<TouchableOpacity>
+				<TouchableOpacity
+					onPress={(): void => {
+						navigation.navigate('LightningRoot', {
+							screen: 'Introduction',
+						});
+					}}>
 					<View style={styles.transferButton} color={'white08'}>
 						<TransferIcon height={13} color={'white'} />
 						<Caption13M color={'white'} style={styles.transferButtonText}>
