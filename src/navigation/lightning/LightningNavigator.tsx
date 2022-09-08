@@ -31,6 +31,7 @@ export type LightningStackParamList = {
 	QuickConfirm: {
 		spendingAmount: number;
 		total: number;
+		orderId: string;
 	};
 };
 

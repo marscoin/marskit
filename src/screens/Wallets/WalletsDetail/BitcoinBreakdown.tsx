@@ -68,7 +68,9 @@ const BitcoinBreakdown = (): ReactElement => {
 				<View color={'gray4'} style={styles.line} />
 				<TouchableOpacity
 					onPress={(): void => {
-						navigation.navigate('Introduction');
+						navigation.navigate('LightningRoot', {
+							screen: 'Introduction',
+						});
 					}}>
 					<View style={styles.transferButton} color={'white08'}>
 						<TransferIcon height={13} color={'white'} />
