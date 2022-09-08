@@ -35,11 +35,6 @@ import Contacts from '../../screens/Contacts/Contacts';
 import Contact from '../../screens/Contacts/Contact';
 import ContactEdit from '../../screens/Contacts/ContactEdit';
 import type { RootStackParamList } from '../types';
-import Introduction from '../../screens/Lightning/Introduction';
-import QuickSetup from '../../screens/Lightning/QuickSetup';
-import CustomSetup from '../../screens/Lightning/CustomSetup';
-import QuickConfirm from '../../screens/Lightning/QuickConfirm';
-import Result from '../../screens/Lightning/Result';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -121,11 +116,6 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Contacts" component={Contacts} />
 					<Stack.Screen name="ContactEdit" component={ContactEdit} />
 					<Stack.Screen name="Contact" component={Contact} />
-					<Stack.Screen name="Introduction" component={Introduction} />
-					<Stack.Screen name="QuickSetup" component={QuickSetup} />
-					<Stack.Screen name="CustomSetup" component={CustomSetup} />
-					<Stack.Screen name="QuickConfirm" component={QuickConfirm} />
-					<Stack.Screen name="Result" component={Result} />
 				</Stack.Group>
 			</Stack.Navigator>
 			<SendNavigation />

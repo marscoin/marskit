@@ -140,7 +140,9 @@ const Channels = ({ navigation }): ReactElement => {
 	}, [channels, openChannelIds]);
 
 	const handleAdd = useCallback((): void => {
-		navigation.navigate('Introduction');
+		navigation.navigate('LightningRoot', {
+			screen: 'Introduction',
+		});
 
 		// TODO: Update this view once we enable creating channels with nodes other than Blocktank.
 		//navigation.navigate('LightningAddConnection');
