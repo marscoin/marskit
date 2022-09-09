@@ -76,6 +76,9 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const initial = useSelector(
 		(store: Store) => store.user.viewController?.sendNavigation?.initial,
 	);
+	const numberPadIsOpen = useSelector(
+		(store: Store) => store.user.viewController?.numberPad.isOpen,
+	);
 	const coinSelectAuto = useSelector(
 		(state: Store) => state.settings.coinSelectAuto,
 	);
@@ -235,6 +238,18 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		});
 	}, []);
 
+	const closeNumberPad = useCallback(() => {
+		if (numberPadIsOpen) {
+			toggleView({
+				view: 'numberPad',
+				data: {
+					isOpen: false,
+					snapPoint: 0,
+				},
+			});
+		}
+	}, [numberPadIsOpen]);
+
 	const onBlur = useCallback(async (): Promise<void> => {
 		// Continue updating the on-chain information as we would previously.
 		let tx = {
@@ -323,6 +338,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 								borderColor: colors.text,
 							},
 						]}
+						onFocus={closeNumberPad}
 						selectTextOnFocus={true}
 						multiline={true}
 						placeholder="Paste or scan an address, invoice or select a contact"
@@ -365,7 +381,11 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 						style={styles.button}
 						text="Add Tag"
 						icon={<TagIcon color="brand" width={16} />}
-						onPress={(): void => navigation.navigate('Tags')}
+						onPress={(): void => {
+							closeNumberPad();
+							Keyboard.dismiss();
+							navigation.navigate('Tags');
+						}}
 					/>
 				</View>
 				<View style={nextButtonContainer}>

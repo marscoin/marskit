@@ -25,6 +25,9 @@ import { toggleView } from '../../../store/actions/user';
 const ReceiveDetails = ({ navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();
 	const invoice = useSelector((store: Store) => store.receive);
+	const numberPadReceiveIsOpen = useSelector(
+		(store: Store) => store.user.viewController?.numberPadReceive.isOpen,
+	);
 	const colors = useColors();
 	const buttonContainer = useMemo(
 		() => ({
@@ -48,6 +51,18 @@ const ReceiveDetails = ({ navigation }): ReactElement => {
 	const handleTagRemove = useCallback((tag: string) => {
 		removeInvoiceTag({ tag });
 	}, []);
+
+	const closeNumberPad = useCallback(() => {
+		if (numberPadReceiveIsOpen) {
+			toggleView({
+				view: 'numberPadReceive',
+				data: {
+					isOpen: false,
+					snapPoint: 0,
+				},
+			});
+		}
+	}, [numberPadReceiveIsOpen]);
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
@@ -77,6 +92,7 @@ const ReceiveDetails = ({ navigation }): ReactElement => {
 								borderColor: colors.text,
 							},
 						]}
+						onFocus={closeNumberPad}
 						selectTextOnFocus={true}
 						multiline={true}
 						placeholder="Optional note to payer"
@@ -107,7 +123,11 @@ const ReceiveDetails = ({ navigation }): ReactElement => {
 						style={styles.button}
 						text="Add Tag"
 						icon={<TagIcon color="brand" width={16} />}
-						onPress={(): void => navigation.navigate('Tags')}
+						onPress={(): void => {
+							closeNumberPad();
+							Keyboard.dismiss();
+							navigation.navigate('Tags');
+						}}
 					/>
 				</View>
 				<View style={styles.imageContainer} pointerEvents="none">
