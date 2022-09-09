@@ -10,7 +10,6 @@ import {
 	CornersOutIcon,
 	PlusIcon,
 	Subtitle,
-	Text,
 	Text01S,
 	View,
 } from '../../styles/components';
@@ -166,17 +165,16 @@ const ContactsScreen = ({ navigation }: ContactsScreenProps): JSX.Element => {
 				view="addContactModal"
 				snapPoints={[400]}>
 				<View style={styles.modalContainer}>
-					<Subtitle style={styles.modalTitle}>Add a contact</Subtitle>
+					<Subtitle style={styles.modalTitle}>Add Contact</Subtitle>
 					<Text01S color="gray1" style={styles.addContactNote}>
-						Add a new contact by scanning a QR or by pasting their Slashtags key
-						below.
+						Add a new contact by scanning a QR or by pasting their key below.
 					</Text01S>
 					<View style={styles.modalContent}>
 						<LabeledInput
 							bottomSheet={true}
-							label="ADD SLASHTAGS CONTACT"
+							label="ADD CONTACT"
 							value={addContactURL}
-							placeholder="Paste a Slashtags key"
+							placeholder="Paste a key"
 							onChange={updateContactID}
 							rightIcon={
 								<View style={styles.addContactsIconsContainer}>
@@ -194,7 +192,9 @@ const ContactsScreen = ({ navigation }: ContactsScreenProps): JSX.Element => {
 						/>
 						<View style={styles.addContactInvalid}>
 							{addContacInvalid && (
-								<Text color="brand">This is not a valid Slashtags URL.</Text>
+								<Text01S color="brand">
+									This is not a valid Slashtags URL.
+								</Text01S>
 							)}
 						</View>
 					</View>
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		height: 48,
-		width: 48,
+		height: 56,
+		width: 56,
 		marginLeft: 8,
 		borderRadius: 999,
 		backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -258,14 +258,15 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 	},
 	addContactNote: {
-		padding: 16,
+		marginHorizontal: 16,
+		marginVertical: 32,
 	},
 	addContactsIconsContainer: {
 		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		backgroundColor: 'transparent',
-		width: 56,
+		width: 64,
 	},
 	addContactInvalid: {
 		height: 20,
