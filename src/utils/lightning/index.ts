@@ -552,7 +552,3 @@ export const decodeLightningInvoice = ({
 	paymentRequest = paymentRequest.replace('lightning:', '').trim();
 	return ldk.decode({ paymentRequest });
 };
-
-export const milliSatoshisToSatoshis = (milliSatoshis = 0): number => {
-	return milliSatoshis * 0.001;
-};
