@@ -13,6 +13,7 @@ import {
 	ScrollView,
 	StyleSheet,
 	View,
+	TouchableOpacity,
 } from 'react-native';
 import {
 	Canvas,
@@ -59,6 +60,8 @@ import { deleteMetaTxTag } from '../../store/actions/metadata';
 import { getTransactions } from '../../utils/wallet/electrum';
 import { ITransaction, ITxHash } from '../../utils/wallet';
 import type { RootStackParamList } from '../../navigation/types';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { showInfoNotification } from '../../utils/notifications';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -243,6 +246,33 @@ const ActivityDetail = (props: Props): ReactElement => {
 		}
 	}, [blockExplorerUrl]);
 
+	const copyTransactionId = useCallback(() => {
+		Clipboard.setString(id);
+		showInfoNotification({
+			title: 'Copied Transaction ID',
+			message: 'Transaction ID copied to clipboard.',
+		});
+	}, [id]);
+
+	const getOutputAddresses = useCallback(() => {
+		if (txDetails && txDetails.vout.length > 0) {
+			return txDetails.vout.map(({ n, scriptPubKey }) => {
+				const outputAddress = scriptPubKey?.addresses
+					? scriptPubKey?.addresses[0]
+					: scriptPubKey.address;
+				const i = `${outputAddress}${n}`;
+				return (
+					<View key={i}>
+						<Text02M numberOfLines={1} ellipsizeMode={'middle'}>
+							{outputAddress}
+						</Text02M>
+					</View>
+				);
+			});
+		}
+		return <View />;
+	}, [txDetails]);
+
 	return (
 		<SafeAreaView onLayout={handleLayout}>
 			<Canvas style={[styles.canvas, size]}>
@@ -411,9 +441,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 					</>
 				) : (
 					<>
-						<View style={styles.sectionContainer}>
+						<TouchableOpacity
+							onPress={copyTransactionId}
+							style={styles.sectionContainer}>
 							<Section title="TRANSACTION ID" value={<Text02M>{id}</Text02M>} />
-						</View>
+						</TouchableOpacity>
 						<View style={styles.sectionContainer}>
 							<Section title="ADDRESS" value={<Text02M>{address}</Text02M>} />
 						</View>
@@ -431,10 +463,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 								<View style={styles.sectionContainer}>
 									<Section
 										title={`OUTPUTS (${txDetails.vout.length})`}
-										value={txDetails.vout.map(({ scriptPubKey }) => {
-											const i = scriptPubKey.address;
-											return <Text02M key={i}>{i}</Text02M>;
-										})}
+										value={getOutputAddresses()}
 									/>
 								</View>
 							</>
