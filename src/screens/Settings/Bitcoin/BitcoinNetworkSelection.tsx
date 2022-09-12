@@ -30,6 +30,7 @@ const BitcoinNetworkSelection = ({ navigation }): ReactElement => {
 						value: network === selectedNetwork,
 						type: 'button',
 						onPress: async (): Promise<void> => {
+							navigation.goBack();
 							// Switch to new network.
 							await updateWallet({ selectedNetwork: network });
 							// Grab the selectedWallet.
