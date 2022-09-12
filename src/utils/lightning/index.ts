@@ -105,7 +105,7 @@ export const setupLdk = async ({
 		if (genesisHash.isErr()) {
 			return err(genesisHash.error.message);
 		}
-		const account = await getAccount({});
+		const account = await getAccount({ selectedWallet });
 		if (account.isErr()) {
 			return err(account.error.message);
 		}
