@@ -45,7 +45,6 @@ import { hasEnabledAuthentication } from '../../../utils/settings';
 import { EFeeIds } from '../../../store/types/fees';
 import {
 	decodeLightningInvoice,
-	milliSatoshisToSatoshis,
 	payLightningInvoice,
 } from '../../../utils/lightning';
 import { refreshWallet } from '../../../utils/wallet';
@@ -224,9 +223,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			setIsLoading(false);
 			return;
 		}
-		const amountRequestedFromInvoice = milliSatoshisToSatoshis(
-			decodedInvoice?.amount_milli_satoshis ?? 0,
-		);
+		const amountRequestedFromInvoice = decodedInvoice?.amount_satoshis ?? 0;
 		// Determine if we should add a custom sat value to the lightning invoice.
 		let customSatAmount = 0;
 		if (
@@ -256,7 +253,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		_onError,
-		decodedInvoice?.amount_milli_satoshis,
+		decodedInvoice?.amount_satoshis,
 		transaction.lightningInvoice,
 		transaction?.outputs,
 		transaction?.tags,

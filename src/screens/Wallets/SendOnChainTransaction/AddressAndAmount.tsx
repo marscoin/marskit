@@ -47,10 +47,7 @@ import { useTransactionDetails } from '../../../hooks/transaction';
 import useColors from '../../../hooks/colors';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 import { toggleView } from '../../../store/actions/user';
-import {
-	decodeLightningInvoice,
-	milliSatoshisToSatoshis,
-} from '../../../utils/lightning';
+import { decodeLightningInvoice } from '../../../utils/lightning';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { processInputData } from '../../../utils/scanner';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
@@ -168,13 +165,13 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const decodedInvoiceAmount = useMemo(() => {
 		if (
 			lightningInvoice &&
-			decodedInvoice?.amount_milli_satoshis &&
-			decodedInvoice?.amount_milli_satoshis > 0
+			decodedInvoice?.amount_satoshis &&
+			decodedInvoice?.amount_satoshis > 0
 		) {
-			return milliSatoshisToSatoshis(decodedInvoice?.amount_milli_satoshis);
+			return decodedInvoice?.amount_satoshis;
 		}
 		return 0;
-	}, [decodedInvoice?.amount_milli_satoshis, lightningInvoice]);
+	}, [decodedInvoice?.amount_satoshis, lightningInvoice]);
 
 	/**
 	 * Returns the value of the current output.
