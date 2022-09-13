@@ -1,10 +1,12 @@
 import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
-import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
+import SDK from '@synonymdev/slashtags-sdk';
 import { createContext } from 'react';
-import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
-import BackupProtocol from 'backpack-client/src/backup-protocol.js';
+// TODO (slashtags) update BackupProtocol for the new SDK version
+// import BackupProtocol from 'backpack-client/src/backup-protocol.js';
+
+import { storage as mmkv } from '../store/mmkv-storage';
 
 export const RAWS = RAWSFactory({
 	setItem: (key, value) => {
@@ -18,14 +20,7 @@ export const RAWS = RAWSFactory({
 	},
 });
 
-export const clearSlashtagsStorage = (): void => {
-	const keys = mmkv.getAllKeys();
-	for (let key of keys) {
-		key.startsWith('core') && mmkv.delete(key);
-	}
-};
-
-const SlashtagsContext = createContext<SDK>({} as SDK);
+const SlashtagsContext = createContext<SDK | undefined>(undefined);
 
 export const SlashtagsProvider = ({
 	primaryKey,
@@ -43,26 +38,30 @@ export const SlashtagsProvider = ({
 	const primaryKeyString = primaryKey && b4a.toString(primaryKey, 'hex');
 
 	const sdk = useMemo(() => {
+		if (!primaryKeyString) {
+			return;
+		}
+
 		const _sdk = new SDK({
 			primaryKey: primaryKeyString && b4a.from(primaryKeyString, 'hex'),
 			// TODO(slashtags): replace it with non-blocking storage,
 			// like random access react native after m1 support. or react-native-fs?
 			storage: RAWS,
-			swarmOpts: { relays: [relay] },
-			protocols: [BackupProtocol],
+			relay,
 		});
 		_sdk
 			.ready()
 			.then(() => onReady(_sdk))
 			.catch(onError);
+
 		return _sdk;
 	}, [primaryKeyString, relay, onError, onReady]);
 
 	useEffect(() => {
 		return function cleanup() {
-			// sdk.close();
+			sdk?.close();
 		};
-	}, [sdk]);
+	}, [sdk, primaryKeyString]);
 
 	return (
 		<SlashtagsContext.Provider value={sdk}>
@@ -71,6 +70,7 @@ export const SlashtagsProvider = ({
 	);
 };
 
-export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext);
+export const useSlashtagsSDK = (): SDK | undefined =>
+	useContext(SlashtagsContext);
 
 function noop(): any {}

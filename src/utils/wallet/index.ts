@@ -1,3 +1,10 @@
+import { AddressInfo, getAddressInfo } from 'bitcoin-address-validation';
+import { constants } from '@synonymdev/slashtags-sdk';
+import * as bitcoin from 'bitcoinjs-lib';
+import * as bip39 from 'bip39';
+import * as bip32 from 'bip32';
+import { err, ok, Result } from '@synonymdev/result';
+
 import { INetwork, TAvailableNetworks } from '../networks';
 import { networks } from '../networks';
 import {
@@ -27,7 +34,6 @@ import {
 	IFormattedTransactionContent,
 	TAssetNetwork,
 } from '../../store/types/wallet';
-import { err, ok, Result } from '@synonymdev/result';
 import {
 	IGetAddress,
 	IGenerateAddresses,
@@ -60,7 +66,6 @@ import {
 	getTotalFee,
 	getTransactionOutputValue,
 } from './transactions';
-import { AddressInfo, getAddressInfo } from 'bitcoin-address-validation';
 import {
 	getAddressHistory,
 	getTransactions,
@@ -72,12 +77,8 @@ import {
 import { getDisplayValues } from '../exchange-rate';
 import { IDisplayValues } from '../exchange-rate/types';
 import { IncludeBalances } from '../../hooks/wallet';
-import * as bitcoin from 'bitcoinjs-lib';
-import * as bip39 from 'bip39';
-import * as bip32 from 'bip32';
 import { EFeeIds } from '../../store/types/fees';
 
-import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
 import { refreshLdk } from '../lightning';
 import {
 	BITKIT_WALLET_SEED_HASH_PREFIX,
@@ -377,7 +378,7 @@ export const slashtagsPrimaryKey = async (seed: Buffer): Promise<string> => {
 	const network = networks.bitcoin;
 	const root = bip32.fromSeed(seed, network);
 
-	const path = SDK.DERIVATION_PATH;
+	const path = constants.PRIMARY_KEY_DERIVATION_PATH;
 	const keyPair = root.derivePath(path);
 
 	return keyPair.privateKey?.toString('hex') as string;

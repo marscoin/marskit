@@ -68,7 +68,7 @@ while (!closed) {
 	}
 }
 
-async function resolveProfile () {
+async function resolveProfile() {
 	const { url } = await inquirer.prompt([
 		{
 			type: 'input',
@@ -90,13 +90,13 @@ async function resolveProfile () {
 
 	const profile = await drive
 		.get('/profile.json')
-		.then(buf => buf && c.decode(c.json, buf));
+		.then((buf) => buf && c.decode(c.json, buf));
 	console.time('-- resolved drive in');
 	console.log('resolved profile');
 
 	const slashpay = await drive
 		.get('/slashpay.json')
-		.then(buf => buf && c.decode(c.json, buf));
+		.then((buf) => buf && c.decode(c.json, buf));
 	console.timeEnd('-- resolved drive in');
 
 	console.dir(
@@ -114,10 +114,8 @@ async function resolveProfile () {
  * Creates a contact and returns its url
  * @param {boolean} log
  */
-async function createContact (log = true) {
-	const name = Math.random()
-		.toString(16)
-		.slice(2);
+async function createContact(log = true) {
+	const name = Math.random().toString(16).slice(2);
 	const slashtag = sdk.slashtag(name);
 	const contact = await generateContact(slashtag.url);
 	await saveContact(slashtag, contact);
@@ -148,7 +146,7 @@ async function createContact (log = true) {
 	return contact.url;
 }
 
-async function createBulkContacts () {
+async function createBulkContacts() {
 	const { count } = await inquirer.prompt([
 		{
 			type: 'input',
@@ -166,7 +164,7 @@ async function createBulkContacts () {
 	console.log(urls);
 }
 
-async function updateContact () {
+async function updateContact() {
 	const { selected } = await inquirer.prompt([
 		{
 			type: 'list',
@@ -187,12 +185,12 @@ async function updateContact () {
  *
  * @param {object} toCache
  */
-function cache (toCache) {
+function cache(toCache) {
 	cached = { ...cached, ...toCache };
 	fs.writeFile(cacheLocation, JSON.stringify(cached), noop);
 }
 
-function loadCache () {
+function loadCache() {
 	try {
 		const str = fs.readFileSync(cacheLocation);
 		return JSON.parse(str.toString());
@@ -201,9 +199,9 @@ function loadCache () {
 	}
 }
 
-function noop () {}
+function noop() {}
 
-function formatProfile (profile) {
+function formatProfile(profile) {
 	return (
 		profile && {
 			...profile,
@@ -212,14 +210,14 @@ function formatProfile (profile) {
 	);
 }
 
-function formatContact (contact) {
+function formatContact(contact) {
 	return {
 		...contact,
 		profile: formatProfile(contact.profile),
 	};
 }
 
-async function saveContact (slashtag, contact) {
+async function saveContact(slashtag, contact) {
 	const drive = slashtag.drivestore.get();
 	await drive.put('/profile.json', c.encode(c.json, contact.profile));
 	await drive.put('/slashpay.json', c.encode(c.json, contact.slashpay));
@@ -227,7 +225,7 @@ async function saveContact (slashtag, contact) {
 	return formatContact(contact);
 }
 
-async function generateContact (url) {
+async function generateContact(url) {
 	const name = falso.randFullName();
 	const imageURL = falso.randAvatar();
 	const response = await fetch(imageURL);
@@ -238,10 +236,10 @@ async function generateContact (url) {
 		profile: {
 			name,
 			image:
-			'data:' +
-			response.headers['content-type'] +
-			';base64,' +
-			Buffer.from(body).toString('base64'),
+				'data:' +
+				response.headers['content-type'] +
+				';base64,' +
+				Buffer.from(body).toString('base64'),
 			bio: falso.randPhrase().slice(0, 160),
 			links: [
 				{

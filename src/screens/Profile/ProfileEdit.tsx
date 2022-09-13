@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import c from 'compact-encoding';
 
 import {
 	PlusIcon,
@@ -28,9 +29,18 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
 	const [links, setLinks] = useState<object>({});
 
-	const { url, slashtag, profile: savedProfile } = useSelectedSlashtag();
+	const {
+		url,
+		slashtag,
+		profile: savedProfile,
+		// resolved, TODO should we use resolved to add spinner until data is loaded from hyperdrive?!
+	} = useSelectedSlashtag();
+
 	const saveProfile = useCallback(
-		(profile) => slashtag.setProfile(profile),
+		(profile: BasicProfile) => {
+			const publicDrive = slashtag?.drivestore.get();
+			return publicDrive.put('/profile.json', c.encode(c.json, profile));
+		},
 		[slashtag],
 	);
 
@@ -61,8 +71,8 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 		return merged;
 	}, [savedProfile, fields, links]);
 
-	const save = (): void => {
-		saveProfile(profile);
+	const save = async (): Promise<void> => {
+		await saveProfile(profile);
 		if (!onboardedProfile) {
 			setOnboardingProfileStep('PaymentsFromContacts');
 		} else {

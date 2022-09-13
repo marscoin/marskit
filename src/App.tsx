@@ -33,6 +33,7 @@ import {
 } from './utils/notifications';
 import { SlashtagsContactsProvider } from './components/SlashtagContactsProvider';
 import { toastConfig } from './components/Toast';
+import { onSDKError, onSDKReady } from './utils/slashtags';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -128,27 +129,19 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
-	const slashTagsOnError = useCallback((error: Error): void => {
-		showErrorNotification({
-			title: 'SlashtagsProvider Error',
-			message: error.message,
-		});
-	}, []);
-
 	return (
 		<ThemeProvider theme={currentTheme}>
 			<SlashtagsProvider
 				primaryKey={primaryKey}
 				// TODO(slashtags): add settings to customize this relay
-				relay={'wss://dht-relay.synonym.to'}
-				onError={slashTagsOnError}>
-				<SlashtagsContactsProvider>
-					<SafeAreaProvider>
-						<StatusBar />
-						<RootComponent />
-					</SafeAreaProvider>
-					<Toast config={toastConfig} />
-				</SlashtagsContactsProvider>
+				relay={'ws://localhost:45475'}
+				onError={onSDKError}
+				onReady={onSDKReady}>
+				<SafeAreaProvider>
+					<StatusBar />
+					<RootComponent />
+				</SafeAreaProvider>
+				<Toast config={toastConfig} />
 			</SlashtagsProvider>
 		</ThemeProvider>
 	);

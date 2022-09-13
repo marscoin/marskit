@@ -17,7 +17,6 @@ import { resetLightningStore } from '../../../store/actions/lightning';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
 import { resetSlashtagsStore } from '../../../store/actions/slashtags';
-import { clearSlashtagsStorage } from '../../../components/SlashtagsProvider';
 
 const SettingsMenu = (): ReactElement => {
 	const [throwError, setThrowError] = useState(false);
@@ -80,12 +79,6 @@ const SettingsMenu = (): ReactElement => {
 						title: 'Reset Slashtags store',
 						type: 'button',
 						onPress: () => resetSlashtagsStore(),
-						hide: false,
-					},
-					{
-						title: 'Clear Slashtags storage',
-						type: 'button',
-						onPress: () => clearSlashtagsStorage(),
 						hide: false,
 					},
 					{

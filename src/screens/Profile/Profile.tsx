@@ -125,7 +125,7 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 							style={styles.profileDetails}
 						/>
 					) : (
-						<QRView url={url as string} profile={profile} />
+						<QRView url={url} profile={profile} />
 					)}
 					{showCopy && (
 						<AnimatedView

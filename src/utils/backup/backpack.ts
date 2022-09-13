@@ -1,7 +1,8 @@
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 import { ok, err, Result } from '@synonymdev/result';
+import { Slashtag } from '@synonymdev/slashtags-sdk';
+
 import { name as appName, version as appVersion } from '../../../package.json';
-import { Slashtag } from '../../hooks/slashtags';
 
 //TODO move to env when we have a production server
 //Staging server config
@@ -21,9 +22,11 @@ const backupOptions = { timeout: 30000 };
 //Keep a cached backup instance for each slashtag
 const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
+	if (!slashtag.ready) {
+		throw new Error('backupsFactory needs update');
+	}
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
-		await slashtag.ready();
 		backupsInstances[key] = slashtag.protocol(BackupProtocol);
 		backupsInstances[key].setSecret(sharedSecret);
 

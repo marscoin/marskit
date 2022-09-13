@@ -17,7 +17,7 @@ export const ProfileCard = ({
 	contact,
 	resolving,
 }: {
-	url: string;
+	url?: string;
 	profile?: BasicProfile;
 	editable?: boolean;
 	contact?: boolean;
