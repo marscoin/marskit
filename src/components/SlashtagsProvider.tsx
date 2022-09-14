@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import { onSDKError } from '../utils/slashtags';
+import { onSDKError, seed } from '../utils/slashtags';
 import Store from '../store/types';
 
 export const RAWS = RAWSFactory({
@@ -97,6 +97,9 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 					.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
 				!unmounted && setProfiles((p) => ({ ...p, [slashtag.url]: profile }));
 			}
+
+			// Send cores to seeder
+			seed(slashtag)
 
 			// Update contacts
 			const contactsDrive = slashtag.drivestore.get('contacts');
