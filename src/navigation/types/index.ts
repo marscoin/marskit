@@ -35,6 +35,7 @@ export type RootStackParamList = {
 	};
 	ActivityDetail: { activityItem: IActivityItem; extended?: boolean };
 	ActivityFiltered: undefined;
+	ActivityAssignContact: { txid: string };
 	Scanner: undefined;
 	WalletsDetail: {
 		assetType: TAssetType;
@@ -45,7 +46,7 @@ export type RootStackParamList = {
 	ProfileEdit: undefined;
 	Contacts: undefined;
 	ContactEdit: { url: string };
-	Contact: undefined;
+	Contact: { url: string };
 };
 
 // Root Stack Navigator
