@@ -249,8 +249,6 @@ async function generateContact(url) {
 				{ title: 'website', url: falso.randUrl() },
 			],
 		},
-		slashpay: {
-			p2wpkh: falso.randBitcoinAddress(),
-		},
+		slashpay: [{ type: 'p2wpkh', value: falso.randBitcoinAddress() }],
 	};
 }

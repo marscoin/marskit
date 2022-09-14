@@ -99,7 +99,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			}
 
 			// Send cores to seeder
-			seed(slashtag)
+			seed(slashtag);
 
 			// Update contacts
 			const contactsDrive = slashtag.drivestore.get('contacts');

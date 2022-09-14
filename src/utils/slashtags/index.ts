@@ -1,8 +1,13 @@
 import { SDK, SlashURL, Slashtag } from '@synonymdev/slashtags-sdk';
 import c from 'compact-encoding';
+import b4a from 'b4a';
 
 import { navigate } from '../../navigation/root/RootNavigator';
-import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
+import {
+	BasicProfile,
+	IRemote,
+	SlashPayConfig,
+} from '../../store/types/slashtags';
 import { showErrorNotification } from '../notifications';
 import { getReceiveAddress } from '../../utils/wallet';
 import { createLightningInvoice } from '../../utils/lightning';
@@ -17,9 +22,11 @@ export const handleSlashtagURL = (
 ): void => {
 	try {
 		// Validate URL
-		SlashURL.parse(url);
+		const parsed = SlashURL.parse(url);
 
-		navigate('ContactEdit', { url });
+		if (parsed.protocol === 'slash:') {
+			navigate('ContactEdit', { url });
+		}
 	} catch (error) {
 		onError(error as Error);
 	}
@@ -29,10 +36,8 @@ export const handleSlashtagURL = (
  * Returns the selected Slashtag.
  * Currently we don't support multiple personas so it returns the root(default) slashtag.
  */
-export const getSelectedSlashtag = (
-	sdk: SDK | undefined,
-): Slashtag | undefined => {
-	return sdk?.slashtag();
+export const getSelectedSlashtag = (sdk: SDK): Slashtag => {
+	return sdk.slashtag();
 };
 
 /**
@@ -46,7 +51,7 @@ export const saveContact = async (
 ): Promise<void> => {
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	return drive?.put('/' + id, Buffer.from(JSON.stringify(record)));
+	return drive?.put('/' + id, c.encode(c.json, record));
 };
 
 /**
@@ -60,7 +65,7 @@ export const deleteContact = async (sdk: SDK, url: string): Promise<any> => {
 	}
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	return drive?.objects.del('/' + id);
+	return drive.del('/' + id);
 };
 
 /**
@@ -73,25 +78,18 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 	console.debug('Saving bulk contacts', { count: urls.length });
 
 	const drive = await slashtag.drivestore.get('contacts');
+	const batch = drive.batch();
 
 	return Promise.all(
 		urls.map(async (url) => {
 			const name = Math.random().toString(16).slice(2, 8);
 			const id = SlashURL.parse(url).id;
-			return drive?.put('/' + id, Buffer.from(JSON.stringify({ name })));
+			return batch?.put('/' + id, c.encode(c.json, { name }));
 		}),
-	).then(() => {
+	).then(async () => {
+		await batch.flush();
 		console.debug('Done saving bulk contacts');
 	});
-};
-
-/**
- * Bookkeeping once the Primary Key is passed to the Slashtags Provider, and the SDK is created.
- *
- * 1- Set the sdk global value.
- */
-export const onSDKReady = async (sdk: SDK): Promise<void> => {
-	console.debug(!!sdk && 'SDK is ready');
 };
 
 export const onSDKError = (error: Error): void => {
@@ -106,8 +104,9 @@ export const onSDKError = (error: Error): void => {
 	});
 };
 
+/** Update slashpay.json */
 export const updateSlashPayConfig = async (
-	sdk: SDK | undefined,
+	sdk: SDK,
 	options: {
 		/** Offline payments */
 		p2wpkh?: boolean;
@@ -119,9 +118,6 @@ export const updateSlashPayConfig = async (
 	payConfig: SlashPayConfig;
 }> => {
 	const slashtag = getSelectedSlashtag(sdk);
-	if (!slashtag) {
-		return;
-	}
 	const publicDrive = slashtag.drivestore.get();
 
 	const payConfig: SlashPayConfig = [];
@@ -157,4 +153,80 @@ export const updateSlashPayConfig = async (
 		/** Saved config */
 		payConfig,
 	};
+};
+
+/** Resolve and cache profile.json and slashpay.json */
+export const remotes = {
+	cache: new Map(),
+	/** Returns a session of the public Hyperdrive for a slashtag, useful for watching it for updates. */
+	drive(sdk: SDK, url: string): ReturnType<SDK['drive']> {
+		const key = url && SlashURL.parse(url).key;
+		// TODO (slashtags) temporary hack till we solve https://github.com/synonymdev/slashtags/issues/53
+		const local = sdk?.slashtags.get(key);
+		return local ? local.drivestore.get() : key && sdk?.drive(key);
+	},
+	/** Resolve remote from network and cache in this.cache */
+	async get(sdk: SDK, url: string): Promise<IRemote> {
+		const drive = this.drive(sdk, url);
+
+		await drive.ready();
+
+		const [profile, payConfig] = await Promise.all([
+			drive
+				.get('/profile.json')
+				.then((buf: Uint8Array) => buf && c.decode(c.json, buf)),
+			drive
+				.get('/slashpay.json')
+				.then((buf: Uint8Array) => buf && c.decode(c.json, buf)),
+		]);
+
+		const cached = this.cache.get(url);
+
+		const remote = {
+			profile: profile || cached?.profile,
+			payConfig: payConfig || cached?.payConfig,
+		};
+
+		// this.cache.set(url, remote);
+
+		console.debug('Refreshed:', url, 'Cache size:', this.cache.size);
+		return remote;
+	},
+};
+
+/** Send hypercorse to seeder */
+export const seed = async (slashtag: Slashtag): Promise<any[]> => {
+	return Promise.all(
+		[slashtag.drivestore.get(), slashtag.drivestore.get('contacts')].map(
+			async (drive: ReturnType<SDK['drive']>) => {
+				await drive.ready();
+				await fetch('http://35.233.47.252:443/seeding/hypercore', {
+					method: 'POST',
+					body: JSON.stringify({ publicKey: b4a.toString(drive.key, 'hex') }),
+					headers: { 'Content-Type': 'application/json' },
+				});
+				await drive.getBlobs();
+				await fetch('http://35.233.47.252:443/seeding/hypercore', {
+					method: 'POST',
+					body: JSON.stringify({
+						publicKey: b4a.toString(drive.blobs.core.key, 'hex'),
+					}),
+					headers: { 'Content-Type': 'application/json' },
+				});
+				return drive.close();
+			},
+		),
+	);
+};
+
+/** Get the slashpay.json of remote contact */
+export const getPayConfig = async (
+	sdk: SDK,
+	url: string,
+): Promise<SlashPayConfig> => {
+	const drive = sdk.drive(SlashURL.parse(url).key);
+	await drive.ready();
+	return drive
+		.get('/slashpay.json')
+		.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
 };

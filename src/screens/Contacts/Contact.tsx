@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, Share } from 'react-native';
+import { StyleSheet, Share, Alert } from 'react-native';
 
 import {
 	CoinsIcon,
@@ -14,11 +14,14 @@ import ProfileCard from '../../components/ProfileCard';
 import { TouchableOpacity } from 'react-native';
 import ProfileLinks from '../../components/ProfileLinks';
 import { useContact } from '../../hooks/slashtags';
-import { deleteContact } from '../../utils/slashtags';
+import { deleteContact, getPayConfig } from '../../utils/slashtags';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
 import { toggleView } from '../../store/actions/user';
 import { updateBitcoinTransaction } from '../../store/actions/wallet';
 import { sleep } from '../../utils/helpers';
+import { EAddressTypeNames } from '../../store/types/wallet';
+import { validateAddress } from '../../utils/scanner';
+import { useTransactionDetails } from '../../hooks/transaction';
 
 export const Contact = ({ navigation, route }): JSX.Element => {
 	const url = route.params?.url;
@@ -30,6 +33,8 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 		deleteContact(sdk, url);
 		navigation.navigate('Tabs');
 	}, [navigation, sdk, url]);
+
+	const transaction = useTransactionDetails();
 
 	return (
 		<View style={styles.container}>
@@ -55,7 +60,22 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 							onPress={async (): Promise<void> => {
 								navigation.popToTop();
 
-								// TODO: get address from payconfig and validate it
+								const payConfig = await getPayConfig(sdk, url);
+
+								const onChainAddresses = payConfig
+									.filter((e) => {
+										return Object.keys(EAddressTypeNames).includes(e.type);
+									})
+									.map((config) => config.value);
+
+								const address = onChainAddresses.find(
+									(a) => validateAddress({ address: a }).isValid,
+								);
+
+								if (!address) {
+									Alert.alert('Error', 'No valid address found.');
+									return;
+								}
 
 								toggleView({
 									view: 'sendNavigation',
@@ -71,8 +91,8 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 									transaction: {
 										outputs: [
 											{
-												address: 'bcrt1qqrgq9cfg6xagfel9gc0txfte9725l6qnpv3vm3',
-												value: 0,
+												address,
+												value: transaction.outputs?.[0]?.value ?? 0,
 												index: 0,
 											},
 										],
