@@ -27,14 +27,10 @@ import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
 export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
-	const [links, setLinks] = useState<object>({});
 
-	const {
-		url,
-		slashtag,
-		profile: savedProfile,
-		// resolved, TODO should we use resolved to add spinner until data is loaded from hyperdrive?!
-	} = useSelectedSlashtag();
+	const { url, slashtag, profile: savedProfile } = useSelectedSlashtag();
+
+	const [links, setLinks] = useState<object>({});
 
 	const saveProfile = useCallback(
 		(profile: BasicProfile) => {
@@ -63,10 +59,13 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 		setLinks({ ...links, [title]: { title, url: _url } });
 
 	const profile: BasicProfile = useMemo(() => {
+		const _links = Object.values(links);
+
 		const merged = {
 			...savedProfile,
 			...fields,
-			links: Object.values(links),
+			links:
+				_links.length > 0 ? _links : Object.values(savedProfile?.links || {}),
 		};
 		return merged;
 	}, [savedProfile, fields, links]);
