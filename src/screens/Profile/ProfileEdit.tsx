@@ -23,12 +23,14 @@ import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
+import { useSlashtags } from '../../components/SlashtagsProvider';
 
 export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
 
-	const { url, slashtag, profile: savedProfile } = useSelectedSlashtag();
+	const { url, slashtag } = useSelectedSlashtag();
+	const savedProfile = useSlashtags().profiles[url];
 
 	const [links, setLinks] = useState<object>({});
 

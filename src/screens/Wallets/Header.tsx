@@ -13,11 +13,13 @@ import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { RootNavigationProp } from '../../navigation/types';
+import { useSlashtags } from '../../components/SlashtagsProvider';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
 
-	const { url, profile } = useSelectedSlashtag();
+	const { url } = useSelectedSlashtag();
+	const profile = useSlashtags().profiles[url];
 
 	const openProfile = useCallback(
 		() => navigation.navigate('Profile'),
