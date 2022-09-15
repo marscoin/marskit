@@ -59,7 +59,6 @@ const ContactsList = ({
 	const filteredContacts = useMemo(() => {
 		return Object.values(contacts)
 			.sort((a, b) => (a.name > b.name ? 1 : -1))
-			.sort((a, b) => (a.name > b.name ? 1 : -1))
 			.filter(
 				({ name }) =>
 					searchFilter.length === 0 ||
