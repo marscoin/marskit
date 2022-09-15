@@ -190,9 +190,9 @@ export const decodeQRData = async (
 	data: string,
 	selectedNetwork?: TAvailableNetworks,
 ): Promise<Result<QRData[]>> => {
-	if (data.startsWith('slashauth://')) {
+	if (data.startsWith('slashauth:')) {
 		return ok([{ qrDataType: EQRDataType.slashAuthURL, url: data }]);
-	} else if (data.startsWith('slash://')) {
+	} else if (data.startsWith('slash:')) {
 		return ok([{ qrDataType: EQRDataType.slasthagURL, url: data }]);
 	}
 
