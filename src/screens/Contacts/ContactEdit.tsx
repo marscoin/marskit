@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View } from '../../styles/components';
 import { Image } from 'react-native';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -7,32 +7,30 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import Button from '../../components/Button';
 import { saveContact } from '../../utils/slashtags';
-import { useContact, useSelectedSlashtag } from '../../hooks/slashtags';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { BasicProfile } from '../../store/types/slashtags';
 import Glow from '../../components/Glow';
+import { useSlashtags } from '../../components/SlashtagsProvider';
 
 export const ContactEdit = ({ navigation, route }): JSX.Element => {
 	const url = route.params.url;
-	const [form, setForm] = useState<BasicProfile>({});
+	const saved = useSlashtags().contacts[url];
+
+	const [form, setForm] = useState<BasicProfile>({ ...saved });
 
 	const { slashtag } = useSelectedSlashtag();
 
-	const remote = useContact(url);
-
-	// Reset the name once the remote is resolved for adding a new contact
-	useEffect(() => {
-		!remote.isContact &&
-			remote.profile?.name &&
-			setForm({ name: remote.profile.name });
-	}, [remote.profile, remote.isContact]);
+	const contact = useProfile(url);
 
 	const profile = useMemo(
 		() => ({
-			...remote?.profile,
+			...contact.profile,
 			...form,
 		}),
-		[remote.profile, form],
+		[contact.profile, form],
 	);
+
+	const resolving = !saved && contact.resolving;
 
 	const saveContactRecord = async (): Promise<void> => {
 		slashtag && saveContact(slashtag, url, form);
@@ -43,10 +41,10 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 		<View style={styles.container}>
 			<SafeAreaInsets type={'top'} />
 			<NavigationHeader
-				title={(remote.isContact ? 'Edit' : 'Add') + ' Contact'}
+				title={(saved ? 'Edit' : 'Add') + ' Contact'}
 				displayBackButton={false}
 				onClosePress={(): void => {
-					navigation.navigate(remote.isContact ? 'Contact' : 'Contacts', {
+					navigation.navigate(saved ? 'Contact' : 'Contacts', {
 						url,
 					});
 				}}
@@ -54,7 +52,7 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 			<View style={styles.content}>
 				<ProfileCard
 					url={url}
-					resolving={!remote.resolved}
+					resolving={resolving}
 					profile={profile}
 					editable={true}
 					contact={true}
@@ -62,9 +60,9 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 						setForm((prev) => ({ ...prev, name: value }))
 					}
 				/>
-				{remote.resolved && <View style={styles.divider} />}
+				{!resolving && <View style={styles.divider} />}
 				<View style={styles.middleRow}>
-					{!remote.resolved && (
+					{resolving && (
 						<View>
 							<Glow color="brand" size={600} style={styles.illustrationGlow} />
 							<Image

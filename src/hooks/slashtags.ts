@@ -1,56 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { SDK } from '@synonymdev/slashtags-sdk';
+import { useEffect, useState } from 'react';
+import { SDK, SlashURL } from '@synonymdev/slashtags-sdk';
+import c from 'compact-encoding';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
-import { IRemote } from '../store/types/slashtags';
-import { getSelectedSlashtag, remotes } from '../utils/slashtags';
+import { BasicProfile, IRemote } from '../store/types/slashtags';
+import { getSelectedSlashtag } from '../utils/slashtags';
 
 export type Slashtag = ReturnType<SDK['slashtag']>;
-
-/**
- * Returns reomte Profile, and slashPay config, and watch the publicDrive for updates.
- */
-export const useRemote = (
-	url: string,
-): {
-	resolved: boolean;
-	remote: IRemote | undefined;
-} => {
-	const [resolved, setResolved] = useState<boolean>(false);
-	const [remote, setRemote] = useState<IRemote | undefined>(
-		remotes.cache.get(url),
-	);
-
-	const sdk = useSlashtagsSDK();
-
-	useEffect(() => {
-		let unmounted = false;
-
-		resolve();
-
-		const drive = remotes.drive(sdk, url);
-		drive.core.on('append', resolve);
-
-		async function resolve() {
-			const remote = await remotes.get(sdk, url);
-			if (!unmounted) {
-				setRemote(remote);
-				setResolved(true);
-			}
-		}
-
-		return function cleanup() {
-			unmounted = true;
-			drive.core.removeAllListeners();
-			drive.close();
-		};
-	}, [sdk, url]);
-
-	return {
-		resolved,
-		remote,
-	};
-};
 
 /**
  * Returns the currently selected Slashtag
@@ -66,30 +22,46 @@ export const useSelectedSlashtag = (): {
 };
 
 /**
- * Combines the remote profile with the
- * saved contact record if exists.
+ * Watchs the public profile of a local or remote slashtag by its url.
  */
-export const useContact = (
+export const useProfile = (
 	url: string,
-): IRemote & { isContact: boolean; resolved: boolean } => {
-	const { resolved, remote } = useRemote(url);
-	const contacts = useSlashtags().contacts;
-	const contactRecord = useMemo(() => contacts[url], [contacts, url]);
+): { resolving: boolean; profile: BasicProfile } => {
+	// TODO (slashtags) remove this caching if it is too costly
+	const cached = useSlashtags().profiles[url];
+	const [profile, setProfile] = useState<BasicProfile>(cached || {});
+	const [resolving, setResolving] = useState(true);
 
-	const profile = useMemo(() => {
-		return (
-			(remote?.profile || contactRecord) && {
-				...remote?.profile,
-				...contactRecord,
-			}
-		);
-	}, [remote?.profile]);
+	const sdk = useSlashtagsSDK();
+
+	useEffect(() => {
+		let unmounted = false;
+		const drive = sdk.drive(SlashURL.parse(url).key);
+
+		drive.ready().then(resolve);
+		drive.core.on('append', resolve);
+
+		async function resolve(): Promise<void> {
+			const _profile = await drive
+				.get('/profile.json')
+				.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+
+			set(_profile);
+		}
+
+		function set(_profile: BasicProfile): void {
+			!unmounted && setResolving(false);
+			!unmounted && setProfile(_profile);
+		}
+
+		return function cleanup(): void {
+			unmounted = true;
+			drive.core.removeAllListeners();
+		};
+	}, [url, sdk]);
 
 	return {
-		resolved,
-		// Already saved in contacts drive
-		isContact: !!contactRecord,
-		...remote,
+		resolving,
 		profile,
 	};
 };

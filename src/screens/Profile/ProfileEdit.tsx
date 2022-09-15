@@ -13,7 +13,7 @@ import {
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import LabeledInput from '../../components/LabeledInput';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import { toggleView } from '../../store/actions/user';
@@ -23,16 +23,14 @@ import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
-import { useSlashtags } from '../../components/SlashtagsProvider';
 
 export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [addLinkForm, setAddLinkForm] = useState({ label: '', url: '' });
+	const [links, setLinks] = useState<object>({});
 
 	const { url, slashtag } = useSelectedSlashtag();
-	const savedProfile = useSlashtags().profiles[url];
-
-	const [links, setLinks] = useState<object>({});
+	const { profile: savedProfile } = useProfile(url);
 
 	const saveProfile = useCallback(
 		(profile: BasicProfile) => {
@@ -61,19 +59,16 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 		setLinks({ ...links, [title]: { title, url: _url } });
 
 	const profile: BasicProfile = useMemo(() => {
-		const _links = Object.values(links);
-
 		const merged = {
 			...savedProfile,
 			...fields,
-			links:
-				_links.length > 0 ? _links : Object.values(savedProfile?.links || {}),
+			links: Object.values(links),
 		};
 		return merged;
 	}, [savedProfile, fields, links]);
 
-	const save = async (): Promise<void> => {
-		await saveProfile(profile);
+	const save = (): void => {
+		saveProfile(profile);
 		if (!onboardedProfile) {
 			setOnboardingProfileStep('PaymentsFromContacts');
 		} else {
@@ -142,7 +137,7 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 							bottomSheet={true}
 							label="Label"
 							value={addLinkForm.label}
-							placeholder="For example ‘Website’"
+							placeholder="For example �Website�"
 							onChange={(label: string): void => {
 								setAddLinkForm({ ...addLinkForm, label });
 							}}

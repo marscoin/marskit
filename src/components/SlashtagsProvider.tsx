@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import { onSDKError, seed } from '../utils/slashtags';
+import { onSDKError, seedDrives } from '../utils/slashtags';
 import Store from '../store/types';
 
 export const RAWS = RAWSFactory({
@@ -31,7 +31,7 @@ export interface ISlashtagsContext {
 	sdk: SDK;
 	/** Cached local Slashtags profiles */
 	profiles: { [url: string]: BasicProfile };
-	contacts: IContactRecord[];
+	contacts: { [url: string]: IContactRecord };
 }
 
 const SlashtagsContext = createContext<ISlashtagsContext>({
@@ -41,13 +41,17 @@ const SlashtagsContext = createContext<ISlashtagsContext>({
 		return sdk;
 	})(),
 	profiles: {},
-	contacts: [],
+	contacts: {},
 });
 
+/**
+ * All things Slashtags that needs to happen on start of Bitkit
+ * or stay available and cached through the App.
+ */
 export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [primaryKey, setPrimaryKey] = useState<string>();
-	const [profiles, setProfiles] = useState({});
-	const [contacts, setContacts] = useState([]);
+	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
+	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
 
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -70,8 +74,8 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			// TODO(slashtags): replace it with non-blocking storage,
 			// like random access react native after m1 support. or react-native-fs?
 			storage: RAWS,
-			// TODO(slashtags): add settings to customize this relay
-			relay: 'ws://localhost:45475',
+			// TODO(slashtags): add settings to customize this relay or use native
+			relay: 'wss://dht-relay.synonym.to',
 		});
 	}, [primaryKey]);
 
@@ -99,7 +103,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			}
 
 			// Send cores to seeder
-			seed(slashtag);
+			seedDrives(slashtag);
 
 			// Update contacts
 			const contactsDrive = slashtag.drivestore.get('contacts');
@@ -123,16 +127,13 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 				});
 				rs.on('end', async () => {
 					const resolved = await Promise.all(Object.values(promises));
-					const ordered = Object.values(resolved).sort((a, b) =>
-						a.name > b.name ? 1 : -1,
-					);
 
-					// Cache first few items
-					// Promise.all(
-					// ordered.slice(0, 10).map((item) => remotes.get(sdk, item.url)),
-					// ).then(firstContactsCache.set);
-
-					!unmounted && setContacts(ordered);
+					!unmounted &&
+						setContacts(
+							Object.fromEntries(
+								resolved.map((contact) => [contact.url, contact]),
+							),
+						);
 				});
 			}
 		})();

@@ -57,7 +57,7 @@ const ContactsScreen = ({ navigation }: ContactsScreenProps): JSX.Element => {
 
 	const pasteAddContact = async (): Promise<void> => {
 		let url = await Clipboard.getString();
-		url = 'slash:k5jonimkq9nr4fhpxgeos1n1jq8qck9pac9uxfp543b7t8mdf4ay';
+		url = 'slash:n8dimud1r5nxepdagsofmug7ng3b4bqi56od1wkgewqxy59u1n5y';
 		updateContactID(url);
 	};
 

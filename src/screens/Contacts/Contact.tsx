@@ -13,26 +13,27 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import { TouchableOpacity } from 'react-native';
 import ProfileLinks from '../../components/ProfileLinks';
-import { useContact } from '../../hooks/slashtags';
-import { deleteContact, getPayConfig } from '../../utils/slashtags';
-import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
+import { deleteContact, getSlashPayConfig } from '../../utils/slashtags';
 import { toggleView } from '../../store/actions/user';
 import { updateBitcoinTransaction } from '../../store/actions/wallet';
 import { sleep } from '../../utils/helpers';
 import { EAddressTypeNames } from '../../store/types/wallet';
 import { validateAddress } from '../../utils/scanner';
 import { useTransactionDetails } from '../../hooks/transaction';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
+import { useSlashtags } from '../../components/SlashtagsProvider';
 
 export const Contact = ({ navigation, route }): JSX.Element => {
 	const url = route.params?.url;
 
-	const contact = useContact(url);
-	const sdk = useSlashtagsSDK();
+	const { profile } = useProfile(url);
+	const { slashtag } = useSelectedSlashtag();
+	const contactRecord = useSlashtags().contacts[url];
 
 	const onDelete = useCallback(() => {
-		deleteContact(sdk, url);
+		deleteContact(slashtag, url);
 		navigation.navigate('Tabs');
-	}, [navigation, sdk, url]);
+	}, [navigation, slashtag, url]);
 
 	const transaction = useTransactionDetails();
 
@@ -49,7 +50,10 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 			<View style={styles.content}>
 				<ProfileCard
 					url={url}
-					profile={contact.profile}
+					profile={{
+						...profile,
+						...contactRecord,
+					}}
 					editable={false}
 					resolving={false}
 				/>
@@ -60,7 +64,7 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 							onPress={async (): Promise<void> => {
 								navigation.popToTop();
 
-								const payConfig = await getPayConfig(sdk, url);
+								const payConfig = await getSlashPayConfig(sdk, url);
 
 								const onChainAddresses = payConfig
 									.filter((e) => {
@@ -121,10 +125,7 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 							<TrashIcon height={24} width={24} color="brand" />
 						</IconButton>
 					</View>
-					<ProfileLinks
-						links={contact?.profile?.links}
-						style={styles.profileDetails}
-					/>
+					<ProfileLinks links={profile?.links} style={styles.profileDetails} />
 				</View>
 			</View>
 		</View>

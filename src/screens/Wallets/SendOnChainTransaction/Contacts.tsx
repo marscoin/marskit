@@ -10,7 +10,7 @@ import { EAddressTypeNames } from '../../../store/types/wallet';
 import { updateBitcoinTransaction } from '../../../store/actions/wallet';
 import Store from '../../../store/types';
 import { useTransactionDetails } from '../../../hooks/transaction';
-import { getPayConfig } from '../../../utils/slashtags';
+import { getSlashPayConfig } from '../../../utils/slashtags';
 import { useSlashtags } from '../../../components/SlashtagsProvider';
 
 const Contacts = ({ navigation }): ReactElement => {
@@ -31,7 +31,7 @@ const Contacts = ({ navigation }): ReactElement => {
 				<ContactsList
 					onPress={async (contact): Promise<void> => {
 						const url = contact.url;
-						const payConfig = await getPayConfig(sdk, url);
+						const payConfig = await getSlashPayConfig(sdk, url);
 
 						const onChainAddresses = payConfig
 							.filter((e) => {

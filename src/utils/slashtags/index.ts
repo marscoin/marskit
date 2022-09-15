@@ -3,11 +3,7 @@ import c from 'compact-encoding';
 import b4a from 'b4a';
 
 import { navigate } from '../../navigation/root/RootNavigator';
-import {
-	BasicProfile,
-	IRemote,
-	SlashPayConfig,
-} from '../../store/types/slashtags';
+import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
 import { showErrorNotification } from '../notifications';
 import { getReceiveAddress } from '../../utils/wallet';
 import { createLightningInvoice } from '../../utils/lightning';
@@ -58,11 +54,10 @@ export const saveContact = async (
  * Deletes a contact from the 'contacts' SlashDrive
  */
 // TODO(slashtags): should we add a slasthag.deleteContact()?
-export const deleteContact = async (sdk: SDK, url: string): Promise<any> => {
-	const slashtag = getSelectedSlashtag(sdk);
-	if (!slashtag) {
-		return;
-	}
+export const deleteContact = async (
+	slashtag: Slashtag,
+	url: string,
+): Promise<any> => {
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
 	return drive.del('/' + id);
@@ -155,47 +150,9 @@ export const updateSlashPayConfig = async (
 	};
 };
 
-/** Resolve and cache profile.json and slashpay.json */
-export const remotes = {
-	cache: new Map(),
-	/** Returns a session of the public Hyperdrive for a slashtag, useful for watching it for updates. */
-	drive(sdk: SDK, url: string): ReturnType<SDK['drive']> {
-		const key = url && SlashURL.parse(url).key;
-		// TODO (slashtags) temporary hack till we solve https://github.com/synonymdev/slashtags/issues/53
-		const local = sdk?.slashtags.get(key);
-		return local ? local.drivestore.get() : key && sdk?.drive(key);
-	},
-	/** Resolve remote from network and cache in this.cache */
-	async get(sdk: SDK, url: string): Promise<IRemote> {
-		const drive = this.drive(sdk, url);
-
-		await drive.ready();
-
-		const [profile, payConfig] = await Promise.all([
-			drive
-				.get('/profile.json')
-				.then((buf: Uint8Array) => buf && c.decode(c.json, buf)),
-			drive
-				.get('/slashpay.json')
-				.then((buf: Uint8Array) => buf && c.decode(c.json, buf)),
-		]);
-
-		const cached = this.cache.get(url);
-
-		const remote = {
-			profile: profile || cached?.profile,
-			payConfig: payConfig || cached?.payConfig,
-		};
-
-		// this.cache.set(url, remote);
-
-		console.debug('Refreshed:', url, 'Cache size:', this.cache.size);
-		return remote;
-	},
-};
-
 /** Send hypercorse to seeder */
-export const seed = async (slashtag: Slashtag): Promise<any[]> => {
+export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
+	// TODO (slashtags) move this logic (getting keys to be seeded) to the SDK
 	return Promise.all(
 		[slashtag.drivestore.get(), slashtag.drivestore.get('contacts')].map(
 			async (drive: ReturnType<SDK['drive']>) => {
@@ -220,7 +177,7 @@ export const seed = async (slashtag: Slashtag): Promise<any[]> => {
 };
 
 /** Get the slashpay.json of remote contact */
-export const getPayConfig = async (
+export const getSlashPayConfig = async (
 	sdk: SDK,
 	url: string,
 ): Promise<SlashPayConfig> => {
