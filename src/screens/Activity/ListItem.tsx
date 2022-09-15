@@ -18,11 +18,11 @@ import { IActivityItem, EActivityTypes } from '../../store/types/activity';
 import { canBoost } from '../../utils/wallet/transactions';
 import { toggleView } from '../../store/actions/user';
 import Store from '../../store/types';
-import { useRemote } from '../../hooks/slashtags';
+import { useProfile } from '../../hooks/slashtags';
 
 const Avatar = ({ url }: { url: string }): ReactElement => {
-	const { remote } = useRemote(url);
-	return <ProfileImage url={url} image={remote?.profile?.image} size={32} />;
+	const { profile } = useProfile(url);
+	return <ProfileImage url={url} image={profile?.image} size={32} />;
 };
 
 const ListItem = ({

@@ -21,13 +21,17 @@ import { EAddressTypeNames } from '../../store/types/wallet';
 import { validateAddress } from '../../utils/scanner';
 import { useTransactionDetails } from '../../hooks/transaction';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
-import { useSlashtags } from '../../components/SlashtagsProvider';
+import {
+	useSlashtags,
+	useSlashtagsSDK,
+} from '../../components/SlashtagsProvider';
 
 export const Contact = ({ navigation, route }): JSX.Element => {
 	const url = route.params?.url;
 
 	const { profile } = useProfile(url);
 	const { slashtag } = useSelectedSlashtag();
+	const sdk = useSlashtagsSDK();
 	const contactRecord = useSlashtags().contacts[url];
 
 	const onDelete = useCallback(() => {

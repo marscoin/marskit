@@ -22,15 +22,13 @@ const backupOptions = { timeout: 30000 };
 //Keep a cached backup instance for each slashtag
 const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
-	if (!slashtag.ready) {
-		throw new Error('backupsFactory needs update');
-	}
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
-		backupsInstances[key] = slashtag.protocol(BackupProtocol);
+		// TODO (slashtags) update after updating the backpack to RPC
+		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
 		backupsInstances[key].setSecret(sharedSecret);
 
-		backupsInstances[key] = slashtag.protocol(BackupProtocol);
+		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
 
 		// Give the protocol the shared secret
 		backupsInstances[key].setSecret(sharedSecret);
