@@ -100,9 +100,19 @@ export const filterActivityItems = (
 		txType?: TTransactionType;
 	},
 ): IActivityItem[] => {
+	const lowerSearch = search.toLowerCase();
 	return items.filter((item) => {
-		// If there is a search set and it's not found in the message then don't bother continuing
-		if (search && !item.message.toLowerCase().includes(search.toLowerCase())) {
+		// If there is a search set and it's not found in the message, txid, address or value
+		// then don't bother continuing
+		if (
+			search &&
+			!(
+				item.message.toLowerCase().includes(lowerSearch) ||
+				item.id?.toLowerCase().includes(lowerSearch) ||
+				item.address?.toLowerCase().includes(lowerSearch) ||
+				item.value.toString().includes(lowerSearch)
+			)
+		) {
 			return false;
 		}
 
