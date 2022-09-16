@@ -49,11 +49,12 @@ import { decodeLightningInvoice } from '../../../utils/lightning';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { processInputData } from '../../../utils/scanner';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
+import useKeyboard from '../../../hooks/keyboard';
 import AddressOrSlashpay from './AddressOrSlashpay';
 
 const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	useBottomSheetBackPress('sendNavigation');
-
+	const { keyboardShown } = useKeyboard();
 	const insets = useSafeAreaInsets();
 	const buttonContainerStyles = useMemo(
 		() => ({
@@ -68,9 +69,6 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-	const initial = useSelector(
-		(store: Store) => store.user.viewController?.sendNavigation?.initial,
-	);
 	const numberPadIsOpen = useSelector(
 		(store: Store) => store.user.viewController?.numberPad.isOpen,
 	);
@@ -82,7 +80,6 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		undefined,
 	);
 	const transaction = useTransactionDetails();
-	const displayBackButton = initial === 'SendAssetPickerList';
 
 	const getDecodeAndSetLightningInvoice = async (): Promise<void> => {
 		try {
@@ -309,10 +306,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
-			<BottomSheetNavigationHeader
-				title="Send Bitcoin"
-				displayBackButton={displayBackButton}
-			/>
+			<BottomSheetNavigationHeader title="Send Bitcoin" />
 			<View style={styles.content}>
 				<AmountToggle
 					sats={amount}
@@ -378,7 +372,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 					/>
 				</View>
 				<View style={buttonContainerStyles}>
-					{!isInvalid() && (
+					{!keyboardShown && !isInvalid() && (
 						<Button
 							size="lg"
 							text="Next"
