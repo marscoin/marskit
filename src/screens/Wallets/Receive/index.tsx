@@ -33,7 +33,7 @@ import { resetInvoice } from '../../../store/actions/receive';
 import { updateMetaIncTxTags } from '../../../store/actions/metadata';
 import { getReceiveAddress } from '../../../utils/wallet';
 import { getUnifiedUri } from '../../../utils/receive';
-import { createLightningInvoice } from '../../../utils/lightning';
+import { createLightningInvoice, refreshLdk } from '../../../utils/lightning';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
@@ -143,7 +143,10 @@ const Receive = ({ navigation }): ReactElement => {
 
 	useEffect(() => {
 		resetInvoice();
-	}, []);
+		if (receiveNavigationIsOpen) {
+			refreshLdk({ selectedWallet, selectedNetwork }).then();
+		}
+	}, [selectedNetwork, selectedWallet, receiveNavigationIsOpen]);
 
 	useEffect(() => {
 		setInvoiceDetails().then();

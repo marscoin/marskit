@@ -13,7 +13,7 @@ import { refreshServiceList } from '../../store/actions/blocktank';
 import { setupTodos } from '../todos';
 import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
-import { setupLdk } from '../lightning';
+import { keepLdkSynced, setupLdk } from '../lightning';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateUser } from '../../store/actions/user';
 import { setupBlocktank, watchPendingOrders } from '../blocktank';
@@ -155,7 +155,9 @@ export const startWalletServices = async ({
 				if (lightning && selectedNetwork === 'bitcoinRegtest') {
 					// Start LDK
 					const setupResponse = await setupLdk({ selectedNetwork });
-					if (setupResponse.isErr()) {
+					if (setupResponse.isOk()) {
+						keepLdkSynced({ selectedNetwork }).then();
+					} else {
 						showErrorNotification({
 							title: 'Unable to start LDK.',
 							message: setupResponse.error.message,
