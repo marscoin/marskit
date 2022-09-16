@@ -4,7 +4,7 @@ import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
 import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
-import { getSelectedAddressType } from '../../../utils/wallet';
+import { getSelectedAddressType, refreshWallet } from '../../../utils/wallet';
 import { capitalize } from '../../../utils/helpers';
 import { updateSelectedAddressType } from '../../../store/actions/wallet';
 import { TAddressType } from '../../../store/types/wallet';
@@ -49,9 +49,10 @@ const AddressTypeSettings = ({ navigation }): ReactElement => {
 
 	const setAddressTypePreference = (preference: TAddressType): void => {
 		setAddressTypeState(preference);
-		return updateSelectedAddressType({
+		updateSelectedAddressType({
 			addressType: preference,
 		});
+		refreshWallet({}).then();
 	};
 
 	const checkAddressTypeListCheckmark = (type: TAddressType): boolean => {
