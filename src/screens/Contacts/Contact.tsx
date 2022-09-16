@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, Share } from 'react-native';
+import { StyleSheet, Share, Alert } from 'react-native';
 
 import {
 	CoinsIcon,
@@ -13,23 +13,33 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
 import { TouchableOpacity } from 'react-native';
 import ProfileLinks from '../../components/ProfileLinks';
-import { useContact } from '../../hooks/slashtags';
-import { deleteContact } from '../../utils/slashtags';
-import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
+import { deleteContact, getSlashPayConfig } from '../../utils/slashtags';
 import { toggleView } from '../../store/actions/user';
 import { updateBitcoinTransaction } from '../../store/actions/wallet';
 import { sleep } from '../../utils/helpers';
+import { EAddressTypeNames } from '../../store/types/wallet';
+import { validateAddress } from '../../utils/scanner';
+import { useTransactionDetails } from '../../hooks/transaction';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
+import {
+	useSlashtags,
+	useSlashtagsSDK,
+} from '../../components/SlashtagsProvider';
 
 export const Contact = ({ navigation, route }): JSX.Element => {
 	const url = route.params?.url;
 
-	const contact = useContact(url);
+	const { profile } = useProfile(url);
+	const { slashtag } = useSelectedSlashtag();
 	const sdk = useSlashtagsSDK();
+	const contactRecord = useSlashtags().contacts[url];
 
 	const onDelete = useCallback(() => {
-		deleteContact(sdk, url);
+		deleteContact(slashtag, url);
 		navigation.navigate('Tabs');
-	}, [navigation, sdk, url]);
+	}, [navigation, slashtag, url]);
+
+	const transaction = useTransactionDetails();
 
 	return (
 		<View style={styles.container}>
@@ -44,7 +54,10 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 			<View style={styles.content}>
 				<ProfileCard
 					url={url}
-					profile={contact.profile}
+					profile={{
+						...profile,
+						...contactRecord,
+					}}
 					editable={false}
 					resolving={false}
 				/>
@@ -55,7 +68,22 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 							onPress={async (): Promise<void> => {
 								navigation.popToTop();
 
-								// TODO: get address from payconfig and validate it
+								const payConfig = await getSlashPayConfig(sdk, url);
+
+								const onChainAddresses = payConfig
+									.filter((e) => {
+										return Object.keys(EAddressTypeNames).includes(e.type);
+									})
+									.map((config) => config.value);
+
+								const address = onChainAddresses.find(
+									(a) => validateAddress({ address: a }).isValid,
+								);
+
+								if (!address) {
+									Alert.alert('Error', 'No valid address found.');
+									return;
+								}
 
 								toggleView({
 									view: 'sendNavigation',
@@ -69,8 +97,8 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 									transaction: {
 										outputs: [
 											{
-												address: 'bcrt1qqrgq9cfg6xagfel9gc0txfte9725l6qnpv3vm3',
-												value: 0,
+												address,
+												value: transaction.outputs?.[0]?.value ?? 0,
 												index: 0,
 											},
 										],
@@ -99,10 +127,7 @@ export const Contact = ({ navigation, route }): JSX.Element => {
 							<TrashIcon height={24} width={24} color="brand" />
 						</IconButton>
 					</View>
-					<ProfileLinks
-						links={contact?.profile?.links}
-						style={styles.profileDetails}
-					/>
+					<ProfileLinks links={profile?.links} style={styles.profileDetails} />
 				</View>
 			</View>
 		</View>

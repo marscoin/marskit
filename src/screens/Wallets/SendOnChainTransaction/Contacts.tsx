@@ -10,6 +10,8 @@ import { EAddressTypeNames } from '../../../store/types/wallet';
 import { updateBitcoinTransaction } from '../../../store/actions/wallet';
 import Store from '../../../store/types';
 import { useTransactionDetails } from '../../../hooks/transaction';
+import { getSlashPayConfig } from '../../../utils/slashtags';
+import { useSlashtags } from '../../../components/SlashtagsProvider';
 
 const Contacts = ({ navigation }): ReactElement => {
 	const selectedWallet = useSelector(
@@ -20,22 +22,26 @@ const Contacts = ({ navigation }): ReactElement => {
 	);
 	const transaction = useTransactionDetails();
 
+	const { sdk } = useSlashtags();
+
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
 			<NavigationHeader title="Send to Contact" size="sm" />
 			<View style={styles.content}>
 				<ContactsList
 					onPress={async (contact): Promise<void> => {
-						const nContact = {
-							...contact,
-							slashpay: {
-								p2wpkh: 'bcrt1qqrgq9cfg6xagfel9gc0txfte9725l6qnpv3vm3',
-							},
-						};
+						const url = contact.url;
+						const payConfig = await getSlashPayConfig(sdk, url);
 
-						const address = Object.keys(EAddressTypeNames)
-							.map((type) => nContact?.slashpay?.[type])
-							.find((a) => validateAddress({ address: a }).isValid);
+						const onChainAddresses = payConfig
+							.filter((e) => {
+								return Object.keys(EAddressTypeNames).includes(e.type);
+							})
+							.map((config) => config.value);
+
+						const address = onChainAddresses.find(
+							(a) => validateAddress({ address: a }).isValid,
+						);
 
 						if (!address) {
 							Alert.alert('Error', 'No valid address found.');
@@ -53,7 +59,7 @@ const Contacts = ({ navigation }): ReactElement => {
 										index: 0,
 									},
 								],
-								slashTagsUrl: nContact.url,
+								slashTagsUrl: url,
 							},
 						});
 

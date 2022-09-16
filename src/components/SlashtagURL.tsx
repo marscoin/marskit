@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
-import { Text } from '../styles/components';
+import { SlashURL } from '@synonymdev/slashtags-sdk';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { SlashURL } from '@synonymdev/slashtags-sdk/dist/rn.js';
+
+import { Text } from '../styles/components';
 
 export const SlashtagURL = ({
 	url,
@@ -14,8 +15,7 @@ export const SlashtagURL = ({
 	style?: ViewStyle;
 	color?: string;
 }): JSX.Element => {
-	// Ensure that URL is normalized
-	const id = url && new SlashURL(url).slashtag.base32;
+	const id = url && SlashURL.parse(url).id;
 
 	return (
 		<TouchableOpacity

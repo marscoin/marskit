@@ -1,76 +1,160 @@
-import React, { ReactElement, useContext, useEffect, useMemo } from 'react';
-import { SDK } from '@synonymdev/slashtags-sdk/dist/rn.js';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import SDK from '@synonymdev/slashtags-sdk';
 import { createContext } from 'react';
-import { storage as mmkv } from '../store/mmkv-storage';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
-import BackupProtocol from 'backpack-client/src/backup-protocol.js';
+import c from 'compact-encoding';
+import { useSelector } from 'react-redux';
+
+// TODO (slashtags) update BackupProtocol for the new SDK version
+// import BackupProtocol from 'backpack-client/src/backup-protocol.js';
+
+import { storage as mmkv } from '../store/mmkv-storage';
+import { BasicProfile, IContactRecord } from '../store/types/slashtags';
+import { getSlashtagsPrimaryKey } from '../utils/wallet';
+import { onSDKError, seedDrives } from '../utils/slashtags';
+import Store from '../store/types';
 
 export const RAWS = RAWSFactory({
-	setItem: (key, value) => {
+	setItem: (key: string, value: string) => {
 		mmkv.set(key, value);
 	},
-	getItem: (key) => {
+	getItem: (key: string) => {
 		return mmkv.getString(key);
 	},
-	removeItem: (key) => {
+	removeItem: (key: string) => {
 		mmkv.delete(key);
 	},
 });
 
-export const clearSlashtagsStorage = (): void => {
-	const keys = mmkv.getAllKeys();
-	for (let key of keys) {
-		key.startsWith('core') && mmkv.delete(key);
-	}
-};
+export interface ISlashtagsContext {
+	sdk: SDK;
+	/** Cached local Slashtags profiles */
+	profiles: { [url: string]: BasicProfile };
+	contacts: { [url: string]: IContactRecord };
+}
 
-const SlashtagsContext = createContext<SDK>({} as SDK);
+const SlashtagsContext = createContext<ISlashtagsContext>({
+	sdk: ((): SDK => {
+		const sdk = new SDK({ relay: 'ws://foo:90' });
+		sdk.ready().catch(noop);
+		return sdk;
+	})(),
+	profiles: {},
+	contacts: {},
+});
 
-export const SlashtagsProvider = ({
-	primaryKey,
-	relay,
-	onError = noop,
-	onReady = noop,
-	children,
-}: {
-	relay: string;
-	primaryKey?: Uint8Array;
-	onError?: (error: Error) => void;
-	onReady?: (sdk: SDK) => void;
-	children: ReactElement[] | ReactElement;
-}): JSX.Element => {
-	const primaryKeyString = primaryKey && b4a.toString(primaryKey, 'hex');
+/**
+ * All things Slashtags that needs to happen on start of Bitkit
+ * or stay available and cached through the App.
+ */
+export const SlashtagsProvider = ({ children }): JSX.Element => {
+	const [primaryKey, setPrimaryKey] = useState<string>();
+	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
+	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
+
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+
+	const seedHash = useSelector(
+		(store: Store) => store.wallet.wallets[selectedWallet]?.seedHash,
+	);
+
+	useEffect(() => {
+		seedHash &&
+			getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
+				!error && setPrimaryKey(data);
+			});
+	}, [seedHash]);
 
 	const sdk = useMemo(() => {
-		const _sdk = new SDK({
-			primaryKey: primaryKeyString && b4a.from(primaryKeyString, 'hex'),
+		return new SDK({
+			primaryKey: primaryKey && b4a.from(primaryKey, 'hex'),
 			// TODO(slashtags): replace it with non-blocking storage,
 			// like random access react native after m1 support. or react-native-fs?
 			storage: RAWS,
-			swarmOpts: { relays: [relay] },
-			protocols: [BackupProtocol],
+			// TODO(slashtags): add settings to customize this relay or use native
+			relay: 'wss://dht-relay.synonym.to',
 		});
-		_sdk
-			.ready()
-			.then(() => onReady(_sdk))
-			.catch(onError);
-		return _sdk;
-	}, [primaryKeyString, relay, onError, onReady]);
+	}, [primaryKey]);
+
+	sdk.ready().catch(onSDKError);
 
 	useEffect(() => {
+		let unmounted = false;
+
+		const slashtag = sdk.slashtag();
+		const publicDrive = slashtag.drivestore.get();
+		const contactsDrive = slashtag.drivestore.get('contacts');
+
+		// Setup local Slashtags
+		(async (): Promise<void> => {
+			// Cache local profiles
+			await publicDrive.ready();
+
+			resolve();
+			publicDrive.core.on('append', resolve);
+
+			async function resolve(): Promise<void> {
+				const profile = await publicDrive
+					.get('/profile.json')
+					.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+				!unmounted && setProfiles((p) => ({ ...p, [slashtag.url]: profile }));
+			}
+
+			// Send cores to seeder
+			seedDrives(slashtag);
+
+			// Update contacts
+
+			// Load contacts from contacts drive on first loading of the app
+			contactsDrive.ready().then(updateContacts);
+			contactsDrive.core.on('append', updateContacts);
+
+			function updateContacts(): void {
+				const rs = contactsDrive.readdir('/');
+				const promises: { [url: string]: Promise<IContactRecord> } = {};
+
+				rs.on('data', (id: string) => {
+					const url = 'slash:' + id;
+
+					promises[id] = contactsDrive
+						.get('/' + id)
+						.then(
+							(buf: Uint8Array) => buf && { url, ...c.decode(c.json, buf) },
+						);
+				});
+				rs.on('end', async () => {
+					const resolved = await Promise.all(Object.values(promises));
+
+					!unmounted &&
+						setContacts(
+							Object.fromEntries(
+								resolved.map((contact) => [contact.url, contact]),
+							),
+						);
+				});
+			}
+		})();
+
 		return function cleanup() {
-			// sdk.close();
+			unmounted = true;
+			publicDrive.close();
+			contactsDrive.close();
 		};
 	}, [sdk]);
 
 	return (
-		<SlashtagsContext.Provider value={sdk}>
+		<SlashtagsContext.Provider value={{ sdk, profiles, contacts }}>
 			{children}
 		</SlashtagsContext.Provider>
 	);
 };
 
-export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext);
+export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext).sdk;
+
+export const useSlashtags = (): ISlashtagsContext =>
+	useContext(SlashtagsContext);
 
 function noop(): any {}

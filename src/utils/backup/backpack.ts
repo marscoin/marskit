@@ -1,7 +1,8 @@
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 import { ok, err, Result } from '@synonymdev/result';
+import { Slashtag } from '@synonymdev/slashtags-sdk';
+
 import { name as appName, version as appVersion } from '../../../package.json';
-import { Slashtag } from '../../hooks/slashtags';
 
 //TODO move to env when we have a production server
 //Staging server config
@@ -23,11 +24,11 @@ const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
-		await slashtag.ready();
-		backupsInstances[key] = slashtag.protocol(BackupProtocol);
+		// TODO (slashtags) update after updating the backpack to RPC
+		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
 		backupsInstances[key].setSecret(sharedSecret);
 
-		backupsInstances[key] = slashtag.protocol(BackupProtocol);
+		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
 
 		// Give the protocol the shared secret
 		backupsInstances[key].setSecret(sharedSecret);

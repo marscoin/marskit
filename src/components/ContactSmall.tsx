@@ -3,15 +3,15 @@ import { StyleSheet } from 'react-native';
 
 import { Text02M, View } from '../styles/components';
 import ProfileImage from './ProfileImage';
-import { useRemote } from '../hooks/slashtags';
+import { useProfile } from '../hooks/slashtags';
 
 export const ContactSmall = ({ url }: { url: string }): JSX.Element => {
-	const { remote } = useRemote(url);
+	const { profile } = useProfile(url);
 
 	return (
 		<View color="white05" style={styles.container}>
-			<ProfileImage url={url} image={remote?.profile?.image} size={24} />
-			<Text02M style={styles.name}>{remote?.profile?.name}</Text02M>
+			<ProfileImage url={url} image={profile?.image} size={24} />
+			<Text02M style={styles.name}>{profile?.name}</Text02M>
 		</View>
 	);
 };

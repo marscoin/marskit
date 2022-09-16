@@ -7,7 +7,6 @@ import React, {
 	useMemo,
 	useEffect,
 	useCallback,
-	useState,
 } from 'react';
 import { Platform, UIManager, NativeModules } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -25,13 +24,11 @@ import './utils/translations';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { checkWalletExists, startWalletServices } from './utils/startup';
 import { SlashtagsProvider } from './components/SlashtagsProvider';
-import { getSlashtagsPrimaryKey } from './utils/wallet';
 import { electrumConnection } from './utils/electrum';
 import {
 	showErrorNotification,
 	showSuccessNotification,
 } from './utils/notifications';
-import { SlashtagsContactsProvider } from './components/SlashtagContactsProvider';
 import { toastConfig } from './components/Toast';
 
 if (Platform.OS === 'android') {
@@ -44,13 +41,6 @@ const App = (): ReactElement => {
 	const isOnline = useSelector((state: Store) => state.user.isOnline);
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
 	const theme = useSelector((state: Store) => state.settings.theme);
-	const selectedWallet = useSelector(
-		(store: Store) => store.wallet.selectedWallet,
-	);
-	const seedHash = useSelector(
-		(store: Store) => store.wallet.wallets[selectedWallet]?.seedHash,
-	);
-	const [primaryKey, setPrimaryKey] = useState<Uint8Array>();
 
 	useEffect(() => {
 		// hide spash screen on android
@@ -113,13 +103,6 @@ const App = (): ReactElement => {
 		};
 	}, [isOnline]);
 
-	useEffect(() => {
-		seedHash &&
-			getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
-				!error && setPrimaryKey(Buffer.from(data, 'hex'));
-			});
-	}, [seedHash]);
-
 	const currentTheme = useMemo(() => {
 		return themes[theme];
 	}, [theme]);
@@ -128,27 +111,14 @@ const App = (): ReactElement => {
 		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
 	}, [walletExists]);
 
-	const slashTagsOnError = useCallback((error: Error): void => {
-		showErrorNotification({
-			title: 'SlashtagsProvider Error',
-			message: error.message,
-		});
-	}, []);
-
 	return (
 		<ThemeProvider theme={currentTheme}>
-			<SlashtagsProvider
-				primaryKey={primaryKey}
-				// TODO(slashtags): add settings to customize this relay
-				relay={'wss://dht-relay.synonym.to'}
-				onError={slashTagsOnError}>
-				<SlashtagsContactsProvider>
-					<SafeAreaProvider>
-						<StatusBar />
-						<RootComponent />
-					</SafeAreaProvider>
-					<Toast config={toastConfig} />
-				</SlashtagsContactsProvider>
+			<SlashtagsProvider>
+				<SafeAreaProvider>
+					<StatusBar />
+					<RootComponent />
+				</SafeAreaProvider>
+				<Toast config={toastConfig} />
 			</SlashtagsProvider>
 		</ThemeProvider>
 	);

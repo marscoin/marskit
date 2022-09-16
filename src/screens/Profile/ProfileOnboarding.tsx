@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { StyleSheet, Image, ImageSourcePropType } from 'react-native';
 
 import { Display, View, Text01S } from '../../styles/components';
@@ -8,12 +7,10 @@ import Button from '../../components/Button';
 import GlowingBackground from '../../components/GlowingBackground';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
-import { ISlashtags, SlashPayConfig } from '../../store/types/slashtags';
+import { ISlashtags } from '../../store/types/slashtags';
 import SwitchRow from '../../components/SwitchRow';
-import { getReceiveAddress } from '../../utils/wallet';
-import Store from '../../store/types';
+import { updateSlashPayConfig } from '../../utils/slashtags';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
-import { getSelectedSlashtag } from '../../utils/slashtags';
 
 export const ProfileIntro = ({ navigation }): JSX.Element => {
 	return (
@@ -49,25 +46,10 @@ export const PaymentsFromContacts = ({ navigation }): JSX.Element => {
 export const OfflinePayments = ({ navigation }): JSX.Element => {
 	const [enableOfflinePayment, setEnableOfflinePayment] = useState(true);
 
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-
 	const sdk = useSlashtagsSDK();
 
-	const savePaymentConfig = (): void => {
-		const payConfig: SlashPayConfig = {};
-		if (enableOfflinePayment) {
-			const response = getReceiveAddress({ selectedWallet });
-			if (response.isOk()) {
-				payConfig.p2wpkh = response.value;
-			}
-		}
-		const slashtag = getSelectedSlashtag(sdk);
-		slashtag?.publicDrive.put(
-			'/slashprofile',
-			Buffer.from(JSON.stringify(payConfig)),
-		);
+	const savePaymentConfig = async (): Promise<void> => {
+		updateSlashPayConfig(sdk, { p2wpkh: enableOfflinePayment });
 	};
 
 	return (

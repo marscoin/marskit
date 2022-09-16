@@ -17,28 +17,6 @@ const ProfileLinks = ({
 
 	const editable = setLink;
 
-	const Input = ({
-		label,
-		deletable,
-	}: {
-		label: string;
-		deletable: boolean;
-	}): JSX.Element => {
-		return (
-			<LabeledInput
-				label={label}
-				value={links?.filter((l) => l.title === label)[0].url}
-				onChange={editable && ((val): void => setLink(label, val))}
-				rightIcon={
-					editable && deletable ? (
-						<TrashIcon color="brand" width={16} />
-					) : undefined
-				}
-				onRightIconPress={editable && ((): void => setLink(label, undefined))}
-			/>
-		);
-	};
-
 	return (
 		<View style={StyleSheet.compose(styles.linksViewContainer, style)}>
 			{!editable && links?.length === 0 ? (
@@ -46,7 +24,18 @@ const ProfileLinks = ({
 			) : (
 				links.map(
 					(link): JSX.Element => (
-						<Input label={link.title} key={link.title} deletable={true} />
+						<LabeledInput
+							key={link.title}
+							label={link.title}
+							value={links?.filter((l) => l.title === link.title)[0].url}
+							onChange={editable && ((val): void => setLink(link.title, val))}
+							rightIcon={
+								editable ? <TrashIcon color="brand" width={16} /> : undefined
+							}
+							onRightIconPress={
+								editable && ((): void => setLink(link.title, undefined))
+							}
+						/>
 					),
 				)
 			)}

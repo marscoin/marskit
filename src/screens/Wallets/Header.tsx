@@ -11,13 +11,16 @@ import {
 } from '../../styles/components';
 import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
-import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { RootNavigationProp } from '../../navigation/types';
 
 const Header = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
 
-	const { url, profile } = useSelectedSlashtag();
+	const { url } = useSelectedSlashtag();
+	// Could be faster if we use the cache from useSlashtags driectly,
+	// but if useProfile is blocked, then everything is too, better solve that.
+	const { profile } = useProfile(url);
 
 	const openProfile = useCallback(
 		() => navigation.navigate('Profile'),

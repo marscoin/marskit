@@ -30,7 +30,7 @@ import ProfileLinks from '../../components/ProfileLinks';
 import Tooltip from '../../components/Tooltip';
 import ProfileEdit from './ProfileEdit';
 import Store from '../../store/types';
-import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 
 export const Profile = ({ navigation }): JSX.Element => {
 	const onboardingProfileStep = useSelector(
@@ -55,7 +55,8 @@ export const Profile = ({ navigation }): JSX.Element => {
 
 const ProfileScreen = ({ navigation }): JSX.Element => {
 	const [showCopy, setShowCopy] = useState(false);
-	const { url, profile } = useSelectedSlashtag();
+	const { url } = useSelectedSlashtag();
+	const { profile } = useProfile(url);
 
 	const [view, setView] = useState('qr');
 
@@ -125,7 +126,7 @@ const ProfileScreen = ({ navigation }): JSX.Element => {
 							style={styles.profileDetails}
 						/>
 					) : (
-						<QRView url={url as string} profile={profile} />
+						<QRView url={url} profile={profile} />
 					)}
 					{showCopy && (
 						<AnimatedView

@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import inquirer from 'inquirer';
-import { SDK } from '@synonymdev/slashtags-sdk';
 import fs from 'fs';
 import path from 'path';
 import falso from '@ngneat/falso';
 import fetch from 'node-fetch';
+import SDK, { SlashURL } from '@synonymdev/slashtags-sdk';
+import c from 'compact-encoding';
+import RAM from 'random-access-memory';
+import b4a from 'b4a';
 
 const cacheLocation = path.join(
 	import.meta.url.replace('file:/', ''),
@@ -12,9 +15,7 @@ const cacheLocation = path.join(
 	'cache.json',
 );
 
-const sdk = await SDK.init({
-	persist: false,
-});
+const sdk = new SDK({ storage: RAM });
 
 let cached = loadCache();
 
@@ -82,25 +83,26 @@ async function resolveProfile() {
 	}
 	cache({ lastUsedURL: url });
 
-	const slashtag = sdk.slashtag({ url });
+	const key = SlashURL.parse(url).key;
+	const drive = sdk.drive(key);
 	console.log('Resolving public drive ...');
-	console.time('-- resolved drive in');
-	await slashtag.ready();
-	await slashtag.publicDrive?.getContent();
+	await drive.ready();
 
-	const profile = await slashtag.getProfile();
+	const profile = await drive
+		.get('/profile.json')
+		.then((buf) => buf && c.decode(c.json, buf));
+	console.time('-- resolved drive in');
 	console.log('resolved profile');
 
-	const slashpay = await slashtag.publicDrive
+	const slashpay = await drive
 		.get('/slashpay.json')
-		.then((buf) => JSON.parse(buf.toString()))
-		.catch(noop);
+		.then((buf) => buf && c.decode(c.json, buf));
 	console.timeEnd('-- resolved drive in');
 
 	console.dir(
 		{
-			url: slashtag.url.origin,
-			version: slashtag.publicDrive.version,
+			url: url,
+			version: drive.files.version,
 			profile: formatProfile(profile),
 			slashpay,
 		},
@@ -111,14 +113,34 @@ async function resolveProfile() {
 /**
  * Creates a contact and returns its url
  * @param {boolean} log
- * @returns {string}
  */
 async function createContact(log = true) {
 	const name = Math.random().toString(16).slice(2);
-	const slashtag = sdk.slashtag({ name });
-	const contact = await generateContact(slashtag.url.origin);
-	saveContact(slashtag, contact);
+	const slashtag = sdk.slashtag(name);
+	const contact = await generateContact(slashtag.url);
+	await saveContact(slashtag, contact);
 	contacts[contact.url] = name;
+
+	// TODO fix seeder!!
+	const drive = slashtag.drivestore.get();
+	await drive.ready();
+
+	{
+		const key = b4a.toString(drive.key, 'hex');
+		await fetch('http://35.233.47.252:443/seeding/hypercore', {
+			method: 'POST',
+			body: JSON.stringify({ publicKey: key }),
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
+	{
+		const key = b4a.toString(drive.blobs.core.key, 'hex');
+		await fetch('http://35.233.47.252:443/seeding/hypercore', {
+			method: 'POST',
+			body: JSON.stringify({ publicKey: key }),
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
 
 	log && console.dir(formatContact(contact), { depth: null });
 	return contact.url;
@@ -153,7 +175,7 @@ async function updateContact() {
 	]);
 
 	const nameUsedForCreatingSlasthag = contacts[selected];
-	const slashtag = sdk.slashtag({ name: nameUsedForCreatingSlasthag });
+	const slashtag = sdk.slashtag(nameUsedForCreatingSlasthag);
 	const newContact = await generateContact(selected);
 	await saveContact(slashtag, newContact);
 	console.dir(formatContact(newContact), { depth: null });
@@ -196,11 +218,9 @@ function formatContact(contact) {
 }
 
 async function saveContact(slashtag, contact) {
-	await slashtag.setProfile(contact.profile);
-	await slashtag.publicDrive.put(
-		'/slashpay.json',
-		Buffer.from(JSON.stringify(contact.slashpay)),
-	);
+	const drive = slashtag.drivestore.get();
+	await drive.put('/profile.json', c.encode(c.json, contact.profile));
+	await drive.put('/slashpay.json', c.encode(c.json, contact.slashpay));
 
 	return formatContact(contact);
 }
@@ -229,8 +249,6 @@ async function generateContact(url) {
 				{ title: 'website', url: falso.randUrl() },
 			],
 		},
-		slashpay: {
-			p2wpkh: falso.randBitcoinAddress(),
-		},
+		slashpay: [{ type: 'p2wpkh', value: falso.randBitcoinAddress() }],
 	};
 }
