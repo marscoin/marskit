@@ -84,12 +84,13 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	useEffect(() => {
 		let unmounted = false;
 
+		const slashtag = sdk.slashtag();
+		const publicDrive = slashtag.drivestore.get();
+		const contactsDrive = slashtag.drivestore.get('contacts');
+
 		// Setup local Slashtags
 		(async (): Promise<void> => {
 			// Cache local profiles
-			const slashtag = sdk.slashtag();
-			const publicDrive = slashtag.drivestore.get();
-
 			await publicDrive.ready();
 
 			resolve();
@@ -106,7 +107,6 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			seedDrives(slashtag);
 
 			// Update contacts
-			const contactsDrive = slashtag.drivestore.get('contacts');
 
 			// Load contacts from contacts drive on first loading of the app
 			contactsDrive.ready().then(updateContacts);
@@ -140,6 +140,8 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 		return function cleanup() {
 			unmounted = true;
+			publicDrive.close();
+			contactsDrive.close();
 		};
 	}, [sdk]);
 

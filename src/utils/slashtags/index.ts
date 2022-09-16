@@ -47,7 +47,8 @@ export const saveContact = async (
 ): Promise<void> => {
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	return drive?.put('/' + id, c.encode(c.json, record));
+	await drive?.put('/' + id, c.encode(c.json, record));
+	drive.close();
 };
 
 /**
@@ -60,7 +61,8 @@ export const deleteContact = async (
 ): Promise<any> => {
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	return drive.del('/' + id);
+	await drive.del('/' + id);
+	drive.close();
 };
 
 /**
@@ -75,16 +77,16 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 	const drive = await slashtag.drivestore.get('contacts');
 	const batch = drive.batch();
 
-	return Promise.all(
+	await Promise.all(
 		urls.map(async (url) => {
 			const name = Math.random().toString(16).slice(2, 8);
 			const id = SlashURL.parse(url).id;
 			return batch?.put('/' + id, c.encode(c.json, { name }));
 		}),
-	).then(async () => {
-		await batch.flush();
-		console.debug('Done saving bulk contacts');
-	});
+	);
+	await batch.flush();
+	console.debug('Done saving bulk contacts');
+	drive.close();
 };
 
 export const onSDKError = (error: Error): void => {
@@ -144,6 +146,8 @@ export const updateSlashPayConfig = async (
 	await publicDrive.put('/slashpay.json', c.encode(c.json, payConfig));
 	console.debug('Updated slashpay.json:', payConfig);
 
+	publicDrive.close();
+
 	return {
 		/** Saved config */
 		payConfig,
@@ -162,6 +166,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 					body: JSON.stringify({ publicKey: b4a.toString(drive.key, 'hex') }),
 					headers: { 'Content-Type': 'application/json' },
 				});
+
 				await drive.getBlobs();
 				await fetch('http://35.233.47.252:443/seeding/hypercore', {
 					method: 'POST',
@@ -170,7 +175,8 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 					}),
 					headers: { 'Content-Type': 'application/json' },
 				});
-				return drive.close();
+
+				drive.close();
 			},
 		),
 	);
@@ -183,7 +189,10 @@ export const getSlashPayConfig = async (
 ): Promise<SlashPayConfig> => {
 	const drive = sdk.drive(SlashURL.parse(url).key);
 	await drive.ready();
-	return drive
+	const payConfig = await drive
 		.get('/slashpay.json')
 		.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+
+	drive.close();
+	return payConfig;
 };

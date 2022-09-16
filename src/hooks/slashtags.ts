@@ -57,6 +57,7 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
+			drive.close();
 		};
 	}, [url, sdk]);
 
