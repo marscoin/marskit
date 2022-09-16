@@ -381,8 +381,8 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 							text="Next"
 							onPress={(): void => {
 								let view = 'ReviewAndSend';
-								// If coin select is enabled and there is no lightning invoice.
-								if (coinSelectAuto && !transaction?.lightningInvoice) {
+								// If auto coin-select is disabled and there is no lightning invoice.
+								if (!coinSelectAuto && !transaction?.lightningInvoice) {
 									view = 'CoinSelection';
 								}
 								navigation.navigate(view);
