@@ -1,13 +1,10 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import SDK from '@synonymdev/slashtags-sdk';
 import { createContext } from 'react';
+import { useSelector } from 'react-redux';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
 import c from 'compact-encoding';
-import { useSelector } from 'react-redux';
-
-// TODO (slashtags) update BackupProtocol for the new SDK version
-// import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
@@ -35,11 +32,7 @@ export interface ISlashtagsContext {
 }
 
 const SlashtagsContext = createContext<ISlashtagsContext>({
-	sdk: ((): SDK => {
-		const sdk = new SDK({ relay: 'ws://foo:90' });
-		sdk.ready().catch(noop);
-		return sdk;
-	})(),
+	sdk: {} as SDK,
 	profiles: {},
 	contacts: {},
 });
@@ -53,23 +46,35 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
 	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
 
-	const selectedWallet = useSelector(
-		(store: Store) => store.wallet.selectedWallet,
-	);
-
+	// Load primaryKey from keychain
 	const seedHash = useSelector(
-		(store: Store) => store.wallet.wallets[selectedWallet]?.seedHash,
+		(store: Store) =>
+			store.wallet.wallets[store.wallet.selectedWallet]?.seedHash,
 	);
 
 	useEffect(() => {
-		seedHash &&
-			getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
-				!error && setPrimaryKey(data);
-			});
+		if (!seedHash) {
+			return;
+		}
+		getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
+			if (error || (data && data.length === 0)) {
+				onSDKError(
+					new Error(
+						'Could not load primaryKey from keyChain, data:"' + data + '"',
+					),
+				);
+				return;
+			}
+			setPrimaryKey(data);
+		});
 	}, [seedHash]);
 
 	const sdk = useMemo(() => {
+		if (!primaryKey) {
+			return;
+		}
 		return new SDK({
+			// @ts-ignore
 			primaryKey: primaryKey && b4a.from(primaryKey, 'hex'),
 			// TODO(slashtags): replace it with non-blocking storage,
 			// like random access react native after m1 support. or react-native-fs?
@@ -79,18 +84,28 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 		});
 	}, [primaryKey]);
 
-	sdk.ready().catch(onSDKError);
-
 	useEffect(() => {
-		let unmounted = false;
+		// Wait for primary key to be loaded from keyChain
+		if (!sdk) {
+			return;
+		}
+		// console.debug('RUNNING useEffect in provider', primaryKey);
 
-		const slashtag = sdk.slashtag();
-		const publicDrive = slashtag.drivestore.get();
-		const contactsDrive = slashtag.drivestore.get('contacts');
+		let unmounted = false;
 
 		// Setup local Slashtags
 		(async (): Promise<void> => {
+			try {
+				await sdk.ready();
+			} catch (error) {
+				onSDKError(error);
+				return;
+			}
+
+			const slashtag = sdk.slashtag();
+
 			// Cache local profiles
+			const publicDrive = slashtag.drivestore.get();
 			await publicDrive.ready();
 
 			resolve();
@@ -109,6 +124,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			// Update contacts
 
 			// Load contacts from contacts drive on first loading of the app
+			const contactsDrive = slashtag.drivestore.get('contacts');
 			contactsDrive.ready().then(updateContacts);
 			contactsDrive.core.on('append', updateContacts);
 
@@ -140,14 +156,15 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 		return function cleanup() {
 			unmounted = true;
-			publicDrive.close();
-			contactsDrive.close();
+			// TODO (slashtags) should we close the sdk to gracefully close the swarm?
+			// currently, closing while refreshing in development causes undefined is not a function error
 		};
 	}, [sdk]);
 
 	return (
-		<SlashtagsContext.Provider value={{ sdk, profiles, contacts }}>
-			{children}
+		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk created
+		<SlashtagsContext.Provider value={{ sdk: sdk as SDK, profiles, contacts }}>
+			{sdk && children}
 		</SlashtagsContext.Provider>
 	);
 };
@@ -156,5 +173,3 @@ export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext).sdk;
 
 export const useSlashtags = (): ISlashtagsContext =>
 	useContext(SlashtagsContext);
-
-function noop(): any {}

@@ -108,18 +108,22 @@ const App = (): ReactElement => {
 	}, [theme]);
 
 	const RootComponent = useCallback((): ReactElement => {
-		return walletExists ? <RootNavigator /> : <OnboardingNavigator />;
+		return walletExists ? (
+			<SlashtagsProvider>
+				<RootNavigator />
+			</SlashtagsProvider>
+		) : (
+			<OnboardingNavigator />
+		);
 	}, [walletExists]);
 
 	return (
 		<ThemeProvider theme={currentTheme}>
-			<SlashtagsProvider>
-				<SafeAreaProvider>
-					<StatusBar />
-					<RootComponent />
-				</SafeAreaProvider>
-				<Toast config={toastConfig} />
-			</SlashtagsProvider>
+			<SafeAreaProvider>
+				<StatusBar />
+				<RootComponent />
+			</SafeAreaProvider>
+			<Toast config={toastConfig} />
 		</ThemeProvider>
 	);
 };
