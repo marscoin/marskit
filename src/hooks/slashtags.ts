@@ -4,7 +4,7 @@ import c from 'compact-encoding';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import { getSelectedSlashtag } from '../utils/slashtags';
+import { gcdrive, getSelectedSlashtag } from '../utils/slashtags';
 
 export type Slashtag = ReturnType<SDK['slashtag']>;
 
@@ -38,7 +38,15 @@ export const useProfile = (
 		let unmounted = false;
 		const drive = sdk.drive(SlashURL.parse(url).key);
 
-		drive.ready().then(resolve);
+		drive
+			.ready()
+			.then(resolve)
+			.catch((error: Error) => {
+				console.debug('Error on opening public hyperdrive in useProfile', {
+					error: error.message,
+					url,
+				});
+			});
 		drive.core.on('append', resolve);
 
 		async function resolve(): Promise<void> {
@@ -57,7 +65,12 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
-			drive.close();
+			gcdrive(drive);
+
+			// Uncomment following code to watch number of close listeners on replication streams
+			// TODO (slashtags): fix close events on the same stream
+			// While this should be fixed, it grows to max of twice the number of contacts
+			// console.debug({closeListeners: [...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close'))})
 		};
 	}, [url, sdk]);
 

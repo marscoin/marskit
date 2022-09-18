@@ -9,7 +9,11 @@ import c from 'compact-encoding';
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import { onSDKError, seedDrives } from '../utils/slashtags';
+import {
+	getSelectedSlashtag,
+	onSDKError,
+	seedDrives,
+} from '../utils/slashtags';
 import Store from '../store/types';
 
 export const RAWS = RAWSFactory({
@@ -89,7 +93,6 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 		if (!sdk) {
 			return;
 		}
-		// console.debug('RUNNING useEffect in provider', primaryKey);
 
 		let unmounted = false;
 
@@ -102,7 +105,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 				return;
 			}
 
-			const slashtag = sdk.slashtag();
+			const slashtag = getSelectedSlashtag(sdk);
 
 			// Cache local profiles
 			const publicDrive = slashtag.drivestore.get();

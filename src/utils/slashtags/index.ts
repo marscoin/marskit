@@ -48,7 +48,7 @@ export const saveContact = async (
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
 	await drive?.put('/' + id, c.encode(c.json, record));
-	drive.close();
+	gcdrive(drive);
 };
 
 /**
@@ -62,7 +62,7 @@ export const deleteContact = async (
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
 	await drive.del('/' + id);
-	drive.close();
+	gcdrive(drive);
 };
 
 /**
@@ -86,7 +86,7 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 	);
 	await batch.flush();
 	console.debug('Done saving bulk contacts');
-	drive.close();
+	gcdrive(drive);
 };
 
 export const onSDKError = (error: Error): void => {
@@ -115,7 +115,7 @@ export const updateSlashPayConfig = async (
 	payConfig: SlashPayConfig;
 }> => {
 	const slashtag = getSelectedSlashtag(sdk);
-	const publicDrive = slashtag.drivestore.get();
+	const drive = slashtag.drivestore.get();
 
 	const payConfig: SlashPayConfig = [];
 
@@ -143,10 +143,10 @@ export const updateSlashPayConfig = async (
 		}
 	}
 
-	await publicDrive.put('/slashpay.json', c.encode(c.json, payConfig));
+	await drive.put('/slashpay.json', c.encode(c.json, payConfig));
 	console.debug('Updated slashpay.json:', payConfig);
 
-	publicDrive.close();
+	gcdrive(drive);
 
 	return {
 		/** Saved config */
@@ -176,7 +176,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 					headers: { 'Content-Type': 'application/json' },
 				});
 
-				drive.close();
+				gcdrive(drive);
 			},
 		),
 	);
@@ -193,6 +193,16 @@ export const getSlashPayConfig = async (
 		.get('/slashpay.json')
 		.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
 
-	drive.close();
+	gcdrive(drive);
 	return payConfig;
+};
+
+/** Close hyperdrive session without risking closing the cores */
+export const gcdrive = (drive: ReturnType<SDK['drive']>) => {
+	drive.core.sessions && drive.core.sessions.length > 2 && drive.close();
+	// Uncomment following code to watch number of sessions remaining
+	// console.debug({
+	// 	sessions_core: drive.core.sessions.length,
+	// 	sessions_blobs: drive.blobs?.core.sessions.length,
+	// });
 };
