@@ -4,7 +4,7 @@ import c from 'compact-encoding';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import { gcdrive, getSelectedSlashtag } from '../utils/slashtags';
+import { closeDriveSession, getSelectedSlashtag } from '../utils/slashtags';
 
 export type Slashtag = ReturnType<SDK['slashtag']>;
 
@@ -40,14 +40,13 @@ export const useProfile = (
 
 		drive
 			.ready()
-			.then(resolve)
-			.catch((error: Error) => {
-				console.debug('Error on opening public hyperdrive in useProfile', {
-					error: error.message,
-					url,
-				});
-			});
-		drive.core.on('append', resolve);
+			.then(() => {
+				// Resolve immediatly
+				resolve();
+				// Watch update
+				drive.core.on('append', resolve);
+			})
+			.catch(onError);
 
 		async function resolve(): Promise<void> {
 			const _profile = await drive
@@ -65,12 +64,13 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
-			gcdrive(drive);
+			closeDriveSession(drive);
 
+			// It so happens that hypercore creates a new session for every hypercore replicated
+			// on a stream (connection), and it wants to close that session once the stream is closed
+			// memory leak warning is expected.
 			// Uncomment following code to watch number of close listeners on replication streams
-			// TODO (slashtags): fix close events on the same stream
-			// While this should be fixed, it grows to max of twice the number of contacts
-			// console.debug({closeListeners: [...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close'))})
+			// console.debug("close listeners",[...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close')));
 		};
 	}, [url, sdk]);
 
@@ -79,3 +79,7 @@ export const useProfile = (
 		profile,
 	};
 };
+
+function onError(error: Error): void {
+	console.debug('Error opening drive in useProfile', error.message);
+}
