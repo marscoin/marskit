@@ -112,8 +112,14 @@ export const updateSlashPayConfig = async (
 		lightningInvoiceSats?: number;
 	},
 ): Promise<{
+	updated: boolean;
 	payConfig: SlashPayConfig;
 }> => {
+	if (sdk.closed) {
+		console.debug('updateSlashPayConfig: SKIP sdk is closed');
+		return { updated: false, payConfig: [] };
+	}
+
 	const slashtag = getSelectedSlashtag(sdk);
 	const drive = slashtag.drivestore.get();
 
@@ -149,6 +155,7 @@ export const updateSlashPayConfig = async (
 	closeDriveSession(drive);
 
 	return {
+		updated: true,
 		/** Saved config */
 		payConfig,
 	};
@@ -160,14 +167,14 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 	return Promise.all(
 		[slashtag.drivestore.get(), slashtag.drivestore.get('contacts')].map(
 			async (drive: ReturnType<SDK['drive']>) => {
-				await drive.ready();
+				await drive.ready().catch(noop);
 				await fetch('http://35.233.47.252:443/seeding/hypercore', {
 					method: 'POST',
 					body: JSON.stringify({ publicKey: b4a.toString(drive.key, 'hex') }),
 					headers: { 'Content-Type': 'application/json' },
 				});
 
-				await drive.getBlobs();
+				await drive.getBlobs().catch(noop);
 				await fetch('http://35.233.47.252:443/seeding/hypercore', {
 					method: 'POST',
 					body: JSON.stringify({
@@ -187,8 +194,13 @@ export const getSlashPayConfig = async (
 	sdk: SDK,
 	url: string,
 ): Promise<SlashPayConfig> => {
+	if (sdk.closed) {
+		console.debug('getSlashPayConfig: SKIP sdk is closed');
+		return [];
+	}
+
 	const drive = sdk.drive(SlashURL.parse(url).key);
-	await drive.ready();
+	await drive.ready().catch(noop);
 	const payConfig =
 		(await drive
 			.get('/slashpay.json')
@@ -205,7 +217,7 @@ export const getSlashPayConfig = async (
  * TODO (slashtags) investigate how to handle this at the SDK level instead
  * try to replicate it in a failing test and figure out sensible defaults.
  **/
-export const closeDriveSession = (drive: ReturnType<SDK['drive']>) => {
+export const closeDriveSession = (drive: ReturnType<SDK['drive']>): void => {
 	drive
 		.ready()
 		.then(async () => {
@@ -226,4 +238,4 @@ export const closeDriveSession = (drive: ReturnType<SDK['drive']>) => {
 		.catch(noop);
 };
 
-function noop() {}
+function noop(): void {}

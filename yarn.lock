@@ -2045,14 +2045,15 @@
   integrity sha512-Ni5qknulcf350qfPVTw3DWXqT2i6K68BoFc18zlqIAj9YA2RUOIJsKTdemX31i3wSma5LRHVcGLESVga16iAag==
 
 "@synonymdev/slashdrive@^1.0.0-alpha.12":
-  version "1.0.0-alpha.13"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.13.tgz#e29bbdc6c9fb80abd94479463de94d42f624b083"
-  integrity sha512-SYEgvKAbAnOg251nUPxyd86XKNpjltqGKF9qwVLL9i2F/V4Y/yWJt+04Ra7OubKz/DCUcx9XTb+DOqvcxrML0g==
+  version "1.0.0-alpha.14"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.14.tgz#482c953c989295578e83fb94e3d4f11fae18df37"
+  integrity sha512-kAp1LvWNhZ0pqLrXrAUUNu0lnH3MuEFEqSLM0MpUj7Rro4ENUOfnMpcUHCaremLYhkyRBrBO9tPbllcTYFlZzA==
   dependencies:
     b4a "^1.6.0"
     corestore "6.1.1"
     hyperbee "^2.0.1"
     hyperdrive "^11.0.0-alpha.5"
+    safety-catch "^1.0.2"
 
 "@synonymdev/slashtag@^1.0.0-alpha.18":
   version "1.0.0-alpha.18"
@@ -2066,10 +2067,10 @@
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
-"@synonymdev/slashtags-sdk@1.0.0-alpha.23", "@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
-  version "1.0.0-alpha.23"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.23.tgz#a11b1132a2f146cc6a56f7e87e21eecee5dafa0c"
-  integrity sha512-s/WXGpMLnI2T6jwifWCv9E1e4FgIAlXWLy6uPpb9RpYQN7h1wBbiisHAF47RPobuGF9XaRK3bSnNYj9LqkEMUg==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.13", "@synonymdev/slashtags-sdk@^1.0.0-alpha.24":
+  version "1.0.0-alpha.24"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.24.tgz#7f7a0d4e8f6ecb81f47668799dc50aaf8a6f039d"
+  integrity sha512-+g7ij6tEW9klGIcHqoJQxqzaNGzJFUtv9btRaNDsyKplE53EpSFq9qGOlofurrC6vHTpr4WbmeSqv0Sty3WHng==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"

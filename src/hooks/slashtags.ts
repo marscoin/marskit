@@ -36,6 +36,11 @@ export const useProfile = (
 
 	useEffect(() => {
 		let unmounted = false;
+		if (sdk.closed) {
+			console.debug('useProfile: SKIP sdk is closed');
+			return;
+		}
+
 		const drive = sdk.drive(SlashURL.parse(url).key);
 
 		drive

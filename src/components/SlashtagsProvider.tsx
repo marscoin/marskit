@@ -47,6 +47,7 @@ const SlashtagsContext = createContext<ISlashtagsContext>({
  */
 export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [primaryKey, setPrimaryKey] = useState<string>();
+	const [opened, setOpened] = useState(false);
 	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
 	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
 
@@ -98,10 +99,11 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 		// Setup local Slashtags
 		(async (): Promise<void> => {
-			try {
-				await sdk.ready();
-			} catch (error) {
-				onSDKError(error);
+			await sdk.ready().catch(onSDKError);
+			setOpened(true);
+
+			// If corestore is closed for some reason, should not try to load drives
+			if (sdk.closed) {
 				return;
 			}
 
@@ -109,10 +111,13 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 			// Cache local profiles
 			const publicDrive = slashtag.drivestore.get();
-			await publicDrive.ready();
-
-			resolve();
-			publicDrive.core.on('append', resolve);
+			await publicDrive
+				.ready()
+				.then(() => {
+					resolve();
+					publicDrive.core.on('append', resolve);
+				})
+				.catch(onError);
 
 			async function resolve(): Promise<void> {
 				const profile = await publicDrive
@@ -128,8 +133,13 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 			// Load contacts from contacts drive on first loading of the app
 			const contactsDrive = slashtag.drivestore.get('contacts');
-			contactsDrive.ready().then(updateContacts);
-			contactsDrive.core.on('append', updateContacts);
+			contactsDrive
+				.ready()
+				.then(() => {
+					updateContacts();
+					contactsDrive.core.on('append', updateContacts);
+				})
+				.catch(onError);
 
 			function updateContacts(): void {
 				const rs = contactsDrive.readdir('/');
@@ -159,15 +169,14 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 		return function cleanup() {
 			unmounted = true;
-			// TODO (slashtags) should we close the sdk to gracefully close the swarm?
-			// currently, closing while refreshing in development causes undefined is not a function error
+			// sdk automatically gracefully close anyway!
 		};
 	}, [sdk]);
 
 	return (
-		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk created
+		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk opened
 		<SlashtagsContext.Provider value={{ sdk: sdk as SDK, profiles, contacts }}>
-			{sdk && children}
+			{opened && children}
 		</SlashtagsContext.Provider>
 	);
 };
@@ -176,3 +185,10 @@ export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext).sdk;
 
 export const useSlashtags = (): ISlashtagsContext =>
 	useContext(SlashtagsContext);
+
+function onError(error: Error): void {
+	console.debug(
+		'Error in SlashtagsProvider while opening drive',
+		error.message,
+	);
+}
