@@ -189,9 +189,11 @@ export const getSlashPayConfig = async (
 ): Promise<SlashPayConfig> => {
 	const drive = sdk.drive(SlashURL.parse(url).key);
 	await drive.ready();
-	const payConfig = await drive
-		.get('/slashpay.json')
-		.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+	const payConfig =
+		(await drive
+			.get('/slashpay.json')
+			.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
+			.catch(noop)) || [];
 
 	closeDriveSession(drive);
 	return payConfig;
