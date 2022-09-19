@@ -2045,9 +2045,9 @@
   integrity sha512-Ni5qknulcf350qfPVTw3DWXqT2i6K68BoFc18zlqIAj9YA2RUOIJsKTdemX31i3wSma5LRHVcGLESVga16iAag==
 
 "@synonymdev/slashdrive@^1.0.0-alpha.12":
-  version "1.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.12.tgz#512e72b5e31f8ebecaeaca5307dc8a61df775571"
-  integrity sha512-eCm19RZJcfT3CkuhgLbFqDA16V+HAFzHlqAW/v7x6EGDbMjKrOtqEv59yK0c0MkXUsNftHRL59W4PdDFJqP0KQ==
+  version "1.0.0-alpha.13"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.13.tgz#e29bbdc6c9fb80abd94479463de94d42f624b083"
+  integrity sha512-SYEgvKAbAnOg251nUPxyd86XKNpjltqGKF9qwVLL9i2F/V4Y/yWJt+04Ra7OubKz/DCUcx9XTb+DOqvcxrML0g==
   dependencies:
     b4a "^1.6.0"
     corestore "6.1.1"
@@ -2066,31 +2066,10 @@
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
-"@synonymdev/slashtags-sdk@1.0.0-alpha.22":
-  version "1.0.0-alpha.22"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.22.tgz#c9dfdaf0f70b2faab8cc718a4f7dcdd1964eaced"
-  integrity sha512-dXMOT2XY8hPf2t2W2zOWpbZlQ1PoT9jm4bKZQMBkiBCRP0GjpBmnhwukiw7haNg5IIjgmT7CIHut9SbAB5BaTA==
-  dependencies:
-    "@hyperswarm/dht" "^6.2.1"
-    "@hyperswarm/dht-relay" "^0.3.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.18"
-    "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
-    b4a "^1.6.0"
-    compact-encoding "^2.11.0"
-    corestore "6.1.1"
-    graceful-goodbye "^1.1.0"
-    hypercore-crypto "^3.3.0"
-    hyperdrive "^11.0.0-alpha.3"
-    hyperswarm "=4.3.3"
-    random-access-memory "^5.0.1"
-    sodium-universal "^3.1.0"
-    turbo-hash-map "^1.0.3"
-    ws "^8.8.1"
-
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
-  version "1.0.0-alpha.21"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.21.tgz#b2f5a9b2d1d6654503d8d078f626f78dffb5aa19"
-  integrity sha512-+OWZoXF6XN9zgnYUh1wER8qZZgFqbxLetlPfQ4iOgKL9q1zVu8qJTLYobuVZ9b2pEfmsfzZytLsHx3qAk8YcBA==
+"@synonymdev/slashtags-sdk@1.0.0-alpha.23", "@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
+  version "1.0.0-alpha.23"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.23.tgz#a11b1132a2f146cc6a56f7e87e21eecee5dafa0c"
+  integrity sha512-s/WXGpMLnI2T6jwifWCv9E1e4FgIAlXWLy6uPpb9RpYQN7h1wBbiisHAF47RPobuGF9XaRK3bSnNYj9LqkEMUg==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"
