@@ -45,7 +45,7 @@ import {
 import { useTransactionDetails } from '../../../hooks/transaction';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 import { toggleView } from '../../../store/actions/user';
-import { decodeLightningInvoice } from '../../../utils/lightning';
+import { decodeLightningInvoice, refreshLdk } from '../../../utils/lightning';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { processInputData } from '../../../utils/scanner';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
@@ -74,6 +74,9 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	);
 	const coinSelectAuto = useSelector(
 		(state: Store) => state.settings.coinSelectAuto,
+	);
+	const sendNavigationIsOpen = useSelector(
+		(store: Store) => store.user.viewController.sendNavigation.isOpen,
 	);
 
 	const [decodedInvoice, setDecodedInvoice] = useState<undefined | TInvoice>(
@@ -290,9 +293,12 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	);
 
 	useEffect(() => {
-		// try to update fees on this screen, because they will be used on next one
-		updateOnchainFeeEstimates({ selectedNetwork }).then();
-	}, [selectedNetwork]);
+		if (sendNavigationIsOpen) {
+			// try to update fees on this screen, because they will be used on next one
+			updateOnchainFeeEstimates({ selectedNetwork }).then();
+			refreshLdk({ selectedWallet, selectedNetwork }).then();
+		}
+	}, [selectedNetwork, selectedWallet, sendNavigationIsOpen]);
 
 	const isInvalid = useCallback(() => {
 		if (

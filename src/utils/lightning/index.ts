@@ -33,6 +33,7 @@ import {
 	updateLightningNodeId,
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
+import { sleep } from '../helpers';
 
 export const defaultNodePubKey =
 	'034ecfd567a64f06742ac300a2985676abc0b1dc6345904a08bb52d5418e685f79';
@@ -551,4 +552,37 @@ export const decodeLightningInvoice = ({
 }: TPaymentReq): Promise<Result<TInvoice>> => {
 	paymentRequest = paymentRequest.replace('lightning:', '').trim();
 	return ldk.decode({ paymentRequest });
+};
+
+/**
+ * Attempts to keep LDK in sync every 2-minutes.
+ * @param {number} frequency
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const keepLdkSynced = async ({
+	frequency = 120000,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	frequency?: number;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	let error: string = '';
+	while (!error) {
+		const syncRes = await refreshLdk({ selectedNetwork, selectedWallet });
+		if (!syncRes) {
+			error = 'Unable to refresh LDK.';
+			break;
+		}
+		await sleep(frequency);
+	}
 };
