@@ -9,12 +9,9 @@ import c from 'compact-encoding';
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import {
-	getSelectedSlashtag,
-	onSDKError,
-	seedDrives,
-} from '../utils/slashtags';
+import { getSelectedSlashtag, onSDKError } from '../utils/slashtags';
 import Store from '../store/types';
+import { updateSeederMaybe } from '../store/actions/slashtags';
 
 export const RAWS = RAWSFactory({
 	setItem: (key: string, value: string) => {
@@ -100,7 +97,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 		// Setup local Slashtags
 		(async (): Promise<void> => {
 			await sdk.ready().catch(onSDKError);
-			setOpened(true);
+			!unmounted && setOpened(true);
 
 			// If corestore is closed for some reason, should not try to load drives
 			if (sdk.closed) {
@@ -111,7 +108,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 			// Cache local profiles
 			const publicDrive = slashtag.drivestore.get();
-			await publicDrive
+			publicDrive
 				.ready()
 				.then(() => {
 					resolve();
@@ -122,12 +119,13 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			async function resolve(): Promise<void> {
 				const profile = await publicDrive
 					.get('/profile.json')
-					.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+					.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
+					.catch(onError);
 				!unmounted && setProfiles((p) => ({ ...p, [slashtag.url]: profile }));
 			}
 
 			// Send cores to seeder
-			seedDrives(slashtag);
+			updateSeederMaybe(slashtag).catch(onError);
 
 			// Update contacts
 
@@ -150,9 +148,8 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 					promises[id] = contactsDrive
 						.get('/' + id)
-						.then(
-							(buf: Uint8Array) => buf && { url, ...c.decode(c.json, buf) },
-						);
+						.then((buf: Uint8Array) => buf && { url, ...c.decode(c.json, buf) })
+						.catch(onError);
 				});
 				rs.on('end', async () => {
 					const resolved = await Promise.all(Object.values(promises));

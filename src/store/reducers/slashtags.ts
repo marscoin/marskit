@@ -16,6 +16,14 @@ const slashtags = (state = defaultSlashtagsShape, action): ISlashtags => {
 				...state,
 				onboardedContacts: action.onboardedContacts,
 			};
+		case actions.SET_LAST_SEEDER_REQUEST:
+			return {
+				...state,
+				seeder: {
+					...state.seeder,
+					lastSent: action.time,
+				},
+			};
 		default:
 			return state;
 	}

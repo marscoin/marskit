@@ -162,31 +162,53 @@ export const updateSlashPayConfig = async (
 };
 
 /** Send hypercorse to seeder */
-export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
+export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
+	// TODO (slashtags) https://github.com/synonymdev/slashtags/issues/56
+	let drives: ReturnType<SDK['drive']>[] = [];
+	drives.push(slashtag.drivestore.get());
+	drives.push(slashtag.drivestore.get('contacts'));
+
 	// TODO (slashtags) move this logic (getting keys to be seeded) to the SDK
 	return Promise.all(
-		[slashtag.drivestore.get(), slashtag.drivestore.get('contacts')].map(
-			async (drive: ReturnType<SDK['drive']>) => {
-				await drive.ready().catch(noop);
-				await fetch('http://35.233.47.252:443/seeding/hypercore', {
-					method: 'POST',
-					body: JSON.stringify({ publicKey: b4a.toString(drive.key, 'hex') }),
-					headers: { 'Content-Type': 'application/json' },
-				});
+		drives.map(async (drive: ReturnType<SDK['drive']>) => {
+			await drive.ready();
+			await drive.getBlobs();
+			const keys = [
+				b4a.toString(drive.key, 'hex'),
+				b4a.toString(drive.blobs.core.key, 'hex'),
+			];
 
-				await drive.getBlobs().catch(noop);
-				await fetch('http://35.233.47.252:443/seeding/hypercore', {
+			const firstResponse = await fetch(
+				'http://35.233.47.252:443/seeding/hypercore',
+				{
 					method: 'POST',
-					body: JSON.stringify({
-						publicKey: b4a.toString(drive.blobs.core.key, 'hex'),
-					}),
+					body: JSON.stringify({ publicKey: keys[0] }),
 					headers: { 'Content-Type': 'application/json' },
-				});
+				},
+			);
 
-				closeDriveSession(drive);
-			},
-		),
-	);
+			const secondResponse = await fetch(
+				'http://35.233.47.252:443/seeding/hypercore',
+				{
+					method: 'POST',
+					body: JSON.stringify({ publicKey: keys[1] }),
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
+
+			closeDriveSession(drive);
+			return [firstResponse.status, secondResponse.status].every(
+				(s) => s === 200,
+			);
+		}),
+	)
+		.then((results) => results.every(Boolean))
+		.catch((error) => {
+			console.debug('Error in seeding drives request', {
+				error: error.message,
+			});
+			return false;
+		});
 };
 
 /** Get the slashpay.json of remote contact */
