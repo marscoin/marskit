@@ -1,7 +1,10 @@
+import { Slashtag } from '@synonymdev/slashtags-sdk';
+
 import actions from './actions';
-import { getDispatch } from '../helpers';
+import { getDispatch, getStore } from '../helpers';
 import { ok, Result } from '@synonymdev/result';
 import { ISlashtags } from '../types/slashtags';
+import { seedDrives } from '../../utils/slashtags';
 
 const dispatch = getDispatch();
 
@@ -38,3 +41,30 @@ export const resetSlashtagsStore = (): Result<string> => {
 	dispatch({ type: actions.RESET_SLASHTAGS_STORE });
 	return ok('Reset slashtags store successfully');
 };
+
+/**
+ * Sends all relevant hypercores to the seeder once a week
+ */
+export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
+	const lastSent = getStore().slashtags.seeder?.lastSent || 0;
+
+	const now = Number(new Date());
+	// throttle sending to seeder to once a day
+	const passed = (now - lastSent) / 86400000;
+
+	if (passed < 1) {
+		return;
+	}
+
+	const sent = await seedDrives(slashtag).catch(noop);
+
+	if (sent) {
+		console.debug('Sent hypercores to seeder');
+		dispatch({
+			type: actions.SET_LAST_SEEDER_REQUEST,
+			time: now,
+		});
+	}
+};
+
+function noop() {}
