@@ -33,7 +33,8 @@ export const ContactEdit = ({ navigation, route }): JSX.Element => {
 	const resolving = !saved && contact.resolving;
 
 	const saveContactRecord = async (): Promise<void> => {
-		slashtag && saveContact(slashtag, url, form);
+		// To avoid phishing attacks, a name should always be saved in contact record
+		slashtag && saveContact(slashtag, url, { name: profile.name });
 		navigation.navigate('Contact', { url });
 	};
 

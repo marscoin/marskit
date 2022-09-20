@@ -1,18 +1,19 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import SDK from '@synonymdev/slashtags-sdk';
 import { createContext } from 'react';
+import { useSelector } from 'react-redux';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
 import c from 'compact-encoding';
-import { useSelector } from 'react-redux';
-
-// TODO (slashtags) update BackupProtocol for the new SDK version
-// import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import { onSDKError, seedDrives } from '../utils/slashtags';
+import {
+	getSelectedSlashtag,
+	onSDKError,
+	seedDrives,
+} from '../utils/slashtags';
 import Store from '../store/types';
 
 export const RAWS = RAWSFactory({
@@ -35,11 +36,7 @@ export interface ISlashtagsContext {
 }
 
 const SlashtagsContext = createContext<ISlashtagsContext>({
-	sdk: ((): SDK => {
-		const sdk = new SDK({ relay: 'ws://foo:90' });
-		sdk.ready().catch(noop);
-		return sdk;
-	})(),
+	sdk: {} as SDK,
 	profiles: {},
 	contacts: {},
 });
@@ -50,26 +47,39 @@ const SlashtagsContext = createContext<ISlashtagsContext>({
  */
 export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [primaryKey, setPrimaryKey] = useState<string>();
+	const [opened, setOpened] = useState(false);
 	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
 	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
 
-	const selectedWallet = useSelector(
-		(store: Store) => store.wallet.selectedWallet,
-	);
-
+	// Load primaryKey from keychain
 	const seedHash = useSelector(
-		(store: Store) => store.wallet.wallets[selectedWallet]?.seedHash,
+		(store: Store) =>
+			store.wallet.wallets[store.wallet.selectedWallet]?.seedHash,
 	);
 
 	useEffect(() => {
-		seedHash &&
-			getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
-				!error && setPrimaryKey(data);
-			});
+		if (!seedHash) {
+			return;
+		}
+		getSlashtagsPrimaryKey(seedHash).then(({ error, data }) => {
+			if (error || (data && data.length === 0)) {
+				onSDKError(
+					new Error(
+						'Could not load primaryKey from keyChain, data:"' + data + '"',
+					),
+				);
+				return;
+			}
+			setPrimaryKey(data);
+		});
 	}, [seedHash]);
 
 	const sdk = useMemo(() => {
+		if (!primaryKey) {
+			return;
+		}
 		return new SDK({
+			// @ts-ignore
 			primaryKey: primaryKey && b4a.from(primaryKey, 'hex'),
 			// TODO(slashtags): replace it with non-blocking storage,
 			// like random access react native after m1 support. or react-native-fs?
@@ -79,22 +89,35 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 		});
 	}, [primaryKey]);
 
-	sdk.ready().catch(onSDKError);
-
 	useEffect(() => {
-		let unmounted = false;
+		// Wait for primary key to be loaded from keyChain
+		if (!sdk) {
+			return;
+		}
 
-		const slashtag = sdk.slashtag();
-		const publicDrive = slashtag.drivestore.get();
-		const contactsDrive = slashtag.drivestore.get('contacts');
+		let unmounted = false;
 
 		// Setup local Slashtags
 		(async (): Promise<void> => {
-			// Cache local profiles
-			await publicDrive.ready();
+			await sdk.ready().catch(onSDKError);
+			setOpened(true);
 
-			resolve();
-			publicDrive.core.on('append', resolve);
+			// If corestore is closed for some reason, should not try to load drives
+			if (sdk.closed) {
+				return;
+			}
+
+			const slashtag = getSelectedSlashtag(sdk);
+
+			// Cache local profiles
+			const publicDrive = slashtag.drivestore.get();
+			await publicDrive
+				.ready()
+				.then(() => {
+					resolve();
+					publicDrive.core.on('append', resolve);
+				})
+				.catch(onError);
 
 			async function resolve(): Promise<void> {
 				const profile = await publicDrive
@@ -109,8 +132,14 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			// Update contacts
 
 			// Load contacts from contacts drive on first loading of the app
-			contactsDrive.ready().then(updateContacts);
-			contactsDrive.core.on('append', updateContacts);
+			const contactsDrive = slashtag.drivestore.get('contacts');
+			contactsDrive
+				.ready()
+				.then(() => {
+					updateContacts();
+					contactsDrive.core.on('append', updateContacts);
+				})
+				.catch(onError);
 
 			function updateContacts(): void {
 				const rs = contactsDrive.readdir('/');
@@ -140,14 +169,14 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 		return function cleanup() {
 			unmounted = true;
-			publicDrive.close();
-			contactsDrive.close();
+			// sdk automatically gracefully close anyway!
 		};
 	}, [sdk]);
 
 	return (
-		<SlashtagsContext.Provider value={{ sdk, profiles, contacts }}>
-			{children}
+		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk opened
+		<SlashtagsContext.Provider value={{ sdk: sdk as SDK, profiles, contacts }}>
+			{opened && children}
 		</SlashtagsContext.Provider>
 	);
 };
@@ -157,4 +186,9 @@ export const useSlashtagsSDK = (): SDK => useContext(SlashtagsContext).sdk;
 export const useSlashtags = (): ISlashtagsContext =>
 	useContext(SlashtagsContext);
 
-function noop(): any {}
+function onError(error: Error): void {
+	console.debug(
+		'Error in SlashtagsProvider while opening drive',
+		error.message,
+	);
+}

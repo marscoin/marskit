@@ -48,7 +48,7 @@ export const saveContact = async (
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
 	await drive?.put('/' + id, c.encode(c.json, record));
-	drive.close();
+	closeDriveSession(drive);
 };
 
 /**
@@ -62,7 +62,7 @@ export const deleteContact = async (
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
 	await drive.del('/' + id);
-	drive.close();
+	closeDriveSession(drive);
 };
 
 /**
@@ -86,7 +86,7 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 	);
 	await batch.flush();
 	console.debug('Done saving bulk contacts');
-	drive.close();
+	closeDriveSession(drive);
 };
 
 export const onSDKError = (error: Error): void => {
@@ -112,10 +112,16 @@ export const updateSlashPayConfig = async (
 		lightningInvoiceSats?: number;
 	},
 ): Promise<{
+	updated: boolean;
 	payConfig: SlashPayConfig;
 }> => {
+	if (sdk.closed) {
+		console.debug('updateSlashPayConfig: SKIP sdk is closed');
+		return { updated: false, payConfig: [] };
+	}
+
 	const slashtag = getSelectedSlashtag(sdk);
-	const publicDrive = slashtag.drivestore.get();
+	const drive = slashtag.drivestore.get();
 
 	const payConfig: SlashPayConfig = [];
 
@@ -143,12 +149,13 @@ export const updateSlashPayConfig = async (
 		}
 	}
 
-	await publicDrive.put('/slashpay.json', c.encode(c.json, payConfig));
+	await drive.put('/slashpay.json', c.encode(c.json, payConfig));
 	console.debug('Updated slashpay.json:', payConfig);
 
-	publicDrive.close();
+	closeDriveSession(drive);
 
 	return {
+		updated: true,
 		/** Saved config */
 		payConfig,
 	};
@@ -160,14 +167,14 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 	return Promise.all(
 		[slashtag.drivestore.get(), slashtag.drivestore.get('contacts')].map(
 			async (drive: ReturnType<SDK['drive']>) => {
-				await drive.ready();
+				await drive.ready().catch(noop);
 				await fetch('http://35.233.47.252:443/seeding/hypercore', {
 					method: 'POST',
 					body: JSON.stringify({ publicKey: b4a.toString(drive.key, 'hex') }),
 					headers: { 'Content-Type': 'application/json' },
 				});
 
-				await drive.getBlobs();
+				await drive.getBlobs().catch(noop);
 				await fetch('http://35.233.47.252:443/seeding/hypercore', {
 					method: 'POST',
 					body: JSON.stringify({
@@ -176,7 +183,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<any[]> => {
 					headers: { 'Content-Type': 'application/json' },
 				});
 
-				drive.close();
+				closeDriveSession(drive);
 			},
 		),
 	);
@@ -187,12 +194,48 @@ export const getSlashPayConfig = async (
 	sdk: SDK,
 	url: string,
 ): Promise<SlashPayConfig> => {
-	const drive = sdk.drive(SlashURL.parse(url).key);
-	await drive.ready();
-	const payConfig = await drive
-		.get('/slashpay.json')
-		.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+	if (sdk.closed) {
+		console.debug('getSlashPayConfig: SKIP sdk is closed');
+		return [];
+	}
 
-	drive.close();
+	const drive = sdk.drive(SlashURL.parse(url).key);
+	await drive.ready().catch(noop);
+	const payConfig =
+		(await drive
+			.get('/slashpay.json')
+			.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
+			.catch(noop)) || [];
+
+	closeDriveSession(drive);
 	return payConfig;
 };
+
+/**
+ * unlike drive.close() this function will only gc session but not close the first hypercore
+ * avoids errors trying to create a session from a closed hypercore
+ * TODO (slashtags) investigate how to handle this at the SDK level instead
+ * try to replicate it in a failing test and figure out sensible defaults.
+ **/
+export const closeDriveSession = (drive: ReturnType<SDK['drive']>): void => {
+	drive
+		.ready()
+		.then(async () => {
+			const core = drive.core;
+
+			core.autoClose = false;
+			await core.close();
+
+			const blobsCore = drive.blobs?.core;
+			if (blobsCore) {
+				blobsCore.autoClose = false;
+				await blobsCore.close();
+			}
+
+			// Uncomment next line to debug if you got an error: Cannot make sessions on a closing core
+			// console.debug("Remaining sessions", drive.core.sessions.length, drive.blobs.core.sessions.length)
+		})
+		.catch(noop);
+};
+
+function noop(): void {}

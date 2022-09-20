@@ -4,7 +4,7 @@ import c from 'compact-encoding';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import { getSelectedSlashtag } from '../utils/slashtags';
+import { closeDriveSession, getSelectedSlashtag } from '../utils/slashtags';
 
 export type Slashtag = ReturnType<SDK['slashtag']>;
 
@@ -36,10 +36,22 @@ export const useProfile = (
 
 	useEffect(() => {
 		let unmounted = false;
+		if (sdk.closed) {
+			console.debug('useProfile: SKIP sdk is closed');
+			return;
+		}
+
 		const drive = sdk.drive(SlashURL.parse(url).key);
 
-		drive.ready().then(resolve);
-		drive.core.on('append', resolve);
+		drive
+			.ready()
+			.then(() => {
+				// Resolve immediatly
+				resolve();
+				// Watch update
+				drive.core.on('append', resolve);
+			})
+			.catch(onError);
 
 		async function resolve(): Promise<void> {
 			const _profile = await drive
@@ -57,7 +69,13 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
-			drive.close();
+			closeDriveSession(drive);
+
+			// It so happens that hypercore creates a new session for every hypercore replicated
+			// on a stream (connection), and it wants to close that session once the stream is closed
+			// memory leak warning is expected.
+			// Uncomment following code to watch number of close listeners on replication streams
+			// console.debug("close listeners",[...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close')));
 		};
 	}, [url, sdk]);
 
@@ -66,3 +84,7 @@ export const useProfile = (
 		profile,
 	};
 };
+
+function onError(error: Error): void {
+	console.debug('Error opening drive in useProfile', error.message);
+}
