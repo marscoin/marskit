@@ -131,7 +131,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		try {
 			return transaction.outputs?.[index];
 		} catch {
-			return { address: '', value: 0 };
+			return { address: '', value: 0, index: 0 };
 		}
 	}, [index, transaction?.outputs]);
 
