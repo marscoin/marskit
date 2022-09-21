@@ -7,7 +7,6 @@ import {
 	IFormattedTransaction,
 	IKeyDerivationPath,
 	IBitcoinTransactionData,
-	IOutput,
 	IUtxo,
 	TAddressType,
 } from '../types/wallet';
@@ -842,10 +841,6 @@ export const setupOnChainTransaction = async ({
 	}
 };
 
-export interface IUpdateOutput extends IOutput {
-	index: number | undefined;
-}
-
 /**
  * This updates the specified on-chain transaction.
  * @param selectedWallet
@@ -854,13 +849,13 @@ export interface IUpdateOutput extends IOutput {
  * @return {Promise<void>}
  */
 export const updateBitcoinTransaction = async ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
 	transaction,
+	selectedWallet,
+	selectedNetwork,
 }: {
 	transaction: IBitcoinTransactionData;
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
 	try {
 		if (!selectedNetwork) {
@@ -877,21 +872,8 @@ export const updateBitcoinTransaction = async ({
 					.outputs || [];
 			await Promise.all(
 				transaction?.outputs.map((output) => {
-					const outputIndex = output?.index;
-					if (outputIndex === undefined || isNaN(outputIndex)) {
-						//Ensure we're not pushing a duplicate address.
-						const foundOutput = outputs.filter(
-							(o) => o.address === output.address,
-						);
-						if (foundOutput?.length) {
-							// @ts-ignore // TODO: there is a bug here
-							outputs[foundOutput.index] = output;
-						} else {
-							outputs.push(output);
-						}
-					} else {
-						outputs[outputIndex] = output;
-					}
+					const outputIndex = output.index;
+					outputs[outputIndex] = output;
 				}),
 			);
 			transaction.outputs = outputs;

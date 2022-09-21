@@ -19,11 +19,15 @@ import { sleep } from '../../utils/helpers';
 import {
 	broadcastTransaction,
 	createTransaction,
+	getOnchainTransactionData,
 	updateFee,
 } from '../../utils/wallet/transactions';
 import { getNodeId, refreshLdk } from '../../utils/lightning';
-import { finalizeChannel } from '../../utils/blocktank';
-import { removeTodo } from './todos';
+import { finalizeChannel, getOrder, watchOrder } from '../../utils/blocktank';
+import { addTodo, removeTodo } from './todos';
+import { showErrorNotification } from '../../utils/notifications';
+import { ITodo } from '../types/todos';
+import { getDisplayValues } from '../../utils/exchange-rate';
 
 const dispatch = getDispatch();
 
@@ -292,4 +296,171 @@ export const autoBuyChannel = async ({
 	);
 	console.log('finalizeResponse', finalizeResponse);
 	return finalizeResponse;
+};
+
+/**
+ * Attempts to start the purchase of a Blocktank channel.
+ * @param {string} [productId]
+ * @param {number} remoteBalance
+ * @param {number} localBalance
+ * @param {number} [channelExpiry]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const startChannelPurchase = async ({
+	productId,
+	remoteBalance,
+	localBalance,
+	channelExpiry = 6,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	productId?: string;
+	remoteBalance: number;
+	localBalance: number;
+	channelExpiry?: number;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+
+	const nodeId = await getNodeId();
+	if (nodeId.isErr()) {
+		return err('Unable to retrieve Node ID.');
+	}
+	if (!productId) {
+		return err('Unable to retrieve Blocktank product id.');
+	}
+
+	const buyChannelData = {
+		product_id: productId,
+		remote_balance: remoteBalance,
+		local_balance: localBalance,
+		channel_expiry: channelExpiry,
+	};
+	const buyChannelResponse = await buyChannel(buyChannelData);
+	if (buyChannelResponse.isErr()) {
+		return err(buyChannelResponse.error.message);
+	}
+
+	const orderData = await getOrder(buyChannelResponse.value.order_id);
+	if (orderData.isErr()) {
+		showErrorNotification({
+			title: 'Unable To Retrieve Order Information.',
+			message: orderData.error.message,
+		});
+		return err(orderData.error.message);
+	}
+
+	await updateBitcoinTransaction({
+		transaction: {
+			rbf: false,
+			outputs: [
+				{
+					value: buyChannelResponse.value.total_amount,
+					index: 0,
+					address: buyChannelResponse.value.btc_address,
+				},
+			],
+		},
+	});
+
+	// Set fee appropriately to open an instant channel.
+	const zero_conf_satvbyte = orderData.value.zero_conf_satvbyte;
+	await updateFee({ satsPerByte: zero_conf_satvbyte, selectedNetwork });
+
+	const transactionDataRes = getOnchainTransactionData({
+		selectedWallet,
+		selectedNetwork,
+	});
+	if (transactionDataRes.isErr()) {
+		return err(transactionDataRes.error.message);
+	}
+	const transaction = transactionDataRes.value;
+	const currentBalance = getBalance({
+		onchain: true,
+		selectedNetwork,
+		selectedWallet,
+	});
+
+	// Ensure we have enough funds to pay for both the channel and the fee to broadcast the transaction.
+	if (
+		(transaction?.fee ?? 0) + (buyChannelResponse.value?.total_amount ?? 0) >
+		currentBalance.satoshis
+	) {
+		// TODO: Attempt to re-calculate a lower fee channel-open that's not instant if unable to pay.
+		const delta = Math.abs(
+			(transaction?.fee ?? 0) +
+				(buyChannelResponse.value?.price ?? 0) -
+				currentBalance.satoshis,
+		);
+		const cost = getDisplayValues({
+			satoshis: delta,
+		});
+		return err(
+			`You need ${
+				cost.fiatSymbol + cost.fiatFormatted
+			} more to complete this transaction.`,
+		);
+	}
+
+	return ok(buyChannelResponse.value.order_id);
+};
+
+/**
+ * Creates, broadcasts and confirms a given Blocktank channel purchase by orderId.
+ * @param {string} orderId
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const confirmChannelPurchase = async ({
+	orderId,
+	selectedNetwork,
+}: {
+	orderId: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const rawTx = await createTransaction({ selectedNetwork });
+	if (rawTx.isErr()) {
+		showErrorNotification({
+			title: 'Unable To Create Transaction',
+			message: rawTx.error.message,
+		});
+		return err(rawTx.error.message);
+	}
+	const broadcastResponse = await broadcastTransaction({
+		rawTx: rawTx.value.hex,
+		selectedNetwork,
+	});
+	if (broadcastResponse.isErr()) {
+		showErrorNotification({
+			title: 'Unable To Broadcast Transaction',
+			message: broadcastResponse.error.message,
+		});
+		return err(broadcastResponse.error.message);
+	}
+
+	// Reset tx data.
+	setupOnChainTransaction({ selectedNetwork }).then();
+
+	watchOrder(orderId).then();
+	await removeTodo('lightning');
+	const todo: ITodo = {
+		id: 'lightning',
+		type: 'lightning',
+		title: 'Setting Up',
+		description: 'Ready in ~20min',
+	};
+	await addTodo(todo);
+	return ok(broadcastResponse.value);
 };

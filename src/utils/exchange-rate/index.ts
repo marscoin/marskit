@@ -64,11 +64,11 @@ export const fiatToBitcoinUnit = ({
 	currency,
 	bitcoinUnit,
 }: {
-	fiatValue: string;
+	fiatValue: string | number;
 	exchangeRate?: number;
 	currency?: string;
 	bitcoinUnit?: TBitcoinUnit;
-}): string => {
+}): number => {
 	if (!currency) {
 		currency = getStore().settings.selectedCurrency;
 	}
@@ -87,9 +87,9 @@ export const fiatToBitcoinUnit = ({
 			.value()
 			.toFixed(bitcoinUnit === 'satoshi' ? 0 : 8); // satoshi cannot be a fractional number
 
-		return value;
+		return Number(value);
 	} catch (e) {
-		return '';
+		return 0;
 	}
 };
 
@@ -172,14 +172,13 @@ export const getFiatDisplayValues = ({
 	bitcoinUnit?: TBitcoinUnit;
 	locale?: string;
 }): IFiatDisplayValues => {
-	const store = getStore();
-	const exchangeRates = store.wallet.exchangeRates;
+	const exchangeRates = getStore().wallet.exchangeRates;
 
 	if (!currency) {
-		currency = store.settings.selectedCurrency;
+		currency = getStore().settings.selectedCurrency;
 	}
 	if (!bitcoinUnit) {
-		bitcoinUnit = store.settings.bitcoinUnit;
+		bitcoinUnit = getStore().settings.bitcoinUnit;
 	}
 
 	try {
@@ -207,7 +206,7 @@ export const getFiatDisplayValues = ({
 		}
 
 		if (!exchangeRate) {
-			exchangeRate = store.wallet.exchangeRates[currency].rate;
+			exchangeRate = getStore().wallet.exchangeRates[currency].rate;
 		}
 
 		// this throws if exchangeRate is 0

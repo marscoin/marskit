@@ -3,7 +3,7 @@ import { ITodo, TTodoType } from '../../store/types/todos';
 import { getStore } from '../../store/helpers';
 import { addTodo, removeTodo } from '../../store/actions/todos';
 import { toggleView } from '../../store/actions/user';
-import { getLightningChannels } from '../lightning';
+import { getOpenChannels } from '../lightning';
 import { TChannel } from '@synonymdev/react-native-ldk';
 
 type TTodoPresets = { [key in TTodoType]: ITodo };
@@ -93,7 +93,9 @@ export const setupTodos = async (): Promise<void> => {
 	 * Check for lightning.
 	 */
 	const lightning = todos.some((todo) => todo.type === 'lightning');
-	const getLightningChannelsResponse = await getLightningChannels();
+	const getLightningChannelsResponse = await getOpenChannels({
+		fromStorage: true,
+	});
 	let lightningChannels: TChannel[] = [];
 	if (getLightningChannelsResponse.isOk()) {
 		lightningChannels = getLightningChannelsResponse.value;

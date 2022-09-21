@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -20,21 +20,76 @@ import useColors from '../../hooks/colors';
 import useDisplayValues from '../../hooks/displayValues';
 import NumberPadWeeks from './NumberPadWeeks';
 import { LightningScreenProps } from '../../navigation/types';
+import { sleep } from '../../utils/helpers';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
+import { IGetOrderResponse } from '@synonymdev/blocktank-client';
+import { defaultOrderResponse } from '../../store/shapes/blocktank';
+import {
+	confirmChannelPurchase,
+	startChannelPurchase,
+} from '../../store/actions/blocktank';
+import { showErrorNotification } from '../../utils/notifications';
 
 const CustomConfirm = ({
 	navigation,
 	route,
 }: LightningScreenProps<'CustomConfirm'>): ReactElement => {
-	const { spendingAmount, receivingAmount, receivingCost } = route.params;
-	const cost = useDisplayValues(receivingCost);
+	const { spendingAmount, receivingAmount } = route.params;
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [weeks, setWeeks] = useState(6);
+	const [orderId, setOrderId] = useState(route.params?.orderId ?? '');
+	const productId = useSelector(
+		(state: Store) => state.blocktank?.serviceList[0]?.product_id ?? '',
+	);
+	const orders = useSelector((state: Store) => state.blocktank?.orders ?? []);
 
-	const handleConfirm = (): void => {
+	const order: IGetOrderResponse = useMemo(() => {
+		const filteredOrders = orders.filter((o) => o._id === orderId);
+		if (filteredOrders.length) {
+			return filteredOrders[0];
+		}
+		return defaultOrderResponse;
+	}, [orderId, orders]);
+
+	const cost = useDisplayValues(order?.price ?? 0);
+
+	const handleConfirm = async (): Promise<void> => {
 		setLoading(true);
+		await sleep(5);
+		const res = await confirmChannelPurchase({ orderId, selectedNetwork });
+		if (res.isErr()) {
+			setLoading(false);
+			return;
+		}
 		navigation.navigate('Result');
+	};
+
+	const updateOrderExpiration = async (): Promise<void> => {
+		const purchaseResponse = await startChannelPurchase({
+			productId,
+			remoteBalance: order.remote_balance ?? 0,
+			localBalance: order.local_balance,
+			channelExpiry: weeks,
+			selectedWallet,
+			selectedNetwork,
+		});
+		if (purchaseResponse.isErr()) {
+			showErrorNotification({
+				title: 'Channel Purchase Error',
+				message: purchaseResponse.error.message,
+			});
+			return;
+		}
+		setOrderId(purchaseResponse.value);
 	};
 
 	return (
@@ -57,8 +112,8 @@ const CustomConfirm = ({
 							<Text01S>
 								{' ' + cost.fiatSymbol + cost.fiatFormatted + ' '}
 							</Text01S>
-							to connect you and set up your balance. Your Lightning connection
-							will stay open for at least
+							to connect and setup your balance. Your Lightning connection will
+							stay open for at least
 							<Text01S onPress={(): void => setKeybrd(true)}>
 								{' '}
 								{weeks} weeks <PenIcon height={18} width={18} />
@@ -147,7 +202,12 @@ const CustomConfirm = ({
 					<NumberPadWeeks
 						weeks={weeks}
 						onChange={setWeeks}
-						onDone={(): void => setKeybrd(false)}
+						onDone={(): void => {
+							if (order.channel_expiry !== weeks) {
+								updateOrderExpiration().then();
+							}
+							setKeybrd(false);
+						}}
 						style={styles.numberpad}
 					/>
 				)}
@@ -170,6 +230,7 @@ const styles = StyleSheet.create({
 	},
 	space: {
 		marginBottom: 8,
+		alignItems: 'center',
 	},
 	block: {
 		borderColor: 'rgba(255, 255, 255, 0.1)',

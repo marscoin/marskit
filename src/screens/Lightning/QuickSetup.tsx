@@ -28,19 +28,12 @@ import FancySlider from '../../components/FancySlider';
 import NumberPadLightning from './NumberPadLightning';
 import type { LightningScreenProps } from '../../navigation/types';
 
-import { err, ok, Result } from '@synonymdev/result';
-import { getNodeId } from '../../utils/lightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { buyChannel } from '../../store/actions/blocktank';
+import { setupOnChainTransaction } from '../../store/actions/wallet';
+import { startChannelPurchase } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
-import {
-	setupOnChainTransaction,
-	updateBitcoinTransaction,
-} from '../../store/actions/wallet';
-import { updateFee } from '../../utils/wallet/transactions';
-import { getOrder } from '../../utils/blocktank';
 
 export const Percentage = ({ value, type }): ReactElement => {
 	return (
@@ -81,10 +74,6 @@ const QuickSetup = ({
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
-	const transaction = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork],
-	);
 	const blocktankService = useSelector(
 		(state: Store) => state.blocktank.serviceList[0],
 	);
@@ -95,78 +84,6 @@ const QuickSetup = ({
 	const handleChange = useCallback((v) => {
 		setSpendingAmount(Math.round(v));
 	}, []);
-
-	const startChannelPurchase = async (): Promise<Result<string>> => {
-		const nodeId = await getNodeId();
-		if (nodeId.isErr()) {
-			return err(nodeId.error.message);
-		}
-		if (!productId) {
-			return err('Unable to retrieve Blocktank product id.');
-		}
-
-		const local_balance =
-			spendingAmount * 2 > blocktankService.min_channel_size
-				? spendingAmount * 2
-				: blocktankService.min_channel_size;
-
-		const buyChannelData = {
-			product_id: productId,
-			remote_balance: spendingAmount,
-			local_balance,
-			channel_expiry: 12,
-		};
-		const buyChannelResponse = await buyChannel(buyChannelData);
-		if (buyChannelResponse.isErr()) {
-			return err(buyChannelResponse.error.message);
-		}
-
-		const orderData = await getOrder(buyChannelResponse.value.order_id);
-		if (orderData.isErr()) {
-			showErrorNotification({
-				title: 'Unable To Retrieve Order Information.',
-				message: orderData.error.message,
-			});
-			return err(orderData.error.message);
-		}
-
-		await updateBitcoinTransaction({
-			transaction: {
-				rbf: false,
-				outputs: [
-					{
-						value: buyChannelResponse.value.price,
-						index: 0,
-						address: buyChannelResponse.value.btc_address,
-					},
-				],
-			},
-		});
-
-		// Set fee appropriately to open an instant channel.
-		const zero_conf_satvbyte = orderData.value.zero_conf_satvbyte;
-		await updateFee({ satsPerByte: zero_conf_satvbyte, selectedNetwork });
-
-		// Ensure we have enough funds to pay for both the channel and the fee to broadcast the transaction.
-		if (
-			(transaction?.fee ?? 0) + (buyChannelResponse.value?.price ?? 0) >
-			currentBalance.satoshis
-		) {
-			// TODO: Attempt to re-calculate a lower fee channel-open that's not instant if unable to pay.
-			const delta = Math.abs(
-				(transaction?.fee ?? 0) +
-					(buyChannelResponse.value?.price ?? 0) -
-					currentBalance.satoshis,
-			);
-			showErrorNotification({
-				title: 'Not Enough Funds',
-				message: `You need ${delta} more sats to complete this transaction.`,
-			});
-			return err('');
-		}
-
-		return ok(buyChannelResponse.value.order_id);
-	};
 
 	const unit = useMemo(() => {
 		if (unitPreference === 'fiat') {
@@ -188,6 +105,44 @@ const QuickSetup = ({
 	useEffect(() => {
 		setupOnChainTransaction({ rbf: false }).then();
 	}, []);
+
+	const onContinuePress = useCallback(async (): Promise<void> => {
+		setLoading(true);
+		const localBalance =
+			spendingAmount * 2 > blocktankService.min_channel_size
+				? spendingAmount * 2
+				: blocktankService.min_channel_size;
+		const purchaseResponse = await startChannelPurchase({
+			selectedNetwork,
+			selectedWallet,
+			productId,
+			remoteBalance: spendingAmount,
+			localBalance,
+			channelExpiry: 12,
+		});
+		if (purchaseResponse.isErr()) {
+			showErrorNotification({
+				title: 'Channel Purchase Error',
+				message: purchaseResponse.error.message,
+			});
+			setLoading(false);
+			return;
+		}
+		setLoading(false);
+		navigation.push('QuickConfirm', {
+			spendingAmount,
+			total: totalBalance,
+			orderId: purchaseResponse.value,
+		});
+	}, [
+		blocktankService.min_channel_size,
+		navigation,
+		productId,
+		selectedNetwork,
+		selectedWallet,
+		spendingAmount,
+		totalBalance,
+	]);
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>
@@ -278,24 +233,7 @@ const QuickSetup = ({
 								loading={loading}
 								text="Continue"
 								size="large"
-								onPress={async (): Promise<void> => {
-									setLoading(true);
-									const purchaseResponse = await startChannelPurchase();
-									if (purchaseResponse.isErr()) {
-										showErrorNotification({
-											title: 'Unable to retrieve channel information.',
-											message: purchaseResponse.error.message,
-										});
-										setLoading(false);
-										return;
-									}
-									setLoading(false);
-									navigation.push('QuickConfirm', {
-										spendingAmount,
-										total: totalBalance,
-										orderId: purchaseResponse.value,
-									});
-								}}
+								onPress={onContinuePress}
 							/>
 							<SafeAreaInsets type="bottom" />
 						</AnimatedView>
@@ -306,6 +244,9 @@ const QuickSetup = ({
 					<NumberPadLightning
 						sats={spendingAmount}
 						onChange={setSpendingAmount}
+						onMaxPress={(): void => {
+							setSpendingAmount(totalBalance);
+						}}
 						onDone={(): void => {
 							if (spendingAmount > totalBalance) {
 								setSpendingAmount(totalBalance);

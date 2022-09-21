@@ -24,7 +24,7 @@ export type LightningStackParamList = {
 	CustomConfirm: {
 		spendingAmount: number;
 		receivingAmount: number;
-		receivingCost: number;
+		orderId: string;
 	};
 	Result: undefined;
 	QuickSetup: undefined;

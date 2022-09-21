@@ -92,7 +92,6 @@ export const startWalletServices = async ({
 			let { wallets, selectedNetwork } = getStore().wallet;
 			let isConnectedToElectrum = false;
 
-			setupTodos().then();
 			updateExchangeRates().then();
 
 			// Before we do anything we should connect to an Electrum server.
@@ -171,6 +170,9 @@ export const startWalletServices = async ({
 				await refreshServiceList();
 				watchPendingOrders();
 			}
+
+			// This should be last so that we know all on-chain and lightning data is synced/up-to-date.
+			setupTodos().then();
 			//backupServiceStart().then();
 		});
 
