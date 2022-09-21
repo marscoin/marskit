@@ -1,7 +1,6 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import c from 'compact-encoding';
 
 import {
 	PlusIcon,
@@ -23,6 +22,7 @@ import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
+import { saveProfile } from '../../utils/slashtags';
 
 export const ProfileEdit = ({ navigation }): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
@@ -31,14 +31,6 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 
 	const { url, slashtag } = useSelectedSlashtag();
 	const { profile: savedProfile } = useProfile(url);
-
-	const saveProfile = useCallback(
-		(profile: BasicProfile) => {
-			const publicDrive = slashtag?.drivestore.get();
-			return publicDrive.put('/profile.json', c.encode(c.json, profile));
-		},
-		[slashtag],
-	);
 
 	const onboardedProfile =
 		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
@@ -67,8 +59,8 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 		return merged;
 	}, [savedProfile, fields, links]);
 
-	const save = (): void => {
-		saveProfile(profile);
+	const save = async (): Promise<void> => {
+		await saveProfile(slashtag, profile);
 		if (!onboardedProfile) {
 			setOnboardingProfileStep('PaymentsFromContacts');
 		} else {

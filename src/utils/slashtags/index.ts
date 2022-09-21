@@ -1,4 +1,4 @@
-import { SDK, SlashURL, Slashtag } from '@synonymdev/slashtags-sdk';
+import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import c from 'compact-encoding';
 import b4a from 'b4a';
 
@@ -45,10 +45,38 @@ export const saveContact = async (
 	url: string,
 	record: BasicProfile,
 ): Promise<void> => {
+	if (checkClosed(slashtag)) {
+		return;
+	}
+
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	await drive?.put('/' + id, c.encode(c.json, record));
+	await drive?.put('/' + id, c.encode(c.json, record)).catch((error: Error) =>
+		showErrorNotification({
+			title: 'Error while saving contact: ',
+			message: error.message,
+		}),
+	);
 	closeDriveSession(drive);
+};
+
+export const saveProfile = async (
+	slashtag: Slashtag,
+	profile: BasicProfile,
+): Promise<void> => {
+	if (checkClosed(slashtag)) {
+		return;
+	}
+
+	const drive = slashtag?.drivestore.get();
+	return drive
+		.put('/profile.json', c.encode(c.json, profile))
+		.catch((error: Error) =>
+			showErrorNotification({
+				title: 'Error while saving profile: ',
+				message: error.message,
+			}),
+		);
 };
 
 /**
@@ -59,9 +87,19 @@ export const deleteContact = async (
 	slashtag: Slashtag,
 	url: string,
 ): Promise<any> => {
+	if (checkClosed(slashtag)) {
+		return;
+	}
+
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	await drive.del('/' + id);
+	await drive.del('/' + id).catch((error: Error) =>
+		showErrorNotification({
+			title: 'Error while deleting contact: ',
+			message: error.message,
+		}),
+	);
+
 	closeDriveSession(drive);
 };
 
@@ -70,6 +108,10 @@ export const deleteContact = async (
  * Generate a list using stpg's createBulkContacts and replace the urls array below.
  */
 export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
+	if (checkClosed(slashtag)) {
+		return;
+	}
+
 	// Keep it empty on commit
 	const urls: Array<string> = [];
 	console.debug('Saving bulk contacts', { count: urls.length });
@@ -149,8 +191,12 @@ export const updateSlashPayConfig = async (
 		}
 	}
 
-	await drive.put('/slashpay.json', c.encode(c.json, payConfig));
-	console.debug('Updated slashpay.json:', payConfig);
+	await drive
+		.put('/slashpay.json', c.encode(c.json, payConfig))
+		.then(() => {
+			console.debug('Updated slashpay.json:', payConfig);
+		})
+		.catch(noop);
 
 	closeDriveSession(drive);
 
@@ -164,13 +210,13 @@ export const updateSlashPayConfig = async (
 /** Send hypercorse to seeder */
 export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 	// TODO (slashtags) https://github.com/synonymdev/slashtags/issues/56
-	let drives: ReturnType<SDK['drive']>[] = [];
+	let drives: Hyperdrive[] = [];
 	drives.push(slashtag.drivestore.get());
 	drives.push(slashtag.drivestore.get('contacts'));
 
 	// TODO (slashtags) move this logic (getting keys to be seeded) to the SDK
 	return Promise.all(
-		drives.map(async (drive: ReturnType<SDK['drive']>) => {
+		drives.map(async (drive: Hyperdrive) => {
 			await drive.ready();
 			await drive.getBlobs();
 			const keys = [
@@ -239,7 +285,7 @@ export const getSlashPayConfig = async (
  * TODO (slashtags) investigate how to handle this at the SDK level instead
  * try to replicate it in a failing test and figure out sensible defaults.
  **/
-export const closeDriveSession = (drive: ReturnType<SDK['drive']>): void => {
+export const closeDriveSession = (drive: Hyperdrive): void => {
 	drive
 		.ready()
 		.then(async () => {
@@ -261,3 +307,15 @@ export const closeDriveSession = (drive: ReturnType<SDK['drive']>): void => {
 };
 
 function noop(): void {}
+
+function checkClosed(slashtag: Slashtag): boolean {
+	if (slashtag.drivestore.closed) {
+		showErrorNotification({
+			title: 'SDK is closed',
+			message: 'please restart Bitkit!',
+		});
+		return true;
+	} else {
+		return false;
+	}
+}

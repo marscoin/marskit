@@ -67,4 +67,4 @@ export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
 	}
 };
 
-function noop() {}
+function noop(): void {}
