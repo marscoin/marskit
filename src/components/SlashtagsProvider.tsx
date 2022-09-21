@@ -104,6 +104,9 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 				return;
 			}
 
+			// Increase swarm sockets max event listeners
+			sdk.swarm.on('connection', (socket: any) => socket.setMaxListeners(1000));
+
 			const slashtag = getSelectedSlashtag(sdk);
 
 			// Cache local profiles
