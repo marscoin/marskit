@@ -38,6 +38,7 @@ import LightningNavigator, {
 	LightningStackParamList,
 } from '../lightning/LightningNavigator';
 import { NavigatorScreenParams } from '@react-navigation/native';
+import SlashtagsSettings from '../../screens/Settings/SlashtagsSettings';
 
 export type SettingsNavigationProp =
 	NativeStackNavigationProp<SettingsStackParamList>;
@@ -73,6 +74,7 @@ export type SettingsStackParamList = {
 	LightningAddConnection: undefined;
 	LightningAddConnectionResult: undefined;
 	LightningRoot: NavigatorScreenParams<LightningStackParamList>;
+	SlashtagsSettings: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -138,6 +140,7 @@ const SettingsNavigator = (): ReactElement => {
 					component={AddConnectionResult}
 				/>
 				<Stack.Screen name="LightningRoot" component={LightningNavigator} />
+				<Stack.Screen name="SlashtagsSettings" component={SlashtagsSettings} />
 			</Stack.Group>
 		</Stack.Navigator>
 	);
