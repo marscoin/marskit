@@ -7,7 +7,7 @@ import bt, {
 } from '@synonymdev/blocktank-client';
 import { TAvailableNetworks } from '../networks';
 import { err, ok, Result } from '@synonymdev/result';
-import { getNodeId } from '../lightning';
+import { getNodeId, refreshLdk } from '../lightning';
 import { refreshOrder } from '../../store/actions/blocktank';
 import { sleep } from '../helpers';
 import { getStore } from '../../store/helpers';
@@ -111,6 +111,8 @@ export const finalizeChannel = async (
 		if (nodeId.isErr()) {
 			return err(nodeId.error.message);
 		}
+		//Attempt to sync and re-add peers prior to channel open.
+		await refreshLdk({});
 
 		const params = {
 			order_id: orderId,

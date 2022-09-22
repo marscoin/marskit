@@ -473,10 +473,16 @@ const createPsbtFromTransactionData = async ({
 
 	//Change address and amount to send back to wallet.
 	if (changeAddress !== '') {
-		targets.push({
-			address: changeAddress,
-			value: balance - (outputValue + fee),
-		});
+		const changeAddressValue = balance - (outputValue + fee);
+		// Ensure we're not creating unspendable dust.
+		// If we have less than 2x the recommended base fee, just contribute it to the fee in this transaction.
+		if (changeAddressValue > ETransactionDefaults.recommendedBaseFee * 2) {
+			targets.push({
+				address: changeAddress,
+				value: changeAddressValue,
+				index: targets.length,
+			});
+		}
 	} else if (outputValue + fee < balance) {
 		return err('Unsure what to do with the change.');
 	}
@@ -494,7 +500,7 @@ const createPsbtFromTransactionData = async ({
 			data: [data],
 			network,
 		});
-		targets.push({ script: embed.output!, value: 0 });
+		targets.push({ script: embed.output!, value: 0, index: targets.length });
 	}
 
 	const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);

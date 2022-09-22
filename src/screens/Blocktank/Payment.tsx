@@ -59,7 +59,9 @@ const BlocktankPayment = (props: Props): ReactElement => {
 			selectedWallet,
 			selectedNetwork,
 			transaction: {
-				outputs: [{ address: order.btc_address, value: order.total_amount }],
+				outputs: [
+					{ index: 0, address: order.btc_address, value: order.total_amount },
+				],
 				rbf: false, //Always needs to be false for zero conf payments to be accepted by blocktank
 				satsPerByte: order.zero_conf_satvbyte || 1,
 			},

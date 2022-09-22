@@ -1,110 +1,242 @@
-import React, { ReactElement, memo, useMemo, useState, useEffect } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import React, {
+	ReactElement,
+	memo,
+	useMemo,
+	useState,
+	useEffect,
+	useCallback,
+} from 'react';
+import { StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import {
 	AnimatedView,
 	Caption13Up,
 	Display,
-	Subtitle,
 	Text01S,
-	TouchableOpacity,
 } from '../../styles/components';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
+import Barrel from './Barrel';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import useColors from '../../hooks/colors';
 import { useExchangeRate } from '../../hooks/displayValues';
 import AmountToggle from '../../components/AmountToggle';
-import useDisplayValues from '../../hooks/displayValues';
 import NumberPadLightning from './NumberPadLightning';
 import type { LightningScreenProps } from '../../navigation/types';
+import { useSelector } from 'react-redux';
+import Store from '../../store/types';
+import { useBalance } from '../../hooks/wallet';
+import { setupOnChainTransaction } from '../../store/actions/wallet';
+import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
+import { btcToSats } from '../../utils/helpers';
+import { showErrorNotification } from '../../utils/notifications';
+import { startChannelPurchase } from '../../store/actions/blocktank';
 
-const PACKAGES_SPENDING = [
+type TPackages = {
+	id: string;
+	fiatAmount: number;
+	img: any;
+};
+const PACKAGES_SPENDING: TPackages[] = [
 	{
 		id: 'small',
-		usdAmount: 0,
+		fiatAmount: 0,
 		img: require('../../assets/illustrations/coin-transparent.png'),
 	},
 	{
 		id: 'medium',
-		usdAmount: 100,
+		fiatAmount: 100,
 		img: require('../../assets/illustrations/coin-stack-2.png'),
 	},
 	{
 		id: 'big',
-		usdAmount: 500,
+		fiatAmount: 500,
 		img: require('../../assets/illustrations/coin-stack-3.png'),
 	},
 ];
 
-const PACKAGES_RECEIVING = [
+const PACKAGES_RECEIVING: TPackages[] = [
 	{
 		id: 'small',
-		usdAmount: 250,
+		fiatAmount: 250,
 		img: require('../../assets/illustrations/coin-stack-1.png'),
 	},
 	{
 		id: 'medium',
-		usdAmount: 1000,
+		fiatAmount: 1000,
 		img: require('../../assets/illustrations/coin-stack-2.png'),
 	},
 	{
 		id: 'big',
-		usdAmount: 2500,
+		fiatAmount: 2500,
 		img: require('../../assets/illustrations/coin-stack-3.png'),
 	},
 ];
-
-const Barrel = ({ active, id, amount, img, onPress }): ReactElement => {
-	const colors = useColors();
-	const style = useMemo(
-		() =>
-			active ? [styles.bRoot, { borderColor: colors.purple }] : styles.bRoot,
-		[active, colors.purple],
-	);
-	const dp = useDisplayValues(Number(amount));
-
-	return (
-		<TouchableOpacity
-			color="purple16"
-			style={style}
-			onPress={(): void => onPress(id)}>
-			<Image style={styles.bImage} source={img} />
-			<Subtitle style={styles.bAmount}>
-				{dp.fiatSymbol} {dp.fiatWhole}
-			</Subtitle>
-		</TouchableOpacity>
-	);
-};
 
 const CustomSetup = ({
 	navigation,
 	route,
 }: LightningScreenProps<'CustomSetup'>): ReactElement => {
+	const [loading, setLoading] = useState(false);
+	const currentBalance = useBalance({ onchain: true });
+	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+
 	const spending = route.params?.spending;
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const [keybrdWasEverOpened, setKeybrdWasEverOpened] = useState(false);
-	const [amount, setAmount] = useState(0);
-	const [pkgRates, setPkgRates] = useState({});
-	const usdRate = useExchangeRate('USD');
-	const packages = spending ? PACKAGES_SPENDING : PACKAGES_RECEIVING;
+	const [spendingAmount, setSpendingAmount] = useState(0);
+	const [receivingAmount, setReceivingAmount] = useState(0);
+	const [spendPkgRates, setSpendPkgRates] = useState({
+		big: 0,
+		medium: 0,
+		small: 0,
+	});
+	const [receivePkgRates, setReceivePkgRates] = useState({
+		big: 0,
+		medium: 0,
+		small: 0,
+	});
+	const fiatCurrencyRate = useExchangeRate(selectedCurrency);
+
+	const [availableSpendingPackages, setAvailableSpendingPackages] = useState<
+		TPackages[]
+	>([]); //Packages the user can afford.
+	const [availableReceivingPackages, setAvailableReceivingPackages] = useState<
+		TPackages[]
+	>([]);
+
+	const productId = useSelector(
+		(state: Store) => state.blocktank?.serviceList[0]?.product_id ?? '',
+	);
+	const unitPreference = useSelector(
+		(state: Store) => state.settings.unitPreference,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const blocktankService = useSelector(
+		(state: Store) => state.blocktank.serviceList[0],
+	);
+
+	const unit = useMemo(() => {
+		if (unitPreference === 'fiat') {
+			return 'fiat';
+		}
+		if (bitcoinUnit === 'BTC') {
+			return 'BTC';
+		}
+		return 'satoshi';
+	}, [bitcoinUnit, unitPreference]);
+
+	const fiatToSats = useCallback(
+		(fiatValue = 0): number => {
+			return fiatToBitcoinUnit({
+				fiatValue,
+				exchangeRate: fiatCurrencyRate,
+				currency: selectedCurrency,
+				bitcoinUnit: 'satoshi',
+			});
+		},
+		[fiatCurrencyRate, selectedCurrency],
+	);
 
 	useEffect(() => {
 		const rates = { small: 0, medium: 0, big: 0 };
-		packages.forEach(({ id, usdAmount }) => {
-			// convert to sats
-			rates[id] = Math.round((usdAmount * 10e7) / usdRate);
+		const receiveRates = { small: 0, medium: 0, big: 0 };
+
+		let availPackages: TPackages[] = [];
+		let reachedSpendingCap = false;
+		PACKAGES_SPENDING.every((p, i) => {
+			const { id, fiatAmount } = p;
+			// This ensures we have enough money to actually pay for the channel.
+			//TODO: Add channel calculation from Blocktank to set the initial max spendableFiatBalance.
+			const spendableFiatBalance = currentBalance.fiatValue / 1.5;
+			if (spendableFiatBalance > fiatAmount) {
+				rates[id] = fiatToSats(fiatAmount);
+				availPackages.push(p);
+			} else {
+				const key = Object.keys(rates)[i];
+				rates[key] = fiatToSats(spendableFiatBalance);
+				availPackages.push({
+					...PACKAGES_SPENDING[i],
+					fiatAmount: Math.round(spendableFiatBalance),
+				});
+				reachedSpendingCap = true;
+			}
+			return !reachedSpendingCap;
 		});
+		setSpendingAmount(rates.small);
+		setAvailableSpendingPackages(availPackages);
+		setSpendPkgRates(rates);
 
-		setPkgRates(rates);
-		setAmount(rates.medium);
+		let availReceivingPackages: TPackages[] = [];
+		PACKAGES_RECEIVING.forEach((p) => {
+			const { id, fiatAmount } = p;
+			if (fiatAmount < blocktankService.max_chan_receiving_usd) {
+				const sats = fiatToSats(fiatAmount);
+				// Ensure the conversion still puts us below the max_chan_receiving
+				receiveRates[id] =
+					sats > blocktankService.max_chan_receiving
+						? blocktankService.max_chan_receiving
+						: sats;
+				availReceivingPackages.push(p);
+			} else {
+				const sats = fiatToSats(blocktankService.max_chan_receiving_usd);
+				// Ensure the conversion still puts us below the max_chan_receiving
+				receiveRates[id] =
+					sats > blocktankService.max_chan_receiving
+						? blocktankService.max_chan_receiving
+						: sats;
+				availReceivingPackages.push({
+					...p,
+					fiatAmount: blocktankService.max_chan_receiving_usd,
+				});
+			}
+		});
+		setAvailableReceivingPackages(availReceivingPackages);
+		setReceivePkgRates(receiveRates);
 
-		// run only on mount
+		setupOnChainTransaction({ rbf: false }).then();
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	useEffect(() => {
+		if (spending) {
+			setSpendingAmount(0);
+		} else {
+			const { big = 0, medium = 0, small = 0 } = receivePkgRates;
+			// Attempt to suggest a receiving balance 10x greater than current on-chain balance.
+			// May not be able to afford anything much larger.
+			const balanceMultiplied = currentBalance.satoshis * 10;
+			const amount =
+				balanceMultiplied > big
+					? big
+					: balanceMultiplied > medium
+					? medium
+					: balanceMultiplied > small
+					? small
+					: balanceMultiplied > blocktankService.min_channel_size
+					? blocktankService.min_channel_size
+					: 0;
+			setReceivingAmount(amount);
+		}
+	}, [
+		blocktankService.max_chan_receiving,
+		blocktankService.min_channel_size,
+		currentBalance.satoshis,
+		receivePkgRates,
+		spending,
+	]);
 
 	// set amount to 0 when user tries to enter custom amount at the first time
 	useEffect(() => {
@@ -112,12 +244,59 @@ const CustomSetup = ({
 			return;
 		}
 		setKeybrdWasEverOpened(true);
-		setAmount(0);
-	}, [keybrd, keybrdWasEverOpened]);
+		if (spending) {
+			setSpendingAmount(0);
+		} else {
+			setReceivingAmount(0);
+		}
+	}, [keybrd, keybrdWasEverOpened, spending]);
 
 	const handleBarrelPress = (id): void => {
-		setAmount(pkgRates[id]);
+		if (spending) {
+			setSpendingAmount(spendPkgRates[id]);
+		} else {
+			setReceivingAmount(receivePkgRates[id]);
+		}
 	};
+
+	const amount = useMemo(() => {
+		return spending ? spendingAmount : receivingAmount;
+	}, [receivingAmount, spending, spendingAmount]);
+
+	const getBarrels = useCallback((): ReactElement[] => {
+		if (spending) {
+			return availableSpendingPackages.map((p) => (
+				<Barrel
+					key={p.id}
+					id={p.id}
+					active={spendPkgRates[p.id] === spendingAmount}
+					amount={spendPkgRates[p.id]}
+					img={p.img}
+					onPress={handleBarrelPress}
+				/>
+			));
+		} else {
+			return availableReceivingPackages.map((p) => (
+				<Barrel
+					key={p.id}
+					id={p.id}
+					active={receivePkgRates[p.id] === receivingAmount}
+					amount={receivePkgRates[p.id]}
+					img={p.img}
+					onPress={handleBarrelPress}
+				/>
+			));
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		availableReceivingPackages,
+		availableSpendingPackages,
+		receivePkgRates,
+		receivingAmount,
+		spendPkgRates,
+		spending,
+		spendingAmount,
+	]);
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>
@@ -162,18 +341,7 @@ const CustomSetup = ({
 
 				{!keybrd && (
 					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>
-						<View style={styles.barrels}>
-							{packages.map((p) => (
-								<Barrel
-									key={p.id}
-									id={p.id}
-									active={pkgRates[p.id] === amount}
-									amount={pkgRates[p.id]}
-									img={p.img}
-									onPress={handleBarrelPress}
-								/>
-							))}
-						</View>
+						<View style={styles.barrels}>{getBarrels()}</View>
 						<Button
 							text="Enter Custom Amount"
 							style={styles.buttonCustom}
@@ -190,12 +358,12 @@ const CustomSetup = ({
 							{!keybrd && (
 								<Caption13Up style={styles.amountTitle} color="purple">
 									{spending ? 'SPENDING BALANCE' : 'RECEIVING CAPACITY'}
-									{!spending && (
-										<Caption13Up color="gray2"> (COST: $ TODO)</Caption13Up>
-									)}
 								</Caption13Up>
 							)}
-							<AmountToggle sats={amount} />
+							<AmountToggle
+								onPress={(): void => setKeybrd((k) => !k)}
+								sats={amount}
+							/>
 						</View>
 					</View>
 				</View>
@@ -205,18 +373,43 @@ const CustomSetup = ({
 						<Button
 							text="Continue"
 							size="large"
-							onPress={(): void => {
+							loading={loading}
+							onPress={async (): Promise<void> => {
 								if (spending) {
 									// go to second setup screen
 									navigation.push('CustomSetup', {
 										spending: false,
-										spendingAmount: amount,
+										spendingAmount,
 									});
 								} else {
+									// Create the channel order and navigate to the confirm screen.
+									setLoading(true);
+									const purchaseResponse = await startChannelPurchase({
+										productId,
+										remoteBalance: route.params.spendingAmount ?? 0,
+										localBalance: receivingAmount,
+										channelExpiry: 6,
+										selectedWallet,
+										selectedNetwork,
+									});
+									if (purchaseResponse.isErr()) {
+										let msg = purchaseResponse.error.message;
+										if (msg.includes('Local channel balance is too small')) {
+											msg = `Receiving amount needs to be greater than $${blocktankService.max_chan_receiving_usd}`;
+										}
+										showErrorNotification({
+											title: 'Channel Purchase Error',
+											message: msg,
+										});
+										setLoading(false);
+										return;
+									}
+									setLoading(false);
+
 									navigation.navigate('CustomConfirm', {
 										spendingAmount: route.params.spendingAmount ?? 0,
-										receivingAmount: amount,
-										receivingCost: 123456,
+										receivingAmount,
+										orderId: purchaseResponse.value,
 									});
 								}
 							}}
@@ -227,10 +420,38 @@ const CustomSetup = ({
 
 				{keybrd && (
 					<NumberPadLightning
-						style={styles.numberpad}
 						sats={amount}
-						onChange={setAmount}
-						onDone={(): void => setKeybrd(false)}
+						onChange={(txt): void => {
+							if (spending) {
+								setSpendingAmount(txt);
+							} else {
+								setReceivingAmount(txt);
+							}
+						}}
+						onMaxPress={(): void => {
+							if (spending) {
+								setSpendingAmount(currentBalance.satoshis);
+							} else {
+								setReceivingAmount(blocktankService.max_chan_receiving);
+							}
+						}}
+						onDone={(): void => {
+							let typedAmountInSats = amount;
+							if (unit === 'BTC') {
+								typedAmountInSats = btcToSats(typedAmountInSats);
+							}
+							if (spending && typedAmountInSats > currentBalance.satoshis) {
+								setSpendingAmount(currentBalance.satoshis);
+							}
+							if (
+								!spending &&
+								typedAmountInSats > blocktankService.max_chan_receiving
+							) {
+								setReceivingAmount(blocktankService.max_chan_receiving);
+							}
+							setKeybrd(false);
+						}}
+						style={styles.numberpad}
 					/>
 				)}
 			</View>
@@ -253,25 +474,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		marginHorizontal: -8,
 		marginBottom: 14,
-	},
-	bRoot: {
-		flex: 1,
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		marginHorizontal: 8,
-		borderRadius: 8,
-		borderWidth: 1,
-	},
-	bImage: {
-		margin: 8,
-		height: 100,
-		width: 100,
-		resizeMode: 'contain',
-	},
-	bAmount: {
-		marginTop: 8,
-		marginBottom: 16,
-		textAlign: 'center',
 	},
 	buttonCustom: {
 		alignSelf: 'flex-start',

@@ -1,5 +1,5 @@
-import React, { ReactElement, useState } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import React, { memo, ReactElement, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { Text02B, TouchableOpacity, SwitchIcon } from '../../styles/components';
@@ -14,11 +14,13 @@ const NumberPadLightning = ({
 	sats,
 	onChange,
 	onDone,
+	onMaxPress,
 	style,
 }: {
 	sats: number;
 	onChange: (amount: number) => void;
 	onDone: () => void;
+	onMaxPress: () => void;
 	style?: object | Array<object>;
 }): ReactElement => {
 	const [decimalMode, setDecimalMode] = useState(false);
@@ -81,10 +83,10 @@ const NumberPadLightning = ({
 					}
 				}
 
-				amount = String(btcToSats(Number(amount)));
+				newAmount = btcToSats(Number(amount));
 			} else {
 				amount = String(sats);
-				amount = `${amount}${key}`;
+				newAmount = Number(`${amount}${key}`);
 			}
 		} else {
 			amount = displayValue.fiatValue.toString();
@@ -114,16 +116,13 @@ const NumberPadLightning = ({
 			}
 
 			// Convert new fiat amount to satoshis.
-			amount = fiatToBitcoinUnit({
+			newAmount = fiatToBitcoinUnit({
 				fiatValue: amount,
 				bitcoinUnit: 'satoshi',
 				currency,
 				exchangeRate,
 			});
 		}
-
-		newAmount = Number(amount);
-
 		// limit amount to 21 000 000 BTC
 		if (newAmount > 2.1e15) {
 			newAmount = 2.1e15;
@@ -180,9 +179,7 @@ const NumberPadLightning = ({
 				<TouchableOpacity
 					style={styles.topRowButtons}
 					color="onSurface"
-					onPress={(): void => {
-						Alert.alert('TODO');
-					}}>
+					onPress={onMaxPress}>
 					<Text02B size="12px" color="purple">
 						MAX
 					</Text02B>
@@ -245,4 +242,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default NumberPadLightning;
+export default memo(NumberPadLightning);

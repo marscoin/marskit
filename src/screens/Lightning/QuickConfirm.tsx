@@ -23,17 +23,9 @@ import NumberPadLightning from './NumberPadLightning';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
 import { IGetOrderResponse } from '@synonymdev/blocktank-client';
-import {
-	broadcastTransaction,
-	createTransaction,
-} from '../../utils/wallet/transactions';
-import { err, ok, Result } from '@synonymdev/result';
 import { sleep } from '../../utils/helpers';
 import { defaultOrderResponse } from '../../store/shapes/blocktank';
-import { watchOrder } from '../../utils/blocktank';
-import { addTodo, removeTodo } from '../../store/actions/todos';
-import { ITodo } from '../../store/types/todos';
-import { showErrorNotification } from '../../utils/notifications';
+import { confirmChannelPurchase } from '../../store/actions/blocktank';
 
 const PIE_SIZE = 140;
 const PIE_SHIFT = 70;
@@ -70,42 +62,15 @@ const QuickConfirm = ({
 	const spendingPercentage = Math.round((spendingAmount / total) * 100);
 	const savingsPercentage = Math.round((savingsAmount / total) * 100);
 
-	const handleConfirm = async (): Promise<Result<string>> => {
+	const handleConfirm = async (): Promise<void> => {
 		setLoading(true);
 		await sleep(5);
-		const rawTx = await createTransaction({ selectedNetwork });
-		if (rawTx.isErr()) {
+		const res = await confirmChannelPurchase({ orderId, selectedNetwork });
+		if (res.isErr()) {
 			setLoading(false);
-			showErrorNotification({
-				title: 'Unable To Create Transaction',
-				message: rawTx.error.message,
-			});
-			return err(rawTx.error.message);
+			return;
 		}
-		const broadcastResponse = await broadcastTransaction({
-			rawTx: rawTx.value.hex,
-			selectedNetwork,
-		});
-		if (broadcastResponse.isErr()) {
-			setLoading(false);
-			showErrorNotification({
-				title: 'Unable To Broadcast Transaction',
-				message: broadcastResponse.error.message,
-			});
-			return err(broadcastResponse.error.message);
-		}
-
-		watchOrder(orderId).then();
-		await removeTodo('lightning');
-		const todo: ITodo = {
-			id: 'lightning',
-			type: 'lightning',
-			title: 'Setting Up',
-			description: 'Ready in ~20min',
-		};
-		await addTodo(todo);
 		navigation.navigate('Result');
-		return ok('Waiting to finalize channel open.');
 	};
 
 	return (
@@ -180,6 +145,9 @@ const QuickConfirm = ({
 					<NumberPadLightning
 						sats={spendingAmount}
 						onChange={setSpendingAmount}
+						onMaxPress={(): void => {
+							setSpendingAmount(total);
+						}}
 						onDone={(): void => {
 							if (spendingAmount > total) {
 								setSpendingAmount(total);

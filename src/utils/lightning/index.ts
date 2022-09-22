@@ -477,15 +477,37 @@ export const getPendingChannels = async ({
 };
 
 /**
- * Returns an array of confirmed/open lightning channels.
+ * Returns an array of confirmed/open lightning channels from either storage or LDK directly..
  * @returns {Promise<Result<TChannel[]>>}
  */
-export const getOpenChannels = async (): Promise<Result<TChannel[]>> => {
-	const channels = await getLightningChannels();
-	if (channels.isErr()) {
-		return err(channels.error.message);
+export const getOpenChannels = async ({
+	fromStorage = false,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	fromStorage?: boolean;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<TChannel[]>> => {
+	let channels: TChannel[];
+	if (fromStorage) {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		channels = Object.values(
+			getStore().lightning.nodes[selectedWallet].channels[selectedNetwork],
+		);
+	} else {
+		const getChannelsResponse = await getLightningChannels();
+		if (getChannelsResponse.isErr()) {
+			return err(getChannelsResponse.error.message);
+		}
+		channels = getChannelsResponse.value;
 	}
-	const openChannels = channels.value.filter(
+	const openChannels = Object.values(channels).filter(
 		(channel) => channel?.short_channel_id !== undefined,
 	);
 	return ok(openChannels);
