@@ -203,6 +203,10 @@ const ActivityDetail = (props: Props): ReactElement => {
 		deleteMetaSlashTagsUrlTag(id);
 	};
 
+	const handleContact = (): void => {
+		navigation.navigate('Contact', { url: slashTagsUrl });
+	};
+
 	useEffect(() => {
 		if (txDetails || !extended) {
 			return;
@@ -225,15 +229,15 @@ const ActivityDetail = (props: Props): ReactElement => {
 	let status = '';
 	if (value < 0) {
 		if (confirmed) {
-			status = 'Sent bitcoin';
+			status = 'Sent Bitcoin';
 		} else {
-			status = 'Sending bitcoin...';
+			status = 'Sending Bitcoin...';
 		}
 	} else {
 		if (confirmed) {
-			status = 'Received bitcoin';
+			status = 'Received Bitcoin';
 		} else {
-			status = 'Receiving bitcoin...';
+			status = 'Receiving Bitcoin...';
 		}
 	}
 
@@ -296,7 +300,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 			<Canvas style={[styles.canvas, size]}>
 				<Glow color={glowColor} size={size} />
 			</Canvas>
-			<NavigationHeader title={status} />
+			<NavigationHeader title={status} onClosePress={navigation.popToTop} />
 			<ScrollView
 				contentContainerStyle={styles.scrollContent}
 				showsVerticalScrollIndicator={false}>
@@ -379,7 +383,12 @@ const ActivityDetail = (props: Props): ReactElement => {
 								{slashTagsUrl && (
 									<Section
 										title="CONTACT"
-										value={<ContactSmall url={slashTagsUrl} />}
+										value={
+											<ContactSmall
+												url={slashTagsUrl}
+												onPress={handleContact}
+											/>
+										}
 									/>
 								)}
 								<Section

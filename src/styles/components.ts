@@ -539,6 +539,7 @@ export const Text01S = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.regular.fontFamily,
 	fontSize: props.size ? props.size : '17px',
+	lineHeight: '22px',
 }));
 
 export const Text01B = styled.Text((props) => ({
@@ -583,6 +584,7 @@ export const Text02S = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.regular.fontFamily,
 	fontSize: props.size ? props.size : '15px',
+	lineHeight: '20px',
 }));
 
 export const SubHeadM = styled.Text((props) => ({
@@ -628,6 +630,7 @@ export const Caption13Up = styled.Text((props) => ({
 		? props.theme.fonts[props.font].fontFamily
 		: sanFranciscoWeights.medium.fontFamily,
 	fontSize: props.size ? props.size : '13px',
+	lineHeight: '18px',
 	textTransform: 'uppercase',
 }));
 
@@ -700,8 +703,9 @@ export const TextInput = styled.TextInput.attrs((props) => ({
 	selectionColor: colors.brand,
 	placeholderTextColor: props?.placeholderTextColor
 		? props.placeholderTextColor
-		: props.theme.colors.white5,
+		: props.theme.colors.gray1,
 }))((props) => ({
+	...sanFranciscoWeights.semibold,
 	backgroundColor: props.backgroundColor
 		? props.theme.colors[props.color]
 		: props.theme.colors.white08,
@@ -711,6 +715,24 @@ export const TextInput = styled.TextInput.attrs((props) => ({
 	borderColor: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
+	borderRadius: 8,
+	fontSize: '15px',
+	minHeight: props.minHeight ? props.minHeight : 52,
+	padding: 16,
+}));
+
+export const TextInputNoOutline = styled.TextInput.attrs((props) => ({
+	keyboardAppearance: props.theme.id,
+	selectionColor: colors.brand,
+	placeholderTextColor: props?.placeholderTextColor
+		? props.placeholderTextColor
+		: props.theme.colors.gray1,
+}))((props) => ({
+	...sanFranciscoWeights.semibold,
+	color: props.color
+		? props.theme.colors[props.color]
+		: props.theme.colors.text,
+	fontSize: '15px',
 }));
 
 export const BottomSheetTextInput = styled(_BottomSheetTextInput).attrs(
@@ -722,15 +744,20 @@ export const BottomSheetTextInput = styled(_BottomSheetTextInput).attrs(
 			: props.theme.colors.white5,
 	}),
 )((props) => ({
+	...sanFranciscoWeights.semibold,
 	backgroundColor: props.backgroundColor
-		? props.theme.colors[props.color]
-		: props.theme.colors.white08,
+		? props.theme.colors[props.backgroundColor]
+		: props.theme.colors.white04,
 	color: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
 	borderColor: props.color
 		? props.theme.colors[props.color]
 		: props.theme.colors.text,
+	borderRadius: 8,
+	fontSize: '15px',
+	minHeight: props.minHeight ? props.minHeight : 70,
+	padding: 16,
 }));
 
 export const RefreshControl = styled.RefreshControl.attrs((props) => ({
@@ -768,6 +795,7 @@ export const RadioButtonRN = styled(_RadioButtonRN).attrs((props) => ({
 	activeColor: props?.activeColor
 		? props.activeColor
 		: props.theme.colors.onBackground,
+	circleSize: 12,
 }))({});
 
 export const Feather = styled(_Feather).attrs((props) => ({
