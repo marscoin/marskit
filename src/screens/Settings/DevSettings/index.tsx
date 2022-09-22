@@ -17,7 +17,7 @@ import { resetSlashtagsStore } from '../../../store/actions/slashtags';
 import actions from '../../../store/actions/actions';
 import { resetFeesStore } from '../../../store/actions/fees';
 
-const SettingsMenu = (): ReactElement => {
+const SettingsMenu = ({ navigation }): ReactElement => {
 	const dispatch = useDispatch();
 	const [throwError, setThrowError] = useState(false);
 	const selectedWallet = useSelector(
@@ -31,6 +31,12 @@ const SettingsMenu = (): ReactElement => {
 			{
 				title: 'App Cache',
 				data: [
+					{
+						title: 'Slashtags Settings',
+						type: 'button',
+						onPress: (): void => navigation.navigate('SlashtagsSettings'),
+						hide: false,
+					},
 					{
 						title: 'Reset Current Wallet Store',
 						type: 'button',

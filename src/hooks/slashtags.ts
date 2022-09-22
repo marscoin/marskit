@@ -56,7 +56,8 @@ export const useProfile = (
 		async function resolve(): Promise<void> {
 			const _profile = await drive
 				.get('/profile.json')
-				.then((buf: Uint8Array) => buf && c.decode(c.json, buf));
+				.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
+				.catch(noop);
 
 			set(_profile);
 		}
@@ -88,3 +89,5 @@ export const useProfile = (
 function onError(error: Error): void {
 	console.debug('Error opening drive in useProfile', error.message);
 }
+
+function noop(): void {}

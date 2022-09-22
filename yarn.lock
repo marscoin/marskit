@@ -2044,33 +2044,33 @@
   resolved "https://registry.yarnpkg.com/@synonymdev/result/-/result-0.0.2.tgz#c526743e4f1d3ec1d24a1952281b5daa77ba3fbc"
   integrity sha512-Ni5qknulcf350qfPVTw3DWXqT2i6K68BoFc18zlqIAj9YA2RUOIJsKTdemX31i3wSma5LRHVcGLESVga16iAag==
 
-"@synonymdev/slashdrive@^1.0.0-alpha.12":
-  version "1.0.0-alpha.14"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.14.tgz#482c953c989295578e83fb94e3d4f11fae18df37"
-  integrity sha512-kAp1LvWNhZ0pqLrXrAUUNu0lnH3MuEFEqSLM0MpUj7Rro4ENUOfnMpcUHCaremLYhkyRBrBO9tPbllcTYFlZzA==
+"@synonymdev/slashdrive@^1.0.0-alpha.15":
+  version "1.0.0-alpha.15"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.15.tgz#90c396ec92b10dd21ff44fa3abab17b6d8ffd435"
+  integrity sha512-MiAqrkhvCvEps28+ZxKuCccIk8EV5Pd/C6eljVIqtIErx4TLY/3+uCvkATQzjFHG5qEdd8I5iT9BNR4LuCYtnQ==
   dependencies:
     b4a "^1.6.0"
-    corestore "6.1.1"
+    corestore "6.2.0"
     hyperbee "^2.0.1"
     hyperdrive "^11.0.0-alpha.5"
     safety-catch "^1.0.2"
 
 "@synonymdev/slashtag@^1.0.0-alpha.18":
-  version "1.0.0-alpha.18"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.18.tgz#bd83408dbb2ba524513f4a42d6895998933b14c4"
-  integrity sha512-VsbMYXccTcxVtv3ES8WoOKxcemH2NjPYfTxL4zXfyyi1wXo0XdDOIF3KEBkux7Qt23WA8AKHf2vf9TsBL3gizg==
+  version "1.0.0-alpha.19"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.19.tgz#f72585410339301f5336c147d97cd044bf9f016d"
+  integrity sha512-p9CQvRuavjtyFNf7dDs1hhhewpdKxwZPCaZEXBPXuf2nigpuhcijMmPIox267w80+ctoEqH/ZHAHHDOMPVxbiQ==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
-    "@synonymdev/slashdrive" "^1.0.0-alpha.12"
+    "@synonymdev/slashdrive" "^1.0.0-alpha.15"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
-    corestore "6.1.1"
+    corestore "6.2.0"
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.13", "@synonymdev/slashtags-sdk@^1.0.0-alpha.24":
-  version "1.0.0-alpha.24"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.24.tgz#7f7a0d4e8f6ecb81f47668799dc50aaf8a6f039d"
-  integrity sha512-+g7ij6tEW9klGIcHqoJQxqzaNGzJFUtv9btRaNDsyKplE53EpSFq9qGOlofurrC6vHTpr4WbmeSqv0Sty3WHng==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.13", "@synonymdev/slashtags-sdk@^1.0.0-alpha.25":
+  version "1.0.0-alpha.25"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.25.tgz#2ffb337526f1ed5bac7790a5b0ce4b29f882f0f0"
+  integrity sha512-l5DrU4gLCVo5BRiwY/lxq3QppE/TYmIN6HzDpqR03NS8kcGVyoNxmSxY4WthimnZ2sOnl8qg4pfcSsFzRzKg4g==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"
@@ -2078,7 +2078,7 @@
     "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
     b4a "^1.6.0"
     compact-encoding "^2.11.0"
-    corestore "6.1.1"
+    corestore "6.2.0"
     graceful-goodbye "^1.1.0"
     hypercore-crypto "^3.3.0"
     hyperdrive "^11.0.0-alpha.3"
@@ -2089,9 +2089,9 @@
     ws "^8.8.1"
 
 "@synonymdev/slashtags-url@^1.0.0-alpha.0", "@synonymdev/slashtags-url@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-url/-/slashtags-url-1.0.0-alpha.1.tgz#ce4a405a1a5b2f303a4c2a2055555908a8f36966"
-  integrity sha512-BYwQez2HL/vrf9QRdm2cEmCXOeEgMMTQ+Fzuhg/s9ozPNnh+j0pQszxzHlX1px0cSUOxXWofTlzRUImQ5CIDMw==
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-url/-/slashtags-url-1.0.0-alpha.2.tgz#f8ce54e6fa9738a044083e313781697a4aee510a"
+  integrity sha512-1dqGL4pi49CKjcUjctz1McWR+kRlmfK54QE8hZ+XWTic1zmW9G4dO70ktBZX7iYOT3b80BrQ56ncmeR4YzPn0A==
   dependencies:
     b4a "^1.6.0"
     z32 "^1.0.0"
@@ -3932,10 +3932,10 @@ core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.3.tgz#a6042d3634c2b27e9328f837b965fac83808db85"
   integrity sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==
 
-corestore@6.1.1:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/corestore/-/corestore-6.1.1.tgz#4c88fa8734d5b7a57a19000e03dfa6653c30cf9b"
-  integrity sha512-Lt+EPoEMa09v9EGdrJ8qhtWG9r1ppY/zdDPANIPwyA22BAWtIE9HPBscz3gbMA0bFbr0mKWdkyZmTgyNjT0bqA==
+corestore@6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/corestore/-/corestore-6.2.0.tgz#0da4e6f811e1303433618d1ca016690cb1a3f249"
+  integrity sha512-4A6kQkTM8lXGVHDY+dJLBe3TtEKRFnbroVYma6W1h4KwSQDNyAj3HaXK7RUZfm3wNliOHti8PowHgIBhEbX2Hg==
   dependencies:
     b4a "^1.3.1"
     hypercore "^10.3.1"
