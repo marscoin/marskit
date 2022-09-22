@@ -128,9 +128,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	 * Returns the current output by index.
 	 */
 	const getOutput = useMemo((): IOutput | undefined => {
-		try {
-			return transaction.outputs?.[index];
-		} catch {
+		return transaction.outputs?.[index] ?? { address: '', value: 0, index: 0 };
 			return { address: '', value: 0, index: 0 };
 		}
 	}, [index, transaction?.outputs]);
