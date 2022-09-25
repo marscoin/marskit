@@ -80,6 +80,7 @@ const Section = memo(
 
 const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 	const insets = useSafeAreaInsets();
+	const feeEstimates = useSelector((store: Store) => store.fees.onchain);
 	const [isLoading, setIsLoading] = useState(false);
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string } | undefined>(
 		undefined,
@@ -387,6 +388,25 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 			? ` (${totalFeeDisplay.fiatSymbol} ${totalFeeDisplay.fiatFormatted})`
 			: '';
 
+	const customDescription = useMemo(() => {
+		let desc = FeeText.custom.description;
+		if (selectedFeeId === EFeeIds.custom) {
+			for (const key of Object.keys(feeEstimates)) {
+				if (satsPerByte >= feeEstimates[key]) {
+					desc = FeeText[key].description;
+					break;
+				}
+			}
+		}
+		return desc;
+	}, [selectedFeeId, feeEstimates, satsPerByte]);
+
+	const feeDescription = useMemo(() => {
+		return selectedFeeId === EFeeIds.custom
+			? customDescription
+			: FeeText[selectedFeeId]?.description;
+	}, [customDescription, selectedFeeId]);
+
 	return (
 		<ThemedView color="onSurface" style={styles.container}>
 			<BottomSheetNavigationHeader title="Review & Send" />
@@ -432,7 +452,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 							value={
 								<>
 									<ClockIcon color="brand" />
-									<Text02M> {FeeText[selectedFeeId]?.description}</Text02M>
+									<Text02M>{feeDescription}</Text02M>
 								</>
 							}
 						/>

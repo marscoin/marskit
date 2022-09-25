@@ -89,11 +89,11 @@ const FeeRate = ({ navigation }): ReactElement => {
 
 	const displayInstant = useMemo(() => false, []); //TODO: Determine if the user can pay via Lightning.
 	const displayFast = useMemo(() => {
-		return balance.satoshis > transactionTotal() + getFee(feeEstimates.fast);
+		return balance.satoshis >= transactionTotal() + getFee(feeEstimates.fast);
 	}, [balance.satoshis, feeEstimates.fast, getFee, transactionTotal]);
 	const displayNormal = useMemo(
 		() =>
-			balance.satoshis > transactionTotal() + getFee(feeEstimates.normal) &&
+			balance.satoshis >= transactionTotal() + getFee(feeEstimates.normal) &&
 			feeEstimates.fast > feeEstimates.normal,
 		[
 			balance.satoshis,
@@ -105,7 +105,7 @@ const FeeRate = ({ navigation }): ReactElement => {
 	);
 	const displaySlow = useMemo(
 		() =>
-			balance.satoshis > transactionTotal() + getFee(feeEstimates.slow) &&
+			balance.satoshis >= transactionTotal() + getFee(feeEstimates.slow) &&
 			feeEstimates.normal > feeEstimates.slow,
 		[
 			balance.satoshis,
@@ -116,7 +116,7 @@ const FeeRate = ({ navigation }): ReactElement => {
 		],
 	);
 	const displayCustom = useMemo(
-		() => balance.satoshis > transactionTotal() + getFee(1),
+		() => balance.satoshis >= transactionTotal() + getFee(1),
 		[balance.satoshis, getFee, transactionTotal],
 	);
 
