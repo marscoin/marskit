@@ -452,7 +452,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 							value={
 								<>
 									<ClockIcon color="brand" />
-									<Text02M>{feeDescription}</Text02M>
+									<Text02M> {feeDescription}</Text02M>
 								</>
 							}
 						/>
