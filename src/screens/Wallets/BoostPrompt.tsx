@@ -137,7 +137,7 @@ const BoostForm = ({
 					satsPerByte > 1 ? 's' : ''
 				}/B\n+${boostFee.toFixed(0)} sats`}
 				decreaseValue={(): void => {
-					if (satsPerByte - 1 > minFee) {
+					if (satsPerByte - 1 >= minFee) {
 						const res = adjustFee({
 							selectedNetwork,
 							selectedWallet,

@@ -18,6 +18,7 @@ import {
 	getMnemonicPhrase,
 	getOnChainBalance,
 	getRbfData,
+	getReceiveAddress,
 	getScriptHash,
 	getSelectedNetwork,
 	getSelectedWallet,
@@ -1956,6 +1957,11 @@ export const setupCpfp = async ({
 		return err(response.error?.message);
 	}
 
+	const receiveAddress = getReceiveAddress({ selectedWallet, selectedNetwork });
+	if (receiveAddress.isErr()) {
+		return err(receiveAddress.error.message);
+	}
+
 	const sendMaxResponse = await sendMax({
 		selectedWallet,
 		selectedNetwork,
@@ -1963,7 +1969,7 @@ export const setupCpfp = async ({
 			...response.value,
 			satsPerByte: satsPerByte ?? response.value.satsPerByte,
 		},
-		address: response.value.changeAddress,
+		address: receiveAddress.value,
 	});
 	if (sendMaxResponse.isErr()) {
 		return err(sendMaxResponse.error.message);
