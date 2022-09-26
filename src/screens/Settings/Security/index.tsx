@@ -10,7 +10,7 @@ import { IsSensorAvailableResult } from '../../../components/Biometrics';
 import { toggleView } from '../../../store/actions/user';
 import { updateSettings } from '../../../store/actions/settings';
 
-const rnBiometrics = new ReactNativeBiometrics();
+const rnBiometrics = ReactNativeBiometrics;
 
 const SecuritySettings = ({ navigation }): ReactElement => {
 	const [biometryData, setBiometricData] = useState<
