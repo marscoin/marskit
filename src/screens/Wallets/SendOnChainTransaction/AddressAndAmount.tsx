@@ -30,7 +30,6 @@ import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigati
 import AmountToggle from '../../../components/AmountToggle';
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
-import OnChainNumberPad from '../SendOnChainTransaction/OnChainNumberPad';
 import Store from '../../../store/types';
 import { ETransactionDefaults, IOutput } from '../../../store/types/wallet';
 import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
@@ -70,7 +69,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 		(store: Store) => store.wallet.selectedNetwork,
 	);
 	const numberPadIsOpen = useSelector(
-		(store: Store) => store.user.viewController?.numberPad.isOpen,
+		(store: Store) => store.user.viewController?.numberPadSend.isOpen,
 	);
 	const coinSelectAuto = useSelector(
 		(state: Store) => state.settings.coinSelectAuto,
@@ -233,7 +232,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const onTogglePress = useCallback(() => {
 		Keyboard.dismiss(); // in case it was opened by Address input
 		toggleView({
-			view: 'numberPad',
+			view: 'numberPadSend',
 			data: {
 				isOpen: true,
 				snapPoint: 0,
@@ -244,7 +243,7 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	const closeNumberPad = useCallback(() => {
 		if (numberPadIsOpen) {
 			toggleView({
-				view: 'numberPad',
+				view: 'numberPadSend',
 				data: {
 					isOpen: false,
 					snapPoint: 0,
@@ -394,7 +393,6 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 					)}
 				</View>
 			</View>
-			<OnChainNumberPad />
 		</ThemedView>
 	);
 };
