@@ -760,12 +760,14 @@ export const setupOnChainTransaction = async ({
 	selectedWallet,
 	selectedNetwork,
 	addressType,
+	inputTxHashes,
 	rbf = true,
 	submitDispatch = true,
 }: {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 	addressType?: TAddressType; // Preferred address type for change address.
+	inputTxHashes?: string[]; // Used to pre-specify inputs to use by tx_hash
 	rbf?: boolean; // Enable or disable rbf.
 	submitDispatch?: boolean; //Should we dispatch this and update the store.
 } = {}): Promise<Result<IBitcoinTransactionData>> => {
@@ -785,11 +787,32 @@ export const setupOnChainTransaction = async ({
 			selectedNetwork,
 		});
 
+		const transaction = currentWallet.transaction[selectedNetwork];
+
+		// Gather required inputs.
+		let inputs: IUtxo[] = [];
+		if (inputTxHashes) {
+			// If specified, filter for the desired tx_hash and push the utxo as an input.
+			inputs = currentWallet.utxos[selectedNetwork].filter((utxo) =>
+				inputTxHashes.includes(utxo.tx_hash),
+			);
+		} else {
+			// If inputs were previously selected, leave them.
+			if (transaction?.inputs && transaction.inputs.length > 0) {
+				inputs = transaction.inputs;
+			} else {
+				// Otherwise, lets use our available utxo's.
+				inputs = currentWallet.utxos[selectedNetwork];
+			}
+		}
+
+		if (!inputs.length) {
+			return err('No inputs specified.');
+		}
+
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 
-		const inputs = currentWallet.utxos[selectedNetwork];
-		const outputs = currentWallet.transaction[selectedNetwork].outputs || [];
 		const addressTypes = getAddressTypes();
 		let changeAddresses: IAddress = {};
 		await Promise.all(
@@ -803,21 +826,29 @@ export const setupOnChainTransaction = async ({
 		const changeAddressesArr = Object.values(changeAddresses).map(
 			({ address }) => address,
 		);
+
+		// Set the current change address.
 		const changeAddress =
 			currentWallet.changeAddressIndex[selectedNetwork][addressType].address;
+
+		// Set the minimum fee.
 		const fee = getTotalFee({
 			satsPerByte: 1,
 			message: '',
 		});
-		//Remove any potential change address that may have been included from a previous tx attempt.
-		const newOutputs = outputs.filter((output) => {
-			if (output?.address && !changeAddressesArr.includes(output?.address)) {
-				return output;
-			}
-		});
 
 		const lightningInvoice =
 			currentWallet.transaction[selectedNetwork]?.lightningInvoice;
+
+		let outputs = currentWallet.transaction[selectedNetwork].outputs || [];
+		if (!lightningInvoice) {
+			//Remove any potential change address that may have been included from a previous tx attempt.
+			outputs = outputs.filter((output) => {
+				if (output?.address && !changeAddressesArr.includes(output?.address)) {
+					return output;
+				}
+			});
+		}
 
 		const payload = {
 			selectedNetwork,
@@ -825,7 +856,7 @@ export const setupOnChainTransaction = async ({
 			inputs,
 			changeAddress,
 			fee,
-			outputs: lightningInvoice ? outputs : newOutputs, // This will ensure we keep the specified output or invoice value.
+			outputs,
 			rbf,
 		};
 

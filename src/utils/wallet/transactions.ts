@@ -1401,6 +1401,13 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		}
 		type = transactionResponse.value.type;
 		const balance = getOnChainBalance({});
+
+		const { currentWallet, selectedNetwork } = getCurrentWallet({});
+
+		const hasUtxo = currentWallet.utxos[selectedNetwork].some(
+			(utxo) => txid === utxo.tx_hash,
+		);
+
 		/*
 		 * For an RBF, technically we can reduce the output value and apply it to the fee,
 		 * but this might cause issues when paying a merchant that requested a specific amount.
@@ -1408,9 +1415,19 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		const rbf =
 			type === 'sent' &&
 			balance >= ETransactionDefaults.recommendedBaseFee &&
-			rbfEnabled;
+			rbfEnabled &&
+			transactionResponse.value.matchedOutputValue !==
+				transactionResponse.value.totalOutputValue &&
+			transactionResponse.value.matchedOutputValue >
+				transactionResponse.value.fee &&
+			transactionResponse.value.matchedOutputValue >
+				ETransactionDefaults.recommendedBaseFee;
+
 		// Performing a CPFP tx requires a new tx and higher fee.
-		const cpfp = balance >= ETransactionDefaults.recommendedBaseFee * 3;
+		const cpfp =
+			hasUtxo &&
+			btcToSats(transactionResponse.value.matchedOutputValue) >=
+				ETransactionDefaults.recommendedBaseFee * 3;
 		return { canBoost: rbf || cpfp, rbf, cpfp };
 	} catch (e) {
 		return failure;
@@ -1459,6 +1476,9 @@ export const sendMax = ({
 		// No address specified, attempt to assign the address currently specified in the current output index.
 		if (!address) {
 			address = outputs[index]?.address;
+		}
+		if (!address) {
+			return err('No address provided.');
 		}
 
 		const inputTotal = getTransactionInputValue({
@@ -1882,7 +1902,7 @@ export const setupBoost = async ({
 	txid: string;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<Result<string>> => {
+}): Promise<Result<IBitcoinTransactionData>> => {
 	if (!txid) {
 		return err('No txid provided.');
 	}
@@ -1897,17 +1917,9 @@ export const setupBoost = async ({
 		return err('Unable to boost this transaction.');
 	}
 	if (canBoostResponse.rbf) {
-		const response = await setupRbf({ selectedWallet, selectedNetwork, txid });
-		if (response.isErr()) {
-			return err(response.error?.message);
-		}
-		return ok('Successfully setup rbf.');
+		return await setupRbf({ selectedWallet, selectedNetwork, txid });
 	} else {
-		const response = await setupCpfp({ selectedNetwork, selectedWallet });
-		if (response.isErr()) {
-			return err(response.error?.message);
-		}
-		return ok('Successfully setup cpfp.');
+		return await setupCpfp({ selectedNetwork, selectedWallet, txid });
 	}
 };
 
@@ -1915,14 +1927,19 @@ export const setupBoost = async ({
  * Sets up a CPFP transaction.
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {number} [satsPerByte]
  */
 export const setupCpfp = async ({
 	selectedWallet,
 	selectedNetwork,
+	txid,
+	satsPerByte,
 }: {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<Result<string>> => {
+	txid?: string; // txid of utxo to include in the CPFP tx. Undefined will gather all utxo's.
+	satsPerByte?: number;
+}): Promise<Result<IBitcoinTransactionData>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
@@ -1932,19 +1949,29 @@ export const setupCpfp = async ({
 	const response = await setupOnChainTransaction({
 		selectedWallet,
 		selectedNetwork,
+		inputTxHashes: txid ? [txid] : undefined,
 		rbf: true,
 	});
 	if (response.isErr()) {
 		return err(response.error?.message);
 	}
 
-	// TODO: This will consolidate all UTXO's. Fix it to only use the UTXO's required according to the user's coin selection preference.
-	return sendMax({
+	const sendMaxResponse = await sendMax({
 		selectedWallet,
 		selectedNetwork,
-		transaction: response.value,
+		transaction: {
+			...response.value,
+			satsPerByte: satsPerByte ?? response.value.satsPerByte,
+		},
 		address: response.value.changeAddress,
 	});
+	if (sendMaxResponse.isErr()) {
+		return err(sendMaxResponse.error.message);
+	}
+
+	const transaction =
+		getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork];
+	return ok(transaction);
 };
 
 /**
@@ -1978,6 +2005,13 @@ export const setupRbf = async ({
 			selectedWallet,
 		});
 		if (response.isErr()) {
+			if (response.error.message === 'cpfp') {
+				return await setupCpfp({
+					selectedNetwork,
+					selectedWallet,
+					txid,
+				});
+			}
 			return err(response.error.message);
 		}
 		const transaction = response.value;
@@ -2003,7 +2037,22 @@ export const setupRbf = async ({
 			outputs: transaction.outputs,
 		});
 		if (outputTotal + newFee >= inputTotal) {
-			return err('Not enough fees to support an RBF transaction.');
+			/*
+			 * We could always pull the fee from the output total,
+			 * but this may negatively impact the transaction made by the user.
+			 * (Ex: Reducing the amount paid to the recipient).
+			 * We could always include additional unconfirmed utxo's to cover the fee as well,
+			 * but this may negatively impact the user's privacy by including sensitive utxos.
+			 * Instead of allowing either scenario, we attempt a CPFP instead.
+			 */
+			console.log(
+				'Not enough fees to support an RBF transaction. Attempting to CPFP instead.',
+			);
+			return await setupCpfp({
+				selectedNetwork,
+				selectedWallet,
+				txid,
+			});
 		}
 		const newTransaction = {
 			...transaction,
@@ -2117,7 +2166,6 @@ export const broadcastBoost = async ({
 			]);
 		}
 		await refreshWallet({});
-		setupBoost({ txid: newTxId, selectedNetwork, selectedWallet });
 		return ok(newActivityItem);
 	} catch (e) {
 		return err(e);

@@ -241,6 +241,7 @@ const wallet = (state: IWallet = defaultWalletStoreShape, action): IWallet => {
 								outputs: action.payload.outputs,
 								fee: action.payload.fee,
 								rbf: action.payload.rbf,
+								max: defaultBitcoinTransactionData.max,
 							},
 						},
 					},
@@ -274,10 +275,7 @@ const wallet = (state: IWallet = defaultWalletStoreShape, action): IWallet => {
 						...state.wallets[selectedWallet],
 						transaction: {
 							...state.wallets[selectedWallet].transaction,
-							[selectedNetwork]: {
-								...defaultBitcoinTransactionData,
-								outputs: [EOutput],
-							},
+							[selectedNetwork]: defaultBitcoinTransactionData,
 						},
 					},
 				},

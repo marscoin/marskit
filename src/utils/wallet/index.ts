@@ -1757,13 +1757,13 @@ export interface IRbfData {
  */
 
 export const getRbfData = async ({
-	txHash = undefined,
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	txHash,
+	selectedWallet,
+	selectedNetwork,
 }: {
-	txHash: ITxHash | undefined;
-	selectedWallet: string | undefined;
-	selectedNetwork: TAvailableNetworks | undefined;
+	txHash?: ITxHash;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<IRbfData>> => {
 	if (!txHash) {
 		return err('No txid provided.');
@@ -1842,12 +1842,23 @@ export const getRbfData = async ({
 				return err('Transaction is already confirmed. Unable to RBF.');
 			}
 			const txVout = tx.value.data[0].result.vout[input.vout];
-			if (txVout.scriptPubKey.address) {
+			if (txVout.scriptPubKey?.address) {
 				address = txVout.scriptPubKey.address;
-			} else if (txVout.scriptPubKey.addresses) {
+			} else if (
+				txVout.scriptPubKey?.addresses &&
+				txVout.scriptPubKey.addresses.length
+			) {
 				address = txVout.scriptPubKey.addresses[0];
 			}
+			if (!address) {
+				continue;
+			}
 			scriptHash = getScriptHash(address, selectedNetwork);
+			// Check that we are in possession of this scriptHash.
+			if (!(scriptHash in allAddresses)) {
+				// This output did not come from us.
+				continue;
+			}
 			path = allAddresses[scriptHash].path;
 			value = btcToSats(txVout.value);
 			inputs.push({
@@ -1881,6 +1892,9 @@ export const getRbfData = async ({
 				}
 			} catch (e) {}
 		}
+		if (!address) {
+			continue;
+		}
 		const changeAddressScriptHash = getScriptHash(address, selectedNetwork);
 
 		// If the address scripthash matches one of our change address scripthashes, add it accordingly. Otherwise, add it as another output.
@@ -1902,9 +1916,15 @@ export const getRbfData = async ({
 	}
 
 	if (!changeAddressData?.address && outputs.length >= 2) {
-		return err(
-			'Unable to determine change address. Performing an RBF could divert funds from the incorrect output. Consider CPFP instead.',
-		);
+		/*
+		 * Unable to determine change address.
+		 * Performing an RBF could divert funds from the incorrect output.
+		 *
+		 * It's very possible that this tx sent the max amount of sats to a foreign/unknown address.
+		 * Instead of pulling sats from that output to accommodate the higher fee (reducing how much the recipient receives)
+		 * suggest a CPFP transaction.
+		 */
+		return err('cpfp');
 	}
 
 	if (outputTotal > inputTotal) {

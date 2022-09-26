@@ -209,7 +209,7 @@ export interface IBitcoinTransactionData {
 }
 
 export const defaultBitcoinTransactionData: IBitcoinTransactionData = {
-	outputs: [],
+	outputs: [EOutput],
 	inputs: [],
 	changeAddress: '',
 	fiatAmount: 0,
