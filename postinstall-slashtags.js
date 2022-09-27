@@ -10,95 +10,77 @@ module.exports = async function postInstallSlashtags() {
 	console.log('== postInstallSlashtags.js');
 	// 1- keep a copy of the original index.js file
 	if (fs.readdirSync(root).includes('index.old.js')) {
-		console.log('   skip: sdk seemingly already transformed');
-		return;
+		console.log('   skip: sdk seemingly already bundled');
+	} else {
+		fs.copyFileSync(index, old);
+	
+		// 2- bundle the SDK with "esbuild" to avoid import shenanigans
+		await bundle();
+		console.log('   esbuild: bundled slashtags-sdk in place...');
 	}
-	fs.copyFileSync(index, old);
-
-	// 2- bundle the SDK with "esbuild" to avoid import shenanigans
-	await bundle();
-	console.log('   esbuild: bundled slashtags-sdk in place...');
 
 	// 3- Fix the stream async iterator problem in a very hacky but working way.
-	await transform();
+	transform();
 	console.log('   hack: transformed problematic for await of stream');
 };
 
-/** Find all instances of for await (let __entry__ of __stream__) {__block__}
- *  to:
- *  Promise.(resolve => {stream.on('data')}) thingy.
- */
-async function transform() {
+function transform () {
 	const bundled = path.join(root, './index.bundled.js');
 	fs.copyFileSync(index, bundled);
-
 	let src = fs.readFileSync(bundled).toString();
 
-	const disector = 'for await(';
+	const pairs = [
+		// Async iterables
+		[
+			`
+            for await (const data of this._activeQuery) {
+              if (!this.isClient)
+                continue;
+              for (const peer of data.peers) {
+                this._onpeer(peer, data);
+              }
+            }
+      `,
+      `
+  					await new Promise((resolve, reject) => {
+    					const s = this._activeQuery;
+    					s.on('data', async (data) => {
+              	if (!this.isClient) return;
+              	for (const peer of data.peers) {
+                	this._onpeer(peer, data);
+              	}
+    					});
+    					s.on('end', resolve);
+    					s.on('error', reject);
+  					})
+      `
+    ],
+    [
+			`
+          for await (const block of this.createReadStream(id, opts)) {
+            res.push(block);
+          }
+      `,
+      `
+      		await new Promise((resolve, reject) => {
+      			const s = this.createReadStream(id, opts);
+      			s.on('data', (block) => { res.push(block) });
+      			s.on('end', resolve);
+      			s.on('error', reject);
+      		})
+      `
+    ],
+    // Make autoClose false in Corestore.. solves undefined is not a function
+    // in case of saving profile while relay socket is closing!
+    [
+    	'autoClose: true',
+    	'autoClose: false'
+    ]
+	].forEach(([prev, target]) => {
+		src = src.replace(prev, target)
+	})
 
-	let current = src;
-	let start = 0;
-
-	while (true) {
-		const offset = src.slice(start).indexOf(disector);
-		if (offset < 0) {
-			break;
-		}
-		start = start + offset + disector.length;
-
-		current = src.slice(start);
-
-		const parts = current.split(' ');
-		const entry = parts[1];
-		const _stream = parts[3];
-		const streamParenCount = (_stream.split(')')[0].match(/\(/g) || []).length;
-		const stream = _stream.split(')')[0] + ')'.repeat(streamParenCount);
-
-		const startBlockAt = current.indexOf(stream) + stream.length + 1; // 1 for closing paren
-
-		const rest = current.slice(startBlockAt);
-		const closeBlockAt = findEndOfBlock(rest);
-
-		const block = rest.slice(0, closeBlockAt);
-
-		const transformed = `
-  await new Promise((resolve, reject) => {
-    const s = ${stream};
-    s.on('data', async (${entry}) => {${block.replace(/continue/g, 'return')}});
-    s.on('end', resolve);
-    s.on('error', reject);
-  })
-`;
-
-		src =
-			src.slice(0, start - disector.length) +
-			transformed +
-			src.slice(start + startBlockAt + closeBlockAt);
-	}
-
-	fs.writeFileSync(index, src);
-
-	function findEndOfBlock(rest) {
-		if (rest.startsWith('{')) {
-			const brackets = [];
-			let offset = 0;
-
-			for (const char of rest) {
-				offset = offset + 1;
-				if (char === '{') {
-					brackets.push(char);
-				} else if (char === '}') {
-					brackets.pop();
-				}
-
-				if (brackets.length === 0) {
-					return offset;
-				}
-			}
-		} else {
-			return Math.min(rest.indexOf('}'), rest.indexOf(';'));
-		}
-	}
+	fs.writeFileSync(index, src)
 }
 
 function bundle() {
@@ -114,6 +96,7 @@ function bundle() {
 		banner: { js: umdPre },
 		footer: { js: umdPost },
 		outfile: index,
-		minify: true,
+		minify: false,
+		sourcemap: 'inline'
 	});
 }

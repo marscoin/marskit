@@ -69,7 +69,7 @@ export const saveProfile = async (
 	}
 
 	const drive = slashtag?.drivestore.get();
-	return drive
+	await drive
 		.put('/profile.json', c.encode(c.json, profile))
 		.catch((error: Error) =>
 			showErrorNotification({
@@ -77,6 +77,8 @@ export const saveProfile = async (
 				message: error.message,
 			}),
 		);
+
+	closeDriveSession(drive);
 };
 
 /**
