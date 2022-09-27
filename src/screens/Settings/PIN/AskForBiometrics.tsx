@@ -17,7 +17,7 @@ import { toggleBiometrics } from '../../../utils/settings';
 import { IsSensorAvailableResult } from '../../../components/Biometrics';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 
-const rnBiometrics = new ReactNativeBiometrics();
+const rnBiometrics = ReactNativeBiometrics;
 
 const ChoosePIN = ({ navigation }): ReactElement => {
 	const insets = useSafeAreaInsets();

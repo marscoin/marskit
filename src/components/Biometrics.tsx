@@ -18,7 +18,7 @@ import {
 import { vibrate } from '../utils/helpers';
 import { toggleBiometrics } from '../utils/settings';
 
-const rnBiometrics = new ReactNativeBiometrics();
+const rnBiometrics = ReactNativeBiometrics;
 
 const getIcon = ({
 	biometryData = undefined,
