@@ -24,7 +24,13 @@ const SlashtagsSettings = (): ReactElement => {
 	);
 
 	useEffect(() => {
+		let unmounted = false;
+
 		(async (): Promise<void> => {
+			if (unmounted) {
+				return;
+			}
+
 			try {
 				const d = slashtag.drivestore.get();
 				await d.update();
@@ -35,6 +41,10 @@ const SlashtagsSettings = (): ReactElement => {
 				setProfileError(error.message);
 			}
 		})();
+
+		return function cleanup() {
+			unmounted = true;
+		};
 	}, [slashtag.drivestore]);
 
 	const list: IListData[] = useMemo(
@@ -87,6 +97,12 @@ const SlashtagsSettings = (): ReactElement => {
 						value: sdk.swarm.dht._protocol._stream._socket.url,
 						hide: false,
 						type: 'button',
+					},
+					{
+						title: 'close relay socket',
+						hide: false,
+						type: 'button',
+						onPress: () => sdk._relaySocket.close(),
 					},
 				],
 			},

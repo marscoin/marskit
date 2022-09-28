@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import SDK from '@synonymdev/slashtags-sdk';
 import { createContext } from 'react';
 import { useSelector } from 'react-redux';
@@ -38,6 +38,8 @@ const SlashtagsContext = createContext<ISlashtagsContext>({
 	contacts: {},
 });
 
+const RECONNECT_DHT_RELAY_INTERVAL = 1000 * 2;
+
 /**
  * All things Slashtags that needs to happen on start of Bitkit
  * or stay available and cached through the App.
@@ -47,6 +49,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [opened, setOpened] = useState(false);
 	const [profiles, setProfiles] = useState<ISlashtagsContext['profiles']>({});
 	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});
+	const [sdk, setSDK] = useState<SDK>();
 
 	// Load primaryKey from keychain
 	const seedHash = useSelector(
@@ -71,19 +74,69 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 		});
 	}, [seedHash]);
 
-	const sdk = useMemo(() => {
-		if (!primaryKey) {
-			return;
+	// SDK creating and reconnecting after relay disconnect!
+	useEffect(() => {
+		let unmounted = false;
+
+		const pk = primaryKey && b4a.from(primaryKey, 'hex');
+		const relayAddress = 'wss://dht-relay.synonym.to';
+
+		const relaySocket = new WebSocket(relayAddress);
+		relaySocket.onopen = (): void => {
+			relaySocket.onclose = reconnect;
+		};
+
+		createSDK(relaySocket);
+
+		function createSDK(relay: WebSocket): void {
+			const _sdk = new SDK({
+				// @ts-ignore
+				primaryKey: pk,
+				// TODO(slashtags): replace it with non-blocking storage,
+				// like random access react native after m1 support. or react-native-fs?
+				storage: RAWS,
+				// TODO(slashtags): add settings to customize this relay or use native
+				relay,
+			});
+
+			// Temporary fix by opening the public drive in writable mode, before it
+			// is opened as read-only by the corestore replication streams.
+			// TODO(slashtags): find why and fix this issue
+			_sdk.slashtag().drivestore.get();
+
+			!unmounted && setSDK(_sdk);
 		}
-		return new SDK({
-			// @ts-ignore
-			primaryKey: primaryKey && b4a.from(primaryKey, 'hex'),
-			// TODO(slashtags): replace it with non-blocking storage,
-			// like random access react native after m1 support. or react-native-fs?
-			storage: RAWS,
-			// TODO(slashtags): add settings to customize this relay or use native
-			relay: 'wss://dht-relay.synonym.to',
-		});
+
+		async function reconnect(): Promise<void> {
+			// act as once('close')
+			relaySocket.onclose = noop;
+			console.log('Reconnecting to dht relay');
+
+			let connected: WebSocket | undefined;
+			let tries = 0;
+
+			while (!connected && !unmounted) {
+				connected = await new Promise((resolve) => {
+					setTimeout(() => {
+						const _relay = new WebSocket(relayAddress);
+						_relay.onclose = (): void => resolve(undefined);
+						_relay.onerror = (): void => resolve(undefined);
+						_relay.onopen = (): void => resolve(_relay);
+					}, RECONNECT_DHT_RELAY_INTERVAL);
+				});
+				console.log('Attempted to reconnect to dht relay', { tries: tries++ });
+			}
+
+			if (connected) {
+				console.log('Reconnected to dht relay');
+				connected.onclose = reconnect;
+				createSDK(connected);
+			}
+		}
+
+		return function cleanup(): void {
+			unmounted = true;
+		};
 	}, [primaryKey]);
 
 	useEffect(() => {
@@ -192,3 +245,5 @@ function onError(error: Error): void {
 		error.message,
 	);
 }
+
+function noop(): void {}
