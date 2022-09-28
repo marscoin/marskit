@@ -2067,10 +2067,31 @@
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.13", "@synonymdev/slashtags-sdk@^1.0.0-alpha.25":
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
   version "1.0.0-alpha.25"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.25.tgz#2ffb337526f1ed5bac7790a5b0ce4b29f882f0f0"
   integrity sha512-l5DrU4gLCVo5BRiwY/lxq3QppE/TYmIN6HzDpqR03NS8kcGVyoNxmSxY4WthimnZ2sOnl8qg4pfcSsFzRzKg4g==
+  dependencies:
+    "@hyperswarm/dht" "^6.2.1"
+    "@hyperswarm/dht-relay" "^0.3.0"
+    "@synonymdev/slashtag" "^1.0.0-alpha.18"
+    "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
+    b4a "^1.6.0"
+    compact-encoding "^2.11.0"
+    corestore "6.2.0"
+    graceful-goodbye "^1.1.0"
+    hypercore-crypto "^3.3.0"
+    hyperdrive "^11.0.0-alpha.3"
+    hyperswarm "=4.3.3"
+    random-access-memory "^5.0.1"
+    sodium-universal "^3.1.0"
+    turbo-hash-map "^1.0.3"
+    ws "^8.8.1"
+
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.26":
+  version "1.0.0-alpha.26"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.26.tgz#56ec371df04296341121434f0c6f40b5e41821dd"
+  integrity sha512-6ZaitqediWAeDKR86un5VdryjHneUBsFQ88BIz/HFSWi0qPf7+xHHumLR6EGedqPF5+qhE3YJCvGUzh40zzdLg==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"

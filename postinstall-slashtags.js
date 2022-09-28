@@ -13,7 +13,7 @@ module.exports = async function postInstallSlashtags() {
 		console.log('   skip: sdk seemingly already bundled');
 	} else {
 		fs.copyFileSync(index, old);
-	
+
 		// 2- bundle the SDK with "esbuild" to avoid import shenanigans
 		await bundle();
 		console.log('   esbuild: bundled slashtags-sdk in place...');
@@ -24,12 +24,12 @@ module.exports = async function postInstallSlashtags() {
 	console.log('   hack: transformed problematic for await of stream');
 };
 
-function transform () {
+function transform() {
 	const bundled = path.join(root, './index.bundled.js');
 	fs.copyFileSync(index, bundled);
 	let src = fs.readFileSync(bundled).toString();
 
-	const pairs = [
+	[
 		// Async iterables
 		[
 			`
@@ -41,7 +41,7 @@ function transform () {
               }
             }
       `,
-      `
+			`
   					await new Promise((resolve, reject) => {
     					const s = this._activeQuery;
     					s.on('data', async (data) => {
@@ -53,34 +53,31 @@ function transform () {
     					s.on('end', resolve);
     					s.on('error', reject);
   					})
-      `
-    ],
-    [
+      `,
+		],
+		[
 			`
           for await (const block of this.createReadStream(id, opts)) {
             res.push(block);
           }
       `,
-      `
+			`
       		await new Promise((resolve, reject) => {
       			const s = this.createReadStream(id, opts);
       			s.on('data', (block) => { res.push(block) });
       			s.on('end', resolve);
       			s.on('error', reject);
       		})
-      `
-    ],
-    // Make autoClose false in Corestore.. solves undefined is not a function
-    // in case of saving profile while relay socket is closing!
-    [
-    	'autoClose: true',
-    	'autoClose: false'
-    ]
+      `,
+		],
+		// Make autoClose false in Corestore.. solves undefined is not a function
+		// in case of saving profile while relay socket is closing!
+		['autoClose: true', 'autoClose: false'],
 	].forEach(([prev, target]) => {
-		src = src.replace(prev, target)
-	})
+		src = src.replace(prev, target);
+	});
 
-	fs.writeFileSync(index, src)
+	fs.writeFileSync(index, src);
 }
 
 function bundle() {
@@ -97,6 +94,6 @@ function bundle() {
 		footer: { js: umdPost },
 		outfile: index,
 		minify: false,
-		sourcemap: 'inline'
+		sourcemap: 'inline',
 	});
 }
