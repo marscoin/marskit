@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo, useEffect, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -68,7 +68,7 @@ const BoostForm = ({
 		}).then((res) => {
 			setPreparing(false);
 			if (res.isErr()) {
-				Alert.alert(res.error.message);
+				console.log(res.error.message);
 				toggleView({
 					view: 'boostPrompt',
 					data: { isOpen: false },
@@ -94,20 +94,12 @@ const BoostForm = ({
 			const response = await broadcastBoost({
 				selectedWallet,
 				selectedNetwork,
-				oldTxid: activityItem.id,
-				rbf: boostData.rbf,
+				oldTxId: activityItem.id,
 			});
 			if (response.isOk()) {
 				showSuccessNotification({
 					title: 'Boost Success',
 					message: 'Successfully boosted this transaction.',
-				});
-				// if (boostData.rbf) {
-				// 	setActivityItem(response.value);
-				// }
-				toggleView({
-					view: 'boostPrompt',
-					data: { isOpen: false },
 				});
 			} else {
 				showErrorNotification({
@@ -115,6 +107,10 @@ const BoostForm = ({
 					message: 'Unable to boost this transaction.',
 				});
 			}
+			toggleView({
+				view: 'boostPrompt',
+				data: { isOpen: false },
+			});
 		} catch (e) {
 			console.log(e);
 		} finally {

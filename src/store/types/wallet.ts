@@ -89,6 +89,11 @@ export enum EWallet {
 	addressType = 'p2wpkh',
 }
 
+export enum EBoost {
+	rbf = 'rbf',
+	cpfp = 'cpfp',
+}
+
 export interface IAddressData {
 	path: string;
 	type: 'p2wpkh' | 'p2sh' | 'p2pkh';
@@ -201,6 +206,7 @@ export interface IBitcoinTransactionData {
 	message?: string; // OP_RETURN data for a given transaction.
 	label?: string; // User set label for a given transaction.
 	rbf?: boolean;
+	boostType?: EBoost;
 	minFee?: number; // (sats) Used for RBF/CPFP transactions where the fee needs to be greater than the original.
 	max?: boolean; // If the user intends to send the max amount.
 	tags?: string[];
@@ -220,11 +226,21 @@ export const defaultBitcoinTransactionData: IBitcoinTransactionData = {
 	message: '',
 	label: '',
 	rbf: false,
+	boostType: EBoost.cpfp,
 	minFee: 1,
 	max: false,
 	tags: [],
 	lightningInvoice: '',
 };
+
+export interface IBoostedTransaction {
+	[key: string]: {
+		parentTransactions: string[]; // Array of parent txids to the currently boosted transaction.
+		childTransaction: string; // Child txid of the currently boosted transaction.
+		type: EBoost;
+		fee: number;
+	};
+}
 
 export interface IDefaultWalletShape {
 	id: string;
@@ -238,7 +254,7 @@ export interface IDefaultWalletShape {
 	changeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	lastUsedChangeAddressIndex: IWalletItem<IAddressTypeContent<IAddressContent>>;
 	utxos: IWalletItem<IUtxo[]>;
-	boostedTransactions: IWalletItem<string[]>;
+	boostedTransactions: IWalletItem<IBoostedTransaction> | IWalletItem<{}>;
 	transactions: IWalletItem<IFormattedTransaction> | IWalletItem<{}>;
 	blacklistedUtxos: IWalletItem<[]>;
 	balance: IWalletItem<number>;

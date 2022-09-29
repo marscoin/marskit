@@ -33,6 +33,16 @@ const ListItem = ({
 	onPress: () => void;
 }): ReactElement => {
 	const { value, txType, confirmed, formattedDate, activityType, id } = item;
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const boostedTransactions = useSelector(
+		(state: Store) =>
+			state.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
+	);
 	const slashTagsUrls = useSelector(
 		(state: Store) => state.metadata?.slashTagsUrls,
 	);
@@ -50,6 +60,10 @@ const ListItem = ({
 		title = confirmed ? 'Received' : 'Receiving...';
 	}
 
+	const isBoosted = useMemo(() => {
+		return id in boostedTransactions;
+	}, [boostedTransactions, id]);
+
 	const showBoost = useMemo(() => {
 		if (confirmed) {
 			return false;
@@ -57,8 +71,11 @@ const ListItem = ({
 		if (activityType !== EActivityTypes.onChain) {
 			return false;
 		}
+		if (isBoosted) {
+			return false;
+		}
 		return canBoost(id).canBoost;
-	}, [confirmed, activityType, id]);
+	}, [confirmed, activityType, isBoosted, id]);
 
 	const handleBoost = (): void => {
 		toggleView({

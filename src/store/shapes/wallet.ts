@@ -134,7 +134,7 @@ export const defaultWalletShape: IDefaultWalletShape = {
 	changeAddressIndex: getAddressIndexShape(),
 	lastUsedChangeAddressIndex: getAddressIndexShape(),
 	utxos: arrayTypeItems,
-	boostedTransactions: arrayTypeItems,
+	boostedTransactions: objectTypeItems,
 	transactions: objectTypeItems,
 	blacklistedUtxos: arrayTypeItems,
 	balance: numberTypeItems,

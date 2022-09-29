@@ -6,7 +6,7 @@ import React, {
 	useState,
 	useEffect,
 } from 'react';
-import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TInvoice } from '@synonymdev/react-native-ldk';
@@ -202,7 +202,7 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		(async (): Promise<void> => {
 			const res = await setupFeeForOnChainTransaction();
 			if (res.isErr()) {
-				Alert.alert(res.error.message);
+				console.log(res.error.message);
 			}
 		})();
 	}, []);
