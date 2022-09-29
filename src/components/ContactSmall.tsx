@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Text02M, TouchableOpacity } from '../styles/components';
-import { useSlashtags } from '../components/SlashtagsProvider';
 import { useProfile } from '../hooks/slashtags';
 import ProfileImage from './ProfileImage';
 
@@ -13,9 +12,7 @@ export const ContactSmall = ({
 	url: string;
 	onPress?: Function;
 }): JSX.Element => {
-	const cached = useSlashtags().contacts[url];
-	const { profile: remote } = useProfile(url);
-	const profile = cached || remote;
+	const { profile } = useProfile(url);
 
 	return (
 		<TouchableOpacity
