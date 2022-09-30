@@ -53,12 +53,7 @@ const ListItem = ({
 		return '';
 	}, [id, slashTagsUrls]);
 
-	let title;
-	if (txType === 'sent') {
-		title = confirmed ? 'Sent' : 'Sending...';
-	} else {
-		title = confirmed ? 'Received' : 'Receiving...';
-	}
+	const title = txType === 'sent' ? 'Sent' : 'Received';
 
 	const isBoosted = useMemo(() => {
 		return id in boostedTransactions;
