@@ -7,7 +7,6 @@ import React, {
 	useState,
 } from 'react';
 import {
-	ActivityIndicator,
 	Alert,
 	ScrollView,
 	StyleSheet,
@@ -68,6 +67,10 @@ import type { RootStackParamList } from '../../navigation/types';
 import { showInfoNotification } from '../../utils/notifications';
 import { openURL } from '../../utils/helpers';
 import ActivityTagsPrompt from './ActivityTagsPrompt';
+import {
+	getBoostedTransactionParents,
+	isTransactionBoosted,
+} from '../../utils/boost';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -146,14 +149,50 @@ const ActivityDetail = (props: Props): ReactElement => {
 	const slashTagsUrl = useSelector(
 		(store: Store) => store.metadata.slashTagsUrls[item.id],
 	);
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+	const activityItems = useSelector((store: Store) => store.activity.items);
+	const boostedTransactions = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
+	);
+
+	const boostedParents = useMemo(() => {
+		return getBoostedTransactionParents({
+			txid: id,
+			boostedTransactions,
+		});
+	}, [boostedTransactions, id]);
+
+	const isBoosted = useMemo(() => {
+		return isTransactionBoosted({ txid: id, boostedTransactions });
+	}, [boostedTransactions, id]);
+
+	const hasBoostedParents = useMemo(() => {
+		return boostedParents.length > 0;
+	}, [boostedParents.length]);
+
+	const handleBoostParentPress = useCallback(
+		(parentTxId) => {
+			const activityItem = activityItems.filter((i) => i.id === parentTxId);
+			if (activityItem.length) {
+				navigation.push('ActivityDetail', {
+					activityItem: activityItem[0],
+				});
+			}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[activityItems],
+	);
 
 	const [size, setSize] = useState({ width: 0, height: 0 });
 	const [txDetails, setTxDetails] = useState<
 		null | ITransaction<ITxHash>['result']
 	>(null);
-	const selectedNetwork = useSelector(
-		(store: Store) => store.wallet.selectedNetwork,
-	);
 
 	const colors = useColors();
 	const extended = props.route.params?.extended ?? false;
@@ -166,8 +205,11 @@ const ActivityDetail = (props: Props): ReactElement => {
 		if (activityType !== EActivityTypes.onChain) {
 			return false;
 		}
+		if (isBoosted) {
+			return false;
+		}
 		return canBoost(id).canBoost;
-	}, [confirmed, activityType, id]);
+	}, [isBoosted, confirmed, activityType, id]);
 
 	const handleBoost = (): void => {
 		toggleView({
@@ -453,7 +495,7 @@ const ActivityDetail = (props: Props): ReactElement => {
 							<View style={styles.sectionContainer}>
 								<Button
 									style={styles.button}
-									text="Boost"
+									text={isBoosted ? 'Already Boosted' : 'Boost'}
 									icon={<TimerIconAlt color="brand" />}
 									disabled={!showBoost}
 									onPress={handleBoost}
@@ -491,12 +533,14 @@ const ActivityDetail = (props: Props): ReactElement => {
 						<View style={styles.sectionContainer}>
 							<Section title="ADDRESS" value={<Text02M>{address}</Text02M>} />
 						</View>
-						{txDetails ? (
+						{txDetails && (
 							<>
 								<View style={styles.sectionContainer}>
 									<Section
-										title={`INPUTS (${txDetails.vin.length})`}
-										value={txDetails.vin.map(({ txid, vout }) => {
+										title={`INPUTS (${txDetails?.vin?.length ?? 0})`}
+										value={txDetails?.vin.map((v) => {
+											const txid = v?.txid ?? '';
+											const vout = v?.vout ?? '';
 											const i = txid + ':' + vout;
 											return <Text02M key={i}>{i}</Text02M>;
 										})}
@@ -509,8 +553,32 @@ const ActivityDetail = (props: Props): ReactElement => {
 									/>
 								</View>
 							</>
-						) : (
-							<ActivityIndicator size="small" />
+						)}
+						{hasBoostedParents && (
+							<>
+								{boostedParents.map((parent, i) => {
+									const parentActivityType = boostedTransactions[parent].type;
+									return (
+										<View key={parent} style={styles.sectionContainer}>
+											<Section
+												title={`BOOSTED TRANSACTION ${
+													i + 1
+												} (${parentActivityType})`}
+												value={
+													<TouchableOpacity
+														onPress={(): void => {
+															handleBoostParentPress(parent);
+														}}>
+														<Text02M numberOfLines={1} ellipsizeMode={'middle'}>
+															{parent}
+														</Text02M>
+													</TouchableOpacity>
+												}
+											/>
+										</View>
+									);
+								})}
+							</>
 						)}
 						<View style={styles.buttonDetailsContainer}>
 							<Button

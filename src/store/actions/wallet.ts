@@ -9,6 +9,8 @@ import {
 	IBitcoinTransactionData,
 	IUtxo,
 	TAddressType,
+	IBoostedTransaction,
+	EBoost,
 } from '../types/wallet';
 import {
 	createDefaultWallet,
@@ -52,6 +54,7 @@ import {
 	GAP_LIMIT,
 	GENERATE_ADDRESS_AMOUNT,
 } from '../../utils/wallet/constants';
+import { getBoostedTransactionParents } from '../../utils/boost';
 
 const dispatch = getDispatch();
 
@@ -402,7 +405,12 @@ export const addAddresses = async ({
 		return err(removeDuplicateResponse.error.message);
 	}
 
-	const { addresses, changeAddresses } = removeDuplicateResponse.value;
+	const addresses = removeDuplicateResponse.value?.addresses ?? {};
+	const changeAddresses = removeDuplicateResponse.value?.changeAddresses ?? {};
+	if (!Object.keys(addresses).length && !Object.keys(changeAddresses).length) {
+		return err('No addresses to add.');
+	}
+
 	const payload = {
 		addresses,
 		changeAddresses,
@@ -556,20 +564,6 @@ export const updateTransactions = ({
 
 		const storedTransactions = currentWallet.transactions[selectedNetwork];
 
-		const boostedTransactions =
-			currentWallet.boostedTransactions[selectedNetwork];
-		await Promise.all(
-			boostedTransactions.map((boostedTx) => {
-				if (boostedTx in storedTransactions) {
-					deleteOnChainTransactionById({
-						txid: boostedTx,
-						selectedWallet,
-						selectedNetwork,
-					});
-				}
-			}),
-		);
-
 		let notificationTxid: string | undefined;
 
 		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
@@ -654,17 +648,25 @@ export const deleteOnChainTransactionById = async ({
 };
 
 /**
- * Adds a boosted transaction id (typically via RBF) to the boostedTransactions array.
- * @param {string} txid
+ * Adds a boosted transaction id to the boostedTransactions object.
+ * @param {string} newTxId
+ * @param {string} oldTxId
+ * @param {EBoost} [type]
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const addBoostedTransaction = async ({
-	txid,
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	newTxId,
+	oldTxId,
+	type = EBoost.cpfp,
+	fee,
+	selectedWallet,
+	selectedNetwork,
 }: {
-	txid: string;
+	newTxId: string;
+	oldTxId: string;
+	type?: EBoost;
+	fee: number;
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
@@ -675,47 +677,30 @@ export const addBoostedTransaction = async ({
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
 		}
+		const boostedTransactions =
+			getStore().wallet.wallets[selectedWallet].boostedTransactions[
+				selectedNetwork
+			];
+		const parentTransactions = getBoostedTransactionParents({
+			txid: oldTxId,
+			boostedTransactions,
+		});
+		parentTransactions.push(oldTxId);
+		const boostedTransaction: IBoostedTransaction = {
+			[oldTxId]: {
+				parentTransactions: parentTransactions,
+				childTransaction: newTxId,
+				type,
+				fee,
+			},
+		};
 		const payload = {
-			txid,
+			boostedTransaction,
 			selectedNetwork,
 			selectedWallet,
 		};
 		await dispatch({
 			type: actions.ADD_BOOSTED_TRANSACTION,
-			payload,
-		});
-	} catch (e) {}
-};
-
-/**
- * Deletes a given txid from the boostedTransactions array.
- * @param {string} txid
- * @param {string} [selectedWallet]
- * @param {TAvailableNetworks} [selectedNetwork]
- */
-export const deleteBoostedTransaction = async ({
-	txid,
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
-}: {
-	txid: string;
-	selectedWallet?: string;
-	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const payload = {
-			txid,
-			selectedNetwork,
-			selectedWallet,
-		};
-		await dispatch({
-			type: actions.DELETE_BOOSTED_TRANSACTION,
 			payload,
 		});
 	} catch (e) {}
@@ -796,7 +781,9 @@ export const setupOnChainTransaction = async ({
 			inputs = currentWallet.utxos[selectedNetwork].filter((utxo) =>
 				inputTxHashes.includes(utxo.tx_hash),
 			);
-		} else {
+		}
+
+		if (!inputs.length) {
 			// If inputs were previously selected, leave them.
 			if (transaction?.inputs && transaction.inputs.length > 0) {
 				inputs = transaction.inputs;

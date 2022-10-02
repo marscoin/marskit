@@ -52,6 +52,13 @@ const BoostCard = memo(
 			() => activityItems.filter((item) => item.id === txid),
 			[activityItems, txid],
 		);
+		const hasActivityItem = useMemo(() => {
+			return activityItem.length > 0;
+		}, [activityItem.length]);
+
+		if (!hasActivityItem) {
+			return <></>;
+		}
 		return (
 			<View style={styles.row}>
 				<View style={styles.col1}>
@@ -139,7 +146,7 @@ const BoostCards = (): ReactElement | null => {
 				if (
 					tx.height < 1 &&
 					hasEnoughToBoost(tx.txid) &&
-					!boostedTransactions.includes(tx.txid) &&
+					!(tx.txid in boostedTransactions) &&
 					!isCpfp
 				) {
 					return (

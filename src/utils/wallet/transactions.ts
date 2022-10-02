@@ -5,6 +5,7 @@ import { EAvailableNetworks, networks, TAvailableNetworks } from '../networks';
 import { btcToSats, getKeychainValue, reduceValue } from '../helpers';
 import {
 	defaultBitcoinTransactionData,
+	EBoost,
 	ETransactionDefaults,
 	IBitcoinTransactionData,
 	IOutput,
@@ -43,7 +44,6 @@ import { TCoinSelectPreference } from '../../store/types/settings';
 import { showErrorNotification } from '../notifications';
 import { getTransactions, subscribeToAddresses } from './electrum';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
-import { replaceActivityItemById } from '../../store/actions/activity';
 import { BIP32Interface } from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as bip21 from 'bip21';
@@ -1413,21 +1413,23 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		 * For an RBF, technically we can reduce the output value and apply it to the fee,
 		 * but this might cause issues when paying a merchant that requested a specific amount.
 		 */
+
+		const { matchedOutputValue, totalOutputValue, fee, height } =
+			transactionResponse.value;
 		const rbf =
-			type === 'sent' &&
-			balance >= ETransactionDefaults.recommendedBaseFee &&
 			rbfEnabled &&
-			transactionResponse.value.matchedOutputValue !==
-				transactionResponse.value.totalOutputValue &&
-			transactionResponse.value.matchedOutputValue >
-				transactionResponse.value.fee &&
-			transactionResponse.value.matchedOutputValue >
-				ETransactionDefaults.recommendedBaseFee;
+			type === 'sent' &&
+			height <= 0 &&
+			balance >= ETransactionDefaults.recommendedBaseFee &&
+			matchedOutputValue !== totalOutputValue &&
+			matchedOutputValue > fee &&
+			btcToSats(matchedOutputValue) > ETransactionDefaults.recommendedBaseFee;
 
 		// Performing a CPFP tx requires a new tx and higher fee.
 		const cpfp =
+			height <= 0 &&
 			hasUtxo &&
-			btcToSats(transactionResponse.value.matchedOutputValue) >=
+			btcToSats(matchedOutputValue) >=
 				ETransactionDefaults.recommendedBaseFee * 3;
 		return { canBoost: rbf || cpfp, rbf, cpfp };
 	} catch (e) {
@@ -1500,24 +1502,16 @@ export const sendMax = ({
 				satsPerByte: transaction.satsPerByte ?? 1,
 				message: transaction.message,
 			});
-			const totalTransactionValue = getTransactionOutputValue({
+			const _transaction: IBitcoinTransactionData = {
+				fee: newFee,
+				outputs: [{ address, value: inputTotal - newFee, index }],
+				max: !max,
+			};
+			updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
-			});
-			const totalNewAmount = totalTransactionValue + newFee;
-
-			if (totalNewAmount <= inputTotal) {
-				const _transaction: IBitcoinTransactionData = {
-					fee: newFee,
-					outputs: [{ address, value: inputTotal - newFee, index }],
-					max: !max,
-				};
-				updateBitcoinTransaction({
-					selectedWallet,
-					selectedNetwork,
-					transaction: _transaction,
-				}).then();
-			}
+				transaction: _transaction,
+			}).then();
 		} else {
 			updateBitcoinTransaction({
 				selectedWallet,
@@ -1968,6 +1962,7 @@ export const setupCpfp = async ({
 		transaction: {
 			...response.value,
 			satsPerByte: satsPerByte ?? response.value.satsPerByte,
+			boostType: EBoost.cpfp,
 		},
 		address: receiveAddress.value,
 	});
@@ -2005,6 +2000,7 @@ export const setupRbf = async ({
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
 		}
+		await setupOnChainTransaction({ selectedNetwork, selectedWallet });
 		const response = await getRbfData({
 			txHash: { tx_hash: txid },
 			selectedNetwork,
@@ -2042,7 +2038,7 @@ export const setupRbf = async ({
 		const outputTotal = getTransactionOutputValue({
 			outputs: transaction.outputs,
 		});
-		if (outputTotal + newFee >= inputTotal) {
+		if (outputTotal + newFee >= inputTotal || newFee >= inputTotal / 2) {
 			/*
 			 * We could always pull the fee from the output total,
 			 * but this may negatively impact the transaction made by the user.
@@ -2052,7 +2048,7 @@ export const setupRbf = async ({
 			 * Instead of allowing either scenario, we attempt a CPFP instead.
 			 */
 			console.log(
-				'Not enough fees to support an RBF transaction. Attempting to CPFP instead.',
+				'Not enough sats to support an RBF transaction. Attempting to CPFP instead.',
 			);
 			return await setupCpfp({
 				selectedNetwork,
@@ -2066,6 +2062,7 @@ export const setupRbf = async ({
 			fee: newFee,
 			satsPerByte: _satsPerByte,
 			rbf: true,
+			boostType: EBoost.rbf,
 		};
 
 		await updateBitcoinTransaction({
@@ -2083,19 +2080,16 @@ export const setupRbf = async ({
  * Used to broadcast and update a boosted transaction as needed.
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
- * @param {string} oldTxid
- * @param {boolean} [rbf]
+ * @param {string} oldTxId
  */
 export const broadcastBoost = async ({
 	selectedWallet,
 	selectedNetwork,
-	oldTxid,
-	rbf = true,
+	oldTxId,
 }: {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
-	oldTxid: string;
-	rbf?: boolean;
+	oldTxId: string;
 }): Promise<Result<IActivityItem>> => {
 	try {
 		if (!selectedWallet) {
@@ -2121,9 +2115,16 @@ export const broadcastBoost = async ({
 			return err(rawTx.error.message);
 		}
 
+		const activityItemValue = getTransactionOutputValue({
+			selectedWallet,
+			selectedNetwork,
+			outputs: transaction.outputs,
+		});
+
 		const broadcastResult = await broadcastTransaction({
 			rawTx: rawTx.value.hex,
 			selectedNetwork,
+			subscribeToOutputAddress: false,
 		});
 		if (broadcastResult.isErr()) {
 			return err(broadcastResult.error.message);
@@ -2131,26 +2132,23 @@ export const broadcastBoost = async ({
 		const newTxId = broadcastResult.value;
 		let transactions =
 			getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork];
-		// Only replace the old transaction if it was an RBF, not a CPFP.
-		if (rbf && oldTxid in transactions) {
-			await Promise.all([
-				deleteOnChainTransactionById({
-					txid: oldTxid,
-					selectedNetwork,
-					selectedWallet,
-				}),
-				addBoostedTransaction({
-					txid: oldTxid,
-					selectedWallet,
-					selectedNetwork,
-				}),
-			]);
-		}
-		const activityItemValue = getTransactionOutputValue({
+		const boostedFee = transaction?.fee ?? 0;
+		await addBoostedTransaction({
+			newTxId,
+			oldTxId,
+			type: transaction.boostType,
 			selectedWallet,
 			selectedNetwork,
-			outputs: transaction.outputs,
+			fee: boostedFee,
 		});
+		// Only delete the old transaction if it was an RBF, not a CPFP.
+		if (transaction.boostType === EBoost.rbf && oldTxId in transactions) {
+			await deleteOnChainTransactionById({
+				txid: oldTxId,
+				selectedNetwork,
+				selectedWallet,
+			});
+		}
 		const newActivityItem: IActivityItem = {
 			id: newTxId,
 			message: transaction?.message || '',
@@ -2162,15 +2160,6 @@ export const broadcastBoost = async ({
 			fee: btcToSats(Number(transaction.fee)),
 			timestamp: new Date().getTime(),
 		};
-		// Only replace the old activity item if it was an RBF, not a CPFP.
-		if (rbf) {
-			await Promise.all([
-				replaceActivityItemById({
-					id: oldTxid,
-					newActivityItem,
-				}),
-			]);
-		}
 		await refreshWallet({});
 		return ok(newActivityItem);
 	} catch (e) {
