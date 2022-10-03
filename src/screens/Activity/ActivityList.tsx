@@ -28,6 +28,7 @@ import { refreshWallet } from '../../utils/wallet';
 import { groupActivityItems, filterActivityItems } from '../../utils/activity';
 import ListItem from './ListItem';
 import { RootNavigationProp } from '../../navigation/types';
+import { formatBoostedActivityItems } from '../../utils/boost';
 
 const ListHeaderComponent = memo(
 	(): ReactElement => {
@@ -46,7 +47,7 @@ const ActivityList = ({
 	contentContainerStyle,
 	progressViewOffset,
 	showTitle = true,
-	filter = {},
+	filter,
 }: {
 	onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 	style?: StyleProp<ViewStyle> | undefined;
@@ -56,14 +57,37 @@ const ActivityList = ({
 	filter?: {};
 }): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const boostedTransactions = useSelector(
+		(state: Store) =>
+			state.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
+	);
 	const items = useSelector((state: Store) => state.activity.items);
 	const tags = useSelector((state: Store) => state.metadata.tags);
+	const formattedBoostItems = useMemo(() => {
+		return formatBoostedActivityItems({
+			items,
+			boostedTransactions,
+			selectedWallet,
+			selectedNetwork,
+		});
+	}, [boostedTransactions, items, selectedNetwork, selectedWallet]);
 	const groupedItems = useMemo(() => {
-		const activityItems = filterActivityItems(items, tags, filter);
-		// group items by categories: today, yestarday, this month, this year, earlier
+		// If a filter is applied, pass all items through. Otherwise, remove boosted txs.
+		const activityItems = filterActivityItems(
+			formattedBoostItems,
+			tags,
+			filter ?? {},
+		);
+		// group items by categories: today, yesterday, this month, this year, earlier
 		// and attach to them formattedDate
 		return groupActivityItems(activityItems);
-	}, [items, tags, filter]);
+	}, [filter, items, formattedBoostItems, tags]);
 
 	const [refreshing, setRefreshing] = useState(false);
 

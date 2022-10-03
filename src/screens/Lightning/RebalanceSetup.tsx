@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, {
+	ReactElement,
+	useState,
+	useCallback,
+	useMemo,
+	useEffect,
+} from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
@@ -16,17 +22,15 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
+import Money from '../../components/Money';
 import useColors from '../../hooks/colors';
 import AmountToggle from '../../components/AmountToggle';
 import FancySlider from '../../components/FancySlider';
 import NumberPadLightning from './NumberPadLightning';
 import type { LightningScreenProps } from '../../navigation/types';
-
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { setupOnChainTransaction } from '../../store/actions/wallet';
-import { startChannelPurchase } from '../../store/actions/blocktank';
-import { showErrorNotification } from '../../utils/notifications';
+import { sleep } from '../../utils/helpers';
 
 export const Percentage = ({ value, type }): ReactElement => {
 	return (
@@ -45,26 +49,18 @@ export const Percentage = ({ value, type }): ReactElement => {
 	);
 };
 
-const QuickSetup = ({
+const RebalanceSetup = ({
 	navigation,
-}: LightningScreenProps<'QuickSetup'>): ReactElement => {
+}: LightningScreenProps<'RebalanceSetup'>): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [totalBalance, setTotalBalance] = useState(0);
 	const [spendingAmount, setSpendingAmount] = useState(0);
 	const currentBalance = useBalance({ onchain: true });
-	const productId = useSelector(
-		(state: Store) => state.blocktank?.serviceList[0]?.product_id ?? '',
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const blocktankService = useSelector(
-		(state: Store) => state.blocktank.serviceList[0],
+	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+	const unitPreference = useSelector(
+		(state: Store) => state.settings.unitPreference,
 	);
 	const savingsAmount = totalBalance - spendingAmount;
 	const spendingPercentage = Math.round((spendingAmount / totalBalance) * 100);
@@ -74,61 +70,36 @@ const QuickSetup = ({
 		setSpendingAmount(Math.round(v));
 	}, []);
 
-	useEffect(() => {
-		let spendingLimit = Math.round(currentBalance.satoshis / 1.5);
-		if (blocktankService?.max_chan_spending < spendingLimit) {
-			spendingLimit = blocktankService?.max_chan_spending;
+	const unit = useMemo(() => {
+		if (unitPreference === 'fiat') {
+			return 'fiat';
 		}
-		setTotalBalance(spendingLimit);
-	}, [blocktankService?.max_chan_spending, currentBalance.satoshis]);
+		if (bitcoinUnit === 'BTC') {
+			return 'BTC';
+		}
+		return 'satoshi';
+	}, [bitcoinUnit, unitPreference]);
 
 	useEffect(() => {
-		setupOnChainTransaction({ rbf: false }).then();
-	}, []);
+		let spendingLimit = Math.round(currentBalance.satoshis / 1.5);
+		setTotalBalance(spendingLimit);
+	}, [currentBalance.satoshis]);
 
 	const onContinuePress = useCallback(async (): Promise<void> => {
 		setLoading(true);
-		const localBalance =
-			spendingAmount * 2 > blocktankService.min_channel_size
-				? spendingAmount * 2
-				: blocktankService.min_channel_size;
-		const purchaseResponse = await startChannelPurchase({
-			selectedNetwork,
-			selectedWallet,
-			productId,
-			remoteBalance: spendingAmount,
-			localBalance,
-			channelExpiry: 12,
-		});
-		if (purchaseResponse.isErr()) {
-			showErrorNotification({
-				title: 'Channel Purchase Error',
-				message: purchaseResponse.error.message,
-			});
-			setLoading(false);
-			return;
-		}
+		sleep(5000);
 		setLoading(false);
-		navigation.push('QuickConfirm', {
+		navigation.push('RebalanceConfirm', {
 			spendingAmount,
 			total: totalBalance,
-			orderId: purchaseResponse.value,
 		});
-	}, [
-		blocktankService.min_channel_size,
-		navigation,
-		productId,
-		selectedNetwork,
-		selectedWallet,
-		spendingAmount,
-		totalBalance,
-	]);
+	}, [navigation, spendingAmount, totalBalance]);
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
-				title="Add Instant Payments"
+				title="Rebalance Funds"
 				onClosePress={(): void => {
 					navigation.navigate('Tabs');
 				}}
@@ -136,9 +107,9 @@ const QuickSetup = ({
 			<View style={styles.root}>
 				<View>
 					{keybrd ? (
-						<Display color="purple">Spending{'\n'}Money.</Display>
+						<Display color="purple">Spending Money.</Display>
 					) : (
-						<Display color="purple">Spending{'\n'}Balance.</Display>
+						<Display color="purple">Spending{'\n'}& saving.</Display>
 					)}
 					{keybrd ? (
 						<Text01S color="gray1" style={styles.text}>
@@ -153,31 +124,40 @@ const QuickSetup = ({
 				</View>
 
 				{!keybrd && (
-					<>
-						<View style={styles.grow1} />
-						<AnimatedView
-							color="transparent"
-							entering={FadeIn}
-							exiting={FadeOut}>
-							<View style={styles.row}>
-								<Caption13Up color="purple">SPENDING</Caption13Up>
-								<Caption13Up color="purple">SAVINGS</Caption13Up>
-							</View>
-							<View style={styles.sliderContainer}>
-								<FancySlider
-									minimumValue={0}
-									maximumValue={totalBalance}
-									value={spendingAmount}
-									onValueChange={handleChange}
-								/>
-							</View>
-							<View style={styles.row}>
-								<Percentage value={spendingPercentage} type="spendings" />
-								<Percentage value={savingsPercentage} type="savings" />
-							</View>
-						</AnimatedView>
-						<View style={styles.grow2} />
-					</>
+					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>
+						<View style={styles.row}>
+							<Caption13Up color="purple">SPENDING</Caption13Up>
+							<Caption13Up color="purple">SAVINGS</Caption13Up>
+						</View>
+						<View style={styles.row}>
+							<Money
+								sats={spendingAmount}
+								size="text02m"
+								symbol={true}
+								color="white"
+								unit={unit}
+							/>
+							<Money
+								sats={savingsAmount}
+								size="text02m"
+								symbol={true}
+								color="white"
+								unit={unit}
+							/>
+						</View>
+						<View style={styles.sliderContainer}>
+							<FancySlider
+								minimumValue={0}
+								maximumValue={totalBalance}
+								value={spendingAmount}
+								onValueChange={handleChange}
+							/>
+						</View>
+						<View style={styles.row}>
+							<Percentage value={spendingPercentage} type="spendings" />
+							<Percentage value={savingsPercentage} type="savings" />
+						</View>
+					</AnimatedView>
 				)}
 
 				<View>
@@ -274,12 +254,6 @@ const styles = StyleSheet.create({
 	numberpad: {
 		marginHorizontal: -16,
 	},
-	grow1: {
-		flexGrow: 1,
-	},
-	grow2: {
-		flexGrow: 2,
-	},
 });
 
-export default QuickSetup;
+export default RebalanceSetup;

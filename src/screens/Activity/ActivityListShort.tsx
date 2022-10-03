@@ -9,16 +9,37 @@ import { groupActivityItems } from '../../utils/activity';
 import Button from '../../components/Button';
 import ListItem from './ListItem';
 import { RootNavigationProp } from '../../navigation/types';
+import { formatBoostedActivityItems } from '../../utils/boost';
 
 const ActivityList = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
+	const boostedTransactions = useSelector(
+		(state: Store) =>
+			state.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
+	);
 	const items = useSelector((state: Store) => state.activity.items);
+
+	const boostFilteredItems = useMemo(() => {
+		return formatBoostedActivityItems({
+			items,
+			boostedTransactions,
+			selectedWallet,
+			selectedNetwork,
+		});
+	}, [boostedTransactions, items, selectedNetwork, selectedWallet]);
+
 	const groupedItems = useMemo(() => {
-		const activityItems = items.slice(0, 3);
-		// group items by categories: today, yestarday, this month, this year, earlier
+		const activityItems = boostFilteredItems.slice(0, 3);
+		// group items by categories: today, yesterday, this month, this year, earlier
 		// and attach to them formattedDate
 		return groupActivityItems(activityItems);
-	}, [items]);
+	}, [boostFilteredItems]);
 
 	const renderItem = useCallback(
 		({ item }): ReactElement => {

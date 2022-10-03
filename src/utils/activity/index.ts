@@ -3,11 +3,12 @@ import {
 	IActivityItem,
 	IActivityItemFormatted,
 } from '../../store/types/activity';
+import type { TTransactionType } from '../../store/types/wallet';
 import {
 	IFormattedTransaction,
 	IFormattedTransactionContent,
 } from '../../store/types/wallet';
-import type { TTransactionType } from '../../store/types/wallet';
+import { defaultActivityItemShape } from '../../store/shapes/activity';
 
 /**
  * Converts list of formatted transactions to array of activity items
@@ -43,6 +44,7 @@ export const onChainTransactionToActivityItem = (
 	} = transaction;
 
 	return {
+		...defaultActivityItemShape,
 		id: transaction.txid,
 		activityType: EActivityTypes.onChain,
 		txType,

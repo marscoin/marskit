@@ -363,6 +363,9 @@ export const processSlashPayURL = async ({
 					case 'p2wpkh':
 					case 'p2sh':
 					case 'p2pkh':
+						if (!validateAddress({ address: value }).isValid) {
+							return;
+						}
 						return {
 							qrDataType: 'bitcoinAddress',
 							address: value,

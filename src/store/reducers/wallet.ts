@@ -316,27 +316,6 @@ const wallet = (state: IWallet = defaultWalletStoreShape, action): IWallet => {
 				},
 			};
 
-		case actions.DELETE_BOOSTED_TRANSACTION:
-			const boostedTransactions =
-				state.wallets[selectedWallet].boostedTransactions[selectedNetwork];
-			const index = boostedTransactions.indexOf(action.payload.txid);
-			if (index > -1) {
-				boostedTransactions.splice(index, 1);
-			}
-			return {
-				...state,
-				wallets: {
-					...state.wallets,
-					[selectedWallet]: {
-						...state.wallets[selectedWallet],
-						boostedTransactions: {
-							...state.wallets[selectedWallet].boostedTransactions,
-							[selectedNetwork]: boostedTransactions,
-						},
-					},
-				},
-			};
-
 		case actions.ADD_BOOSTED_TRANSACTION:
 			return {
 				...state,
@@ -346,12 +325,12 @@ const wallet = (state: IWallet = defaultWalletStoreShape, action): IWallet => {
 						...state.wallets[selectedWallet],
 						boostedTransactions: {
 							...state.wallets[selectedWallet].boostedTransactions,
-							[selectedNetwork]: [
+							[selectedNetwork]: {
 								...state.wallets[selectedWallet].boostedTransactions[
 									selectedNetwork
 								],
-								action.payload.txid,
-							],
+								...action.payload.boostedTransaction,
+							},
 						},
 					},
 				},

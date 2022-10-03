@@ -10,8 +10,13 @@ import Button from '../../../components/Button';
 import Store from '../../../store/types';
 import { toggleView, ignoreBackup } from '../../../store/actions/user';
 import { useNoTransactions } from '../../../hooks/wallet';
-import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import { removeKeysFromObject } from '../../../utils/helpers';
+import { TUserViewController } from '../../../store/types/user';
+import {
+	useBottomSheetBackPress,
+	useSnapPoints,
+} from '../../../hooks/bottomSheet';
 
 const imageSrc = require('../../../assets/illustrations/safe.png');
 
@@ -19,7 +24,7 @@ const ASK_INTERVAL = 1000 * 60 * 60 * 24; // 1 day - how long this prompt will b
 const CHECK_INTERVAL = 10_000; // how long user needs to stay on Wallets screen before he will see this prompt
 
 const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
-	const snapPoints = useMemo(() => [600], []);
+	const snapPoints = useSnapPoints('medium');
 	const insets = useSafeAreaInsets();
 	const buttonContainerStyles = useMemo(
 		() => ({
@@ -29,16 +34,22 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 		[insets.bottom],
 	);
 
+	const empty = useNoTransactions();
 	const ignoreBackupTimestamp = useSelector(
 		(state: Store) => state.user.ignoreBackupTimestamp,
 	);
 	const backupVerified = useSelector(
 		(state: Store) => state.user.backupVerified,
 	);
-	const anyBottmSheetIsOpened = useSelector((state: Store) =>
-		Object.values(state.user.viewController).some(({ isOpen }) => isOpen),
-	);
-	const empty = useNoTransactions();
+	const anyBottmSheetIsOpened = useSelector((state: Store) => {
+		const otherBottomSheets = removeKeysFromObject(
+			state.user.viewController,
+			'backupPrompt',
+		);
+		return Object.values(otherBottomSheets as TUserViewController).some(
+			({ isOpen }) => isOpen,
+		);
+	});
 
 	useBottomSheetBackPress('backupPrompt');
 
@@ -61,6 +72,9 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 		});
 	};
 
+	const showBackupPrompt =
+		!backupVerified && screen === 'Wallets' && !anyBottmSheetIsOpened && !empty;
+
 	// if backup has not been verified
 	// and user on "Wallets" screen for CHECK_INTERVAL
 	// and not other bottom-sheets are shown
@@ -68,12 +82,7 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 	// and wallet has transactions
 	// show BackupPrompt
 	useEffect(() => {
-		if (
-			backupVerified ||
-			screen !== 'Wallets' ||
-			anyBottmSheetIsOpened ||
-			empty
-		) {
+		if (!showBackupPrompt) {
 			return;
 		}
 
@@ -95,14 +104,14 @@ const BackupPrompt = ({ screen }: { screen: string }): ReactElement => {
 				},
 			});
 		}, CHECK_INTERVAL);
+
 		return (): void => clearInterval(timer);
-	}, [
-		screen,
-		ignoreBackupTimestamp,
-		backupVerified,
-		anyBottmSheetIsOpened,
-		empty,
-	]);
+	}, [showBackupPrompt]);
+
+	// additional check to avoid false render
+	if (!showBackupPrompt) {
+		return <></>;
+	}
 
 	return (
 		<BottomSheetWrapper

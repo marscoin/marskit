@@ -49,8 +49,6 @@ import {
 import { getStore } from '../../store/helpers';
 import {
 	addAddresses,
-	deleteBoostedTransaction,
-	deleteOnChainTransactionById,
 	updateAddressIndexes,
 	updateExchangeRates,
 	updateTransactions,
@@ -131,10 +129,6 @@ export const refreshWallet = async ({
 			}
 
 			updateExchangeRates().then();
-			deleteBoostedTransactions({
-				selectedWallet,
-				selectedNetwork,
-			}).then();
 		}
 
 		if (lightning) {
@@ -152,53 +146,6 @@ export const refreshWallet = async ({
 		return ok('');
 	} catch (e) {
 		return err(e);
-	}
-};
-
-/**
- * Iterates over the boosted transactions array and removes all matching txid's from the transactions object.
- * @param {string} [selectedWallet]
- * @param {TAvailableNetworks} [selectedNetwork]
- * @return {Promise<string[]>}
- */
-export const deleteBoostedTransactions = async ({
-	selectedWallet,
-	selectedNetwork,
-}: {
-	selectedWallet?: string;
-	selectedNetwork?: TAvailableNetworks;
-}): Promise<string[]> => {
-	try {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const wallet = getStore().wallet.wallets[selectedWallet];
-		const boostedTransactions = wallet.boostedTransactions[selectedNetwork];
-		const transactionIds = Object.keys(wallet.transactions[selectedNetwork]);
-		let deletedTransactions: string[] = [];
-		await Promise.all(
-			boostedTransactions.map((boostedTx) => {
-				if (transactionIds.includes(boostedTx)) {
-					deletedTransactions.push(boostedTx);
-					deleteBoostedTransaction({
-						txid: boostedTx,
-						selectedNetwork,
-						selectedWallet,
-					});
-					deleteOnChainTransactionById({
-						txid: boostedTx,
-						selectedNetwork,
-						selectedWallet,
-					});
-				}
-			}),
-		);
-		return deletedTransactions;
-	} catch (e) {
-		return e;
 	}
 };
 
@@ -1533,8 +1480,11 @@ export const formatTransactions = async ({
 
 	// Batch and pre-fetch input data.
 	let inputs: { tx_hash: string; vout: number }[] = [];
-	transactions.map(({ result: { vin } }) => {
-		vin.map(({ txid, vout }) => {
+	transactions.map(({ result }) => {
+		const vin = result?.vin ?? [];
+		vin.map((v) => {
+			const txid = v?.txid ?? '';
+			const vout = v?.vout ?? '';
 			inputs.push({ tx_hash: txid, vout });
 		});
 	});
@@ -1593,7 +1543,7 @@ export const formatTransactions = async ({
 		let messages: string[] = []; // Array of OP_RETURN messages.
 
 		//Iterate over each input
-		const vin = result?.vin || [];
+		const vin = result?.vin ?? [];
 		vin.map(({ txid, scriptSig }) => {
 			//Push any OP_RETURN messages to messages array
 			try {
@@ -1634,6 +1584,10 @@ export const formatTransactions = async ({
 					}
 				});
 		});
+
+		if (!result?.txid) {
+			return;
+		}
 
 		const txid = result.txid;
 		const type = matchedInputValue > matchedOutputValue ? 'sent' : 'received';
@@ -1781,7 +1735,7 @@ export const getRbfData = async ({
 	if (txResponse.isErr()) {
 		return err(txResponse.error.message);
 	}
-	const txData: ITransaction<ITxHash>[] = txResponse.value.data;
+	const txData: ITransaction<ITxHash>[] = txResponse.value?.data ?? [];
 
 	const addresses =
 		getStore().wallet.wallets[selectedWallet].addresses[selectedNetwork];
@@ -1822,7 +1776,9 @@ export const getRbfData = async ({
 	let fee = 0;
 
 	const insAndOuts = await Promise.all(
-		txData.map(({ result: { vin, vout } }) => {
+		txData.map(({ result }) => {
+			const vin = result?.vin ?? [];
+			const vout = result?.vout ?? [];
 			return { vins: vin, vouts: vout };
 		}),
 	);
@@ -1897,8 +1853,8 @@ export const getRbfData = async ({
 		}
 		const changeAddressScriptHash = getScriptHash(address, selectedNetwork);
 
-		// If the address scripthash matches one of our change address scripthashes, add it accordingly. Otherwise, add it as another output.
-		if (Object.keys(allChangeAddresses).includes(changeAddressScriptHash)) {
+		// If the address scripthash matches one of our address scripthashes, add it accordingly. Otherwise, add it as another output.
+		if (Object.keys(allAddresses).includes(changeAddressScriptHash)) {
 			changeAddressData = {
 				address,
 				value: voutValue,

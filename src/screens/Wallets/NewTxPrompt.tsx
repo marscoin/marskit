@@ -10,15 +10,18 @@ import Glow from '../../components/Glow';
 import AmountToggle from '../../components/AmountToggle';
 import Store from '../../store/types';
 import { toggleView } from '../../store/actions/user';
-import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
 import { navigate } from '../../navigation/root/RootNavigator';
+import {
+	useBottomSheetBackPress,
+	useSnapPoints,
+} from '../../hooks/bottomSheet';
 
 const confettiSrc = require('../../assets/lottie/confetti-orange.json');
 const imageSrc = require('../../assets/illustrations/coin-stack-x.png');
 
 const NewTxPrompt = (): ReactElement => {
-	const snapPoints = useMemo(() => [700], []);
+	const snapPoints = useSnapPoints('large');
 	const insets = useSafeAreaInsets();
 	const buttonContainerStyles = useMemo(
 		() => ({
@@ -29,32 +32,15 @@ const NewTxPrompt = (): ReactElement => {
 	);
 
 	const txid = useSelector(
-		(store: Store) => store.user.viewController?.newTxPrompt?.txid,
+		(store: Store) => store.user.viewController.newTxPrompt.txid,
 	);
-	const isOpen = useSelector(
-		(store: Store) => store.user.viewController?.newTxPrompt?.isOpen,
+	const activityItem = useSelector((store: Store) =>
+		store.activity.items.find(({ id }) => id === txid),
 	);
-
-	const activityItem = useSelector((store: Store) => {
-		if (!txid) {
-			return undefined;
-		}
-		return store.activity.items.find(({ id }) => id === txid);
-	});
 
 	useBottomSheetBackPress('newTxPrompt');
 
-	const handleClose = (): void => {
-		toggleView({
-			view: 'newTxPrompt',
-			data: { isOpen: false },
-		});
-	};
-
 	const handlePress = (): void => {
-		if (!activityItem) {
-			return;
-		}
 		toggleView({
 			view: 'newTxPrompt',
 			data: { isOpen: false },
@@ -64,10 +50,9 @@ const NewTxPrompt = (): ReactElement => {
 
 	return (
 		<BottomSheetWrapper
+			view="newTxPrompt"
 			snapPoints={snapPoints}
-			backdrop={true}
-			onClose={handleClose}
-			view="newTxPrompt">
+			backdrop={true}>
 			<View style={styles.container}>
 				<Lottie source={confettiSrc} autoPlay loop />
 				<View>
@@ -78,7 +63,8 @@ const NewTxPrompt = (): ReactElement => {
 					<Caption13Up style={styles.received} color="gray1">
 						You just received
 					</Caption13Up>
-					{isOpen && activityItem && (
+
+					{activityItem && (
 						<AmountToggle sats={activityItem.value} onPress={handlePress} />
 					)}
 				</View>
@@ -92,20 +78,16 @@ const NewTxPrompt = (): ReactElement => {
 						<Image source={imageSrc} style={styles.image4} />
 					</View>
 
-					{isOpen && (
-						<TouchableOpacity
-							style={buttonContainerStyles}
-							onPress={handlePress}>
-							{activityItem?.confirmed !== true && (
-								<>
-									<ClockIcon color="gray1" />
-									<Text02M color="gray1" style={styles.confirmingText}>
-										Confirming
-									</Text02M>
-								</>
-							)}
-						</TouchableOpacity>
-					)}
+					<TouchableOpacity style={buttonContainerStyles} onPress={handlePress}>
+						{!activityItem?.confirmed && (
+							<>
+								<ClockIcon color="gray1" />
+								<Text02M color="gray1" style={styles.confirmingText}>
+									Confirming
+								</Text02M>
+							</>
+						)}
+					</TouchableOpacity>
 				</View>
 			</View>
 		</BottomSheetWrapper>
@@ -119,6 +101,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	received: {
+		marginTop: 28,
 		marginBottom: 8,
 	},
 	imageContainer: {
@@ -165,6 +148,7 @@ const styles = StyleSheet.create({
 		marginTop: 'auto',
 		flexDirection: 'row',
 		justifyContent: 'center',
+		alignItems: 'center',
 		minHeight: 50,
 	},
 	confirmingText: {
