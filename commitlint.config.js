@@ -22,6 +22,7 @@ module.exports = {
 				'tokens',
 				'ui',
 				'wallet',
+				'widgets',
 			],
 		],
 	},
