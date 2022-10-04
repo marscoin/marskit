@@ -2067,6 +2067,24 @@
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
+"@synonymdev/slashtags-auth@^1.0.0-alpha.4":
+  version "1.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-auth/-/slashtags-auth-1.0.0-alpha.4.tgz#407240090969b9c0080aee8e44225c69aa3b40eb"
+  integrity sha512-LTwFELXIzFk+R7Zb8aVzubapj1k332fD9NACfnW5ZrLxx+3wK72ylVXmDwOmFh1DfoFyq3udfxa6LuiNCX1q7w==
+  dependencies:
+    "@synonymdev/slashtags-rpc" "^1.0.0-alpha.2"
+    "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
+    compact-encoding "^2.11.0"
+    compact-encoding-struct "^1.3.0"
+
+"@synonymdev/slashtags-rpc@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-rpc/-/slashtags-rpc-1.0.0-alpha.2.tgz#cbe3a36b74546623a05925ee825492e102f85a88"
+  integrity sha512-pngaKkjznWFmV+emF+JI033l7Vr7mBvTnWynU1Mvjlps+PXZCL/bPJVC2TDPvGhugUTxUD6Bv+Tt0WL0xJuajw==
+  dependencies:
+    b4a "^1.6.0"
+    protomux-rpc "^1.3.0"
+
 "@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
   version "1.0.0-alpha.25"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.25.tgz#2ffb337526f1ed5bac7790a5b0ce4b29f882f0f0"
@@ -3190,7 +3208,7 @@ bitcoinjs-message@^2.2.0:
     secp256k1 "^3.0.1"
     varuint-bitcoin "^1.0.1"
 
-bits-to-bytes@^1.3.0:
+bits-to-bytes@^1.0.0, bits-to-bytes@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/bits-to-bytes/-/bits-to-bytes-1.3.0.tgz#b6b0b547ff5747b0609a42e31a0b57212f09f4e7"
   integrity sha512-OJoHTpFXS9bXHBCekGTByf3MqM8CGblBDIduKQeeVVeiU9dDWywSSirXIBYGgg3d1zbVuvnMa1vD4r6PA0kOKg==
@@ -3811,6 +3829,13 @@ commondir@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==
+
+compact-encoding-bitfield@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/compact-encoding-bitfield/-/compact-encoding-bitfield-1.0.0.tgz#39f923263dffb68b266b6cb9dc0bae2d42cf5c4a"
+  integrity sha512-3nMVKUg+PF72UHfainmCL8uKvyWfxsjqOtUY+HiMPGLPCTjnwzoKfFAMo1Ad7nwTPdjBqtGK5b3BOFTFW4EBTg==
+  dependencies:
+    compact-encoding "^2.4.1"
 
 compact-encoding-net@^1.0.1, compact-encoding-net@^1.2.0:
   version "1.2.0"
@@ -9027,6 +9052,16 @@ protocol-buffers-encodings@^1.2.0:
     signed-varint "^2.0.1"
     varint "5.0.0"
 
+protomux-rpc@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/protomux-rpc/-/protomux-rpc-1.3.0.tgz#ffc735f4b05d64b053a7568e64f2c65de948e056"
+  integrity sha512-G+zCpEujLsW+lQ75YXVdPfXKzxnP5F7IceVyz2B1ypWdH4NDf2n2ObkoUjdUrEMWgn+3fjXdY7ehkXLac+mNPQ==
+  dependencies:
+    bits-to-bytes "^1.0.0"
+    compact-encoding "^2.6.1"
+    compact-encoding-bitfield "^1.0.0"
+    protomux "^3.2.1"
+
 protomux@^3.1.1:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/protomux/-/protomux-3.3.0.tgz#96ff690e44044494709967a24dfd29ad1fb50d32"
@@ -9037,7 +9072,7 @@ protomux@^3.1.1:
     queue-tick "^1.0.0"
     safety-catch "^1.0.1"
 
-protomux@^3.4.0:
+protomux@^3.2.1, protomux@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/protomux/-/protomux-3.4.0.tgz#b6269fc15c0bd22964acb6e8f68a002e1da9a370"
   integrity sha512-jZBytPrL5o+eZeSfIA+5OhPBwfS4A3DucHU4R6KkwFVr2sPqtNoKOX/xXdGzQzHzfVOqbsFfC7oFQ5FqZ6XKWw==

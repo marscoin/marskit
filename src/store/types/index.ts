@@ -11,6 +11,7 @@ import { ITodos } from './todos';
 import { IFees } from './fees';
 import { IMetadata } from './metadata';
 import { ISlashtags } from './slashtags';
+import { IWidgets } from './widgets';
 
 export default interface Store {
 	ui: IUi;
@@ -26,4 +27,5 @@ export default interface Store {
 	fees: IFees;
 	metadata: IMetadata;
 	slashtags: ISlashtags;
+	widgets: IWidgets;
 }

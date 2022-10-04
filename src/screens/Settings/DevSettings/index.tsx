@@ -14,6 +14,7 @@ import { resetLightningStore } from '../../../store/actions/lightning';
 import { resetBlocktankStore } from '../../../store/actions/blocktank';
 import SettingsView from './../SettingsView';
 import { resetSlashtagsStore } from '../../../store/actions/slashtags';
+import { resetWidgetsStore } from '../../../store/actions/widgets';
 import actions from '../../../store/actions/actions';
 import { resetFeesStore } from '../../../store/actions/fees';
 
@@ -91,6 +92,12 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						title: 'Reset Slashtags Store',
 						type: 'button',
 						onPress: resetSlashtagsStore,
+						hide: false,
+					},
+					{
+						title: 'Reset Widgets Store',
+						type: 'button',
+						onPress: resetWidgetsStore,
 						hide: false,
 					},
 					{

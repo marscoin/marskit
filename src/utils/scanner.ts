@@ -202,6 +202,8 @@ export const processInputData = async ({
 				return err(processBitcoinTxResponse.error.message);
 			}
 			dataToHandle = processBitcoinTxResponse.value;
+		} else if (decodeRes.value[0].qrDataType === 'slashAuthURL') {
+			dataToHandle = decodeRes.value[0];
 		} else {
 			dataToHandle = decodeRes.value[0];
 		}
@@ -563,12 +565,18 @@ export const handleData = async ({
 	const message = data?.message ?? '';
 	const slashTagsUrl = data?.slashTagsUrl;
 
-	//TODO(slashtags): Handle contacts' urls
 	//TODO(slashtags): Register Bitkit to handle all slash?x:// protocols
 	switch (qrDataType) {
 		case EQRDataType.slasthagURL: {
 			handleSlashtagURL(data.url as string);
 			return ok(EQRDataType.slasthagURL);
+		}
+		case EQRDataType.slashAuthURL: {
+			toggleView({
+				view: 'slashauthModal',
+				data: { isOpen: true, url: data.url },
+			});
+			return ok(EQRDataType.slashAuthURL);
 		}
 		case EQRDataType.bitcoinAddress: {
 			toggleView({
