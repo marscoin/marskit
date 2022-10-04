@@ -92,7 +92,7 @@ const Widgets = (): ReactElement => {
 
 	return (
 		<>
-			<Subtitle style={styles.content}>Widgets</Subtitle>
+			<Subtitle style={styles.title}>Widgets</Subtitle>
 			<View>
 				<BitfinexWidget />
 				{Object.keys(widgets).map((url) => (
@@ -114,7 +114,7 @@ const Widgets = (): ReactElement => {
 };
 
 const styles = StyleSheet.create({
-	content: {
+	title: {
 		marginTop: 32,
 		marginBottom: 8,
 	},

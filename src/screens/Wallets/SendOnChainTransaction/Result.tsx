@@ -13,9 +13,9 @@ import { toggleView } from '../../../store/actions/user';
 const Result = ({ navigation, route }): ReactElement => {
 	const { success = true, errorTitle, errorMessage } = route.params;
 	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
+	const buttonContainer = useMemo(
 		() => ({
-			...styles.nextButtonContainer,
+			...styles.buttonContainer,
 			paddingBottom: insets.bottom + 16,
 		}),
 		[insets.bottom],
@@ -25,7 +25,11 @@ const Result = ({ navigation, route }): ReactElement => {
 		? require('../../../assets/illustrations/check.png')
 		: require('../../../assets/illustrations/cross.png');
 
-	const handleButtonPress = (): void => {
+	const navigateToTxDetails = (): void => {
+		navigation.navigate('ReviewAndSend');
+	};
+
+	const navigateToSend = (): void => {
 		if (success) {
 			toggleView({
 				view: 'sendNavigation',
@@ -74,11 +78,24 @@ const Result = ({ navigation, route }): ReactElement => {
 				<Image source={source} style={styles.image} />
 			</View>
 
-			<View style={nextButtonContainer}>
+			<View style={buttonContainer}>
+				{success && (
+					<>
+						<Button
+							style={styles.button1}
+							variant="secondary"
+							size="large"
+							text="Transaction Details"
+							onPress={navigateToTxDetails}
+						/>
+						<View style={styles.divider} />
+					</>
+				)}
 				<Button
+					style={styles.button2}
 					size="large"
 					text={success ? 'Close' : 'Try Again'}
-					onPress={handleButtonPress}
+					onPress={navigateToSend}
 				/>
 			</View>
 		</GradientView>
@@ -108,10 +125,20 @@ const styles = StyleSheet.create({
 	glow: {
 		position: 'absolute',
 	},
-	nextButtonContainer: {
-		marginTop: 'auto',
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
 		paddingHorizontal: 16,
-		width: '100%',
+		marginTop: 'auto',
+	},
+	button1: {
+		flex: 2,
+	},
+	button2: {
+		flex: 1,
+	},
+	divider: {
+		width: 16,
 	},
 });
 
