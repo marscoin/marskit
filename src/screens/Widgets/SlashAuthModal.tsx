@@ -23,7 +23,6 @@ import {
 	showInfoNotification,
 } from '../../utils/notifications';
 import { setAuthWidget } from '../../store/actions/widgets';
-import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
 
 export type BackupNavigationProp =
 	NativeStackNavigationProp<BackupStackParamList>;
@@ -75,21 +74,21 @@ const _SlashAuthModal = (): ReactElement => {
 		return { url: slashtag.url, name: ' ' };
 	}, [slashtag]);
 
-	const sdk = useSlashtagsSDK();
+	// const sdk = useSlashtagsSDK();
 
-	const anonymousSlashtag = useMemo(() => {
-		// TODO(slashtags): update when slashtag.sub API is added
-		return sdk.slashtag(SlashURL.encode(parsed.key));
-	}, [sdk, parsed.key]);
+	// const anonymousSlashtag = useMemo(() => {
+	// TODO(slashtags): update when slashtag.sub API is added
+	// return sdk.slashtag(SlashURL.encode(parsed.key));
+	// }, [sdk, parsed.key]);
 
-	const anonymousContact: IContactRecord = useMemo(() => {
-		return { url: anonymousSlashtag.url, name: 'Anonymous' };
-	}, [anonymousSlashtag]);
+	// const anonymousContact: IContactRecord = useMemo(() => {
+	// return { url: anonymousSlashtag.url, name: 'Anonymous' };
+	// }, [anonymousSlashtag]);
 
 	const explanation = useMemo(() => {
 		return `Do you want to sign in to ${
 			server.name || server.url
-		} with your profile or with an anonymous key?`;
+		} with your profile?`;
 	}, [server]);
 
 	const insets = useSafeAreaInsets();
@@ -102,7 +101,7 @@ const _SlashAuthModal = (): ReactElement => {
 	);
 
 	const signin = async (): Promise<void> => {
-		const client = new Client(anonymous ? anonymousSlashtag : slashtag);
+		const client = new Client(slashtag);
 		const response = await client.authz(_url).catch((e: Error) => {
 			if (e.message === 'channel closed') {
 				showErrorNotification({
@@ -162,11 +161,11 @@ const _SlashAuthModal = (): ReactElement => {
 				active={!anonymous}
 				onPress={(): void => setAnonymous(false)}
 			/>
-			<Key
+			{/** <Key
 				contact={anonymousContact}
 				active={anonymous}
 				onPress={(): void => setAnonymous(true)}
-			/>
+			/>*/}
 			<View style={nextButtonContainerStyles}>
 				<Button size="large" text="Sign in" onPress={signin} />
 			</View>
