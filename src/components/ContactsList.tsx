@@ -23,6 +23,10 @@ export const ContactItem = ({
 }): JSX.Element => {
 	const { profile } = useProfile(contact.url);
 
+	const name = useMemo(() => {
+		return profile.name || contact.name || ' ';
+	}, [contact?.name, profile?.name]);
+
 	return (
 		<TouchableOpacity
 			activeOpacity={0.8}
@@ -36,9 +40,7 @@ export const ContactItem = ({
 					size={size === 'small' ? 32 : 48}
 				/>
 				<View style={cstyles.column}>
-					<Text01M style={size !== 'small' ? cstyles.name : {}}>
-						{profile?.name || ' '}
-					</Text01M>
+					<Text01M style={size !== 'small' ? cstyles.name : {}}>{name}</Text01M>
 					<SlashtagURL
 						color="gray"
 						url={contact.url}

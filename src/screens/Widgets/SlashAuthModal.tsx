@@ -23,6 +23,7 @@ import {
 	showInfoNotification,
 } from '../../utils/notifications';
 import { setAuthWidget } from '../../store/actions/widgets';
+import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
 
 export type BackupNavigationProp =
 	NativeStackNavigationProp<BackupStackParamList>;
@@ -54,7 +55,7 @@ const Key = ({
 	);
 };
 
-const SlashAuthModal = (): ReactElement => {
+const _SlashAuthModal = (): ReactElement => {
 	const [anonymous, setAnonymous] = useState(false);
 
 	const _url = useSelector(
@@ -74,18 +75,22 @@ const SlashAuthModal = (): ReactElement => {
 		return { url: slashtag.url, name: ' ' };
 	}, [slashtag]);
 
+	const sdk = useSlashtagsSDK();
+
+	const anonymousSlashtag = useMemo(() => {
+		// TODO(slashtags): update when slashtag.sub API is added
+		return sdk.slashtag(SlashURL.encode(parsed.key));
+	}, [sdk, parsed.key]);
+
 	const anonymousContact: IContactRecord = useMemo(() => {
-		return { url: slashtag.url, name: ' ' };
-	}, [slashtag]);
+		return { url: anonymousSlashtag.url, name: 'Anonymous' };
+	}, [anonymousSlashtag]);
 
 	const explanation = useMemo(() => {
 		return `Do you want to sign in to ${
 			server.name || server.url
 		} with your profile or with an anonymous key?`;
 	}, [server]);
-
-	const snapPoints = useMemo(() => [650], []);
-	useBottomSheetBackPress('slashauthModal');
 
 	const insets = useSafeAreaInsets();
 	const nextButtonContainerStyles = useMemo(
@@ -97,7 +102,7 @@ const SlashAuthModal = (): ReactElement => {
 	);
 
 	const signin = async (): Promise<void> => {
-		const client = new Client(slashtag);
+		const client = new Client(anonymous ? anonymousSlashtag : slashtag);
 		const response = await client.authz(_url).catch((e: Error) => {
 			if (e.message === 'channel closed') {
 				showErrorNotification({
@@ -138,38 +143,48 @@ const SlashAuthModal = (): ReactElement => {
 	};
 
 	return (
-		<BottomSheetWrapper view="slashauthModal" snapPoints={snapPoints}>
-			<View style={styles.container}>
-				<BottomSheetNavigationHeader
-					title="Sign in"
-					displayBackButton={false}
+		<View style={styles.container}>
+			<BottomSheetNavigationHeader title="Sign in" displayBackButton={false} />
+			<View style={styles.header}>
+				<ProfileImage
+					style={styles.headerImage}
+					url={server.url}
+					image={server?.image}
+					size={32}
 				/>
-				<View style={styles.header}>
-					<ProfileImage
-						style={styles.headerImage}
-						url={server.url}
-						image={server?.image}
-						size={32}
-					/>
-					<Text01M style={styles.headerName}>{server.name}</Text01M>
-				</View>
-				<Text01S color="gray1" style={styles.explanation}>
-					{explanation}
-				</Text01S>
-				<Key
-					contact={rootContact}
-					active={!anonymous}
-					onPress={(): void => setAnonymous(false)}
-				/>
-				<Key
-					contact={anonymousContact}
-					active={anonymous}
-					onPress={(): void => setAnonymous(true)}
-				/>
-				<View style={nextButtonContainerStyles}>
-					<Button size="large" text="Sign in" onPress={signin} />
-				</View>
+				<Text01M style={styles.headerName}>{server.name}</Text01M>
 			</View>
+			<Text01S color="gray1" style={styles.explanation}>
+				{explanation}
+			</Text01S>
+			<Key
+				contact={rootContact}
+				active={!anonymous}
+				onPress={(): void => setAnonymous(false)}
+			/>
+			<Key
+				contact={anonymousContact}
+				active={anonymous}
+				onPress={(): void => setAnonymous(true)}
+			/>
+			<View style={nextButtonContainerStyles}>
+				<Button size="large" text="Sign in" onPress={signin} />
+			</View>
+		</View>
+	);
+};
+
+export const SlashAuthModal = (): ReactElement => {
+	const snapPoints = useMemo(() => [650], []);
+	useBottomSheetBackPress('slashauthModal');
+
+	const isOpen = useSelector(
+		(state: Store) => state.user.viewController.slashauthModal.isOpen,
+	);
+
+	return (
+		<BottomSheetWrapper view="slashauthModal" snapPoints={snapPoints}>
+			{isOpen ? <_SlashAuthModal /> : <View />}
 		</BottomSheetWrapper>
 	);
 };
