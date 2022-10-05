@@ -24,7 +24,6 @@ export const defaultViewControllers: IUser['viewController'] = {
 	newTxPrompt: { ...defaultViewController },
 	highBalance: { ...defaultViewController },
 	profileAddDataForm: { ...defaultViewController },
-	profileAddLink: { ...defaultViewController },
 	addContactModal: { ...defaultViewController },
 	slashauthModal: { ...defaultViewController },
 };

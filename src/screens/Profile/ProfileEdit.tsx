@@ -12,18 +12,20 @@ import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
-import { toggleView } from '../../store/actions/user';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { saveProfile } from '../../utils/slashtags';
-import ProfileLinkNavigation from '../../navigation/bottom-sheet/ProfileLinkNavigation';
+import type { RootStackScreenProps } from '../../navigation/types';
 
-export const ProfileEdit = ({ navigation }): JSX.Element => {
+export const ProfileEdit = ({
+	navigation,
+}: RootStackScreenProps<'Profile' | 'ProfileEdit'>): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const [links, setLinks] = useState<object>({});
+	const [hasEdited, setHasEdited] = useState(false);
 
 	const { url, slashtag } = useSelectedSlashtag();
 	const { profile: savedProfile } = useProfile(url);
@@ -38,12 +40,25 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 		setLinks(Object.fromEntries(entries));
 	}, [savedProfile]);
 
-	const setField = (key: string, value: string | undefined): void => {
+	const setField = (key: string, value: string): void => {
+		setHasEdited(true);
 		setFields({ ...fields, [key]: value });
 	};
 
 	const setLink = (title: string, _url: string | undefined): void => {
+		setHasEdited(true);
 		setLinks({ ...links, [title]: { title, url: _url } });
+	};
+
+	const deleteLink = async (title: string): Promise<void> => {
+		const newLinks = Object.values(links).filter(
+			(link) => link.title !== title,
+		);
+		setLinks(newLinks);
+		await saveProfile(slashtag, {
+			...savedProfile,
+			links: newLinks,
+		});
 	};
 
 	const profile: BasicProfile = useMemo(() => {
@@ -82,15 +97,16 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 						onChange={setField}
 					/>
 					<View style={styles.divider} />
-					<ProfileLinks links={profile?.links} setLink={setLink} />
+					<ProfileLinks
+						links={profile?.links}
+						setLink={setLink}
+						deleteLink={deleteLink}
+					/>
 					<Button
 						text="Add Link"
 						style={styles.addLinkButton}
 						onPress={(): void => {
-							toggleView({
-								view: 'profileAddLink',
-								data: { isOpen: true },
-							});
+							navigation.navigate('ProfileAddLink');
 						}}
 						icon={
 							<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
@@ -102,18 +118,21 @@ export const ProfileEdit = ({ navigation }): JSX.Element => {
 						available and visible.
 					</Text02S>
 				</ScrollView>
-				<Button
-					style={styles.saveButton}
-					text={onboardedProfile ? 'Save Profile' : 'Next'}
-					size="large"
-					disabled={
-						!profile.name || profile.name.replace(/\s/g, '').length === 0
-					}
-					onPress={save}
-				/>
+
+				{!onboardedProfile ||
+					(hasEdited && (
+						<Button
+							style={styles.saveButton}
+							text={onboardedProfile ? 'Save Profile' : 'Continue'}
+							size="large"
+							disabled={
+								!profile.name || profile.name.replace(/\s/g, '').length === 0
+							}
+							onPress={save}
+						/>
+					))}
 			</View>
 
-			<ProfileLinkNavigation />
 			<SafeAreaInsets type="bottom" />
 		</ThemedView>
 	);
