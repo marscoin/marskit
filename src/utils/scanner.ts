@@ -43,7 +43,7 @@ export enum EQRDataType {
 	lnurlAuth = 'lnurlAuth',
 	lnurlWithdraw = 'lnurlWithdraw',
 	slashAuthURL = 'slashAuthURL',
-	slasthagURL = 'slashURL',
+	slashtagURL = 'slashURL',
 	//TODO add xpub, lightning node peer etc
 }
 
@@ -233,7 +233,7 @@ export const decodeQRData = async (
 	if (data.startsWith('slashauth:')) {
 		return ok([{ qrDataType: EQRDataType.slashAuthURL, url: data }]);
 	} else if (data.startsWith('slash:')) {
-		return ok([{ qrDataType: EQRDataType.slasthagURL, url: data }]);
+		return ok([{ qrDataType: EQRDataType.slashtagURL, url: data }]);
 	}
 
 	let foundNetworksInQR: QRData[] = [];
@@ -567,9 +567,9 @@ export const handleData = async ({
 
 	//TODO(slashtags): Register Bitkit to handle all slash?x:// protocols
 	switch (qrDataType) {
-		case EQRDataType.slasthagURL: {
+		case EQRDataType.slashtagURL: {
 			handleSlashtagURL(data.url as string);
-			return ok(EQRDataType.slasthagURL);
+			return ok(EQRDataType.slashtagURL);
 		}
 		case EQRDataType.slashAuthURL: {
 			toggleView({

@@ -85,7 +85,7 @@ export const saveProfile = async (
 /**
  * Deletes a contact from the 'contacts' SlashDrive
  */
-// TODO(slashtags): should we add a slasthag.deleteContact()?
+// TODO(slashtags): should we add a slashtag.deleteContact()?
 export const deleteContact = async (
 	slashtag: Slashtag,
 	url: string,

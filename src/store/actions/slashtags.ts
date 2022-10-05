@@ -35,7 +35,7 @@ export const setOnboardedContacts = (
 };
 
 /**
- * Resets slasthags store to the default state.
+ * Resets slashtags store to the default state.
  */
 export const resetSlashtagsStore = (): Result<string> => {
 	dispatch({ type: actions.RESET_SLASHTAGS_STORE });
