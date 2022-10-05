@@ -4,12 +4,15 @@ import { createContext } from 'react';
 import { useSelector } from 'react-redux';
 import RAWSFactory from 'random-access-web-storage';
 import b4a from 'b4a';
-import c from 'compact-encoding';
 
 import { storage as mmkv } from '../store/mmkv-storage';
 import { BasicProfile, IContactRecord } from '../store/types/slashtags';
 import { getSlashtagsPrimaryKey } from '../utils/wallet';
-import { getSelectedSlashtag, onSDKError } from '../utils/slashtags';
+import {
+	decodeJSON,
+	getSelectedSlashtag,
+	onSDKError,
+} from '../utils/slashtags';
 import Store from '../store/types';
 import { updateSeederMaybe } from '../store/actions/slashtags';
 
@@ -175,8 +178,8 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			async function resolve(): Promise<void> {
 				const profile = await publicDrive
 					.get('/profile.json')
-					.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
-					.catch(onError);
+					.then(decodeJSON)
+					.catch(onErrorRead);
 				!unmounted && setProfiles((p) => ({ ...p, [slashtag.url]: profile }));
 			}
 
@@ -204,8 +207,9 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 					promises[id] = contactsDrive
 						.get('/' + id)
-						.then((buf: Uint8Array) => buf && { url, ...c.decode(c.json, buf) })
-						.catch(onError);
+						.then(decodeJSON)
+						.then((record: IContactRecord) => ({ ...record, url }))
+						.catch(onErrorRead);
 				});
 				rs.on('end', async () => {
 					const resolved = await Promise.all(Object.values(promises));
@@ -242,6 +246,13 @@ export const useSlashtags = (): ISlashtagsContext =>
 function onError(error: Error): void {
 	console.debug(
 		'Error in SlashtagsProvider while opening drive',
+		error.message,
+	);
+}
+
+function onErrorRead(error: Error): void {
+	console.debug(
+		'Error in SlashtagsProvider while reading drive',
 		error.message,
 	);
 }

@@ -5,8 +5,8 @@ import path from 'path';
 import falso from '@ngneat/falso';
 import fetch from 'node-fetch';
 import SDK, { SlashURL } from '@synonymdev/slashtags-sdk';
-import c from 'compact-encoding';
 import RAM from 'random-access-memory';
+import c from 'compact-encoding';
 import b4a from 'b4a';
 
 const cacheLocation = path.join(
@@ -88,15 +88,11 @@ async function resolveProfile() {
 	console.log('Resolving public drive ...');
 	await drive.ready();
 
-	const profile = await drive
-		.get('/profile.json')
-		.then((buf) => buf && c.decode(c.json, buf));
+	const profile = await drive.get('/profile.json').then(decodeJSON);
 	console.time('-- resolved drive in');
 	console.log('resolved profile');
 
-	const slashpay = await drive
-		.get('/slashpay.json')
-		.then((buf) => buf && c.decode(c.json, buf));
+	const slashpay = await drive.get('/slashpay.json').then(decodeJSON);
 	console.timeEnd('-- resolved drive in');
 
 	console.dir(
@@ -219,8 +215,8 @@ function formatContact(contact) {
 
 async function saveContact(slashtag, contact) {
 	const drive = slashtag.drivestore.get();
-	await drive.put('/profile.json', c.encode(c.json, contact.profile));
-	await drive.put('/slashpay.json', c.encode(c.json, contact.slashpay));
+	await drive.put('/profile.json', encodeJSON(contact.profile));
+	await drive.put('/slashpay.json', encodeJSON(contact.slashpay));
 
 	return formatContact(contact);
 }
@@ -251,4 +247,27 @@ async function generateContact(url) {
 		},
 		slashpay: [{ type: 'p2wpkh', value: falso.randBitcoinAddress() }],
 	};
+}
+
+/**
+ * Decode JSON from Uint8Array files from Hyperdrives
+ */
+export function decodeJSON(buf) {
+	if (!buf || buf.byteLength === 0) {
+		return;
+	}
+	try {
+		return JSON.parse(b4a.toString(buf));
+	} catch (error) {
+		// Backword compatible
+		// TODO(slashtags): remove before launch?
+		return c.decode(c.json, buf);
+	}
+}
+
+/**
+ * Encode JSON as Uint8Array for hyperdrive json files
+ */
+export function encodeJSON(json) {
+	return b4a.from(JSON.stringify(json));
 }
