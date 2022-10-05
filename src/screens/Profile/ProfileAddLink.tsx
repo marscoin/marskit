@@ -2,18 +2,17 @@ import React, { useMemo, ReactElement, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import c from 'compact-encoding';
 
 import { View as ThemedView, Text02S, Text02B } from '../../styles/components';
 import Button from '../../components/Button';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import LabeledInput from '../../components/LabeledInput';
 import { RootStackScreenProps } from '../../navigation/types';
-import { BasicProfile } from '../../store/types/slashtags';
 import Store from '../../store/types';
 import { updateProfileLink } from '../../store/actions/ui';
 import NavigationHeader from '../../components/NavigationHeader';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
+import { saveProfile } from '../../utils/slashtags';
 
 export const ProfileAddLinkForm = ({
 	navigation,
@@ -23,14 +22,6 @@ export const ProfileAddLinkForm = ({
 	const { url, slashtag } = useSelectedSlashtag();
 	const { profile } = useProfile(url);
 
-	const saveProfile = useCallback(
-		(data: BasicProfile) => {
-			const publicDrive = slashtag?.drivestore.get();
-			return publicDrive.put('/profile.json', c.encode(c.json, data));
-		},
-		[slashtag],
-	);
-
 	const buttonContainerStyles = useMemo(
 		() => ({
 			...styles.buttonContainer,
@@ -39,16 +30,16 @@ export const ProfileAddLinkForm = ({
 		[insets.bottom],
 	);
 
-	const saveLink = (): void => {
+	const saveLink = useCallback((): void => {
 		const prevLinks = profile?.links ?? [];
-		saveProfile({
+		saveProfile(slashtag, {
 			...profile,
 			links: [...prevLinks, { title: form.title, url: form.url }],
 		});
 
 		updateProfileLink({ title: '', url: '' });
 		navigation.goBack();
-	};
+	}, [profile, form.title, form.url, navigation, slashtag]);
 
 	const isValid = form.title?.length > 0 && form.url?.length > 0;
 
