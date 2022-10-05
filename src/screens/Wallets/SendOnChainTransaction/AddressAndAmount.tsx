@@ -259,6 +259,10 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 	}, [numberPadIsOpen]);
 
 	const onBlur = useCallback(async (): Promise<void> => {
+		//An OS Paste was triggered. No need to process onBlur data.
+		if (handledOsPaste) {
+			return;
+		}
 		const tAddress = address.trim();
 		// check if it is a slashtag url and try to get address from it
 		if (validateSlashtagURL(tAddress)) {
@@ -290,7 +294,15 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 			selectedNetwork,
 			transaction: tx,
 		}).then();
-	}, [address, index, selectedNetwork, selectedWallet, value, sdk]);
+	}, [
+		handledOsPaste,
+		address,
+		value,
+		index,
+		selectedWallet,
+		selectedNetwork,
+		sdk,
+	]);
 
 	const onChangeText = useCallback(
 		(txt: string) => {
@@ -317,7 +329,14 @@ const AddressAndAmount = ({ index = 0, navigation }): ReactElement => {
 				},
 			}).then();
 		},
-		[index, selectedNetwork, selectedWallet, value],
+		[
+			handlePaste,
+			handledOsPaste,
+			index,
+			selectedNetwork,
+			selectedWallet,
+			value,
+		],
 	);
 
 	useEffect(() => {
