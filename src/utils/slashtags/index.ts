@@ -54,7 +54,7 @@ export const saveContact = async (
 
 	const drive = await slashtag.drivestore.get('contacts');
 	const id = SlashURL.parse(url).id;
-	await drive?.put('/' + id, c.encode(c.json, record)).catch((error: Error) =>
+	await drive?.put('/' + id, encodeJSON(record)).catch((error: Error) =>
 		showErrorNotification({
 			title: 'Error while saving contact: ',
 			message: error.message,
@@ -72,14 +72,12 @@ export const saveProfile = async (
 	}
 
 	const drive = slashtag?.drivestore.get();
-	await drive
-		.put('/profile.json', c.encode(c.json, profile))
-		.catch((error: Error) =>
-			showErrorNotification({
-				title: 'Error while saving profile: ',
-				message: error.message,
-			}),
-		);
+	await drive.put('/profile.json', encodeJSON(profile)).catch((error: Error) =>
+		showErrorNotification({
+			title: 'Error while saving profile: ',
+			message: error.message,
+		}),
+	);
 
 	closeDriveSession(drive);
 };
@@ -128,7 +126,7 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 		urls.map(async (url) => {
 			const name = Math.random().toString(16).slice(2, 8);
 			const id = SlashURL.parse(url).id;
-			return batch?.put('/' + id, c.encode(c.json, { name }));
+			return batch?.put('/' + id, encodeJSON({ name }));
 		}),
 	);
 	await batch.flush();
@@ -197,7 +195,7 @@ export const updateSlashPayConfig = async (
 	}
 
 	await drive
-		.put('/slashpay.json', c.encode(c.json, payConfig))
+		.put('/slashpay.json', encodeJSON(payConfig))
 		.then(() => {
 			console.debug('Updated slashpay.json:', payConfig);
 		})
@@ -275,10 +273,7 @@ export const getSlashPayConfig = async (
 	const drive = sdk.drive(SlashURL.parse(url).key);
 	await drive.ready().catch(noop);
 	const payConfig =
-		(await drive
-			.get('/slashpay.json')
-			.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
-			.catch(noop)) || [];
+		(await drive.get('/slashpay.json').then(decodeJSON).catch(noop)) || [];
 
 	closeDriveSession(drive);
 	return payConfig;
@@ -336,3 +331,26 @@ export const validateSlashtagURL = (url: string): boolean => {
 		return false;
 	}
 };
+
+/**
+ * Decode JSON from Uint8Array files from Hyperdrives
+ */
+export function decodeJSON(buf: Uint8Array | null): object | undefined {
+	if (!buf || buf.byteLength === 0) {
+		return;
+	}
+	try {
+		return JSON.parse(b4a.toString(buf));
+	} catch (error) {
+		// Backword compatible
+		// TODO(slashtags): remove before launch?
+		return c.decode(c.json, buf);
+	}
+}
+
+/**
+ * Encode JSON as Uint8Array for hyperdrive json files
+ */
+export function encodeJSON(json: object): Uint8Array {
+	return b4a.from(JSON.stringify(json));
+}

@@ -51,7 +51,7 @@ const PaymentPreference = (): ReactElement => {
 				],
 			},
 		],
-		[receivePreference, enableOfflinePayments],
+		[receivePreference, enableOfflinePayments, sdk],
 	);
 
 	return (

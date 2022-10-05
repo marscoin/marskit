@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SDK, SlashURL } from '@synonymdev/slashtags-sdk';
-import c from 'compact-encoding';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import { closeDriveSession, getSelectedSlashtag } from '../utils/slashtags';
+import {
+	closeDriveSession,
+	decodeJSON,
+	getSelectedSlashtag,
+} from '../utils/slashtags';
 
 export type Slashtag = ReturnType<SDK['slashtag']>;
 
@@ -64,7 +67,7 @@ export const useProfile = (
 		async function resolve(): Promise<void> {
 			const _profile = await drive
 				.get('/profile.json')
-				.then((buf: Uint8Array) => buf && c.decode(c.json, buf))
+				.then(decodeJSON)
 				.catch(noop);
 
 			set(_profile);
