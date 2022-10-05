@@ -1,4 +1,4 @@
-import { IViewControllerData } from '../types/user';
+import { IUser, IViewControllerData } from '../types/user';
 
 export const defaultViewController: IViewControllerData = {
 	isOpen: false,
@@ -9,7 +9,7 @@ export const defaultViewController: IViewControllerData = {
 	txid: undefined,
 };
 
-export const defaultViewControllers = {
+export const defaultViewControllers: IUser['viewController'] = {
 	sendNavigation: { ...defaultViewController },
 	receiveNavigation: { ...defaultViewController },
 	backupPrompt: { ...defaultViewController },
@@ -25,9 +25,10 @@ export const defaultViewControllers = {
 	highBalance: { ...defaultViewController },
 	profileAddDataForm: { ...defaultViewController },
 	addContactModal: { ...defaultViewController },
+	slashauthModal: { ...defaultViewController },
 };
 
-export const defaultUserShape = {
+export const defaultUserShape: IUser = {
 	loading: false,
 	error: false,
 	isHydrated: false,

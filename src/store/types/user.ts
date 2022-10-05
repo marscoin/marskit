@@ -16,7 +16,8 @@ export type TViewController =
 	| 'newTxPrompt'
 	| 'highBalance'
 	| 'profileAddDataForm'
-	| 'addContactModal';
+	| 'addContactModal'
+	| 'slashauthModal';
 
 export type TUserViewController = {
 	[key in TViewController]: IViewControllerData;
@@ -31,6 +32,7 @@ export interface IViewControllerData {
 	activityItem?: IActivityItem;
 	txid?: string;
 	showLaterButton?: boolean;
+	url?: string;
 }
 
 export interface IUser {

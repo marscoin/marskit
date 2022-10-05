@@ -28,7 +28,8 @@ const Wallets = ({ navigation }: TabScreenProps<'Wallets'>): ReactElement => {
 	const hideOnboardingSetting = useSelector(
 		(state: Store) => state.settings.hideOnboardingMessage,
 	);
-	const empty = useNoTransactions();
+	const widgets = useSelector((state: Store) => state.widgets?.widgets || {});
+	const empty = useNoTransactions() && Object.values(widgets).length === 0;
 	const colors = useColors();
 
 	const toggleHideBalance = (): void => {

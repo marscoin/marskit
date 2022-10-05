@@ -8,34 +8,44 @@ import { useProfile, useSelectedSlashtag } from '../hooks/slashtags';
 import { IContactRecord } from '../store/types/slashtags';
 import { useSlashtags } from './SlashtagsProvider';
 
-const Divider = (): ReactElement => (
+export const Divider = (): ReactElement => (
 	<ThemedView color="white1" style={dstyles.divider} />
 );
 
-const ContactItem = ({
+export const ContactItem = ({
 	contact,
 	onPress,
+	size,
 }: {
 	contact: IContactRecord;
-	onPress: (contact: IContactRecord) => void;
+	onPress?: (contact: IContactRecord) => void;
+	size?: 'small' | 'normal';
 }): JSX.Element => {
 	const { profile } = useProfile(contact.url);
+
+	const name = useMemo(() => {
+		return profile.name || contact.name || ' ';
+	}, [contact?.name, profile?.name]);
 
 	return (
 		<TouchableOpacity
 			activeOpacity={0.8}
 			onPress={(): void => {
-				onPress(contact);
+				onPress?.(contact);
 			}}>
 			<ThemedView style={cstyles.container}>
-				<ProfileImage url={contact.url} image={profile?.image} size={48} />
+				<ProfileImage
+					url={contact.url}
+					image={profile?.image}
+					size={size === 'small' ? 32 : 48}
+				/>
 				<View style={cstyles.column}>
-					<Text01M style={cstyles.name}>{profile?.name || ' '}</Text01M>
+					<Text01M style={size !== 'small' ? cstyles.name : {}}>{name}</Text01M>
 					<SlashtagURL
 						color="gray"
 						url={contact.url}
 						onPress={(): void => {
-							onPress(contact);
+							onPress?.(contact);
 						}}
 					/>
 				</View>
