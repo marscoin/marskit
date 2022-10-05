@@ -31,11 +31,16 @@ export function useBalance({
 		}
 
 		if (lightning) {
+			const openChannelIds =
+				store.lightning.nodes[selectedWallet]?.openChannelIds[selectedNetwork];
 			const channels =
 				store.lightning.nodes[selectedWallet]?.channels[selectedNetwork];
 			balance = Object.values(channels).reduce(
 				(previousValue, currentChannel) => {
-					if (currentChannel?.short_channel_id) {
+					if (
+						currentChannel?.short_channel_id &&
+						openChannelIds.includes(currentChannel?.channel_id)
+					) {
 						return previousValue + currentChannel.balance_sat;
 					}
 					return previousValue;

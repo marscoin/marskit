@@ -2605,3 +2605,17 @@ export const getGapLimit = ({
 		return err(e);
 	}
 };
+
+/**
+ * Get address for a given scriptPubKey.
+ * @param scriptPubKey
+ * @returns {string}
+ */
+export const getAddressFromScriptPubKey = (scriptPubKey: string): string => {
+	const selectedNetwork = getSelectedNetwork();
+	const network = networks[selectedNetwork];
+	return bitcoin.address.fromOutputScript(
+		Buffer.from(scriptPubKey, 'hex'),
+		network,
+	);
+};

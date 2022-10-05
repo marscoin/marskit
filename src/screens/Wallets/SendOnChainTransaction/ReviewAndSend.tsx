@@ -391,8 +391,8 @@ const ReviewAndSend = ({ navigation, index = 0 }): ReactElement => {
 		let desc = FeeText.custom.description;
 		if (selectedFeeId === EFeeIds.custom) {
 			for (const key of Object.keys(feeEstimates)) {
-				if (satsPerByte >= feeEstimates[key]) {
-					desc = FeeText[key].description;
+				if (satsPerByte >= feeEstimates[key] && key in FeeText) {
+					desc = FeeText[key]?.description ?? '';
 					break;
 				}
 			}
