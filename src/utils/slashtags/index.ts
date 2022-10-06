@@ -23,6 +23,8 @@ export const handleSlashtagURL = (
 
 		if (parsed.protocol === 'slash:') {
 			navigate('ContactEdit', { url });
+		} else if (parsed.protocol === 'slashfeed:') {
+			navigate('WidgetFeedEdit', { url });
 		}
 
 		onSuccess && onSuccess(url);

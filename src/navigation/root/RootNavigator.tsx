@@ -39,6 +39,7 @@ import Contact from '../../screens/Contacts/Contact';
 import ContactEdit from '../../screens/Contacts/ContactEdit';
 import SlashAuthModal from '../../screens/Widgets/SlashAuthModal';
 import type { RootStackParamList } from '../types';
+import WidgetFeedEdit from '../../screens/Widgets/WidgetFeedEdit';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -129,6 +130,7 @@ const RootNavigator = (): ReactElement => {
 					<Stack.Screen name="Contacts" component={Contacts} />
 					<Stack.Screen name="ContactEdit" component={ContactEdit} />
 					<Stack.Screen name="Contact" component={Contact} />
+					<Stack.Screen name="WidgetFeedEdit" component={WidgetFeedEdit} />
 				</Stack.Group>
 			</Stack.Navigator>
 

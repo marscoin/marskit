@@ -44,6 +44,7 @@ export enum EQRDataType {
 	lnurlWithdraw = 'lnurlWithdraw',
 	slashAuthURL = 'slashAuthURL',
 	slashtagURL = 'slashURL',
+	slashFeedURL = 'slashFeedURL',
 	//TODO add xpub, lightning node peer etc
 }
 
@@ -204,6 +205,8 @@ export const processInputData = async ({
 			dataToHandle = processBitcoinTxResponse.value;
 		} else if (decodeRes.value[0].qrDataType === 'slashAuthURL') {
 			dataToHandle = decodeRes.value[0];
+		} else if (decodeRes.value[0].qrDataType === 'slashFeedURL') {
+			dataToHandle = decodeRes.value[0];
 		} else {
 			dataToHandle = decodeRes.value[0];
 		}
@@ -234,6 +237,8 @@ export const decodeQRData = async (
 		return ok([{ qrDataType: EQRDataType.slashAuthURL, url: data }]);
 	} else if (data.startsWith('slash:')) {
 		return ok([{ qrDataType: EQRDataType.slashtagURL, url: data }]);
+	} else if (data.startsWith('slashfeed:')) {
+		return ok([{ qrDataType: EQRDataType.slashFeedURL, url: data }]);
 	}
 
 	let foundNetworksInQR: QRData[] = [];
@@ -570,6 +575,10 @@ export const handleData = async ({
 		case EQRDataType.slashtagURL: {
 			handleSlashtagURL(data.url as string);
 			return ok(EQRDataType.slashtagURL);
+		}
+		case EQRDataType.slashFeedURL: {
+			handleSlashtagURL(data.url as string);
+			return ok(EQRDataType.slashAuthURL);
 		}
 		case EQRDataType.slashAuthURL: {
 			toggleView({

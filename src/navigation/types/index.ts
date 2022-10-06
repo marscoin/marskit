@@ -53,6 +53,7 @@ export type RootStackParamList = {
 	Contacts: undefined;
 	ContactEdit: { url: string };
 	Contact: { url: string };
+	WidgetFeedEdit: { url: string };
 };
 
 // Root Stack Navigator

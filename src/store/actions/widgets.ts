@@ -16,6 +16,26 @@ export const setAuthWidget = (
 	});
 };
 
+export const setFeedWidget = (
+	url: string,
+	feed: {
+		selectedField?: string;
+	},
+): void => {
+	dispatch({
+		type: actions.SET_SLASHTAGS_FEED_WIDGET,
+		url,
+		feed,
+	});
+};
+
+export const deleteFeedWidget = (url: string): void => {
+	dispatch({
+		type: actions.DELETE_SLASHTAGS_FEED_WIDGET,
+		url,
+	});
+};
+
 export const resetWidgetsStore = (): void => {
 	dispatch({ type: actions.RESET_WIDGETS_STORE });
 };
