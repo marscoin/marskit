@@ -2020,10 +2020,12 @@
     cross-fetch "^3.1.4"
     node-fetch "3.1.1"
 
-"@synonymdev/react-native-ldk@^0.0.53":
-  version "0.0.53"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.53.tgz#6d14de677187bdf6038b3e7b3dd17602ff796f3c"
-  integrity sha512-Ld8qXisG6PN/V4Cvf8RimdWMtLDJgXDLiyue0AizqfHMtO83s/BcwDARxQ2aB8tUA1UIrbcwxg/8QwsHiCxBWQ==
+"@synonymdev/react-native-ldk@0.0.55":
+  version "0.0.55"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.55.tgz#e884c326a287c6ec5075acdcdb834e97489e56df"
+  integrity sha512-I0Q6wVkYi9kQ1VjIE6esw4grF3nFkavZFqxkD9yNppIB4B1wQLAzknNEKL/HGcDkMBhfvGlddXh9FRN5Y7fpcg==
+  dependencies:
+    bitcoinjs-lib "^6.0.2"
 
 "@synonymdev/react-native-lnurl@0.0.3":
   version "0.0.3"
@@ -3182,7 +3184,7 @@ bitcoin-units@^0.3.0:
   dependencies:
     big.js "^5.2.2"
 
-bitcoinjs-lib@^6.0.1:
+bitcoinjs-lib@^6.0.1, bitcoinjs-lib@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-6.0.2.tgz#0fdf6c41978d93641b936d66f4afce44bb9b7f35"
   integrity sha512-I994pGt9cL5s5OA6mkv1e8IuYcsKN2ORXnWbkqAXLNGvEnOHBhKBSvCjFl7YC2uVoJnfr/iwq7JMrq575SYO5w==

@@ -3,6 +3,7 @@ import lm, {
 	DefaultTransactionDataShape,
 	ENetworks,
 	TAccount,
+	TAccountBackup,
 	TChannel,
 	TCloseChannelReq,
 	THeader,
@@ -15,17 +16,18 @@ import {
 	getBlockHashFromHeight,
 	getBlockHeader,
 	getBlockHex,
+	getScriptPubKeyHistory,
 	getTransactions,
 } from '../wallet/electrum';
 import {
 	getMnemonicPhrase,
+	getReceiveAddress,
 	getSelectedNetwork,
 	getSelectedWallet,
 } from '../wallet';
 import Keychain from 'react-native-keychain';
 import { TAvailableNetworks } from '../networks';
 import { getStore } from '../../store/helpers';
-import mmkvStorage from '../../store/mmkv-storage';
 import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
@@ -34,6 +36,8 @@ import {
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
 import { sleep } from '../helpers';
+import { broadcastTransaction } from '../wallet/transactions';
+import RNFS from 'react-native-fs';
 
 /**
  * Wipes LDK data from storage
@@ -103,12 +107,38 @@ export const setupLdk = async ({
 				network = ENetworks.regtest;
 				break;
 		}
+		const getAddress = async (): Promise<string> => {
+			const res = getReceiveAddress({ selectedNetwork, selectedWallet });
+			if (res.isOk()) {
+				return res.value;
+			}
+			return '';
+		};
+
+		const _broadcastTransaction = async (rawTx: string): Promise<string> => {
+			const res = await broadcastTransaction({
+				rawTx,
+				selectedNetwork,
+				selectedWallet,
+			});
+			if (res.isErr()) {
+				return '';
+			}
+			return res.value;
+		};
+		const storageRes = await lm.setBaseStoragePath(
+			`${RNFS.DocumentDirectoryPath}/ldk/`,
+		);
+		if (storageRes.isErr()) {
+			return err(storageRes.error);
+		}
 		const lmStart = await lm.start({
 			getBestBlock,
 			genesisHash: genesisHash.value,
-			setItem: mmkvStorage.setItem,
-			getItem: mmkvStorage.getItem,
 			account: account.value,
+			getAddress,
+			getScriptPubKeyHistory,
+			broadcastTransaction: _broadcastTransaction,
 			getTransactionData,
 			network,
 		});
@@ -264,11 +294,11 @@ const _getDefaultAccount = (name, mnemonic): TAccount => {
 /**
  * Exports complete backup string for current LDK account.
  * @param account
- * @returns {Promise<Err<unknown> | Ok<string> | Err<string>>}
+ * @returns {Promise<Result<TAccountBackup>>}
  */
 export const exportBackup = async (
 	account?: TAccount,
-): Promise<Result<string>> => {
+): Promise<Result<TAccountBackup>> => {
 	if (!account) {
 		const res = await getAccount({});
 		if (res.isErr()) {
@@ -279,9 +309,6 @@ export const exportBackup = async (
 	}
 	return await lm.backupAccount({
 		account,
-		setItem: mmkvStorage.setItem,
-		getItem: mmkvStorage.getItem,
-		includeNetworkGraph: false,
 	});
 };
 
@@ -322,8 +349,11 @@ export const getTransactionData = async (
 		if (response.isErr()) {
 			return transactionData;
 		}
-		const { confirmations, hex: hex_encoded_tx } =
-			response.value.data[0].result;
+		const {
+			confirmations,
+			hex: hex_encoded_tx,
+			vout,
+		} = response.value.data[0].result;
 		const header = getBlockHeader({});
 		const currentHeight = header.height;
 		let confirmedHeight = 0;
@@ -336,10 +366,14 @@ export const getTransactionData = async (
 		if (hexEncodedHeader.isErr()) {
 			return transactionData;
 		}
+		const voutData = vout.map(({ n, value, scriptPubKey: { hex } }) => {
+			return { n, hex, value };
+		});
 		return {
 			header: hexEncodedHeader.value,
 			height: confirmedHeight,
 			transaction: hex_encoded_tx,
+			vout: voutData,
 		};
 	} catch {
 		return transactionData;

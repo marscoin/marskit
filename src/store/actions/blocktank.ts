@@ -8,7 +8,11 @@ import {
 	IGetOrderResponse,
 } from '@synonymdev/blocktank-client';
 import * as blocktank from '../../utils/blocktank';
-import { setupOnChainTransaction, updateBitcoinTransaction } from './wallet';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+	updateBitcoinTransaction,
+} from './wallet';
 import {
 	getBalance,
 	getSelectedNetwork,
@@ -472,7 +476,7 @@ export const confirmChannelPurchase = async ({
 	}
 
 	// Reset tx data.
-	setupOnChainTransaction({ selectedNetwork }).then();
+	resetOnChainTransaction({ selectedNetwork });
 
 	watchOrder(orderId).then();
 	await removeTodo('lightning');

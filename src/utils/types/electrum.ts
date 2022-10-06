@@ -13,3 +13,5 @@ export interface IGetHeaderResponse {
 	data: string;
 	network: TAvailableNetworks;
 }
+
+export type TGetAddressHistory = { txid: string; height: number };

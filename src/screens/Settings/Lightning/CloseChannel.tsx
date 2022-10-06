@@ -76,7 +76,7 @@ const CloseChannel = ({ route, navigation }): ReactElement => {
 								const closeResponse = await closeChannel({
 									channelId: channel.channel_id,
 									counterPartyNodeId: channel.counterparty_node_id,
-									force: true,
+									force: false,
 								});
 								// Attempt to refresh LDK again regardless of the channel close response.
 								await refreshLdk({ selectedWallet, selectedNetwork });
