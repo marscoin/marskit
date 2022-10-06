@@ -25,6 +25,8 @@ export const Widgets = (): ReactElement => {
 				<BitfinexWidget />
 				{Object.entries(widgets).map(([url, widget]) =>
 					widget.feed ? (
+						// Here we can check widget.type to use custom builtin supported Widgets
+						// that extends BaseFeedWidget and uses useFeedWidget
 						<FeedWidget key={url} url={url} widget={widget} />
 					) : (
 						<AuthWidget key={url} url={url} widget={widget} />

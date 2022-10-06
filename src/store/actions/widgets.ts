@@ -20,6 +20,7 @@ export const setFeedWidget = (
 	url: string,
 	feed: {
 		selectedField?: string;
+		type?: string;
 	},
 ): void => {
 	dispatch({

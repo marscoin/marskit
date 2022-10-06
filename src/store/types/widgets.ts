@@ -9,6 +9,7 @@ export interface SlashFeedJSON {
 export interface IWidget {
 	feed: {
 		selectedField: string;
+		type: string;
 	};
 	magiclink: boolean;
 }
