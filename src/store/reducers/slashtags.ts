@@ -27,6 +27,32 @@ const slashtags = (
 					lastSent: action.time,
 				},
 			};
+		case actions.SET_LINKS: {
+			return {
+				...state,
+				links: action.payload,
+			};
+		}
+		case actions.ADD_LINK: {
+			return {
+				...state,
+				links: [...state.links, action.payload],
+			};
+		}
+		case actions.EDIT_LINK: {
+			return {
+				...state,
+				links: state.links.map((link) => {
+					return link.id === action.payload.id ? action.payload : link;
+				}),
+			};
+		}
+		case actions.DELETE_LINK: {
+			return {
+				...state,
+				links: state.links.filter((link) => link.id !== action.payload),
+			};
+		}
 		default:
 			return state;
 	}

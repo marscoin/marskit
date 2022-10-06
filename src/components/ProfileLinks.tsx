@@ -7,25 +7,20 @@ import {
 	ViewStyle,
 } from 'react-native';
 import { Caption13Up, Text02S, TrashIcon } from '../styles/components';
-import { BasicProfile } from '../store/types/slashtags';
+import { Link } from '../store/types/slashtags';
 import { openURL } from '../utils/helpers';
 import LabeledInput from './LabeledInput';
+import { editLink, removeLink } from '../store/actions/slashtags';
 
 const ProfileLinks = ({
 	links,
+	editable = false,
 	style,
-	setLink,
-	deleteLink,
 }: {
-	links?: BasicProfile['links'];
+	links: Link[];
+	editable?: boolean;
 	style?: StyleProp<ViewStyle>;
-	setLink?: (title: string, url: string | undefined) => void;
-	deleteLink?: (title: string) => void;
 }): JSX.Element => {
-	links = links?.filter(({ url }) => url?.length > 0) ?? [];
-
-	const editable = setLink;
-
 	return (
 		<View style={style}>
 			{!editable && links?.length === 0 ? (
@@ -38,18 +33,27 @@ const ProfileLinks = ({
 
 					return editable ? (
 						<LabeledInput
-							key={link.title}
+							key={link.id}
 							style={styles.input}
 							label={link.title}
-							value={links?.filter((l) => l.title === link.title)[0].url}
-							onChange={(value: string): void => setLink(link.title, value)}>
-							<TouchableOpacity onPress={() => deleteLink?.(link.title)}>
+							value={link.url}
+							onChange={(value: string): void => {
+								editLink({
+									id: link.id,
+									title: link.title,
+									url: value,
+								});
+							}}>
+							<TouchableOpacity
+								onPress={(): void => {
+									removeLink(link.id);
+								}}>
 								<TrashIcon color="brand" width={16} />
 							</TouchableOpacity>
 						</LabeledInput>
 					) : (
 						<TouchableOpacity
-							key={link.title}
+							key={link.id}
 							onPress={(): void => {
 								openURL(link.url);
 							}}>

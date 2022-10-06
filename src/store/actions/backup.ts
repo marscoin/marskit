@@ -44,7 +44,7 @@ export const performRemoteLdkBackup = async (
 
 	const res = await uploadBackup(
 		slashtag,
-		stringToBytes(ldkBackup.value),
+		stringToBytes(JSON.stringify(ldkBackup.value)),
 		EBackupCategories.ldkComplete,
 	);
 

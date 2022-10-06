@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -14,17 +14,22 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
-import { setOnboardingProfileStep } from '../../store/actions/slashtags';
+import {
+	setLinks,
+	setOnboardingProfileStep,
+} from '../../store/actions/slashtags';
 import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { saveProfile } from '../../utils/slashtags';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { arraysMatch } from '../../utils/helpers';
+import Divider from '../../components/Divider';
 
 export const ProfileEdit = ({
 	navigation,
 }: RootStackScreenProps<'Profile' | 'ProfileEdit'>): JSX.Element => {
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
-	const [links, setLinks] = useState<object>({});
+	const links = useSelector((state: Store) => state.slashtags.links);
 	const [hasEdited, setHasEdited] = useState(false);
 
 	const { url, slashtag } = useSelectedSlashtag();
@@ -36,36 +41,29 @@ export const ProfileEdit = ({
 
 	useEffect(() => {
 		const savedLinks = savedProfile?.links || [];
-		const entries = savedLinks?.map((l) => [l.title, l]);
-		setLinks(Object.fromEntries(entries));
+		setLinks(savedLinks);
 	}, [savedProfile]);
+
+	// show save button if links have changed
+	useEffect(() => {
+		const savedLinks = savedProfile?.links || [];
+		if (arraysMatch(links, savedLinks)) {
+			setHasEdited(false);
+		} else {
+			setHasEdited(true);
+		}
+	}, [links, savedProfile?.links]);
 
 	const setField = (key: string, value: string): void => {
 		setHasEdited(true);
 		setFields({ ...fields, [key]: value });
 	};
 
-	const setLink = (title: string, _url: string | undefined): void => {
-		setHasEdited(true);
-		setLinks({ ...links, [title]: { title, url: _url } });
-	};
-
-	const deleteLink = async (title: string): Promise<void> => {
-		const newLinks = Object.values(links).filter(
-			(link) => link.title !== title,
-		);
-		setLinks(newLinks);
-		await saveProfile(slashtag, {
-			...savedProfile,
-			links: newLinks,
-		});
-	};
-
 	const profile: BasicProfile = useMemo(() => {
 		return {
 			...savedProfile,
 			...fields,
-			links: Object.values(links),
+			links,
 		};
 	}, [savedProfile, fields, links]);
 
@@ -78,59 +76,68 @@ export const ProfileEdit = ({
 		}
 	};
 
+	const isValid = useCallback(() => {
+		const isAnyLinkEmpty = links.some((link) => link.url === '');
+
+		if (!profile.name || profile.name.replace(/\s/g, '').length === 0) {
+			return false;
+		}
+
+		if (isAnyLinkEmpty) {
+			return false;
+		}
+
+		return true;
+	}, [profile, links]);
+
 	return (
 		<ThemedView style={styles.container}>
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
+				style={styles.header}
 				title={onboardedProfile ? 'Edit Profile' : 'Create Profile'}
 				onClosePress={(): void => {
 					navigation.navigate(onboardedProfile ? 'Profile' : 'Tabs');
 				}}
 			/>
-			<View style={styles.content}>
-				<ScrollView>
-					<ProfileCard
-						url={url}
-						editable={true}
-						resolving={false}
-						profile={profile}
-						onChange={setField}
-					/>
-					<View style={styles.divider} />
-					<ProfileLinks
-						links={profile?.links}
-						setLink={setLink}
-						deleteLink={deleteLink}
-					/>
-					<Button
-						text="Add Link"
-						style={styles.addLinkButton}
-						onPress={(): void => {
-							navigation.navigate('ProfileAddLink');
-						}}
-						icon={
-							<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
-						}
-					/>
-					<View style={styles.divider} />
-					<Text02S color="gray1">
-						Please note that all your profile information will be publicly
-						available and visible.
-					</Text02S>
-				</ScrollView>
+			<ScrollView contentContainerStyle={styles.content}>
+				<ProfileCard
+					url={url}
+					editable={true}
+					resolving={false}
+					profile={profile}
+					onChange={setField}
+				/>
+				<Divider />
+				<ProfileLinks links={links} editable={true} />
+				<Button
+					text="Add Link Or Text"
+					style={styles.addLinkButton}
+					onPress={(): void => {
+						navigation.navigate('ProfileAddLink');
+					}}
+					icon={
+						<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
+					}
+				/>
+				<Divider />
+				<Text02S color="gray1">
+					Please note that all your profile information will be publicly
+					available and visible.
+				</Text02S>
 
 				{(!onboardedProfile || hasEdited) && (
-					<Button
-						style={styles.saveButton}
-						text={onboardedProfile ? 'Save Profile' : 'Continue'}
-						size="large"
-						disabled={
-							!profile.name || profile.name.replace(/\s/g, '').length === 0
-						}
-						onPress={save}
-					/>
+					<View style={styles.buttonContainer}>
+						<Button
+							style={styles.button}
+							text={onboardedProfile ? 'Save Profile' : 'Continue'}
+							size="large"
+							disabled={!isValid()}
+							onPress={save}
+						/>
+					</View>
 				)}
-			</View>
+			</ScrollView>
 
 			<SafeAreaInsets type="bottom" />
 		</ThemedView>
@@ -141,22 +148,26 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
+	header: {
+		paddingBottom: 12,
+	},
 	content: {
-		flex: 1,
+		flexGrow: 1,
 		paddingHorizontal: 16,
 		paddingBottom: 16,
+		paddingTop: 23,
 	},
 	addLinkButton: {
 		alignSelf: 'flex-start',
 	},
-	divider: {
-		height: 1,
-		backgroundColor: 'rgba(255, 255, 255, 0.1)',
-		marginTop: 16,
-		marginBottom: 16,
-	},
-	saveButton: {
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
 		marginTop: 'auto',
+	},
+	button: {
+		flex: 1,
+		marginTop: 32,
 	},
 });
 

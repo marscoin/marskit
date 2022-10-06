@@ -6,6 +6,7 @@ import { TAvailableNetworks } from '../networks';
 import { err, ok, Result } from '@synonymdev/result';
 import { IAddressContent, IUtxo, IWalletItem } from '../../store/types/wallet';
 import {
+	getAddressFromScriptPubKey,
 	getAddressTypes,
 	getCurrentWallet,
 	getCustomElectrumPeers,
@@ -20,7 +21,11 @@ import { Block } from 'bitcoinjs-lib';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateHeader } from '../../store/actions/wallet';
 import { getStore } from '../../store/helpers';
-import { IHeader, IGetHeaderResponse } from '../types/electrum';
+import {
+	IHeader,
+	IGetHeaderResponse,
+	TGetAddressHistory,
+} from '../types/electrum';
 
 export interface IGetUtxosResponse {
 	utxos: IUtxo[];
@@ -482,6 +487,39 @@ export const getAddressHistory = async ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Used to retrieve scriptPubkey history for LDK.
+ * @param {string} scriptPubkey
+ * @returns {Promise<TGetAddressHistory[]>}
+ */
+export const getScriptPubKeyHistory = async (
+	scriptPubkey: string,
+): Promise<TGetAddressHistory[]> => {
+	const selectedNetwork = getSelectedNetwork();
+	const address = getAddressFromScriptPubKey(scriptPubkey);
+	const scriptHash = getScriptHash(address, selectedNetwork);
+	const response = await electrum.getAddressScriptHashesHistory({
+		scriptHashes: [scriptHash],
+		network: selectedNetwork,
+	});
+
+	let history: { txid: string; height: number }[] = [];
+	await Promise.all(
+		response.data.map(({ result }): void => {
+			if (result && result?.length > 0) {
+				result.map((item) => {
+					// @ts-ignore
+					history.push({
+						txid: item?.tx_hash ?? '',
+						height: item?.height ?? 0,
+					});
+				});
+			}
+		}),
+	);
+	return history;
 };
 
 const tempElectrumServers: IWalletItem<ICustomElectrumPeer[]> = {

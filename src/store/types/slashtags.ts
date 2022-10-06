@@ -12,6 +12,7 @@ export type IContactRecord = { url: string; name: string } & BasicProfile;
 export type SlashPayConfig = { type: string; value: string }[];
 
 export interface Link {
+	id: string;
 	title: string;
 	url: string;
 }
@@ -29,6 +30,7 @@ export interface ISlashtags {
 		| 'PaymentsFromContacts'
 		| 'OfflinePayments'
 		| 'Done';
+	links: Link[];
 	seeder?: {
 		lastSent?: number;
 	};
