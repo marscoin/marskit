@@ -8,6 +8,11 @@ const activity = (
 	action,
 ): IActivity => {
 	switch (action.type) {
+		case actions.ADD_ACTIVITY_ITEM:
+			return {
+				...state,
+				items: [action.payload, ...state.items],
+			};
 		case actions.UPDATE_ACTIVITY_ENTRIES:
 			const items = mergeActivityItems(state.items, action.payload);
 			return {
