@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {
+	ActivityIndicator,
 	Alert,
 	ScrollView,
 	StyleSheet,
@@ -71,6 +72,7 @@ import {
 	getBoostedTransactionParents,
 	isTransactionBoosted,
 } from '../../utils/boost';
+import { EPaymentType } from '../../store/types/wallet';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -123,7 +125,7 @@ const emptyActivityItem: IActivityItem = {
 	message: '',
 	address: '',
 	activityType: EActivityTypes.onChain,
-	txType: 'sent',
+	txType: EPaymentType.sent,
 	value: 0,
 	confirmed: false,
 	fee: 0,
@@ -342,9 +344,9 @@ const ActivityDetail = (props: Props): ReactElement => {
 					</View>
 
 					<ThemedView
-						color={txType === 'sent' ? 'red16' : 'green16'}
+						color={txType === EPaymentType.sent ? 'red16' : 'green16'}
 						style={styles.iconContainer}>
-						{txType === 'sent' ? (
+						{txType === EPaymentType.sent ? (
 							<SendIcon height={19} color="red" />
 						) : (
 							<ReceiveIcon height={19} color="green" />
@@ -523,27 +525,38 @@ const ActivityDetail = (props: Props): ReactElement => {
 							<Section title="TRANSACTION ID" value={<Text02M>{id}</Text02M>} />
 						</TouchableOpacity>
 						<View style={styles.sectionContainer}>
-							<Section title="ADDRESS" value={<Text02M>{address}</Text02M>} />
+							<Section
+								title={
+									item.activityType === 'lightning' ? 'INVOICE' : 'ADDRESS'
+								}
+								value={<Text02M>{address}</Text02M>}
+							/>
 						</View>
-						{txDetails && (
+						{item.activityType === 'onChain' && (
 							<>
-								<View style={styles.sectionContainer}>
-									<Section
-										title={`INPUTS (${txDetails?.vin?.length ?? 0})`}
-										value={txDetails?.vin.map((v) => {
-											const txid = v?.txid ?? '';
-											const vout = v?.vout ?? '';
-											const i = txid + ':' + vout;
-											return <Text02M key={i}>{i}</Text02M>;
-										})}
-									/>
-								</View>
-								<View style={styles.sectionContainer}>
-									<Section
-										title={`OUTPUTS (${txDetails.vout.length})`}
-										value={getOutputAddresses()}
-									/>
-								</View>
+								{txDetails ? (
+									<>
+										<View style={styles.sectionContainer}>
+											<Section
+												title={`INPUTS (${txDetails?.vin?.length ?? 0})`}
+												value={txDetails?.vin.map((v) => {
+													const txid = v?.txid ?? '';
+													const vout = v?.vout ?? '';
+													const i = txid + ':' + vout;
+													return <Text02M key={i}>{i}</Text02M>;
+												})}
+											/>
+										</View>
+										<View style={styles.sectionContainer}>
+											<Section
+												title={`OUTPUTS (${txDetails.vout.length})`}
+												value={getOutputAddresses()}
+											/>
+										</View>
+									</>
+								) : (
+									<ActivityIndicator size="small" />
+								)}
 							</>
 						)}
 						{hasBoostedParents && (
@@ -572,14 +585,16 @@ const ActivityDetail = (props: Props): ReactElement => {
 								})}
 							</>
 						)}
-						<View style={styles.buttonDetailsContainer}>
-							<Button
-								text="Open Block Explorer"
-								size="large"
-								disabled={!blockExplorerUrl}
-								onPress={handleBlockExplorerOpen}
-							/>
-						</View>
+						{item.activityType === 'onChain' && (
+							<View style={styles.buttonDetailsContainer}>
+								<Button
+									text="Open Block Explorer"
+									size="large"
+									disabled={!blockExplorerUrl}
+									onPress={handleBlockExplorerOpen}
+								/>
+							</View>
+						)}
 					</>
 				)}
 
