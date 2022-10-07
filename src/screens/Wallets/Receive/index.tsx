@@ -32,7 +32,7 @@ import { resetInvoice } from '../../../store/actions/receive';
 import { updateMetaIncTxTags } from '../../../store/actions/metadata';
 import { getReceiveAddress } from '../../../utils/wallet';
 import { getUnifiedUri } from '../../../utils/receive';
-import { createLightningInvoice, refreshLdk } from '../../../utils/lightning';
+import { refreshLdk } from '../../../utils/lightning';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
@@ -40,6 +40,7 @@ import { generateNewReceiveAddress } from '../../../store/actions/wallet';
 import { showErrorNotification } from '../../../utils/notifications';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
 import BitcoinLogo from '../../../assets/bitcoin-logo-small.svg';
+import { createLightningInvoice } from '../../../store/actions/lightning';
 
 const QrIcon = (): ReactElement => {
 	return (
@@ -90,6 +91,8 @@ const Receive = ({ navigation }): ReactElement => {
 			amountSats: amount,
 			description: message,
 			expiryDeltaSeconds: 180,
+			selectedNetwork,
+			selectedWallet,
 		});
 
 		if (response.isErr()) {
@@ -101,6 +104,7 @@ const Receive = ({ navigation }): ReactElement => {
 		}
 
 		if (response.isOk()) {
+			console.info(`lightning invoice: ${response.value.to_str}`);
 			setLightningInvoice(response.value.to_str);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
