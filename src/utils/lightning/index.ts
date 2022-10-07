@@ -256,7 +256,7 @@ export const handleLightningPaymentSubscription = ({
 			address: invoice.value.to_str,
 			activityType: EActivityTypes.lightning,
 			txType: EPaymentType.received,
-			value: -value,
+			value,
 			confirmed: true,
 			fee: 0,
 			timestamp: new Date().getTime(),
