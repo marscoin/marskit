@@ -246,21 +246,27 @@ export const setAccount = async ({
 
 /**
  * Retrieve LDK account info from storage.
- * @param selectedWallet
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getAccount = async ({
 	selectedWallet,
+	selectedNetwork,
 }: {
 	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<TAccount>> => {
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
 	}
 	const mnemonicPhrase = await getMnemonicPhrase(selectedWallet);
 	if (mnemonicPhrase.isErr()) {
 		return err(mnemonicPhrase.error.message);
 	}
-	const name = `${selectedWallet}${LDK_ACCOUNT_SUFFIX}`;
+	const name = `${selectedWallet}${selectedNetwork}${LDK_ACCOUNT_SUFFIX}`;
 	try {
 		let result = await Keychain.getGenericPassword({ service: name });
 		if (result && result?.password) {
