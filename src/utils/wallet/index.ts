@@ -2518,10 +2518,16 @@ interface IGetBalanceProps extends IncludeBalances {
 }
 /**
  * Retrieves the total wallet display values for the currently selected wallet and network.
+ * @param {boolean} [onchain]
+ * @param {boolean} [lightning]
+ * @param {boolean} [subtractReserveBalance]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getBalance = ({
 	onchain = false,
 	lightning = false,
+	subtractReserveBalance = true,
 	selectedWallet,
 	selectedNetwork,
 }: IGetBalanceProps): IDisplayValues => {
@@ -2544,7 +2550,12 @@ export const getBalance = ({
 		balance = Object.values(channels).reduce(
 			(previousValue, currentChannel) => {
 				if (currentChannel?.short_channel_id) {
-					return previousValue + currentChannel.balance_sat;
+					let reserveBalance = 0;
+					if (subtractReserveBalance) {
+						reserveBalance =
+							currentChannel?.unspendable_punishment_reserve ?? 0;
+					}
+					return previousValue + currentChannel.balance_sat - reserveBalance;
 				}
 				return previousValue;
 			},
