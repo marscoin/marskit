@@ -20,6 +20,7 @@ import { canBoost } from '../../utils/wallet/transactions';
 import { toggleView } from '../../store/actions/user';
 import Store from '../../store/types';
 import { useProfile } from '../../hooks/slashtags';
+import { EPaymentType } from '../../store/types/wallet';
 
 const Avatar = ({ url }: { url: string }): ReactElement => {
 	const { profile } = useProfile(url);
@@ -77,7 +78,7 @@ const ListItem = ({
 		return '';
 	}, [id, slashTagsUrls]);
 
-	const title = txType === 'sent' ? 'Sent' : 'Received';
+	const title = txType === EPaymentType.sent ? 'Sent' : 'Received';
 
 	const isBoosted = useMemo(() => {
 		return id in boostedTransactions;
@@ -111,9 +112,9 @@ const ListItem = ({
 						<Avatar url={slashTagsUrl} />
 					) : (
 						<ThemedView
-							color={txType === 'sent' ? 'red16' : 'green16'}
+							color={txType === EPaymentType.sent ? 'red16' : 'green16'}
 							style={styles.iconCircle}>
-							{txType === 'sent' ? (
+							{txType === EPaymentType.sent ? (
 								<SendIcon height={13} color="red" />
 							) : (
 								<ReceiveIcon height={13} color="green" />
@@ -134,7 +135,7 @@ const ListItem = ({
 						enableHide={true}
 						size="text01m"
 						style={styles.value}
-						sign={txType === 'sent' ? '-' : '+'}
+						sign={txType === EPaymentType.sent ? '-' : '+'}
 						highlight={true}
 					/>
 					<Money

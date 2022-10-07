@@ -4,6 +4,11 @@ import { IAddressTypeContent } from '../shapes/wallet';
 import { EFeeIds } from './fees';
 import { IHeader } from '../../utils/types/electrum';
 
+export enum EPaymentType {
+	sent = 'sent',
+	received = 'received',
+}
+
 export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
 export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
 export type TKeyDerivationAccountType = 'onchain';
@@ -29,8 +34,6 @@ export type TBitcoinLabel =
 	| 'Bitcoin Regtest';
 
 export type TTicker = 'BTC' | 'tBTC';
-
-export type TTransactionType = 'sent' | 'received';
 
 export type TGetByteCountInput =
 	| 'MULTISIG-P2SH'
@@ -184,7 +187,7 @@ export interface IFormattedTransactionContent {
 	totalOutputValue: number;
 	matchedOutputValue: number;
 	fee: number;
-	type: TTransactionType;
+	type: EPaymentType;
 	value: number;
 	txid: string;
 	messages: string[];

@@ -2,10 +2,7 @@ import React, { memo, ReactElement, useCallback, useMemo } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
-import {
-	IFormattedTransaction,
-	TTransactionType,
-} from '../../store/types/wallet';
+import { EPaymentType, IFormattedTransaction } from '../../store/types/wallet';
 import {
 	View,
 	BoostIcon,
@@ -22,7 +19,7 @@ import { RootNavigationProp } from '../../navigation/types';
 
 /**
  * Returns the appropriate text for the boost card.
- * @param {TTransactionType} type
+ * @param {EPaymentType} type
  * @param {number} amount
  * @return string
  */
@@ -30,11 +27,11 @@ const getBoostText = ({
 	type,
 	amount,
 }: {
-	type: TTransactionType;
+	type: EPaymentType;
 	amount: number;
 }): string => {
 	let text = 'Sent';
-	if (type === 'received') {
+	if (type === EPaymentType.received) {
 		text = 'Receiving';
 	}
 	if (amount.toString().includes('.')) {

@@ -5,14 +5,14 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { err, ok, Result } from '@synonymdev/result';
 
-import { INetwork, TAvailableNetworks } from '../networks';
-import { networks } from '../networks';
+import { INetwork, networks, TAvailableNetworks } from '../networks';
 import {
 	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
 } from '../../store/shapes/wallet';
 import {
+	EPaymentType,
 	EWallet,
 	IAddress,
 	IAddressContent,
@@ -1590,7 +1590,10 @@ export const formatTransactions = async ({
 		}
 
 		const txid = result.txid;
-		const type = matchedInputValue > matchedOutputValue ? 'sent' : 'received';
+		const type =
+			matchedInputValue > matchedOutputValue
+				? EPaymentType.sent
+				: EPaymentType.received;
 		const totalMatchedValue = matchedOutputValue - matchedInputValue;
 		const value = Number(totalMatchedValue.toFixed(8));
 		const totalValue = totalInputValue - totalOutputValue;

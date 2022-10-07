@@ -1,4 +1,4 @@
-import { TTransactionType } from './wallet';
+import { EPaymentType } from './wallet';
 
 export enum EActivityTypes {
 	lightning = 'lightning',
@@ -14,7 +14,7 @@ export interface IActivityItem {
 	message: string;
 	address?: string;
 	activityType: EActivityTypes;
-	txType: TTransactionType;
+	txType: EPaymentType;
 	confirmed: boolean;
 	timestamp: number;
 }
