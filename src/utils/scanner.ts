@@ -641,6 +641,7 @@ export const handleData = async ({
 						},
 					],
 					lightningInvoice: lightningPaymentRequest,
+					slashTagsUrl,
 				},
 			});
 			return ok(EQRDataType.lightningPaymentRequest);
