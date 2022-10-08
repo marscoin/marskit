@@ -3,7 +3,7 @@ import { defaultWidgetsShape } from '../shapes/widgets';
 import { IWidgets } from '../types/widgets';
 
 const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
-	const existing = state.widgets[action.payload.url] || {};
+	const existing = state.widgets[action?.payload?.url] || {};
 
 	switch (action.type) {
 		case actions.RESET_WIDGETS_STORE:

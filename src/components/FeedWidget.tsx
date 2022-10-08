@@ -25,22 +25,19 @@ export const FeedWidget = ({
 	url: string;
 	widget: IWidget;
 }): ReactElement => {
-	const { config, value } = useFeedWidget({
-		url,
-		selectedField: widget.feed.selectedField,
-	});
+	const { value } = useFeedWidget({ url, feed: widget.feed });
 
 	return (
 		<BaseFeedWidget
 			url={url}
-			name={config?.name}
-			label={widget.feed.selectedField}
-			right={<DefaultRightComponent value={value} />}
+			name={widget.feed.name}
+			label={widget.feed.field.name}
+			right={<DefaultRightComponent value={value?.toString()} />}
 			icon={
 				<ProfileImage
 					style={styles.icon}
 					url={url}
-					image={config?.image}
+					image={widget.feed.icon}
 					size={32}
 				/>
 			}

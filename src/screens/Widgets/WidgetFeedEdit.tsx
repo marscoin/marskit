@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import b4a from 'b4a';
 
 import {
 	ScrollView,
@@ -18,12 +17,13 @@ import type { RootStackScreenProps } from '../../navigation/types';
 import { SlashFeedJSON } from '../../store/types/widgets';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
 import { SlashURL } from '@synonymdev/slashtags-sdk';
-import { decodeJSON } from '../../utils/slashtags';
+import { decodeJSON, readAsDataURL } from '../../utils/slashtags';
 import { showErrorNotification } from '../../utils/notifications';
 import ProfileImage from '../../components/ProfileImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useColors from '../../hooks/colors';
 import { deleteFeedWidget, setFeedWidget } from '../../store/actions/widgets';
+import { decodeWidgetFieldValue } from '../../utils/widgets';
 
 export const WidgetFeedEdit = ({
 	navigation,
@@ -34,7 +34,7 @@ export const WidgetFeedEdit = ({
 	const url = route.params?.url;
 
 	const savedSelectedField = useSelector((state: Store) => {
-		return state.widgets.widgets[url]?.feed.selectedField;
+		return state.widgets.widgets[url]?.feed?.field?.name;
 	});
 
 	const [selectedField, setSelectedField] =
@@ -44,8 +44,8 @@ export const WidgetFeedEdit = ({
 		return selectedField && selectedField !== savedSelectedField;
 	}, [selectedField, savedSelectedField]);
 
-	const [config, setConfig] = useState<SlashFeedJSON>();
-	const [files, setFiles] = useState<{ [label: string]: string }>({});
+	const [config, setConfig] = useState<SlashFeedJSON & { icon: string }>();
+	const [fields, setFields] = useState<{ [label: string]: string }>({});
 
 	const sdk = useSlashtagsSDK();
 
@@ -76,36 +76,45 @@ export const WidgetFeedEdit = ({
 				});
 			});
 
-		async function read(): Promise<void> {
+		function read(): void {
 			drive
 				.get('/slashfeed.json')
 				.then(decodeJSON)
-				.then((c: SlashFeedJSON) => !unmounted && setConfig(c))
+				.then((_config: SlashFeedJSON) => {
+					saveConfig(_config).catch(noop);
+
+					_config.fields.map((field) => {
+						drive
+							.get(field.main)
+							.then((buf: Uint8Array) =>
+								decodeWidgetFieldValue(_config.type, buf),
+							)
+							.then((val: any) =>
+								setFields((f) => ({ ...f, [field.name]: val })),
+							)
+							.catch(noop);
+					});
+				})
 				.catch((e: Error) => {
 					showErrorNotification({
 						title: 'Could not resolve feed configuration file slashfeed.json',
 						message: e.message,
 					});
 				});
+		}
 
-			drive
-				.readdir('/feed')
-				.on('data', (filename: string) => {
-					drive
-						.get('/feed/' + filename)
-						.then((buf: Uint8Array) => {
-							const value = buf && b4a.toString(buf);
-							const trimLength = 35;
+		async function saveConfig(_config: SlashFeedJSON): Promise<void> {
+			let icon = _config.icons['32'] || Object.values(_config.icons)[0];
 
-							const val =
-								value.slice(0, trimLength) +
-								(value.length > trimLength ? ' ...' : '');
+			if (icon.startsWith('/')) {
+				icon = await readAsDataURL(drive, icon);
+			}
 
-							setFiles((f) => ({ ...f, [filename]: val }));
-						})
-						.catch(noop);
-				})
-				.on('error', noop);
+			!unmounted &&
+				setConfig({
+					..._config,
+					icon,
+				});
 		}
 
 		function noop(): void {}
@@ -116,7 +125,13 @@ export const WidgetFeedEdit = ({
 	}, [sdk, url]);
 
 	const save = (): void => {
-		setFeedWidget(url, { selectedField });
+		config &&
+			setFeedWidget(url, {
+				name: config.name,
+				type: config.type,
+				icon: config.icon,
+				field: config.fields.filter((f) => f.name === selectedField)[0],
+			});
 		navigation.goBack();
 	};
 
@@ -140,7 +155,7 @@ export const WidgetFeedEdit = ({
 					<ProfileImage
 						style={styles.headerImage}
 						url={url}
-						image={config?.image}
+						image={config?.icon}
 						size={32}
 					/>
 				</View>
@@ -149,28 +164,28 @@ export const WidgetFeedEdit = ({
 					overview.
 				</Text02S>
 				<ScrollView>
-					{Object.values(files).length === 0 ? (
+					{Object.values(fields).length === 0 ? (
 						<Text02S color="gray1">No feeds to feature...</Text02S>
 					) : (
-						Object.entries(files)
+						Object.entries(fields)
 							.sort((a, b) => (a[0] < b[0] ? -1 : 1))
-							.map(([name, value]) => {
+							.map(([label, value]) => {
 								return (
 									<TouchableOpacity
-										key={name}
+										key={label}
 										activeOpacity={0.6}
-										onPress={(): void => setSelectedField(name)}>
+										onPress={(): void => setSelectedField(label)}>
 										<View style={styles.fieldContainer}>
 											<View>
-												<Caption13Up color="gray1" style={styles.fileName}>
-													{name}
+												<Caption13Up color="gray1" style={styles.fileLabel}>
+													{label}
 												</Caption13Up>
 												<Text02S style={styles.fileValue}>{value}</Text02S>
 											</View>
 											<View
 												style={[
 													styles.selectField,
-													selectedField === name
+													selectedField === label
 														? { backgroundColor: brand, borderColor: white }
 														: {},
 												]}
@@ -247,7 +262,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 	},
-	fileName: {
+	fileLabel: {
 		marginBottom: 8,
 	},
 	fileValue: {

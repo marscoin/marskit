@@ -1,23 +1,21 @@
 import { SlashURL } from '@synonymdev/slashtags-sdk';
 import { useEffect, useState } from 'react';
-import b4a from 'b4a';
 
 import { useSlashtagsSDK } from '../components/SlashtagsProvider';
-import { SlashFeedJSON } from '../store/types/widgets';
-import { closeDriveSession, decodeJSON } from '../utils/slashtags';
+import { closeDriveSession } from '../utils/slashtags';
 import { showErrorNotification } from '../utils/notifications';
+import { decodeWidgetFieldValue } from '../utils/widgets';
+import { IWidget } from '../store/types/widgets';
 
 export const useFeedWidget = ({
 	url,
-	selectedField,
+	feed,
 }: {
 	url: string;
-	selectedField?: string;
+	feed: IWidget['feed'];
 }): {
-	value?: string;
-	config?: SlashFeedJSON;
+	value?: any;
 } => {
-	const [config, setConfig] = useState<SlashFeedJSON>();
 	const [value, setValue] = useState<string>();
 
 	const sdk = useSlashtagsSDK();
@@ -36,7 +34,7 @@ export const useFeedWidget = ({
 
 		drive
 			.ready()
-			.then(open)
+			.then(read)
 			.catch((e: Error) => {
 				showErrorNotification({
 					title: 'Failed to open feed drive',
@@ -44,42 +42,23 @@ export const useFeedWidget = ({
 				});
 			});
 
-		function open(): void {
-			drive
-				.get('/slashfeed.json')
-				.then(decodeJSON)
-				.then((c: SlashFeedJSON) => !unmounted && setConfig(c))
-				.then(() => {
-					read();
-					drive.core.on('append', read);
-				})
-				.catch((e: Error) => {
-					showErrorNotification({
-						title: 'Could not resolve feed configuration file slashfeed.json',
-						message: e.message,
-					});
-				});
-		}
-
 		function read(): void {
-			if (!selectedField) {
+			if (!feed?.field) {
 				return;
 			}
-			const path = '/feed/' + selectedField;
-			drive.get(path).then((buf: Uint8Array) => {
-				const _value = b4a.toString(buf);
-				!unmounted && buf && setValue(_value);
-			});
+			drive
+				.get(feed.field.main)
+				.then((buf: Uint8Array) => decodeWidgetFieldValue(feed.type, buf))
+				.then((_value: any) => !unmounted && _value && setValue(_value));
 		}
 
 		return function cleanup() {
 			unmounted = true;
 			closeDriveSession(drive);
 		};
-	}, [url, sdk, selectedField]);
+	}, [url, sdk, feed]);
 
 	return {
-		config,
 		value,
 	};
 };

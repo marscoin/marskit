@@ -15,13 +15,9 @@ export interface SlashFeedJSON {
 }
 
 export interface IWidget {
-	feed: {
-		config: {
-			name: string;
-			icon: string;
-			type: string;
-		};
-		selectedField: string;
+	feed: Pick<SlashFeedJSON, 'name' | 'type'> & {
+		icon: string;
+		field: SlashFeedJSON['fields'][0];
 	};
 	magiclink: boolean;
 }

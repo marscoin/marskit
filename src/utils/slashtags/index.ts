@@ -1,6 +1,7 @@
 import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import c from 'compact-encoding';
 import b4a from 'b4a';
+import mime from 'mime/lite';
 
 import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
@@ -356,3 +357,19 @@ export function decodeJSON(buf: Uint8Array | null): object | undefined {
 export function encodeJSON(json: object): Uint8Array {
 	return b4a.from(JSON.stringify(json));
 }
+
+/**
+ * Open an image from Hyperdrive and convert it to base64 data URL
+ */
+export const readAsDataURL = async (
+	drive: Hyperdrive,
+	path: string,
+): Promise<string> => {
+	const base64 = await drive
+		.get(path)
+		.then((buf: Uint8Array) => buf && b4a.toString(buf, 'base64'));
+
+	const mimeType = mime.getType(path);
+
+	return `data:${mimeType};base64,${base64}`;
+};

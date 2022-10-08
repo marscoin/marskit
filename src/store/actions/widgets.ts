@@ -1,6 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
-import { SlashFeedJSON } from '../types/widgets';
+import { IWidget } from '../types/widgets';
 
 const dispatch = getDispatch();
 
@@ -19,19 +19,12 @@ export const setAuthWidget = (
 	});
 };
 
-export const setFeedWidget = (
-	url: string,
-	config: Partial<SlashFeedJSON>,
-	selectedField: string,
-): void => {
+export const setFeedWidget = (url: string, feed: IWidget['feed']): void => {
 	dispatch({
 		type: actions.SET_SLASHTAGS_FEED_WIDGET,
 		payload: {
 			url,
-			feed: {
-				selectedField,
-				config,
-			},
+			feed,
 		},
 	});
 };
