@@ -124,12 +124,12 @@ const BitfinexWidget = ({
 		const lastTwo = pastValues.slice(-2);
 		const _change = lastTwo[1] - lastTwo[0];
 
-		const sign = _change >= 0 ? '+' : '-';
+		const sign = _change >= 0 ? '+' : '';
 		const color = _change >= 0 ? 'green' : 'red';
 
 		return {
 			color,
-			formatted: sign + _change + '%',
+			formatted: sign + _change / 100 + '%',
 		};
 	}, [pastValues]);
 
