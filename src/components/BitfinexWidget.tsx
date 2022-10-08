@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useState } from 'react';
+import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import {
 	Skia,
@@ -7,15 +7,25 @@ import {
 	vec,
 	Path,
 } from '@shopify/react-native-skia';
+import b4a from 'b4a';
 
 import { View, BitfinexIcon, Text01M, Caption13M } from '../styles/components';
 import useColors from '../hooks/colors';
+import { BaseFeedWidget } from './FeedWidget';
+import { IWidget } from '../store/types/widgets';
+import { useFeedWidget } from '../hooks/widgets';
 
-const Chart = (): ReactElement => {
+const Chart = ({
+	color,
+	values,
+}: {
+	color: string;
+	values: number[];
+}): ReactElement => {
 	const { green, red } = useColors();
 	const [layout, setLayout] = useState({ width: 1, height: 1 });
 
-	const handleLayout = (event): void => {
+	const handleLayout = (event: any): void => {
 		setLayout({
 			width: event.nativeEvent.layout.width,
 			height: event.nativeEvent.layout.height,
@@ -23,21 +33,29 @@ const Chart = (): ReactElement => {
 	};
 
 	let { height, width } = layout;
-	const color = Math.random() > 0.5 ? green : red;
 
 	const backgroud = Skia.Path.Make();
 	const line = Skia.Path.Make();
-	const steps = 20;
+	const steps = values.length;
 	const step = width / steps;
 
+	const normalized = useMemo(() => {
+		const min = values.reduce((prev, curr) => Math.min(prev, curr), Infinity);
+		const max = values.reduce((prev, curr) => Math.max(prev, curr), 0);
+
+		return values.map((value: number) => {
+			return ((value - min) / (max - min)) * height;
+		});
+	}, [values, height]);
+
 	backgroud.moveTo(0, 0);
-	for (let i = 0; i <= steps; i++) {
-		const rand = height - Math.random() * (height - 10);
-		backgroud.lineTo(i * step, rand);
+	for (let i = 0; i < steps; i++) {
+		const value = normalized[i];
+		backgroud.lineTo(i * step, value);
 		if (i === 0) {
-			line.moveTo(i * step, rand);
+			line.moveTo(i * step, value);
 		} else {
-			line.lineTo(i * step, rand);
+			line.lineTo(i * step, value);
 		}
 	}
 	backgroud.lineTo(width, height);
@@ -47,7 +65,7 @@ const Chart = (): ReactElement => {
 	return (
 		<View style={styles.chart} onLayout={handleLayout}>
 			<Canvas style={styles.canvas}>
-				<Path path={backgroud} color={color}>
+				<Path path={backgroud} color={color === 'red' ? red : green}>
 					<LinearGradient
 						start={vec(0, 0)}
 						end={vec(0, height * 1.3)}
@@ -57,7 +75,7 @@ const Chart = (): ReactElement => {
 				</Path>
 				<Path
 					path={line}
-					color={color}
+					color={color === 'red' ? red : green}
 					style="stroke"
 					strokeJoin="round"
 					strokeWidth={2}
@@ -67,47 +85,101 @@ const Chart = (): ReactElement => {
 	);
 };
 
-const BitfinexWidget = (): ReactElement => {
+const BitfinexWidget = ({
+	url,
+	widget,
+}: {
+	url: string;
+	widget: IWidget;
+}): ReactElement => {
+	const { value, drive } = useFeedWidget({ url, feed: widget.feed });
+	const [pastValues, setPastValues] = useState<number[]>([]);
+
+	const period: '24h' | '7d' | '30d' = '24h';
+
+	useEffect(() => {
+		let unmounted = false;
+
+		if (!drive) {
+			return;
+		}
+		drive
+			.get(widget.feed.field.files[period])
+			.then((buf: Uint8Array) => {
+				const string = buf && b4a.toString(buf);
+				const values = JSON.parse(string).map(JSON.parse);
+				!unmounted && values && setPastValues(values);
+			})
+			.catch(noop);
+
+		return function cleanup() {
+			unmounted = true;
+		};
+	}, [drive, widget.feed.field.files, period]);
+
+	const change = useMemo(() => {
+		if (!pastValues || pastValues.length < 2) {
+			return { color: 'green', formatted: '+0%' };
+		}
+		const lastTwo = pastValues.slice(-2);
+		const _change = lastTwo[1] - lastTwo[0];
+
+		const sign = _change >= 0 ? '+' : '-';
+		const color = _change >= 0 ? 'green' : 'red';
+
+		return {
+			color,
+			formatted: sign + _change + '%',
+		};
+	}, [pastValues]);
+
 	return (
-		<View style={styles.root}>
-			<View style={styles.icon}>
+		<BaseFeedWidget
+			url={url}
+			name={
+				// Optionally use the feed name!
+				//
+				// widget.feed.name
+				'Bitfinex'
+			}
+			label={widget.feed.field.name}
+			icon={
 				<BitfinexIcon />
-			</View>
-			<View>
-				<Text01M>Bitfinex</Text01M>
-				<Caption13M color="gray1">Bitcoin Price (1d)</Caption13M>
-			</View>
-			<View style={styles.chart}>
-				<Chart />
-			</View>
-			<View style={styles.numbers}>
-				<Text01M>$20,467</Text01M>
-				<Caption13M color="green">+3.5%</Caption13M>
-			</View>
-		</View>
+				// Optionally use the feed icon!
+				//
+				// <ProfileImage
+				// 	style={styles.icon}
+				// 	url={url}
+				// 	image={widget.feed.icon}
+				// 	size={32}
+				// />
+			}
+			middle={<Chart color={change.color} values={pastValues} />}
+			right={
+				<View style={styles.numbers}>
+					<Text01M styles={styles.price}>{value}</Text01M>
+					<Caption13M color={change.color} styles={styles.change}>
+						{change.formatted}
+					</Caption13M>
+				</View>
+			}
+		/>
 	);
 };
 
 const styles = StyleSheet.create({
-	root: {
-		height: 88,
-		flexDirection: 'row',
-		alignItems: 'center',
-		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-		borderBottomWidth: 1,
-	},
-	icon: {
-		marginRight: 16,
-		borderRadius: 6.4,
-		overflow: 'hidden',
-	},
 	chart: {
 		flex: 1,
-		height: 50,
-		marginHorizontal: 16,
+		minHeight: 40, // static width + height is really important to avoid rerenders of chart
 	},
 	numbers: {
 		alignItems: 'flex-end',
+	},
+	price: {
+		lineHeight: 22,
+	},
+	change: {
+		lineHeight: 18,
 	},
 	canvas: {
 		flex: 1,
@@ -115,3 +187,5 @@ const styles = StyleSheet.create({
 });
 
 export default memo(BitfinexWidget);
+
+function noop(): void {}

@@ -74,22 +74,24 @@ export const BaseFeedWidget = ({
 			<View style={styles.infoContainer}>
 				<View style={styles.icon}>{icon}</View>
 				<View style={styles.labelsContainer}>
-					<Text01M>{name}</Text01M>
-					<Caption13M color="gray1">{label}</Caption13M>
+					<Text01M style={styles.name}>{name}</Text01M>
+					<Caption13M color="gray1" style={styles.label}>
+						{label}
+					</Caption13M>
 				</View>
 			</View>
-			<View style={styles.dataContainer}>
-				<View style={styles.middle}>{middle}</View>
-				{showButtons ? (
-					<Button
-						text=""
-						icon={<GearIcon width={20} />}
-						onPress={(): void => navigate('WidgetFeedEdit', { url })}
-					/>
-				) : (
+			{showButtons ? (
+				<Button
+					text=""
+					icon={<GearIcon width={20} />}
+					onPress={(): void => navigate('WidgetFeedEdit', { url })}
+				/>
+			) : (
+				<View style={styles.dataContainer}>
+					<View style={styles.middle}>{middle}</View>
 					<View style={styles.right}>{right}</View>
-				)}
-			</View>
+				</View>
+			)}
 		</TouchableOpacity>
 	);
 };
@@ -106,14 +108,23 @@ const styles = StyleSheet.create({
 		marginRight: 8,
 		borderRadius: 6.4,
 		overflow: 'hidden',
+		height: 32,
+		width: 32,
 	},
 	infoContainer: {
-		flex: 1,
+		flex: 1.2,
 		display: 'flex',
 		flexDirection: 'row',
+		alignItems: 'center',
 	},
 	labelsContainer: {
 		flex: 1,
+	},
+	name: {
+		lineHeight: 22,
+	},
+	label: {
+		lineHeight: 18,
 	},
 	dataContainer: {
 		flex: 1,

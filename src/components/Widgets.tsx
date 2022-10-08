@@ -14,6 +14,7 @@ import {
 import BitfinexWidget from './BitfinexWidget';
 import AuthWidget from './AuthWidget';
 import FeedWidget from './FeedWidget';
+import { SUPPORTED_FEED_TYPES } from '../utils/widgets';
 
 export const Widgets = (): ReactElement => {
 	const widgets = useSelector((state: Store) => state.widgets?.widgets || {});
@@ -22,12 +23,16 @@ export const Widgets = (): ReactElement => {
 		<>
 			<Subtitle style={styles.title}>Widgets</Subtitle>
 			<View>
-				<BitfinexWidget />
 				{Object.entries(widgets).map(([url, widget]) =>
 					widget.feed ? (
-						// Here we can check widget.type to use custom builtin supported Widgets
-						// that extends BaseFeedWidget and uses useFeedWidget
-						<FeedWidget key={url} url={url} widget={widget} />
+						((): ReactElement => {
+							switch (widget.feed.type) {
+								case SUPPORTED_FEED_TYPES.PRICE_FEED:
+									return <BitfinexWidget key={url} url={url} widget={widget} />;
+								default:
+									return <FeedWidget key={url} url={url} widget={widget} />;
+							}
+						})()
 					) : (
 						<AuthWidget key={url} url={url} widget={widget} />
 					),

@@ -87,7 +87,7 @@ export const WidgetFeedEdit = ({
 						drive
 							.get(field.main)
 							.then((buf: Uint8Array) =>
-								decodeWidgetFieldValue(_config.type, buf),
+								decodeWidgetFieldValue(_config.type, field, buf),
 							)
 							.then((val: any) =>
 								setFields((f) => ({ ...f, [field.name]: val })),

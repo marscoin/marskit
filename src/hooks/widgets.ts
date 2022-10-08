@@ -1,4 +1,4 @@
-import { SlashURL } from '@synonymdev/slashtags-sdk';
+import { SlashURL, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import { useEffect, useState } from 'react';
 
 import { useSlashtagsSDK } from '../components/SlashtagsProvider';
@@ -15,8 +15,10 @@ export const useFeedWidget = ({
 	feed: IWidget['feed'];
 }): {
 	value?: any;
+	drive?: Hyperdrive;
 } => {
 	const [value, setValue] = useState<string>();
+	const [_drive, setDrive] = useState<Hyperdrive>();
 
 	const sdk = useSlashtagsSDK();
 
@@ -34,7 +36,11 @@ export const useFeedWidget = ({
 
 		drive
 			.ready()
-			.then(read)
+			.then(() => {
+				setDrive(drive);
+				read();
+				drive.core.on('append', read);
+			})
 			.catch((e: Error) => {
 				showErrorNotification({
 					title: 'Failed to open feed drive',
@@ -48,7 +54,9 @@ export const useFeedWidget = ({
 			}
 			drive
 				.get(feed.field.main)
-				.then((buf: Uint8Array) => decodeWidgetFieldValue(feed.type, buf))
+				.then((buf: Uint8Array) =>
+					decodeWidgetFieldValue(feed.type, feed.field, buf),
+				)
 				.then((_value: any) => !unmounted && _value && setValue(_value));
 		}
 
@@ -60,5 +68,6 @@ export const useFeedWidget = ({
 
 	return {
 		value,
+		drive: _drive,
 	};
 };
