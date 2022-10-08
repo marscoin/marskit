@@ -1,5 +1,6 @@
 import actions from './actions';
 import { getDispatch } from '../helpers';
+import { SlashFeedJSON } from '../types/widgets';
 
 const dispatch = getDispatch();
 
@@ -11,29 +12,34 @@ export const setAuthWidget = (
 ): void => {
 	dispatch({
 		type: actions.SET_SLASHTAGS_AUTH_WIDGET,
-		url,
-		magiclink: data.magiclink,
+		payload: {
+			url,
+			magiclink: data.magiclink,
+		},
 	});
 };
 
 export const setFeedWidget = (
 	url: string,
-	feed: {
-		selectedField?: string;
-		type?: string;
-	},
+	config: Partial<SlashFeedJSON>,
+	selectedField: string,
 ): void => {
 	dispatch({
 		type: actions.SET_SLASHTAGS_FEED_WIDGET,
-		url,
-		feed,
+		payload: {
+			url,
+			feed: {
+				selectedField,
+				config,
+			},
+		},
 	});
 };
 
 export const deleteFeedWidget = (url: string): void => {
 	dispatch({
 		type: actions.DELETE_SLASHTAGS_FEED_WIDGET,
-		url,
+		payload: { url },
 	});
 };
 

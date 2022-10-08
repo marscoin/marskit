@@ -3,7 +3,7 @@ import { defaultWidgetsShape } from '../shapes/widgets';
 import { IWidgets } from '../types/widgets';
 
 const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
-	const existing = state.widgets[action.url] || {};
+	const existing = state.widgets[action.payload.url] || {};
 
 	switch (action.type) {
 		case actions.RESET_WIDGETS_STORE:
@@ -14,9 +14,9 @@ const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
 				...state,
 				widgets: {
 					...state.widgets,
-					[action.url]: {
+					[action.payload.url]: {
 						...existing,
-						magiclink: action.magiclink,
+						magiclink: action.payload.magiclink,
 					},
 				},
 			};
@@ -26,11 +26,11 @@ const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
 				...state,
 				widgets: {
 					...state.widgets,
-					[action.url]: {
+					[action.payload.url]: {
 						...existing,
 						feed: {
 							...existing.feed,
-							...action.feed,
+							...action.payload.feed,
 						},
 					},
 				},
@@ -38,7 +38,7 @@ const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
 
 		case actions.DELETE_SLASHTAGS_FEED_WIDGET:
 			const widgets = { ...state.widgets };
-			delete widgets[action.url];
+			delete widgets[action.payload.url];
 
 			return { ...state, widgets };
 
