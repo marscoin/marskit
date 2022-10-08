@@ -73,13 +73,13 @@ async function resolveProfile() {
 		{
 			type: 'input',
 			name: 'url',
-			message: "Enter slasthag's url",
+			message: "Enter slashtag's url",
 			default: cached.lastUsedURL,
 		},
 	]);
 
 	if (!url || url.length === 0) {
-		throw new Error('Expected a Slasthag url');
+		throw new Error('Expected a Slashtag url');
 	}
 	cache({ lastUsedURL: url });
 
@@ -170,8 +170,8 @@ async function updateContact() {
 		},
 	]);
 
-	const nameUsedForCreatingSlasthag = contacts[selected];
-	const slashtag = sdk.slashtag(nameUsedForCreatingSlasthag);
+	const nameUsedForCreatingSlashtag = contacts[selected];
+	const slashtag = sdk.slashtag(nameUsedForCreatingSlashtag);
 	const newContact = await generateContact(selected);
 	await saveContact(slashtag, newContact);
 	console.dir(formatContact(newContact), { depth: null });

@@ -3,21 +3,45 @@ import { defaultWidgetsShape } from '../shapes/widgets';
 import { IWidgets } from '../types/widgets';
 
 const slashtags = (state: IWidgets = defaultWidgetsShape, action): IWidgets => {
+	const existing = state.widgets[action?.payload?.url] || {};
+
 	switch (action.type) {
 		case actions.RESET_WIDGETS_STORE:
 			return defaultWidgetsShape;
-		case actions.SET_SLASHTAGS_AUTH_WIDGET:
-			const existing = state.widgets[action.url] || {};
 
+		case actions.SET_SLASHTAGS_AUTH_WIDGET:
 			return {
+				...state,
 				widgets: {
 					...state.widgets,
-					[action.url]: {
+					[action.payload.url]: {
 						...existing,
-						magiclink: action.magiclink,
+						magiclink: action.payload.magiclink,
 					},
 				},
 			};
+
+		case actions.SET_SLASHTAGS_FEED_WIDGET:
+			return {
+				...state,
+				widgets: {
+					...state.widgets,
+					[action.payload.url]: {
+						...existing,
+						feed: {
+							...existing.feed,
+							...action.payload.feed,
+						},
+					},
+				},
+			};
+
+		case actions.DELETE_SLASHTAGS_FEED_WIDGET:
+			const widgets = { ...state.widgets };
+			delete widgets[action.payload.url];
+
+			return { ...state, widgets };
+
 		default:
 			return state;
 	}

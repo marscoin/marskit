@@ -2108,17 +2108,16 @@
     turbo-hash-map "^1.0.3"
     ws "^8.8.1"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.26":
-  version "1.0.0-alpha.26"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.26.tgz#56ec371df04296341121434f0c6f40b5e41821dd"
-  integrity sha512-6ZaitqediWAeDKR86un5VdryjHneUBsFQ88BIz/HFSWi0qPf7+xHHumLR6EGedqPF5+qhE3YJCvGUzh40zzdLg==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.27":
+  version "1.0.0-alpha.27"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.27.tgz#73388cea7a975ae8aa8bf6ae3701e4231e779387"
+  integrity sha512-GUaqHaplqrPBX/7o0m7Lkm+sz1gNYKGBphpr6sP9h90gB4YBtMJzXjk41LYSQLgEoqytWaMOOejo+pjalgMWyQ==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"
     "@synonymdev/slashtag" "^1.0.0-alpha.18"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
     b4a "^1.6.0"
-    compact-encoding "^2.11.0"
     corestore "6.2.0"
     graceful-goodbye "^1.1.0"
     hypercore-crypto "^3.3.0"

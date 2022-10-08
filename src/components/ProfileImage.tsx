@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, View, ViewStyle } from 'react-native';
 import { BasicProfile } from '../store/types/slashtags';
 import { Jdenticon } from './Jdenticon';
+import { SvgXml } from 'react-native-svg';
 
 export const ProfileImage = ({
 	url,
@@ -14,18 +15,31 @@ export const ProfileImage = ({
 	style?: ViewStyle;
 	size: number;
 }): JSX.Element => {
-	const _style: ViewStyle = {
-		backgroundColor: '#222',
-		borderRadius: size,
-		overflow: 'hidden',
-		height: size,
-		width: size,
-		...style,
-	};
+	// Support svg data urls
+	const xml = useMemo(() => {
+		if (image?.startsWith('data:image/svg+xml;base64,')) {
+			const base64 = image.replace('data:image/svg+xml;base64,', '');
+			return Buffer.from(base64, 'base64').toString();
+		}
+	}, [image]);
+
+	const _style: ViewStyle = useMemo(
+		() => ({
+			backgroundColor: xml ? 'transparent' : '#222',
+			borderRadius: size,
+			overflow: 'hidden',
+			height: size,
+			width: size,
+			...style,
+		}),
+		[xml, size, style],
+	);
 
 	return (
 		<View style={_style}>
-			{image ? (
+			{xml ? (
+				<SvgXml width={size} height={size} xml={xml} />
+			) : image ? (
 				<Image source={{ uri: image, width: size, height: size }} />
 			) : url ? (
 				<Jdenticon value={url} size={size} />
