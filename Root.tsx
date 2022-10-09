@@ -6,6 +6,7 @@ import { enableScreens, enableFreeze } from 'react-native-screens';
 import { persistStore } from 'redux-persist';
 import { Provider } from 'react-redux';
 import { EventEmitter } from 'events';
+import nodejs from 'nodejs-mobile-react-native';
 
 import App from './src/App';
 import ErrorBoundary from './src/ErrorBoundary';
@@ -22,6 +23,7 @@ if (!__DEV__) {
 	});
 }
 
+nodejs.start('main.js');
 enableScreens(true);
 enableFreeze(true);
 
