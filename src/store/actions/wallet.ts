@@ -1,5 +1,6 @@
 import actions from './actions';
 import {
+	EPaymentType,
 	EWallet,
 	IAddress,
 	IAddressContent,
@@ -579,7 +580,7 @@ export const updateTransactions = ({
 			// if the tx is new incoming - show notification
 			if (
 				!storedTransactions[txid] &&
-				formatTransactionsResponse.value[txid].type === 'received'
+				formatTransactionsResponse.value[txid].type === EPaymentType.received
 			) {
 				notificationTxid = txid;
 			}

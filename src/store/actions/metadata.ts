@@ -2,6 +2,7 @@ import { ok, Result } from '@synonymdev/result';
 import actions from './actions';
 import { getDispatch, getStore } from '../helpers';
 import { getCurrentWallet } from '../../utils/wallet';
+import { EPaymentType } from '../types/wallet';
 
 const dispatch = getDispatch();
 
@@ -80,7 +81,7 @@ export const moveMetaIncTxTags = (): Result<string> => {
 		store.wallet.wallets[selectedWallet].transactions[selectedNetwork];
 
 	const receivedTxs = Object.entries(transactions).filter(
-		([_, txContent]) => txContent.type === 'received',
+		([_, txContent]) => txContent.type === EPaymentType.received,
 	);
 
 	const { tags, pendingTags } = store.metadata;

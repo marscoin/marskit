@@ -1,9 +1,10 @@
 import { EActivityTypes, IActivity, IActivityItem } from '../types/activity';
+import { EPaymentType } from '../types/wallet';
 
 export const defaultActivityItemShape: IActivityItem = {
 	id: '',
 	activityType: EActivityTypes.onChain,
-	txType: 'received',
+	txType: EPaymentType.received,
 	confirmed: false,
 	value: 0,
 	fee: 0,

@@ -6,6 +6,7 @@ import useDisplayValues from './displayValues';
 export interface IncludeBalances {
 	onchain?: boolean;
 	lightning?: boolean;
+	subtractReserveBalance?: boolean;
 }
 
 /**
@@ -14,6 +15,7 @@ export interface IncludeBalances {
 export function useBalance({
 	onchain = false,
 	lightning = false,
+	subtractReserveBalance = true, // Will subtract any reserved sats from the balance total by default.
 }: IncludeBalances): IDisplayValues {
 	const selectedWallet = useSelector(
 		(store: Store) => store.wallet.selectedWallet,
@@ -41,7 +43,12 @@ export function useBalance({
 						currentChannel?.short_channel_id &&
 						openChannelIds.includes(currentChannel?.channel_id)
 					) {
-						return previousValue + currentChannel.balance_sat;
+						let reserveBalance = 0;
+						if (subtractReserveBalance) {
+							reserveBalance =
+								currentChannel?.unspendable_punishment_reserve ?? 0;
+						}
+						return previousValue + currentChannel.balance_sat - reserveBalance;
 					}
 					return previousValue;
 				},

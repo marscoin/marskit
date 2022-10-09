@@ -8,6 +8,21 @@ import { getCurrentWallet } from '../../utils/wallet';
 const dispatch = getDispatch();
 
 /**
+ * Adds the provided activity item to the activity list.
+ * @param {IActivityItem<TActivityItems>} activityItem
+ * @returns {Result<string>}
+ */
+export const addActivityItem = (
+	activityItem: IActivityItem,
+): Result<string> => {
+	dispatch({
+		type: actions.ADD_ACTIVITY_ITEM,
+		payload: activityItem,
+	});
+	return ok('Activity Item Added.');
+};
+
+/**
  * Updates activity list with all wallet stores
  * @returns {Promise<Result<string>>}
  */
@@ -71,10 +86,13 @@ export const replaceActivityItemById = ({
 	if (!activityItems) {
 		activityItems = getStore().activity.items;
 	}
-	activityItems = activityItems.filter(
-		(activityItem) => activityItem.id !== id,
-	);
-	activityItems.push(newActivityItem);
+	activityItems = activityItems.map((activityItem) => {
+		if (activityItem.id === id) {
+			return newActivityItem;
+		} else {
+			return activityItem;
+		}
+	});
 	dispatch({
 		type: actions.REPLACE_ACTIVITY_ITEM,
 		payload: activityItems,

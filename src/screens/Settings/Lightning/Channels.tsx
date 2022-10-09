@@ -24,7 +24,6 @@ import LightningChannel from '../../../components/LightningChannel';
 import Money from '../../../components/Money';
 import useColors from '../../../hooks/colors';
 import {
-	createLightningInvoice,
 	getNodeId,
 	payLightningInvoice,
 	refreshLdk,
@@ -41,6 +40,7 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
+import { createLightningInvoice } from '../../../store/actions/lightning';
 
 const Channel = memo(
 	({
@@ -160,6 +160,8 @@ const Channels = ({ navigation }): ReactElement => {
 			amountSats,
 			description: '',
 			expiryDeltaSeconds: 99999,
+			selectedNetwork,
+			selectedWallet,
 		});
 		if (createPaymentRequest.isErr()) {
 			showErrorNotification({

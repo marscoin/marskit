@@ -1,13 +1,32 @@
-import { IWalletItem } from './wallet';
-import { TChannel } from '@synonymdev/react-native-ldk';
+import { EPaymentType, IWalletItem } from './wallet';
+import {
+	TChannel,
+	TCreatePaymentReq,
+	TInvoice,
+} from '@synonymdev/react-native-ldk';
+import { TAvailableNetworks } from '../../utils/networks';
+
+export type IInvoice = {
+	[key: string]: TInvoice;
+};
+
+export type TCreateLightningInvoice = TCreatePaymentReq & {
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+};
+
+export type TLightningPayment = {
+	invoice: TInvoice;
+	type: EPaymentType;
+};
 
 export interface IDefaultLightningShape {
 	nodeId: IWalletItem<string>;
 	channels: IWalletItem<{ [key: string]: TChannel } | {}>;
 	openChannelIds: IWalletItem<string[]>;
 	info: IWalletItem<{}>;
-	invoices: IWalletItem<[]>;
-	payments: IWalletItem<[]>;
+	invoices: IWalletItem<TInvoice[]> | IWalletItem<[]>;
+	payments: IWalletItem<{ [key: string]: TLightningPayment }> | IWalletItem<{}>;
 }
 
 export interface ILightning {

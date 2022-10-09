@@ -5,14 +5,14 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import { err, ok, Result } from '@synonymdev/result';
 
-import { INetwork, TAvailableNetworks } from '../networks';
-import { networks } from '../networks';
+import { INetwork, networks, TAvailableNetworks } from '../networks';
 import {
 	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
 } from '../../store/shapes/wallet';
 import {
+	EPaymentType,
 	EWallet,
 	IAddress,
 	IAddressContent,
@@ -1590,7 +1590,10 @@ export const formatTransactions = async ({
 		}
 
 		const txid = result.txid;
-		const type = matchedInputValue > matchedOutputValue ? 'sent' : 'received';
+		const type =
+			matchedInputValue > matchedOutputValue
+				? EPaymentType.sent
+				: EPaymentType.received;
 		const totalMatchedValue = matchedOutputValue - matchedInputValue;
 		const value = Number(totalMatchedValue.toFixed(8));
 		const totalValue = totalInputValue - totalOutputValue;
@@ -2515,10 +2518,16 @@ interface IGetBalanceProps extends IncludeBalances {
 }
 /**
  * Retrieves the total wallet display values for the currently selected wallet and network.
+ * @param {boolean} [onchain]
+ * @param {boolean} [lightning]
+ * @param {boolean} [subtractReserveBalance]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
  */
 export const getBalance = ({
 	onchain = false,
 	lightning = false,
+	subtractReserveBalance = true,
 	selectedWallet,
 	selectedNetwork,
 }: IGetBalanceProps): IDisplayValues => {
@@ -2541,7 +2550,12 @@ export const getBalance = ({
 		balance = Object.values(channels).reduce(
 			(previousValue, currentChannel) => {
 				if (currentChannel?.short_channel_id) {
-					return previousValue + currentChannel.balance_sat;
+					let reserveBalance = 0;
+					if (subtractReserveBalance) {
+						reserveBalance =
+							currentChannel?.unspendable_punishment_reserve ?? 0;
+					}
+					return previousValue + currentChannel.balance_sat - reserveBalance;
 				}
 				return previousValue;
 			},

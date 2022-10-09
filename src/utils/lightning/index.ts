@@ -1,10 +1,12 @@
 import { err, ok, Result } from '@synonymdev/result';
 import lm, {
 	DefaultTransactionDataShape,
+	EEventTypes,
 	ENetworks,
 	TAccount,
 	TAccountBackup,
 	TChannel,
+	TChannelManagerPayment,
 	TCloseChannelReq,
 	THeader,
 	TInvoice,
@@ -31,6 +33,7 @@ import { getStore } from '../../store/helpers';
 import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
+	addLightningPayment,
 	updateLightningChannels,
 	updateLightningNodeId,
 	updateLightningNodeVersion,
@@ -38,6 +41,13 @@ import {
 import { sleep } from '../helpers';
 import { broadcastTransaction } from '../wallet/transactions';
 import RNFS from 'react-native-fs';
+import { EmitterSubscription } from 'react-native';
+import { EActivityTypes, IActivityItem } from '../../store/types/activity';
+import { addActivityItem } from '../../store/actions/activity';
+import { EPaymentType } from '../../store/types/wallet';
+import { showSuccessNotification } from '../notifications';
+
+let paymentSubscription: EmitterSubscription | undefined;
 
 /**
  * Wipes LDK data from storage
@@ -167,10 +177,135 @@ export const setupLdk = async ({
 			updateLightningNodeVersion(),
 			refreshLdk({ selectedWallet, selectedNetwork }),
 		]);
+
+		subscribeToLightningPayments({
+			selectedWallet,
+			selectedNetwork,
+		});
+
 		return ok(nodeIdRes.value);
 	} catch (e) {
 		return err(e.toString());
 	}
+};
+
+/**
+ * Retrieves any pending/unpaid invoices from the invoices array via payment hash.
+ * @param {string} paymentHash
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getPendingInvoice = ({
+	paymentHash,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	paymentHash: string;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Result<TInvoice> => {
+	try {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const invoices =
+			getStore().lightning.nodes[selectedWallet].invoices[selectedNetwork];
+		const invoice = invoices.filter((inv) => inv.payment_hash === paymentHash);
+		if (invoice.length > 0) {
+			return ok(invoice[0]);
+		}
+		return err('Unable to find any pending invoices.');
+	} catch (e) {
+		return err(e);
+	}
+};
+
+export const handleLightningPaymentSubscription = ({
+	payment,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	payment: TChannelManagerPayment;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): void => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	console.log('Receiving Payment...', payment);
+	const invoice = getPendingInvoice({
+		paymentHash: payment.payment_hash,
+		selectedNetwork,
+		selectedWallet,
+	});
+	if (invoice.isOk()) {
+		showSuccessNotification({
+			title: `Received ${payment.amount_sat} sats.`,
+			message: 'Lightning payment received.',
+		});
+		const value = payment.amount_sat;
+		let activityItem: IActivityItem = {
+			id: invoice.value.payment_hash,
+			message: invoice?.value.description ?? '',
+			address: invoice.value.to_str,
+			activityType: EActivityTypes.lightning,
+			txType: EPaymentType.received,
+			value,
+			confirmed: true,
+			fee: 0,
+			timestamp: new Date().getTime(),
+		};
+		addActivityItem(activityItem);
+		addLightningPayment({
+			invoice: invoice.value,
+			selectedWallet,
+			selectedNetwork,
+		});
+		refreshLdk({ selectedWallet, selectedNetwork }).then();
+	}
+};
+
+/**
+ * Subscribes to incoming lightning payments.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const subscribeToLightningPayments = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): void => {
+	if (!paymentSubscription) {
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		// @ts-ignore
+		paymentSubscription = ldk.onEvent(
+			EEventTypes.channel_manager_payment_claimed,
+			(res: TChannelManagerPayment) => {
+				handleLightningPaymentSubscription({
+					payment: res,
+					selectedNetwork,
+					selectedWallet,
+				});
+			},
+		);
+	}
+};
+
+export const unsubscribeFromLightningPayments = (): void => {
+	paymentSubscription && paymentSubscription.remove();
 };
 
 /**
@@ -605,7 +740,7 @@ export const closeChannel = async ({
  * @param {TCreatePaymentReq}
  * @returns {Promise<Result<TInvoice>>}
  */
-export const createLightningInvoice = ldk.createPaymentRequest;
+export const createPaymentRequest = ldk.createPaymentRequest;
 
 /**
  * Attempts to pay a bolt11 invoice.
@@ -618,11 +753,57 @@ export const payLightningInvoice = async (
 	sats?: number,
 ): Promise<Result<string>> => {
 	try {
+		const addPeersResponse = await addPeers();
+		if (addPeersResponse.isErr()) {
+			return err(addPeersResponse.error.message);
+		}
+		const decodedInvoice = await decodeLightningInvoice({
+			paymentRequest: invoice,
+		});
+		if (decodedInvoice.isErr()) {
+			return err(decodedInvoice.error.message);
+		}
+
+		let payResponse: Result<string> | undefined;
 		if (sats) {
 			// @ts-ignore
-			return await ldk.pay({ paymentRequest: invoice, amountSats: sats });
+			payResponse = await ldk.pay({
+				paymentRequest: invoice,
+				amountSats: sats,
+			});
+		} else {
+			payResponse = await ldk.pay({ paymentRequest: invoice });
 		}
-		return await ldk.pay({ paymentRequest: invoice });
+		if (!payResponse) {
+			return err('Unable to pay the provided lightning invoice.');
+		}
+		if (payResponse.isErr()) {
+			return err(payResponse.error.message);
+		}
+		const addLightningPaymentResponse = addLightningPayment({
+			invoice: decodedInvoice.value,
+		});
+		if (addLightningPaymentResponse.isErr()) {
+			return err(addLightningPaymentResponse.error.message);
+		}
+		let value = decodedInvoice.value.amount_satoshis ?? 0;
+		if (sats) {
+			value = sats;
+		}
+		let activityItem: IActivityItem = {
+			id: decodedInvoice.value.payment_hash,
+			message: decodedInvoice?.value.description ?? '',
+			address: invoice,
+			activityType: EActivityTypes.lightning,
+			txType: EPaymentType.sent,
+			value: -value,
+			confirmed: true,
+			fee: 0,
+			timestamp: new Date().getTime(),
+		};
+		addActivityItem(activityItem);
+		refreshLdk({}).then();
+		return ok(payResponse.value);
 	} catch (e) {
 		console.log(e);
 		return err(e);

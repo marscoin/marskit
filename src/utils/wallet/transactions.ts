@@ -6,6 +6,7 @@ import { btcToSats, getKeychainValue, reduceValue } from '../helpers';
 import {
 	defaultBitcoinTransactionData,
 	EBoost,
+	EPaymentType,
 	ETransactionDefaults,
 	IBitcoinTransactionData,
 	IOutput,
@@ -1388,7 +1389,7 @@ export interface ICanBoostResponse {
 export const canBoost = (txid: string): ICanBoostResponse => {
 	const failure = { canBoost: false, rbf: false, cpfp: false };
 	try {
-		let type = 'sent';
+		let type = EPaymentType.sent;
 		if (!txid) {
 			return failure;
 		}
@@ -1418,7 +1419,7 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 			transactionResponse.value;
 		const rbf =
 			rbfEnabled &&
-			type === 'sent' &&
+			type === EPaymentType.sent &&
 			height <= 0 &&
 			balance >= ETransactionDefaults.recommendedBaseFee &&
 			matchedOutputValue !== totalOutputValue &&
@@ -2154,7 +2155,7 @@ export const broadcastBoost = async ({
 			message: transaction?.message || '',
 			address: transaction.changeAddress,
 			activityType: EActivityTypes.onChain,
-			txType: 'sent',
+			txType: EPaymentType.sent,
 			value: activityItemValue,
 			confirmed: false,
 			fee: btcToSats(Number(transaction.fee)),

@@ -6,12 +6,17 @@ import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import { TAvailableNetworks } from '../../utils/networks';
 import {
+	addPeers,
+	createPaymentRequest,
 	getLightningChannels,
 	getNodeIdFromStorage,
 	getNodeVersion,
 } from '../../utils/lightning';
-import { TChannel } from '@synonymdev/react-native-ldk';
-import { TLightningNodeVersion } from '../types/lightning';
+import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
+import {
+	TCreateLightningInvoice,
+	TLightningNodeVersion,
+} from '../types/lightning';
 import { showSuccessNotification } from '../../utils/notifications';
 
 const dispatch = getDispatch();
@@ -183,6 +188,167 @@ export const claimChannel = (
 
 		resolve(ok(lnurlRes.value));
 	});
+};
+
+/**
+ * Creates and stores a lightning invoice, for the specified amount, and refreshes/re-adds peers.
+ * @param {number} amountSats
+ * @param {string} [description]
+ * @param {number} [expiryDeltaSeconds]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ */
+export const createLightningInvoice = async ({
+	amountSats,
+	description,
+	expiryDeltaSeconds,
+	selectedNetwork,
+	selectedWallet,
+}: TCreateLightningInvoice): Promise<Result<TInvoice>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const invoice = await createPaymentRequest({
+		amountSats,
+		description,
+		expiryDeltaSeconds,
+	});
+	if (invoice.isErr()) {
+		return err(invoice.error.message);
+	}
+
+	addPeers().then();
+
+	const payload = {
+		invoice: invoice.value,
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.ADD_LIGHTNING_INVOICE,
+		payload,
+	});
+	return ok(invoice.value);
+};
+
+/**
+ * Filters out and removes expired invoices from the invoices array
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @returns {Promise<Result<string>>}
+ */
+export const removeExpiredLightningInvoices = async ({
+	selectedNetwork,
+	selectedWallet,
+}: {
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const payload = {
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.REMOVE_EXPIRED_LIGHTNING_INVOICES,
+		payload,
+	});
+	return ok('');
+};
+
+/**
+ * Removes a lightning invoice from the invoices array via its payment hash.
+ * @param {string} paymentHash
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @returns {Promise<Result<string>>}
+ */
+export const removeLightningInvoice = async ({
+	paymentHash,
+	selectedNetwork,
+	selectedWallet,
+}: {
+	paymentHash: string;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Promise<Result<string>> => {
+	if (!paymentHash) {
+		return err('No payment hash provided.');
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const payload = {
+		paymentHash,
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.REMOVE_LIGHTNING_INVOICE,
+		payload,
+	});
+	return ok('Successfully removed lightning invoice.');
+};
+
+/**
+ * Adds a paid lightning invoice to the payments object for future reference.
+ * @param {TInvoice} invoice
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} [selectedWallet]
+ * @returns {Result<string>}
+ */
+export const addLightningPayment = ({
+	invoice,
+	selectedNetwork,
+	selectedWallet,
+}: {
+	invoice: TInvoice;
+	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: string;
+}): Result<string> => {
+	if (!invoice) {
+		return err('No payment invoice provided.');
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const lightningPayments =
+		getStore().lightning.nodes[selectedWallet].payments[selectedNetwork];
+
+	// It's possible ldk.pay returned true for an invoice we already paid.
+	// Run another check here.
+	if (invoice.payment_hash in lightningPayments) {
+		return err('Lightning invoice has already been paid.');
+	}
+	const payload = {
+		invoice,
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.ADD_LIGHTNING_PAYMENT,
+		payload,
+	});
+	removeLightningInvoice({
+		paymentHash: invoice.payment_hash,
+		selectedNetwork,
+		selectedWallet,
+	}).then();
+	return ok('Successfully added lightning payment.');
 };
 
 /*

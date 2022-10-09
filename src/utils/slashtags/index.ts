@@ -7,7 +7,7 @@ import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
 import { showErrorNotification } from '../notifications';
 import { getReceiveAddress } from '../../utils/wallet';
-import { createLightningInvoice } from '../../utils/lightning';
+import { createLightningInvoice } from '../../store/actions/lightning';
 import { getStore } from '../../store/helpers';
 
 /**

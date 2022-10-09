@@ -16,6 +16,7 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
+import { EPaymentType } from '../../store/types/wallet';
 
 const Tab = ({
 	text,
@@ -43,8 +44,8 @@ const Tab = ({
 
 const filterTabs = {
 	all: {},
-	sent: { txType: 'sent' },
-	received: { txType: 'received' },
+	sent: { txType: EPaymentType.sent },
+	received: { txType: EPaymentType.received },
 	instant: { types: ['lightning'] },
 };
 

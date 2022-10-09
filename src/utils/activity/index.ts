@@ -3,8 +3,8 @@ import {
 	IActivityItem,
 	IActivityItemFormatted,
 } from '../../store/types/activity';
-import type { TTransactionType } from '../../store/types/wallet';
 import {
+	EPaymentType,
 	IFormattedTransaction,
 	IFormattedTransactionContent,
 } from '../../store/types/wallet';
@@ -99,7 +99,7 @@ export const filterActivityItems = (
 		search?: string;
 		types?: EActivityTypes[];
 		tags?: Array<string>;
-		txType?: TTransactionType;
+		txType?: EPaymentType;
 	},
 ): IActivityItem[] => {
 	const lowerSearch = search.toLowerCase();

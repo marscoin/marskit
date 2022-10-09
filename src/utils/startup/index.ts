@@ -20,6 +20,7 @@ import { keepLdkSynced, setupLdk } from '../lightning';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateUser } from '../../store/actions/user';
 import { setupBlocktank, watchPendingOrders } from '../blocktank';
+import { removeExpiredLightningInvoices } from '../../store/actions/lightning';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -173,6 +174,9 @@ export const startWalletServices = async ({
 				await setupBlocktank(selectedNetwork);
 				await refreshServiceList();
 				watchPendingOrders();
+				removeExpiredLightningInvoices({
+					selectedNetwork,
+				}).then();
 			}
 
 			// This should be last so that we know all on-chain and lightning data is synced/up-to-date.

@@ -8,7 +8,7 @@ export const defaultLightningShape: IDefaultLightningShape = {
 	channels: objectTypeItems,
 	openChannelIds: arrayTypeItems,
 	invoices: arrayTypeItems,
-	payments: arrayTypeItems,
+	payments: objectTypeItems,
 };
 
 export const defaultLightningStoreShape: ILightning = {
