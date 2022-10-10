@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { View, StyleSheet } from 'react-native';
-import * as Sentry from '@sentry/react-native';
 import { PersistGate } from 'redux-persist/integration/react';
 import { enableScreens, enableFreeze } from 'react-native-screens';
 import { persistStore } from 'redux-persist';
@@ -12,16 +11,6 @@ import ErrorBoundary from './src/ErrorBoundary';
 import store from './src/store';
 
 EventEmitter.defaultMaxListeners = 1000; // default is 10, but we need to listen a lot of address
-
-// TODO: Setry needs to be removed before full release
-if (!__DEV__) {
-	Sentry.init({
-		dsn: 'https://70caceeda5c14f4da121ef90ac0858bf@sentry.synonym.to/2',
-		tracesSampleRate: 1.0,
-		normalizeDepth: 10, // increase default for Redux
-	});
-}
-
 enableScreens(true);
 enableFreeze(true);
 
@@ -45,7 +34,7 @@ const Root = (): ReactElement => {
 	return <ErrorBoundary>{content}</ErrorBoundary>;
 };
 
-export default Sentry.wrap(Root);
+export default Root;
 
 const styles = StyleSheet.create({
 	container: {

@@ -1,5 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit';
-import * as Sentry from '@sentry/react-native';
 import createDebugger from 'redux-flipper';
 import logger from 'redux-logger';
 import {
@@ -37,7 +36,7 @@ const devMiddleware = [
 	...(__enableLogger__ ? [logger] : []),
 ];
 
-const enhancers = [Sentry.createReduxEnhancer()];
+const enhancers = [];
 
 const persistConfig = { key: 'root', storage: mmkvStorage };
 const persistedReducer = persistReducer(persistConfig, reducers);
