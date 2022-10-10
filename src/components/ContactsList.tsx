@@ -8,15 +8,16 @@ import { useProfile, useSelectedSlashtag } from '../hooks/slashtags';
 import { IContactRecord } from '../store/types/slashtags';
 import { useSlashtags } from './SlashtagsProvider';
 import Divider from './Divider';
+import { BottomSheetSectionList } from '@gorhom/bottom-sheet';
 
 export const ContactItem = ({
 	contact,
-	onPress,
 	size,
+	onPress,
 }: {
 	contact: IContactRecord;
-	onPress?: (contact: IContactRecord) => void;
 	size?: 'small' | 'normal';
+	onPress?: (contact: IContactRecord) => void;
 }): JSX.Element => {
 	const { url: myProfileURL } = useSelectedSlashtag();
 	const { profile } = useProfile(contact.url);
@@ -67,12 +68,14 @@ const ContactsList = ({
 	includeMyProfile = false,
 	sectionBackgroundColor = 'black',
 	stickySectionHeadersEnabled,
+	bottomSheet = false,
 }: {
 	onPress: (contact: IContactRecord) => void;
 	searchFilter?: string;
 	includeMyProfile?: boolean;
 	sectionBackgroundColor?: string;
 	stickySectionHeadersEnabled?: boolean;
+	bottomSheet?: boolean;
 }): ReactElement => {
 	const contacts = useSlashtags().contacts;
 	const { url: myProfileURL } = useSelectedSlashtag();
@@ -115,30 +118,36 @@ const ContactsList = ({
 		return result;
 	}, [filteredContacts, myProfileURL, includeMyProfile, searchFilter]);
 
+	const List = bottomSheet ? BottomSheetSectionList : SectionList;
+
+	const renderSectionHeader = useCallback(
+		({ section: { title } }): ReactElement => {
+			const isFirst = title === sectionedContacts[0].title;
+			return (
+				<ThemedView
+					color={sectionBackgroundColor}
+					style={!isFirst && styles.sectionSpacing}>
+					<Caption13Up color="gray1">{title}</Caption13Up>
+				</ThemedView>
+			);
+		},
+		[sectionBackgroundColor, sectionedContacts],
+	);
+
+	const renderItem = useCallback(
+		({ item }): ReactElement => (
+			<ContactItem contact={item} onPress={onPress} />
+		),
+		[onPress],
+	);
+
 	return (
-		<SectionList
+		<List
 			sections={sectionedContacts as any}
 			keyExtractor={(item: IContactRecord): string => item.url}
 			ListEmptyComponent={Empty}
-			renderSectionHeader={useCallback(
-				({ section: { title } }): ReactElement => {
-					const isFirst = title === sectionedContacts[0].title;
-					return (
-						<ThemedView
-							color={sectionBackgroundColor}
-							style={[
-								styles.sectionHeader,
-								!isFirst ? styles.sectionSpacing : {},
-							]}>
-							<Caption13Up color="gray1">{title}</Caption13Up>
-						</ThemedView>
-					);
-				},
-				[sectionBackgroundColor, sectionedContacts],
-			)}
-			renderItem={({ item: contact }): ReactElement => (
-				<ContactItem contact={contact} onPress={onPress} />
-			)}
+			renderSectionHeader={renderSectionHeader}
+			renderItem={renderItem}
 			stickySectionHeadersEnabled={stickySectionHeadersEnabled}
 		/>
 	);
@@ -167,11 +176,10 @@ const estyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-	sectionHeader: {
-		height: 24,
-	},
 	sectionSpacing: {
-		marginTop: 40,
+		height: 60,
+		justifyContent: 'flex-end',
+		paddingBottom: 2,
 	},
 });
 
