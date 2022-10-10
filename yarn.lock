@@ -9417,7 +9417,8 @@ react-native-randombytes@^3.5.1, react-native-randombytes@^3.6.1:
     buffer "^4.9.1"
     sjcl "^1.0.3"
 
-react-native-reanimated-carousel@^3.0.0:
+
+react-native-reanimated-carousel@3.0.6:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/react-native-reanimated-carousel/-/react-native-reanimated-carousel-3.0.6.tgz#df2e79b59542f79848793cff516a5e618a13d13c"
   integrity sha512-5Y6dHMVuwb3HApv/wACBhFECCVrpNs66Hw1ORZUE5mZag/0TXwBno1MjBoxjQ3CUOGovPauKc4PwZ8Z9rY9QBQ==
