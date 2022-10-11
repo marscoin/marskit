@@ -175,8 +175,12 @@ const TabNavigator = (): ReactElement => {
 		[],
 	);
 
+	const tabBar = useCallback((props) => {
+		return <TabBar {...props} />;
+	}, []);
+
 	return (
-		<Tab.Navigator tabBar={(props): ReactElement => <TabBar {...props} />}>
+		<Tab.Navigator tabBar={tabBar}>
 			<Tab.Group screenOptions={tabScreenOptions}>
 				<Tab.Screen name="WalletsStack" component={WalletsStack} />
 			</Tab.Group>
