@@ -317,7 +317,13 @@ const CustomSetup = ({
 			const receiveRate = receivePkgRates[maxReceivePackage.id];
 			setReceivingAmount(receiveRate);
 		}
-	}, [availableSpendingPackages, receivePkgRates, spendPkgRates, spending]);
+	}, [
+		availableReceivingPackages,
+		availableSpendingPackages,
+		receivePkgRates,
+		spendPkgRates,
+		spending,
+	]);
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>

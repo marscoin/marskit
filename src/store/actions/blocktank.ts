@@ -440,6 +440,28 @@ export const startChannelPurchase = async ({
 };
 
 /**
+ * Stores all paid order id's and pairs them with their corresponding txid.
+ * @param {string} orderId
+ * @param {string} txid
+ */
+export const addPaidBlocktankOrder = ({
+	orderId,
+	txid,
+}: {
+	orderId: string;
+	txid: string;
+}): void => {
+	const payload = {
+		orderId,
+		txid,
+	};
+	dispatch({
+		type: actions.ADD_PAID_BLOCKTANK_ORDER,
+		payload,
+	});
+};
+
+/**
  * Creates, broadcasts and confirms a given Blocktank channel purchase by orderId.
  * @param {string} orderId
  * @param {TAvailableNetworks} [selectedNetwork]
@@ -475,6 +497,7 @@ export const confirmChannelPurchase = async ({
 		});
 		return err(broadcastResponse.error.message);
 	}
+	addPaidBlocktankOrder({ orderId, txid: broadcastResponse.value });
 
 	// Reset tx data.
 	resetOnChainTransaction({ selectedNetwork });
