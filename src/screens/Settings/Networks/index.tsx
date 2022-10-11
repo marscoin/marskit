@@ -4,13 +4,13 @@ import { IListData } from '../../../components/List';
 import Store from '../../../store/types';
 import SettingsView from '../SettingsView';
 
-const NetworksSettings = ({ navigation }): ReactElement => {
-	const networkLabels = {
-		bitcoin: 'Mainnet',
-		bitcoinTestnet: 'Testnet',
-		bitcoinRegtest: 'Regtest',
-	};
+const networkLabels = {
+	bitcoin: 'Mainnet',
+	bitcoinTestnet: 'Testnet',
+	bitcoinRegtest: 'Regtest',
+};
 
+const NetworksSettings = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(state: Store) => state.wallet.selectedNetwork,
 	);
@@ -47,7 +47,7 @@ const NetworksSettings = ({ navigation }): ReactElement => {
 				],
 			},
 		],
-		[navigation, networkLabels, selectedNetwork],
+		[navigation, selectedNetwork],
 	);
 
 	return (

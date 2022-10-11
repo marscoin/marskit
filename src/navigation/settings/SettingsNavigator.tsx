@@ -18,6 +18,8 @@ import LightningNodeInfo from '../../screens/Settings/Lightning/LightningNodeInf
 import TempSettings from '../../screens/Settings/TempSettings';
 import BitcoinUnitSettings from '../../screens/Settings/BitcoinUnit';
 import TransactionSpeedSettings from '../../screens/Settings/TransactionSpeed';
+import BlocktankOrders from '../../screens/Settings/BlocktankOrders';
+import BlocktankOrderDetails from '../../screens/Settings/BlocktankOrders/BlocktankOrderDetails';
 import AuthCheck from '../../components/AuthCheck';
 import GeneralSettings from '../../screens/Settings/General';
 import SecuritySettings from '../../screens/Settings/Security';
@@ -55,6 +57,8 @@ export type SettingsStackParamList = {
 	CurrenciesSettings: undefined;
 	BitcoinUnitSettings: undefined;
 	TransactionSpeedSettings: undefined;
+	BlocktankOrders: undefined;
+	BlocktankOrderDetails: undefined;
 	ElectrumConfig: undefined;
 	TempSettings: undefined;
 	CoinSelectPreference: undefined;
@@ -107,6 +111,11 @@ const SettingsNavigator = (): ReactElement => {
 				<Stack.Screen
 					name="TransactionSpeedSettings"
 					component={TransactionSpeedSettings}
+				/>
+				<Stack.Screen name="BlocktankOrders" component={BlocktankOrders} />
+				<Stack.Screen
+					name="BlocktankOrderDetails"
+					component={BlocktankOrderDetails}
 				/>
 				<Stack.Screen name="ElectrumConfig" component={ElectrumConfig} />
 				<Stack.Screen name="TempSettings" component={TempSettings} />

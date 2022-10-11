@@ -41,6 +41,14 @@ const blocktank = (
 				...state,
 				orders,
 			};
+		case actions.ADD_PAID_BLOCKTANK_ORDER:
+			return {
+				...state,
+				paidOrders: {
+					...state.paidOrders,
+					[action.payload.orderId]: action.payload.txid,
+				},
+			};
 		case actions.RESET_BLOCKTANK_STORE:
 			return { ...defaultBlocktankShape };
 		default:

@@ -19,6 +19,7 @@ export const defaultBlocktankShape: IBlocktank = {
 	serviceList: [],
 	serviceListLastUpdated: undefined,
 	orders: [],
+	paidOrders: {},
 	info: defaultBlocktankInfoShape,
 };
 

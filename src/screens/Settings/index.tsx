@@ -1,6 +1,6 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
-import { IListData } from './../../components/List';
+import { IListData } from '../../components/List';
 import Glow from './../../components/Glow';
 import SettingsView from './SettingsView';
 

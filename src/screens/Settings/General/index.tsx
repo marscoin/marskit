@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Modal, StyleSheet, Text, Pressable, View } from 'react-native';
 
 import Store from './../../../store/types';
-import { IListData } from './../../../components/List';
+import { IListData } from '../../../components/List';
 import SettingsView from './../SettingsView';
 import { updateSettings } from '../../../store/actions/settings';
 import { setupTodos } from '../../../utils/todos';
@@ -82,6 +82,12 @@ const General = ({ navigation }): ReactElement => {
 						type: 'button',
 						onPress: (): void =>
 							navigation.navigate('TransactionSpeedSettings'),
+						hide: false,
+					},
+					{
+						title: 'Blocktank Orders',
+						type: 'button',
+						onPress: (): void => navigation.navigate('BlocktankOrders'),
 						hide: false,
 					},
 					{

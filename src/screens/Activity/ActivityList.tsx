@@ -87,7 +87,7 @@ const ActivityList = ({
 		// group items by categories: today, yesterday, this month, this year, earlier
 		// and attach to them formattedDate
 		return groupActivityItems(activityItems);
-	}, [filter, items, formattedBoostItems, tags]);
+	}, [filter, formattedBoostItems, tags]);
 
 	const [refreshing, setRefreshing] = useState(false);
 

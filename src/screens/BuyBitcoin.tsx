@@ -95,9 +95,6 @@ const styles = StyleSheet.create({
 	quickButton: {
 		marginRight: 6,
 	},
-	customButton: {
-		marginLeft: 6,
-	},
 });
 
 export default Introduction;

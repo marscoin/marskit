@@ -996,7 +996,7 @@ export const getNextAvailableAddress = async ({
 			let changeAddressHasBeenUsed = false;
 
 			// If an error occurs, return last known/available indexes.
-			const lastKnownIndexes = () => {
+			const lastKnownIndexes = (): void => {
 				return resolve(
 					ok({
 						addressIndex,
