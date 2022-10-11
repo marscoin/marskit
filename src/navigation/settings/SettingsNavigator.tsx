@@ -46,6 +46,7 @@ export type SettingsNavigationProp =
 	NativeStackNavigationProp<SettingsStackParamList>;
 
 export type SettingsStackParamList = {
+	AuthCheck: { onSuccess: () => void };
 	SettingsMenu: undefined;
 	GeneralSettings: undefined;
 	SecuritySettings: undefined;
@@ -71,7 +72,6 @@ export type SettingsStackParamList = {
 	BitcoinNetworkSelection: undefined;
 	LightningNodeInfo: undefined;
 	ManageSeedPhrase: undefined;
-	AuthCheck: undefined;
 	Channels: undefined;
 	ChannelDetails: undefined;
 	CloseConnection: undefined;
@@ -92,6 +92,7 @@ const SettingsNavigator = (): ReactElement => {
 	return (
 		<Stack.Navigator screenOptions={navOptions} initialRouteName="SettingsMenu">
 			<Stack.Group screenOptions={navOptions}>
+				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 				<Stack.Screen name="SettingsMenu" component={SettingsMenu} />
 				<Stack.Screen name="GeneralSettings" component={GeneralSettings} />
 				<Stack.Screen name="SecuritySettings" component={SecuritySettings} />
@@ -139,7 +140,6 @@ const SettingsNavigator = (): ReactElement => {
 				/>
 				<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
 				<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
-				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 				<Stack.Screen name="Channels" component={Channels} />
 				<Stack.Screen name="ChannelDetails" component={ChannelDetails} />
 				<Stack.Screen name="CloseConnection" component={CloseConnection} />
