@@ -211,7 +211,7 @@ const SendNumberPad = ({ onDone }: { onDone: () => void }): ReactElement => {
 		<NumberPad showDot={showDot} onPress={onPress} onRemove={onRemove}>
 			<NumberPadButtons
 				onMaxPress={(): void => {
-					sendMax({});
+					sendMax({ selectedWallet, selectedNetwork });
 				}}
 				onDone={onDone}
 			/>

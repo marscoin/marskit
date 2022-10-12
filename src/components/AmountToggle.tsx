@@ -16,6 +16,7 @@ const AmountToggle = ({
 	reverse = false,
 	space = 0, // space between the rows
 	disable = false,
+	children,
 }: {
 	sats: number;
 	style?: object;
@@ -23,6 +24,7 @@ const AmountToggle = ({
 	reverse?: boolean;
 	space?: number;
 	disable?: boolean;
+	children?: ReactElement;
 }): ReactElement => {
 	const primary = useSelector((state: Store) => state.settings.unitPreference);
 
@@ -60,6 +62,7 @@ const AmountToggle = ({
 	return (
 		<Pressable onPress={_onPress} color="transparent" style={style}>
 			{components}
+			{children}
 		</Pressable>
 	);
 };
