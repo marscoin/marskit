@@ -1479,10 +1479,7 @@ export const sendMax = ({
 		const outputs = transaction?.outputs ?? [];
 		// No address specified, attempt to assign the address currently specified in the current output index.
 		if (!address) {
-			address = outputs[index]?.address;
-		}
-		if (!address) {
-			return err('No address provided.');
+			address = outputs[index]?.address ?? '';
 		}
 
 		const inputTotal = getTransactionInputValue({

@@ -55,6 +55,8 @@ import AddressOrSlashpay from './AddressOrSlashpay';
 import SendNumberPad from './SendNumberPad';
 import type { SendScreenProps } from '../../../navigation/types';
 import type { SendStackParamList } from '../../../navigation/bottom-sheet/SendNavigation';
+import { useBalance } from '../../../hooks/wallet';
+import Money from '../../../components/Money';
 
 const AddressAndAmount = ({
 	navigation,
@@ -62,6 +64,9 @@ const AddressAndAmount = ({
 	const insets = useSafeAreaInsets();
 	const { keyboardShown } = useKeyboard();
 	const [showNumberPad, setShowNumberPad] = useState(false);
+
+	const onChainBalance = useBalance({ onchain: true });
+	const lightningBalance = useBalance({ lightning: true });
 
 	useBottomSheetBackPress('sendNavigation');
 
@@ -83,6 +88,9 @@ const AddressAndAmount = ({
 	);
 	const sendNavigationIsOpen = useSelector(
 		(store: Store) => store.user.viewController.sendNavigation.isOpen,
+	);
+	const unitPreference = useSelector(
+		(state: Store) => state.settings.unitPreference,
 	);
 
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
@@ -347,6 +355,36 @@ const AddressAndAmount = ({
 		return !validate(address) && !transaction?.lightningInvoice;
 	}, [address, amount, transaction?.lightningInvoice]);
 
+	/**
+	 * Returns available amount to spend for either onchain or lightning.
+	 */
+	const availableAmount = useMemo(() => {
+		if (transaction.lightningInvoice) {
+			return lightningBalance.satoshis;
+		}
+		if (
+			(transaction?.outputs &&
+				transaction.outputs.length > 0 &&
+				transaction.outputs[0].address) ||
+			showNumberPad
+		) {
+			return onChainBalance.satoshis - ETransactionDefaults.recommendedBaseFee;
+		}
+		return undefined;
+	}, [
+		lightningBalance.satoshis,
+		onChainBalance.satoshis,
+		showNumberPad,
+		transaction.lightningInvoice,
+		transaction.outputs,
+	]);
+
+	const availableAmountProps = useMemo(() => {
+		return {
+			...(unitPreference !== 'fiat' ? { symbol: true } : { showFiat: true }),
+		};
+	}, [unitPreference]);
+
 	return (
 		<View style={styles.container}>
 			<BottomSheetNavigationHeader
@@ -369,8 +407,22 @@ const AddressAndAmount = ({
 					}}
 					style={styles.amountToggle}
 					reverse={true}
-					space={16}
-				/>
+					space={16}>
+					<>
+						{availableAmount && (
+							<View style={styles.availableAmount}>
+								<Caption13Up color="gray1">Available: </Caption13Up>
+								<Money
+									key="small"
+									sats={availableAmount}
+									size="caption13M"
+									color="gray1"
+									{...availableAmountProps}
+								/>
+							</View>
+						)}
+					</>
+				</AmountToggle>
 				<Caption13Up color="gray1" style={styles.section}>
 					TO
 				</Caption13Up>
@@ -496,6 +548,10 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		flexGrow: 1,
 		justifyContent: 'flex-end',
+	},
+	availableAmount: {
+		flexDirection: 'row',
+		alignItems: 'center',
 	},
 });
 
