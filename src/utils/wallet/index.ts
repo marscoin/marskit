@@ -222,6 +222,9 @@ export const generateAddresses = async ({
 						address.value.address,
 						selectedNetwork,
 					);
+					if (!scriptHash) {
+						return err('Unable to get script hash.');
+					}
 					addresses[scriptHash] = {
 						...address.value,
 						index,
@@ -257,6 +260,9 @@ export const generateAddresses = async ({
 						address.value.address,
 						selectedNetwork,
 					);
+					if (!scriptHash) {
+						return err('Unable to get script hash.');
+					}
 					changeAddresses[scriptHash] = {
 						...address.value,
 						index,
@@ -2425,11 +2431,26 @@ export const getReceiveAddress = ({
 		}
 		const wallet = getStore().wallet?.wallets[selectedWallet];
 		const addressIndex = wallet?.addressIndex[selectedNetwork];
-		const receiveAddress = addressIndex[addressType]?.address;
-		if (!receiveAddress) {
-			return err('No receive address available.');
+		let receiveAddress = addressIndex[addressType]?.address;
+		if (receiveAddress) {
+			return ok(receiveAddress);
 		}
-		return ok(receiveAddress);
+		const addresses: IAddress =
+			getStore().wallet[selectedWallet].addresses[selectedNetwork][addressType];
+		// Check if addresses were generated, but the index has not been set yet.
+		if (
+			Object.keys(addresses).length > 0 &&
+			addressIndex[addressType]?.index < 0
+		) {
+			// Grab and return the address at index 0.
+			const address = Object.values(addresses).filter(
+				(addr) => addr.index === 0,
+			);
+			if (address.length > 0 && address[0]?.address) {
+				return ok(address[0].address);
+			}
+		}
+		return err('No receive address available.');
 	} catch (e) {
 		return err(e);
 	}

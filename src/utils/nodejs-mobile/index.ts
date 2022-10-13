@@ -17,6 +17,7 @@ const methods = {
 	generateMnemonic: {},
 	getAddress: {},
 };
+const listeners = {};
 
 /**
  * Sets up listeners for nodejs-mobile methods.
@@ -38,12 +39,14 @@ async function setupListener({
 		methods[method][id] = (msg): void => {
 			const parsedMessage = JSON.parse(msg);
 			if (parsedMessage.id === id) {
-				nodejs.channel.removeListener('message', methods[method][id]);
 				resolve(msg);
+				if (id in listeners) {
+					listeners[id].remove('message', methods[method][id]);
+				}
 			}
 		};
 		//Ensure the listener is setup and established.
-		await nodejs.channel.addListener('message', methods[method][id]);
+		listeners[id] = nodejs.channel.addListener('message', methods[method][id]);
 	} catch (e) {
 		console.log(e);
 		return resolve(JSON.stringify({ id, error: true, value: e }));
