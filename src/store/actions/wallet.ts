@@ -187,8 +187,8 @@ export const updateAddressIndexes = async ({
 			currentWallet.lastUsedChangeAddressIndex[selectedNetwork][type];
 
 		if (
-			(currentWallet.addressIndex[selectedNetwork][type]?.index < 0 &&
-				currentWallet.changeAddressIndex[selectedNetwork][type]?.index < 0) ||
+			currentWallet.addressIndex[selectedNetwork][type]?.index < 0 ||
+			currentWallet.changeAddressIndex[selectedNetwork][type]?.index < 0 ||
 			response.value?.addressIndex?.index >
 				currentWallet.addressIndex[selectedNetwork][type]?.index ||
 			response.value?.changeAddressIndex?.index >
@@ -652,6 +652,7 @@ export const deleteOnChainTransactionById = async ({
  * @param {string} newTxId
  * @param {string} oldTxId
  * @param {EBoost} [type]
+ * @param {number} fee
  * @param {string} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  */
@@ -814,9 +815,28 @@ export const setupOnChainTransaction = async ({
 			({ address }) => address,
 		);
 
+		const changeAddressIndexContent =
+			currentWallet.changeAddressIndex[selectedNetwork][addressType];
 		// Set the current change address.
-		const changeAddress =
-			currentWallet.changeAddressIndex[selectedNetwork][addressType].address;
+		let changeAddress = changeAddressIndexContent.address;
+
+		if (!changeAddress || changeAddressIndexContent.index < 0) {
+			// It's possible we haven't set the change address index yet. Generate one on the fly.
+			const generateAddressResponse = await generateAddresses({
+				selectedWallet,
+				selectedNetwork,
+				addressAmount: 0,
+				changeAddressAmount: 1,
+				addressType,
+			});
+			if (generateAddressResponse.isErr()) {
+				return err(generateAddressResponse.error.message);
+			}
+			changeAddress = generateAddressResponse.value.changeAddresses[0].address;
+		}
+		if (!changeAddress) {
+			return err('Unable to successfully generate a change address.');
+		}
 
 		// Set the minimum fee.
 		const fee = getTotalFee({

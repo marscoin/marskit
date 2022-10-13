@@ -525,19 +525,26 @@ export const getScriptPubKeyHistory = async (
 	scriptPubkey: string,
 ): Promise<TGetAddressHistory[]> => {
 	const selectedNetwork = getSelectedNetwork();
+	let history: { txid: string; height: number }[] = [];
 	const address = getAddressFromScriptPubKey(scriptPubkey);
+	if (!address) {
+		return history;
+	}
 	const scriptHash = await getScriptHash(address, selectedNetwork);
+	if (!scriptHash) {
+		return history;
+	}
 	const response = await electrum.getAddressScriptHashesHistory({
 		scriptHashes: [scriptHash],
 		network: selectedNetwork,
 	});
-
-	let history: { txid: string; height: number }[] = [];
+	if (response.error) {
+		return history;
+	}
 	await Promise.all(
 		response.data.map(({ result }): void => {
 			if (result && result?.length > 0) {
 				result.map((item) => {
-					// @ts-ignore
 					history.push({
 						txid: item?.tx_hash ?? '',
 						height: item?.height ?? 0,
