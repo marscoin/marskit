@@ -1925,6 +1925,17 @@
     hyperdrive "^11.0.0-alpha.5"
     safety-catch "^1.0.2"
 
+"@synonymdev/slashdrive@^1.0.0-alpha.19":
+  version "1.0.0-alpha.19"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.19.tgz#ac23b5256c011d72c23d6ecee283111b040b15c0"
+  integrity sha512-N1vGVsbczf2vU5VmiIyYG//lDOtydtkXQ+MRSZ9+J51PJzYiOb5PzauRrk91FSul3ik69R+D4rmgNKOUEaQQ/A==
+  dependencies:
+    b4a "^1.6.0"
+    corestore "6.2.0"
+    hyperbee "^2.0.1"
+    hyperdrive "^11.0.0-alpha.5"
+    safety-catch "^1.0.2"
+
 "@synonymdev/slashtag@^1.0.0-alpha.18":
   version "1.0.0-alpha.19"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.19.tgz#f72585410339301f5336c147d97cd044bf9f016d"
@@ -1932,6 +1943,18 @@
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@synonymdev/slashdrive" "^1.0.0-alpha.15"
+    "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
+    corestore "6.2.0"
+    random-access-memory "^5.0.1"
+    turbo-hash-map "^1.0.3"
+
+"@synonymdev/slashtag@^1.0.0-alpha.23":
+  version "1.0.0-alpha.23"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.23.tgz#c51453fce85099087b974546e997105b7479bcbf"
+  integrity sha512-wCF1/Zlr/zejSttDq1O2r+MX4IsWUCfWJjnBaQoC7lX3JSZJCcNAoU3Cwofet/JsI1avZwGSvwqoo7JRr1W38Q==
+  dependencies:
+    "@hyperswarm/dht" "^6.2.1"
+    "@synonymdev/slashdrive" "^1.0.0-alpha.19"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
     corestore "6.2.0"
     random-access-memory "^5.0.1"
@@ -1947,7 +1970,7 @@
     compact-encoding "^2.11.0"
     compact-encoding-struct "^1.3.0"
 
-"@synonymdev/slashtags-rpc@^1.0.0-alpha.2":
+"@synonymdev/slashtags-rpc@^1.0.0-alpha.1", "@synonymdev/slashtags-rpc@^1.0.0-alpha.2":
   version "1.0.0-alpha.2"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-rpc/-/slashtags-rpc-1.0.0-alpha.2.tgz#cbe3a36b74546623a05925ee825492e102f85a88"
   integrity sha512-pngaKkjznWFmV+emF+JI033l7Vr7mBvTnWynU1Mvjlps+PXZCL/bPJVC2TDPvGhugUTxUD6Bv+Tt0WL0xJuajw==
@@ -1955,17 +1978,16 @@
     b4a "^1.6.0"
     protomux-rpc "^1.3.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
-  version "1.0.0-alpha.25"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.25.tgz#2ffb337526f1ed5bac7790a5b0ce4b29f882f0f0"
-  integrity sha512-l5DrU4gLCVo5BRiwY/lxq3QppE/TYmIN6HzDpqR03NS8kcGVyoNxmSxY4WthimnZ2sOnl8qg4pfcSsFzRzKg4g==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.19":
+  version "1.0.0-alpha.31"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.31.tgz#7a1ff04a99c25261b739918bd4891c409dba56e7"
+  integrity sha512-5BRrqhjR6GiiJ36eu68UpAXfEkI2jbWepYxZRr3Kgs04jIIRlsYmzitoGAFvjXt3KZrMAxkq4PXr4CfV+EOqEg==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.18"
+    "@synonymdev/slashtag" "^1.0.0-alpha.23"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
     b4a "^1.6.0"
-    compact-encoding "^2.11.0"
     corestore "6.2.0"
     graceful-goodbye "^1.1.0"
     hypercore-crypto "^3.3.0"
@@ -2929,10 +2951,11 @@ babel-preset-jest@^27.5.1:
     babel-preset-current-node-syntax "^1.0.0"
 
 "backpack-client@git+ssh://git@github.com/synonymdev/backpack-client":
-  version "1.0.1"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-client#3be3d23db241b4cd1839d476e91f7f81b28867eb"
+  version "1.0.2"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-client#80b3072b258c9fd86b0def23a477312cd08e0400"
   dependencies:
-    "@synonymdev/slashtags-sdk" "^1.0.0-alpha.13"
+    "@synonymdev/slashtags-rpc" "^1.0.0-alpha.1"
+    "@synonymdev/slashtags-sdk" "^1.0.0-alpha.19"
     compact-encoding "^2.7.0"
     compact-encoding-struct "^1.3.0"
     sodium-universal "^3.1.0"

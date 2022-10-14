@@ -75,45 +75,46 @@ const BackupData = ({
 				},
 			],
 		},
-		{
-			title: 'Other backup options',
-			data: [
-				{
-					title: 'Export to phone',
-					type: 'button',
-					onPress: (): void => {
-						navigation.navigate('AuthCheck', {
-							onSuccess: () => {
-								navigation.replace('ExportToPhone');
-							},
-						});
-					},
-					enabled: true,
-					hide: false,
-				},
-				{
-					title: 'Store on iCloud',
-					type: 'button',
-					onPress: (): void => Alert.alert('Coming soon'),
-					enabled: true,
-					hide: false,
-				},
-				{
-					title: 'Store on Google Drive',
-					type: 'button',
-					onPress: (): void => Alert.alert('Coming soon'),
-					enabled: true,
-					hide: false,
-				},
-				{
-					title: 'Store on Dropbox',
-					type: 'button',
-					onPress: (): void => Alert.alert('Coming soon'),
-					enabled: true,
-					hide: false,
-				},
-			],
-		},
+		//TODO add back when functional
+		// {
+		// 	title: 'Other backup options',
+		// 	data: [
+		// 		{
+		// 			title: 'Export to phone',
+		// 			type: 'button',
+		// 			onPress: (): void => {
+		// 				navigation.navigate('AuthCheck', {
+		// 					onSuccess: () => {
+		// 						navigation.replace('ExportToPhone');
+		// 					},
+		// 				});
+		// 			},
+		// 			enabled: true,
+		// 			hide: false,
+		// 		},
+		// 		{
+		// 			title: 'Store on iCloud',
+		// 			type: 'button',
+		// 			onPress: (): void => Alert.alert('Coming soon'),
+		// 			enabled: true,
+		// 			hide: false,
+		// 		},
+		// 		{
+		// 			title: 'Store on Google Drive',
+		// 			type: 'button',
+		// 			onPress: (): void => Alert.alert('Coming soon'),
+		// 			enabled: true,
+		// 			hide: false,
+		// 		},
+		// 		{
+		// 			title: 'Store on Dropbox',
+		// 			type: 'button',
+		// 			onPress: (): void => Alert.alert('Coming soon'),
+		// 			enabled: true,
+		// 			hide: false,
+		// 		},
+		// 	],
+		// },
 	];
 
 	return (
