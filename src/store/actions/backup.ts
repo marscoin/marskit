@@ -5,6 +5,7 @@ import { EBackupCategories, uploadBackup } from '../../utils/backup/backpack';
 import { stringToBytes } from '../../utils/converters';
 import { Slashtag } from '../../hooks/slashtags';
 import { exportBackup } from '../../utils/lightning';
+import { TAccountBackup } from '@synonymdev/react-native-ldk';
 
 const dispatch = getDispatch();
 
@@ -31,20 +32,29 @@ export const performFullBackup = async (
 
 export const performRemoteLdkBackup = async (
 	slashtag: Slashtag,
+	backup: TAccountBackup | undefined = undefined,
 ): Promise<Result<string>> => {
 	dispatch({
 		type: actions.BACKUP_UPDATE,
 		payload: { remoteLdkBackupSynced: false },
 	});
 
-	const ldkBackup = await exportBackup();
-	if (ldkBackup.isErr()) {
-		return err(ldkBackup.error);
+	let backupString = '';
+	//Automated backup events pass the latest state through
+	if (backup) {
+		backupString = JSON.stringify(backup);
+	} else {
+		const ldkBackup = await exportBackup();
+		if (ldkBackup.isErr()) {
+			return err(ldkBackup.error);
+		}
+
+		backupString = JSON.stringify(ldkBackup.value);
 	}
 
 	const res = await uploadBackup(
 		slashtag,
-		stringToBytes(JSON.stringify(ldkBackup.value)),
+		stringToBytes(backupString),
 		EBackupCategories.ldkComplete,
 	);
 
@@ -54,7 +64,10 @@ export const performRemoteLdkBackup = async (
 
 	dispatch({
 		type: actions.BACKUP_UPDATE,
-		payload: { remoteLdkBackupSynced: true },
+		payload: {
+			remoteLdkBackupSynced: true,
+			remoteLdkBackupLastSync: new Date().getTime(),
+		},
 	});
 
 	return ok('Backup success');
@@ -67,7 +80,7 @@ export const setRemoteBackupsEnabled = (
 		type: actions.BACKUP_UPDATE,
 		payload: {
 			remoteBackupsEnabled,
-			remoteLdkBackupLastSync: new Date().getTime(),
+			remoteLdkBackupLastSync: undefined,
 		},
 	});
 };

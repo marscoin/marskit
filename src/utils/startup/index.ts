@@ -7,7 +7,6 @@ import {
 import { err, ok, Result } from '@synonymdev/result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
-//import { backupSetup, performFullBackup } from '../../store/actions/backup';
 import { showErrorNotification } from '../notifications';
 import {
 	refreshBlocktankInfo,

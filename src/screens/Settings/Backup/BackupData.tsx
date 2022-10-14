@@ -20,11 +20,13 @@ const imageSrc = require('../../../assets/illustrations/folder.png');
 const BackupData = ({
 	navigation,
 }: SettingsScreenProps<'BackupData'>): ReactElement => {
-	const { remoteBackupsEnabled } = useSelector((state: Store) => state.backup);
+	const { remoteBackupsEnabled, remoteLdkBackupLastSync } = useSelector(
+		(state: Store) => state.backup,
+	);
 
 	const [isBackingUp, setIsBackingUp] = useState(false);
 
-	const { slashtag } = useSelectedSlashtag(); //TODO this will backup using the current slashtag. Should we rather have a slashtag just for backups?
+	const { slashtag } = useSelectedSlashtag();
 
 	const toggleRemoteBackup = async (): Promise<void> => {
 		if (isBackingUp) {
@@ -137,6 +139,12 @@ const BackupData = ({
 					<Glow style={styles.glow} size={600} color="green" />
 					<Image source={imageSrc} style={styles.image} />
 				</View>
+
+				<Text01S>
+					{remoteLdkBackupLastSync
+						? new Date(remoteLdkBackupLastSync).toLocaleTimeString()
+						: 'No last sync'}
+				</Text01S>
 
 				<List style={styles.list} data={settingsListData} bounces={false} />
 			</View>

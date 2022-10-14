@@ -41,6 +41,7 @@ import ContactEdit from '../../screens/Contacts/ContactEdit';
 import SlashAuthModal from '../../screens/Widgets/SlashAuthModal';
 import type { RootStackParamList } from '../types';
 import WidgetFeedEdit from '../../screens/Widgets/WidgetFeedEdit';
+import BackupSubscriber from '../../utils/backup/backups-subscriber';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -146,6 +147,7 @@ const RootNavigator = (): ReactElement => {
 			<BoostPrompt />
 			<NewTxPrompt />
 			<SlashAuthModal />
+			<BackupSubscriber />
 		</NavigationContainer>
 	);
 };

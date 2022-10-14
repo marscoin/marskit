@@ -12,10 +12,7 @@ const backup = (state: IBackup = defaultBackupShape, action): IBackup => {
 		case actions.RESET_BACKUP_STORE:
 			return { ...defaultBackupShape };
 		default:
-			return {
-				...defaultBackupShape,
-				...state,
-			};
+			return state;
 	}
 };
 

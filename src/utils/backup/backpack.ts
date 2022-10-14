@@ -22,10 +22,6 @@ const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
-		// TODO (slashtags) update after updating the backpack to RPC
-		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
-		// backupsInstances[key].setSecret(sharedSecret);
-
 		backupsInstances[key] = new BackupProtocol(slashtag);
 
 		// Give the protocol the shared secret
@@ -80,6 +76,15 @@ export const uploadBackup = async (
 		// 	}`,
 		// );
 
+		// const saved = await listBackups(slashtag, category);
+		// if (saved.isOk()) {
+		// 	// console.log(saved.value);
+		//
+		// 	saved.value.forEach((r) => {
+		// 		console.log(r.timestamp);
+		// 	});
+		// }
+
 		return ok(timestamp);
 	} catch (e) {
 		return err(e);
@@ -125,4 +130,24 @@ export const fetchBackup = async (
 	} catch (e) {
 		return err(e);
 	}
+};
+
+export const listBackups = async (
+	slashtag: Slashtag,
+	category: EBackupCategories,
+): Promise<Result<{ timestamp: number }[]>> => {
+	const backups = await backupsFactory(slashtag);
+
+	const { error, results, success } = await backups.getRecentBackups(
+		serverSlashtag,
+		{
+			category,
+		},
+	);
+
+	if (!success) {
+		return err(error);
+	}
+
+	return ok(results.backups);
 };
