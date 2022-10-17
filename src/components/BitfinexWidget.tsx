@@ -9,7 +9,7 @@ import {
 } from '@shopify/react-native-skia';
 import b4a from 'b4a';
 
-import { View, BitfinexIcon, Text01M, Caption13M } from '../styles/components';
+import { View, Text01M, Caption13M, ChartLineIcon } from '../styles/components';
 import useColors from '../hooks/colors';
 import { BaseFeedWidget } from './FeedWidget';
 import { IWidget } from '../store/types/widgets';
@@ -44,16 +44,16 @@ const Chart = ({
 		const max = values.reduce((prev, curr) => Math.max(prev, curr), 0);
 
 		return values.map((value: number) => {
-			return ((value - min) / (max - min)) * height;
+			return (value - min) / (max - min);
 		});
-	}, [values, height]);
+	}, [values]);
 
 	backgroud.moveTo(0, 0);
 	for (let i = 0; i < steps; i++) {
-		const value = normalized[i];
+		const value = height - normalized[i] * height;
 		backgroud.lineTo(i * step, value);
 		if (i === 0) {
-			line.moveTo(i * step, value);
+			line.moveTo(0, value);
 		} else {
 			line.lineTo(i * step, value);
 		}
@@ -121,10 +121,9 @@ const BitfinexWidget = ({
 		if (!pastValues || pastValues.length < 2) {
 			return { color: 'green', formatted: '+0%' };
 		}
-		const lastTwo = pastValues.slice(-2);
-		const _change = lastTwo[1] - lastTwo[0];
+		const _change = pastValues[pastValues.length - 1] - pastValues[0];
 
-		const sign = _change >= 0 ? '+' : '';
+		const sign = _change >= 0 ? '+' : '-';
 		const color = _change >= 0 ? 'green' : 'red';
 
 		return {
@@ -144,7 +143,7 @@ const BitfinexWidget = ({
 			}
 			label={widget.feed.field.name}
 			icon={
-				<BitfinexIcon />
+				<ChartLineIcon width={32} height={32} />
 				// Optionally use the feed icon!
 				//
 				// <ProfileImage

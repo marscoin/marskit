@@ -7,7 +7,6 @@ import _MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import _AntDesign from 'react-native-vector-icons/AntDesign';
 import Animated from 'react-native-reanimated';
 import colors from './colors';
-import _RadioButtonRN from 'radio-buttons-react-native';
 import { SvgXml } from 'react-native-svg';
 import {
 	DefaultTheme,
@@ -66,6 +65,8 @@ import {
 	brokenLinkIcon,
 	eyeIcon,
 	heartbeatIcon,
+	chartLineIcon,
+	newspaperIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -789,17 +790,6 @@ export const Text = styled.Text((props) => ({
 		: sanFranciscoWeights.medium.fontWeight,
 }));
 
-export const RadioButtonRN = styled(_RadioButtonRN).attrs((props) => ({
-	box: props?.box ? props.box : false,
-	textStyle: props?.textStyle
-		? props.textStyle
-		: { color: props.theme.colors.text },
-	activeColor: props?.activeColor
-		? props.activeColor
-		: props.theme.colors.onBackground,
-	circleSize: 12,
-}))({});
-
 export const Feather = styled(_Feather).attrs((props) => ({
 	color: props.color
 		? props.theme.colors[props.color]
@@ -998,5 +988,19 @@ export const BitfinexIcon = styled(SvgXml).attrs((props) => ({
 	xml: bitfinexIcon(),
 	height: props?.height ?? '32px',
 	width: props?.width ?? '32px',
+	color: undefined,
+}))({});
+
+export const ChartLineIcon = styled(SvgXml).attrs((props) => ({
+	xml: chartLineIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
+	color: undefined,
+}))({});
+
+export const NewspaperIcon = styled(SvgXml).attrs((props) => ({
+	xml: newspaperIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
 	color: undefined,
 }))({});
