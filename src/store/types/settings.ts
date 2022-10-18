@@ -53,4 +53,5 @@ export interface ISettings {
 	hideBalance: boolean;
 	hideOnboardingMessage: boolean;
 	hideBeta: boolean;
+	enableDevOptions: boolean;
 }
