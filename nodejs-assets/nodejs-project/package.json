@@ -9,7 +9,7 @@
   "author": "Synonym",
   "license": "MIT",
   "dependencies": {
-    "bip32": "^2.0.6",
+    "bip32": "https://github.com/synonymdev/bip32",
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "^6.0.1"
   }
