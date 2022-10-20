@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@noble/secp256k1@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.0.tgz#d15357f7c227e751d90aa06b05a0e5cf993ba8c1"
+  integrity sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==
+
 "@types/node@11.11.6":
   version "11.11.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
@@ -24,9 +29,9 @@ bip174@^2.0.1:
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-2.1.0.tgz#cd3402581feaa5116f0f00a0eaee87a5843a2d30"
   integrity sha512-lkc0XyiX9E9KiVAS1ZiOqK1xfiwvf4FXDDdkDq5crcDzOq+xGytY+14qCsqz7kCiy8rpN1CRNfacRhf9G3JNSA==
 
-"bip32@https://github.com/synonymdev/bip32":
+"bip32@git+ssh://git@github.com/synonymdev/bip32":
   version "3.1.0"
-  resolved "https://github.com/synonymdev/bip32#58f0dd7d253d70fa5ff442997464892c46874348"
+  resolved "git+ssh://git@github.com/synonymdev/bip32#58f0dd7d253d70fa5ff442997464892c46874348"
   dependencies:
     bs58check "^2.1.1"
     create-hash "^1.2.0"
