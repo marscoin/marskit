@@ -14,7 +14,7 @@ import { sleep } from '../helpers';
 import { getStore } from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
 import { TGeoBlockResponse } from '../../store/types/blocktank';
-import { setGeoBlock } from '../../store/actions/user';
+import { setGeoBlock, updateUser } from '../../store/actions/user';
 
 /**
  * Sets the selectedNetwork for Blocktank.
@@ -22,12 +22,13 @@ import { setGeoBlock } from '../../store/actions/user';
  * @returns {void}
  */
 export const setupBlocktank = (selectedNetwork: TAvailableNetworks): void => {
-	setGeoBlock().then();
 	if (selectedNetwork === 'bitcoinTestnet') {
 		return;
 	} else if (selectedNetwork === 'bitcoinRegtest') {
+		updateUser({ isGeoBlocked: false });
 		bt.setNetwork('regtest');
 	} else {
+		setGeoBlock().then();
 		bt.setNetwork('mainnet');
 	}
 };
