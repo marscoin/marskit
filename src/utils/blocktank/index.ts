@@ -13,6 +13,8 @@ import { refreshOrder } from '../../store/actions/blocktank';
 import { sleep } from '../helpers';
 import { getStore } from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
+import { TGeoBlockResponse } from '../../store/types/blocktank';
+import { setGeoBlock } from '../../store/actions/user';
 
 /**
  * Sets the selectedNetwork for Blocktank.
@@ -20,6 +22,7 @@ import { showSuccessNotification } from '../notifications';
  * @returns {void}
  */
 export const setupBlocktank = (selectedNetwork: TAvailableNetworks): void => {
+	setGeoBlock().then();
 	if (selectedNetwork === 'bitcoinTestnet') {
 		return;
 	} else if (selectedNetwork === 'bitcoinRegtest') {
@@ -230,4 +233,16 @@ export const getStateMessage = (code: number): string => {
 	}
 
 	return `Unknown code: ${code}`;
+};
+
+export const isGeoBlocked = async (): Promise<boolean> => {
+	try {
+		const response = await fetch(
+			'https://blocktank.synonym.to/api/v1/channel/geocheck',
+		);
+		const data: TGeoBlockResponse = await response.json();
+		return !!data?.error;
+	} catch {
+		return true;
+	}
 };
