@@ -43,8 +43,13 @@ export const ProfileEdit = ({
 
 	useEffect(() => {
 		const savedLinks = savedProfile?.links || [];
-		setLinks(savedLinks);
-	}, [savedProfile]);
+		// add id field before saving to redux
+		const localLinks = savedLinks.map((link) => ({
+			...link,
+			id: `${link.title}:${link.url}`,
+		}));
+		setLinks(localLinks);
+	}, [savedProfile?.links]);
 
 	// show save button if links have changed
 	useEffect(() => {
@@ -65,14 +70,15 @@ export const ProfileEdit = ({
 		return {
 			...savedProfile,
 			...fields,
-			links,
+			// remove id field before saving to remote
+			links: links.map(({ id: _id, ...rest }) => rest),
 		};
 	}, [savedProfile, fields, links]);
 
 	const save = async (): Promise<void> => {
 		await saveProfile(slashtag, profile);
 		if (!onboardedProfile) {
-			setOnboardingProfileStep('PaymentsFromContacts');
+			setOnboardingProfileStep('OfflinePayments');
 			removeTodo(todoPresets.slashtagsProfile.type);
 		} else {
 			navigation.navigate('Profile');
@@ -114,7 +120,7 @@ export const ProfileEdit = ({
 				<Divider />
 				<ProfileLinks links={links} editable={true} />
 				<Button
-					text="Add Link Or Text"
+					text="Add Link"
 					style={styles.addLinkButton}
 					onPress={(): void => {
 						navigation.navigate('ProfileAddLink');

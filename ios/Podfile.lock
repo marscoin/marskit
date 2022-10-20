@@ -326,7 +326,7 @@ PODS:
     - React-Core
   - react-native-image-picker (4.10.0):
     - React-Core
-  - react-native-ldk (0.0.56):
+  - react-native-ldk (0.0.59):
     - React
   - react-native-libsodium (0.0.1):
     - React-Core
@@ -343,32 +343,32 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
-  - react-native-skia (0.1.142):
+  - react-native-skia (0.1.155):
     - React
     - React-callinvoker
     - React-Core
-    - react-native-skia/Api (= 0.1.142)
-    - react-native-skia/Jsi (= 0.1.142)
-    - react-native-skia/RNSkia (= 0.1.142)
-    - react-native-skia/SkiaHeaders (= 0.1.142)
-    - react-native-skia/Utils (= 0.1.142)
-  - react-native-skia/Api (0.1.142):
+    - react-native-skia/Api (= 0.1.155)
+    - react-native-skia/Jsi (= 0.1.155)
+    - react-native-skia/RNSkia (= 0.1.155)
+    - react-native-skia/SkiaHeaders (= 0.1.155)
+    - react-native-skia/Utils (= 0.1.155)
+  - react-native-skia/Api (0.1.155):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/Jsi (0.1.142):
+  - react-native-skia/Jsi (0.1.155):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/RNSkia (0.1.142):
+  - react-native-skia/RNSkia (0.1.155):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/SkiaHeaders (0.1.142):
+  - react-native-skia/SkiaHeaders (0.1.155):
     - React
     - React-callinvoker
     - React-Core
-  - react-native-skia/Utils (0.1.142):
+  - react-native-skia/Utils (0.1.155):
     - React
     - React-callinvoker
     - React-Core
@@ -794,13 +794,13 @@ SPEC CHECKSUMS:
   react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
   react-native-flipper: 7eeb9b59b667dd0619372c7349cf7c78032d1de2
   react-native-image-picker: 4bc9ed38c8be255b515d8c88babbaf74973f91a8
-  react-native-ldk: 3d0bcd99e9a1a675845cfe7d3a59c0d2f858ed92
+  react-native-ldk: d8da94aa7fe37cc9bf034502a44135d196e9a22c
   react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-netinfo: 1a6035d3b9780221d407c277ebfb5722ace00658
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: b456e1c40ec86f5593d58b275bd0e9603169daca
-  react-native-skia: c4b426227cb5bf0f8be9291c92a1b31ef9cfcce3
+  react-native-skia: 5a4253c77afcf0535b387d6025fc7c57af05cd3c
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162

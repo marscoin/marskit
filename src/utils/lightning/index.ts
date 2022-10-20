@@ -46,9 +46,11 @@ import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { addActivityItem } from '../../store/actions/activity';
 import { EPaymentType } from '../../store/types/wallet';
 import { toggleView } from '../../store/actions/user';
+import { updateSlashPayConfig } from '../slashtags';
+import { sdk } from '../../components/SlashtagsProvider';
 
 let paymentSubscription: EmitterSubscription | undefined;
-
+let onChannelSubscription: EmitterSubscription | undefined;
 /**
  * Wipes LDK data from storage
  * @returns {Promise<Result<string>>}
@@ -143,6 +145,7 @@ export const setupLdk = async ({
 				rawTx,
 				selectedNetwork,
 				selectedWallet,
+				subscribeToOutputAddress: false,
 			});
 			if (res.isErr()) {
 				return '';
@@ -164,6 +167,7 @@ export const setupLdk = async ({
 			broadcastTransaction: _broadcastTransaction,
 			getTransactionData,
 			network,
+			feeRate: 0,
 		});
 
 		if (lmStart.isErr()) {
@@ -283,7 +287,8 @@ export const handleLightningPaymentSubscription = async ({
 				txid: invoice.value.payment_hash,
 			},
 		});
-		refreshLdk({ selectedWallet, selectedNetwork }).then();
+		await refreshLdk({ selectedWallet, selectedNetwork });
+		updateSlashPayConfig(sdk);
 	}
 };
 
@@ -299,14 +304,13 @@ export const subscribeToLightningPayments = ({
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 }): void => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
 	if (!paymentSubscription) {
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		// @ts-ignore
 		paymentSubscription = ldk.onEvent(
 			EEventTypes.channel_manager_payment_claimed,
 			(res: TChannelManagerPayment) => {
@@ -318,10 +322,16 @@ export const subscribeToLightningPayments = ({
 			},
 		);
 	}
+	if (!onChannelSubscription) {
+		onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, () => {
+			refreshLdk({ selectedWallet, selectedNetwork }).then();
+		});
+	}
 };
 
-export const unsubscribeFromLightningPayments = (): void => {
+export const unsubscribeFromLightningSubscriptions = (): void => {
 	paymentSubscription && paymentSubscription.remove();
+	onChannelSubscription && onChannelSubscription.remove();
 };
 
 /**
@@ -682,7 +692,7 @@ export const getPendingChannels = async ({
 		}
 	}
 	const pendingChannels = channels.value.filter(
-		(channel) => !channel?.short_channel_id,
+		(channel) => !channel?.is_channel_ready,
 	);
 	return ok(pendingChannels);
 };
@@ -719,7 +729,7 @@ export const getOpenChannels = async ({
 		channels = getChannelsResponse.value;
 	}
 	const openChannels = Object.values(channels).filter(
-		(channel) => channel?.short_channel_id !== undefined,
+		(channel) => channel?.is_channel_ready,
 	);
 	return ok(openChannels);
 };

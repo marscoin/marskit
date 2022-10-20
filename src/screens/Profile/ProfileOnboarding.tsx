@@ -3,7 +3,7 @@ import { View, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
-import { Display, Text01S } from '../../styles/components';
+import { Display, Text01S, Text02S } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import GlowingBackground from '../../components/GlowingBackground';
@@ -23,7 +23,6 @@ import type {
 
 const crownImageSrc = require('../../assets/illustrations/crown.png');
 const coinsImageSrc = require('../../assets/illustrations/coins.png');
-const switchImageSrc = require('../../assets/illustrations/switch.png');
 
 export const ProfileIntro = ({
 	navigation,
@@ -41,22 +40,6 @@ export const ProfileIntro = ({
 	);
 };
 
-export const PaymentsFromContacts = ({ navigation }): JSX.Element => {
-	return (
-		<Layout
-			navigation={navigation}
-			backButton={true}
-			illustration={coinsImageSrc}
-			title="Pay your"
-			header="Pay Contacts"
-			subtitle=""
-			highlighted="Contacts."
-			text="You and your contacts can use Bitkit to send payments directly, without banks, anytime, anywhere."
-			nextStep="OfflinePayments"
-		/>
-	);
-};
-
 export const OfflinePayments = ({ navigation }): JSX.Element => {
 	const enableOfflinePayments = useSelector(
 		(state: Store) => state.settings.enableOfflinePayments,
@@ -65,18 +48,18 @@ export const OfflinePayments = ({ navigation }): JSX.Element => {
 	const sdk = useSlashtagsSDK();
 
 	const savePaymentConfig = async (): Promise<void> => {
-		updateSlashPayConfig(sdk, { p2wpkh: enableOfflinePayments });
+		updateSlashPayConfig(sdk);
 	};
 
 	return (
 		<Layout
 			navigation={navigation}
 			backButton={true}
-			illustration={switchImageSrc}
-			title="Offline"
-			header="Offline payments"
-			highlighted="Payments."
-			text="Bitkit can also create a fixed Bitcoin address for you, so you’re able to receive payments even when you are offline."
+			illustration={coinsImageSrc}
+			title="Pay your"
+			header="Pay Contacts"
+			highlighted="Contacts."
+			text="You and your contacts can use Bitkit to send payments directly, without banks, anytime, anywhere."
 			nextStep="Done"
 			buttonText="Save Profile"
 			onNext={savePaymentConfig}>
@@ -87,14 +70,15 @@ export const OfflinePayments = ({ navigation }): JSX.Element => {
 					onPress={(): void => {
 						updateSettings({ enableOfflinePayments: !enableOfflinePayments });
 					}}>
-					<Text01S>Enable offline payments</Text01S>
+					<Text01S>Enable payments with contacts*</Text01S>
 				</SwitchRow>
+				<Text02S color="gray1">* This requires sharing payment data.</Text02S>
 			</View>
 		</Layout>
 	);
 };
 
-const Layout = ({
+export const Layout = ({
 	navigation,
 	backButton = false,
 	illustration,
@@ -115,7 +99,7 @@ const Layout = ({
 	subtitle?: string;
 	text: string;
 	highlighted: string;
-	nextStep: ISlashtags['onboardingProfileStep'];
+	nextStep?: ISlashtags['onboardingProfileStep'];
 	buttonText?: string;
 	header?: string;
 	children?;
@@ -156,7 +140,7 @@ const Layout = ({
 						size="large"
 						onPress={(): void => {
 							onNext?.();
-							setOnboardingProfileStep(nextStep);
+							nextStep && setOnboardingProfileStep(nextStep);
 						}}
 					/>
 				</View>
@@ -187,6 +171,7 @@ const styles = StyleSheet.create({
 	},
 	introText: {
 		marginTop: 8,
+		width: 280,
 	},
 	middleContainer: {
 		flex: 1,

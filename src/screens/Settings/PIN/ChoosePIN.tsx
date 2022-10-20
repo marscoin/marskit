@@ -13,17 +13,18 @@ import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigati
 import GradientView from '../../../components/GradientView';
 import NumberPad from '../../../components/NumberPad';
 import useColors from '../../../hooks/colors';
-import { vibrate, setKeychainValue } from '../../../utils/helpers';
-import { removeTodo } from '../../../store/actions/todos';
-import { updateSettings } from '../../../store/actions/settings';
-import { todoPresets } from '../../../utils/todos';
+import { vibrate } from '../../../utils/helpers';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
-import { PIN_ATTEMPTS } from '../../../components/PinPad';
+import { addPin } from '../../../utils/settings';
+import type { PinScreenProps } from '../../../navigation/types';
 
-const ChoosePIN = ({ navigation, route }): ReactElement => {
+const ChoosePIN = ({
+	navigation,
+	route,
+}: PinScreenProps<'ChoosePIN'>): ReactElement => {
+	const origPIN = route.params?.pin;
 	const [pin, setPin] = useState<string>('');
 	const [tryAgain, setTryAgain] = useState<boolean>(false);
-	const origPIN = route?.params?.pin;
 	const { brand, brand08 } = useColors();
 
 	const handleOnPress = (n): void => {
@@ -53,13 +54,7 @@ const ChoosePIN = ({ navigation, route }): ReactElement => {
 			}
 			const pinsAreEqual = pin === origPIN;
 			if (pinsAreEqual) {
-				await setKeychainValue({ key: 'pin', value: pin });
-				await setKeychainValue({
-					key: 'pinAttemptsRemaining',
-					value: PIN_ATTEMPTS,
-				});
-				await updateSettings({ pin: true });
-				removeTodo(todoPresets.pin.type);
+				addPin(pin);
 				navigation.navigate('AskForBiometrics');
 			} else {
 				vibrate({ type: 'notificationWarning' });
@@ -67,6 +62,7 @@ const ChoosePIN = ({ navigation, route }): ReactElement => {
 				setTryAgain(true);
 			}
 		}, 500);
+
 		return (): void => clearInterval(timer);
 	}, [pin, origPIN, navigation]);
 

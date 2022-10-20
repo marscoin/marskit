@@ -6,7 +6,6 @@ import React, {
 	useMemo,
 } from 'react';
 import {
-	Alert,
 	Image,
 	Keyboard,
 	ScrollView,
@@ -23,6 +22,7 @@ import {
 	useValue,
 	vec,
 } from '@shopify/react-native-skia';
+import rnAndroidKeyboardAdjust from 'rn-android-keyboard-adjust';
 
 import { Display, Text01S } from '../../styles/components';
 import GlowingBackground from '../../components/GlowingBackground';
@@ -37,7 +37,7 @@ import useColors from '../../hooks/colors';
 import { restoreWallet } from '../../utils/startup';
 import LoadingWalletScreen from './Loading';
 import NavigationHeader from '../../components/NavigationHeader';
-import rnAndroidKeyboardAdjust from 'rn-android-keyboard-adjust';
+import { showErrorNotification } from '../../utils/notifications';
 
 const Glow = ({ color }: { color: string }): ReactElement => {
 	const opacity = useValue(0);
@@ -124,12 +124,31 @@ const RestoreFromSeed = (): ReactElement => {
 		const res = await restoreWallet({ mnemonic: seed.join(' ') });
 		if (res.isErr()) {
 			setIsRestoringWallet(false);
-			Alert.alert(res.error.message);
+			showErrorNotification({
+				title: 'Error Restoring Wallet',
+				message: res.error.message,
+			});
 			return;
 		}
 
 		verifyBackup();
 		setShowRestored(true);
+	};
+
+	const handleSubmitEditing = (): void => {
+		if (focused === null || focused > numberOfWords - 2) {
+			// last input
+			return;
+		}
+		inputRefs.current[focused + 1].focus();
+	};
+
+	const handleKeyPress = ({ nativeEvent }): void => {
+		if (nativeEvent.key !== 'Backspace' || !focused || seed[focused]) {
+			return;
+		}
+
+		inputRefs.current[focused - 1].focus();
 	};
 
 	const renderInput = (word, index): ReactElement => {
@@ -147,13 +166,15 @@ const RestoreFromSeed = (): ReactElement => {
 				onChangeText={(text): void => onSeedChange(index, text)}
 				onFocus={(): void => handleFocus(index)}
 				onBlur={(): void => handleBlur(index)}
+				onSubmitEditing={handleSubmitEditing}
+				onKeyPress={handleKeyPress}
 			/>
 		);
 	};
 
 	if (isRestoringWallet) {
 		return (
-			<GlowingBackground topLeft={green}>
+			<GlowingBackground topLeft="brand">
 				<LoadingWalletScreen />
 			</GlowingBackground>
 		);
@@ -166,7 +187,7 @@ const RestoreFromSeed = (): ReactElement => {
 			? 'You have successfully restored your wallet from backup. Enjoy Bitkit!'
 			: 'The checksum for the recovery phrase appears to be incorrect.';
 		const onPress = showRestored
-			? (): void => Alert.alert('TODO')
+			? (): void => console.log('TODO')
 			: (): void => setShowFailed(false);
 		const buttonText = showRestored ? 'Get Started' : 'Try Again';
 

@@ -1676,63 +1676,63 @@
   resolved "https://registry.yarnpkg.com/@react-native/polyfills/-/polyfills-2.0.0.tgz#4c40b74655c83982c8cf47530ee7dc13d957b6aa"
   integrity sha512-K0aGNn1TjalKj+65D7ycc1//H9roAQ51GJVk5ZJQFb2teECGmzd86bYDC0aYdbRf7gtovescq4Zt6FR0tgXiHQ==
 
-"@react-navigation/bottom-tabs@^6.3.1":
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-6.3.3.tgz#ded46ffa47c48f95d87a77e35cbed73eda3378b2"
-  integrity sha512-S5obigsDAgRD7hmGauijNITI2jPm7N40IIIwdQjJhT9Y9vos8ycLOKMVU06mchU6sRGJC2xIkPderPiwAUVvDg==
+"@react-navigation/bottom-tabs@6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@react-navigation/bottom-tabs/-/bottom-tabs-6.4.0.tgz#63743874648f92adedf37186cb7cedcd47826ee9"
+  integrity sha512-90CapiXjiWudbCiki9e6fOr/CECQRguIxv5OD7IBfbAMGX5GGiJpX8aqiHAz2DxpAz31v4JZcUr945+lFhXBfA==
   dependencies:
-    "@react-navigation/elements" "^1.3.5"
+    "@react-navigation/elements" "^1.3.6"
     color "^4.2.3"
     warn-once "^0.1.0"
 
-"@react-navigation/core@^6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-6.3.0.tgz#79d08f45e448b6269cc0268b0653975913104a3c"
-  integrity sha512-nyvReUB00SAfHdL/AA+GksdaTuiC31LxHp+f1kxuPNkcGR7zSMVT+Wrq4OHe+VPFfCxJxoseQ2ElsvE+4IYFoQ==
+"@react-navigation/core@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@react-navigation/core/-/core-6.4.0.tgz#c44d33a8d8ef010a102c7f831fc8add772678509"
+  integrity sha512-tpc0Ak/DiHfU3LlYaRmIY7vI4sM/Ru0xCet6runLUh9aABf4wiLgxyFJ5BtoWq6xFF8ymYEA/KWtDhetQ24YiA==
   dependencies:
-    "@react-navigation/routers" "^6.1.2"
+    "@react-navigation/routers" "^6.1.3"
     escape-string-regexp "^4.0.0"
     nanoid "^3.1.23"
     query-string "^7.0.0"
     react-is "^16.13.0"
     use-latest-callback "^0.1.5"
 
-"@react-navigation/elements@^1.3.5":
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/@react-navigation/elements/-/elements-1.3.5.tgz#904876ce3f3c36632f242322dd622bb3e18e6775"
-  integrity sha512-3Ef5cYuQXqJRco7RG99fkDEciAuYTkAD7go5D8RFYG8rAp2aI/cDnGwFwvFVANlRsbFFPGU3ZLY8EUJihf4Hjw==
+"@react-navigation/elements@^1.3.6":
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/@react-navigation/elements/-/elements-1.3.6.tgz#fa700318528db93f05144b1be4b691b9c1dd1abe"
+  integrity sha512-pNJ8R9JMga6SXOw6wGVN0tjmE6vegwPmJBL45SEMX2fqTfAk2ykDnlJHodRpHpAgsv0DaI8qX76z3A+aqKSU0w==
 
-"@react-navigation/native-stack@^6.6.2":
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/@react-navigation/native-stack/-/native-stack-6.8.0.tgz#1677ce21dc61a16965198f11c0b8259771315451"
-  integrity sha512-OhyyuSoIcY32kYNnTI0VUDcp2JT1jgFuT6j8FiUI/lPttcQKLVBS+jzRtHzpJ2D8N0CEjTLCyQNkVJBTpwjNFg==
+"@react-navigation/native-stack@6.9.1":
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/@react-navigation/native-stack/-/native-stack-6.9.1.tgz#6013300e4cd0b33e242aa18593e4dff7db2ab3d1"
+  integrity sha512-aOuJP97ge6NRz8wH6sDKfLTfdygGmraYh0apKrrVbGvMnflbPX4kpjQiAQcUPUpMeas0betH/Su8QubNL8HEkg==
   dependencies:
-    "@react-navigation/elements" "^1.3.5"
+    "@react-navigation/elements" "^1.3.6"
     warn-once "^0.1.0"
 
-"@react-navigation/native@^6.0.10":
-  version "6.0.12"
-  resolved "https://registry.yarnpkg.com/@react-navigation/native/-/native-6.0.12.tgz#29bb0a657b65704fd55803f5c01e064ea0747e48"
-  integrity sha512-23n0pDsFvFxPIkB4zrAip05uUj6Jr+5dinqrDdEU26cPoki3/iJlirvbSIs/64Om/OuTyUjFdB/zI75ng+m5Pg==
+"@react-navigation/native@6.0.13":
+  version "6.0.13"
+  resolved "https://registry.yarnpkg.com/@react-navigation/native/-/native-6.0.13.tgz#ec504120e193ea6a7f24ffa765a1338be5a3160a"
+  integrity sha512-CwaJcAGbhv3p3ECablxBkw8QBCGDWXqVRwQ4QbelajNW623m3sNTC9dOF6kjp8au6Rg9B5e0KmeuY0xWbPk79A==
   dependencies:
-    "@react-navigation/core" "^6.3.0"
+    "@react-navigation/core" "^6.4.0"
     escape-string-regexp "^4.0.0"
     fast-deep-equal "^3.1.3"
     nanoid "^3.1.23"
 
-"@react-navigation/routers@^6.1.2":
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/@react-navigation/routers/-/routers-6.1.2.tgz#b239e876f03a1f8908862ccb5473d36e32c4d163"
-  integrity sha512-uJ+N7dyrZjA2L3ykyH0OyEiLNhzxDSfUqgOS4LmrLWlgly/oYFfPTqsxCD8zP0r3hv7ayLIPQPC1u1ubSO+42A==
+"@react-navigation/routers@^6.1.3":
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/@react-navigation/routers/-/routers-6.1.3.tgz#1df51959e9a67c44367462e8b929b7360a5d2555"
+  integrity sha512-idJotMEzHc3haWsCh7EvnnZMKxvaS4YF/x2UyFBkNFiEFUaEo/1ioQU6qqmVLspdEv4bI/dLm97hQo7qD8Yl7Q==
   dependencies:
     nanoid "^3.1.23"
 
-"@react-navigation/stack@^6.2.1":
-  version "6.2.3"
-  resolved "https://registry.yarnpkg.com/@react-navigation/stack/-/stack-6.2.3.tgz#b481f615bbbfb53c7eaa93af818d96a6925b852e"
-  integrity sha512-DZXazhuyxefsO4RkkimPuoKpstc7zZOMqMBa7eqWy6iZNZX4yt8Wjji8KPMr5yn0OA1MxC5C4H8CKbMuy/kxIA==
+"@react-navigation/stack@6.3.2":
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/@react-navigation/stack/-/stack-6.3.2.tgz#ba0a65e10e2b165185f20718046f25d8c9abb076"
+  integrity sha512-wb8koMp4OTrG5geOqEFPDatTyl8dsSyRBHN4h0wzgNT29V/JjkS3LYwkGLLfUmMfeLXFyIfEPILAjYLFmnk3dA==
   dependencies:
-    "@react-navigation/elements" "^1.3.5"
+    "@react-navigation/elements" "^1.3.6"
     color "^4.2.3"
     warn-once "^0.1.0"
 
@@ -1746,13 +1746,13 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
-"@shopify/react-native-skia@^0.1.137":
-  version "0.1.142"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.142.tgz#1d3973b3dbf3d47ec6b0edfe46dfc31034612dde"
-  integrity sha512-4X6Cu+8iBf92GX1SGN7qnEud0oRm7kB9aFRl+sTvKvBjqRKHTOL2SQuptBdtS/d4RBh8IildhVjTN6PE/nMX1A==
+"@shopify/react-native-skia@0.1.155":
+  version "0.1.155"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.155.tgz#44bc58a39939fd6f6bf83481f417fb8494b2e99e"
+  integrity sha512-tRJy1gXrRCjPgG4CLvyxEOSHDU5IHsBS7TGsdyP/6cz9gcb1QrTejUi1+dfixjMcsRof4wYpprlIvnfwjNLWpg==
   dependencies:
-    canvaskit-wasm "^0.35.0"
-    react-reconciler "^0.26.2"
+    canvaskit-wasm "0.36.1"
+    react-reconciler "0.26.2"
 
 "@sideway/address@^4.1.3":
   version "4.1.4"
@@ -1888,10 +1888,10 @@
     cross-fetch "^3.1.4"
     node-fetch "3.1.1"
 
-"@synonymdev/react-native-ldk@^0.0.56":
-  version "0.0.56"
-  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.56.tgz#f074e3a106d1bb294a11c2b190711481134422e0"
-  integrity sha512-90/6MdpS61vlthOQe9/ZEHRXFHNWLiy1Qt7kdwzTBc7i3KGuU/NLv+J320ppCMg5KKXSpFmF4FRZQhXzgIywzg==
+"@synonymdev/react-native-ldk@0.0.59":
+  version "0.0.59"
+  resolved "https://registry.yarnpkg.com/@synonymdev/react-native-ldk/-/react-native-ldk-0.0.59.tgz#a822d46216f28e8d968dd49fa9dcd52e27fbd8fa"
+  integrity sha512-u471ZfKIHxSXg17tErgChqrytwkj+Now7nxcEVamltEfSK2Onn1yKl8g5+3RWtopJ8ZspcmNzKq0709EWrlU3g==
   dependencies:
     bitcoinjs-lib "^6.0.2"
 
@@ -1925,17 +1925,6 @@
     hyperdrive "^11.0.0-alpha.5"
     safety-catch "^1.0.2"
 
-"@synonymdev/slashdrive@^1.0.0-alpha.19":
-  version "1.0.0-alpha.19"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashdrive/-/slashdrive-1.0.0-alpha.19.tgz#ac23b5256c011d72c23d6ecee283111b040b15c0"
-  integrity sha512-N1vGVsbczf2vU5VmiIyYG//lDOtydtkXQ+MRSZ9+J51PJzYiOb5PzauRrk91FSul3ik69R+D4rmgNKOUEaQQ/A==
-  dependencies:
-    b4a "^1.6.0"
-    corestore "6.2.0"
-    hyperbee "^2.0.1"
-    hyperdrive "^11.0.0-alpha.5"
-    safety-catch "^1.0.2"
-
 "@synonymdev/slashtag@^1.0.0-alpha.18":
   version "1.0.0-alpha.19"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.19.tgz#f72585410339301f5336c147d97cd044bf9f016d"
@@ -1943,18 +1932,6 @@
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@synonymdev/slashdrive" "^1.0.0-alpha.15"
-    "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
-    corestore "6.2.0"
-    random-access-memory "^5.0.1"
-    turbo-hash-map "^1.0.3"
-
-"@synonymdev/slashtag@^1.0.0-alpha.23":
-  version "1.0.0-alpha.23"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtag/-/slashtag-1.0.0-alpha.23.tgz#c51453fce85099087b974546e997105b7479bcbf"
-  integrity sha512-wCF1/Zlr/zejSttDq1O2r+MX4IsWUCfWJjnBaQoC7lX3JSZJCcNAoU3Cwofet/JsI1avZwGSvwqoo7JRr1W38Q==
-  dependencies:
-    "@hyperswarm/dht" "^6.2.1"
-    "@synonymdev/slashdrive" "^1.0.0-alpha.19"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.1"
     corestore "6.2.0"
     random-access-memory "^5.0.1"
@@ -1970,7 +1947,7 @@
     compact-encoding "^2.11.0"
     compact-encoding-struct "^1.3.0"
 
-"@synonymdev/slashtags-rpc@^1.0.0-alpha.1", "@synonymdev/slashtags-rpc@^1.0.0-alpha.2":
+"@synonymdev/slashtags-rpc@^1.0.0-alpha.2":
   version "1.0.0-alpha.2"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-rpc/-/slashtags-rpc-1.0.0-alpha.2.tgz#cbe3a36b74546623a05925ee825492e102f85a88"
   integrity sha512-pngaKkjznWFmV+emF+JI033l7Vr7mBvTnWynU1Mvjlps+PXZCL/bPJVC2TDPvGhugUTxUD6Bv+Tt0WL0xJuajw==
@@ -1978,16 +1955,17 @@
     b4a "^1.6.0"
     protomux-rpc "^1.3.0"
 
-"@synonymdev/slashtags-sdk@^1.0.0-alpha.19":
-  version "1.0.0-alpha.31"
-  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.31.tgz#7a1ff04a99c25261b739918bd4891c409dba56e7"
-  integrity sha512-5BRrqhjR6GiiJ36eu68UpAXfEkI2jbWepYxZRr3Kgs04jIIRlsYmzitoGAFvjXt3KZrMAxkq4PXr4CfV+EOqEg==
+"@synonymdev/slashtags-sdk@^1.0.0-alpha.13":
+  version "1.0.0-alpha.25"
+  resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-sdk/-/slashtags-sdk-1.0.0-alpha.25.tgz#2ffb337526f1ed5bac7790a5b0ce4b29f882f0f0"
+  integrity sha512-l5DrU4gLCVo5BRiwY/lxq3QppE/TYmIN6HzDpqR03NS8kcGVyoNxmSxY4WthimnZ2sOnl8qg4pfcSsFzRzKg4g==
   dependencies:
     "@hyperswarm/dht" "^6.2.1"
     "@hyperswarm/dht-relay" "^0.3.0"
-    "@synonymdev/slashtag" "^1.0.0-alpha.23"
+    "@synonymdev/slashtag" "^1.0.0-alpha.18"
     "@synonymdev/slashtags-url" "^1.0.0-alpha.0"
     b4a "^1.6.0"
+    compact-encoding "^2.11.0"
     corestore "6.2.0"
     graceful-goodbye "^1.1.0"
     hypercore-crypto "^3.3.0"
@@ -2379,11 +2357,6 @@
   dependencies:
     "@typescript-eslint/types" "5.35.1"
     eslint-visitor-keys "^3.3.0"
-
-"@webgpu/types@^0.1.20":
-  version "0.1.21"
-  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.21.tgz#b181202daec30d66ccd67264de23814cfd176d3a"
-  integrity sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==
 
 "@yarnpkg/lockfile@^1.0.0":
   version "1.1.0"
@@ -2951,11 +2924,10 @@ babel-preset-jest@^27.5.1:
     babel-preset-current-node-syntax "^1.0.0"
 
 "backpack-client@git+ssh://git@github.com/synonymdev/backpack-client":
-  version "1.0.2"
-  resolved "git+ssh://git@github.com/synonymdev/backpack-client#80b3072b258c9fd86b0def23a477312cd08e0400"
+  version "1.0.1"
+  resolved "git+ssh://git@github.com/synonymdev/backpack-client#3be3d23db241b4cd1839d476e91f7f81b28867eb"
   dependencies:
-    "@synonymdev/slashtags-rpc" "^1.0.0-alpha.1"
-    "@synonymdev/slashtags-sdk" "^1.0.0-alpha.19"
+    "@synonymdev/slashtags-sdk" "^1.0.0-alpha.13"
     compact-encoding "^2.7.0"
     compact-encoding-struct "^1.3.0"
     sodium-universal "^3.1.0"
@@ -3499,12 +3471,10 @@ canvas-renderer@~2.2.0:
   dependencies:
     "@types/node" "*"
 
-canvaskit-wasm@^0.35.0:
-  version "0.35.0"
-  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.35.0.tgz#90afc625958367f4a27907fb8c03240045933a46"
-  integrity sha512-y/eTJ4xoIBkKzD37aQAvBL451LIp9YiB8Vs1e8J3Qwe7WcTHsAD00E5WocPzZo+0+XaSCkJ6cS/BxBDXTSnW1g==
-  dependencies:
-    "@webgpu/types" "^0.1.20"
+canvaskit-wasm@0.36.1:
+  version "0.36.1"
+  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.36.1.tgz#341df38ce7894a925064beaf9eeacbf7699c6633"
+  integrity sha512-6IHlBBc9zDQBTHiGuz4Rf0j/P/ulW24q/yW+QY517e7jwQoM0nJ1+L3h4wUpfC4eQrcpVPQY8ZFbqMbUCzDxTw==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -9221,11 +9191,6 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-radio-buttons-react-native@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/radio-buttons-react-native/-/radio-buttons-react-native-1.0.4.tgz#ee450f6e81d8f5c22882f338b0ce979f70ab8980"
-  integrity sha512-5AKM/p3a9mykQ1BCIbBnHrDwXZZ6iJuDEDFaiNb2Pa2Nx9EgUMgU5owcrU9g9eaK7didA5rJ3yAUKGnyfhBqcw==
-
 random-access-file@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/random-access-file/-/random-access-file-4.0.0.tgz#67f0e16b8d86c0124da17bea27ed101f07c6a2a8"
@@ -9634,7 +9599,7 @@ react-native@0.68.2:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-reconciler@^0.26.2:
+react-reconciler@0.26.2:
   version "0.26.2"
   resolved "https://registry.yarnpkg.com/react-reconciler/-/react-reconciler-0.26.2.tgz#bbad0e2d1309423f76cf3c3309ac6c96e05e9d91"
   integrity sha512-nK6kgY28HwrMNwDnMui3dvm3rCFjZrcGiuwLc5COUipBK5hWHLOxMJhSnSomirqWwjPBJKV1QcbkI0VJr7Gl1Q==

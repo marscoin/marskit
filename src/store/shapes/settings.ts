@@ -65,17 +65,18 @@ const defaultReceivePreference = [
 export const defaultSettingsShape: ISettings = {
 	loading: false,
 	error: false,
-	biometrics: false,
+	allowClipboard: false,
+	enableSendAmountWarning: false,
 	pin: false,
 	pinOnLaunch: true,
 	pinForPayments: false,
+	biometrics: false,
 	rbf: true,
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	balanceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	selectedCurrency: 'USD',
 	selectedLanguage: 'english',
-	selectedNetwork: 'bitcoinRegtest',
 	customElectrumPeers,
 	coinSelectAuto: true,
 	coinSelectPreference: 'small',
@@ -87,5 +88,5 @@ export const defaultSettingsShape: ISettings = {
 	hideBalance: false,
 	hideOnboardingMessage: false,
 	hideBeta: false,
-	addressType: 'p2wpkh',
+	enableDevOptions: false,
 };

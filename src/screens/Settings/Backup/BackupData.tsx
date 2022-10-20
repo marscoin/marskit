@@ -1,6 +1,6 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { StyleSheet, Image, Alert } from 'react-native';
+import { StyleSheet, Image } from 'react-native';
 
 import Store from '../../../store/types';
 import { View, Text01S } from '../../../styles/components';
@@ -14,6 +14,11 @@ import Glow from '../../../components/Glow';
 import NavigationHeader from '../../../components/NavigationHeader';
 import type { SettingsScreenProps } from '../../../navigation/types';
 import SafeAreaView from '../../../components/SafeAreaView';
+import {
+	showErrorNotification,
+	showSuccessNotification,
+} from '../../../utils/notifications';
+import Dialog from '../../../components/Dialog';
 
 const imageSrc = require('../../../assets/illustrations/folder.png');
 
@@ -23,8 +28,10 @@ const BackupData = ({
 	const { remoteBackupsEnabled, remoteLdkBackupLastSync } = useSelector(
 		(state: Store) => state.backup,
 	);
+	// const pin = useSelector((state: Store) => state.settings.pin);
 
 	const [isBackingUp, setIsBackingUp] = useState(false);
+	const [showDialog, setShowDialog] = useState(false);
 
 	const { slashtag } = useSelectedSlashtag();
 
@@ -34,32 +41,23 @@ const BackupData = ({
 		}
 
 		if (remoteBackupsEnabled) {
-			return Alert.alert(
-				'Switch off automated backups?',
-				"Are you sure you want to stop automated backups? You won't be able to restore your data if your phone is lost or damaged.",
-				[
-					{
-						text: 'Yes, switch off',
-						onPress: (): void => {
-							setRemoteBackupsEnabled(false);
-						},
-					},
-					{
-						text: 'Cancel',
-						onPress: (): void => {},
-						style: 'cancel',
-					},
-				],
-			);
+			setShowDialog(true);
+			return;
 		}
 
 		setRemoteBackupsEnabled(true);
 		setIsBackingUp(true);
 		const res = await performFullBackup(slashtag);
 		if (res.isErr()) {
-			Alert.alert('Error backup up', res.error.message);
+			showErrorNotification({
+				title: 'Error Backing Up',
+				message: res.error.message,
+			});
 		} else {
-			Alert.alert('Success', 'Backup up successful');
+			showSuccessNotification({
+				title: 'Backup Successful',
+				message: 'Bitkit backed up your data.',
+			});
 		}
 
 		setIsBackingUp(false);
@@ -148,6 +146,18 @@ const BackupData = ({
 
 				<List style={styles.list} data={settingsListData} bounces={false} />
 			</View>
+
+			<Dialog
+				visible={showDialog}
+				title="Switch off automated backups?"
+				description="Are you sure you want to stop automated backups? You won't be able to restore your data if your phone is lost or damaged."
+				confirmText="Yes, switch off"
+				onCancel={(): void => setShowDialog(false)}
+				onConfirm={(): void => {
+					setRemoteBackupsEnabled(false);
+					setShowDialog(false);
+				}}
+			/>
 		</SafeAreaView>
 	);
 };

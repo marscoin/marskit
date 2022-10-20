@@ -239,10 +239,17 @@ async function generateContact(url) {
 			bio: falso.randPhrase().slice(0, 160),
 			links: [
 				{
-					title: 'twitter',
+					title: 'Twitter',
 					url: 'https://www.twitter.com/' + falso.randWord(),
 				},
-				{ title: 'website', url: falso.randUrl() },
+				{
+					title: 'Website',
+					url: falso.randUrl(),
+				},
+				{
+					title: 'Phone',
+					url: falso.randPhoneNumber(),
+				},
 			],
 		},
 		slashpay: [{ type: 'p2wpkh', value: falso.randBitcoinAddress() }],

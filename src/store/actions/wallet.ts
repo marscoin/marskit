@@ -56,6 +56,8 @@ import {
 	GENERATE_ADDRESS_AMOUNT,
 } from '../../utils/wallet/constants';
 import { getBoostedTransactionParents } from '../../utils/boost';
+import { updateSlashPayConfig } from '../../utils/slashtags';
+import { sdk } from '../../components/SlashtagsProvider';
 
 const dispatch = getDispatch();
 
@@ -161,7 +163,9 @@ export const updateAddressIndexes = async ({
 		);
 	}
 
-	addressTypesToCheck.map(async (addressTypeKey) => {
+	let updated = false;
+
+	const promises = addressTypesToCheck.map(async (addressTypeKey) => {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
@@ -174,7 +178,7 @@ export const updateAddressIndexes = async ({
 			addressType: addressTypeKey,
 		});
 		if (response.isErr()) {
-			return err(response.error);
+			throw response.error;
 		}
 
 		const { type } = addressTypes[addressTypeKey];
@@ -224,16 +228,23 @@ export const updateAddressIndexes = async ({
 					addressType: addressTypeKey,
 				},
 			});
-			return ok('Successfully updated indexes.');
+			updated = true;
 		}
 	});
-	return ok('No update needed.');
+
+	try {
+		await Promise.all(promises);
+	} catch (e) {
+		return err(e);
+	}
+
+	return ok(updated ? 'Successfully updated indexes.' : 'No update needed.');
 };
 
 export const generateNewReceiveAddress = async ({
 	selectedWallet,
 	selectedNetwork,
-	addressType = EWallet.addressType,
+	addressType,
 	keyDerivationPath,
 }: {
 	selectedWallet?: string;
@@ -247,6 +258,9 @@ export const generateNewReceiveAddress = async ({
 		}
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
+		}
+		if (!addressType) {
+			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
 		}
 		const addressTypes = getAddressTypes();
 		const { currentWallet } = getCurrentWallet({
@@ -359,7 +373,7 @@ export const addAddresses = async ({
 	addressIndex = 0,
 	changeAddressIndex = 0,
 	selectedNetwork,
-	addressType = EWallet.addressType,
+	addressType,
 	keyDerivationPath,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
 	if (!selectedWallet) {
@@ -367,6 +381,9 @@ export const addAddresses = async ({
 	}
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
+	}
+	if (!addressType) {
+		addressType = getSelectedAddressType({ selectedWallet, selectedNetwork });
 	}
 	const addressTypes = getAddressTypes();
 	const { path, type } = addressTypes[addressType];
@@ -609,6 +626,7 @@ export const updateTransactions = ({
 			});
 		}
 
+		updateSlashPayConfig(sdk);
 		return resolve(ok(formattedTransactions));
 	});
 };

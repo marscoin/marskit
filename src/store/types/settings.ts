@@ -1,9 +1,4 @@
-import {
-	IWalletItem,
-	TBitcoinUnit,
-	TBalanceUnit,
-	TAddressType,
-} from './wallet';
+import { IWalletItem, TBitcoinUnit, TBalanceUnit } from './wallet';
 
 type TTheme = 'dark' | 'light' | 'blue';
 export type TProtocol = 'ssl' | 'tcp' | string;
@@ -23,6 +18,7 @@ export interface ICustomElectrumPeer {
 	tcp: number | undefined; //tcp port
 	protocol?: TProtocol;
 }
+
 type TReceiveOption = {
 	key: string;
 	title: string;
@@ -31,10 +27,12 @@ type TReceiveOption = {
 export interface ISettings {
 	loading: boolean;
 	error: boolean;
-	biometrics: boolean;
+	allowClipboard: boolean;
+	enableSendAmountWarning: boolean;
 	pin: boolean;
 	pinOnLaunch: boolean;
 	pinForPayments: boolean;
+	biometrics: boolean;
 	rbf: boolean;
 	theme: TTheme;
 	bitcoinUnit: TBitcoinUnit;
@@ -42,7 +40,6 @@ export interface ISettings {
 	customElectrumPeers: IWalletItem<ICustomElectrumPeer[]> | IWalletItem<[]>;
 	selectedCurrency: string;
 	selectedLanguage: string;
-	selectedNetwork: string;
 	coinSelectAuto: boolean;
 	coinSelectPreference: TCoinSelectPreference;
 	receivePreference: TReceiveOption[];
@@ -50,10 +47,8 @@ export interface ISettings {
 	unitPreference: 'asset' | 'fiat';
 	showSuggestions: boolean;
 	transactionSpeed: TTransactionSpeed;
-	addressType: TAddressType;
 	hideBalance: boolean;
 	hideOnboardingMessage: boolean;
 	hideBeta: boolean;
+	enableDevOptions: boolean;
 }
-
-export type RadioButtonItem = { label: string; value: string };

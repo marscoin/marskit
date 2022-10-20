@@ -17,6 +17,7 @@ import {
 	getBalance,
 	getSelectedNetwork,
 	getSelectedWallet,
+	refreshWallet,
 } from '../../utils/wallet';
 import { EAvailableNetworks, TAvailableNetworks } from '../../utils/networks';
 import { sleep } from '../../utils/helpers';
@@ -26,7 +27,7 @@ import {
 	getOnchainTransactionData,
 	updateFee,
 } from '../../utils/wallet/transactions';
-import { getNodeId, refreshLdk } from '../../utils/lightning';
+import { getNodeId } from '../../utils/lightning';
 import {
 	finalizeChannel,
 	getBlocktankInfo,
@@ -110,7 +111,6 @@ export const refreshOrder = async (
 			if (getOrderRes.value.state === 100) {
 				const finalizeRes = await finalizeChannel(orderId);
 				if (finalizeRes.isOk()) {
-					setTimeout(() => refreshLdk({}), 15000);
 					removeTodo('lightning');
 					removeTodo('lightningSettingUp');
 					const getUpdatedOrderRes = await blocktank.getOrder(orderId);
@@ -489,6 +489,7 @@ export const confirmChannelPurchase = async ({
 	const broadcastResponse = await broadcastTransaction({
 		rawTx: rawTx.value.hex,
 		selectedNetwork,
+		subscribeToOutputAddress: false,
 	});
 	if (broadcastResponse.isErr()) {
 		showErrorNotification({
@@ -511,5 +512,6 @@ export const confirmChannelPurchase = async ({
 		description: 'Ready in ±20min',
 	};
 	addTodo(todo);
+	refreshWallet({ onchain: true, lightning: false }).then();
 	return ok(broadcastResponse.value);
 };

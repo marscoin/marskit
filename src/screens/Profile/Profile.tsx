@@ -26,11 +26,7 @@ import {
 import NavigationHeader from '../../components/NavigationHeader';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import ProfileCard from '../../components/ProfileCard';
-import {
-	ProfileIntro,
-	PaymentsFromContacts,
-	OfflinePayments,
-} from './ProfileOnboarding';
+import { ProfileIntro, OfflinePayments } from './ProfileOnboarding';
 import { BasicProfile } from '../../store/types/slashtags';
 import ProfileLinks from '../../components/ProfileLinks';
 import Tooltip from '../../components/Tooltip';
@@ -51,8 +47,6 @@ const Profile = (props: RootStackScreenProps<'Profile'>): JSX.Element => {
 			return <ProfileIntro {...props} />;
 		case 'InitialEdit':
 			return <ProfileEdit {...props} />;
-		case 'PaymentsFromContacts':
-			return <PaymentsFromContacts {...props} />;
 		case 'OfflinePayments':
 			return <OfflinePayments {...props} />;
 		case 'Done':
@@ -84,6 +78,12 @@ const ProfileScreen = ({
 		setTimeout(() => setShowCopy(() => false), 1200);
 		Clipboard.setString(url);
 	};
+
+	const profileLinks = profile?.links ?? [];
+	const profileLinksWithIds = profileLinks.map((link) => ({
+		...link,
+		id: `${link.title}:${link.url}`,
+	}));
 
 	return (
 		<ThemedView style={styles.container}>
@@ -140,7 +140,7 @@ const ProfileScreen = ({
 							</View>
 							{view === 'details' ? (
 								<ProfileLinks
-									links={profile?.links ?? []}
+									links={profileLinksWithIds}
 									style={styles.profileDetails}
 								/>
 							) : (
@@ -152,7 +152,7 @@ const ProfileScreen = ({
 									exiting={FadeOut.duration(500)}
 									color="transparent"
 									style={styles.tooltip}>
-									<Tooltip text="Copied To Clipboard" />
+									<Tooltip text="Profile Key Copied To Clipboard" />
 								</AnimatedView>
 							)}
 						</View>
@@ -241,7 +241,7 @@ const QRView = ({
 						exiting={FadeOut.duration(500)}
 						color="transparent"
 						style={styles.tooltip}>
-						<Tooltip text="Slashtags Key Copied To Clipboard" />
+						<Tooltip text="Profile Key Copied To Clipboard" />
 					</AnimatedView>
 				)}
 			</View>
