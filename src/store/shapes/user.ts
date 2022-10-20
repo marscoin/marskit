@@ -38,4 +38,5 @@ export const defaultUserShape: IUser = {
 	backupVerified: false,
 	// Used to control various views throughout the app. (Modals, bottom-sheets, etc.)
 	viewController: defaultViewControllers,
+	isGeoBlocked: false,
 };

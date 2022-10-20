@@ -44,4 +44,5 @@ export interface IUser {
 	ignoreHighBalanceTimestamp: number;
 	backupVerified: boolean;
 	viewController: TUserViewController;
+	isGeoBlocked: boolean;
 }
