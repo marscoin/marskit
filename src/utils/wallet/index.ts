@@ -2025,7 +2025,6 @@ export const createDefaultWallet = async ({
 					changeAddressAmount,
 					keyDerivationPath: pathObject.value,
 					addressType: type,
-					seed, // Skip calculating the seed again (bip39.mnemonicToSeed takes 2-5s).
 				});
 				if (generatedAddresses.isErr()) {
 					return err(generatedAddresses.error);

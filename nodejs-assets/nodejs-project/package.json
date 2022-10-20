@@ -9,8 +9,10 @@
   "author": "Synonym",
   "license": "MIT",
   "dependencies": {
-    "bip32": "https://github.com/synonymdev/bip32",
+    "@noble/secp256k1": "^1.7.0",
+    "bip32": "git+ssh://git@github.com/synonymdev/bip32",
     "bip39": "^3.0.4",
-    "bitcoinjs-lib": "^6.0.1"
+    "bitcoinjs-lib": "^6.0.1",
+    "create-hmac": "^1.1.7"
   }
 }
