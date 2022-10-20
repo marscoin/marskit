@@ -1,6 +1,8 @@
 const networks = require("./networks");
 const bip39 = require("bip39");
-const bip32 = require("bip32");
+const ecc = require('./nobleSecp256k1Wrapper');
+const BIP32Factory = require('bip32').BIP32Factory;
+const bip32 = BIP32Factory(ecc);
 const bitcoin = require("bitcoinjs-lib");
 const {
     sha256,
