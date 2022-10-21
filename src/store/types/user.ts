@@ -45,4 +45,5 @@ export interface IUser {
 	backupVerified: boolean;
 	requiresRemoteRestore: boolean;
 	viewController: TUserViewController;
+	isGeoBlocked: boolean;
 }

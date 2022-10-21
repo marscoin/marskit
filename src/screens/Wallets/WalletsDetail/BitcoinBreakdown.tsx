@@ -14,6 +14,8 @@ import { useBalance } from '../../../hooks/wallet';
 import Money from '../../../components/Money';
 import { RootNavigationProp } from '../../../navigation/types';
 import { getOpenChannels } from '../../../utils/lightning';
+import { useSelector } from 'react-redux';
+import Store from '../../../store/types';
 
 const NetworkRow = ({
 	title,
@@ -55,9 +57,12 @@ const NetworkRow = ({
 
 const BitcoinBreakdown = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
+	const isGeoBlocked = useSelector(
+		(store: Store) => store.user?.isGeoBlocked ?? false,
+	);
 	const { satoshis: onchain } = useBalance({ onchain: true });
 	const { satoshis: lightning } = useBalance({ lightning: true });
-	const [hasLighning, setHasLightning] = useState<boolean>(false);
+	const [hasLightning, setHasLightning] = useState<boolean>(false);
 
 	useEffect(() => {
 		getOpenChannels({ fromStorage: true }).then((res) => {
@@ -81,7 +86,10 @@ const BitcoinBreakdown = (): ReactElement => {
 				<TouchableOpacity
 					onPress={(): void => {
 						navigation.navigate('LightningRoot', {
-							screen: hasLighning ? 'RebalanceSetup' : 'Introduction',
+							screen:
+								hasLightning && !isGeoBlocked
+									? 'RebalanceSetup'
+									: 'Introduction',
 						});
 					}}>
 					<View style={styles.transferButton} color="white08">

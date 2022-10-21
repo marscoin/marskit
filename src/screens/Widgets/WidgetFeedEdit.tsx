@@ -212,34 +212,34 @@ export const WidgetFeedEdit = ({
 						{Object.values(fields).length === 0 ? (
 							<Text02S color="gray1">No feeds to feature...</Text02S>
 						) : (
-							Object.entries(fields)
-								.sort((a, b) => (a[0] < b[0] ? -1 : 1))
-								.map(([label, value]) => {
-									return (
-										<TouchableOpacity
-											key={label}
-											activeOpacity={0.6}
-											onPress={(): void => setSelectedField(label)}>
-											<View style={styles.fieldContainer}>
-												<View style={styles.fieldLeftContainer}>
-													<Caption13Up color="gray1" style={styles.fileLabel}>
-														{label}
-													</Caption13Up>
-													<Text02S style={styles.fileValue}>{value}</Text02S>
-												</View>
-												<View
-													style={[
-														styles.selectField,
-														selectedField === label
-															? { backgroundColor: brand, borderColor: white }
-															: {},
-													]}
-												/>
+							Object.entries(fields).map(([label, value]) => {
+								return (
+									<TouchableOpacity
+										key={label}
+										activeOpacity={0.6}
+										onPress={(): void => setSelectedField(label)}>
+										<View style={styles.fieldContainer}>
+											<View style={styles.fieldLeftContainer}>
+												<Caption13Up color="gray1" style={styles.fileLabel}>
+													{label}
+												</Caption13Up>
+												<Text02S style={styles.fileValue}>
+													{typeof value === 'string' ? value : ''}
+												</Text02S>
 											</View>
-											<View style={styles.divider} />
-										</TouchableOpacity>
-									);
-								})
+											<View
+												style={[
+													styles.selectField,
+													selectedField === label
+														? { backgroundColor: brand, borderColor: white }
+														: {},
+												]}
+											/>
+										</View>
+										<View style={styles.divider} />
+									</TouchableOpacity>
+								);
+							})
 						)}
 					</ScrollView>
 					<View style={styles.buttonsContainer}>

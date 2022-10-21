@@ -117,6 +117,8 @@ const BackupData = ({
 				}}
 			/>
 
+			{/* TODO: add scrolling on small screens */}
+
 			<View style={styles.container}>
 				<Text01S color="gray1">
 					Transactions, accounts, contacts and tags will be backed up

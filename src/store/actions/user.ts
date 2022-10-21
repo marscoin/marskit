@@ -3,6 +3,7 @@ import { getDispatch } from '../helpers';
 import { ok, Result } from '@synonymdev/result';
 import { IViewControllerData, TViewController } from '../types/user';
 import { defaultViewController } from '../shapes/user';
+import { isGeoBlocked } from '../../utils/blocktank';
 
 const dispatch = getDispatch();
 
@@ -70,4 +71,9 @@ export const verifyBackup = (): Result<string> => {
 		type: actions.USER_VERIFY_BACKUP,
 	});
 	return ok('');
+};
+
+export const setGeoBlock = async () => {
+	const response = await isGeoBlocked();
+	updateUser({ isGeoBlocked: response });
 };

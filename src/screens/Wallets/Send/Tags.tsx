@@ -10,6 +10,7 @@ import Store from '../../../store/types';
 import { addTxTag } from '../../../store/actions/wallet';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
 import { showErrorNotification } from '../../../utils/notifications';
+import { Keyboard } from '../../../hooks/keyboard';
 import type { SendScreenProps } from '../../../navigation/types';
 
 const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
@@ -24,7 +25,7 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 		(store: Store) => store.metadata.lastUsedTags,
 	);
 
-	const handleInputBlur = (): void => {
+	const handleSubmit = async (): Promise<void> => {
 		if (text.length === 0) {
 			return;
 		}
@@ -37,10 +38,12 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 			return;
 		}
 		addTag(text);
+
+		await Keyboard.dismiss();
 		navigation.goBack();
 	};
 
-	const handleTagChoose = (tag: string): void => {
+	const handleTagChoose = async (tag: string): Promise<void> => {
 		const res = addTxTag({ tag, selectedNetwork, selectedWallet });
 		if (res.isErr()) {
 			showErrorNotification({
@@ -50,6 +53,8 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 			return;
 		}
 		addTag(tag);
+
+		await Keyboard.dismiss();
 		navigation.goBack();
 	};
 
@@ -84,10 +89,10 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 				</Caption13Up>
 				<BottomSheetTextInput
 					placeholder="Enter a new tag"
-					blurOnSubmit={true}
+					blurOnSubmit={false}
 					value={text}
 					onChangeText={setText}
-					onBlur={handleInputBlur}
+					onSubmitEditing={handleSubmit}
 					maxLength={15}
 					returnKeyType="done"
 				/>

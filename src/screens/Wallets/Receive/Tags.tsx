@@ -9,25 +9,32 @@ import Tag from '../../../components/Tag';
 import Store from '../../../store/types';
 import { updateInvoice } from '../../../store/actions/receive';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
+import { Keyboard } from '../../../hooks/keyboard';
+import { ReceiveScreenProps } from '../../../navigation/types';
 
-const Tags = ({ navigation }): ReactElement => {
+const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 	const [text, setText] = useState('');
 	const lastUsedTags = useSelector(
 		(store: Store) => store.metadata.lastUsedTags,
 	);
 
-	const handleInputBlur = (): void => {
+	const handleSubmit = async (): Promise<void> => {
 		if (text.length === 0) {
 			return;
 		}
+
 		updateInvoice({ tags: [text] });
 		addTag(text);
+
+		await Keyboard.dismiss();
 		navigation.goBack();
 	};
 
-	const handleTagChoose = (tag: string): void => {
+	const handleTagChoose = async (tag: string): Promise<void> => {
 		updateInvoice({ tags: [tag] });
 		addTag(tag);
+
+		await Keyboard.dismiss();
 		navigation.goBack();
 	};
 
@@ -62,10 +69,10 @@ const Tags = ({ navigation }): ReactElement => {
 				</Caption13Up>
 				<BottomSheetTextInput
 					placeholder="Enter a new tag"
-					blurOnSubmit={true}
+					blurOnSubmit={false}
 					value={text}
 					onChangeText={setText}
-					onBlur={handleInputBlur}
+					onSubmitEditing={handleSubmit}
 					maxLength={15}
 					returnKeyType="done"
 				/>

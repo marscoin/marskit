@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 import { navigate } from '../navigation/root/RootNavigator';
 import Store from '../store/types';
 import {
-	CubeIcon,
 	PlusIcon,
 	Subtitle,
 	Text01M,
@@ -17,6 +16,7 @@ import AuthWidget from './AuthWidget';
 import FeedWidget from './FeedWidget';
 import HeadlinesWidget from './HeadlinesWidget';
 import { SUPPORTED_FEED_TYPES } from '../utils/widgets';
+import BlocksWidget from './BlocksWidget';
 
 export const Widgets = (): ReactElement => {
 	const widgets = useSelector((state: Store) => state.widgets?.widgets || {});
@@ -36,15 +36,7 @@ export const Widgets = (): ReactElement => {
 										<HeadlinesWidget key={url} url={url} widget={widget} />
 									);
 								case SUPPORTED_FEED_TYPES.BLOCKS_FEED:
-									return (
-										<FeedWidget
-											key={url}
-											url={url}
-											widget={widget}
-											name="Bitcoin Blocks"
-											icon={<CubeIcon width={32} height={32} />}
-										/>
-									);
+									return <BlocksWidget key={url} url={url} widget={widget} />;
 								default:
 									return <FeedWidget key={url} url={url} widget={widget} />;
 							}
