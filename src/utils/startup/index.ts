@@ -76,7 +76,7 @@ export const restoreRemoteBackups = async (
 		return err(res.error);
 	}
 
-	return await startWalletServices({});
+	return await startWalletServices({ restore: true });
 };
 
 /**
@@ -87,9 +87,11 @@ const ENABLE_SERVICES = true;
 export const startWalletServices = async ({
 	onchain = ENABLE_SERVICES,
 	lightning = ENABLE_SERVICES,
+	restore = false,
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
+	restore?: boolean;
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {

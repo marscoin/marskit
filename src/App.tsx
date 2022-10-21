@@ -20,7 +20,6 @@ import { TTheme } from './store/types/settings';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { SlashtagsProvider } from './components/SlashtagsProvider';
 import { toastConfig } from './components/Toast';
-import { unsubscribeFromLightningSubscriptions } from './utils/lightning';
 import RestoringScreen from './screens/Onboarding/Restoring';
 import AppOnboarded from './AppOnboarded';
 
@@ -45,19 +44,7 @@ const App = (): ReactElement => {
 		if (Platform.OS === 'android') {
 			setTimeout(NativeModules.SplashScreenModule.hide, 100);
 		}
-
-		// launch wallet services
-		(async (): Promise<void> => {
-			const _walletExists = await checkWalletExists();
-			if (_walletExists && !requiresRemoteRestore) {
-				await startWalletServices({});
-			}
-		})();
-
-		return () => {
-			unsubscribeFromLightningSubscriptions();
-		};
-	}, [requiresRemoteRestore]);
+	}, []);
 
 	const currentTheme: TTheme = useMemo(() => themes[theme], [theme]);
 

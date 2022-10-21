@@ -1,7 +1,5 @@
 import React, { memo, ReactElement } from 'react';
 import { StyleSheet, Image } from 'react-native';
-import { StyleSheet, Image } from 'react-native';
-
 import { View, Text01S } from '../../../styles/components';
 import Glow from '../../../components/Glow';
 import NavigationHeader from '../../../components/NavigationHeader';

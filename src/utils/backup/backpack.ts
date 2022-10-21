@@ -136,7 +136,7 @@ export const listBackups = async (
 		const backups = await backupsFactory(slashtag);
 
 		const { error, results, success } = await backups.getRecentBackups(
-			serverSlashtag,
+			BACKUPS_SERVER_SLASHTAG,
 			{
 				category: categoryWithNetwork(category, network),
 			},
