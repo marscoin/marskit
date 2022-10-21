@@ -69,23 +69,24 @@ export const wipeLdkStorage = async ({
 		selectedNetwork = getSelectedNetwork();
 	}
 
-	const account = await getAccount({ selectedNetwork, selectedWallet });
-	if (account.isErr()) {
-		return err(account.error.message);
-	}
+	await ldk.reset();
+	const path = `${RNFS.DocumentDirectoryPath}/ldk/${lm.account.name}`;
 
-	const path = `${RNFS.DocumentDirectoryPath}/ldk/${account.value.name}`;
+	alert(path);
 
 	try {
 		await RNFS.unlink(path);
 	} catch (e) {
-		return err(e.toString());
+		return err(e);
 	}
 
 	return ok(`${selectedNetwork}'s LDK directory wiped for ${selectedWallet}`);
 };
 
 const LDK_ACCOUNT_SUFFIX = 'ldkaccount';
+
+export const setLdkStoragePath = (): Promise<Result<string>> =>
+	lm.setBaseStoragePath(`${RNFS.DocumentDirectoryPath}/ldk/`);
 
 /**
  * Used to spin-up LDK services.
@@ -152,9 +153,7 @@ export const setupLdk = async ({
 			}
 			return res.value;
 		};
-		const storageRes = await lm.setBaseStoragePath(
-			`${RNFS.DocumentDirectoryPath}/ldk/`,
-		);
+		const storageRes = await setLdkStoragePath();
 		if (storageRes.isErr()) {
 			return err(storageRes.error);
 		}
