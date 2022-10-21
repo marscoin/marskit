@@ -61,21 +61,8 @@ const Glow = ({ color }: { color: string }): ReactElement => {
 
 const RestoreFromSeed = (): ReactElement => {
 	const numberOfWords = 12;
-	// const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
-	const [seed, setSeed] = useState<string[]>([
-		'another',
-		'tuna',
-		'whip',
-		'frame',
-		'minute',
-		'sail',
-		'swarm',
-		'breeze',
-		'old',
-		'right',
-		'farm',
-		'girl',
-	]); //TODO remove me
+	const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
+
 	const [isRestoringWallet, setIsRestoringWallet] = useState(false);
 	const [validWords, setValidWords] = useState(Array(numberOfWords).fill(true));
 	const [focused, setFocused] = useState(null);

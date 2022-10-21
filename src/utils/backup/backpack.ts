@@ -1,16 +1,10 @@
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 import { ok, err, Result } from '@synonymdev/result';
 import { Slashtag } from '@synonymdev/slashtags-sdk';
+import { BACKUPS_SHARED_SECRET, BACKUPS_SERVER_SLASHTAG } from '@env';
 
 import { name as appName, version as appVersion } from '../../../package.json';
 import { TAvailableNetworks } from '../networks';
-
-//TODO move to env when we have a production server
-//Staging server config
-const sharedSecret =
-	'6dabb95493023d5c45229331490a9a67fcde2a618798f9dea5c1247eabb13451';
-const serverSlashtag =
-	'slash:3phbmj4jkzs7b6e6t1h8jwy1u6o9w9y39nscsc6r1q89t1mxcsuy';
 
 const categoryWithNetwork = (
 	category: EBackupCategories,
@@ -26,12 +20,19 @@ export enum EBackupCategories {
 //Keep a cached backup instance for each slashtag
 const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
+	if (!BACKUPS_SHARED_SECRET || !BACKUPS_SERVER_SLASHTAG) {
+		const error =
+			'Missing env fields BACKUPS_SHARED_SECRET and BACKUPS_SERVER_SLASHTAG';
+		console.error(error);
+		throw new Error(error);
+	}
+
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
 		backupsInstances[key] = new BackupProtocol(slashtag);
 
 		// Give the protocol the shared secret
-		backupsInstances[key].setSecret(sharedSecret);
+		backupsInstances[key].setSecret(BACKUPS_SHARED_SECRET);
 	}
 
 	return backupsInstances[key];
@@ -62,7 +63,7 @@ export const uploadBackup = async (
 		};
 
 		const { error, results, success } = await backups.backupData(
-			serverSlashtag,
+			BACKUPS_SERVER_SLASHTAG,
 			data,
 		);
 
@@ -103,7 +104,7 @@ export const fetchBackup = async (
 		const backups = await backupsFactory(slashtag);
 
 		const { error, results, success } = await backups.restoreData(
-			serverSlashtag,
+			BACKUPS_SERVER_SLASHTAG,
 			{
 				category: categoryWithNetwork(category, network),
 				timestamp,
