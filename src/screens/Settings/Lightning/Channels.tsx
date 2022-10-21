@@ -43,6 +43,8 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import { createLightningInvoice } from '../../../store/actions/lightning';
+import { ETransactionDefaults } from '../../../store/types/wallet';
+import { useBalance } from '../../../hooks/wallet';
 
 const Channel = memo(
 	({
@@ -107,6 +109,8 @@ const Channels = ({ navigation }): ReactElement => {
 	const [restartingLdk, setRestartingLdk] = useState<boolean>(false);
 
 	const colors = useColors();
+	const balance = useBalance({ onchain: true });
+
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
@@ -195,10 +199,17 @@ const Channels = ({ navigation }): ReactElement => {
 		setRefreshingLdk(false);
 	}, [selectedNetwork, selectedWallet]);
 
+	const addConnectionIsDisabled = useMemo(() => {
+		return balance.satoshis <= ETransactionDefaults.recommendedBaseFee;
+	}, [balance.satoshis]);
+
 	return (
 		<ThemedView style={styles.root}>
 			<SafeAreaInsets type="top" />
-			<NavigationHeader title="Lightning Connections" onAddPress={handleAdd} />
+			<NavigationHeader
+				title="Lightning Connections"
+				onAddPress={addConnectionIsDisabled ? undefined : handleAdd}
+			/>
 			<ScrollView
 				contentContainerStyle={styles.content}
 				refreshControl={
@@ -365,7 +376,7 @@ const Channels = ({ navigation }): ReactElement => {
 						</>
 					)}
 
-					{!closed && (
+					{!closed && closedChannels.length > 0 && (
 						<Button
 							style={styles.button}
 							text="Show Closed Connections"
@@ -379,6 +390,7 @@ const Channels = ({ navigation }): ReactElement => {
 						style={styles.button}
 						text="Add New Connection"
 						size="large"
+						disabled={addConnectionIsDisabled}
 						onPress={handleAdd}
 					/>
 				</View>
