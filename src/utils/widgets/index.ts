@@ -42,8 +42,26 @@ export const decodeWidgetFieldValue = (
 			} catch (error) {
 				return error.message;
 			}
+
 		case SUPPORTED_FEED_TYPES.BLOCKS_FEED:
-			return buf && JSON.parse(b4a.toString(buf)) + ' ' + field.units;
+			const json = buf && JSON.parse(b4a.toString(buf));
+
+			if (field.name === 'Last Block') {
+				const format = new Intl.NumberFormat('en-US').format;
+				// TODO: use a better formatter
+				const formatDate = (date: Date): string => date.toLocaleString();
+
+				return {
+					height: json.height ? format(json.height) : '',
+					transacionCount: json.transactionCount
+						? format(json.transactionCount) + ' txs'
+						: '',
+					size: json.size ? format(json.size) + 'Kb' : '',
+					time: json.timestamp && formatDate(new Date(json.timestamp * 1000)),
+				};
+			}
+
+			return json;
 
 		default:
 			return buf && b4a.toString(buf).slice(0, 35);
