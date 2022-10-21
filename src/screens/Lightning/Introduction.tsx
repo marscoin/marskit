@@ -10,6 +10,8 @@ import useColors from '../../hooks/colors';
 import type { LightningScreenProps } from '../../navigation/types';
 import { useSelector } from 'react-redux';
 import Store from '../../store/types';
+import { useBalance } from '../../hooks/wallet';
+import { ETransactionDefaults } from '../../store/types/wallet';
 
 const Introduction = ({
 	navigation,
@@ -17,7 +19,7 @@ const Introduction = ({
 	const isGeoBlocked = useSelector(
 		(state: Store) => state.user?.isGeoBlocked ?? false,
 	);
-
+	const balance = useBalance({ onchain: true });
 	const colors = useColors();
 
 	const txt = useMemo(() => {
@@ -30,6 +32,10 @@ const Introduction = ({
 			return 'Open a Lightning connection and \nsend or receive bitcoin instantly.';
 		}
 	}, [isGeoBlocked]);
+
+	const isDisabled = useMemo(() => {
+		return balance.satoshis <= ETransactionDefaults.recommendedBaseFee;
+	}, [balance.satoshis]);
 
 	return (
 		<GlowingBackground topLeft={colors.purple}>
@@ -62,6 +68,7 @@ const Introduction = ({
 								text="Quick Setup"
 								size="large"
 								style={[styles.button, styles.quickButton]}
+								disabled={isDisabled}
 								onPress={(): void => {
 									navigation.navigate('QuickSetup');
 								}}
@@ -72,6 +79,7 @@ const Introduction = ({
 								size="large"
 								variant="secondary"
 								style={[styles.button, styles.customButton]}
+								disabled={isDisabled}
 								onPress={(): void => {
 									navigation.navigate('CustomSetup', { spending: true });
 								}}
