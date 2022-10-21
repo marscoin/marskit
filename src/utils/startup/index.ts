@@ -21,7 +21,7 @@ import { updateUser } from '../../store/actions/user';
 import { setupBlocktank, watchPendingOrders } from '../blocktank';
 import { removeExpiredLightningInvoices } from '../../store/actions/lightning';
 import { setupNodejsMobile } from '../nodejs-mobile';
-import { updateSlashPayConfig } from '../../utils/slashtags';
+import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 
 /**
@@ -99,8 +99,9 @@ export const startWalletServices = async ({
 			const { wallets, selectedNetwork } = getStore().wallet;
 			let isConnectedToElectrum = false;
 
+			await setupBlocktank(selectedNetwork);
+			await refreshBlocktankInfo();
 			updateExchangeRates().then();
-			refreshBlocktankInfo().then();
 			await setupNodejsMobile({});
 
 			// Before we do anything we should connect to an Electrum server
@@ -165,7 +166,6 @@ export const startWalletServices = async ({
 			}
 
 			if (lightning) {
-				await setupBlocktank(selectedNetwork);
 				await refreshServiceList();
 				watchPendingOrders();
 				removeExpiredLightningInvoices({
