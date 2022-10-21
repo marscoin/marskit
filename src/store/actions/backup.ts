@@ -1,11 +1,18 @@
 import actions from './actions';
-import { ok, err, Result } from '@synonymdev/result';
-import { getDispatch } from '../helpers';
-import { EBackupCategories, uploadBackup } from '../../utils/backup/backpack';
-import { stringToBytes } from '../../utils/converters';
+import { err, ok, Result } from '@synonymdev/result';
+import { getDispatch, getStore } from '../helpers';
+import {
+	EBackupCategories,
+	fetchBackup,
+	listBackups,
+	uploadBackup,
+} from '../../utils/backup/backpack';
+import { bytesToString, stringToBytes } from '../../utils/converters';
 import { Slashtag } from '../../hooks/slashtags';
-import { exportBackup } from '../../utils/lightning';
-import { TAccountBackup } from '@synonymdev/react-native-ldk';
+import { exportBackup, setLdkStoragePath } from '../../utils/lightning';
+import lm, { TAccountBackup } from '@synonymdev/react-native-ldk';
+import { TAvailableNetworks } from '../../utils/networks';
+import { ENetworks } from '@synonymdev/react-native-ldk/dist/utils/types';
 
 const dispatch = getDispatch();
 
@@ -39,23 +46,41 @@ export const performRemoteLdkBackup = async (
 		payload: { remoteLdkBackupSynced: false },
 	});
 
-	let backupString = '';
+	let ldkBackup: TAccountBackup;
 	//Automated backup events pass the latest state through
 	if (backup) {
-		backupString = JSON.stringify(backup);
+		ldkBackup = backup;
 	} else {
-		const ldkBackup = await exportBackup();
-		if (ldkBackup.isErr()) {
-			return err(ldkBackup.error);
+		const res = await exportBackup();
+		if (res.isErr()) {
+			return err(res.error);
 		}
 
-		backupString = JSON.stringify(ldkBackup.value);
+		ldkBackup = res.value;
+	}
+
+	//Translate LDK type to our wallet type
+	let network: TAvailableNetworks = 'bitcoin';
+	switch (ldkBackup.network) {
+		case ENetworks.regtest: {
+			network = 'bitcoinRegtest';
+			break;
+		}
+		case ENetworks.testnet: {
+			network = 'bitcoinTestnet';
+			break;
+		}
+		case ENetworks.mainnet: {
+			network = 'bitcoin';
+			break;
+		}
 	}
 
 	const res = await uploadBackup(
 		slashtag,
-		stringToBytes(backupString),
+		stringToBytes(JSON.stringify(backup)),
 		EBackupCategories.ldkComplete,
+		network,
 	);
 
 	if (res.isErr()) {
@@ -71,6 +96,50 @@ export const performRemoteLdkBackup = async (
 	});
 
 	return ok('Backup success');
+};
+
+export const performFullRestoreFromLatestBackup = async (
+	slashtag: Slashtag,
+): Promise<Result<string>> => {
+	const { selectedNetwork } = getStore().wallet;
+
+	const res = await listBackups(
+		slashtag,
+		EBackupCategories.ldkComplete,
+		selectedNetwork,
+	);
+	if (res.isErr()) {
+		return err(res.error);
+	}
+
+	if (res.value.length === 0) {
+		return ok('No remote LDK backups found');
+	}
+
+	const fetchRes = await fetchBackup(
+		slashtag,
+		res.value[0].timestamp,
+		EBackupCategories.ldkComplete,
+		selectedNetwork,
+	);
+	if (fetchRes.isErr()) {
+		return err(fetchRes.error);
+	}
+
+	const storageRes = await setLdkStoragePath();
+	if (storageRes.isErr()) {
+		return err(storageRes.error);
+	}
+
+	//TODO add "sweepChannelsOnStartup: true" when lib has been updated
+	const importRes = await lm.importAccount({
+		backup: bytesToString(fetchRes.value.content),
+	});
+	if (importRes.isErr()) {
+		return err(importRes.error);
+	}
+
+	return ok('Restore success');
 };
 
 export const setRemoteBackupsEnabled = (

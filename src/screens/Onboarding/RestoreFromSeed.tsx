@@ -6,12 +6,13 @@ import React, {
 	useMemo,
 } from 'react';
 import {
-	Image,
 	Keyboard,
 	ScrollView,
 	StyleSheet,
 	TextInput,
 	View,
+	Alert,
+	Image,
 } from 'react-native';
 import * as bip39 from 'bip39';
 import {
@@ -31,13 +32,12 @@ import SeedInput from '../../components/SeedInput';
 import SeedInputAccessory from '../../components/SeedInputAccessory';
 import VerticalShadow from '../../components/VerticalShadow';
 import Button from '../../components/Button';
-import { verifyBackup } from '../../store/actions/user';
 import { validateMnemonic } from '../../utils/wallet';
 import useColors from '../../hooks/colors';
-import { restoreWallet } from '../../utils/startup';
+import { restoreSeed } from '../../utils/startup';
 import LoadingWalletScreen from './Loading';
 import NavigationHeader from '../../components/NavigationHeader';
-import { showErrorNotification } from '../../utils/notifications';
+import { updateUser, verifyBackup } from '../../store/actions/user';
 
 const Glow = ({ color }: { color: string }): ReactElement => {
 	const opacity = useValue(0);
@@ -61,12 +61,26 @@ const Glow = ({ color }: { color: string }): ReactElement => {
 
 const RestoreFromSeed = (): ReactElement => {
 	const numberOfWords = 12;
+	// const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
+	const [seed, setSeed] = useState<string[]>([
+		'another',
+		'tuna',
+		'whip',
+		'frame',
+		'minute',
+		'sail',
+		'swarm',
+		'breeze',
+		'old',
+		'right',
+		'farm',
+		'girl',
+	]); //TODO remove me
 	const [isRestoringWallet, setIsRestoringWallet] = useState(false);
-	const [seed, setSeed] = useState(Array(numberOfWords).fill(undefined));
 	const [validWords, setValidWords] = useState(Array(numberOfWords).fill(true));
 	const [focused, setFocused] = useState(null);
 	const inputRefs = useRef<Array<TextInput>>([]);
-	const { blue, green, red } = useColors();
+	const { blue, red } = useColors();
 	const showRestoreButton = useMemo(
 		() => !seed.includes(undefined) && !validWords.includes(false),
 		[seed, validWords],
@@ -75,12 +89,11 @@ const RestoreFromSeed = (): ReactElement => {
 		() => seed.some((word, index) => word !== undefined && !validWords[index]),
 		[seed, validWords],
 	);
-	const [showRestored, setShowRestored] = useState(false);
 	const [showFailed, setShowFailed] = useState(false);
 
 	const onSeedChange = (index, text): void => {
 		text = text.trim();
-		// decect if user pastes whole seed in first input
+		// detect if user pastes whole seed in first input
 		if (text.split(' ').length === numberOfWords) {
 			setSeed(text.split(' '));
 			Keyboard.dismiss();
@@ -121,18 +134,16 @@ const RestoreFromSeed = (): ReactElement => {
 		}
 
 		setIsRestoringWallet(true);
-		const res = await restoreWallet({ mnemonic: seed.join(' ') });
+		verifyBackup();
+
+		const res = await restoreSeed({ mnemonic: seed.join(' ') });
 		if (res.isErr()) {
-			setIsRestoringWallet(false);
-			showErrorNotification({
-				title: 'Error Restoring Wallet',
-				message: res.error.message,
-			});
+			Alert.alert(res.error.message);
 			return;
 		}
 
-		verifyBackup();
-		setShowRestored(true);
+		//Tells component within slashtags provider that it needs to handle restoring from remote backup
+		updateUser({ requiresRemoteRestore: true });
 	};
 
 	const handleSubmitEditing = (): void => {
@@ -180,28 +191,22 @@ const RestoreFromSeed = (): ReactElement => {
 		);
 	}
 
-	if (showRestored || showFailed) {
-		const color = showRestored ? green : red;
-		const title = showRestored ? 'Wallet Restored.' : 'Failed to restore.';
-		const subtitle = showRestored
-			? 'You have successfully restored your wallet from backup. Enjoy Bitkit!'
-			: 'The checksum for the recovery phrase appears to be incorrect.';
-		const onPress = showRestored
-			? (): void => console.log('TODO')
-			: (): void => setShowFailed(false);
-		const buttonText = showRestored ? 'Get Started' : 'Try Again';
+	if (showFailed) {
+		const onPress = (): void => setShowFailed(false);
 
 		return (
-			<GlowingBackground topLeft={color}>
+			<GlowingBackground topLeft={red}>
 				<View style={styles.contentResult}>
 					<View>
-						<Display style={styles.title}>{title}</Display>
-						<Text01S color="white8">{subtitle}</Text01S>
+						<Display style={styles.title}>Failed to restore.</Display>
+						<Text01S color="white8">
+							The checksum for the recovery phrase appears to be incorrect.
+						</Text01S>
 					</View>
 
 					<View style={styles.imageContainer} pointerEvents="none">
 						<View style={styles.canvasContainer}>
-							<Glow color={color} />
+							<Glow color={red} />
 						</View>
 						<Image
 							style={styles.image}
@@ -210,7 +215,7 @@ const RestoreFromSeed = (): ReactElement => {
 					</View>
 
 					<View>
-						<Button onPress={onPress} size="large" text={buttonText} />
+						<Button onPress={onPress} size="large" text="Try Again" />
 					</View>
 				</View>
 			</GlowingBackground>
@@ -258,9 +263,17 @@ const RestoreFromSeed = (): ReactElement => {
 					</Text01S>
 				) : null}
 
+				{showFailed ? (
+					<Text01S color="red" style={styles.redExplanation}>
+						The checksum for the recovery phrase appears to be incorrect. Please
+						double check your recovery phrase.
+					</Text01S>
+				) : null}
+
 				{showRestoreButton ? (
 					<View style={styles.buttonContainer}>
 						<Button
+							disabled={isRestoringWallet}
 							size="large"
 							onPress={handleRestore}
 							text="Restore Wallet"

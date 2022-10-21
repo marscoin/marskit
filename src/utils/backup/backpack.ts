@@ -3,6 +3,7 @@ import { ok, err, Result } from '@synonymdev/result';
 import { Slashtag } from '@synonymdev/slashtags-sdk';
 
 import { name as appName, version as appVersion } from '../../../package.json';
+import { TAvailableNetworks } from '../networks';
 
 //TODO move to env when we have a production server
 //Staging server config
@@ -10,6 +11,11 @@ const sharedSecret =
 	'6dabb95493023d5c45229331490a9a67fcde2a618798f9dea5c1247eabb13451';
 const serverSlashtag =
 	'slash:3phbmj4jkzs7b6e6t1h8jwy1u6o9w9y39nscsc6r1q89t1mxcsuy';
+
+const categoryWithNetwork = (
+	category: EBackupCategories,
+	network: TAvailableNetworks,
+): string => `${category}.${network}`.toLowerCase();
 
 export enum EBackupCategories {
 	jest = 'bitkit.jest',
@@ -42,6 +48,7 @@ export const uploadBackup = async (
 	slashtag: Slashtag,
 	content: Uint8Array,
 	category: EBackupCategories,
+	network: TAvailableNetworks,
 ): Promise<Result<number>> => {
 	try {
 		const backups = await backupsFactory(slashtag);
@@ -50,7 +57,7 @@ export const uploadBackup = async (
 		const data = {
 			appName,
 			appVersion,
-			category,
+			category: categoryWithNetwork(category, network),
 			content,
 		};
 
@@ -64,26 +71,6 @@ export const uploadBackup = async (
 		}
 
 		const { timestamp } = results;
-
-		// const fetch = await fetchBackup(slashtag, timestamp, category);
-		// if (fetch.isErr()) {
-		// 	return err(fetch.error);
-		// }
-		//
-		// alert(
-		// 	`Verified: ${
-		// 		bytesToString(fetch.value.content) === bytesToString(content)
-		// 	}`,
-		// );
-
-		// const saved = await listBackups(slashtag, category);
-		// if (saved.isOk()) {
-		// 	// console.log(saved.value);
-		//
-		// 	saved.value.forEach((r) => {
-		// 		console.log(r.timestamp);
-		// 	});
-		// }
 
 		return ok(timestamp);
 	} catch (e) {
@@ -110,6 +97,7 @@ export const fetchBackup = async (
 	slashtag: Slashtag,
 	timestamp: number,
 	category: EBackupCategories,
+	network: TAvailableNetworks,
 ): Promise<Result<TFetchResult>> => {
 	try {
 		const backups = await backupsFactory(slashtag);
@@ -117,7 +105,7 @@ export const fetchBackup = async (
 		const { error, results, success } = await backups.restoreData(
 			serverSlashtag,
 			{
-				category,
+				category: categoryWithNetwork(category, network),
 				timestamp,
 			},
 		);
@@ -132,22 +120,39 @@ export const fetchBackup = async (
 	}
 };
 
+/**
+ * Returns list of backups in order of newest to olders
+ * @param slashtag
+ * @param category
+ * @returns {Promise<Result<{ timestamp: number }[]>>}
+ */
 export const listBackups = async (
 	slashtag: Slashtag,
 	category: EBackupCategories,
+	network: TAvailableNetworks,
 ): Promise<Result<{ timestamp: number }[]>> => {
-	const backups = await backupsFactory(slashtag);
+	try {
+		const backups = await backupsFactory(slashtag);
 
-	const { error, results, success } = await backups.getRecentBackups(
-		serverSlashtag,
-		{
-			category,
-		},
-	);
+		const { error, results, success } = await backups.getRecentBackups(
+			serverSlashtag,
+			{
+				category: categoryWithNetwork(category, network),
+			},
+		);
 
-	if (!success) {
-		return err(error);
+		if (!success) {
+			return err(error);
+		}
+
+		const sorted = results.backups;
+
+		sorted.sort((a, b) => {
+			return b.timestamp - a.timestamp;
+		});
+
+		return ok(sorted);
+	} catch (e) {
+		return err(e);
 	}
-
-	return ok(results.backups);
 };

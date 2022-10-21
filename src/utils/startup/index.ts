@@ -23,6 +23,8 @@ import { removeExpiredLightningInvoices } from '../../store/actions/lightning';
 import { setupNodejsMobile } from '../nodejs-mobile';
 import { updateSlashPayConfig } from '../../utils/slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
+import { Slashtag } from '../../hooks/slashtags';
+import { performFullRestoreFromLatestBackup } from '../../store/actions/backup';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -55,7 +57,7 @@ export const createNewWallet = async (): Promise<Result<string>> => {
 	return await startWalletServices({});
 };
 
-export const restoreWallet = async ({
+export const restoreSeed = async ({
 	mnemonic,
 }: {
 	mnemonic: string;
@@ -64,21 +66,20 @@ export const restoreWallet = async ({
 	if (res.isErr()) {
 		return res;
 	}
-	return await startWalletServices({});
+
+	return ok('Seed restored');
 };
 
-/*
-// Callback passed to startLnd to be called after RPC is ready
-const backupServiceStart = async (): Promise<void> => {
-	const res = await backupSetup();
+export const restoreRemoteBackups = async (
+	slashtag: Slashtag,
+): Promise<Result<string>> => {
+	const res = await performFullRestoreFromLatestBackup(slashtag);
 	if (res.isErr()) {
-		showErrorNotification({
-			title: 'Failed to verify remote backup. Retrying...',
-			message: res.error.message,
-		});
+		return err(res.error);
 	}
-	performFullBackup({ retries: 3, retryTimeout: 2000 }).then();
-};*/
+
+	return await startWalletServices({});
+};
 
 /**
  * Starts all wallet services
@@ -190,7 +191,6 @@ export const startWalletServices = async ({
 
 			// This should be last so that we know all on-chain and lightning data is synced/up-to-date.
 			setupTodos().then();
-			//backupServiceStart().then();
 		});
 
 		return ok('Wallet started');

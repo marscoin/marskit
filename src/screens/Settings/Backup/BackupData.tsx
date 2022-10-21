@@ -85,7 +85,9 @@ const BackupData = ({
 		// 			onPress: (): void => {
 		// 				navigation.navigate('AuthCheck', {
 		// 					onSuccess: () => {
-		// 						navigation.replace('ExportToPhone');
+		// 						setTimeout(() => {
+		// 										navigation.replace('ExportToPhone');
+		// 									}, 100);
 		// 					},
 		// 				});
 		// 			},

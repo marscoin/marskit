@@ -31,6 +31,7 @@ import {
 } from './utils/notifications';
 import { toastConfig } from './components/Toast';
 import { unsubscribeFromLightningSubscriptions } from './utils/lightning';
+import RestoringScreen from './screens/Onboarding/Restoring';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -44,6 +45,9 @@ const App = (): ReactElement => {
 		(state: Store) => state.user.isConnectedToElectrum,
 	);
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
+	const requiresRemoteRestore = useSelector(
+		(state: Store) => state.user.requiresRemoteRestore,
+	)!!;
 	const theme = useSelector((state: Store) => state.settings.theme);
 
 	useEffect(() => {
@@ -58,7 +62,7 @@ const App = (): ReactElement => {
 		// launch wallet services
 		(async (): Promise<void> => {
 			const _walletExists = await checkWalletExists();
-			if (_walletExists) {
+			if (_walletExists && !requiresRemoteRestore) {
 				await startWalletServices({});
 			}
 		})();
@@ -66,7 +70,7 @@ const App = (): ReactElement => {
 		return () => {
 			unsubscribeFromLightningSubscriptions();
 		};
-	}, []);
+	}, [requiresRemoteRestore]);
 
 	useEffect(() => {
 		const unsubscribeElectrum = electrumConnection.subscribe((isConnected) => {
@@ -122,15 +126,17 @@ const App = (): ReactElement => {
 		return themes[theme];
 	}, [theme]);
 
+	console.log(`requiresRemoteRestore: ${requiresRemoteRestore}`);
+
 	const RootComponent = useCallback((): ReactElement => {
 		return walletExists ? (
 			<SlashtagsProvider>
-				<RootNavigator />
+				{requiresRemoteRestore ? <RestoringScreen /> : <RootNavigator />}
 			</SlashtagsProvider>
 		) : (
 			<OnboardingNavigator />
 		);
-	}, [walletExists]);
+	}, [walletExists, requiresRemoteRestore]);
 
 	return (
 		<ThemeProvider theme={currentTheme}>

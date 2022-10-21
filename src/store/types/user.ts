@@ -43,5 +43,6 @@ export interface IUser {
 	ignoreHighBalanceCount: number;
 	ignoreHighBalanceTimestamp: number;
 	backupVerified: boolean;
+	requiresRemoteRestore: boolean;
 	viewController: TUserViewController;
 }

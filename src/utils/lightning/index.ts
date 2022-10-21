@@ -72,8 +72,6 @@ export const wipeLdkStorage = async ({
 	await ldk.reset();
 	const path = `${RNFS.DocumentDirectoryPath}/ldk/${lm.account.name}`;
 
-	alert(path);
-
 	try {
 		await RNFS.unlink(path);
 	} catch (e) {
