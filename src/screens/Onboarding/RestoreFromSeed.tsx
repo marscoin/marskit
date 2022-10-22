@@ -11,7 +11,6 @@ import {
 	StyleSheet,
 	TextInput,
 	View,
-	Alert,
 	Image,
 } from 'react-native';
 import * as bip39 from 'bip39';
@@ -38,6 +37,7 @@ import { restoreSeed } from '../../utils/startup';
 import LoadingWalletScreen from './Loading';
 import NavigationHeader from '../../components/NavigationHeader';
 import { updateUser, verifyBackup } from '../../store/actions/user';
+import { showErrorNotification } from '../../utils/notifications';
 
 const Glow = ({ color }: { color: string }): ReactElement => {
 	const opacity = useValue(0);
@@ -125,7 +125,10 @@ const RestoreFromSeed = (): ReactElement => {
 
 		const res = await restoreSeed({ mnemonic: seed.join(' ') });
 		if (res.isErr()) {
-			Alert.alert(res.error.message);
+			showErrorNotification({
+				title: 'Error Restoring Wallet',
+				message: res.error.message,
+			});
 			return;
 		}
 
