@@ -15,6 +15,9 @@ import { getStore } from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
 import { TGeoBlockResponse } from '../../store/types/blocktank';
 import { setGeoBlock, updateUser } from '../../store/actions/user';
+import { fiatToBitcoinUnit, getFiatDisplayValues } from '../exchange-rate';
+import { getBalance } from '../wallet';
+import { IDisplayValues, IFiatDisplayValues } from '../exchange-rate/types';
 
 /**
  * Sets the selectedNetwork for Blocktank.
@@ -246,4 +249,81 @@ export const isGeoBlocked = async (): Promise<boolean> => {
 	} catch {
 		return true;
 	}
+};
+
+/**
+ * TODO: For Future Use
+ * Returns Blocktank spending limits in sats, USD & the user's selectedCurrency.
+ * @param selectedCurrency
+ */
+export const getSpendingLimits = ({
+	selectedCurrency,
+}: {
+	selectedCurrency?: string;
+}): {
+	currentBalance: IDisplayValues;
+	spendableBalanceSats: number;
+	spendableBalanceFiat: number;
+	usdSpendingLimitFiat: number;
+	spendingLimitSats: number;
+	selectedCurrencySpendingLimitFiat: number;
+} => {
+	if (!selectedCurrency) {
+		selectedCurrency = getStore().settings.selectedCurrency;
+	}
+	const usdMax = 1000;
+	const denominator = 1.2;
+
+	const currentBalance = getBalance({ onchain: true });
+	const spendableBalanceSats = Math.round(
+		currentBalance.satoshis / denominator,
+	);
+	const spendableBalanceFiat = Math.round(
+		currentBalance.fiatValue / denominator,
+	);
+	const usdSpendingLimitFiat =
+		spendableBalanceFiat < usdMax ? spendableBalanceFiat : usdMax;
+	const spendingLimitSats = fiatToBitcoinUnit({
+		fiatValue: usdSpendingLimitFiat,
+		bitcoinUnit: 'satoshi',
+		currency: 'USD',
+	});
+	const selectedCurrencySpendingLimitFiat = getFiatDisplayValues({
+		satoshis:
+			spendableBalanceSats < spendingLimitSats
+				? spendableBalanceSats
+				: spendingLimitSats,
+		bitcoinUnit: 'satoshi',
+		currency: selectedCurrency,
+	});
+	return {
+		currentBalance,
+		spendableBalanceSats,
+		spendableBalanceFiat,
+		usdSpendingLimitFiat,
+		spendingLimitSats,
+		selectedCurrencySpendingLimitFiat:
+			selectedCurrencySpendingLimitFiat.fiatValue,
+	};
+};
+
+export const convertCurrency = ({
+	amount,
+	from,
+	to,
+}: {
+	amount: number;
+	from: string;
+	to: string;
+}): IFiatDisplayValues => {
+	const sats = fiatToBitcoinUnit({
+		fiatValue: amount,
+		bitcoinUnit: 'satoshi',
+		currency: from,
+	});
+	return getFiatDisplayValues({
+		satoshis: sats,
+		bitcoinUnit: 'satoshi',
+		currency: to,
+	});
 };

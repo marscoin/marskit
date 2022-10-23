@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, {
+	ReactElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
@@ -27,6 +33,8 @@ import { useBalance } from '../../hooks/wallet';
 import { setupOnChainTransaction } from '../../store/actions/wallet';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
+import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
+import { convertCurrency } from '../../utils/blocktank';
 
 export const Percentage = ({ value, type }): ReactElement => {
 	return (
@@ -66,6 +74,10 @@ const QuickSetup = ({
 	const blocktankService = useSelector(
 		(state: Store) => state.blocktank.serviceList[0],
 	);
+	const selectedCurrency = useSelector(
+		(state: Store) => state.settings.selectedCurrency,
+	);
+
 	const savingsAmount = totalBalance - spendingAmount;
 	const spendingPercentage =
 		totalBalance > 0 ? Math.round((spendingAmount / totalBalance) * 100) : 0;
@@ -76,13 +88,33 @@ const QuickSetup = ({
 		setSpendingAmount(Math.round(v));
 	}, []);
 
-	useEffect(() => {
-		let spendingLimit = Math.round(currentBalance.satoshis / 1.5);
-		if (blocktankService?.max_chan_spending < spendingLimit) {
-			spendingLimit = blocktankService?.max_chan_spending;
+	const spendingLimit = useMemo(() => {
+		const spendableBalance = Math.round(currentBalance.satoshis / 1.2);
+		const convertedUnit = convertCurrency({
+			amount: 999,
+			from: 'USD',
+			to: selectedCurrency,
+		});
+		const maxSpendingLimit =
+			fiatToBitcoinUnit({
+				fiatValue: convertedUnit.fiatValue,
+				bitcoinUnit: 'satoshi',
+			}) ?? 0;
+		if (!maxSpendingLimit) {
+			return spendableBalance;
 		}
+		return spendableBalance < maxSpendingLimit
+			? spendableBalance
+			: maxSpendingLimit;
+	}, [currentBalance.satoshis, selectedCurrency]);
+
+	useEffect(() => {
 		setTotalBalance(spendingLimit);
-	}, [blocktankService?.max_chan_spending, currentBalance.satoshis]);
+	}, [
+		blocktankService.max_chan_spending,
+		currentBalance.satoshis,
+		spendingLimit,
+	]);
 
 	useEffect(() => {
 		setupOnChainTransaction({ rbf: false }).then();
