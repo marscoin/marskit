@@ -29,10 +29,14 @@ import type { LightningScreenProps } from '../../navigation/types';
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
 import { setupOnChainTransaction } from '../../store/actions/wallet';
-import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
+import {
+	fiatToBitcoinUnit,
+	getFiatDisplayValues,
+} from '../../utils/exchange-rate';
 import { btcToSats } from '../../utils/helpers';
 import { showErrorNotification } from '../../utils/notifications';
 import { startChannelPurchase } from '../../store/actions/blocktank';
+import { convertCurrency } from '../../utils/blocktank';
 
 type TPackages = {
 	id: string;
@@ -47,12 +51,12 @@ const PACKAGES_SPENDING: TPackages[] = [
 	},
 	{
 		id: 'medium',
-		fiatAmount: 100,
+		fiatAmount: 500,
 		img: require('../../assets/illustrations/coin-stack-2.png'),
 	},
 	{
 		id: 'big',
-		fiatAmount: 500,
+		fiatAmount: 999,
 		img: require('../../assets/illustrations/coin-stack-3.png'),
 	},
 ];
@@ -150,9 +154,29 @@ const CustomSetup = ({
 	);
 
 	const spendableFiatBalance = useMemo(() => {
-		//TODO: Add channel calculation from Blocktank to set the initial max spendableFiatBalance.
-		return Math.round(currentBalance.fiatValue / 1.5);
-	}, [currentBalance.fiatValue]);
+		const spendableBalance = Math.round(currentBalance.fiatValue / 1.2);
+		const convertedUnit = convertCurrency({
+			amount: 999,
+			from: 'USD',
+			to: selectedCurrency,
+		});
+		const maxSpendingLimitSats =
+			fiatToBitcoinUnit({
+				fiatValue: convertedUnit.fiatValue,
+				bitcoinUnit: 'satoshi',
+			}) ?? 0;
+		const maxSpendingLimit = getFiatDisplayValues({
+			satoshis: maxSpendingLimitSats,
+			bitcoinUnit: 'satoshi',
+			currency: selectedCurrency,
+		});
+		if (!maxSpendingLimit) {
+			return spendableBalance;
+		}
+		return spendableBalance < maxSpendingLimit.fiatValue
+			? spendableBalance
+			: maxSpendingLimit.fiatValue;
+	}, [currentBalance.fiatValue, selectedCurrency]);
 
 	useEffect(() => {
 		const rates = { small: 0, medium: 0, big: 0 };
@@ -164,14 +188,24 @@ const CustomSetup = ({
 			const { id, fiatAmount } = p;
 			// This ensures we have enough money to actually pay for the channel.
 			if (spendableFiatBalance > fiatAmount) {
-				rates[id] = fiatToSats(fiatAmount);
-				availPackages.push(p);
+				const convertedAmount = convertCurrency({
+					amount: p.fiatAmount,
+					from: 'USD',
+					to: selectedCurrency,
+				});
+				rates[id] = fiatToSats(convertedAmount.fiatValue);
+				availPackages.push({ ...p, fiatAmount: convertedAmount.fiatValue });
 			} else {
 				const key = Object.keys(rates)[i];
 				rates[key] = fiatToSats(spendableFiatBalance);
+				const convertedAmount = convertCurrency({
+					amount: PACKAGES_SPENDING[i].fiatAmount,
+					from: 'USD',
+					to: selectedCurrency,
+				});
 				availPackages.push({
 					...PACKAGES_SPENDING[i],
-					fiatAmount: Math.round(spendableFiatBalance),
+					fiatAmount: convertedAmount.fiatValue,
 				});
 				reachedSpendingCap = true;
 			}
@@ -185,15 +219,12 @@ const CustomSetup = ({
 		PACKAGES_RECEIVING.forEach((p) => {
 			const { id, fiatAmount } = p;
 			if (fiatAmount < blocktankService.max_chan_receiving_usd) {
-				const sats = fiatToSats(fiatAmount);
-				// Ensure the conversion still puts us below the max_chan_receiving
-				receiveRates[id] =
-					sats > blocktankService.max_chan_receiving
-						? blocktankService.max_chan_receiving
-						: sats;
-				availReceivingPackages.push(p);
-			} else {
-				const sats = fiatToSats(blocktankService.max_chan_receiving_usd);
+				const convertedAmount = convertCurrency({
+					amount: fiatAmount,
+					from: 'USD',
+					to: selectedCurrency,
+				});
+				const sats = fiatToSats(convertedAmount.fiatValue);
 				// Ensure the conversion still puts us below the max_chan_receiving
 				receiveRates[id] =
 					sats > blocktankService.max_chan_receiving
@@ -201,7 +232,23 @@ const CustomSetup = ({
 						: sats;
 				availReceivingPackages.push({
 					...p,
-					fiatAmount: blocktankService.max_chan_receiving_usd,
+					fiatAmount: convertedAmount.fiatValue,
+				});
+			} else {
+				const convertedAmount = convertCurrency({
+					amount: blocktankService.max_chan_receiving_usd,
+					from: 'USD',
+					to: selectedCurrency,
+				});
+				const sats = fiatToSats(convertedAmount.fiatValue);
+				// Ensure the conversion still puts us below the max_chan_receiving
+				receiveRates[id] =
+					sats > blocktankService.max_chan_receiving
+						? blocktankService.max_chan_receiving
+						: sats;
+				availReceivingPackages.push({
+					...p,
+					fiatAmount: convertedAmount.fiatValue,
 				});
 			}
 		});
@@ -209,9 +256,13 @@ const CustomSetup = ({
 		setReceivePkgRates(receiveRates);
 
 		setupOnChainTransaction({ rbf: false }).then();
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [
+		blocktankService.max_chan_receiving,
+		blocktankService.max_chan_receiving_usd,
+		fiatToSats,
+		selectedCurrency,
+		spendableFiatBalance,
+	]);
 
 	useEffect(() => {
 		if (spending) {
