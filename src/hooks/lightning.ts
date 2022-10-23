@@ -139,7 +139,7 @@ export const useLightningChannelName = (channelId): string => {
 			],
 	);
 	const paidBlocktankOrderId = Object.keys(paidBlocktankOrders).filter(
-		(blocktankId) => paidBlocktankOrders[blocktankId] === channel.funding_txo,
+		(blocktankId) => paidBlocktankOrders[blocktankId] === channel.funding_txid,
 	);
 
 	if (paidBlocktankOrderId.length) {

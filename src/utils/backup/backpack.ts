@@ -1,15 +1,15 @@
 import BackupProtocol from 'backpack-client/src/backup-protocol.js';
 import { ok, err, Result } from '@synonymdev/result';
 import { Slashtag } from '@synonymdev/slashtags-sdk';
+import { BACKUPS_SHARED_SECRET, BACKUPS_SERVER_SLASHTAG } from '@env';
 
 import { name as appName, version as appVersion } from '../../../package.json';
+import { TAvailableNetworks } from '../networks';
 
-//TODO move to env when we have a production server
-//Staging server config
-const sharedSecret =
-	'6dabb95493023d5c45229331490a9a67fcde2a618798f9dea5c1247eabb13451';
-const serverSlashtag =
-	'slash://3phbmj4jkzs7b6e6t1h8jwy1u6o9w9y39nscsc6r1q89t1mxcsux5ma/';
+const categoryWithNetwork = (
+	category: EBackupCategories,
+	network: TAvailableNetworks,
+): string => `${category}.${network}`.toLowerCase();
 
 export enum EBackupCategories {
 	jest = 'bitkit.jest',
@@ -17,21 +17,22 @@ export enum EBackupCategories {
 	ldkComplete = 'bitkit.ldk.complete',
 }
 
-const backupOptions = { timeout: 30000 };
-
 //Keep a cached backup instance for each slashtag
 const backupsInstances: { [key: string]: BackupProtocol } = {};
 const backupsFactory = async (slashtag: Slashtag): Promise<BackupProtocol> => {
+	if (!BACKUPS_SHARED_SECRET || !BACKUPS_SERVER_SLASHTAG) {
+		const error =
+			'Missing env fields BACKUPS_SHARED_SECRET and BACKUPS_SERVER_SLASHTAG';
+		console.error(error);
+		throw new Error(error);
+	}
+
 	const key = slashtag.keyPair!.publicKey.toString();
 	if (!backupsInstances[key]) {
-		// TODO (slashtags) update after updating the backpack to RPC
-		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
-		backupsInstances[key].setSecret(sharedSecret);
-
-		// backupsInstances[key] = slashtag.protocol(BackupProtocol);
+		backupsInstances[key] = new BackupProtocol(slashtag);
 
 		// Give the protocol the shared secret
-		backupsInstances[key].setSecret(sharedSecret);
+		backupsInstances[key].setSecret(BACKUPS_SHARED_SECRET);
 	}
 
 	return backupsInstances[key];
@@ -48,6 +49,7 @@ export const uploadBackup = async (
 	slashtag: Slashtag,
 	content: Uint8Array,
 	category: EBackupCategories,
+	network: TAvailableNetworks,
 ): Promise<Result<number>> => {
 	try {
 		const backups = await backupsFactory(slashtag);
@@ -56,20 +58,33 @@ export const uploadBackup = async (
 		const data = {
 			appName,
 			appVersion,
-			category,
+			category: categoryWithNetwork(category, network),
 			content,
 		};
 
-		const { timestamp } = await backups.backupData(
-			serverSlashtag,
+		const { error, results, success } = await backups.backupData(
+			BACKUPS_SERVER_SLASHTAG,
 			data,
-			backupOptions,
 		);
+
+		if (!success) {
+			return err(error);
+		}
+
+		const { timestamp } = results;
 
 		return ok(timestamp);
 	} catch (e) {
 		return err(e);
 	}
+};
+
+type TFetchResult = {
+	appName: string;
+	appVersion: string;
+	category: string;
+	content: Uint8Array;
+	timestamp: number;
 };
 
 /**
@@ -83,20 +98,61 @@ export const fetchBackup = async (
 	slashtag: Slashtag,
 	timestamp: number,
 	category: EBackupCategories,
-): Promise<Result<Uint8Array>> => {
+	network: TAvailableNetworks,
+): Promise<Result<TFetchResult>> => {
 	try {
 		const backups = await backupsFactory(slashtag);
 
-		const original = await backups.restoreData(
-			serverSlashtag,
+		const { error, results, success } = await backups.restoreData(
+			BACKUPS_SERVER_SLASHTAG,
 			{
-				category,
+				category: categoryWithNetwork(category, network),
 				timestamp,
 			},
-			backupOptions,
 		);
 
-		return ok(original.content);
+		if (!success) {
+			return err(error);
+		}
+
+		return ok(results);
+	} catch (e) {
+		return err(e);
+	}
+};
+
+/**
+ * Returns list of backups in order of newest to olders
+ * @param slashtag
+ * @param category
+ * @returns {Promise<Result<{ timestamp: number }[]>>}
+ */
+export const listBackups = async (
+	slashtag: Slashtag,
+	category: EBackupCategories,
+	network: TAvailableNetworks,
+): Promise<Result<{ timestamp: number }[]>> => {
+	try {
+		const backups = await backupsFactory(slashtag);
+
+		const { error, results, success } = await backups.getRecentBackups(
+			BACKUPS_SERVER_SLASHTAG,
+			{
+				category: categoryWithNetwork(category, network),
+			},
+		);
+
+		if (!success) {
+			return err(error);
+		}
+
+		const sorted = results.backups;
+
+		sorted.sort((a, b) => {
+			return b.timestamp - a.timestamp;
+		});
+
+		return ok(sorted);
 	} catch (e) {
 		return err(e);
 	}

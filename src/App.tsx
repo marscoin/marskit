@@ -20,6 +20,7 @@ import { TTheme } from './store/types/settings';
 import OnboardingNavigator from './navigation/onboarding/OnboardingNavigator';
 import { SlashtagsProvider } from './components/SlashtagsProvider';
 import { toastConfig } from './components/Toast';
+import RestoringScreen from './screens/Onboarding/Restoring';
 import AppOnboarded from './AppOnboarded';
 
 import './utils/translations';
@@ -32,6 +33,9 @@ if (Platform.OS === 'android') {
 
 const App = (): ReactElement => {
 	const walletExists = useSelector((state: Store) => state.wallet.walletExists);
+	const requiresRemoteRestore = useSelector(
+		(state: Store) => state.user.requiresRemoteRestore,
+	)!!;
 	const theme = useSelector((state: Store) => state.settings.theme);
 
 	// on App start
@@ -44,15 +48,17 @@ const App = (): ReactElement => {
 
 	const currentTheme: TTheme = useMemo(() => themes[theme], [theme]);
 
+	console.log(`requiresRemoteRestore: ${requiresRemoteRestore}`);
+
 	const RootComponent = useCallback((): ReactElement => {
 		return walletExists ? (
 			<SlashtagsProvider>
-				<AppOnboarded />
+				{requiresRemoteRestore ? <RestoringScreen /> : <AppOnboarded />}
 			</SlashtagsProvider>
 		) : (
 			<OnboardingNavigator />
 		);
-	}, [walletExists]);
+	}, [walletExists, requiresRemoteRestore]);
 
 	return (
 		<ThemeProvider theme={currentTheme}>

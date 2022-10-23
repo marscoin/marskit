@@ -73,7 +73,7 @@ export const verifyBackup = (): Result<string> => {
 	return ok('');
 };
 
-export const setGeoBlock = async () => {
+export const setGeoBlock = async (): Promise<void> => {
 	const response = await isGeoBlocked();
 	updateUser({ isGeoBlocked: response });
 };

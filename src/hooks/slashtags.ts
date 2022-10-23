@@ -28,7 +28,7 @@ export const useSelectedSlashtag = (): {
 };
 
 /**
- * Watchs the public profile of a local or remote slashtag by its url.
+ * Watches the public profile of a local or remote slashtag by its url.
  * Overrides name property if it is saved as a contact record!
  */
 export const useProfile = (

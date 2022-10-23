@@ -28,6 +28,7 @@ import { openURL, sleep } from '../../utils/helpers';
 import useColors from '../../hooks/colors';
 import LoadingWalletScreen from './Loading';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
+import { updateUser } from '../../store/actions/user';
 
 const shieldImageSrc = require('../../assets/illustrations/shield-b.png');
 const lightningImageSrc = require('../../assets/illustrations/lightning.png');
@@ -77,6 +78,8 @@ const Slideshow = ({
 				message: res.error.message,
 			});
 		}
+
+		updateUser({ requiresRemoteRestore: false });
 	};
 
 	const slides = useMemo(
