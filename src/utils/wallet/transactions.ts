@@ -2299,3 +2299,35 @@ export const getSelectedFeeId = ({
 	}
 	return transaction?.value?.selectedFeeId ?? EFeeIds.none;
 };
+
+/**
+ * Returns the amount of sats to send to a given output address in the transaction object by its index.
+ * @param selectedWallet
+ * @param selectedNetwork
+ * @param outputIndex
+ */
+export const getTransactionOutputAmount = ({
+	selectedWallet,
+	selectedNetwork,
+	outputIndex = 0,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	outputIndex?: number;
+}): Result<number> => {
+	const transaction = getOnchainTransactionData({
+		selectedWallet,
+		selectedNetwork,
+	});
+	if (transaction.isErr()) {
+		return err(transaction.error.message);
+	}
+	if (
+		transaction.value.outputs?.length &&
+		transaction.value.outputs?.length >= outputIndex + 1 &&
+		transaction.value.outputs[outputIndex].value
+	) {
+		return ok(transaction.value.outputs[outputIndex]?.value ?? 0);
+	}
+	return ok(0);
+};

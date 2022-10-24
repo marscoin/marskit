@@ -17,6 +17,7 @@ import {
 
 import {
 	getOnchainTransactionData,
+	getTransactionOutputAmount,
 	parseOnChainPaymentRequest,
 } from './wallet/transactions';
 import { getStore } from '../store/helpers';
@@ -566,7 +567,7 @@ export const handleData = async ({
 	const qrDataType = data?.qrDataType;
 	const address = data?.address ?? '';
 	const lightningPaymentRequest = data?.lightningPaymentRequest ?? '';
-	const amount = data?.sats ?? 0;
+	let amount = data?.sats ?? 0;
 	const message = data?.message ?? '';
 	const slashTagsUrl = data?.slashTagsUrl;
 
@@ -593,6 +594,18 @@ export const handleData = async ({
 				data: { isOpen: true },
 			});
 			await sleep(5); //This is only needed to prevent the view from briefly displaying the SendAssetList
+			// If no amount found in payment request, make sure that the user hasn't previously specified an amount from the send form.
+			if (!amount) {
+				const outputAmount = getTransactionOutputAmount({
+					selectedNetwork,
+					selectedWallet,
+					outputIndex: 0,
+				});
+				if (outputAmount.isErr()) {
+					return err(outputAmount.error.message);
+				}
+				amount = outputAmount.value;
+			}
 			await updateBitcoinTransaction({
 				selectedWallet,
 				selectedNetwork,
