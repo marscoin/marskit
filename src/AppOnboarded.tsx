@@ -66,6 +66,9 @@ const AppOnboarded = (): ReactElement => {
 				appState.current.match(/inactive|background/) &&
 				nextAppState === 'active'
 			) {
+				// App came back to foreground, lets restart our services
+				startWalletServices({}).then();
+
 				// check clipboard for payment data
 				if (enableAutoReadClipboard) {
 					// timeout needed otherwise clipboard is empty

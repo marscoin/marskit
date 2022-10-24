@@ -143,25 +143,25 @@ export const startWalletServices = async ({
 				await createWallet({ mnemonic: mnemonic.value });
 			}
 
+			// Setup LDK
+			if (lightning) {
+				const setupResponse = await setupLdk({ selectedNetwork });
+				if (setupResponse.isOk()) {
+					keepLdkSynced({ selectedNetwork }).then();
+				} else {
+					showErrorNotification({
+						title: 'Unable to start LDK.',
+						message: setupResponse.error.message,
+					});
+				}
+			}
+
 			if (onchain || lightning) {
 				await Promise.all([
 					updateOnchainFeeEstimates({ selectedNetwork }),
 					// if we restore wallet, we need to generate addresses for all types
 					refreshWallet({ lightning, updateAllAddressTypes: restore }),
 				]);
-
-				// Setup LDK
-				if (lightning) {
-					const setupResponse = await setupLdk({ selectedNetwork });
-					if (setupResponse.isOk()) {
-						keepLdkSynced({ selectedNetwork }).then();
-					} else {
-						showErrorNotification({
-							title: 'Unable to start LDK.',
-							message: setupResponse.error.message,
-						});
-					}
-				}
 			}
 
 			if (lightning) {
