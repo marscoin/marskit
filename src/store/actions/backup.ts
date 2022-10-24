@@ -9,7 +9,11 @@ import {
 } from '../../utils/backup/backpack';
 import { bytesToString, stringToBytes } from '../../utils/converters';
 import { Slashtag } from '../../hooks/slashtags';
-import { exportBackup, setLdkStoragePath } from '../../utils/lightning';
+import {
+	exportBackup,
+	setAccount,
+	setLdkStoragePath,
+} from '../../utils/lightning';
 import lm, { TAccountBackup } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from '../../utils/networks';
 import { ENetworks } from '@synonymdev/react-native-ldk/dist/utils/types';
@@ -131,13 +135,19 @@ export const performFullRestoreFromLatestBackup = async (
 		return err(storageRes.error);
 	}
 
+	const backup: TAccountBackup = JSON.parse(
+		bytesToString(fetchRes.value.content),
+	);
+
 	//TODO add "sweepChannelsOnStartup: true" when lib has been updated
 	const importRes = await lm.importAccount({
-		backup: bytesToString(fetchRes.value.content),
+		backup,
 	});
 	if (importRes.isErr()) {
 		return err(importRes.error);
 	}
+
+	await setAccount({ name: backup.account.name, seed: backup.account.seed });
 
 	return ok('Restore success');
 };

@@ -48,8 +48,6 @@ const App = (): ReactElement => {
 
 	const currentTheme: TTheme = useMemo(() => themes[theme], [theme]);
 
-	console.log(`requiresRemoteRestore: ${requiresRemoteRestore}`);
-
 	const RootComponent = useCallback((): ReactElement => {
 		return walletExists ? (
 			<SlashtagsProvider>
