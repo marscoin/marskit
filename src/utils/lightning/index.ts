@@ -790,12 +790,15 @@ export const payLightningInvoice = async (
 		let payResponse: Result<string> | undefined;
 		if (sats) {
 			// @ts-ignore
-			payResponse = await ldk.pay({
+			payResponse = await lm.payWithTimeout({
 				paymentRequest: invoice,
 				amountSats: sats,
 			});
 		} else {
-			payResponse = await ldk.pay({ paymentRequest: invoice });
+			// @ts-ignore
+			payResponse = await lm.payWithTimeout({
+				paymentRequest: invoice,
+			});
 		}
 		if (!payResponse) {
 			return err('Unable to pay the provided lightning invoice.');
