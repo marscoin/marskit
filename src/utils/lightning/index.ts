@@ -922,3 +922,7 @@ export const hasOpenLightningChannels = ({
 		getStore().lightning.nodes[selectedWallet].openChannelIds[selectedNetwork];
 	return availableChannels.length > 0;
 };
+
+export const rebroadcastAllKnownTransactions = async (): Promise<any> => {
+	return await lm.rebroadcastAllKnownTransactions();
+};
