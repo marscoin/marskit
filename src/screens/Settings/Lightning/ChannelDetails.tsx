@@ -18,6 +18,8 @@ import {
 } from '../../../hooks/lightning';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { showSuccessNotification } from '../../../utils/notifications';
+import { getBlockExplorerLink } from '../../../utils/wallet/transactions';
+import { openURL } from '../../../utils/helpers';
 
 const Section = memo(
 	({
@@ -117,40 +119,8 @@ const ChannelDetails = ({ route, navigation }): ReactElement => {
 				/>
 
 				<View style={styles.sectionTitle}>
-					<Caption13Up color="gray1">FEES</Caption13Up>
-				</View>
-				<Section
-					name="Spending base fee"
-					value={
-						<Money
-							sats={1}
-							size="caption13M"
-							symbol={true}
-							color="white"
-							unit="satoshi"
-						/>
-					}
-				/>
-				<Section
-					name="Receiving base fee"
-					value={
-						<Money
-							sats={1}
-							size="caption13M"
-							symbol={true}
-							color="white"
-							unit="satoshi"
-						/>
-					}
-				/>
-
-				<View style={styles.sectionTitle}>
 					<Caption13Up color="gray1">Info</Caption13Up>
 				</View>
-				<Section
-					name="Opened on"
-					value={<Caption13M>May 26, 2022 - 12:16</Caption13M>}
-				/>
 				<Section
 					name="Node ID"
 					value={
@@ -165,6 +135,39 @@ const ChannelDetails = ({ route, navigation }): ReactElement => {
 							message: channel.counterparty_node_id,
 						});
 					}}
+				/>
+				<Section
+					name="Funding TXID"
+					value={
+						<Caption13M ellipsizeMode={'middle'} numberOfLines={1}>
+							{channel.funding_txid}
+						</Caption13M>
+					}
+					onPress={(): void => {
+						if (channel?.funding_txid) {
+							const blockExplorerUrl = getBlockExplorerLink(
+								channel.funding_txid,
+							);
+							Clipboard.setString(channel.funding_txid);
+							openURL(blockExplorerUrl).then();
+						}
+					}}
+				/>
+				<Section
+					name="Is Channel Ready"
+					value={
+						<Caption13M ellipsizeMode={'middle'} numberOfLines={1}>
+							{channel.is_channel_ready ? 'Yes' : 'No'}
+						</Caption13M>
+					}
+				/>
+				<Section
+					name="Is Channel Usable"
+					value={
+						<Caption13M ellipsizeMode={'middle'} numberOfLines={1}>
+							{channel.is_usable ? 'Yes' : 'No'}
+						</Caption13M>
+					}
 				/>
 
 				<View style={styles.buttons}>
