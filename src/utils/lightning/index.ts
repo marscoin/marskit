@@ -48,7 +48,6 @@ import { EPaymentType, ETransactionDefaults } from '../../store/types/wallet';
 import { toggleView } from '../../store/actions/user';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
-import { startWalletServices } from '../startup';
 
 export const DEFAULT_LIGHTNING_PEERS = [
 	'03cde60a6323f7122d5178255766e38114b4722ede08f7c9e0c5df9b912cc201d6@34.65.85.39:9745',
@@ -367,7 +366,16 @@ export const refreshLdk = async ({
 
 		const nodeIdRes = await promiseTimeout<Result<string>>(2000, getNodeId());
 		if (nodeIdRes.isErr()) {
-			await startWalletServices({ lightning: true });
+			// Attempt to reset LDK.
+			const setupResponse = await setupLdk({
+				selectedNetwork,
+				selectedWallet,
+				shouldRefreshLdk: false,
+			});
+			if (setupResponse.isErr()) {
+				return err(setupResponse.error.message);
+			}
+			keepLdkSynced({ selectedNetwork }).then();
 		}
 		const syncRes = await lm.syncLdk();
 		if (syncRes.isErr()) {
