@@ -38,7 +38,7 @@ import {
 	updateLightningNodeId,
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
-import { sleep } from '../helpers';
+import { promiseTimeout, sleep } from '../helpers';
 import { broadcastTransaction } from '../wallet/transactions';
 import RNFS from 'react-native-fs';
 import { EmitterSubscription } from 'react-native';
@@ -364,6 +364,19 @@ export const refreshLdk = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 
+		const nodeIdRes = await promiseTimeout<Result<string>>(2000, getNodeId());
+		if (nodeIdRes.isErr()) {
+			// Attempt to reset LDK.
+			const setupResponse = await setupLdk({
+				selectedNetwork,
+				selectedWallet,
+				shouldRefreshLdk: false,
+			});
+			if (setupResponse.isErr()) {
+				return err(setupResponse.error.message);
+			}
+			keepLdkSynced({ selectedNetwork }).then();
+		}
 		const syncRes = await lm.syncLdk();
 		if (syncRes.isErr()) {
 			return err(syncRes.error.message);
