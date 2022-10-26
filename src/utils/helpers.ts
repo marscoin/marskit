@@ -13,14 +13,14 @@ import { default as bitcoinUnits } from 'bitcoin-units';
 import { err, ok, Result } from '@synonymdev/result';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-export const promiseTimeout = (
+export const promiseTimeout = <T>(
 	ms: number,
 	promise: Promise<any>,
-): Promise<IResponse<any> | any> => {
-	let id;
+): Promise<T> => {
+	let id: NodeJS.Timeout | undefined;
 	let timeout = new Promise((resolve) => {
 		id = setTimeout(() => {
-			resolve({ error: true, data: 'Timed Out.' });
+			resolve(err('Timed Out.'));
 		}, ms);
 	});
 	return Promise.race([promise, timeout]).then((result) => {

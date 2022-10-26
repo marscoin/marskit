@@ -38,7 +38,7 @@ import {
 	updateLightningNodeId,
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
-import { sleep } from '../helpers';
+import { promiseTimeout, sleep } from '../helpers';
 import { broadcastTransaction } from '../wallet/transactions';
 import RNFS from 'react-native-fs';
 import { EmitterSubscription } from 'react-native';
@@ -48,6 +48,7 @@ import { EPaymentType, ETransactionDefaults } from '../../store/types/wallet';
 import { toggleView } from '../../store/actions/user';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
+import { startWalletServices } from '../startup';
 
 export const DEFAULT_LIGHTNING_PEERS = [
 	'03cde60a6323f7122d5178255766e38114b4722ede08f7c9e0c5df9b912cc201d6@34.65.85.39:9745',
@@ -360,6 +361,10 @@ export const refreshLdk = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 
+		const nodeIdRes = await promiseTimeout<Result<string>>(2000, getNodeId());
+		if (nodeIdRes.isErr()) {
+			await startWalletServices({ lightning: true });
+		}
 		const syncRes = await lm.syncLdk();
 		if (syncRes.isErr()) {
 			return err(syncRes.error.message);
