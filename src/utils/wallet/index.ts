@@ -10,6 +10,7 @@ import {
 	assetNetworks,
 	defaultKeyDerivationPath,
 	defaultWalletShape,
+	TAddressIndexInfo,
 } from '../../store/shapes/wallet';
 import {
 	EPaymentType,
@@ -50,6 +51,7 @@ import {
 import { getStore } from '../../store/helpers';
 import {
 	addAddresses,
+	setZeroIndexAddresses,
 	updateAddressIndexes,
 	updateExchangeRates,
 	updateTransactions,
@@ -110,12 +112,12 @@ export const refreshWallet = async ({
 					selectedWallet,
 				});
 			}
+			await updateAddressIndexes({
+				selectedWallet,
+				selectedNetwork,
+				addressType,
+			});
 			if (isConnectedToElectrum) {
-				await updateAddressIndexes({
-					selectedWallet,
-					selectedNetwork,
-					addressType,
-				});
 				await Promise.all([
 					subscribeToAddresses({
 						selectedWallet,
@@ -133,6 +135,13 @@ export const refreshWallet = async ({
 			}
 
 			updateExchangeRates().then();
+		}
+
+		if (onchain) {
+			await setZeroIndexAddresses({
+				selectedWallet,
+				selectedNetwork,
+			});
 		}
 
 		if (lightning) {
@@ -2036,9 +2045,14 @@ export const createDefaultWallet = async ({
 					return err(generatedAddresses.error);
 				}
 				const { addresses, changeAddresses } = generatedAddresses.value;
-				addressIndex[selectedNetwork][type] = Object.values(addresses)[0];
-				changeAddressIndex[selectedNetwork][type] =
-					Object.values(changeAddresses)[0];
+				const addressIndexFilter = Object.values(addresses).filter(
+					(a) => a.index === 0,
+				);
+				addressIndex[selectedNetwork][type] = addressIndexFilter[0];
+				const changeAddressIndexFilter = Object.values(changeAddresses).filter(
+					(a) => a.index === 0,
+				);
+				changeAddressIndex[selectedNetwork][type] = changeAddressIndexFilter[0];
 				addressesObj[selectedNetwork][type] = addresses;
 				changeAddressesObj[selectedNetwork][type] = changeAddresses;
 			}),
@@ -2625,4 +2639,47 @@ export const getAddressFromScriptPubKey = (scriptPubKey: string): string => {
 		Buffer.from(scriptPubKey, 'hex'),
 		network,
 	);
+};
+
+/**
+ * Returns current address index information.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TAddressType} [addressType]
+ */
+export const getAddressIndexInfo = ({
+	selectedWallet,
+	selectedNetwork,
+	addressType,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: TAddressType;
+}): TAddressIndexInfo => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!addressType) {
+		addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
+	}
+	const { currentWallet } = getCurrentWallet({
+		selectedWallet,
+		selectedNetwork,
+	});
+	const addressIndex = currentWallet.addressIndex[selectedNetwork][addressType];
+	const changeAddressIndex =
+		currentWallet.addressIndex[selectedNetwork][addressType];
+	const lastUsedAddressIndex =
+		currentWallet.lastUsedAddressIndex[selectedNetwork][addressType];
+	const lastUsedChangeAddressIndex =
+		currentWallet.lastUsedChangeAddressIndex[selectedNetwork][addressType];
+	return {
+		addressIndex,
+		changeAddressIndex,
+		lastUsedAddressIndex,
+		lastUsedChangeAddressIndex,
+	};
 };

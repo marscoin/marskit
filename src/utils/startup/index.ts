@@ -19,11 +19,11 @@ import { keepLdkSynced, setupLdk } from '../lightning';
 import { updateUser } from '../../store/actions/user';
 import { setupBlocktank, watchPendingOrders } from '../blocktank';
 import { removeExpiredLightningInvoices } from '../../store/actions/lightning';
-import { setupNodejsMobile } from '../nodejs-mobile';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 import { Slashtag } from '../../hooks/slashtags';
 import { performFullRestoreFromLatestBackup } from '../../store/actions/backup';
+import { promiseTimeout } from '../helpers';
 
 /**
  * Checks if the specified wallet's phrase is saved to storage.
@@ -91,7 +91,7 @@ export const startWalletServices = async ({
 			let isConnectedToElectrum = false;
 
 			await setupBlocktank(selectedNetwork);
-			await refreshBlocktankInfo();
+			await promiseTimeout(2500, refreshBlocktankInfo());
 			updateExchangeRates().then();
 
 			// Before we do anything we should connect to an Electrum server
@@ -131,8 +131,6 @@ export const startWalletServices = async ({
 				}
 				await updateWallet({ walletExists: true });
 			}
-
-			await setupNodejsMobile({});
 
 			// Setup LDK
 			if (lightning && isConnectedToElectrum) {
