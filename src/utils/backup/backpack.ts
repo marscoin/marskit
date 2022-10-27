@@ -61,7 +61,7 @@ export const uploadBackup = async (
 			appName,
 			appVersion,
 			category: categoryWithNetwork(category, network),
-			encryptedContent,
+			content: encryptedContent,
 		};
 
 		const { error, results, success } = await backups.backupData(
