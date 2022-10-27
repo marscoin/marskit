@@ -66,7 +66,7 @@ const Button = ({
 				...(disabled ? { color: white32 } : {}),
 			};
 		}
-	}, [textStyle, disabled]);
+	}, [textStyle, disabled, white32]);
 
 	const Text = size === 'small' ? Caption13M : Text02M;
 
