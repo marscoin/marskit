@@ -337,7 +337,7 @@ const AddressAndAmount = ({
 	useEffect(() => {
 		if (sendNavigationIsOpen) {
 			// try to update fees on this screen, because they will be used on next one
-			updateOnchainFeeEstimates({ selectedNetwork }).then();
+			updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }).then();
 			refreshLdk({ selectedWallet, selectedNetwork }).then();
 		}
 	}, [selectedNetwork, selectedWallet, sendNavigationIsOpen]);
