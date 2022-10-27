@@ -117,7 +117,7 @@ export const fetchBackup = async (
 			return err(error);
 		}
 
-		const decryptedContent = backups.decrypt(success.content, slashtag.key);
+		const decryptedContent = backups.decrypt(results.content, slashtag.key);
 
 		return ok({ ...results, content: decryptedContent });
 	} catch (e) {
