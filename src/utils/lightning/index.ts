@@ -343,6 +343,10 @@ export const unsubscribeFromLightningSubscriptions = (): void => {
 	onChannelSubscription && onChannelSubscription.remove();
 };
 
+export const resetLdk = (): void => {
+	ldk.reset();
+};
+
 /**
  * This method syncs LDK, re-adds peers & updates lightning channels.
  * @param {string} [selectedWallet]
