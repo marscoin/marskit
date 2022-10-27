@@ -41,7 +41,9 @@ All these additional features are powered by Slashtags: an open-source protocol 
 The Slashtags protocol allows for the creation of cryptographic keypairs, known as "slashtags", derived from the same BIP-39 seed as the user's Bitcoin wallet. Typically these slashtags are associated with networked “drives” known as hyperdrives, which can be discovered, read, and copied by peers on a network. The group of peers that stores some or all of the drive’s data is known as its swarm. 
 
 While much of the power of Slashtags comes via these hyperdrives, the keypairs that can be generated with Slashtags also can have important utility on their own. Bi-lateral, peer to peer authentication between a user and a server can, for example, be realized just on the basis of keypairs. 
+
 All Slashtags data is exchanged within a Kademlia-based distributed hash table system.  
+
 You can read more about Slashtags on our [website](https://synonym.to/products/slashtags) and on our SDK's [Github page](https://github.com/synonymdev/slashtags). Slashtags predominantly builds on the lower-level functionality of the Hypercore stack. You can learn more about the Hypercore stack [here](https://hypercore-protocol.org/) as well as from the two main Github projects [here](https://github.com/hypercore-protocol) and [here](https://github.com/hyperswarm). 
 
 Slashtags user data should be automatically on a [seeder server](https://github.com/synonymdev/slashtag-seeding-server). In this way, user data is always available. In addition, it allows the user to restore all their Slashtags data from their BIP-39 seed. 
