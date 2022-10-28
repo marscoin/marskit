@@ -4,11 +4,11 @@
   </a>
 </p>
 
-<h3 align="center">Bitkit</h3>
+<h3 align="center">Bitkit Mobile</h3>
 
 ---
 
-**⚠️ Bitkit is still in beta. Please use at your own risk.⚠️**
+**⚠️ Bitkit mobile is still in beta. Please use at your own risk.⚠️**
 
 ---
 
@@ -18,7 +18,7 @@ Bitkit enables users to reclaim their digital life.
 
 Bitkit puts users in control of their money and payments, social profile, contacts, and payment preferences; allows users to authenticate to servers with just a tap; and allows users to stream data from public feeds and your accounts, all within one application. What Bitcoin has done for money and payments, Bitkit also extends to other areas of digital life. 
 
-Bitkit is a mobile application available on Android and iOS, and implemented using React Native. 
+Bitkit is a mobile application available on Android and iOS, and implemented using React-Native. 
 
 
 ## The problem
@@ -50,7 +50,7 @@ Slashtags user data should be automatically on a [seeder server](https://github.
 
 
 ## Support
-If you are experiencing any problems with Bitkit, please open an issue and use the template provided. 
+If you are experiencing any problems with Bitkit, please open an issue and use the template provided, or reach out to us on [telegram](https://t.me/bitkitchat). 
 
 
 ## Installation
