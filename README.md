@@ -18,7 +18,7 @@ Bitkit enables users to reclaim their digital life.
 
 Bitkit puts users in control of their money and payments, social profile, contacts, and payment preferences; allows users to authenticate to servers with just a tap; and allows users to stream data from public feeds and your accounts, all within one application. What Bitcoin has done for money and payments, Bitkit also extends to other areas of digital life. 
 
-Bitkit is a mobile application available on Android and iOS, and implemented using React-native. 
+Bitkit is a mobile application available on Android and iOS, and implemented using React Native. 
 
 
 ## The problem
