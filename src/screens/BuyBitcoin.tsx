@@ -46,7 +46,7 @@ const BuyBitcoin = ({
 						size="large"
 						style={styles.button}
 						onPress={(): void => {
-							openURL('https://www.bitfinex.com/how-to-buy-bitcoin/');
+							openURL('https://bitcoin.org/en/exchanges');
 						}}
 					/>
 				</View>
