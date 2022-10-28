@@ -140,11 +140,6 @@ export const startWalletServices = async ({
 				});
 				if (setupResponse.isOk()) {
 					keepLdkSynced({ selectedNetwork }).then();
-				} else {
-					showErrorNotification({
-						title: 'Unable to start LDK.',
-						message: setupResponse.error.message,
-					});
 				}
 			}
 
