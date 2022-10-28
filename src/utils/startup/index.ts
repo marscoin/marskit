@@ -7,7 +7,6 @@ import {
 import { err, ok, Result } from '@synonymdev/result';
 import { InteractionManager } from 'react-native';
 import { getStore } from '../../store/helpers';
-import { showErrorNotification } from '../notifications';
 import {
 	refreshBlocktankInfo,
 	refreshServiceList,
@@ -98,12 +97,12 @@ export const startWalletServices = async ({
 			if (onchain || lightning) {
 				const electrumResponse = await connectToElectrum({ selectedNetwork });
 				if (electrumResponse.isErr()) {
-					showErrorNotification({
-						title: 'Unable to connect to Electrum Server',
-						message:
-							electrumResponse?.error?.message ??
-							'Unable to connect to Electrum Server',
-					});
+					// showErrorNotification({
+					// 	title: 'Unable to connect to Electrum Server',
+					// 	message:
+					// 		electrumResponse?.error?.message ??
+					// 		'Unable to connect to Electrum Server',
+					// });
 				} else {
 					isConnectedToElectrum = true;
 					// Ensure the on-chain wallet & LDK syncs when a new block is detected.

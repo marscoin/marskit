@@ -174,10 +174,10 @@ const ElectrumConfig = ({
 				getAndUpdateConnectedPeer();
 			} else {
 				updateUser({ isConnectedToElectrum: false });
-				showErrorNotification({
-					title: 'Unable to connect to Electrum Server',
-					message: connectResponse.error.message,
-				});
+				// showErrorNotification({
+				// 	title: 'Unable to connect to Electrum Server',
+				// 	message: connectResponse.error.message,
+				// });
 			}
 		} catch (e) {
 			console.log(e);
