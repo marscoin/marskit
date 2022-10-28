@@ -36,7 +36,7 @@ const BuyBitcoin = ({
 					</Display>
 					<Text01S color="gray1" style={styles.text}>
 						Don’t have Bitcoin yet to send to your Bitkit wallet? Stack some
-						sats with Bitfinex.
+						sats.
 					</Text01S>
 				</View>
 
