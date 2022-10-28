@@ -8,7 +8,7 @@
 
 ---
 
-**⚠️ Bitkit mobile is still in beta. Please use at your own risk.⚠️**
+**⚠️ Bitkit is still in beta. Please use at your own risk.⚠️**
 
 ---
 
