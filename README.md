@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<h3 align="center">Bitkit Mobile</h3>
+<h3 align="center">Bitkit</h3>
 
 ---
 
