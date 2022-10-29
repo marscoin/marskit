@@ -81,7 +81,7 @@ const RestoringScreen = (): ReactElement => {
 
 	//Busy restoring
 	return (
-		<GlowingBackground topLeft={green}>
+		<GlowingBackground topLeft="brand">
 			<LoadingWalletScreen />
 		</GlowingBackground>
 	);
