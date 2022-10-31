@@ -1,4 +1,11 @@
-import React, { memo, ReactElement } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -7,17 +14,50 @@ import Store from '../store/types';
 import { useBalance } from '../hooks/wallet';
 import { updateSettings } from '../store/actions/settings';
 import Money from './Money';
+import { getClaimableBalance } from '../utils/lightning';
 
 /**
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
+	const [claimableBalance, setClaimableBalance] = useState(0);
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+	const channels = useSelector(
+		(store: Store) =>
+			store.lightning.nodes[selectedWallet].channels[selectedNetwork],
+	);
+	const openChannels = useSelector(
+		(store: Store) =>
+			store.lightning.nodes[selectedWallet].openChannelIds[selectedNetwork],
+	);
 	const balanceUnit = useSelector((store: Store) => store.settings.balanceUnit);
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
 	const { satoshis } = useBalance({
 		onchain: true,
 		lightning: true,
 	});
+
+	const channelsCount = useMemo(() => {
+		return Object.keys(channels).length;
+	}, [channels]);
+
+	const updateClaimableBalance = useCallback(async () => {
+		const _claimableBalance = await getClaimableBalance({
+			selectedWallet,
+			selectedNetwork,
+		});
+		setClaimableBalance(_claimableBalance);
+	}, [selectedNetwork, selectedWallet]);
+
+	useEffect(() => {
+		updateClaimableBalance().then();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [channelsCount, openChannels.length, satoshis]);
 
 	const handlePress = (): void => {
 		// BTC -> satoshi -> fiat
@@ -44,13 +84,29 @@ const BalanceHeader = (): ReactElement => {
 				Total balance
 			</Caption13Up>
 			<View style={styles.row}>
-				<Money
-					sats={satoshis}
-					unit={balanceUnit}
-					enableHide={true}
-					highlight={true}
-					symbol={true}
-				/>
+				<View>
+					<Money
+						sats={satoshis}
+						unit={balanceUnit}
+						enableHide={true}
+						highlight={true}
+						symbol={true}
+					/>
+					{claimableBalance > 0 && (
+						<View style={styles.pendingRow}>
+							<Money
+								color="gray1"
+								size={'text01s'}
+								sats={claimableBalance}
+								unit={balanceUnit}
+								enableHide={true}
+								highlight={true}
+								symbol={true}
+							/>
+							<Caption13Up color="gray1"> pending </Caption13Up>
+						</View>
+					)}
+				</View>
 				{hideBalance && (
 					<TouchableOpacity style={styles.toggle} onPress={toggleHideBalance}>
 						<EyeIcon />
@@ -78,6 +134,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		height: 41,
+		marginTop: 5,
+	},
+	pendingRow: {
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+		justifyContent: 'flex-start',
 	},
 	toggle: {
 		paddingRight: 16,
