@@ -431,19 +431,22 @@ const getBip32Interface = async (
 
 /**
  * Returns a PSBT that includes unsigned funding inputs.
- * @param selectedWallet
- * @param selectedNetwork
- * @param transactionData
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @param {IBitcoinTransactionData} transactionData
+ * @param {BIP32Interface} bip32Interface
  * @return {Promise<Result<Psbt>>}
  */
 const createPsbtFromTransactionData = async ({
 	selectedWallet,
 	selectedNetwork,
 	transactionData,
+	bip32Interface,
 }: {
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
 	transactionData: IBitcoinTransactionData;
+	bip32Interface?: BIP32Interface;
 }): Promise<Result<Psbt>> => {
 	const {
 		inputs = [],
@@ -505,12 +508,18 @@ const createPsbtFromTransactionData = async ({
 		targets.push({ script: embed.output!, value: 0, index: targets.length });
 	}
 
-	const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
-	if (bip32Res.isErr()) {
-		return err(bip32Res.error);
+	if (!bip32Interface) {
+		const bip32InterfaceRes = await getBip32Interface(
+			selectedWallet,
+			selectedNetwork,
+		);
+		if (bip32InterfaceRes.isErr()) {
+			return err(bip32InterfaceRes.error.message);
+		}
+		bip32Interface = bip32InterfaceRes.value;
 	}
 
-	const root = bip32Res.value;
+	const root = bip32Interface;
 	const psbt = new bitcoin.Psbt({ network });
 
 	//Add Inputs from inputs array
@@ -596,20 +605,28 @@ export const createFundedPsbtTransaction = async ({
 export const signPsbt = ({
 	selectedWallet,
 	selectedNetwork,
+	bip32Interface,
 	psbt,
 }: {
 	selectedWallet: string;
 	selectedNetwork: TAvailableNetworks;
+	bip32Interface?: BIP32Interface;
 	psbt: Psbt;
 }): Promise<Result<Psbt>> => {
 	return new Promise(async (resolve) => {
 		//Loop through and sign our inputs
-		const bip32Res = await getBip32Interface(selectedWallet, selectedNetwork);
-		if (bip32Res.isErr()) {
-			return resolve(err(bip32Res.error));
+		if (!bip32Interface) {
+			const bip32InterfaceRes = await getBip32Interface(
+				selectedWallet,
+				selectedNetwork,
+			);
+			if (bip32InterfaceRes.isErr()) {
+				return resolve(err(bip32InterfaceRes.error.message));
+			}
+			bip32Interface = bip32InterfaceRes.value;
 		}
 
-		const root = bip32Res.value;
+		const root = bip32Interface;
 
 		const transactionDataRes = getOnchainTransactionData({
 			selectedWallet,
@@ -693,11 +710,20 @@ export const createTransaction = ({
 			return resolve(err(message));
 		}
 		try {
+			const bip32InterfaceRes = await getBip32Interface(
+				selectedWallet,
+				selectedNetwork,
+			);
+			if (bip32InterfaceRes.isErr()) {
+				return err(bip32InterfaceRes.error.message);
+			}
+
 			//Create PSBT before signing inputs
 			const psbtRes = await createPsbtFromTransactionData({
 				selectedWallet,
 				selectedNetwork,
 				transactionData,
+				bip32Interface: bip32InterfaceRes.value,
 			});
 
 			if (psbtRes.isErr()) {
@@ -710,6 +736,7 @@ export const createTransaction = ({
 				selectedWallet,
 				selectedNetwork,
 				psbt,
+				bip32Interface: bip32InterfaceRes.value,
 			});
 
 			if (signedPsbtRes.isErr()) {
