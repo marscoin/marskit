@@ -44,18 +44,26 @@ import RNFS from 'react-native-fs';
 import { EmitterSubscription } from 'react-native';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { addActivityItem } from '../../store/actions/activity';
-import { EPaymentType, ETransactionDefaults } from '../../store/types/wallet';
+import {
+	EPaymentType,
+	ETransactionDefaults,
+	IWalletItem,
+} from '../../store/types/wallet';
 import { toggleView } from '../../store/actions/user';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 
-export const DEFAULT_LIGHTNING_PEERS = [
-	'03cde60a6323f7122d5178255766e38114b4722ede08f7c9e0c5df9b912cc201d6@34.65.85.39:9745',
-	'033d8656219478701227199cbd6f670335c8d408a92ae88b962c49d4dc0e83e025@34.65.85.39:9735',
-	'035e4ff418fc8b5554c5d9eea66396c227bd429a3251c8cbc711002ba215bfc226@170.75.163.209:9735',
-	'03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@3.33.236.230:9735',
-	'038fe1bd966b5cb0545963490c631eaa1924e2c4c0ea4e7dcb5d4582a1e7f2f1a5@144.76.24.71:9735',
-];
+export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
+	bitcoin: [
+		'03cde60a6323f7122d5178255766e38114b4722ede08f7c9e0c5df9b912cc201d6@34.65.85.39:9745',
+		'033d8656219478701227199cbd6f670335c8d408a92ae88b962c49d4dc0e83e025@34.65.85.39:9735',
+		'035e4ff418fc8b5554c5d9eea66396c227bd429a3251c8cbc711002ba215bfc226@170.75.163.209:9735',
+		'03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@3.33.236.230:9735',
+		'038fe1bd966b5cb0545963490c631eaa1924e2c4c0ea4e7dcb5d4582a1e7f2f1a5@144.76.24.71:9735',
+	],
+	bitcoinRegtest: [],
+	bitcoinTestnet: [],
+};
 
 let paymentSubscription: EmitterSubscription | undefined;
 let onChannelSubscription: EmitterSubscription | undefined;
@@ -386,7 +394,7 @@ export const refreshLdk = async ({
 			return err(syncRes.error.message);
 		}
 		await updateLightningChannels({ selectedWallet, selectedNetwork });
-		await addPeers();
+		await addPeers({ selectedNetwork, selectedWallet });
 		return ok('');
 	} catch (e) {
 		console.log(e);
@@ -615,7 +623,7 @@ export const getNodeIdFromStorage = ({
  * @param {string} str
  * @returns {{ publicKey: string; ip: string; port: number; }}
  */
-const parseUri = (
+export const parseUri = (
 	str: string,
 ): Result<{
 	publicKey: string;
@@ -641,33 +649,98 @@ const parseUri = (
 };
 
 /**
- * Adds default peers from the peers object.
+ * Prompt LDK to add a specified peer.
+ * @param {string} peer
+ * @param {number} [timeout]
+ */
+export const addPeer = async ({
+	peer,
+	timeout = 5000,
+}: {
+	peer: string;
+	timeout?: number;
+}): Promise<Result<string>> => {
+	const parsedUri = parseUri(peer);
+	if (parsedUri.isErr()) {
+		return err(parsedUri.error.message);
+	}
+	return await lm.addPeer({
+		pubKey: parsedUri.value.publicKey,
+		address: parsedUri.value.ip,
+		port: parsedUri.value.port,
+		timeout,
+	});
+};
+
+/**
+ * Returns previously saved lightning peers from storage. (Excludes Blocktank and other default lightning peers.)
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getCustomLightningPeers = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const peers = getStore().lightning.nodes[selectedWallet]?.peers;
+	if (peers && selectedNetwork in peers) {
+		return peers[selectedNetwork];
+	}
+	return [];
+};
+
+/**
+ * Adds blocktank, default, and all custom lightning peers.
  * @returns {Promise<Result<string[]>>}
  */
-export const addPeers = async (): Promise<Result<string[]>> => {
+export const addPeers = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string[]>> => {
 	try {
 		const nodeUris = getStore().blocktank?.info?.node_info?.uris;
 		if (!nodeUris) {
 			return err('No peers available to add.');
 		}
-		const peers = DEFAULT_LIGHTNING_PEERS.concat(nodeUris);
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		const blocktankLightningPeers = nodeUris;
+		const defaultLightningPeers = DEFAULT_LIGHTNING_PEERS[selectedNetwork];
+		const customLightningPeers = getCustomLightningPeers({
+			selectedNetwork,
+			selectedWallet,
+		});
+		const peers = [
+			...defaultLightningPeers,
+			...blocktankLightningPeers,
+			...customLightningPeers,
+		];
 		const addPeerRes = await Promise.all(
-			peers.map(async (uri) => {
-				const parsedUri = parseUri(uri);
-				if (parsedUri.isErr()) {
-					return parsedUri.error.message;
-				}
-				const addPeer = await lm.addPeer({
-					pubKey: parsedUri.value.publicKey,
-					address: parsedUri.value.ip,
-					port: parsedUri.value.port,
+			peers.map(async (peer) => {
+				const addPeerResponse = await addPeer({
+					peer,
 					timeout: 5000,
 				});
-				if (addPeer.isErr()) {
-					console.log(addPeer.error.message);
-					return addPeer.error.message;
+				if (addPeerResponse.isErr()) {
+					console.log(addPeerResponse.error.message);
+					return addPeerResponse.error.message;
 				}
-				return addPeer.value;
+				return addPeerResponse.value;
 			}),
 		);
 		return ok(addPeerRes);
@@ -803,7 +876,7 @@ export const payLightningInvoice = async (
 	sats?: number,
 ): Promise<Result<string>> => {
 	try {
-		const addPeersResponse = await addPeers();
+		const addPeersResponse = await addPeers({});
 		if (addPeersResponse.isErr()) {
 			return err(addPeersResponse.error.message);
 		}
