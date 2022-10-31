@@ -17,6 +17,7 @@ import {
 	UpArrow,
 	RefreshControl,
 	View as ThemedView,
+	TextInput,
 } from '../../../styles/components';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import Button from '../../../components/Button';
@@ -25,6 +26,7 @@ import LightningChannel from '../../../components/LightningChannel';
 import Money from '../../../components/Money';
 import useColors from '../../../hooks/colors';
 import {
+	addPeer,
 	getNodeId,
 	payLightningInvoice,
 	rebroadcastAllKnownTransactions,
@@ -43,7 +45,10 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
-import { createLightningInvoice } from '../../../store/actions/lightning';
+import {
+	createLightningInvoice,
+	savePeer,
+} from '../../../store/actions/lightning';
 import { ETransactionDefaults } from '../../../store/types/wallet';
 import { useBalance } from '../../../hooks/wallet';
 
@@ -109,6 +114,7 @@ const Channels = ({ navigation }): ReactElement => {
 	const [refreshingLdk, setRefreshingLdk] = useState<boolean>(false);
 	const [restartingLdk, setRestartingLdk] = useState<boolean>(false);
 	const [rebroadcastingLdk, setRebroadcastingLdk] = useState(false);
+	const [peer, setPeer] = useState<string>('');
 
 	const colors = useColors();
 	const balance = useBalance({ onchain: true });
@@ -205,6 +211,38 @@ const Channels = ({ navigation }): ReactElement => {
 		return balance.satoshis <= ETransactionDefaults.recommendedBaseFee;
 	}, [balance.satoshis]);
 
+	const onAddPeer = useCallback(async () => {
+		if (!peer) {
+			// Attempt to grab and set peer string from clipboard.
+			const clipboardStr = await Clipboard.getString();
+			setPeer(clipboardStr);
+			return;
+		}
+		const addPeerRes = await addPeer({
+			peer,
+			timeout: 5000,
+		});
+		if (addPeerRes.isErr()) {
+			showErrorNotification({
+				title: 'Unable to add lightning peer',
+				message: addPeerRes.error.message,
+			});
+			return;
+		}
+		const savePeerRes = savePeer({ selectedWallet, selectedNetwork, peer });
+		if (savePeerRes.isErr()) {
+			showErrorNotification({
+				title: 'Unable to save lightning peer',
+				message: savePeerRes.error.message,
+			});
+			return;
+		}
+		showSuccessNotification({
+			title: savePeerRes.value,
+			message: 'Lightning peer added & saved',
+		});
+	}, [peer, selectedNetwork, selectedWallet]);
+
 	return (
 		<ThemedView style={styles.root}>
 			<SafeAreaInsets type="top" />
@@ -285,6 +323,31 @@ const Channels = ({ navigation }): ReactElement => {
 							<Caption13Up color="gray1" style={styles.sectionTitle}>
 								Dev Options
 							</Caption13Up>
+							<TextInput
+								selectionColor={'orange'}
+								autoCapitalize="none"
+								autoCompleteType="off"
+								autoCorrect={false}
+								autoFocus={false}
+								style={styles.textInput}
+								value={peer}
+								placeholder={'publicKey@ip:port'}
+								multiline={true}
+								onChangeText={(txt: string): void => {
+									setPeer(txt);
+								}}
+								blurOnSubmit
+								returnKeyType="done"
+							/>
+							<Button
+								style={styles.button}
+								text={
+									peer
+										? 'Add Lightning Peer'
+										: 'Paste Lightning Peer From Clipboard'
+								}
+								onPress={onAddPeer}
+							/>
 							<Button
 								style={styles.button}
 								text={'Refresh LDK'}
@@ -460,6 +523,18 @@ const styles = StyleSheet.create({
 	},
 	nName: {
 		marginRight: 8,
+	},
+	textInput: {
+		width: '100%',
+		minHeight: 50,
+		borderRadius: 10,
+		padding: 10,
+		textAlign: 'left',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontWeight: 'bold',
+		fontSize: 16,
+		marginTop: 8,
 	},
 });
 
