@@ -448,11 +448,13 @@ export const addAddresses = async ({
  * 2. Update the available balance for a given wallet and network.
  */
 export const updateUtxos = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	scanAllAddresses = false,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	scanAllAddresses?: boolean;
 }): Promise<Result<{ utxos: IUtxo[]; balance: number }>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -462,7 +464,11 @@ export const updateUtxos = ({
 			selectedWallet = getSelectedWallet();
 		}
 
-		const utxoResponse = await getUtxos({ selectedWallet, selectedNetwork });
+		const utxoResponse = await getUtxos({
+			selectedWallet,
+			selectedNetwork,
+			scanAllAddresses,
+		});
 		if (utxoResponse.isErr()) {
 			return resolve(err(utxoResponse.error));
 		}
@@ -525,11 +531,13 @@ export interface ITransactionData {
 }
 
 export const updateTransactions = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	scanAllAddresses = false,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	scanAllAddresses?: boolean;
 }): Promise<Result<IFormattedTransaction>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -546,6 +554,7 @@ export const updateTransactions = ({
 		const history = await getAddressHistory({
 			selectedNetwork,
 			selectedWallet,
+			scanAllAddresses,
 		});
 
 		if (history.isErr()) {

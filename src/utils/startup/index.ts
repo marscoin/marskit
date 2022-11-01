@@ -149,6 +149,7 @@ export const startWalletServices = async ({
 					refreshWallet({
 						onchain: isConnectedToElectrum,
 						lightning: isConnectedToElectrum,
+						scanAllAddresses: restore,
 						updateAllAddressTypes: restore,
 					}),
 				]);

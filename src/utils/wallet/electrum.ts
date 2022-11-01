@@ -40,15 +40,18 @@ export interface IGetUtxosResponse {
 
 /**
  * Returns utxos for a given wallet and network along with the available balance.
- * @param selectedWallet
- * @param selectedNetwork
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {boolean} [scanAllAddresses]
  */
 export const getUtxos = async ({
 	selectedWallet,
 	selectedNetwork,
+	scanAllAddresses = false,
 }: {
 	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
+	scanAllAddresses?: boolean;
 }): Promise<Result<IGetUtxosResponse>> => {
 	try {
 		if (!selectedNetwork) {
@@ -73,22 +76,63 @@ export const getUtxos = async ({
 				if (!selectedWallet) {
 					selectedWallet = getSelectedWallet();
 				}
+				const addressCount = Object.keys(
+					currentWallet.addresses[selectedNetwork][addressTypeKey],
+				)?.length;
 				// Check if addresses of this type have been generated. If not, skip.
-				if (
-					Object.keys(currentWallet.addresses[selectedNetwork][addressTypeKey])
-						?.length <= 0
-				) {
+				if (addressCount <= 0) {
 					return;
 				}
+
+				// Grab the current index for both addresses and change addresses.
+				const addressIndex =
+					currentWallet.addressIndex[selectedNetwork][addressTypeKey]?.index;
+				const changeAddressIndex =
+					currentWallet.changeAddressIndex[selectedNetwork][addressTypeKey]
+						?.index;
+
+				// Grab all addresses and change addresses.
+				const allAddresses: IAddress =
+					currentWallet.addresses[selectedNetwork][addressTypeKey];
+				const allChangeAddresses: IAddress =
+					currentWallet.changeAddresses[selectedNetwork][addressTypeKey];
+
+				let addresses: IAddress = {};
+				let changeAddresses: IAddress = {};
+				// Instead of scanning all addresses, adhere to the gap limit.
+				if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
+					await Promise.all([
+						Object.values(allAddresses).map((a) => {
+							if (Math.abs(a.index - addressIndex) <= GAP_LIMIT) {
+								addresses[a.scriptHash] = a;
+							}
+						}),
+						Object.values(allChangeAddresses).map((a) => {
+							if (Math.abs(a.index - changeAddressIndex) <= GAP_LIMIT) {
+								changeAddresses[a.scriptHash] = a;
+							}
+						}),
+					]);
+				} else {
+					addresses = allAddresses;
+					changeAddresses = allChangeAddresses;
+				}
+
+				// Make sure we're re-check existing utxos that may exist outside the gap limit and putting them in the necessary format.
+				let existingUtxos = {};
+				await Promise.all(
+					currentWallet.utxos[selectedNetwork].map((utxo) => {
+						existingUtxos[utxo.scriptHash] = utxo;
+					}),
+				);
 				const unspentAddressResult =
 					await electrum.listUnspentAddressScriptHashes({
 						scriptHashes: {
 							key: 'scriptHash',
 							data: {
-								...currentWallet.addresses[selectedNetwork][addressTypeKey],
-								...currentWallet.changeAddresses[selectedNetwork][
-									addressTypeKey
-								],
+								...addresses,
+								...changeAddresses,
+								...existingUtxos,
 							},
 						},
 						network: selectedNetwork,
@@ -166,22 +210,13 @@ export const subscribeToAddresses = async ({
 				currentWallet.addresses[selectedNetwork][addressType],
 			)?.length;
 			if (addressCount > 0) {
-				const currentIndex =
-					currentWallet.addressIndex[selectedNetwork][addressType]?.index ?? 0;
-				let lookAheadGapLimit =
-					addressCount - currentIndex > GAP_LIMIT
-						? GAP_LIMIT
-						: addressCount - currentIndex;
-				let lookBehindGapLimit =
-					currentIndex > GAP_LIMIT ? GAP_LIMIT : currentIndex;
-
-				const lookAheadCount = currentIndex + lookAheadGapLimit;
-				const lookBehindCount = currentIndex - lookBehindGapLimit;
-
 				const addresses: IAddress =
 					currentWallet.addresses[selectedNetwork][addressType];
+				let addressIndex =
+					currentWallet.addressIndex[selectedNetwork][addressType]?.index;
+				addressIndex = addressIndex > 0 ? addressIndex : 0;
 				const addressesToSubscribeTo = Object.values(addresses).filter(
-					(a) => a.index >= lookBehindCount && a.index <= lookAheadCount,
+					(a) => Math.abs(a.index - addressIndex) <= GAP_LIMIT,
 				);
 				let i = 0;
 				for (const { scriptHash } of addressesToSubscribeTo) {
@@ -438,15 +473,19 @@ export interface IGetAddressHistoryResponse
  * @param {IAddressContent[]} [scriptHashes]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
+ * @param {boolean} [scanAllAddresses]
+ * @returns {Promise<Result<IGetAddressHistoryResponse[]>>}
  */
 export const getAddressHistory = async ({
 	scriptHashes = [],
 	selectedNetwork,
 	selectedWallet,
+	scanAllAddresses = false,
 }: {
 	scriptHashes?: IAddressContent[];
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: string;
+	scanAllAddresses?: boolean;
 }): Promise<Result<IGetAddressHistoryResponse[]>> => {
 	try {
 		if (!selectedNetwork) {
@@ -463,14 +502,32 @@ export const getAddressHistory = async ({
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 
+		const addressIndexes = currentWallet.addressIndex[selectedNetwork];
+		const changeAddressIndexes =
+			currentWallet.changeAddressIndex[selectedNetwork];
+
 		if (scriptHashes.length < 1) {
 			const addressTypes = getAddressTypes();
 			Object.keys(addressTypes).forEach((addressType) => {
-				const addresses = currentAddresses[addressType];
-				const changeAddresses = currentChangeAddresses[addressType];
-				const addressValues: IAddressContent[] = Object.values(addresses);
-				const changeAddressValues: IAddressContent[] =
+				const addresses: IAddress = currentAddresses[addressType];
+				const changeAddresses: IAddress = currentChangeAddresses[addressType];
+				let addressValues: IAddressContent[] = Object.values(addresses);
+				let changeAddressValues: IAddressContent[] =
 					Object.values(changeAddresses);
+
+				const addressIndex = addressIndexes[addressType].index;
+				const changeAddressIndex = changeAddressIndexes[addressType].index;
+
+				// Instead of scanning all addresses, adhere to the gap limit.
+				if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
+					addressValues = addressValues.filter(
+						(a) => Math.abs(addressIndex - a.index) <= GAP_LIMIT,
+					);
+					changeAddressValues = changeAddressValues.filter(
+						(a) => Math.abs(changeAddressIndex - a.index) <= GAP_LIMIT,
+					);
+				}
+
 				scriptHashes = [
 					...scriptHashes,
 					...addressValues,
