@@ -30,10 +30,7 @@ import {
 import Store from '../../../store/types';
 import { resetInvoice } from '../../../store/actions/receive';
 import { updateMetaIncTxTags } from '../../../store/actions/metadata';
-import {
-	getReceiveAddress,
-	getSelectedAddressType,
-} from '../../../utils/wallet';
+import { getReceiveAddress } from '../../../utils/wallet';
 import { getUnifiedUri } from '../../../utils/receive';
 import { refreshLdk } from '../../../utils/lightning';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
@@ -78,14 +75,11 @@ const Receive = ({ navigation }): ReactElement => {
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-	const addressType = useMemo(
-		(): string =>
-			getSelectedAddressType({
-				selectedWallet,
-				selectedNetwork,
-			}),
-		[selectedNetwork, selectedWallet],
+	const addressType = useSelector(
+		(store: Store) =>
+			store.wallet.wallets[selectedWallet].addressType[selectedNetwork],
 	);
+
 	const [loading, setLoading] = useState(true);
 	const [showCopy, setShowCopy] = useState(false);
 	const [receiveAddress, setReceiveAddress] = useState('');
@@ -152,32 +146,56 @@ const Receive = ({ navigation }): ReactElement => {
 	]);
 
 	const setInvoiceDetails = useCallback(async (): Promise<void> => {
+		if (!receiveNavigationIsOpen) {
+			return;
+		}
 		if (!loading) {
 			setLoading(true);
 		}
 		await Promise.all([getLightningInvoice(), getAddress()]);
 		setLoading(false);
-	}, [getAddress, getLightningInvoice, loading]);
+	}, [getAddress, getLightningInvoice, loading, receiveNavigationIsOpen]);
 
 	useEffect(() => {
+		if (!receiveNavigationIsOpen) {
+			return;
+		}
 		resetInvoice();
-		if (receiveNavigationIsOpen) {
+		// Only refresh LDK if we have a balance.
+		if (lightningBalance.satoshis > 0) {
 			refreshLdk({ selectedWallet, selectedNetwork }).then();
 		}
-	}, [selectedNetwork, selectedWallet, receiveNavigationIsOpen]);
+	}, [
+		selectedNetwork,
+		selectedWallet,
+		receiveNavigationIsOpen,
+		lightningBalance.satoshis,
+	]);
 
 	useEffect(() => {
+		if (!receiveNavigationIsOpen) {
+			return;
+		}
 		setInvoiceDetails().then();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [amount, message, selectedNetwork, selectedWallet]);
+	}, [
+		amount,
+		message,
+		selectedNetwork,
+		selectedWallet,
+		receiveNavigationIsOpen,
+	]);
 
 	useEffect(() => {
-		if (tags.length !== 0 && receiveAddress) {
+		if (tags.length !== 0 && receiveAddress && receiveNavigationIsOpen) {
 			updateMetaIncTxTags(receiveAddress, lightningInvoice, tags);
 		}
-	}, [receiveAddress, lightningInvoice, tags]);
+	}, [receiveAddress, lightningInvoice, tags, receiveNavigationIsOpen]);
 
 	const uri = useMemo((): string => {
+		if (!receiveNavigationIsOpen) {
+			return '';
+		}
 		return getUnifiedUri({
 			address: receiveAddress,
 			amount,
@@ -185,7 +203,13 @@ const Receive = ({ navigation }): ReactElement => {
 			message,
 			lightning: lightningInvoice,
 		});
-	}, [amount, lightningInvoice, message, receiveAddress]);
+	}, [
+		amount,
+		lightningInvoice,
+		message,
+		receiveAddress,
+		receiveNavigationIsOpen,
+	]);
 
 	const handleCopy = (): void => {
 		setShowCopy(() => true);
@@ -197,9 +221,8 @@ const Receive = ({ navigation }): ReactElement => {
 		console.log('TODO: copy QR code');
 	};
 
-	const handleShare = (): void => {
+	const handleShare = useCallback((): void => {
 		const url = `data:image/png;base64,${qrRef.current}`;
-
 		try {
 			Share.open({
 				title: 'Share receiving address',
@@ -210,7 +233,7 @@ const Receive = ({ navigation }): ReactElement => {
 		} catch (e) {
 			console.log(e);
 		}
-	};
+	}, [uri]);
 
 	const qrMaxHeight = useMemo(
 		() => dimensions.height / 2.5,
