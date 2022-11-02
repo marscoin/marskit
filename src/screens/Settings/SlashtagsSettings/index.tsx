@@ -155,7 +155,7 @@ const SlashtagsSettings = (): ReactElement => {
 				],
 			},
 		],
-		[profileError, driveVersion, sdk, discoveryKey, lastSeed],
+		[profileError, driveVersion, sdk, discoveryKey, lastSeed, seederStatus],
 	);
 
 	return (
