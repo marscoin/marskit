@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useSelectedSlashtag } from '../../../hooks/slashtags';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
+import { closeDriveSession } from '../../../utils/slashtags';
 
 const SlashtagsSettings = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
@@ -23,22 +24,44 @@ const SlashtagsSettings = (): ReactElement => {
 		(store: Store) => store.slashtags.seeder?.lastSent,
 	);
 
+	const [seederStatus, setSeederStatus] = useState({
+		seeded: false,
+		diff: 0,
+	});
+
 	useEffect(() => {
 		let unmounted = false;
 
 		(async (): Promise<void> => {
-			if (unmounted) {
-				return;
-			}
+			const drive = slashtag.drivestore.get();
 
 			try {
-				const d = slashtag.drivestore.get();
-				await d.update();
-				setDriveVersion(d.version);
-				setDiscoveryKey(d.discoveryKey);
-				await d.get('/profile.json');
+				await drive.update();
+				setDriveVersion(drive.version);
+				setDiscoveryKey(drive.discoveryKey);
+				await drive.get('/profile.json');
+
+				try {
+					const key = b4a.toString(drive.key, 'hex');
+					const firstResponse = await fetch(
+						'https://blocktank.synonym.to/seeding/hypercore/' + key,
+						{ method: 'GET' },
+					);
+					const status = await firstResponse.json();
+
+					if (!unmounted) {
+						setSeederStatus({
+							seeded: status.statusCode !== 404,
+							diff: status.length - drive.core.length,
+						});
+					}
+				} catch (error) {}
 			} catch (error) {
-				setProfileError(error.message);
+				if (!unmounted) {
+					setProfileError(error.message);
+				}
+			} finally {
+				closeDriveSession(drive);
 			}
 		})();
 
@@ -61,6 +84,14 @@ const SlashtagsSettings = (): ReactElement => {
 					{
 						title: 'last seeded',
 						value: lastSeed && new Date(lastSeed).toLocaleString(),
+						hide: false,
+						type: 'button',
+					},
+					{
+						title: 'seeder status',
+						value: seederStatus.seeded
+							? 'behind by ' + seederStatus.diff + ' blocks'
+							: 'Not Found',
 						hide: false,
 						type: 'button',
 					},
@@ -124,7 +155,7 @@ const SlashtagsSettings = (): ReactElement => {
 				],
 			},
 		],
-		[profileError, driveVersion, sdk, discoveryKey, lastSeed],
+		[profileError, driveVersion, sdk, discoveryKey, lastSeed, seederStatus],
 	);
 
 	return (
