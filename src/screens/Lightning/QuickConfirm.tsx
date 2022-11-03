@@ -79,7 +79,7 @@ const QuickConfirm = ({
 	const savingsPercentage = Math.round((savingsAmount / total) * 100);
 
 	const handleConfirm = async (): Promise<void> => {
-		if (Platform.OS === 'ios') {
+		if (Platform.OS === 'ios' && selectedNetwork === 'bitcoin') {
 			setLoading(false);
 			Alert.alert(
 				'Temporarily Unavailable',

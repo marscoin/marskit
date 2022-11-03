@@ -73,7 +73,7 @@ const CustomConfirm = ({
 	}, [fiatTransactionFee.fiatValue, blocktankPurchaseFee.fiatValue]);
 
 	const handleConfirm = async (): Promise<void> => {
-		if (Platform.OS === 'ios') {
+		if (Platform.OS === 'ios' && selectedNetwork === 'bitcoin') {
 			setLoading(false);
 			Alert.alert(
 				'Temporarily Unavailable',
