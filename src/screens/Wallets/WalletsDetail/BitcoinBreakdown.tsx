@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -72,6 +78,21 @@ const BitcoinBreakdown = (): ReactElement => {
 		});
 	}, []);
 
+	const onRebalancePress = useCallback(() => {
+		if (hasLightning && !isGeoBlocked) {
+			navigation.navigate('LightningRoot', {
+				screen: 'QuickSetup',
+				params: {
+					headerTitle: 'Rebalance Funds',
+				},
+			});
+		} else {
+			navigation.navigate('LightningRoot', {
+				screen: 'Introduction',
+			});
+		}
+	}, [hasLightning, isGeoBlocked, navigation]);
+
 	return (
 		<View color="transparent" style={styles.container}>
 			<NetworkRow
@@ -83,15 +104,7 @@ const BitcoinBreakdown = (): ReactElement => {
 			/>
 			<View color="transparent" style={styles.transferRow}>
 				<View color="gray4" style={styles.line} />
-				<TouchableOpacity
-					onPress={(): void => {
-						navigation.navigate('LightningRoot', {
-							screen:
-								hasLightning && !isGeoBlocked
-									? 'RebalanceSetup'
-									: 'Introduction',
-						});
-					}}>
+				<TouchableOpacity onPress={onRebalancePress}>
 					<View style={styles.transferButton} color="white08">
 						<TransferIcon height={13} color="white" />
 					</View>

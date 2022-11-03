@@ -55,6 +55,7 @@ export const Percentage = ({ value, type }): ReactElement => {
 
 const QuickSetup = ({
 	navigation,
+	route,
 }: LightningScreenProps<'QuickSetup'>): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
@@ -76,6 +77,11 @@ const QuickSetup = ({
 	);
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
+	);
+
+	const headerTitle = useMemo(
+		() => route.params?.headerTitle ?? 'Add Instant Payments',
+		[route.params?.headerTitle],
 	);
 
 	const savingsAmount = totalBalance - spendingAmount;
@@ -162,7 +168,7 @@ const QuickSetup = ({
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
-				title="Add Instant Payments"
+				title={headerTitle}
 				onClosePress={(): void => {
 					navigation.navigate('Tabs');
 				}}

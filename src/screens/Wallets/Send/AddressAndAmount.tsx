@@ -92,30 +92,37 @@ const AddressAndAmount = ({
 	const transaction = useTransactionDetails();
 	const sdk = useSlashtagsSDK();
 
-	const getDecodeAndSetLightningInvoice = async (): Promise<void> => {
-		try {
-			if (!transaction?.lightningInvoice) {
+	const getDecodeAndSetLightningInvoice =
+		useCallback(async (): Promise<void> => {
+			try {
+				if (!transaction?.lightningInvoice) {
+					setDecodedInvoice(undefined);
+					return;
+				}
+				const decodeInvoiceResponse = await decodeLightningInvoice({
+					paymentRequest: transaction.lightningInvoice,
+				});
+				if (decodeInvoiceResponse.isErr()) {
+					setDecodedInvoice(undefined);
+					return;
+				}
+				setDecodedInvoice(decodeInvoiceResponse.value);
+			} catch (e) {
 				setDecodedInvoice(undefined);
-				return;
+				console.log(e);
 			}
-			const decodeInvoiceResponse = await decodeLightningInvoice({
-				paymentRequest: transaction.lightningInvoice,
-			});
-			if (decodeInvoiceResponse.isErr()) {
-				setDecodedInvoice(undefined);
-				return;
-			}
-			setDecodedInvoice(decodeInvoiceResponse.value);
-		} catch (e) {
-			setDecodedInvoice(undefined);
-			console.log(e);
-		}
-	};
+		}, [transaction.lightningInvoice]);
 
 	useEffect(() => {
+		if (!sendNavigationIsOpen) {
+			return;
+		}
 		getDecodeAndSetLightningInvoice().then();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [transaction.lightningInvoice]);
+	}, [
+		getDecodeAndSetLightningInvoice,
+		sendNavigationIsOpen,
+		transaction.lightningInvoice,
+	]);
 
 	/*
 	 * Total value of all outputs. Excludes change address.
@@ -335,11 +342,12 @@ const AddressAndAmount = ({
 	);
 
 	useEffect(() => {
-		if (sendNavigationIsOpen) {
-			// try to update fees on this screen, because they will be used on next one
-			updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }).then();
-			refreshLdk({ selectedWallet, selectedNetwork }).then();
+		if (!sendNavigationIsOpen) {
+			return;
 		}
+		// try to update fees on this screen, because they will be used on next one
+		updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }).then();
+		refreshLdk({ selectedWallet, selectedNetwork }).then();
 	}, [selectedNetwork, selectedWallet, sendNavigationIsOpen]);
 
 	const isInvalid = useCallback(() => {
