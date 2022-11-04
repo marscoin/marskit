@@ -32,7 +32,7 @@ export type LightningStackParamList = {
 	Result: undefined;
 	QuickSetup: {
 		headerTitle: string;
-	};
+	} | undefined;
 	QuickConfirm: {
 		spendingAmount: number;
 		total: number;
