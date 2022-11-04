@@ -30,9 +30,7 @@ export type LightningStackParamList = {
 		orderId: string;
 	};
 	Result: undefined;
-	QuickSetup: {
-		headerTitle: string;
-	} | undefined;
+	QuickSetup: { headerTitle: string } | undefined;
 	QuickConfirm: {
 		spendingAmount: number;
 		total: number;
