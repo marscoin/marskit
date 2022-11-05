@@ -40,6 +40,7 @@ import { btcToSats } from '../../utils/helpers';
 import { showErrorNotification } from '../../utils/notifications';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { convertCurrency } from '../../utils/blocktank';
+import { useFocusEffect } from '@react-navigation/native';
 
 type TPackages = {
 	id: string;
@@ -181,14 +182,16 @@ const CustomSetup = ({
 			: maxSpendingLimit.fiatValue;
 	}, [currentBalance.fiatValue, selectedCurrency]);
 
-	useEffect(() => {
-		resetOnChainTransaction({ selectedNetwork, selectedWallet });
-		setupOnChainTransaction({
-			selectedNetwork,
-			selectedWallet,
-			rbf: false,
-		}).then();
-	}, [selectedNetwork, selectedWallet]);
+	useFocusEffect(
+		useCallback(() => {
+			resetOnChainTransaction({ selectedNetwork, selectedWallet });
+			setupOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				rbf: false,
+			}).then();
+		}, [selectedNetwork, selectedWallet]),
+	);
 
 	useEffect(() => {
 		const rates = { small: 0, medium: 0, big: 0 };
