@@ -30,7 +30,10 @@ import type { LightningScreenProps } from '../../navigation/types';
 
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { setupOnChainTransaction } from '../../store/actions/wallet';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+} from '../../store/actions/wallet';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
@@ -123,8 +126,13 @@ const QuickSetup = ({
 	]);
 
 	useEffect(() => {
-		setupOnChainTransaction({ rbf: false }).then();
-	}, []);
+		resetOnChainTransaction({ selectedNetwork, selectedWallet });
+		setupOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			rbf: false,
+		}).then();
+	}, [selectedNetwork, selectedWallet]);
 
 	const onContinuePress = useCallback(async (): Promise<void> => {
 		setLoading(true);

@@ -28,7 +28,10 @@ import NumberPadLightning from './NumberPadLightning';
 import type { LightningScreenProps } from '../../navigation/types';
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { setupOnChainTransaction } from '../../store/actions/wallet';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+} from '../../store/actions/wallet';
 import {
 	fiatToBitcoinUnit,
 	getFiatDisplayValues,
@@ -179,6 +182,15 @@ const CustomSetup = ({
 	}, [currentBalance.fiatValue, selectedCurrency]);
 
 	useEffect(() => {
+		resetOnChainTransaction({ selectedNetwork, selectedWallet });
+		setupOnChainTransaction({
+			selectedNetwork,
+			selectedWallet,
+			rbf: false,
+		}).then();
+	}, [selectedNetwork, selectedWallet]);
+
+	useEffect(() => {
 		const rates = { small: 0, medium: 0, big: 0 };
 		const receiveRates = { small: 0, medium: 0, big: 0 };
 
@@ -254,8 +266,6 @@ const CustomSetup = ({
 		});
 		setAvailableReceivingPackages(availReceivingPackages);
 		setReceivePkgRates(receiveRates);
-
-		setupOnChainTransaction({ rbf: false }).then();
 	}, [
 		blocktankService.max_chan_receiving,
 		blocktankService.max_chan_receiving_usd,
