@@ -30,11 +30,15 @@ import type { LightningScreenProps } from '../../navigation/types';
 
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { setupOnChainTransaction } from '../../store/actions/wallet';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+} from '../../store/actions/wallet';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
 import { convertCurrency } from '../../utils/blocktank';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const Percentage = ({ value, type }): ReactElement => {
 	return (
@@ -122,9 +126,16 @@ const QuickSetup = ({
 		spendingLimit,
 	]);
 
-	useEffect(() => {
-		setupOnChainTransaction({ rbf: false }).then();
-	}, []);
+	useFocusEffect(
+		useCallback(() => {
+			resetOnChainTransaction({ selectedNetwork, selectedWallet });
+			setupOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				rbf: false,
+			}).then();
+		}, [selectedNetwork, selectedWallet]),
+	);
 
 	const onContinuePress = useCallback(async (): Promise<void> => {
 		setLoading(true);
