@@ -19,7 +19,7 @@ import {
 const imageSrc = require('../../../assets/illustrations/safe.png');
 
 const ASK_INTERVAL = 1000 * 60 * 60 * 24; // 1 day - how long this prompt will be hidden if user taps Later
-const CHECK_INTERVAL = 10_000; // how long user needs to stay on Wallets screen before he will see this prompt
+const CHECK_INTERVAL = 10000; // how long user needs to stay on Wallets screen before he will see this prompt
 
 const BackupPrompt = (): ReactElement => {
 	const snapPoints = useSnapPoints('medium');
