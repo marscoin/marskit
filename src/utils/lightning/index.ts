@@ -44,11 +44,7 @@ import RNFS from 'react-native-fs';
 import { EmitterSubscription } from 'react-native';
 import { EActivityTypes, IActivityItem } from '../../store/types/activity';
 import { addActivityItem } from '../../store/actions/activity';
-import {
-	EPaymentType,
-	ETransactionDefaults,
-	IWalletItem,
-} from '../../store/types/wallet';
+import { EPaymentType, IWalletItem } from '../../store/types/wallet';
 import { toggleView } from '../../store/actions/user';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
@@ -182,7 +178,6 @@ export const setupLdk = async ({
 			broadcastTransaction: _broadcastTransaction,
 			getTransactionData,
 			network,
-			feeRate: ETransactionDefaults.recommendedBaseFee,
 		});
 
 		if (lmStart.isErr()) {
