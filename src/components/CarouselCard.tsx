@@ -4,9 +4,9 @@ import { Canvas, RadialGradient, Rect, vec } from '@shopify/react-native-skia';
 
 import { Caption13M, Pressable, Text01M, XIcon } from '../styles/components';
 import Card from './Card';
-import BitcoinLogo from '../assets/bitcoin-logo.svg';
-import { dismissTodo } from '../store/actions/todos';
+import { removeTodo } from '../store/actions/todos';
 import useColors from '../hooks/colors';
+import { TTodoType } from '../store/types/todos';
 
 const Glow = memo(({ color }: { color: string }): ReactElement => {
 	return (
@@ -25,15 +25,15 @@ const InnerShadow = memo(({ color }: { color: string }): ReactElement => {
 });
 
 const CarouselCard = ({
-	id = '',
-	title = '',
-	description = '',
-	onPress = (): null => null,
+	id,
+	title,
+	description,
+	onPress,
 }: {
-	id: string;
+	id: TTodoType;
 	title: string;
 	description: string;
-	onPress?: Function;
+	onPress: () => void;
 }): ReactElement => {
 	const colors = useColors();
 	LayoutAnimation.easeInEaseOut();
@@ -106,11 +106,7 @@ const CarouselCard = ({
 			color = 'orange';
 			break;
 		default:
-			// TODO: Swap out BitcoinLogo with the relevant image based on the provided id.
-			icon = (
-				<BitcoinLogo viewBox="0 0 70 70" height="32.54px" width="45.52px" />
-			);
-			color = 'brand';
+			return <></>;
 	}
 
 	color = colors[color] ?? color;
@@ -131,8 +127,10 @@ const CarouselCard = ({
 				<Pressable
 					color="transparent"
 					style={styles.dismiss}
-					onPress={(): any => dismissTodo(id)}>
-					<XIcon width={16} height={16} color="gray1" />
+					onPress={(): void => {
+						removeTodo(id);
+					}}>
+					<XIcon width={18} height={18} color="gray1" />
 				</Pressable>
 			)}
 		</Card>
@@ -145,6 +143,7 @@ const styles = StyleSheet.create({
 		height: 160,
 		borderRadius: 16,
 		paddingHorizontal: 16,
+		paddingBottom: 14,
 		overflow: 'hidden',
 	},
 	pressable: {
@@ -156,8 +155,8 @@ const styles = StyleSheet.create({
 	},
 	dismiss: {
 		position: 'absolute',
-		top: 3,
-		right: 3,
+		top: 0,
+		right: 0,
 		padding: 16,
 	},
 	image: {

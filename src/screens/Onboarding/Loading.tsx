@@ -6,7 +6,7 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 
 const imageSrc = require('../../assets/illustrations/rocket.png');
 
-const DURATION = 40_000;
+const DURATION = 40000;
 
 const enteringAnimation = new Keyframe({
 	0: { originX: -1000, originY: 1000 }, // bottom-left

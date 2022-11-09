@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import {
-	PlusIcon,
-	ScrollView,
-	View as ThemedView,
-	Text02S,
-} from '../../styles/components';
+import { PlusIcon, View as ThemedView, Text02S } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
@@ -25,7 +21,6 @@ import type { RootStackScreenProps } from '../../navigation/types';
 import { arraysMatch } from '../../utils/helpers';
 import Divider from '../../components/Divider';
 import { removeTodo } from '../../store/actions/todos';
-import { todoPresets } from '../../utils/todos';
 
 export const ProfileEdit = ({
 	navigation,
@@ -79,7 +74,7 @@ export const ProfileEdit = ({
 		await saveProfile(slashtag, profile);
 		if (!onboardedProfile) {
 			setOnboardingProfileStep('OfflinePayments');
-			removeTodo(todoPresets.slashtagsProfile.type);
+			removeTodo('slashtagsProfile');
 		} else {
 			navigation.navigate('Profile');
 		}
@@ -104,12 +99,12 @@ export const ProfileEdit = ({
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
 				style={styles.header}
-				title={onboardedProfile ? 'Edit Profile' : 'Create Profile'}
+				title={onboardedProfile ? 'Profile' : 'Create Profile'}
 				onClosePress={(): void => {
 					navigation.navigate(onboardedProfile ? 'Profile' : 'Tabs');
 				}}
 			/>
-			<ScrollView contentContainerStyle={styles.content}>
+			<KeyboardAwareScrollView contentContainerStyle={styles.content}>
 				<ProfileCard
 					url={url}
 					editable={true}
@@ -146,8 +141,7 @@ export const ProfileEdit = ({
 						/>
 					</View>
 				)}
-			</ScrollView>
-
+			</KeyboardAwareScrollView>
 			<SafeAreaInsets type="bottom" />
 		</ThemedView>
 	);
@@ -158,13 +152,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	header: {
-		paddingBottom: 12,
+		paddingBottom: 32,
 	},
 	content: {
 		flexGrow: 1,
 		paddingHorizontal: 16,
 		paddingBottom: 16,
-		paddingTop: 23,
 	},
 	addLinkButton: {
 		alignSelf: 'flex-start',
@@ -176,7 +169,7 @@ const styles = StyleSheet.create({
 	},
 	button: {
 		flex: 1,
-		marginTop: 32,
+		marginTop: 16,
 	},
 });
 

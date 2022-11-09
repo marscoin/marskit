@@ -115,7 +115,7 @@ const ProfileScreen = ({
 								onPress={(): void => {
 									url && handleCopyButton();
 								}}>
-								<CopyIcon height={20} width={20} color="brand" />
+								<CopyIcon height={24} width={24} color="brand" />
 							</IconButton>
 							<IconButton
 								onPress={(): void => {
@@ -125,7 +125,7 @@ const ProfileScreen = ({
 											message: url,
 										});
 								}}>
-								<ShareIcon height={20} width={20} color="brand" />
+								<ShareIcon height={24} width={24} color="brand" />
 							</IconButton>
 							<IconButton
 								onPress={(): void => {
@@ -137,7 +137,7 @@ const ProfileScreen = ({
 								onPress={(): void => {
 									navigation.navigate('Contacts');
 								}}>
-								<UsersIcon height={20} width={20} color="brand" />
+								<UsersIcon height={24} width={24} color="brand" />
 							</IconButton>
 						</View>
 						{view === 'details' ? (
@@ -260,6 +260,7 @@ const QRView = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		paddingBottom: 16,
 	},
 	header: {
 		paddingBottom: 12,
@@ -272,24 +273,20 @@ const styles = StyleSheet.create({
 	},
 	bottom: {
 		flex: 1,
-		display: 'flex',
 		flexDirection: 'column',
 	},
 	iconContainer: {
 		width: 48,
 		height: 48,
 		borderRadius: 9999,
-		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginRight: 16,
 	},
 	bottomHeader: {
-		display: 'flex',
 		flexDirection: 'row',
 	},
 	qrViewContainer: {
-		display: 'flex',
 		alignItems: 'center',
 		flex: 1,
 	},
@@ -302,7 +299,7 @@ const styles = StyleSheet.create({
 		marginTop: 16,
 	},
 	profileDetails: {
-		marginTop: 32,
+		marginTop: 40,
 	},
 	tooltip: {
 		position: 'absolute',

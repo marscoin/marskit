@@ -31,7 +31,7 @@ const Header = (): ReactElement => {
 		[navigation],
 	);
 	const openSettings = useCallback(
-		() => navigation.navigate('Settings'),
+		() => navigation.navigate('Settings', { screen: 'MainSettings' }),
 		[navigation],
 	);
 
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
 	},
 	leftColumn: {
 		flex: 6,
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingLeft: 16,

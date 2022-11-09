@@ -1,6 +1,13 @@
-import React, { memo, ReactElement, useEffect, useState } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 import {
 	Caption13M,
@@ -14,7 +21,6 @@ import { useBalance } from '../../../hooks/wallet';
 import Money from '../../../components/Money';
 import { RootNavigationProp } from '../../../navigation/types';
 import { getOpenChannels } from '../../../utils/lightning';
-import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 
 const NetworkRow = ({
@@ -72,10 +78,25 @@ const BitcoinBreakdown = (): ReactElement => {
 		});
 	}, []);
 
+	const onRebalancePress = useCallback(() => {
+		if (hasLightning && !isGeoBlocked) {
+			navigation.navigate('LightningRoot', {
+				screen: 'QuickSetup',
+				params: {
+					headerTitle: 'Rebalance Funds',
+				},
+			});
+		} else {
+			navigation.navigate('LightningRoot', {
+				screen: 'Introduction',
+			});
+		}
+	}, [hasLightning, isGeoBlocked, navigation]);
+
 	return (
 		<View color="transparent" style={styles.container}>
 			<NetworkRow
-				title="Bitcoin Savings"
+				title="Savings Balance"
 				subtitle="On-chain BTC"
 				color="rgba(247, 147, 26, 0.16)"
 				icon={<SavingsIcon color="orange" width={17} height={17} />}
@@ -83,15 +104,7 @@ const BitcoinBreakdown = (): ReactElement => {
 			/>
 			<View color="transparent" style={styles.transferRow}>
 				<View color="gray4" style={styles.line} />
-				<TouchableOpacity
-					onPress={(): void => {
-						navigation.navigate('LightningRoot', {
-							screen:
-								hasLightning && !isGeoBlocked
-									? 'RebalanceSetup'
-									: 'Introduction',
-						});
-					}}>
+				<TouchableOpacity onPress={onRebalancePress}>
 					<View style={styles.transferButton} color="white08">
 						<TransferIcon height={13} color="white" />
 					</View>
@@ -110,17 +123,13 @@ const BitcoinBreakdown = (): ReactElement => {
 };
 
 const styles = StyleSheet.create({
-	container: {
-		display: 'flex',
-	},
+	container: {},
 	networkRow: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
 	},
 	transferRow: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingVertical: 16,
@@ -136,7 +145,6 @@ const styles = StyleSheet.create({
 		height: 32,
 		width: 32,
 		marginRight: 14,
-		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
@@ -144,19 +152,16 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 15,
 		height: 36,
 		borderRadius: 34,
-		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginHorizontal: 16,
 	},
 	titleContainer: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
 	valueContainer: {
-		display: 'flex',
 		alignItems: 'flex-end',
 	},
 });

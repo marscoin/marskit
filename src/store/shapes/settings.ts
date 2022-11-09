@@ -71,7 +71,7 @@ export const defaultSettingsShape: ISettings = {
 	pinOnLaunch: true,
 	pinForPayments: false,
 	biometrics: false,
-	rbf: true,
+	rbf: false,
 	theme: 'dark',
 	bitcoinUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi
 	balanceUnit: 'satoshi', //BTC, mBTC, μBTC or satoshi

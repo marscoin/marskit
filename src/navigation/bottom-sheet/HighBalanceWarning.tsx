@@ -24,7 +24,7 @@ const BALANCE_THRESHOLD_USD = 1000; // how high the balance must be to show this
 const BALANCE_THRESHOLD_SATS = 5000000; // how high the balance must be to show this warning to the user (in Sats)
 const MAX_WARNINGS = 3; // how many times to show this warning to the user
 const ASK_INTERVAL = 1000 * 60 * 60 * 24; // 1 day - how long this prompt will be hidden if user taps Later
-const CHECK_INTERVAL = 3_000; // how long user needs to stay on Wallets screen before he will see this prompt
+const CHECK_INTERVAL = 3000; // how long user needs to stay on Wallets screen before he will see this prompt
 
 const Amount = ({ style }: { style?: StyleProp<ViewStyle> }): ReactElement => {
 	return (

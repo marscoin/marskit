@@ -90,15 +90,16 @@ import {
 } from './constants';
 import { moveMetaIncTxTags } from '../../store/actions/metadata';
 import { refreshOrdersList } from '../../store/actions/blocktank';
-import { setupTodos } from '../todos';
 
 export const refreshWallet = async ({
 	onchain = true,
 	lightning = true,
+	scanAllAddresses = false, // If set to false, on-chain scanning will adhere to the gap limit (20).
 	updateAllAddressTypes = false, // If set to true, Bitkit will generate, check and update all available address types.
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
+	scanAllAddresses?: boolean;
 	updateAllAddressTypes?: boolean;
 }): Promise<Result<string>> => {
 	try {
@@ -126,10 +127,12 @@ export const refreshWallet = async ({
 					updateUtxos({
 						selectedWallet,
 						selectedNetwork,
+						scanAllAddresses,
 					}),
 					updateTransactions({
 						selectedWallet,
 						selectedNetwork,
+						scanAllAddresses,
 					}),
 				]);
 			}
@@ -153,8 +156,6 @@ export const refreshWallet = async ({
 			await updateActivityList();
 			await moveMetaIncTxTags();
 		}
-
-		setupTodos().then();
 
 		return ok('');
 	} catch (e) {

@@ -140,6 +140,21 @@ const lightning = (
 					},
 				},
 			};
+		case actions.SAVE_LIGHTNING_PEER:
+			let peers = state.nodes[selectedWallet]?.peers[selectedNetwork] ?? [];
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[selectedWallet]: {
+						...state.nodes[selectedWallet],
+						peers: {
+							...state.nodes[selectedWallet]?.peers,
+							[selectedNetwork]: [...peers, action.payload.peer],
+						},
+					},
+				},
+			};
 		case actions.RESET_LIGHTNING_STORE:
 			return { ...defaultLightningStoreShape };
 		default:

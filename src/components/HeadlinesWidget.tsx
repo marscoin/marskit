@@ -9,6 +9,7 @@ import {
 	NewspaperIcon,
 	Text02S,
 	GearIcon,
+	TrashIcon,
 } from '../styles/components';
 import { IWidget } from '../store/types/widgets';
 import { useSlashtagsSDK } from './SlashtagsProvider';
@@ -17,6 +18,8 @@ import { decodeJSON } from '../utils/slashtags';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { navigate } from '../navigation/root/RootNavigator';
 import Button from './Button';
+import Dialog from './Dialog';
+import { deleteWidget } from '../store/actions/widgets';
 
 const HeadlinesWidget = ({
 	url,
@@ -26,6 +29,7 @@ const HeadlinesWidget = ({
 	widget: IWidget;
 }): ReactElement => {
 	const [showButtons, setShowButtons] = useState(false);
+	const [showDialog, setShowDialog] = useState(false);
 	const [article, setArticle] = useState<{
 		title: string;
 		link: string;
@@ -84,6 +88,10 @@ const HeadlinesWidget = ({
 		setShowButtons((b) => !b);
 	};
 
+	const onDelete = (): void => {
+		setShowDialog(true);
+	};
+
 	return (
 		<View>
 			<TouchableOpacity
@@ -119,9 +127,14 @@ const HeadlinesWidget = ({
 			</TouchableOpacity>
 
 			{showButtons && (
-				<View style={styles.button}>
+				<View style={styles.buttonsContainer}>
 					<Button
-						text=""
+						style={styles.deleteButton}
+						icon={<TrashIcon width={20} />}
+						onPress={onDelete}
+					/>
+					<Button
+						style={styles.settingsButton}
 						icon={<GearIcon width={20} />}
 						onPress={(): void => {
 							setTimeout(() => setShowButtons(false), 0);
@@ -130,6 +143,19 @@ const HeadlinesWidget = ({
 					/>
 				</View>
 			)}
+			<Dialog
+				visible={showDialog}
+				title="Delete Bitcoin Headlines widget?"
+				description="Are you sure you want to delete Bitcoin Headlines from your widgets?"
+				confirmText="Yes, Delete"
+				onCancel={(): void => {
+					setShowDialog(false);
+				}}
+				onConfirm={(): void => {
+					deleteWidget(url);
+					setShowDialog(false);
+				}}
+			/>
 		</View>
 	);
 };
@@ -151,12 +177,10 @@ const styles = StyleSheet.create({
 	},
 	infoContainer: {
 		flex: 1.2,
-		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'flex-start',
 	},
 	row: {
-		display: 'flex',
 		alignItems: 'center',
 		flexDirection: 'row',
 	},
@@ -172,14 +196,21 @@ const styles = StyleSheet.create({
 	author: {
 		textAlign: 'right',
 	},
-	button: {
+	buttonsContainer: {
 		position: 'absolute',
-		paddingLeft: 8,
 		right: 0,
 		top: 0,
 		bottom: 1,
-		display: 'flex',
+		flexDirection: 'row',
 		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	deleteButton: {
+		minWidth: 0,
+		marginHorizontal: 8,
+	},
+	settingsButton: {
+		minWidth: 0,
 	},
 });
 

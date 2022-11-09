@@ -30,11 +30,15 @@ import type { LightningScreenProps } from '../../navigation/types';
 
 import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
-import { setupOnChainTransaction } from '../../store/actions/wallet';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+} from '../../store/actions/wallet';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
 import { convertCurrency } from '../../utils/blocktank';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const Percentage = ({ value, type }): ReactElement => {
 	return (
@@ -55,6 +59,7 @@ export const Percentage = ({ value, type }): ReactElement => {
 
 const QuickSetup = ({
 	navigation,
+	route,
 }: LightningScreenProps<'QuickSetup'>): ReactElement => {
 	const colors = useColors();
 	const [keybrd, setKeybrd] = useState(false);
@@ -76,6 +81,11 @@ const QuickSetup = ({
 	);
 	const selectedCurrency = useSelector(
 		(state: Store) => state.settings.selectedCurrency,
+	);
+
+	const headerTitle = useMemo(
+		() => route.params?.headerTitle ?? 'Add Instant Payments',
+		[route.params?.headerTitle],
 	);
 
 	const savingsAmount = totalBalance - spendingAmount;
@@ -116,9 +126,16 @@ const QuickSetup = ({
 		spendingLimit,
 	]);
 
-	useEffect(() => {
-		setupOnChainTransaction({ rbf: false }).then();
-	}, []);
+	useFocusEffect(
+		useCallback(() => {
+			resetOnChainTransaction({ selectedNetwork, selectedWallet });
+			setupOnChainTransaction({
+				selectedNetwork,
+				selectedWallet,
+				rbf: false,
+			}).then();
+		}, [selectedNetwork, selectedWallet]),
+	);
 
 	const onContinuePress = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -162,7 +179,7 @@ const QuickSetup = ({
 		<GlowingBackground topLeft={colors.purple}>
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
-				title="Add Instant Payments"
+				title={headerTitle}
 				onClosePress={(): void => {
 					navigation.navigate('Tabs');
 				}}

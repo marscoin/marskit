@@ -1,12 +1,13 @@
 import React, { memo, ReactElement, useState, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import b4a from 'b4a';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import { useSelector } from 'react-redux';
 import Store from '../../../store/types';
 import { useSelectedSlashtag } from '../../../hooks/slashtags';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
+import { closeDriveSession } from '../../../utils/slashtags';
 
 const SlashtagsSettings = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
@@ -23,22 +24,44 @@ const SlashtagsSettings = (): ReactElement => {
 		(store: Store) => store.slashtags.seeder?.lastSent,
 	);
 
+	const [seederStatus, setSeederStatus] = useState({
+		seeded: false,
+		diff: 0,
+	});
+
 	useEffect(() => {
 		let unmounted = false;
 
 		(async (): Promise<void> => {
-			if (unmounted) {
-				return;
-			}
+			const drive = slashtag.drivestore.get();
 
 			try {
-				const d = slashtag.drivestore.get();
-				await d.update();
-				setDriveVersion(d.version);
-				setDiscoveryKey(d.discoveryKey);
-				await d.get('/profile.json');
+				await drive.update();
+				setDriveVersion(drive.version);
+				setDiscoveryKey(drive.discoveryKey);
+				await drive.get('/profile.json');
+
+				try {
+					const key = b4a.toString(drive.key, 'hex');
+					const firstResponse = await fetch(
+						'https://blocktank.synonym.to/seeding/hypercore/' + key,
+						{ method: 'GET' },
+					);
+					const status = await firstResponse.json();
+
+					if (!unmounted) {
+						setSeederStatus({
+							seeded: status.statusCode !== 404,
+							diff: status.length - drive.core.length,
+						});
+					}
+				} catch (error) {}
 			} catch (error) {
-				setProfileError(error.message);
+				if (!unmounted) {
+					setProfileError(error.message);
+				}
+			} finally {
+				closeDriveSession(drive);
 			}
 		})();
 
@@ -55,19 +78,23 @@ const SlashtagsSettings = (): ReactElement => {
 					{
 						title: 'version',
 						value: driveVersion,
-						hide: false,
 						type: 'button',
 					},
 					{
 						title: 'last seeded',
 						value: lastSeed && new Date(lastSeed).toLocaleString(),
-						hide: false,
+						type: 'button',
+					},
+					{
+						title: 'seeder status',
+						value: seederStatus.seeded
+							? 'behind by ' + seederStatus.diff + ' blocks'
+							: 'Not Found',
 						type: 'button',
 					},
 					{
 						title: 'corrupt',
 						value: profileError || 'false',
-						hide: false,
 						type: 'button',
 					},
 				],
@@ -79,7 +106,6 @@ const SlashtagsSettings = (): ReactElement => {
 						title: 'open',
 						value: !sdk.closed || 'false',
 						type: 'button',
-						hide: false,
 					},
 				],
 			},
@@ -89,18 +115,15 @@ const SlashtagsSettings = (): ReactElement => {
 					{
 						title: 'open',
 						value: sdk.swarm.dht._protocol._stream._socket.readyState === 1,
-						hide: false,
 						type: 'button',
 					},
 					{
 						title: 'url',
 						value: sdk.swarm.dht._protocol._stream._socket.url,
-						hide: false,
 						type: 'button',
 					},
 					{
 						title: 'close relay socket',
-						hide: false,
 						type: 'button',
 						onPress: () => sdk._relaySocket.close(),
 					},
@@ -112,27 +135,24 @@ const SlashtagsSettings = (): ReactElement => {
 					{
 						title: 'swarm NOT destroyed',
 						value: !sdk.swarm.destroyed || 'false',
-						hide: false,
 						type: 'button',
 					},
 					{
 						title: 'announced on publicDrive',
 						value: discoveryKey ? sdk.swarm.status(discoveryKey)?.isServer : '',
-						hide: false,
 						type: 'button',
 					},
 				],
 			},
 		],
-		[profileError, driveVersion, sdk, discoveryKey, lastSeed],
+		[profileError, driveVersion, sdk, discoveryKey, lastSeed, seederStatus],
 	);
 
 	return (
 		<SettingsView
-			title={'Slashtags Settings'}
+			title="Slashtags Settings"
 			listData={list}
 			showBackNavigation
-			showSearch
 		/>
 	);
 };

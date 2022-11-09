@@ -47,7 +47,7 @@ const Wallets = ({ navigation }: TabScreenProps<'Wallets'>): ReactElement => {
 	const onRefresh = async (): Promise<void> => {
 		setRefreshing(true);
 		//Refresh wallet and then update activity list
-		await Promise.all([refreshWallet({})]);
+		await Promise.all([refreshWallet({ scanAllAddresses: true })]);
 		setRefreshing(false);
 	};
 

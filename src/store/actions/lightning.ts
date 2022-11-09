@@ -8,10 +8,12 @@ import { TAvailableNetworks } from '../../utils/networks';
 import {
 	addPeers,
 	createPaymentRequest,
+	getCustomLightningPeers,
 	getLightningChannels,
 	getNodeIdFromStorage,
 	getNodeVersion,
 	hasOpenLightningChannels,
+	parseUri,
 } from '../../utils/lightning';
 import { TChannel, TInvoice } from '@synonymdev/react-native-ldk';
 import {
@@ -224,7 +226,7 @@ export const createLightningInvoice = async ({
 		return err(invoice.error.message);
 	}
 
-	addPeers().then();
+	addPeers({ selectedNetwork, selectedWallet }).then();
 
 	const payload = {
 		invoice: invoice.value,
@@ -363,4 +365,54 @@ export const resetLightningStore = (): Result<string> => {
 		type: actions.RESET_LIGHTNING_STORE,
 	});
 	return ok('');
+};
+
+/**
+ * Attempts to save a custom lightning peer to storage.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} peer
+ */
+export const savePeer = ({
+	selectedWallet,
+	selectedNetwork,
+	peer,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	peer: string;
+}): Result<string> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	if (!peer) {
+		return err('Invalid Peer Data');
+	}
+	// Check that the URI is valid.
+	const parsedPeerData = parseUri(peer);
+	if (parsedPeerData.isErr()) {
+		return err(parsedPeerData.error.message);
+	}
+	// Ensure we haven't already added this peer.
+	const existingPeers = getCustomLightningPeers({
+		selectedWallet,
+		selectedNetwork,
+	});
+	if (existingPeers.includes(peer)) {
+		return ok('Peer Already Added');
+	}
+	const payload = {
+		peer,
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.SAVE_LIGHTNING_PEER,
+		payload,
+	});
+	return ok('Successfully Saved Lightning Peer.');
 };

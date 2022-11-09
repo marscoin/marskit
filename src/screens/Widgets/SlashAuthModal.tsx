@@ -25,6 +25,8 @@ import {
 import { setAuthWidget } from '../../store/actions/widgets';
 import Divider from '../../components/Divider';
 import { useSnapPoints } from '../../hooks/bottomSheet';
+import { navigate } from '../../navigation/root/RootNavigator';
+import HourglassSpinner from '../../components/HourglassSpinner';
 
 export type BackupNavigationProp =
 	NativeStackNavigationProp<BackupStackParamList>;
@@ -58,6 +60,7 @@ const Key = ({
 
 const _SlashAuthModal = (): ReactElement => {
 	const [anonymous, setAnonymous] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const _url = useSelector(
 		(state: Store) => state.user.viewController.slashauthModal,
@@ -87,25 +90,35 @@ const _SlashAuthModal = (): ReactElement => {
 	// return { url: anonymousSlashtag.url, name: 'Anonymous' };
 	// }, [anonymousSlashtag]);
 
-	const explanation = useMemo(() => {
+	const text = useMemo(() => {
 		const s = (server.name || server.url).trim?.();
 		if (s) {
-			return `Do you want to sign in to ${s} with your profile?`;
+			if (isLoading) {
+				return `Signing in to ${s}...`;
+			} else {
+				return `Do you want to sign in to ${s} with your profile?`;
+			}
 		} else {
-			return 'Do you want to sign in with your profile?';
+			if (isLoading) {
+				return 'Signing in...';
+			} else {
+				return 'Do you want to sign in with your profile?';
+			}
 		}
-	}, [server]);
+	}, [server, isLoading]);
 
 	const insets = useSafeAreaInsets();
-	const nextButtonContainerStyles = useMemo(
+	const buttonContainerStyles = useMemo(
 		() => ({
-			...styles.nextButtonContainer,
+			...styles.buttonContainer,
 			paddingBottom: insets.bottom + 16,
 		}),
 		[insets.bottom],
 	);
 
-	const signin = async (): Promise<void> => {
+	const signIn = async (): Promise<void> => {
+		setIsLoading(true);
+
 		const client = new Client(slashtag);
 		const response = await client.authz(_url).catch((e: Error) => {
 			if (e.message === 'channel closed') {
@@ -130,12 +143,15 @@ const _SlashAuthModal = (): ReactElement => {
 			});
 
 			setAuthWidget(url, { magiclink: true });
+			navigate('Tabs');
 		} else {
 			showErrorNotification({
 				title: 'Error while signing in',
 				message: response.message,
 			});
 		}
+
+		setIsLoading(false);
 
 		toggleView({
 			view: 'slashauthModal',
@@ -145,7 +161,10 @@ const _SlashAuthModal = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<BottomSheetNavigationHeader title="Sign in" displayBackButton={false} />
+			<BottomSheetNavigationHeader
+				title={isLoading ? 'Signing in...' : 'Sign in'}
+				displayBackButton={false}
+			/>
 			<View style={styles.header}>
 				<ProfileImage
 					style={styles.headerImage}
@@ -155,8 +174,8 @@ const _SlashAuthModal = (): ReactElement => {
 				/>
 				<Title>{server.name}</Title>
 			</View>
-			<Text01S color="gray1" style={styles.explanation}>
-				{explanation}
+			<Text01S color="gray1" style={styles.text}>
+				{text}
 			</Text01S>
 			<Key
 				contact={rootContact}
@@ -168,8 +187,16 @@ const _SlashAuthModal = (): ReactElement => {
 				active={anonymous}
 				onPress={(): void => setAnonymous(true)}
 			/>*/}
-			<View style={nextButtonContainerStyles}>
-				<Button size="large" text="Sign in" onPress={signin} />
+
+			{isLoading && <HourglassSpinner />}
+
+			<View style={buttonContainerStyles}>
+				<Button
+					size="large"
+					text="Sign in"
+					disabled={isLoading}
+					onPress={signIn}
+				/>
 			</View>
 		</View>
 	);
@@ -196,7 +223,6 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	header: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
@@ -204,11 +230,11 @@ const styles = StyleSheet.create({
 		marginRight: 16,
 		borderRadius: 8,
 	},
-	explanation: {
+	text: {
 		marginTop: 32,
 		marginBottom: 32,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 		width: '100%',
 	},
@@ -216,7 +242,6 @@ const styles = StyleSheet.create({
 
 const keyStyles = StyleSheet.create({
 	row: {
-		display: 'flex',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',

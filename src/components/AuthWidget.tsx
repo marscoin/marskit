@@ -9,11 +9,18 @@ import { Linking, StyleSheet } from 'react-native';
 import { Client } from '@synonymdev/slashtags-auth';
 
 import { useProfile, useSelectedSlashtag } from '../hooks/slashtags';
-import { Text01M, TouchableOpacity, View } from '../styles/components';
+import {
+	Text01M,
+	TouchableOpacity,
+	TrashIcon,
+	View,
+} from '../styles/components';
 import { showErrorNotification } from '../utils/notifications';
 import Button from './Button';
 import ProfileImage from './ProfileImage';
 import { IWidget } from '../store/types/widgets';
+import { deleteWidget } from '../store/actions/widgets';
+import Dialog from './Dialog';
 
 const AuthWidget = ({
 	url,
@@ -23,6 +30,7 @@ const AuthWidget = ({
 	widget: IWidget;
 }): ReactElement => {
 	const [showButtons, setShowButtons] = useState(false);
+	const [showDialog, setShowDialog] = useState(false);
 
 	const { profile } = useProfile(url);
 	const { slashtag } = useSelectedSlashtag();
@@ -54,6 +62,10 @@ const AuthWidget = ({
 		});
 	}, [client, url]);
 
+	const onDelete = (): void => {
+		setShowDialog(true);
+	};
+
 	return (
 		<TouchableOpacity
 			style={styles.container}
@@ -72,13 +84,33 @@ const AuthWidget = ({
 				{showButtons ? (
 					<View style={styles.buttonsContainer}>
 						{widget.magiclink && (
-							<Button text="Log in" onPress={openMagicLink} />
+							<>
+								<Button
+									style={styles.deleteButton}
+									icon={<TrashIcon width={20} />}
+									onPress={onDelete}
+								/>
+								<Button text="Log in" onPress={openMagicLink} />
+							</>
 						)}
 					</View>
 				) : (
 					<View />
 				)}
 			</View>
+			<Dialog
+				visible={showDialog}
+				title={`Delete ${profile.name} auth widget?`}
+				description={`Are you sure you want to delete ${profile.name} from your widgets?`}
+				confirmText="Yes, Delete"
+				onCancel={(): void => {
+					setShowDialog(false);
+				}}
+				onConfirm={(): void => {
+					deleteWidget(url);
+					setShowDialog(false);
+				}}
+			/>
 		</TouchableOpacity>
 	);
 };
@@ -93,12 +125,10 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 1,
 	},
 	left: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
 	right: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
@@ -108,10 +138,14 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 	buttonsContainer: {
-		display: 'flex',
+		position: 'absolute',
+		right: 0,
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'flex-end',
+	},
+	deleteButton: {
+		minWidth: 0,
+		marginHorizontal: 8,
 	},
 });
 

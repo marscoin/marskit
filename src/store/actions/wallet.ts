@@ -448,11 +448,13 @@ export const addAddresses = async ({
  * 2. Update the available balance for a given wallet and network.
  */
 export const updateUtxos = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	scanAllAddresses = false,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	scanAllAddresses?: boolean;
 }): Promise<Result<{ utxos: IUtxo[]; balance: number }>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -462,15 +464,27 @@ export const updateUtxos = ({
 			selectedWallet = getSelectedWallet();
 		}
 
-		const utxoResponse = await getUtxos({ selectedWallet, selectedNetwork });
+		const utxoResponse = await getUtxos({
+			selectedWallet,
+			selectedNetwork,
+			scanAllAddresses,
+		});
 		if (utxoResponse.isErr()) {
 			return resolve(err(utxoResponse.error));
 		}
 		const { utxos, balance } = utxoResponse.value;
+		// Ensure we're not adding any duplicates.
+		const filteredUtxos = utxos.filter(
+			(utxo, index, _utxos) =>
+				index ===
+				_utxos.findIndex(
+					(u) => u.scriptHash === utxo.scriptHash && u.tx_pos === utxo.tx_pos,
+				),
+		);
 		const payload = {
 			selectedWallet,
 			selectedNetwork,
-			utxos,
+			utxos: filteredUtxos,
 			balance,
 		};
 		await dispatch({
@@ -479,6 +493,38 @@ export const updateUtxos = ({
 		});
 		return resolve(ok(payload));
 	});
+};
+
+/**
+ * Clears the UTXO array and balance.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<string>}
+ */
+export const clearUtxos = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<string> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const payload = {
+		selectedWallet,
+		selectedNetwork,
+		utxos: [],
+		balance: 0,
+	};
+	await dispatch({
+		type: actions.UPDATE_UTXOS,
+		payload,
+	});
+	return "Successfully cleared UTXO's.";
 };
 
 export const updateWalletBalance = ({
@@ -525,11 +571,13 @@ export interface ITransactionData {
 }
 
 export const updateTransactions = ({
-	selectedWallet = undefined,
-	selectedNetwork = undefined,
+	selectedWallet,
+	selectedNetwork,
+	scanAllAddresses = false,
 }: {
-	selectedWallet?: string | undefined;
-	selectedNetwork?: TAvailableNetworks | undefined;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+	scanAllAddresses?: boolean;
 }): Promise<Result<IFormattedTransaction>> => {
 	return new Promise(async (resolve) => {
 		if (!selectedNetwork) {
@@ -546,6 +594,7 @@ export const updateTransactions = ({
 		const history = await getAddressHistory({
 			selectedNetwork,
 			selectedWallet,
+			scanAllAddresses,
 		});
 
 		if (history.isErr()) {

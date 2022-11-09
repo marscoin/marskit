@@ -1,5 +1,6 @@
 import { Slashtag } from '@synonymdev/slashtags-sdk';
 import { ok, Result } from '@synonymdev/result';
+import b4a from 'b4a';
 
 import actions from './actions';
 import { getDispatch, getStore } from '../helpers';
@@ -85,13 +86,20 @@ export const resetSlashtagsStore = (): Result<string> => {
  * Sends all relevant hypercores to the seeder once a week
  */
 export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
+	const key = b4a.toString(slashtag.key, 'hex');
+	const response = await fetch(
+		'https://blocktank.synonym.to/seeding/hypercore/' + key,
+		{ method: 'GET' },
+	);
+	const status = await response.json();
+
 	const lastSent = getStore().slashtags.seeder?.lastSent || 0;
 
 	const now = Number(new Date());
 	// throttle sending to seeder to once a day
 	const passed = (now - lastSent) / 86400000;
 
-	if (passed < 1) {
+	if (passed < 1 && status.statusCode !== 404) {
 		return;
 	}
 

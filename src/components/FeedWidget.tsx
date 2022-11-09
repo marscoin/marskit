@@ -8,11 +8,14 @@ import {
 	View,
 	Text01M,
 	Caption13M,
+	TrashIcon,
 } from '../styles/components';
 import Button from './Button';
 import ProfileImage from './ProfileImage';
 import { IWidget } from '../store/types/widgets';
 import { useFeedWidget } from '../hooks/widgets';
+import { deleteWidget } from '../store/actions/widgets';
+import Dialog from './Dialog';
 
 const DefaultRightComponent = ({ value }: { value?: string }): ReactElement => {
 	return <Text01M numberOfLines={1}>{value}</Text01M>;
@@ -67,9 +70,14 @@ export const BaseFeedWidget = ({
 	middle?: ReactElement;
 }): ReactElement => {
 	const [showButtons, setShowButtons] = useState(false);
+	const [showDialog, setShowDialog] = useState(false);
 
 	const switchShowButtons = (): void => {
 		setShowButtons((b) => !b);
+	};
+
+	const onDelete = (): void => {
+		setShowDialog(true);
 	};
 
 	return (
@@ -88,20 +96,40 @@ export const BaseFeedWidget = ({
 			</View>
 
 			{showButtons ? (
-				<Button
-					text=""
-					icon={<GearIcon width={20} />}
-					onPress={(): void => {
-						setTimeout(() => setShowButtons(false), 0);
-						navigate('WidgetFeedEdit', { url });
-					}}
-				/>
+				<>
+					<Button
+						style={styles.deleteButton}
+						icon={<TrashIcon width={20} />}
+						onPress={onDelete}
+					/>
+					<Button
+						style={styles.settingsButton}
+						icon={<GearIcon width={20} />}
+						onPress={(): void => {
+							setTimeout(() => setShowButtons(false), 0);
+							navigate('WidgetFeedEdit', { url });
+						}}
+					/>
+				</>
 			) : (
 				<View style={styles.dataContainer}>
 					{middle && <View style={styles.middle}>{middle}</View>}
 					<View style={styles.right}>{right}</View>
 				</View>
 			)}
+			<Dialog
+				visible={showDialog}
+				title={`Delete ${name} widget?`}
+				description={`Are you sure you want to delete ${name} from your widgets?`}
+				confirmText="Yes, Delete"
+				onCancel={(): void => {
+					setShowDialog(false);
+				}}
+				onConfirm={(): void => {
+					deleteWidget(url);
+					setShowDialog(false);
+				}}
+			/>
 		</TouchableOpacity>
 	);
 };
@@ -114,17 +142,17 @@ const styles = StyleSheet.create({
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 		borderBottomWidth: 1,
 	},
-	icon: {
-		marginRight: 8,
-		borderRadius: 6.4,
-		overflow: 'hidden',
-		height: 32,
-		width: 32,
-	},
 	infoContainer: {
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
+	},
+	icon: {
+		marginRight: 16,
+		borderRadius: 6.4,
+		overflow: 'hidden',
+		height: 32,
+		width: 32,
 	},
 	labelsContainer: {
 		flex: 1,
@@ -146,6 +174,13 @@ const styles = StyleSheet.create({
 		flex: 6,
 		flexDirection: 'row',
 		justifyContent: 'flex-end',
+	},
+	deleteButton: {
+		minWidth: 0,
+		marginHorizontal: 8,
+	},
+	settingsButton: {
+		minWidth: 0,
 	},
 });
 

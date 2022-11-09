@@ -75,6 +75,10 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 
 	// SDK creating and reconnecting after relay disconnect!
 	useEffect(() => {
+		if (!primaryKey) {
+			return;
+		}
+
 		let unmounted = false;
 
 		const pk = primaryKey && b4a.from(primaryKey, 'hex');

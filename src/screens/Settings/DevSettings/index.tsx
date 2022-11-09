@@ -5,6 +5,7 @@ import Store from '../../../store/types';
 import { resetSettingsStore, wipeApp } from '../../../store/actions/settings';
 import { IListData } from '../../../components/List';
 import {
+	clearUtxos,
 	resetSelectedWallet,
 	resetWalletStore,
 } from '../../../store/actions/wallet';
@@ -17,88 +18,88 @@ import { resetSlashtagsStore } from '../../../store/actions/slashtags';
 import { resetWidgetsStore } from '../../../store/actions/widgets';
 import actions from '../../../store/actions/actions';
 import { resetFeesStore } from '../../../store/actions/fees';
+import type { SettingsScreenProps } from '../../../navigation/types';
 
-const SettingsMenu = ({ navigation }): ReactElement => {
+const DevSettings = ({
+	navigation,
+}: SettingsScreenProps<'DevSettings'>): ReactElement => {
 	const dispatch = useDispatch();
 	const [throwError, setThrowError] = useState(false);
 	const selectedWallet = useSelector(
 		(state: Store) => state.wallet.selectedWallet,
 	);
-	const rbf = useSelector((state: Store) => state.settings?.rbf ?? true);
-	const hasPin = useSelector((state: Store) => state.settings.pin);
 
-	const SettingsListData: IListData[] = useMemo(
+	const settingsListData: IListData[] = useMemo(
 		() => [
 			{
-				title: 'App Cache',
+				title: 'Slashtags',
 				data: [
 					{
 						title: 'Slashtags Settings',
 						type: 'button',
 						onPress: (): void => navigation.navigate('SlashtagsSettings'),
-						hide: false,
 					},
+				],
+			},
+			{
+				title: 'App Cache',
+				data: [
 					{
 						title: 'Reset Current Wallet Store',
 						type: 'button',
 						onPress: async (): Promise<void> => {
 							await resetSelectedWallet({ selectedWallet });
 						},
-						hide: false,
 					},
 					{
 						title: 'Reset Entire Wallet Store',
 						type: 'button',
 						onPress: resetWalletStore,
-						hide: false,
+					},
+					{
+						title: "Clear UTXO's",
+						type: 'button',
+						onPress: clearUtxos,
 					},
 					{
 						title: 'Reset Lightning Store',
 						type: 'button',
 						onPress: resetLightningStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Fees Store',
 						type: 'button',
 						onPress: resetFeesStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Settings Store',
 						type: 'button',
 						onPress: resetSettingsStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Activity Store',
 						type: 'button',
 						onPress: resetActivityStore,
-						hide: false,
 					},
 					{
 						title: 'Reset User Store',
 						type: 'button',
 						onPress: resetUserStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Blocktank Store',
 						type: 'button',
 						onPress: resetBlocktankStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Slashtags Store',
 						type: 'button',
 						onPress: resetSlashtagsStore,
-						hide: false,
 					},
 					{
 						title: 'Reset Widgets Store',
 						type: 'button',
 						onPress: resetWidgetsStore,
-						hide: false,
 					},
 					{
 						title: 'Reset All Stores',
@@ -106,13 +107,11 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => {
 							dispatch({ type: actions.WIPE_APP });
 						},
-						hide: false,
 					},
 					{
 						title: 'Wipe App',
 						type: 'button',
 						onPress: wipeApp,
-						hide: false,
 					},
 				],
 			},
@@ -125,7 +124,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => {
 							setThrowError(true);
 						},
-						hide: false,
 					},
 					{
 						title: 'Trigger exception in action handler',
@@ -133,7 +131,6 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: (): void => {
 							throw new Error('test action error');
 						},
-						hide: false,
 					},
 					{
 						title: 'Trigger unhandled async exception',
@@ -141,13 +138,11 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 						onPress: async (): Promise<void> => {
 							throw new Error('test async error');
 						},
-						hide: false,
 					},
 				],
 			},
 		],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[hasPin, selectedWallet, rbf],
+		[dispatch, navigation, selectedWallet],
 	);
 
 	if (throwError) {
@@ -156,11 +151,11 @@ const SettingsMenu = ({ navigation }): ReactElement => {
 
 	return (
 		<SettingsView
-			title={'Dev Settings'}
-			listData={SettingsListData}
+			title="Dev Settings"
+			listData={settingsListData}
 			showBackNavigation={true}
 		/>
 	);
 };
 
-export default memo(SettingsMenu);
+export default memo(DevSettings);

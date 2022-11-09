@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import {
@@ -59,6 +59,7 @@ const ContactsScreen = ({
 						color="white08"
 						activeOpacity={0.8}
 						onPress={(): void => {
+							Keyboard.dismiss();
 							toggleView({
 								view: 'addContactModal',
 								data: { isOpen: true },
@@ -99,7 +100,6 @@ const styles = StyleSheet.create({
 		marginTop: 0,
 	},
 	searchRow: {
-		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		marginBottom: 32,
@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	addButton: {
-		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
 		height: 48,
