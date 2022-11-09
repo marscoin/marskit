@@ -78,34 +78,40 @@ const BalanceHeader = (): ReactElement => {
 		updateSettings({ hideBalance: !hideBalance });
 	};
 
+	const totalBalance = useMemo(
+		() => satoshis + claimableBalance,
+		[claimableBalance, satoshis],
+	);
+
 	return (
 		<TouchableOpacity style={styles.container} onPress={handlePress}>
-			<Caption13Up style={styles.title} color="gray1">
-				Total balance
-			</Caption13Up>
+			<View style={styles.totalBalanceRow}>
+				<Caption13Up color="gray1">Total balance</Caption13Up>
+				{claimableBalance > 0 && (
+					<>
+						<Caption13Up color="gray1"> (</Caption13Up>
+						<Money
+							color="gray1"
+							size={'caption13M'}
+							sats={claimableBalance}
+							unit={balanceUnit}
+							enableHide={true}
+							highlight={true}
+							symbol={false}
+						/>
+						<Caption13Up color="gray1"> PENDING)</Caption13Up>
+					</>
+				)}
+			</View>
 			<View style={styles.row}>
 				<View>
 					<Money
-						sats={satoshis}
+						sats={totalBalance}
 						unit={balanceUnit}
 						enableHide={true}
 						highlight={true}
 						symbol={true}
 					/>
-					{claimableBalance > 0 && (
-						<View style={styles.pendingRow}>
-							<Money
-								color="gray1"
-								size={'text01s'}
-								sats={claimableBalance}
-								unit={balanceUnit}
-								enableHide={true}
-								highlight={true}
-								symbol={true}
-							/>
-							<Caption13Up color="gray1"> pending </Caption13Up>
-						</View>
-					)}
 				</View>
 				{hideBalance && (
 					<TouchableOpacity style={styles.toggle} onPress={toggleHideBalance}>
@@ -120,9 +126,6 @@ const BalanceHeader = (): ReactElement => {
 export default memo(BalanceHeader);
 
 const styles = StyleSheet.create({
-	title: {
-		marginBottom: 9,
-	},
 	container: {
 		flex: 1,
 		justifyContent: 'flex-start',
@@ -136,10 +139,11 @@ const styles = StyleSheet.create({
 		height: 41,
 		marginTop: 5,
 	},
-	pendingRow: {
+	totalBalanceRow: {
 		flexDirection: 'row',
-		alignItems: 'flex-end',
+		alignItems: 'center',
 		justifyContent: 'flex-start',
+		marginBottom: 9,
 	},
 	toggle: {
 		paddingRight: 16,
