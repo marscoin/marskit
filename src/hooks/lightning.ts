@@ -171,3 +171,20 @@ export const useLightningChannelData = (channelId): TChannel => {
 			],
 	);
 };
+
+export const useClaimableBalance = (): number => {
+	const selectedWallet = useSelector(
+		(store: Store) => store.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(store: Store) => store.wallet.selectedNetwork,
+	);
+	const node = useSelector(
+		(store: Store) => store.lightning.nodes[selectedWallet],
+	);
+
+	if ('claimableBalance' in node) {
+		return node?.claimableBalance[selectedNetwork] ?? 0;
+	}
+	return 0;
+};

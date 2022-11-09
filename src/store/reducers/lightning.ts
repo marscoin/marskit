@@ -155,6 +155,20 @@ const lightning = (
 					},
 				},
 			};
+		case actions.UPDATE_CLAIMABLE_BALANCE:
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[selectedWallet]: {
+						...state.nodes[selectedWallet],
+						claimableBalance: {
+							...state.nodes[selectedWallet]?.claimableBalance,
+							[selectedNetwork]: action.payload.claimableBalance,
+						},
+					},
+				},
+			};
 		case actions.RESET_LIGHTNING_STORE:
 			return { ...defaultLightningStoreShape };
 		default:

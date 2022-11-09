@@ -35,6 +35,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
 	addLightningPayment,
+	updateClaimableBalance,
 	updateLightningChannels,
 	updateLightningNodeId,
 	updateLightningNodeVersion,
@@ -395,6 +396,7 @@ export const refreshLdk = async ({
 			return err(syncRes.error.message);
 		}
 		await updateLightningChannels({ selectedWallet, selectedNetwork });
+		await updateClaimableBalance({ selectedNetwork, selectedWallet });
 		await addPeers({ selectedNetwork, selectedWallet });
 		return ok('');
 	} catch (e) {
