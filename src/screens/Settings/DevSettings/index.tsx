@@ -5,6 +5,7 @@ import Store from '../../../store/types';
 import { resetSettingsStore, wipeApp } from '../../../store/actions/settings';
 import { IListData } from '../../../components/List';
 import {
+	clearUtxos,
 	resetSelectedWallet,
 	resetWalletStore,
 } from '../../../store/actions/wallet';
@@ -54,6 +55,11 @@ const DevSettings = ({
 						title: 'Reset Entire Wallet Store',
 						type: 'button',
 						onPress: resetWalletStore,
+					},
+					{
+						title: "Clear UTXO's",
+						type: 'button',
+						onPress: clearUtxos,
 					},
 					{
 						title: 'Reset Lightning Store',

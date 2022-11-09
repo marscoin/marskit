@@ -355,10 +355,6 @@ export const startChannelPurchase = async ({
 		selectedWallet = getSelectedWallet();
 	}
 
-	const nodeId = await getNodeId();
-	if (nodeId.isErr()) {
-		return err('Unable to retrieve Node ID.');
-	}
 	if (!productId) {
 		return err('Unable to retrieve Blocktank product id.');
 	}
