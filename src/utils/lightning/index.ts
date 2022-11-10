@@ -22,6 +22,7 @@ import {
 	getTransactions,
 } from '../wallet/electrum';
 import {
+	getBalance,
 	getMnemonicPhrase,
 	getReceiveAddress,
 	getSelectedNetwork,
@@ -34,11 +35,12 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
 	addLightningPayment,
+	updateClaimableBalance,
 	updateLightningChannels,
 	updateLightningNodeId,
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
-import { promiseTimeout, sleep } from '../helpers';
+import { promiseTimeout, reduceValue, sleep } from '../helpers';
 import { broadcastTransaction } from '../wallet/transactions';
 import RNFS from 'react-native-fs';
 import { EmitterSubscription } from 'react-native';
@@ -394,6 +396,7 @@ export const refreshLdk = async ({
 			return err(syncRes.error.message);
 		}
 		await updateLightningChannels({ selectedWallet, selectedNetwork });
+		await updateClaimableBalance({ selectedNetwork, selectedWallet });
 		await addPeers({ selectedNetwork, selectedWallet });
 		return ok('');
 	} catch (e) {
@@ -1002,4 +1005,88 @@ export const hasOpenLightningChannels = ({
 
 export const rebroadcastAllKnownTransactions = async (): Promise<any> => {
 	return await lm.rebroadcastAllKnownTransactions();
+};
+
+/**
+ * Returns total reserve balance for all open lightning channels.
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<number>}
+ */
+export const getLightningReserveBalance = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<number> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const node = getStore().lightning.nodes[selectedWallet];
+	const openChannelIds = node.openChannelIds[selectedNetwork];
+	const channels = node.channels[selectedNetwork];
+	const openChannels = Object.values(channels).filter((channel) =>
+		openChannelIds.includes(channel.channel_id),
+	);
+	const reserveBalances = reduceValue({
+		arr: openChannels,
+		value: 'unspendable_punishment_reserve',
+	});
+	if (reserveBalances.isErr()) {
+		return 0;
+	}
+	return reserveBalances.value;
+};
+
+/**
+ * Returns the claimable balance for all lightning channels.
+ * @param {boolean} [ignoreOpenChannels]
+ * @param {string} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<number>}
+ */
+export const getClaimableBalance = async ({
+	ignoreOpenChannels = true,
+	selectedWallet,
+	selectedNetwork,
+}: {
+	ignoreOpenChannels?: boolean;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<number> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const lightningBalance = getBalance({
+		lightning: true,
+		selectedWallet,
+		selectedNetwork,
+	});
+	const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
+	if (claimableBalanceRes.isErr()) {
+		return 0;
+	}
+	const claimableBalance = reduceValue({
+		arr: claimableBalanceRes.value,
+		value: 'claimable_amount_satoshis',
+	});
+	if (claimableBalance.isErr()) {
+		return 0;
+	}
+	const lightningReserveBalance = await getLightningReserveBalance({
+		selectedNetwork,
+		selectedWallet,
+	});
+	return Math.abs(
+		lightningBalance.satoshis -
+			claimableBalance.value +
+			lightningReserveBalance,
+	);
 };

@@ -8,6 +8,7 @@ import { TAvailableNetworks } from '../../utils/networks';
 import {
 	addPeers,
 	createPaymentRequest,
+	getClaimableBalance,
 	getCustomLightningPeers,
 	getLightningChannels,
 	getNodeIdFromStorage,
@@ -415,4 +416,36 @@ export const savePeer = ({
 		payload,
 	});
 	return ok('Successfully Saved Lightning Peer.');
+};
+
+export const updateClaimableBalance = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const claimableBalance = await getClaimableBalance({
+		selectedNetwork,
+		selectedWallet,
+	});
+
+	const payload = {
+		selectedNetwork,
+		selectedWallet,
+		claimableBalance,
+	};
+
+	dispatch({
+		type: actions.UPDATE_CLAIMABLE_BALANCE,
+		payload,
+	});
+	return ok('Successfully Updated Claimable Balance.');
 };

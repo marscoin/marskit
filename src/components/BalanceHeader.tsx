@@ -1,4 +1,4 @@
-import React, { memo, ReactElement } from 'react';
+import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -7,11 +7,13 @@ import Store from '../store/types';
 import { useBalance } from '../hooks/wallet';
 import { updateSettings } from '../store/actions/settings';
 import Money from './Money';
+import { useClaimableBalance } from '../hooks/lightning';
 
 /**
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
+	const claimableBalance = useClaimableBalance();
 	const balanceUnit = useSelector((store: Store) => store.settings.balanceUnit);
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
 	const { satoshis } = useBalance({
@@ -38,19 +40,41 @@ const BalanceHeader = (): ReactElement => {
 		updateSettings({ hideBalance: !hideBalance });
 	};
 
+	const totalBalance = useMemo(
+		() => satoshis + claimableBalance,
+		[claimableBalance, satoshis],
+	);
+
 	return (
 		<TouchableOpacity style={styles.container} onPress={handlePress}>
-			<Caption13Up style={styles.title} color="gray1">
-				Total balance
-			</Caption13Up>
+			<View style={styles.totalBalanceRow}>
+				<Caption13Up color="gray1">Total balance</Caption13Up>
+				{claimableBalance > 0 && (
+					<>
+						<Caption13Up color="gray1"> (</Caption13Up>
+						<Money
+							color="gray1"
+							size={'caption13M'}
+							sats={claimableBalance}
+							unit={balanceUnit}
+							enableHide={true}
+							highlight={true}
+							symbol={false}
+						/>
+						<Caption13Up color="gray1"> PENDING)</Caption13Up>
+					</>
+				)}
+			</View>
 			<View style={styles.row}>
-				<Money
-					sats={satoshis}
-					unit={balanceUnit}
-					enableHide={true}
-					highlight={true}
-					symbol={true}
-				/>
+				<View>
+					<Money
+						sats={totalBalance}
+						unit={balanceUnit}
+						enableHide={true}
+						highlight={true}
+						symbol={true}
+					/>
+				</View>
 				{hideBalance && (
 					<TouchableOpacity style={styles.toggle} onPress={toggleHideBalance}>
 						<EyeIcon />
@@ -64,9 +88,6 @@ const BalanceHeader = (): ReactElement => {
 export default memo(BalanceHeader);
 
 const styles = StyleSheet.create({
-	title: {
-		marginBottom: 9,
-	},
 	container: {
 		flex: 1,
 		justifyContent: 'flex-start',
@@ -78,6 +99,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		height: 41,
+		marginTop: 5,
+	},
+	totalBalanceRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'flex-start',
+		marginBottom: 9,
 	},
 	toggle: {
 		paddingRight: 16,

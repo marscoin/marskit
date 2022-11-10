@@ -28,6 +28,7 @@ export interface IDefaultLightningShape {
 	invoices: IWalletItem<TInvoice[]> | IWalletItem<[]>;
 	payments: IWalletItem<{ [key: string]: TLightningPayment }> | IWalletItem<{}>;
 	peers: IWalletItem<string[]>;
+	claimableBalance: IWalletItem<number>;
 }
 
 export interface ILightning {
