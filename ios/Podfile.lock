@@ -310,7 +310,7 @@ PODS:
     - glog
   - react-native-biometrics (2.2.2):
     - React
-  - react-native-blur (4.3.0):
+  - react-native-blur (4.2.0):
     - React-Core
   - react-native-camera (4.2.1):
     - React-Core
@@ -320,7 +320,7 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-document-picker (8.1.2):
+  - react-native-document-picker (8.1.1):
     - React-Core
   - react-native-flipper (0.162.0):
     - React-Core
@@ -330,14 +330,14 @@ PODS:
     - React
   - react-native-libsodium (0.0.1):
     - React-Core
-  - react-native-mmkv (2.5.1):
+  - react-native-mmkv (2.4.3):
     - MMKV (>= 1.2.13)
     - React-Core
   - react-native-netinfo (8.3.1):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.4.1):
+  - react-native-safe-area-context (4.3.3):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -440,15 +440,15 @@ PODS:
     - React-jsi (= 0.68.4)
     - React-logger (= 0.68.4)
     - React-perflogger (= 0.68.4)
-  - RNCClipboard (1.11.1):
+  - RNCClipboard (1.11.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.6.0):
     - React-Core
   - RNKeychain (8.1.1):
     - React-Core
-  - RNQrGenerator (1.2.1):
+  - RNQrGenerator (1.2.0):
     - React
     - ZXingObjC
   - RNRate (1.2.9):
@@ -485,7 +485,7 @@ PODS:
   - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
-  - RNShare (7.9.1):
+  - RNShare (7.9.0):
     - React-Core
   - RNSVG (12.4.4):
     - React-Core
@@ -789,17 +789,17 @@ SPEC CHECKSUMS:
   React-jsinspector: 6f75220cd4b6020976d340ab21c63458dd3cad9e
   React-logger: 7013d2499df6346e6a72802d4084badaaa82543b
   react-native-biometrics: 4aec6978534944b5f830b9c3489b721c906ea70b
-  react-native-blur: 50c9feabacbc5f49b61337ebc32192c6be7ec3c3
+  react-native-blur: 3e9c8e8e9f7d17fa1b94e1a0ae9fd816675f5382
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
-  react-native-document-picker: f5ec1a712ca2a975c233117f044817bb8393cad4
+  react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
   react-native-flipper: 7eeb9b59b667dd0619372c7349cf7c78032d1de2
   react-native-image-picker: 4bc9ed38c8be255b515d8c88babbaf74973f91a8
   react-native-ldk: bb20c732753ef1862d456ad0daebb990f5073f55
   react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
-  react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
+  react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-netinfo: 1a6035d3b9780221d407c277ebfb5722ace00658
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
+  react-native-safe-area-context: b456e1c40ec86f5593d58b275bd0e9603169daca
   react-native-skia: 0bd524b32fb96b4f7b7ceeddd90b7be14e64701d
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   React-perflogger: 0b0500685176e53ea582c45179a653aa82e4ae49
@@ -814,16 +814,16 @@ SPEC CHECKSUMS:
   React-RCTVibration: a67beb7d2f3c73e9b74c4124ef61b84c601be649
   React-runtimeexecutor: 088723cf020113e64736a709f52719dbb359c73e
   ReactCommon: 1a4f19f3b4366feec03a98bdbb200b6085c5000f
-  RNCClipboard: 2834e1c4af68697089cdd455ee4a4cdd198fa7dd
+  RNCClipboard: 4b8bec7c195e27bcec746f52dff7601161683249
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
+  RNGestureHandler: 920eb17f5b1e15dae6e5ed1904045f8f90e0b11e
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
-  RNQrGenerator: 0aa6c40e3f2e15a9cbaec9480b7028c339f89b66
+  RNQrGenerator: 34beaf1996de4a2f2122c7019dccd1717b22d8d7
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
   RNReanimated: 0ff5e7f619a7524d237848ecb4c47650c4946f71
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
-  RNShare: a5dc3b9c53ddc73e155b8cd9a94c70c91913c43c
+  RNShare: be91a5c149585affb02c25b351bd07ba927c7006
   RNSVG: ecd661f380a07ba690c9c5929c475a44f432d674
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNZipArchive: 3f89b114cfeb89dac027fc5c7afd7e58d3dc4ebf
