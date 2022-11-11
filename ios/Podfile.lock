@@ -326,7 +326,7 @@ PODS:
     - React-Core
   - react-native-image-picker (4.10.0):
     - React-Core
-  - react-native-ldk (0.0.72):
+  - react-native-ldk (0.0.73):
     - React
   - react-native-libsodium (0.0.1):
     - React-Core
@@ -794,7 +794,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: f5ec1a712ca2a975c233117f044817bb8393cad4
   react-native-flipper: 7eeb9b59b667dd0619372c7349cf7c78032d1de2
   react-native-image-picker: 4bc9ed38c8be255b515d8c88babbaf74973f91a8
-  react-native-ldk: f82ff4ffa9cefa239e3d24c1e15cfac00d135707
+  react-native-ldk: bb20c732753ef1862d456ad0daebb990f5073f55
   react-native-libsodium: f4eba037c4ddf73f86b08075452cacb957256147
   react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
   react-native-netinfo: 1a6035d3b9780221d407c277ebfb5722ace00658
