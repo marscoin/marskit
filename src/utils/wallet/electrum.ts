@@ -842,3 +842,22 @@ export const getBlockHashFromHeight = async ({
 	const blockHash = getBlockHashFromHex({ blockHex: response.value });
 	return ok(blockHash);
 };
+
+export const getTransactionMerkle = async ({
+	tx_hash,
+	height,
+	selectedNetwork,
+}: {
+	tx_hash: string;
+	height: number;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<any> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	return await electrum.getTransactionMerkle({
+		tx_hash,
+		height,
+		network: selectedNetwork,
+	});
+};
