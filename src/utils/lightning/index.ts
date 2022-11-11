@@ -12,6 +12,7 @@ import lm, {
 	TInvoice,
 	TPaymentReq,
 	TTransactionData,
+	TTransactionPosition,
 } from '@synonymdev/react-native-ldk';
 import ldk from '@synonymdev/react-native-ldk/dist/ldk';
 import {
@@ -19,6 +20,7 @@ import {
 	getBlockHeader,
 	getBlockHex,
 	getScriptPubKeyHistory,
+	getTransactionMerkle,
 	getTransactions,
 } from '../wallet/electrum';
 import {
@@ -183,6 +185,7 @@ export const setupLdk = async ({
 			getScriptPubKeyHistory,
 			broadcastTransaction: _broadcastTransaction,
 			getTransactionData,
+			getTransactionPosition,
 			network,
 			feeRate: ETransactionDefaults.recommendedBaseFee,
 		});
@@ -579,6 +582,35 @@ export const getTransactionData = async (
 	} catch {
 		return transactionData;
 	}
+};
+
+/**
+ * Returns the position/index of the provided tx_hash within a block.
+ * @param {string} tx_hash
+ * @param {number} height
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<number>}
+ */
+export const getTransactionPosition = async ({
+	tx_hash,
+	height,
+	selectedNetwork,
+}: {
+	tx_hash: string;
+	height: number;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<TTransactionPosition> => {
+	const response = await getTransactionMerkle({
+		tx_hash,
+		height,
+		selectedNetwork,
+	});
+	// @ts-ignore
+	if (response.error || isNaN(response.data?.pos) || response.data?.pos < 0) {
+		return -1;
+	}
+	// @ts-ignore
+	return response.data.pos;
 };
 
 /**
