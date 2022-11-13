@@ -40,7 +40,7 @@ import { generateNewReceiveAddress } from '../../../store/actions/wallet';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
 import BitcoinLogo from '../../../assets/bitcoin-logo-small.svg';
 import { createLightningInvoice } from '../../../store/actions/lightning';
-import { useBalance } from '../../../hooks/wallet';
+import { useLightningBalance } from '../../../hooks/lightning';
 
 const QrIcon = (): ReactElement => {
 	return (
@@ -84,13 +84,13 @@ const Receive = ({ navigation }): ReactElement => {
 	const [showCopy, setShowCopy] = useState(false);
 	const [receiveAddress, setReceiveAddress] = useState('');
 	const [lightningInvoice, setLightningInvoice] = useState('');
-	const lightningBalance = useBalance({ lightning: true });
+	const lightningBalance = useLightningBalance(false);
 	const qrRef = useRef<object>(null);
 
 	useBottomSheetBackPress('receiveNavigation');
 
 	const getLightningInvoice = useCallback(async (): Promise<void> => {
-		if (!receiveNavigationIsOpen || lightningBalance.satoshis === 0) {
+		if (!receiveNavigationIsOpen || lightningBalance.remoteBalance < amount) {
 			return;
 		}
 		const response = await createLightningInvoice({
@@ -161,15 +161,15 @@ const Receive = ({ navigation }): ReactElement => {
 			return;
 		}
 		resetInvoice();
-		// Only refresh LDK if we have a balance.
-		if (lightningBalance.satoshis > 0) {
+		// Only refresh LDK if we have a remote balance.
+		if (lightningBalance.remoteBalance > 0) {
 			refreshLdk({ selectedWallet, selectedNetwork }).then();
 		}
 	}, [
 		selectedNetwork,
 		selectedWallet,
 		receiveNavigationIsOpen,
-		lightningBalance.satoshis,
+		lightningBalance.remoteBalance,
 	]);
 
 	useEffect(() => {
