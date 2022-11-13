@@ -56,6 +56,7 @@ import { refreshWallet } from '../../../utils/wallet';
 import type { SendScreenProps } from '../../../navigation/types';
 import Dialog from '../../../components/Dialog';
 import { getFiatDisplayValues } from '../../../utils/exchange-rate';
+import { useLightningBalance } from '../../../hooks/lightning';
 
 const Section = memo(
 	({
@@ -110,11 +111,12 @@ const ReviewAndSend = ({
 	const selectedNetwork = useSelector(
 		(store: Store) => store.wallet.selectedNetwork,
 	);
-	const balance = useSelector(
+	const onChainBalance = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork],
 	);
 
+	const lightningBalance = useLightningBalance(false);
 	const transaction = useTransactionDetails();
 
 	const decodeAndSetLightningInvoice = async (): Promise<void> => {
@@ -336,7 +338,7 @@ const ReviewAndSend = ({
 
 		//Temporarily update the balance until the Electrum mempool catches up in a few seconds.
 		updateWalletBalance({
-			balance: balance - transactionTotal,
+			balance: onChainBalance - transactionTotal,
 			selectedWallet,
 			selectedNetwork,
 		});
@@ -351,7 +353,7 @@ const ReviewAndSend = ({
 		navigation.navigate('Result', { success: true, txId: rawTx.id });
 		setIsLoading(false);
 	}, [
-		balance,
+		onChainBalance,
 		rawTx,
 		selectedNetwork,
 		selectedWallet,
@@ -415,9 +417,18 @@ const ReviewAndSend = ({
 		});
 
 		// amount > 50% of total balance
-		if (amount > balance / 2) {
-			setShowDialog2(true);
-			return;
+		if (transaction?.lightningInvoice) {
+			// If lightning tx use lightning balance.
+			if (amount > lightningBalance.localBalance / 2) {
+				setShowDialog2(true);
+				return;
+			}
+		} else {
+			// If on-chain tx use on-chain balance.
+			if (amount > onChainBalance / 2) {
+				setShowDialog2(true);
+				return;
+			}
 		}
 
 		// amount > 100$ and enableSendAmountWarning
@@ -439,7 +450,15 @@ const ReviewAndSend = ({
 		}
 
 		confirmPayment();
-	}, [balance, amount, feeSats, enableSendAmountWarning, confirmPayment]);
+	}, [
+		amount,
+		feeSats,
+		transaction?.lightningInvoice,
+		enableSendAmountWarning,
+		confirmPayment,
+		lightningBalance.localBalance,
+		onChainBalance,
+	]);
 
 	const customDescription = useMemo(() => {
 		let desc = FeeText.custom.description;
