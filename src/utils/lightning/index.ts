@@ -56,6 +56,7 @@ import {
 import { toggleView } from '../../store/actions/user';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
+import { showSuccessNotification } from '../notifications';
 
 export const DEFAULT_LIGHTNING_PEERS: IWalletItem<string[]> = {
 	bitcoin: [
@@ -346,6 +347,10 @@ export const subscribeToLightningPayments = ({
 	}
 	if (!onChannelSubscription) {
 		onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, () => {
+			showSuccessNotification({
+				title: 'Lightning Channel Opened',
+				message: 'Congrats! A new lightning channel was successfully opened.',
+			});
 			refreshLdk({ selectedWallet, selectedNetwork }).then();
 		});
 	}
@@ -1100,6 +1105,7 @@ export const getClaimableBalance = async ({
 		lightning: true,
 		selectedWallet,
 		selectedNetwork,
+		subtractReserveBalance: false,
 	});
 	const claimableBalanceRes = await ldk.claimableBalances(ignoreOpenChannels);
 	if (claimableBalanceRes.isErr()) {
@@ -1112,13 +1118,5 @@ export const getClaimableBalance = async ({
 	if (claimableBalance.isErr()) {
 		return 0;
 	}
-	const lightningReserveBalance = await getLightningReserveBalance({
-		selectedNetwork,
-		selectedWallet,
-	});
-	return Math.abs(
-		lightningBalance.satoshis -
-			claimableBalance.value +
-			lightningReserveBalance,
-	);
+	return Math.abs(lightningBalance.satoshis - claimableBalance.value);
 };
