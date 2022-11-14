@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { Caption13Up, EyeIcon } from '../styles/components';
@@ -40,16 +40,24 @@ const BalanceHeader = (): ReactElement => {
 		updateSettings({ hideBalance: !hideBalance });
 	};
 
-	const totalBalance = useMemo(
-		() => satoshis + claimableBalance,
-		[claimableBalance, satoshis],
-	);
+	// TODO: Remove Platform check once claimable balance patch is in.
+	const totalBalance = useMemo(() => {
+		if (Platform.OS === 'ios') {
+			return satoshis + claimableBalance;
+		}
+		return satoshis;
+	}, [claimableBalance, satoshis]);
+
+	// TODO: Remove Platform check once claimable balance patch is in.
+	const showClaimableBalances = useMemo(() => {
+		return Platform.OS === 'ios' && claimableBalance > 0;
+	}, [claimableBalance]);
 
 	return (
 		<TouchableOpacity style={styles.container} onPress={handlePress}>
 			<View style={styles.totalBalanceRow}>
 				<Caption13Up color="gray1">Total balance</Caption13Up>
-				{claimableBalance > 0 && (
+				{showClaimableBalances && (
 					<>
 						<Caption13Up color="gray1"> (</Caption13Up>
 						<Money
