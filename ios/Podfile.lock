@@ -74,7 +74,7 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.11.0)
   - libevent (2.1.12)
-  - lottie-ios (3.4.4)
+  - lottie-ios (3.4.3)
   - lottie-react-native (5.1.4):
     - lottie-ios (~> 3.4.0)
     - React-Core
@@ -442,6 +442,8 @@ PODS:
     - React-perflogger (= 0.68.4)
   - RNCClipboard (1.11.0):
     - React-Core
+  - RNDeviceInfo (10.3.0):
+    - React-Core
   - RNFS (2.20.0):
     - React-Core
   - RNGestureHandler (2.6.0):
@@ -584,6 +586,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
@@ -720,6 +723,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNFS:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
@@ -768,7 +773,7 @@ SPEC CHECKSUMS:
   glog: 476ee3e89abb49e07f822b48323c51c57124b572
   hermes-engine: 84e3af1ea01dd7351ac5d8689cbbea1f9903ffc3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
+  lottie-ios: 9ae750cdc7820fecbd3c2f0cfc493038208fcdc4
   lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
   MMKV: 9c4663aa7ca255d478ff10f2f5cb7d17c1651ccd
   MMKVCore: 89f5c8a66bba2dcd551779dea4d412eeec8ff5bb
@@ -815,6 +820,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 088723cf020113e64736a709f52719dbb359c73e
   ReactCommon: 1a4f19f3b4366feec03a98bdbb200b6085c5000f
   RNCClipboard: 4b8bec7c195e27bcec746f52dff7601161683249
+  RNDeviceInfo: 4701f0bf2a06b34654745053db0ce4cb0c53ada7
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 920eb17f5b1e15dae6e5ed1904045f8f90e0b11e
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333

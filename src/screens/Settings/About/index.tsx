@@ -15,6 +15,7 @@ import {
 	StyleSheet,
 	Pressable,
 } from 'react-native';
+import { getBuildNumber, getVersion } from 'react-native-device-info';
 
 import {
 	BitkitIcon,
@@ -117,7 +118,7 @@ const About = ({
 					},
 					{
 						title: 'Version',
-						value: '1.0.0',
+						value: `${getVersion()} (${getBuildNumber()})`,
 						type: 'textButton',
 						onPress: (): void => {
 							openURL(
