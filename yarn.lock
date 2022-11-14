@@ -10073,10 +10073,6 @@ rn-android-keyboard-adjust@^2.0.0:
   resolved "https://registry.yarnpkg.com/rn-android-keyboard-adjust/-/rn-android-keyboard-adjust-2.0.0.tgz#bb1c9ffdd8f07df9a86e0c7a06962781ceecec4f"
   integrity sha512-mLZ0Nkz6wZytiGxb9fK+GgVzg78y7w5CLyqCRW1C58Eg22pQ3NFqalylqPyTqnH6LuelibgT2xayMx8NiyuYbw==
 
-"rn-electrum-client@git+ssh://git@github.com/synonymdev/react-native-electrum-client#1515d57a61bcad5ee70e21cd1a1ca8054d4e34ca":
-  version "0.0.8"
-  resolved "git+ssh://git@github.com/synonymdev/react-native-electrum-client#1515d57a61bcad5ee70e21cd1a1ca8054d4e34ca"
-
 "rn-electrum-client@git+ssh://git@github.com/synonymdev/react-native-electrum-client#a32a292d4e4918a04d280137e24e5961c74c543f":
   version "0.0.8"
   resolved "git+ssh://git@github.com/synonymdev/react-native-electrum-client#a32a292d4e4918a04d280137e24e5961c74c543f"
