@@ -463,7 +463,7 @@ export const processBitcoinTransactionData = async ({
 					} else {
 						// Ensure we can afford to pay the lightning invoice. If so, pass it through.
 						if (
-							lightningBalance.satoshis >
+							lightningBalance.satoshis >=
 							(decodedLightningInvoice.value?.amount_satoshis ?? 0)
 						) {
 							response = filteredLightningInvoice[0];
