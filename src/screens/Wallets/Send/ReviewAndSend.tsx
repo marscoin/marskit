@@ -444,7 +444,7 @@ const ReviewAndSend = ({
 		}
 
 		// fee > 50% of send amount
-		if (feeSats > amount / 2) {
+		if (!transaction?.lightningInvoice && feeSats > amount / 2) {
 			setShowDialog3(true);
 			return;
 		}
