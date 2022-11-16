@@ -7,6 +7,7 @@ import lm, {
 	TAccountBackup,
 	TChannel,
 	TChannelManagerPayment,
+	TChannelManagerPaymentSent,
 	TCloseChannelReq,
 	THeader,
 	TInvoice,
@@ -914,7 +915,7 @@ export const createPaymentRequest = ldk.createPaymentRequest;
 export const payLightningInvoice = async (
 	invoice: string,
 	sats?: number,
-): Promise<Result<string>> => {
+): Promise<Result<TChannelManagerPaymentSent>> => {
 	try {
 		const addPeersResponse = await addPeers({});
 		if (addPeersResponse.isErr()) {
@@ -927,22 +928,11 @@ export const payLightningInvoice = async (
 			return err(decodedInvoice.error.message);
 		}
 
-		let payResponse: Result<string> | undefined;
-		if (sats) {
-			// @ts-ignore
-			payResponse = await lm.payWithTimeout({
-				paymentRequest: invoice,
-				amountSats: sats,
-			});
-		} else {
-			// @ts-ignore
-			payResponse = await lm.payWithTimeout({
-				paymentRequest: invoice,
-			});
-		}
-		if (!payResponse) {
-			return err('Unable to pay the provided lightning invoice.');
-		}
+		const payResponse = await lm.payWithTimeout({
+			paymentRequest: invoice,
+			amountSats: sats ?? 0,
+			timeout: 30000,
+		});
 		if (payResponse.isErr()) {
 			return err(payResponse.error.message);
 		}
@@ -964,7 +954,7 @@ export const payLightningInvoice = async (
 			txType: EPaymentType.sent,
 			value: -value,
 			confirmed: true,
-			fee: 0,
+			fee: payResponse.value.fee_paid_sat,
 			timestamp: new Date().getTime(),
 		};
 		addActivityItem(activityItem);
