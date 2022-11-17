@@ -260,8 +260,6 @@ const ReviewAndSend = ({
 			return;
 		}
 
-		//TODO: Add lightning transaction to activity list.
-
 		// save tags to metadata
 		updateMetaTxTags(transaction.lightningInvoice, transaction.tags);
 		// save Slashtags contact to metadata
