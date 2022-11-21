@@ -6,9 +6,10 @@ import {
 	getMnemonicPhrase,
 	getBip39Passphrase,
 	refreshWallet,
+	getSelectedNetwork,
 } from '../wallet';
 import { createWallet, updateExchangeRates } from '../../store/actions/wallet';
-import { getStore } from '../../store/helpers';
+import { getWalletStore } from '../../store/helpers';
 import {
 	refreshBlocktankInfo,
 	refreshServiceList,
@@ -24,6 +25,7 @@ import { sdk } from '../../components/SlashtagsProvider';
 import { Slashtag } from '../../hooks/slashtags';
 import { performFullRestoreFromLatestBackup } from '../../store/actions/backup';
 import { promiseTimeout } from '../helpers';
+import { TAvailableNetworks } from '../networks';
 
 /**
  * Creates a new wallet from scratch
@@ -79,14 +81,18 @@ export const startWalletServices = async ({
 	onchain = ENABLE_SERVICES,
 	lightning = ENABLE_SERVICES,
 	restore = false,
+	selectedNetwork,
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
 	restore?: boolean;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
-			const { selectedNetwork } = getStore().wallet;
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
 			let isConnectedToElectrum = false;
 
 			await setupBlocktank(selectedNetwork);
@@ -121,7 +127,7 @@ export const startWalletServices = async ({
 			}
 			const mnemonic = mnemonicResponse.value;
 
-			const walletExists = getStore()?.wallet?.walletExists;
+			const walletExists = getWalletStore()?.walletExists;
 			if (!walletExists) {
 				const bip39Passphrase = await getBip39Passphrase();
 				const createRes = await createWallet({ mnemonic, bip39Passphrase });
@@ -163,7 +169,7 @@ export const startWalletServices = async ({
 			}
 
 			// Refresh slashpay config
-			updateSlashPayConfig(sdk);
+			updateSlashPayConfig({ sdk, selectedNetwork });
 		});
 
 		return ok('Wallet started');

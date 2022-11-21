@@ -1,6 +1,6 @@
 import actions from './actions';
 import { err, ok, Result } from '@synonymdev/result';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch } from '../helpers';
 import {
 	EBackupCategories,
 	fetchBackup,
@@ -17,6 +17,7 @@ import {
 import lm, { TAccountBackup } from '@synonymdev/react-native-ldk';
 import { TAvailableNetworks } from '../../utils/networks';
 import { ENetworks } from '@synonymdev/react-native-ldk/dist/utils/types';
+import { getSelectedNetwork } from '../../utils/wallet';
 
 const dispatch = getDispatch();
 
@@ -105,7 +106,7 @@ export const performRemoteLdkBackup = async (
 export const performFullRestoreFromLatestBackup = async (
 	slashtag: Slashtag,
 ): Promise<Result<string>> => {
-	const { selectedNetwork } = getStore().wallet;
+	const selectedNetwork = getSelectedNetwork();
 
 	const res = await listBackups(
 		slashtag,

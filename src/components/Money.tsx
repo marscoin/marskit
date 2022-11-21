@@ -114,7 +114,7 @@ const Money = (props: IMoney): ReactElement => {
 					/>
 				);
 		}
-	}, [unit, Text, iconHeight, iconWidth, dv.fiatSymbol, color]);
+	}, [unit, Text, lineHeight, color, dv.fiatSymbol, iconHeight, iconWidth]);
 
 	let [prim = '', secd = ''] = useMemo(() => {
 		switch (unit) {

@@ -1,5 +1,5 @@
 import { getSelectedNetwork, getSelectedWallet } from './wallet';
-import { getStore } from '../store/helpers';
+import { getActivityStore, getWalletStore } from '../store/helpers';
 import { EBoost, IBoostedTransaction } from '../store/types/wallet';
 import { TAvailableNetworks } from './networks';
 import { EActivityTypes, IActivityItem } from '../store/types/activity';
@@ -24,7 +24,7 @@ export const getBoostedTransactions = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	return getStore().wallet.wallets[selectedWallet].boostedTransactions[
+	return getWalletStore().wallets[selectedWallet].boostedTransactions[
 		selectedNetwork
 	];
 };
@@ -201,7 +201,7 @@ export const getParentsActivity = ({
 	items?: IActivityItem[];
 }): IActivityItem[] => {
 	if (!items) {
-		items = getStore().activity.items;
+		items = getActivityStore().items;
 	}
 	return items.filter((i) => parents.includes(i.id));
 };
@@ -239,7 +239,7 @@ export const formatBoostedActivityItems = ({
 			});
 		}
 		if (!items) {
-			items = getStore().activity.items;
+			items = getActivityStore().items;
 		}
 	}
 	items.map((currentActivityItem) => {

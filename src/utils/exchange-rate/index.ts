@@ -1,7 +1,7 @@
 import { default as bitcoinUnits } from 'bitcoin-units';
 import { ok, err, Result } from '@synonymdev/result';
 
-import { getStore } from '../../store/helpers';
+import { getSettingsStore, getWalletStore } from '../../store/helpers';
 import { TBitcoinUnit } from '../../store/types/wallet';
 import { showErrorNotification } from '../notifications';
 import { timeAgo } from '../helpers';
@@ -16,7 +16,7 @@ import {
 } from './types';
 
 export const getExchangeRates = async (): Promise<Result<IExchangeRates>> => {
-	const lastUpdatedAt = getStore().wallet.exchangeRates.USD?.lastUpdatedAt;
+	const lastUpdatedAt = getWalletStore().exchangeRates.USD?.lastUpdatedAt;
 
 	try {
 		// TODO: pull this out into .env
@@ -70,13 +70,13 @@ export const fiatToBitcoinUnit = ({
 	bitcoinUnit?: TBitcoinUnit;
 }): number => {
 	if (!currency) {
-		currency = getStore().settings.selectedCurrency;
+		currency = getSettingsStore().selectedCurrency;
 	}
 	if (!exchangeRate) {
 		exchangeRate = getExchangeRate(currency);
 	}
 	if (!bitcoinUnit) {
-		bitcoinUnit = getStore().settings.bitcoinUnit;
+		bitcoinUnit = getSettingsStore().bitcoinUnit;
 	}
 
 	try {
@@ -102,7 +102,7 @@ export const getBitcoinDisplayValues = ({
 }): IBitcoinDisplayValues => {
 	try {
 		if (!bitcoinUnit) {
-			bitcoinUnit = getStore().settings.bitcoinUnit;
+			bitcoinUnit = getSettingsStore().bitcoinUnit;
 		}
 
 		let bitcoinFormatted: string = bitcoinUnits(satoshis, 'satoshi')
@@ -160,6 +160,7 @@ export const getBitcoinDisplayValues = ({
 export const getFiatDisplayValues = ({
 	satoshis,
 	exchangeRate,
+	exchangeRates,
 	currency,
 	currencySymbol,
 	bitcoinUnit,
@@ -167,18 +168,20 @@ export const getFiatDisplayValues = ({
 }: {
 	satoshis: number;
 	exchangeRate?: number;
+	exchangeRates?: IExchangeRates;
 	currency?: string;
 	currencySymbol?: string;
 	bitcoinUnit?: TBitcoinUnit;
 	locale?: string;
 }): IFiatDisplayValues => {
-	const exchangeRates = getStore().wallet.exchangeRates;
-
+	if (!exchangeRates) {
+		exchangeRates = getWalletStore().exchangeRates;
+	}
 	if (!currency) {
-		currency = getStore().settings.selectedCurrency;
+		currency = getSettingsStore().selectedCurrency;
 	}
 	if (!bitcoinUnit) {
-		bitcoinUnit = getStore().settings.bitcoinUnit;
+		bitcoinUnit = getSettingsStore().bitcoinUnit;
 	}
 
 	try {
@@ -206,7 +209,7 @@ export const getFiatDisplayValues = ({
 		}
 
 		if (!exchangeRate) {
-			exchangeRate = getStore().wallet.exchangeRates[currency].rate;
+			exchangeRate = getWalletStore().exchangeRates[currency].rate;
 		}
 
 		// this throws if exchangeRate is 0
@@ -305,8 +308,8 @@ export const getDisplayValues = ({
 	});
 
 	const fiatDisplayValues = getFiatDisplayValues({
-		satoshis: satoshis,
-		bitcoinUnit: bitcoinUnit,
+		satoshis,
+		bitcoinUnit,
 		exchangeRate,
 		currency,
 		currencySymbol,
@@ -321,7 +324,7 @@ export const getDisplayValues = ({
 
 export const getExchangeRate = (currency = 'EUR'): number => {
 	try {
-		const exchangeRates = getStore().wallet.exchangeRates;
+		const exchangeRates = getWalletStore().exchangeRates;
 		return exchangeRates[currency]?.rate ?? 0;
 	} catch {
 		return 0;

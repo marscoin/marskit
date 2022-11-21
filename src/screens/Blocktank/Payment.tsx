@@ -92,6 +92,7 @@ const BlocktankPayment = (props: Props): ReactElement => {
 			selectedNetwork,
 			selectedWallet,
 			satsPerByte: spb + adjustBy,
+			transaction,
 		});
 	};
 

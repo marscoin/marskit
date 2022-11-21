@@ -33,7 +33,11 @@ import {
 } from '../wallet';
 import Keychain from 'react-native-keychain';
 import { TAvailableNetworks } from '../networks';
-import { getStore } from '../../store/helpers';
+import {
+	getBlocktankStore,
+	getLightningStore,
+	getWalletStore,
+} from '../../store/helpers';
 import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
@@ -253,7 +257,7 @@ export const getPendingInvoice = ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const invoices =
-			getStore().lightning.nodes[selectedWallet].invoices[selectedNetwork];
+			getLightningStore().nodes[selectedWallet].invoices[selectedNetwork];
 		const invoice = invoices.filter((inv) => inv.payment_hash === paymentHash);
 		if (invoice.length > 0) {
 			return ok(invoice[0]);
@@ -312,7 +316,7 @@ export const handleLightningPaymentSubscription = async ({
 			},
 		});
 		await refreshLdk({ selectedWallet, selectedNetwork });
-		updateSlashPayConfig(sdk);
+		updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
 	}
 };
 
@@ -335,6 +339,7 @@ export const subscribeToLightningPayments = ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	if (!paymentSubscription) {
+		// @ts-ignore
 		paymentSubscription = ldk.onEvent(
 			EEventTypes.channel_manager_payment_claimed,
 			(res: TChannelManagerPayment) => {
@@ -347,6 +352,7 @@ export const subscribeToLightningPayments = ({
 		);
 	}
 	if (!onChannelSubscription) {
+		// @ts-ignore
 		onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, () => {
 			showSuccessNotification({
 				title: 'Lightning Channel Opened',
@@ -533,7 +539,7 @@ export const getBestBlock = async (
 		selectedNetwork = getSelectedNetwork();
 	}
 	try {
-		const header = getStore().wallet?.header[selectedNetwork];
+		const header = getWalletStore()?.header[selectedNetwork];
 		return header?.hash ? header : defaultHeader;
 	} catch (e) {
 		console.log(e);
@@ -652,7 +658,7 @@ export const getNodeIdFromStorage = ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		return (
-			getStore().lightning.nodes[selectedWallet].nodeId[selectedNetwork] ?? ''
+			getLightningStore().nodes[selectedWallet].nodeId[selectedNetwork] ?? ''
 		);
 	} catch (e) {
 		return '';
@@ -731,7 +737,7 @@ export const getCustomLightningPeers = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	const peers = getStore().lightning.nodes[selectedWallet]?.peers;
+	const peers = getLightningStore().nodes[selectedWallet]?.peers;
 	if (peers && selectedNetwork in peers) {
 		return peers[selectedNetwork];
 	}
@@ -750,7 +756,7 @@ export const addPeers = async ({
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string[]>> => {
 	try {
-		const nodeUris = getStore().blocktank?.info?.node_info?.uris;
+		const nodeUris = getBlocktankStore()?.info?.node_info?.uris;
 		if (!nodeUris) {
 			return err('No peers available to add.');
 		}
@@ -822,7 +828,7 @@ export const getPendingChannels = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		channels =
-			getStore().lightning.nodes[selectedWallet].channels[selectedNetwork];
+			getLightningStore().nodes[selectedWallet].channels[selectedNetwork];
 	} else {
 		channels = await getLightningChannels();
 		if (channels.isErr()) {
@@ -857,7 +863,7 @@ export const getOpenChannels = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		channels = Object.values(
-			getStore().lightning.nodes[selectedWallet].channels[selectedNetwork],
+			getLightningStore().nodes[selectedWallet].channels[selectedNetwork],
 		);
 	} else {
 		const getChannelsResponse = await getLightningChannels();
@@ -1026,7 +1032,7 @@ export const hasOpenLightningChannels = ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	const availableChannels =
-		getStore().lightning.nodes[selectedWallet].openChannelIds[selectedNetwork];
+		getLightningStore().nodes[selectedWallet].openChannelIds[selectedNetwork];
 	return availableChannels.length > 0;
 };
 
@@ -1053,7 +1059,7 @@ export const getLightningReserveBalance = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	const node = getStore().lightning.nodes[selectedWallet];
+	const node = getLightningStore().nodes[selectedWallet];
 	const openChannelIds = node.openChannelIds[selectedNetwork];
 	const channels = node.channels[selectedNetwork];
 	const openChannels = Object.values(channels).filter((channel) =>

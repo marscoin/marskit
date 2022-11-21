@@ -4,22 +4,22 @@ import SDK from '@synonymdev/slashtags-sdk';
 import { navigate } from '../../navigation/root/RootNavigator';
 import { toggleView } from '../../store/actions/user';
 import { updateBitcoinTransaction } from '../../store/actions/wallet';
-import { getStore } from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
 import { decodeQRData } from '../scanner';
+import { getSelectedNetwork } from '../wallet';
+import { TAvailableNetworks } from '../networks';
 
 export const readClipboardInvoice = async ({
 	onChainBalance,
 	lightningBalance,
 	sdk,
+	selectedNetwork,
 }: {
 	onChainBalance: number;
 	lightningBalance: number;
 	sdk: SDK;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
-	const state = getStore();
-	const selectedNetwork = state.wallet.selectedNetwork;
-
 	const clipboardData = await Clipboard.getString();
 
 	if (!clipboardData) {
@@ -31,6 +31,10 @@ export const readClipboardInvoice = async ({
 	// TODO: refactor processInputData to be reused here
 	if (result.isOk() && result.value.length) {
 		const { qrDataType, address, network, sats } = result.value[0];
+
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 
 		if (network !== selectedNetwork) {
 			return;

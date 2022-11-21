@@ -27,6 +27,9 @@ const AppOnboarded = (): ReactElement => {
 	const enableAutoReadClipboard = useAppSelector(
 		(state) => state.settings.enableAutoReadClipboard,
 	);
+	const selectedNetwork = useAppSelector(
+		(state) => state.wallet.selectedNetwork,
+	);
 	const isOnline = useAppSelector((state) => state.user.isOnline);
 	const isConnectedToElectrum = useAppSelector(
 		(state) => state.user.isConnectedToElectrum,
@@ -44,13 +47,18 @@ const AppOnboarded = (): ReactElement => {
 
 		// launch wallet services
 		(async (): Promise<void> => {
-			await startWalletServices({});
+			await startWalletServices({ selectedNetwork });
 
 			// check clipboard for payment data
 			if (enableAutoReadClipboard) {
 				// hack to wait for BottomSheet to be ready(?)
 				setTimeout(() => {
-					readClipboardInvoice({ onChainBalance, lightningBalance, sdk });
+					readClipboardInvoice({
+						onChainBalance,
+						lightningBalance,
+						sdk,
+						selectedNetwork,
+					});
 				}, 100);
 			}
 		})();
@@ -70,7 +78,11 @@ const AppOnboarded = (): ReactElement => {
 				nextAppState === 'active'
 			) {
 				// App came back to foreground, lets restart our services
-				startWalletServices({ lightning: true, onchain: false }).then();
+				startWalletServices({
+					lightning: true,
+					onchain: false,
+					selectedNetwork,
+				}).then();
 
 				// check clipboard for payment data
 				if (enableAutoReadClipboard) {
@@ -80,6 +92,7 @@ const AppOnboarded = (): ReactElement => {
 							onChainBalance,
 							lightningBalance,
 							sdk,
+							selectedNetwork,
 						}).then();
 					}, 1000);
 				}

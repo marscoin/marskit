@@ -1,6 +1,6 @@
 import { ok, Result } from '@synonymdev/result';
 import actions from './actions';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch, getMetaDataStore } from '../helpers';
 import { getCurrentWallet } from '../../utils/wallet';
 import { EPaymentType } from '../types/wallet';
 
@@ -70,21 +70,19 @@ export const updateMetaIncTxTags = (
  * @returns {Result<string>}
  */
 export const moveMetaIncTxTags = (): Result<string> => {
-	const store = getStore();
-	const { selectedWallet, selectedNetwork } = getCurrentWallet({});
-	if (!store.wallet.wallets[selectedWallet]) {
+	const { selectedNetwork, currentWallet } = getCurrentWallet({});
+	if (!currentWallet) {
 		console.warn('No wallet found. Cannot update metadata with transactions.');
 		return ok('');
 	}
 
-	const transactions =
-		store.wallet.wallets[selectedWallet].transactions[selectedNetwork];
+	const transactions = currentWallet.transactions[selectedNetwork];
 
 	const receivedTxs = Object.entries(transactions).filter(
 		([_, txContent]) => txContent.type === EPaymentType.received,
 	);
 
-	const { tags, pendingTags } = store.metadata;
+	const { tags, pendingTags } = getMetaDataStore();
 	const pendingAddresses = Object.keys(pendingTags);
 
 	const matchedTxs = receivedTxs.filter(([_, txContent]) =>

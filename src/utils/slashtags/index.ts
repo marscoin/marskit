@@ -7,10 +7,17 @@ import debounce from 'lodash.debounce';
 import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
 import { showErrorNotification } from '../notifications';
-import { getReceiveAddress, getSelectedAddressType } from '../../utils/wallet';
-import { decodeLightningInvoice } from '../../utils/lightning';
+import {
+	getCurrentWallet,
+	getReceiveAddress,
+	getSelectedAddressType,
+	getSelectedNetwork,
+	getSelectedWallet,
+} from '../../utils/wallet';
+import { decodeLightningInvoice } from '../lightning';
 import { createLightningInvoice } from '../../store/actions/lightning';
-import { getStore } from '../../store/helpers';
+import { getSettingsStore } from '../../store/helpers';
+import { TAvailableNetworks } from '../networks';
 
 /**
  * Handles pasting or scanning a slash:// url
@@ -152,25 +159,41 @@ export const onSDKError = (error: Error): void => {
 };
 
 export const updateSlashPayConfig = debounce(
-	async (sdk?: SDK): Promise<void> => {
+	async ({
+		sdk,
+		selectedWallet,
+		selectedNetwork,
+	}: {
+		sdk?: SDK;
+		selectedWallet?: string;
+		selectedNetwork?: TAvailableNetworks;
+	}): Promise<void> => {
 		if (!sdk) {
 			// sdk is not ready yet
 			return;
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
 		}
 		const slashtag = getSelectedSlashtag(sdk);
 		const drive = slashtag.drivestore.get();
 		const payConfig =
 			(await drive.get('/slashpay.json').then(decodeJSON).catch(noop)) || [];
 
-		const store = getStore();
-		const { selectedWallet, selectedNetwork } = store.wallet;
-		const { enableOfflinePayments } = store.settings;
+		const { currentLightningNode } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+		const settings = getSettingsStore();
+		const enableOfflinePayments = settings.enableOfflinePayments;
 		const addressType = getSelectedAddressType({
 			selectedWallet,
 			selectedNetwork,
 		});
-		const invoices =
-			store.lightning.nodes[selectedWallet].invoices[selectedNetwork];
+		const invoices = currentLightningNode.invoices[selectedNetwork];
 
 		// if offline payments are disabled and payment config is empy then do nothing
 		if (!enableOfflinePayments && payConfig.length === 0) {

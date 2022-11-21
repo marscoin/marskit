@@ -1,7 +1,7 @@
 import actions from './actions';
 import { ok, Result } from '@synonymdev/result';
 import { IActivityItem } from '../types/activity';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch } from '../helpers';
 import { onChainTransactionsToActivityItems } from '../../utils/activity';
 import { getCurrentWallet } from '../../utils/wallet';
 
@@ -40,8 +40,8 @@ export const updateActivityList = (): Promise<Result<string>> => {
  */
 export const updateOnChainActivityList = (): Promise<Result<string>> => {
 	return new Promise(async (resolve) => {
-		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
-		if (!getStore().wallet.wallets[selectedWallet]) {
+		const { selectedNetwork, currentWallet } = getCurrentWallet({});
+		if (!currentWallet) {
 			console.warn(
 				'No wallet found. Cannot update activity list with transactions.',
 			);
@@ -51,7 +51,7 @@ export const updateOnChainActivityList = (): Promise<Result<string>> => {
 		await dispatch({
 			type: actions.UPDATE_ACTIVITY_ENTRIES,
 			payload: onChainTransactionsToActivityItems(
-				getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork],
+				currentWallet.transactions[selectedNetwork],
 			),
 		});
 
@@ -77,24 +77,12 @@ export const resetActivityStore = (): Result<string> => {
 export const replaceActivityItemById = ({
 	id,
 	newActivityItem,
-	activityItems,
 }: {
 	id: string;
 	newActivityItem: IActivityItem;
-	activityItems?: IActivityItem[];
 }): void => {
-	if (!activityItems) {
-		activityItems = getStore().activity.items;
-	}
-	activityItems = activityItems.map((activityItem) => {
-		if (activityItem.id === id) {
-			return newActivityItem;
-		} else {
-			return activityItem;
-		}
-	});
 	dispatch({
 		type: actions.REPLACE_ACTIVITY_ITEM,
-		payload: activityItems,
+		payload: { id, newActivityItem },
 	});
 };

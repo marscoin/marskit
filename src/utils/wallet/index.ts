@@ -48,7 +48,12 @@ import {
 	isOnline,
 	setKeychainValue,
 } from '../helpers';
-import { getStore } from '../../store/helpers';
+import {
+	getLightningStore,
+	getSettingsStore,
+	getUserStore,
+	getWalletStore,
+} from '../../store/helpers';
 import {
 	addAddresses,
 	setZeroIndexAddresses,
@@ -90,6 +95,7 @@ import {
 } from './constants';
 import { moveMetaIncTxTags } from '../../store/actions/metadata';
 import { refreshOrdersList } from '../../store/actions/blocktank';
+import { IDefaultLightningShape } from '../../store/types/lightning';
 
 export const refreshWallet = async ({
 	onchain = true,
@@ -103,7 +109,7 @@ export const refreshWallet = async ({
 	updateAllAddressTypes?: boolean;
 }): Promise<Result<string>> => {
 	try {
-		const isConnectedToElectrum = getStore().user.isConnectedToElectrum;
+		const isConnectedToElectrum = getUserStore().isConnectedToElectrum;
 		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
 		if (onchain) {
 			let addressType: TAddressType | undefined;
@@ -451,8 +457,10 @@ export const getKeyDerivationPath = ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const addressTypes = getAddressTypes();
-		const addressType =
-			getStore().wallet.wallets[selectedWallet].addressType[selectedNetwork];
+		const addressType = getSelectedAddressType({
+			selectedNetwork,
+			selectedWallet,
+		});
 		const path = formatKeyDerivationPath({
 			path: addressTypes[addressType].path,
 			selectedNetwork,
@@ -714,7 +722,7 @@ export const getOnChainBalance = ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	return (
-		getStore().wallet.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0
+		getWalletStore().wallets[selectedWallet]?.balance[selectedNetwork] ?? 0
 	);
 };
 
@@ -1233,13 +1241,14 @@ export const getHighestStoredAddressIndex = ({
 	changeAddressIndex: IAddressContent;
 }> => {
 	try {
-		const wallet = getStore().wallet;
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
 		const addresses: IAddress =
-			wallet.wallets[selectedWallet].addresses[selectedNetwork][addressType];
+			currentWallet.addresses[selectedNetwork][addressType];
 		const changeAddresses: IAddress =
-			wallet.wallets[selectedWallet].changeAddresses[selectedNetwork][
-				addressType
-			];
+			currentWallet.changeAddresses[selectedNetwork][addressType];
 
 		const addressIndex = Object.values(addresses).reduce((prev, current) =>
 			prev.index > current.index ? prev : current,
@@ -1260,7 +1269,7 @@ export const getHighestStoredAddressIndex = ({
  * @return {TAvailableNetworks}
  */
 export const getSelectedNetwork = (): TAvailableNetworks => {
-	return getStore().wallet.selectedNetwork;
+	return getWalletStore().selectedNetwork;
 };
 
 /**
@@ -1280,7 +1289,7 @@ export const getSelectedAddressType = ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
-	const wallet = getStore().wallet?.wallets[selectedWallet];
+	const wallet = getWalletStore()?.wallets[selectedWallet];
 	if (wallet && wallet?.addressType[selectedNetwork]) {
 		return wallet.addressType[selectedNetwork];
 	} else {
@@ -1293,14 +1302,14 @@ export const getSelectedAddressType = ({
  * @return {string}
  */
 export const getSelectedWallet = (): string => {
-	return getStore()?.wallet?.selectedWallet ?? EWallet.defaultWallet;
+	return getWalletStore()?.selectedWallet ?? EWallet.defaultWallet;
 };
 
 /**
  * Returns all state data for the currently selected wallet.
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
- * @return {{ currentWallet: IDefaultWalletShape, selectedWallet: string, selectedNetwork: TAvailableNetworks }}
+ * @return {{ currentWallet: IDefaultWalletShape, currentLightningNode: IDefaultLightningShape, selectedWallet: string, selectedNetwork: TAvailableNetworks }}
  */
 export const getCurrentWallet = ({
 	selectedNetwork = undefined,
@@ -1310,19 +1319,23 @@ export const getCurrentWallet = ({
 	selectedWallet?: string;
 }): {
 	currentWallet: IDefaultWalletShape;
+	currentLightningNode: IDefaultLightningShape;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
 } => {
-	const wallet = getStore().wallet;
+	const wallet = getWalletStore();
+	const lightning = getLightningStore();
 	if (!selectedNetwork) {
 		selectedNetwork = wallet.selectedNetwork;
 	}
 	if (!selectedWallet) {
 		selectedWallet = wallet.selectedWallet;
 	}
-	const wallets = wallet.wallets;
+	const currentWallet = wallet.wallets[selectedWallet];
+	const currentLightningNode = lightning.nodes[selectedWallet];
 	return {
-		currentWallet: wallets[selectedWallet],
+		currentWallet,
+		currentLightningNode,
 		selectedNetwork,
 		selectedWallet,
 	};
@@ -1342,7 +1355,7 @@ export const getOnChainTransactions = ({
 		selectedNetwork = getSelectedNetwork();
 	}
 	return (
-		getStore().wallet?.wallets[selectedWallet]?.transactions[selectedNetwork] ??
+		getWalletStore()?.wallets[selectedWallet]?.transactions[selectedNetwork] ??
 		{}
 	);
 };
@@ -1652,7 +1665,7 @@ export const getCustomElectrumPeers = ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const settings = getStore().settings;
+		const settings = getSettingsStore();
 		return settings.customElectrumPeers[selectedNetwork] || [];
 	} catch {
 		return [];
@@ -1730,10 +1743,11 @@ export const getRbfData = async ({
 	}
 	const txData: ITransaction<ITxHash>[] = txResponse.value?.data ?? [];
 
-	const addresses =
-		getStore().wallet.wallets[selectedWallet].addresses[selectedNetwork];
+	const wallet = getWalletStore();
+
+	const addresses = wallet.wallets[selectedWallet].addresses[selectedNetwork];
 	const changeAddresses =
-		getStore().wallet.wallets[selectedWallet].changeAddresses[selectedNetwork];
+		wallet.wallets[selectedWallet].changeAddresses[selectedNetwork];
 
 	const allAddressTypes = Object.keys(getAddressTypes());
 	let allAddresses = {};
@@ -1999,7 +2013,7 @@ export const createDefaultWallet = async ({
 			bip39Passphrase = await getBip39Passphrase(walletName);
 		}
 
-		const { wallets } = getStore().wallet;
+		const wallets = getWalletStore().wallets;
 		if (walletName in wallets && wallets[walletName]?.id) {
 			return err(`Wallet ID, "${walletName}" already exists.`);
 		}
@@ -2375,7 +2389,7 @@ export const getKeyDerivationPathObject = ({
  * @return IAddressType
  */
 export const getAddressTypes = (): IAddressType =>
-	getStore().wallet.addressTypes;
+	getWalletStore().addressTypes;
 
 /**
  * The method returns the base key derivation path for a given address type.
@@ -2453,14 +2467,14 @@ export const getReceiveAddress = ({
 		if (!addressType) {
 			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
 		}
-		const wallet = getStore().wallet?.wallets[selectedWallet];
+		const wallet = getWalletStore()?.wallets[selectedWallet];
 		const addressIndex = wallet?.addressIndex[selectedNetwork];
 		let receiveAddress = addressIndex[addressType]?.address;
 		if (receiveAddress) {
 			return ok(receiveAddress);
 		}
 		const addresses: IAddress =
-			getStore().wallet?.wallets[selectedWallet].addresses[selectedNetwork][
+			getWalletStore()?.wallets[selectedWallet].addresses[selectedNetwork][
 				addressType
 			];
 		// Check if addresses were generated, but the index has not been set yet.
@@ -2551,15 +2565,19 @@ export const getBalance = ({
 	}
 	let balance = 0;
 
+	const { currentWallet, currentLightningNode } = getCurrentWallet({
+		selectedWallet,
+		selectedNetwork,
+	});
+
 	if (onchain) {
-		balance +=
-			getStore().wallet?.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
+		balance += currentWallet?.balance[selectedNetwork] ?? 0;
 	}
 
 	if (lightning) {
-		const node = getStore().lightning.nodes[selectedWallet];
-		const openChannelIds = node?.openChannelIds[selectedNetwork];
-		const channels = node?.channels[selectedNetwork];
+		const openChannelIds =
+			currentLightningNode?.openChannelIds[selectedNetwork];
+		const channels = currentLightningNode?.channels[selectedNetwork];
 		const openChannels = Object.values(channels).filter((channel) =>
 			openChannelIds.includes(channel.channel_id),
 		);

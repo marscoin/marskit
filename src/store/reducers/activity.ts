@@ -20,9 +20,16 @@ const activity = (
 				items,
 			};
 		case actions.REPLACE_ACTIVITY_ITEM:
+			const replacedItems = state.items.map((activityItem) => {
+				if (activityItem.id === action.payload.id) {
+					return action.payload.newActivityItem;
+				} else {
+					return activityItem;
+				}
+			});
 			return {
 				...state,
-				items: action.payload,
+				items: replacedItems,
 			};
 		case actions.RESET_ACTIVITY_STORE:
 			return { ...defaultActivityShape };

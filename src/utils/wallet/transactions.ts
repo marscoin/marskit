@@ -30,7 +30,7 @@ import {
 	refreshWallet,
 } from './index';
 import { Psbt } from 'bitcoinjs-lib';
-import { getStore } from '../../store/helpers';
+import { getSettingsStore, getWalletStore } from '../../store/helpers';
 import validate, {
 	AddressInfo,
 	getAddressInfo,
@@ -773,7 +773,7 @@ export const getOnchainTransactionData = ({
 			selectedNetwork = getSelectedNetwork();
 		}
 		const transaction =
-			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork];
+			getWalletStore().wallets[selectedWallet].transaction[selectedNetwork];
 		if (transaction) {
 			return ok(transaction);
 		}
@@ -1422,7 +1422,8 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 		if (!txid) {
 			return failure;
 		}
-		const rbfEnabled = getStore().settings.rbf;
+		const settings = getSettingsStore();
+		const rbfEnabled = settings.rbf;
 		const transactionResponse = getTransactionById({ txid });
 		if (transactionResponse.isErr()) {
 			return failure;
@@ -1516,9 +1517,7 @@ export const sendMax = ({
 			selectedWallet,
 			inputs: transaction.inputs,
 		});
-		const max =
-			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-				.max;
+		const max = transaction?.max;
 		if (
 			!max &&
 			inputTotal > 0 &&
@@ -1591,9 +1590,7 @@ export const adjustFee = ({
 			transaction = transactionDataResponse.value;
 		}
 		//const coinSelectPreference = getStore().settings.coinSelectPreference;
-		const max =
-			getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
-				.max;
+		const max = transaction?.max;
 		const inputTotal = getTransactionInputValue({
 			selectedNetwork,
 			selectedWallet,
@@ -1999,7 +1996,7 @@ export const setupCpfp = async ({
 	}
 
 	const transaction =
-		getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork];
+		getWalletStore().wallets[selectedWallet].transaction[selectedNetwork];
 	return ok(transaction);
 };
 
@@ -2159,7 +2156,7 @@ export const broadcastBoost = async ({
 		}
 		const newTxId = broadcastResult.value;
 		let transactions =
-			getStore().wallet.wallets[selectedWallet].transactions[selectedNetwork];
+			getWalletStore().wallets[selectedWallet].transactions[selectedNetwork];
 		const boostedFee = transaction?.fee ?? 0;
 		await addBoostedTransaction({
 			newTxId,
