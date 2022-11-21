@@ -9,7 +9,7 @@ import {
 	getSelectedNetwork,
 } from '../wallet';
 import { createWallet, updateExchangeRates } from '../../store/actions/wallet';
-import { getStore } from '../../store/helpers';
+import { getWalletStore } from '../../store/helpers';
 import {
 	refreshBlocktankInfo,
 	refreshServiceList,
@@ -127,7 +127,7 @@ export const startWalletServices = async ({
 			}
 			const mnemonic = mnemonicResponse.value;
 
-			const walletExists = getStore()?.wallet?.walletExists;
+			const walletExists = getWalletStore()?.walletExists;
 			if (!walletExists) {
 				const bip39Passphrase = await getBip39Passphrase();
 				const createRes = await createWallet({ mnemonic, bip39Passphrase });

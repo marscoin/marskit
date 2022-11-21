@@ -3,7 +3,7 @@ import { ok, Result } from '@synonymdev/result';
 import b4a from 'b4a';
 
 import actions from './actions';
-import { getDispatch, getSlashtagsStore, getStore } from '../helpers';
+import { getDispatch, getSlashtagsStore } from '../helpers';
 import { BasicProfile, ISlashtags, Link, LocalLink } from '../types/slashtags';
 import { seedDrives } from '../../utils/slashtags';
 
@@ -93,7 +93,7 @@ export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
 	);
 	const status = await response.json();
 
-	const lastSent = getStore().slashtags.seeder?.lastSent || 0;
+	const lastSent = getSlashtagsStore().seeder?.lastSent || 0;
 
 	const now = Number(new Date());
 	// throttle sending to seeder to once a day

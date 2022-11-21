@@ -1,5 +1,5 @@
 import actions from './actions';
-import { getDispatch, getLightningStore, getStore } from '../helpers';
+import { getDispatch, getLightningStore } from '../helpers';
 import { err, ok, Result } from '@synonymdev/result';
 import { LNURLChannelParams } from 'js-lnurl';
 import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
@@ -122,7 +122,7 @@ export const updateLightningNodeVersion = async (): Promise<
 		if (version.isErr()) {
 			return err(version.error.message);
 		}
-		const currentVersion = getStore()?.lightning?.version;
+		const currentVersion = getLightningStore()?.version;
 		if (version.value.ldk !== currentVersion.ldk) {
 			dispatch({
 				type: actions.UPDATE_LIGHTNING_NODE_VERSION,
