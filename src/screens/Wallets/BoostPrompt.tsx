@@ -144,6 +144,7 @@ const BoostForm = ({
 							selectedNetwork,
 							selectedWallet,
 							adjustBy: -1,
+							transaction,
 						});
 						if (res.isErr()) {
 							showErrorNotification({
@@ -158,6 +159,7 @@ const BoostForm = ({
 						selectedNetwork,
 						selectedWallet,
 						adjustBy: 1,
+						transaction,
 					});
 					if (res.isErr()) {
 						showErrorNotification({

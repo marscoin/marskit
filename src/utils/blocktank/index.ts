@@ -11,7 +11,7 @@ import { err, ok, Result } from '@synonymdev/result';
 import { getNodeId, refreshLdk } from '../lightning';
 import { refreshOrder } from '../../store/actions/blocktank';
 import { sleep } from '../helpers';
-import { getStore } from '../../store/helpers';
+import { getBlocktankStore, getSettingsStore } from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
 import { TGeoBlockResponse } from '../../store/types/blocktank';
 import { setGeoBlock, updateUser } from '../../store/actions/user';
@@ -103,7 +103,7 @@ export const getOrderFromStorage = async (
 	orderId: string,
 ): Promise<Result<IGetOrderResponse>> => {
 	try {
-		const order = getStore().blocktank.orders.filter((o) => o._id === orderId);
+		const order = getBlocktankStore().orders.filter((o) => o._id === orderId);
 		if (order?.length > 0) {
 			return ok(order[0]);
 		}
@@ -165,7 +165,7 @@ export const watchPendingOrders = (): void => {
 export const getPendingOrders = (
 	pendingOrderState = 300,
 ): IGetOrderResponse[] => {
-	const orders = getStore().blocktank.orders;
+	const orders = getBlocktankStore().orders;
 	return orders.filter(
 		(order) =>
 			order.state <= pendingOrderState &&
@@ -269,7 +269,7 @@ export const getSpendingLimits = ({
 	selectedCurrencySpendingLimitFiat: number;
 } => {
 	if (!selectedCurrency) {
-		selectedCurrency = getStore().settings.selectedCurrency;
+		selectedCurrency = getSettingsStore().selectedCurrency;
 	}
 	const usdMax = 1000;
 	const denominator = 1.2;

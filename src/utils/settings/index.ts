@@ -1,6 +1,6 @@
 import { resetKeychainValue, setKeychainValue } from '../helpers';
 import { updateSettings } from '../../store/actions/settings';
-import { getStore } from '../../store/helpers';
+import { getSettingsStore } from '../../store/helpers';
 import { PIN_ATTEMPTS } from '../../components/PinPad';
 import { removeTodo } from '../../store/actions/todos';
 
@@ -45,7 +45,8 @@ export const toggleBiometrics = (
 	biometrics: boolean | undefined = undefined,
 ): void => {
 	try {
-		const currentBiometrics = getStore().settings.biometrics;
+		const settings = getSettingsStore();
+		const currentBiometrics = settings.biometrics;
 		if (biometrics === undefined) {
 			updateSettings({
 				biometrics: !currentBiometrics,
@@ -54,7 +55,7 @@ export const toggleBiometrics = (
 		}
 		if (biometrics !== currentBiometrics) {
 			updateSettings({
-				biometrics: !getStore().settings.biometrics,
+				biometrics: !settings.biometrics,
 			});
 		}
 	} catch {}
@@ -70,8 +71,7 @@ export const hasEnabledAuthentication = (): {
 	biometrics: boolean;
 } => {
 	try {
-		const { pin, pinOnLaunch, pinForPayments, biometrics } =
-			getStore().settings;
+		const { pin, pinOnLaunch, pinForPayments, biometrics } = getSettingsStore();
 		return { pin, pinOnLaunch, pinForPayments, biometrics };
 	} catch {
 		return {

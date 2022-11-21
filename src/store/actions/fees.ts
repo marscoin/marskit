@@ -1,7 +1,7 @@
 import { ok, Result } from '@synonymdev/result';
 
 import actions from './actions';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch, getFeesStore } from '../helpers';
 import { getSelectedNetwork } from '../../utils/wallet';
 import { getFeeEstimates } from '../../utils/wallet/transactions';
 import { TAvailableNetworks } from '../../utils/networks';
@@ -29,8 +29,9 @@ export const updateOnchainFeeEstimates = async ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	let fees = getStore().fees.onchain ?? defaultFeesShape.onchain;
-	const timestamp = getStore().fees.onchain?.timestamp;
+	const feesStore = getFeesStore();
+	let fees = feesStore.onchain ?? defaultFeesShape.onchain;
+	const timestamp = feesStore.onchain?.timestamp;
 	const difference = Math.floor((Date.now() - timestamp) / 1000);
 	if (forceUpdate || (timestamp && difference > REFRESH_INTERVAL)) {
 		fees = await getFeeEstimates(selectedNetwork);

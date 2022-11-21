@@ -72,9 +72,16 @@ const HighBalanceWarning = (): ReactElement => {
 
 	useBottomSheetBackPress('highBalance');
 
+	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+	const exchangeRates = useSelector(
+		(state: Store) => state.wallet.exchangeRates,
+	);
+
 	const { fiatValue } = getFiatDisplayValues({
 		satoshis: balance.satoshis,
 		currency: 'USD',
+		bitcoinUnit,
+		exchangeRates,
 	});
 
 	const thresholdReached =

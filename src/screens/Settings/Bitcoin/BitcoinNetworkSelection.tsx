@@ -59,7 +59,7 @@ const BitcoinNetworkSelection = ({
 								addressType,
 							});
 							// Start wallet services with the newly selected network.
-							await startWalletServices({});
+							await startWalletServices({ selectedNetwork: network });
 							await updateOnchainFeeEstimates({
 								selectedNetwork: network,
 								forceUpdate: true,

@@ -400,6 +400,10 @@ const ReviewAndSend = ({
 		navigation,
 		transaction.lightningInvoice,
 	]);
+	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
+	const exchangeRates = useSelector(
+		(state: Store) => state.wallet.exchangeRates,
+	);
 
 	const onSwipeToPay = useCallback(async () => {
 		setIsLoading(true);
@@ -407,11 +411,15 @@ const ReviewAndSend = ({
 		const { fiatValue: amountFiat } = getFiatDisplayValues({
 			satoshis: amount,
 			currency: 'USD',
+			exchangeRates,
+			bitcoinUnit,
 		});
 
 		const { fiatValue: feeFiat } = getFiatDisplayValues({
 			satoshis: feeSats,
 			currency: 'USD',
+			exchangeRates,
+			bitcoinUnit,
 		});
 
 		// amount > 50% of total balance
@@ -450,6 +458,8 @@ const ReviewAndSend = ({
 		confirmPayment();
 	}, [
 		amount,
+		exchangeRates,
+		bitcoinUnit,
 		feeSats,
 		transaction?.lightningInvoice,
 		enableSendAmountWarning,

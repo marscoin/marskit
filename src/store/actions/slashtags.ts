@@ -3,7 +3,7 @@ import { ok, Result } from '@synonymdev/result';
 import b4a from 'b4a';
 
 import actions from './actions';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch, getSlashtagsStore, getStore } from '../helpers';
 import { BasicProfile, ISlashtags, Link, LocalLink } from '../types/slashtags';
 import { seedDrives } from '../../utils/slashtags';
 
@@ -124,7 +124,7 @@ export const cacheProfile = (
 		return;
 	}
 
-	const cached = getStore().slashtags.profiles?.[url];
+	const cached = getSlashtagsStore().profiles?.[url];
 
 	// If there is a cache mess, cache!
 	if (!cached || (fork >= cached.fork && version > cached.version)) {

@@ -45,11 +45,17 @@ export const OfflinePayments = ({ navigation }): JSX.Element => {
 	const enableOfflinePayments = useSelector(
 		(state: Store) => state.settings.enableOfflinePayments,
 	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
 
 	const sdk = useSlashtagsSDK();
 
 	const savePaymentConfig = async (): Promise<void> => {
-		updateSlashPayConfig(sdk);
+		updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
 	};
 
 	return (

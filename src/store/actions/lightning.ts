@@ -1,5 +1,5 @@
 import actions from './actions';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch, getLightningStore, getStore } from '../helpers';
 import { err, ok, Result } from '@synonymdev/result';
 import { LNURLChannelParams } from 'js-lnurl';
 import { getLNURLParams, lnurlChannel } from '@synonymdev/react-native-lnurl';
@@ -324,7 +324,7 @@ export const addLightningPayment = ({
 		selectedWallet = getSelectedWallet();
 	}
 	const lightningPayments =
-		getStore().lightning.nodes[selectedWallet].payments[selectedNetwork];
+		getLightningStore().nodes[selectedWallet].payments[selectedNetwork];
 
 	// It's possible ldk.pay returned true for an invoice we already paid.
 	// Run another check here.

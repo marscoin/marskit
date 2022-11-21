@@ -1,6 +1,6 @@
 import actions from './actions';
 import { err, ok, Result } from '@synonymdev/result';
-import { getDispatch, getStore } from '../helpers';
+import { getBlocktankStore, getDispatch } from '../helpers';
 import {
 	IBuyChannelRequest,
 	IBuyChannelResponse,
@@ -68,7 +68,7 @@ export const refreshServiceList = async (): Promise<Result<string>> => {
  */
 export const refreshOrdersList = async (): Promise<Result<string>> => {
 	try {
-		const orders = getStore().blocktank.orders;
+		const orders = getBlocktankStore().orders;
 		let ordersThatNeedUpdating: string[] = [];
 		await Promise.all(
 			orders.map((order) => {
@@ -122,7 +122,7 @@ export const refreshOrder = async (
 			}
 		}
 
-		const storedOrder = getStore().blocktank.orders.filter(
+		const storedOrder = getBlocktankStore().orders.filter(
 			(o) =>
 				o._id === orderId || (orderResponse && orderResponse._id === o._id),
 		);
@@ -244,7 +244,7 @@ export const autoBuyChannel = async ({
 	if (!satoshis || satoshis < 2000) {
 		return err('Please send at least 2000 satoshis to your wallet.');
 	}
-	const product_id = getStore().blocktank.serviceList[0].product_id;
+	const product_id = getBlocktankStore().serviceList[0].product_id;
 	console.log('Product ID:', product_id);
 	/*const remote_balance =
 		getStore().blocktank.serviceList[0].min_channel_size * 4;

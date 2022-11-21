@@ -20,7 +20,7 @@ import {
 	getTransactionOutputAmount,
 	parseOnChainPaymentRequest,
 } from './wallet/transactions';
-import { getStore } from '../store/helpers';
+import { getLightningStore } from '../store/helpers';
 import { showErrorNotification, showInfoNotification } from './notifications';
 import { updateBitcoinTransaction } from '../store/actions/wallet';
 import { getBalance, getSelectedNetwork, getSelectedWallet } from './wallet';
@@ -241,6 +241,10 @@ export const decodeQRData = async (
 		return ok([{ qrDataType: EQRDataType.slashFeedURL, url: data }]);
 	}
 
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
 	let foundNetworksInQR: QRData[] = [];
 	let lightningInvoice = '';
 
@@ -284,7 +288,7 @@ export const decodeQRData = async (
 				foundNetworksInQR.push({
 					qrDataType,
 					//No real difference between networks for lnurl, all keys are derived the same way so assuming current network
-					network: getStore().wallet.selectedNetwork,
+					network: selectedNetwork,
 					lnUrlParams: params,
 				});
 			}
@@ -429,9 +433,7 @@ export const processBitcoinTransactionData = async ({
 			selectedNetwork,
 		});
 		const openLightningChannels =
-			getStore().lightning.nodes[selectedWallet].openChannelIds[
-				selectedNetwork
-			];
+			getLightningStore().nodes[selectedWallet].openChannelIds[selectedNetwork];
 
 		const onchainBalance = getBalance({
 			onchain: true,

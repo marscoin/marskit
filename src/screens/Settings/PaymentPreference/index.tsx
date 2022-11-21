@@ -18,6 +18,12 @@ const PaymentPreference = (): ReactElement => {
 	const enableOfflinePayments = useSelector(
 		(state: Store) => state.settings.enableOfflinePayments,
 	);
+	const selectedWallet = useSelector(
+		(state: Store) => state.wallet.selectedWallet,
+	);
+	const selectedNetwork = useSelector(
+		(state: Store) => state.wallet.selectedNetwork,
+	);
 
 	const settingsListData: IListData[] = useMemo(
 		() => [
@@ -43,13 +49,19 @@ const PaymentPreference = (): ReactElement => {
 						enabled: enableOfflinePayments,
 						onPress: (): void => {
 							updateSettings({ enableOfflinePayments: !enableOfflinePayments });
-							updateSlashPayConfig(sdk);
+							updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
 						},
 					},
 				],
 			},
 		],
-		[receivePreference, enableOfflinePayments, sdk],
+		[
+			receivePreference,
+			enableOfflinePayments,
+			sdk,
+			selectedWallet,
+			selectedNetwork,
+		],
 	);
 
 	return (

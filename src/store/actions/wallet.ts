@@ -30,7 +30,7 @@ import {
 	refreshWallet,
 	removeDuplicateAddresses,
 } from '../../utils/wallet';
-import { getDispatch, getStore } from '../helpers';
+import { getDispatch, getFeesStore, getWalletStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
 import { err, ok, Result } from '@synonymdev/result';
 import {
@@ -679,7 +679,7 @@ export const updateTransactions = ({
 			});
 		}
 
-		updateSlashPayConfig(sdk);
+		updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
 		return resolve(ok(formattedTransactions));
 	});
 };
@@ -750,7 +750,7 @@ export const addBoostedTransaction = async ({
 			selectedWallet = getSelectedWallet();
 		}
 		const boostedTransactions =
-			getStore().wallet.wallets[selectedWallet].boostedTransactions[
+			getWalletStore().wallets[selectedWallet].boostedTransactions[
 				selectedNetwork
 			];
 		const parentTransactions = getBoostedTransactionParents({
@@ -977,7 +977,7 @@ export const updateBitcoinTransaction = async ({
 		//Add output if specified
 		if (transaction?.outputs) {
 			let outputs =
-				getStore().wallet.wallets[selectedWallet].transaction[selectedNetwork]
+				getWalletStore().wallets[selectedWallet].transaction[selectedNetwork]
 					.outputs || [];
 			await Promise.all(
 				transaction?.outputs.map((output) => {
@@ -1290,7 +1290,7 @@ export const setupFeeForOnChainTransaction = async ({
 			selectedWallet = getSelectedWallet();
 		}
 
-		const fees = getStore().fees.onchain;
+		const fees = getFeesStore().onchain;
 
 		const res = updateFee({
 			selectedNetwork,
@@ -1397,7 +1397,7 @@ export const setZeroIndexAddresses = async ({
 
 	if (addressIndex.index < 0) {
 		const addresses: IAddress =
-			getStore().wallet.wallets[selectedWallet].addresses[selectedNetwork][
+			getWalletStore().wallets[selectedWallet].addresses[selectedNetwork][
 				addressType
 			];
 		const filterRes = Object.values(addresses).filter((a) => a.index === 0);
@@ -1407,9 +1407,9 @@ export const setZeroIndexAddresses = async ({
 	}
 	if (changeAddressIndex.index < 0) {
 		const changeAddresses: IAddress =
-			getStore().wallet.wallets[selectedWallet].changeAddresses[
-				selectedNetwork
-			][addressType];
+			getWalletStore().wallets[selectedWallet].changeAddresses[selectedNetwork][
+				addressType
+			];
 		const filterRes = Object.values(changeAddresses).filter(
 			(a) => a.index === 0,
 		);

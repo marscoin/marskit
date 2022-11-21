@@ -25,7 +25,7 @@ import {
 import { Block } from 'bitcoinjs-lib';
 import { ICustomElectrumPeer } from '../../store/types/settings';
 import { updateHeader } from '../../store/actions/wallet';
-import { getStore } from '../../store/helpers';
+import { getWalletStore } from '../../store/helpers';
 import {
 	IHeader,
 	IGetHeaderResponse,
@@ -294,7 +294,7 @@ export const subscribeToHeader = async ({
 	}
 	// @ts-ignore
 	if (subscribeResponse?.data === 'Already Subscribed.') {
-		return ok(getStore().wallet.header[selectedNetwork]);
+		return ok(getBlockHeader({ selectedNetwork }));
 	}
 	// Update local storage with current height and hex.
 	const hex = subscribeResponse.data.hex;
@@ -816,7 +816,7 @@ export const getBlockHeader = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	return getStore().wallet.header[selectedNetwork];
+	return getWalletStore().header[selectedNetwork];
 };
 
 /**

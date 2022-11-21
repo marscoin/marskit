@@ -1,4 +1,4 @@
-import { getStore } from '../src/store/helpers';
+import { getWalletStore } from '../src/store/helpers';
 import { updateExchangeRates } from '../src/store/actions/wallet';
 import { getDisplayValues } from '../src/utils/exchange-rate';
 import { resetExchangeRates } from '../src/store/actions/wallet';
@@ -40,7 +40,7 @@ describe('Pulls latest fiat exchange rates and checks the wallet store for valid
 			return;
 		}
 
-		const { exchangeRates } = getStore().wallet;
+		const exchangeRates = getWalletStore().exchangeRates;
 
 		const tickers = Object.keys(exchangeRates);
 
