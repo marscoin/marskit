@@ -88,7 +88,8 @@ export const resetSlashtagsStore = (): Result<string> => {
 export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
 	const key = b4a.toString(slashtag.key, 'hex');
 	const response = await fetch(
-		'https://blocktank.synonym.to/seeding/hypercore/' + key,
+		// Use staging seeder until next release!
+		'http://35.233.47.252:443/seeding/hypercore/' + key,
 		{ method: 'GET' },
 	);
 	const status = await response.json();

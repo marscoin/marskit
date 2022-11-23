@@ -165,6 +165,14 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 				return;
 			}
 
+			// Hardcode a single topic to connect to the seeder
+			// seeder this way won't need to announce O(n) topics.
+			const topic = b4a.from(
+				'18a34b3a77306ac202519109231f23b6d9e61f30e790eea1e0fe6a1a613ae444',
+				'hex',
+			);
+			sdk.join(topic, { server: false, client: true });
+
 			// Increase swarm sockets max event listeners
 			sdk.swarm.on('connection', (socket: any) => socket.setMaxListeners(1000));
 
