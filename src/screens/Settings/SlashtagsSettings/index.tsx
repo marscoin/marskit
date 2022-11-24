@@ -7,7 +7,6 @@ import SettingsView from '../SettingsView';
 import Store from '../../../store/types';
 import { useSelectedSlashtag } from '../../../hooks/slashtags';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
-import { closeDriveSession } from '../../../utils/slashtags';
 
 const SlashtagsSettings = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
@@ -61,7 +60,7 @@ const SlashtagsSettings = (): ReactElement => {
 					setProfileError(error.message);
 				}
 			} finally {
-				closeDriveSession(drive);
+				drive.close();
 			}
 		})();
 

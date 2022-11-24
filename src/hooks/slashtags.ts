@@ -3,11 +3,7 @@ import { SDK, SlashURL } from '@synonymdev/slashtags-sdk';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import {
-	closeDriveSession,
-	decodeJSON,
-	getSelectedSlashtag,
-} from '../utils/slashtags';
+import { decodeJSON, getSelectedSlashtag } from '../utils/slashtags';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { cacheProfile } from '../store/actions/slashtags';
@@ -85,7 +81,7 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
-			closeDriveSession(drive);
+			drive.close();
 		};
 	}, [url, sdk]);
 

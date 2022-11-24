@@ -71,7 +71,7 @@ export const saveContact = async (
 			message: error.message,
 		}),
 	);
-	closeDriveSession(drive);
+	drive.close();
 };
 
 export const saveProfile = async (
@@ -90,7 +90,7 @@ export const saveProfile = async (
 		}),
 	);
 
-	closeDriveSession(drive);
+	drive.close();
 };
 
 /**
@@ -114,7 +114,7 @@ export const deleteContact = async (
 		}),
 	);
 
-	closeDriveSession(drive);
+	drive.close();
 };
 
 /**
@@ -142,7 +142,7 @@ export const saveBulkContacts = async (slashtag: Slashtag): Promise<void> => {
 	);
 	await batch.flush();
 	console.debug('Done saving bulk contacts');
-	closeDriveSession(drive);
+	drive.close();
 };
 
 export const onSDKError = (error: Error): void => {
@@ -281,7 +281,7 @@ export const updateSlashPayConfig = debounce(
 		}
 
 		if (!needToUpdate) {
-			closeDriveSession(drive);
+			drive.close();
 			return;
 		}
 
@@ -294,7 +294,7 @@ export const updateSlashPayConfig = debounce(
 			})
 			.catch(noop);
 
-		closeDriveSession(drive);
+		drive.close();
 	},
 	5000,
 );
@@ -334,7 +334,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 				},
 			);
 
-			closeDriveSession(drive);
+			drive.close();
 			return [firstResponse.status, secondResponse.status].every(
 				(s) => s === 200,
 			);
@@ -364,35 +364,8 @@ export const getSlashPayConfig = async (
 	const payConfig =
 		(await drive.get('/slashpay.json').then(decodeJSON).catch(noop)) || [];
 
-	closeDriveSession(drive);
+	drive.close();
 	return payConfig;
-};
-
-/**
- * unlike drive.close() this function will only gc session but not close the first hypercore
- * avoids errors trying to create a session from a closed hypercore
- * TODO (slashtags) investigate how to handle this at the SDK level instead
- * try to replicate it in a failing test and figure out sensible defaults.
- **/
-export const closeDriveSession = (drive: Hyperdrive): void => {
-	drive
-		.ready()
-		.then(async () => {
-			const core = drive.core;
-
-			core.autoClose = false;
-			await core.close();
-
-			const blobsCore = drive.blobs?.core;
-			if (blobsCore) {
-				blobsCore.autoClose = false;
-				await blobsCore.close();
-			}
-
-			// Uncomment next line to debug if you got an error: Cannot make sessions on a closing core
-			// console.debug("Remaining sessions", drive.core.sessions.length, drive.blobs.core.sessions.length)
-		})
-		.catch(noop);
 };
 
 function noop(): void {}
