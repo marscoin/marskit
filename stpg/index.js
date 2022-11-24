@@ -6,7 +6,6 @@ import falso from '@ngneat/falso';
 import fetch from 'node-fetch';
 import SDK, { SlashURL } from '@synonymdev/slashtags-sdk';
 import RAM from 'random-access-memory';
-import c from 'compact-encoding';
 import b4a from 'b4a';
 
 const cacheLocation = path.join(
@@ -224,7 +223,7 @@ async function generateContact(url) {
 	const name = falso.randFullName();
 	const imageURL = falso.randAvatar();
 	const response = await fetch(imageURL);
-	const body = await response.buffer();
+	const body = await response.arrayBuffer();
 
 	return {
 		url,
@@ -264,11 +263,7 @@ export function decodeJSON(buf) {
 	}
 	try {
 		return JSON.parse(b4a.toString(buf));
-	} catch (error) {
-		// Backword compatible
-		// TODO(slashtags): remove before launch?
-		return c.decode(c.json, buf);
-	}
+	} catch (error) {}
 }
 
 /**

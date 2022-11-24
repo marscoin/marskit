@@ -1,5 +1,4 @@
 import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
-import c from 'compact-encoding';
 import b4a from 'b4a';
 import mime from 'mime/lite';
 import debounce from 'lodash.debounce';
@@ -431,11 +430,7 @@ export function decodeJSON(buf: Uint8Array | null): object | undefined {
 	}
 	try {
 		return JSON.parse(b4a.toString(buf));
-	} catch (error) {
-		// Backword compatible
-		// TODO(slashtags): remove before launch?
-		return c.decode(c.json, buf);
-	}
+	} catch (error) {}
 }
 
 /**
