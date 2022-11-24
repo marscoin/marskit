@@ -86,12 +86,6 @@ export const useProfile = (
 			unmounted = true;
 			drive.core.removeAllListeners();
 			closeDriveSession(drive);
-
-			// It so happens that hypercore creates a new session for every hypercore replicated
-			// on a stream (connection), and it wants to close that session once the stream is closed
-			// memory leak warning is expected.
-			// Uncomment following code to watch number of close listeners on replication streams
-			// console.debug("close listeners",[...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close')));
 		};
 	}, [url, sdk]);
 
