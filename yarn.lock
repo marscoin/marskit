@@ -2077,7 +2077,7 @@
     random-access-memory "^5.0.1"
     turbo-hash-map "^1.0.3"
 
-"@synonymdev/slashtags-auth@^1.0.0-alpha.4":
+"@synonymdev/slashtags-auth@^1.0.0-alpha.5":
   version "1.0.0-alpha.5"
   resolved "https://registry.yarnpkg.com/@synonymdev/slashtags-auth/-/slashtags-auth-1.0.0-alpha.5.tgz#6738d7d54de578ae0c096738e64d48ab6bd858e6"
   integrity sha512-GsRTwp65csVYU/PqnQ/fsj3uz+8Z+GGFGIphXxMxY7Wsm5Y5kfv3xVxW18uExIAHa9bv8AlpNcpXmivnoE3+hw==

@@ -54,12 +54,14 @@ const AuthWidget = ({
 			});
 		});
 
-		Linking.openURL(magiclink.url).catch((e) => {
-			showErrorNotification({
-				title: 'Error opening login link',
-				message: e.message,
+		if (magiclink) {
+			Linking.openURL(magiclink.url).catch((e) => {
+				showErrorNotification({
+					title: 'Error opening login link',
+					message: e.message,
+				});
 			});
-		});
+		}
 	}, [client, url]);
 
 	const onDelete = (): void => {

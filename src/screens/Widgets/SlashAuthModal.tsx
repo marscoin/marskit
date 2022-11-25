@@ -134,7 +134,7 @@ const _SlashAuthModal = (): ReactElement => {
 			}
 		});
 
-		if (response.status === 'ok') {
+		if (response?.status === 'ok') {
 			showSuccessNotification({
 				title: 'You’re Signed In!',
 				message: `Successfully logged in${
@@ -147,7 +147,7 @@ const _SlashAuthModal = (): ReactElement => {
 		} else {
 			showErrorNotification({
 				title: 'Error while signing in',
-				message: response.message,
+				message: response?.message || '',
 			});
 		}
 
