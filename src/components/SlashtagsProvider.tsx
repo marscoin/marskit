@@ -15,6 +15,7 @@ import {
 } from '../utils/slashtags';
 import Store from '../store/types';
 import { updateSeederMaybe } from '../store/actions/slashtags';
+import { SLASHTAGS_SEEDER_TOPIC } from '@env';
 
 export const RAWS = RAWSFactory({
 	setItem: (key: string, value: string) => {
@@ -164,6 +165,11 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			if (sdk.closed) {
 				return;
 			}
+
+			// Hardcode a single topic to connect to the seeder
+			// seeder this way won't need to announce O(n) topics.
+			const topic = b4a.from(SLASHTAGS_SEEDER_TOPIC, 'hex');
+			sdk.join(topic, { server: false, client: true });
 
 			// Increase swarm sockets max event listeners
 			sdk.swarm.on('connection', (socket: any) => socket.setMaxListeners(1000));

@@ -3,6 +3,7 @@ import c from 'compact-encoding';
 import b4a from 'b4a';
 import mime from 'mime/lite';
 import debounce from 'lodash.debounce';
+import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
 
 import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
@@ -318,7 +319,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 			];
 
 			const firstResponse = await fetch(
-				'https://blocktank.synonym.to/seeding/hypercore',
+				SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore',
 				{
 					method: 'POST',
 					body: JSON.stringify({ publicKey: keys[0] }),
@@ -327,7 +328,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 			);
 
 			const secondResponse = await fetch(
-				'https://blocktank.synonym.to/seeding/hypercore',
+				SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore',
 				{
 					method: 'POST',
 					body: JSON.stringify({ publicKey: keys[1] }),
