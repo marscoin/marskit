@@ -68,6 +68,7 @@ import {
 	chartLineIcon,
 	newspaperIcon,
 	cubeIcon,
+	lightbulbIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -1008,6 +1009,13 @@ export const NewspaperIcon = styled(SvgXml).attrs((props) => ({
 
 export const CubeIcon = styled(SvgXml).attrs((props) => ({
 	xml: cubeIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
+	color: undefined,
+}))({});
+
+export const LightBulbIcon = styled(SvgXml).attrs((props) => ({
+	xml: lightbulbIcon(props.theme.colors[props.color]),
 	height: props?.height ?? '64px',
 	width: props?.width ?? '64px',
 	color: undefined,

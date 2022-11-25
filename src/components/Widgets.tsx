@@ -18,6 +18,7 @@ import HeadlinesWidget from './HeadlinesWidget';
 import { SUPPORTED_FEED_TYPES } from '../utils/widgets';
 import BlocksWidget from './BlocksWidget';
 import { useFocusEffect } from '@react-navigation/native';
+import FactsWidget from './FactsWidget';
 
 export const Widgets = (): ReactElement => {
 	const widgets = useSelector((state: Store) => state.widgets.widgets);
@@ -71,6 +72,15 @@ export const Widgets = (): ReactElement => {
 											key={url}
 											url={url}
 											widget={widget}
+											isEditing={editing === url}
+											onPress={(): void => onPress(url)}
+										/>
+									);
+								case SUPPORTED_FEED_TYPES.FACTS_FEED:
+									return (
+										<FactsWidget
+											key={url}
+											url={url}
 											isEditing={editing === url}
 											onPress={(): void => onPress(url)}
 										/>
