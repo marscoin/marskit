@@ -1,6 +1,7 @@
 import { Slashtag } from '@synonymdev/slashtags-sdk';
 import { ok, Result } from '@synonymdev/result';
 import b4a from 'b4a';
+import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
 
 import actions from './actions';
 import { getDispatch, getSlashtagsStore } from '../helpers';
@@ -88,8 +89,7 @@ export const resetSlashtagsStore = (): Result<string> => {
 export const updateSeederMaybe = async (slashtag: Slashtag): Promise<void> => {
 	const key = b4a.toString(slashtag.key, 'hex');
 	const response = await fetch(
-		// Use staging seeder until next release!
-		'http://35.233.47.252:443/seeding/hypercore/' + key,
+		SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore/' + key,
 		{ method: 'GET' },
 	);
 	const status = await response.json();
