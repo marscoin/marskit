@@ -7,6 +7,7 @@ import SettingsView from '../SettingsView';
 import Store from '../../../store/types';
 import { useSelectedSlashtag } from '../../../hooks/slashtags';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
+import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
 
 const SlashtagsSettings = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
@@ -43,7 +44,7 @@ const SlashtagsSettings = (): ReactElement => {
 				try {
 					const key = b4a.toString(drive.key, 'hex');
 					const firstResponse = await fetch(
-						'https://blocktank.synonym.to/seeding/hypercore/' + key,
+						SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore/' + key,
 						{ method: 'GET' },
 					);
 					const status = await firstResponse.json();

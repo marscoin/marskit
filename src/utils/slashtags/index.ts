@@ -2,6 +2,7 @@ import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import b4a from 'b4a';
 import mime from 'mime/lite';
 import debounce from 'lodash.debounce';
+import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
 
 import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
@@ -12,7 +13,7 @@ import {
 	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
-} from '../../utils/wallet';
+} from '../wallet';
 import { decodeLightningInvoice } from '../lightning';
 import { createLightningInvoice } from '../../store/actions/lightning';
 import { getSettingsStore } from '../../store/helpers';
@@ -193,6 +194,7 @@ export const updateSlashPayConfig = debounce(
 			selectedNetwork,
 		});
 		const invoices = currentLightningNode.invoices[selectedNetwork];
+		const openChannelIds = currentLightningNode.openChannelIds[selectedNetwork];
 
 		// if offline payments are disabled and payment config is empy then do nothing
 		if (!enableOfflinePayments && payConfig.length === 0) {
@@ -216,23 +218,21 @@ export const updateSlashPayConfig = debounce(
 		const newPayConfig: SlashPayConfig = [];
 
 		// check if we need to update onchain address
-		{
-			const currentAddress = payConfig.find(
-				({ type }) => type === addressType,
-			)?.value;
-			const newAddress = getReceiveAddress({ selectedWallet });
-			if (newAddress.isOk() && currentAddress !== newAddress.value) {
-				// use new address
-				needToUpdate = true;
-				newPayConfig.push({ type: addressType, value: newAddress.value });
-			} else if (currentAddress) {
-				// keep old address
-				newPayConfig.push({ type: addressType, value: currentAddress });
-			}
+		const currentAddress = payConfig.find(
+			({ type }) => type === addressType,
+		)?.value;
+		const newAddress = getReceiveAddress({ selectedWallet });
+		if (newAddress.isOk() && currentAddress !== newAddress.value) {
+			// use new address
+			needToUpdate = true;
+			newPayConfig.push({ type: addressType, value: newAddress.value });
+		} else if (currentAddress) {
+			// keep old address
+			newPayConfig.push({ type: addressType, value: currentAddress });
 		}
 
 		// check if we need to update LN invoice
-		{
+		if (openChannelIds.length) {
 			const currentInvoice = payConfig.find(
 				({ type }) => type === 'lightningInvoice',
 			)?.value;
@@ -317,7 +317,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 			];
 
 			const firstResponse = await fetch(
-				'https://blocktank.synonym.to/seeding/hypercore',
+				SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore',
 				{
 					method: 'POST',
 					body: JSON.stringify({ publicKey: keys[0] }),
@@ -326,7 +326,7 @@ export const seedDrives = async (slashtag: Slashtag): Promise<boolean> => {
 			);
 
 			const secondResponse = await fetch(
-				'https://blocktank.synonym.to/seeding/hypercore',
+				SLASHTAGS_SEEDER_BASE_URL + '/seeding/hypercore',
 				{
 					method: 'POST',
 					body: JSON.stringify({ publicKey: keys[1] }),

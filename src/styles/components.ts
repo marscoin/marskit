@@ -35,6 +35,7 @@ import {
 	clockIcon,
 	timerIcon,
 	timerIconAlt,
+	timerSpeedIcon,
 	magnifyingGlassIcon,
 	clipboardTextIcon,
 	usersIcon,
@@ -68,6 +69,9 @@ import {
 	chartLineIcon,
 	newspaperIcon,
 	cubeIcon,
+	lightbulbIcon,
+	minusCircledIcon,
+	plusCircledIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -183,6 +187,13 @@ export const TimerIcon = styled(SvgXml).attrs((props) => ({
 export const TimerIconAlt = styled(SvgXml).attrs((props) => ({
 	xml: timerIconAlt(props?.color ? props.theme.colors[props.color] : 'white'),
 	height: props?.height ?? '17px',
+	width: props?.width ?? '16px',
+	color: undefined,
+}))({});
+
+export const TimerSpeedIcon = styled(SvgXml).attrs((props) => ({
+	xml: timerSpeedIcon(props?.color ? props.theme.colors[props.color] : 'white'),
+	height: props?.height ?? '16px',
 	width: props?.width ?? '16px',
 	color: undefined,
 }))({});
@@ -1008,6 +1019,27 @@ export const NewspaperIcon = styled(SvgXml).attrs((props) => ({
 
 export const CubeIcon = styled(SvgXml).attrs((props) => ({
 	xml: cubeIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
+	color: undefined,
+}))({});
+
+export const LightBulbIcon = styled(SvgXml).attrs((props) => ({
+	xml: lightbulbIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
+	color: undefined,
+}))({});
+
+export const MinusCircledIcon = styled(SvgXml).attrs((props) => ({
+	xml: minusCircledIcon(props.theme.colors[props.color]),
+	height: props?.height ?? '64px',
+	width: props?.width ?? '64px',
+	color: undefined,
+}))({});
+
+export const PlusCircledIcon = styled(SvgXml).attrs((props) => ({
+	xml: plusCircledIcon(props.theme.colors[props.color]),
 	height: props?.height ?? '64px',
 	width: props?.width ?? '64px',
 	color: undefined,

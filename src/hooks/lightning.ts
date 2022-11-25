@@ -106,7 +106,7 @@ export const useLightningChannelBalance = (channelId): TUseChannelBalance => {
 	const inbound_capacity_sat = channel?.inbound_capacity_sat ?? 0;
 
 	balance.spendingTotal =
-		channel_value_satoshis + unspendable_punishment_reserve;
+		outbound_capacity_sat + unspendable_punishment_reserve;
 	balance.spendingAvailable = outbound_capacity_sat;
 	balance.receivingTotal =
 		channel_value_satoshis - balance_sat + unspendable_punishment_reserve;

@@ -65,11 +65,6 @@ const MainSettings = ({
 				onPress: (): void => navigation.navigate('BackupSettings'),
 			},
 			{
-				title: 'Networks',
-				type: 'button',
-				onPress: (): void => navigation.navigate('NetworksSettings'),
-			},
-			{
 				title: 'Advanced',
 				type: 'button',
 				onPress: (): void => navigation.navigate('AdvancedSettings'),

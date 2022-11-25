@@ -5,6 +5,7 @@ export enum SUPPORTED_FEED_TYPES {
 	PRICE_FEED = 'exchange.price_history',
 	HEADLINES_FEED = 'news.headlines',
 	BLOCKS_FEED = 'bitcoin.stats',
+	FACTS_FEED = 'quotes',
 }
 
 /**
