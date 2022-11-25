@@ -14,6 +14,7 @@ import {
 	Text01S,
 	Text02M,
 	Checkmark,
+	LightBulbIcon,
 } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
@@ -37,6 +38,7 @@ import HeadlinesWidget from '../../components/HeadlinesWidget';
 import BlocksWidget from '../../components/BlocksWidget';
 import FeedWidget from '../../components/FeedWidget';
 import type { RootStackScreenProps } from '../../navigation/types';
+import FactsWidget from '../../components/FactsWidget';
 
 export const WidgetFeedEdit = ({
 	navigation,
@@ -214,6 +216,8 @@ export const WidgetFeedEdit = ({
 										return <NewspaperIcon width={64} height={64} />;
 									case SUPPORTED_FEED_TYPES.BLOCKS_FEED:
 										return <CubeIcon width={64} height={64} />;
+									case SUPPORTED_FEED_TYPES.FACTS_FEED:
+										return <LightBulbIcon width={64} height={64} />;
 									default:
 										return (
 											<ProfileImage url={url} image={config.icon} size={32} />
@@ -305,6 +309,8 @@ export const WidgetFeedEdit = ({
 													widget={previewWidget}
 												/>
 											);
+										case SUPPORTED_FEED_TYPES.FACTS_FEED:
+											return <FactsWidget key={url} url={url} />;
 										default:
 											return (
 												<FeedWidget
