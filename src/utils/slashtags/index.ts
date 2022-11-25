@@ -14,7 +14,7 @@ import {
 	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
-} from '../../utils/wallet';
+} from '../wallet';
 import { decodeLightningInvoice } from '../lightning';
 import { createLightningInvoice } from '../../store/actions/lightning';
 import { getSettingsStore } from '../../store/helpers';
@@ -195,6 +195,7 @@ export const updateSlashPayConfig = debounce(
 			selectedNetwork,
 		});
 		const invoices = currentLightningNode.invoices[selectedNetwork];
+		const openChannelIds = currentLightningNode.openChannelIds[selectedNetwork];
 
 		// if offline payments are disabled and payment config is empy then do nothing
 		if (!enableOfflinePayments && payConfig.length === 0) {
@@ -218,23 +219,21 @@ export const updateSlashPayConfig = debounce(
 		const newPayConfig: SlashPayConfig = [];
 
 		// check if we need to update onchain address
-		{
-			const currentAddress = payConfig.find(
-				({ type }) => type === addressType,
-			)?.value;
-			const newAddress = getReceiveAddress({ selectedWallet });
-			if (newAddress.isOk() && currentAddress !== newAddress.value) {
-				// use new address
-				needToUpdate = true;
-				newPayConfig.push({ type: addressType, value: newAddress.value });
-			} else if (currentAddress) {
-				// keep old address
-				newPayConfig.push({ type: addressType, value: currentAddress });
-			}
+		const currentAddress = payConfig.find(
+			({ type }) => type === addressType,
+		)?.value;
+		const newAddress = getReceiveAddress({ selectedWallet });
+		if (newAddress.isOk() && currentAddress !== newAddress.value) {
+			// use new address
+			needToUpdate = true;
+			newPayConfig.push({ type: addressType, value: newAddress.value });
+		} else if (currentAddress) {
+			// keep old address
+			newPayConfig.push({ type: addressType, value: currentAddress });
 		}
 
 		// check if we need to update LN invoice
-		{
+		if (openChannelIds.length) {
 			const currentInvoice = payConfig.find(
 				({ type }) => type === 'lightningInvoice',
 			)?.value;

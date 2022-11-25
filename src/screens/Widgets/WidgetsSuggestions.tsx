@@ -4,6 +4,7 @@ import { TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import {
 	ChartLineIcon,
 	CubeIcon,
+	LightBulbIcon,
 	NewspaperIcon,
 	Title,
 	View,
@@ -22,6 +23,8 @@ const NewsFeedURL =
 	'slashfeed:1bsxr8fa8997bc7nszrtr5ppqes9r9om9g43zwr967gprta6zngo#encryptionKey=yrrfn8n3guaonho4oafgic7xcmbjwfhb6ihxguqjaqf1mwhpxeco';
 const BlocksFeedURL =
 	'slashfeed:itqhrdoafc173szfqarjjxqph5xcwbfrmb44yym8zw9owifki5co#encryptionKey=jo6nybw8f3hzwea8jzcoyiymgimhfo4ftao93jxcinurgfrcxaay';
+const BitcoinFactsURL =
+	'slashfeed:53egeirg88ghrg9ssjqf6136dqra3ixdbsikx3rhaarrpjbox8oy#encryptionKey=5da9xnmn6wboyiu3zihzr9k3tc11t5p4d9ypaimuwk7sbo3k7u5o';
 
 const WidgetsSuggetsions = ({
 	navigation,
@@ -56,6 +59,11 @@ const WidgetsSuggetsions = ({
 							icon={<CubeIcon />}
 							title="Bitcoin Blocks"
 							url={BlocksFeedURL}
+						/>
+						<Feed
+							icon={<LightBulbIcon />}
+							title="Bitcoin Facts"
+							url={BitcoinFactsURL}
 						/>
 					</ScrollView>
 

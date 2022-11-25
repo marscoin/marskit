@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { Caption13Up, EyeIcon } from '../styles/components';
@@ -40,17 +40,12 @@ const BalanceHeader = (): ReactElement => {
 		updateSettings({ hideBalance: !hideBalance });
 	};
 
-	// TODO: Remove Platform check once claimable balance patch is in.
 	const totalBalance = useMemo(() => {
-		if (Platform.OS === 'ios') {
-			return satoshis + claimableBalance;
-		}
-		return satoshis;
+		return satoshis + claimableBalance;
 	}, [claimableBalance, satoshis]);
 
-	// TODO: Remove Platform check once claimable balance patch is in.
 	const showClaimableBalances = useMemo(() => {
-		return Platform.OS === 'ios' && claimableBalance > 0;
+		return claimableBalance > 0;
 	}, [claimableBalance]);
 
 	return (
@@ -66,7 +61,6 @@ const BalanceHeader = (): ReactElement => {
 							sats={claimableBalance}
 							unit={balanceUnit}
 							enableHide={true}
-							highlight={true}
 							symbol={false}
 						/>
 						<Caption13Up color="gray1"> PENDING)</Caption13Up>
