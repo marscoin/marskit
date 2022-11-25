@@ -3,11 +3,7 @@ import { SDK, SlashURL } from '@synonymdev/slashtags-sdk';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';
-import {
-	closeDriveSession,
-	decodeJSON,
-	getSelectedSlashtag,
-} from '../utils/slashtags';
+import { decodeJSON, getSelectedSlashtag } from '../utils/slashtags';
 import { useSelector } from 'react-redux';
 import Store from '../store/types';
 import { cacheProfile } from '../store/actions/slashtags';
@@ -85,13 +81,7 @@ export const useProfile = (
 		return function cleanup(): void {
 			unmounted = true;
 			drive.core.removeAllListeners();
-			closeDriveSession(drive);
-
-			// It so happens that hypercore creates a new session for every hypercore replicated
-			// on a stream (connection), and it wants to close that session once the stream is closed
-			// memory leak warning is expected.
-			// Uncomment following code to watch number of close listeners on replication streams
-			// console.debug("close listeners",[...sdk.swarm._allConnections._byPublicKey.values()].map((s) => s.listenerCount('close')));
+			drive.close();
 		};
 	}, [url, sdk]);
 

@@ -103,11 +103,6 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 				relay,
 			});
 
-			// Temporary fix by opening the public drive in writable mode, before it
-			// is opened as read-only by the corestore replication streams.
-			// TODO(slashtags): find why and fix this issue
-			_sdk.slashtag().drivestore.get();
-
 			if (unmounted) {
 				return;
 			}

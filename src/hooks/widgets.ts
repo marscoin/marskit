@@ -2,7 +2,6 @@ import { SlashURL, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import { useEffect, useState } from 'react';
 
 import { useSlashtagsSDK } from '../components/SlashtagsProvider';
-import { closeDriveSession } from '../utils/slashtags';
 import { showErrorNotification } from '../utils/notifications';
 import { decodeWidgetFieldValue } from '../utils/widgets';
 import { IWidget } from '../store/types/widgets';
@@ -62,7 +61,7 @@ export const useFeedWidget = ({
 
 		return function cleanup() {
 			unmounted = true;
-			closeDriveSession(drive);
+			drive.close();
 		};
 	}, [url, sdk, feed]);
 
