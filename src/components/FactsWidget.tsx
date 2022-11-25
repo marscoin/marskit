@@ -130,8 +130,8 @@ const FactsWidget = ({
 			)}
 			<Dialog
 				visible={showDialog}
-				title="Delete Bitcoin Headlines widget?"
-				description="Are you sure you want to delete Bitcoin Headlines from your widgets?"
+				title="Delete Bitcoin Facts widget?"
+				description="Are you sure you want to delete Bitcoin Facts from your widgets?"
 				confirmText="Yes, Delete"
 				onCancel={(): void => {
 					setShowDialog(false);
