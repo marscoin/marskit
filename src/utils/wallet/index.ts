@@ -102,15 +102,24 @@ export const refreshWallet = async ({
 	lightning = true,
 	scanAllAddresses = false, // If set to false, on-chain scanning will adhere to the gap limit (20).
 	updateAllAddressTypes = false, // If set to true, Bitkit will generate, check and update all available address types.
+	selectedWallet,
+	selectedNetwork,
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
 	scanAllAddresses?: boolean;
 	updateAllAddressTypes?: boolean;
+	selectedWallet?: string;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
 	try {
 		const isConnectedToElectrum = getUserStore().isConnectedToElectrum;
-		const { selectedWallet, selectedNetwork } = getCurrentWallet({});
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		if (onchain) {
 			let addressType: TAddressType | undefined;
 			if (!updateAllAddressTypes) {
@@ -2657,10 +2666,16 @@ export const getGapLimit = ({
 /**
  * Get address for a given scriptPubKey.
  * @param scriptPubKey
+ * @param selectedNetwork
  * @returns {string}
  */
-export const getAddressFromScriptPubKey = (scriptPubKey: string): string => {
-	const selectedNetwork = getSelectedNetwork();
+export const getAddressFromScriptPubKey = (
+	scriptPubKey: string,
+	selectedNetwork?: TAvailableNetworks,
+): string => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
 	const network = networks[selectedNetwork];
 	return bitcoin.address.fromOutputScript(
 		Buffer.from(scriptPubKey, 'hex'),

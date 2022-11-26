@@ -184,10 +184,12 @@ export const setupLdk = async ({
 			genesisHash: genesisHash.value,
 			account: account.value,
 			getAddress,
-			getScriptPubKeyHistory,
+			getScriptPubKeyHistory: (scriptPubkey) =>
+				getScriptPubKeyHistory(scriptPubkey, selectedNetwork),
 			broadcastTransaction: _broadcastTransaction,
-			getTransactionData,
-			getTransactionPosition,
+			getTransactionData: (txId) => getTransactionData(txId, selectedNetwork),
+			getTransactionPosition: (params) =>
+				getTransactionPosition({ ...params, selectedNetwork }),
 			network,
 			feeRate: 1000,
 		});
@@ -546,16 +548,22 @@ export const getBestBlock = async (
 /**
  * Returns the transaction header, height and hex (transaction) for a given txid.
  * @param {string} txId
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {Promise<TTransactionData>}
  */
 export const getTransactionData = async (
 	txId: string = '',
+	selectedNetwork?: TAvailableNetworks,
 ): Promise<TTransactionData> => {
 	let transactionData = DefaultTransactionDataShape;
 	try {
 		const data = [{ tx_hash: txId }];
+		if (selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 		const response = await getTransactions({
 			txHashes: data,
+			selectedNetwork,
 		});
 
 		if (response.isErr()) {
@@ -566,7 +574,7 @@ export const getTransactionData = async (
 			hex: hex_encoded_tx,
 			vout,
 		} = response.value.data[0].result;
-		const header = getBlockHeader({});
+		const header = getBlockHeader({ selectedNetwork });
 		const currentHeight = header.height;
 		let confirmedHeight = 0;
 		if (confirmations) {
@@ -574,6 +582,7 @@ export const getTransactionData = async (
 		}
 		const hexEncodedHeader = await getBlockHex({
 			height: confirmedHeight,
+			selectedNetwork,
 		});
 		if (hexEncodedHeader.isErr()) {
 			return transactionData;

@@ -27,6 +27,7 @@ const AppOnboarded = (): ReactElement => {
 	const enableAutoReadClipboard = useAppSelector(
 		(state) => state.settings.enableAutoReadClipboard,
 	);
+	const selectedWallet = useAppSelector((state) => state.wallet.selectedWallet);
 	const selectedNetwork = useAppSelector(
 		(state) => state.wallet.selectedNetwork,
 	);
@@ -47,7 +48,7 @@ const AppOnboarded = (): ReactElement => {
 
 		// launch wallet services
 		(async (): Promise<void> => {
-			await startWalletServices({ selectedNetwork });
+			await startWalletServices({ selectedNetwork, selectedWallet });
 
 			// check clipboard for payment data
 			if (enableAutoReadClipboard) {
@@ -57,6 +58,7 @@ const AppOnboarded = (): ReactElement => {
 						onChainBalance,
 						lightningBalance,
 						sdk,
+						selectedWallet,
 						selectedNetwork,
 					});
 				}, 100);
@@ -82,6 +84,7 @@ const AppOnboarded = (): ReactElement => {
 					lightning: true,
 					onchain: false,
 					selectedNetwork,
+					selectedWallet,
 				}).then();
 
 				// check clipboard for payment data
@@ -93,6 +96,7 @@ const AppOnboarded = (): ReactElement => {
 							lightningBalance,
 							sdk,
 							selectedNetwork,
+							selectedWallet,
 						}).then();
 					}, 1000);
 				}
