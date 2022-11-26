@@ -597,14 +597,18 @@ export const getAddressHistory = async ({
 /**
  * Used to retrieve scriptPubkey history for LDK.
  * @param {string} scriptPubkey
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @returns {Promise<TGetAddressHistory[]>}
  */
 export const getScriptPubKeyHistory = async (
 	scriptPubkey: string,
+	selectedNetwork?: TAvailableNetworks,
 ): Promise<TGetAddressHistory[]> => {
-	const selectedNetwork = getSelectedNetwork();
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
 	let history: { txid: string; height: number }[] = [];
-	const address = getAddressFromScriptPubKey(scriptPubkey);
+	const address = getAddressFromScriptPubKey(scriptPubkey, selectedNetwork);
 	if (!address) {
 		return history;
 	}

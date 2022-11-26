@@ -7,6 +7,7 @@ import {
 	getBip39Passphrase,
 	refreshWallet,
 	getSelectedNetwork,
+	getSelectedWallet,
 } from '../wallet';
 import { createWallet, updateExchangeRates } from '../../store/actions/wallet';
 import { getWalletStore } from '../../store/helpers';
@@ -81,15 +82,20 @@ export const startWalletServices = async ({
 	onchain = ENABLE_SERVICES,
 	lightning = ENABLE_SERVICES,
 	restore = false,
+	selectedWallet,
 	selectedNetwork,
 }: {
 	onchain?: boolean;
 	lightning?: boolean;
 	restore?: boolean;
+	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
 	try {
 		InteractionManager.runAfterInteractions(async () => {
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
 			if (!selectedNetwork) {
 				selectedNetwork = getSelectedNetwork();
 			}
@@ -113,7 +119,12 @@ export const startWalletServices = async ({
 					isConnectedToElectrum = true;
 					// Ensure the on-chain wallet & LDK syncs when a new block is detected.
 					const onReceive = (): void => {
-						refreshWallet({ onchain, lightning });
+						refreshWallet({
+							onchain,
+							lightning,
+							selectedWallet,
+							selectedNetwork,
+						});
 					};
 					// Ensure we are subscribed to and save new header information.
 					await subscribeToHeader({ selectedNetwork, onReceive });

@@ -221,7 +221,7 @@ export const updateSlashPayConfig = debounce(
 		const currentAddress = payConfig.find(
 			({ type }) => type === addressType,
 		)?.value;
-		const newAddress = getReceiveAddress({ selectedWallet });
+		const newAddress = getReceiveAddress({ selectedWallet, selectedNetwork });
 		if (newAddress.isOk() && currentAddress !== newAddress.value) {
 			// use new address
 			needToUpdate = true;
@@ -257,6 +257,8 @@ export const updateSlashPayConfig = debounce(
 					amountSats: 0,
 					description: '',
 					expiryDeltaSeconds: 60 * 60 * 24 * 7, // one week
+					selectedNetwork,
+					selectedWallet,
 				});
 
 				if (response.isOk()) {

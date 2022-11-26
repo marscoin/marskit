@@ -6,18 +6,20 @@ import { toggleView } from '../../store/actions/user';
 import { updateBitcoinTransaction } from '../../store/actions/wallet';
 import { showSuccessNotification } from '../notifications';
 import { decodeQRData } from '../scanner';
-import { getSelectedNetwork } from '../wallet';
+import { getSelectedNetwork, getSelectedWallet } from '../wallet';
 import { TAvailableNetworks } from '../networks';
 
 export const readClipboardInvoice = async ({
 	onChainBalance,
 	lightningBalance,
 	sdk,
+	selectedWallet,
 	selectedNetwork,
 }: {
 	onChainBalance: number;
 	lightningBalance: number;
 	sdk: SDK;
+	selectedWallet?: string;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
 	const clipboardData = await Clipboard.getString();
@@ -32,6 +34,9 @@ export const readClipboardInvoice = async ({
 	if (result.isOk() && result.value.length) {
 		const { qrDataType, address, network, sats } = result.value[0];
 
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
@@ -66,6 +71,8 @@ export const readClipboardInvoice = async ({
 
 			updateBitcoinTransaction({
 				transaction: { outputs: [{ address, value: sats, index: 0 }] },
+				selectedWallet,
+				selectedNetwork,
 			});
 		}
 
