@@ -481,7 +481,10 @@ export const updateUtxos = ({
 			(utxo, index, _utxos) =>
 				index ===
 				_utxos.findIndex(
-					(u) => u.scriptHash === utxo.scriptHash && u.tx_pos === utxo.tx_pos,
+					(u) =>
+						u.scriptHash === utxo.scriptHash &&
+						u.tx_pos === utxo.tx_pos &&
+						u.tx_hash === utxo.tx_hash,
 				),
 		);
 		const payload = {
