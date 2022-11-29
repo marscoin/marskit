@@ -73,6 +73,8 @@ function transform() {
 		// Make autoClose false in Corestore.. solves undefined is not a function
 		// in case of saving profile while relay socket is closing!
 		['autoClose: true', 'autoClose: false'],
+		// Sigh.. I don't know what is the point of Babel?
+		['let result = 0n', 'let result = BigInt(0)']
 	].forEach(([prev, target]) => {
 		src = src.replace(prev, target);
 	});
