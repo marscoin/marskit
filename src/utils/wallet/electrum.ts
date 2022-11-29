@@ -66,95 +66,91 @@ export const getUtxos = async ({
 		});
 
 		const addressTypes = getAddressTypes();
+		let addresses: IAddress = {};
+		let changeAddresses: IAddress = {};
 		let utxos: IUtxo[] = [];
+		let existingUtxos = {};
 		let balance = 0;
-		await Promise.all(
-			Object.keys(addressTypes).map(async (addressTypeKey) => {
-				if (!selectedNetwork) {
-					selectedNetwork = getSelectedNetwork();
-				}
-				if (!selectedWallet) {
-					selectedWallet = getSelectedWallet();
-				}
-				const addressCount = Object.keys(
-					currentWallet.addresses[selectedNetwork][addressTypeKey],
-				)?.length;
-				// Check if addresses of this type have been generated. If not, skip.
-				if (addressCount <= 0) {
-					return;
-				}
 
-				// Grab the current index for both addresses and change addresses.
-				const addressIndex =
-					currentWallet.addressIndex[selectedNetwork][addressTypeKey]?.index;
-				const changeAddressIndex =
-					currentWallet.changeAddressIndex[selectedNetwork][addressTypeKey]
-						?.index;
+		Object.keys(addressTypes).map(async (addressTypeKey) => {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			if (!selectedWallet) {
+				selectedWallet = getSelectedWallet();
+			}
+			const addressCount = Object.keys(
+				currentWallet.addresses[selectedNetwork][addressTypeKey],
+			)?.length;
+			// Check if addresses of this type have been generated. If not, skip.
+			if (addressCount <= 0) {
+				return;
+			}
 
-				// Grab all addresses and change addresses.
-				const allAddresses: IAddress =
-					currentWallet.addresses[selectedNetwork][addressTypeKey];
-				const allChangeAddresses: IAddress =
-					currentWallet.changeAddresses[selectedNetwork][addressTypeKey];
+			// Grab the current index for both addresses and change addresses.
+			const addressIndex =
+				currentWallet.addressIndex[selectedNetwork][addressTypeKey]?.index;
+			const changeAddressIndex =
+				currentWallet.changeAddressIndex[selectedNetwork][addressTypeKey]
+					?.index;
 
-				let addresses: IAddress = {};
-				let changeAddresses: IAddress = {};
-				// Instead of scanning all addresses, adhere to the gap limit.
-				if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
-					await Promise.all([
-						Object.values(allAddresses).map((a) => {
-							if (Math.abs(a.index - addressIndex) <= GAP_LIMIT) {
-								addresses[a.scriptHash] = a;
-							}
-						}),
-						Object.values(allChangeAddresses).map((a) => {
-							if (Math.abs(a.index - changeAddressIndex) <= GAP_LIMIT) {
-								changeAddresses[a.scriptHash] = a;
-							}
-						}),
-					]);
-				} else {
-					addresses = allAddresses;
-					changeAddresses = allChangeAddresses;
-				}
+			// Grab all addresses and change addresses.
+			const allAddresses: IAddress =
+				currentWallet.addresses[selectedNetwork][addressTypeKey];
+			const allChangeAddresses: IAddress =
+				currentWallet.changeAddresses[selectedNetwork][addressTypeKey];
 
-				// Make sure we're re-check existing utxos that may exist outside the gap limit and putting them in the necessary format.
-				let existingUtxos = {};
-				await Promise.all(
-					currentWallet.utxos[selectedNetwork].map((utxo) => {
-						existingUtxos[utxo.scriptHash] = utxo;
-					}),
-				);
-				const unspentAddressResult =
-					await electrum.listUnspentAddressScriptHashes({
-						scriptHashes: {
-							key: 'scriptHash',
-							data: {
-								...addresses,
-								...changeAddresses,
-								...existingUtxos,
-							},
-						},
-						network: selectedNetwork,
-					});
-				if (unspentAddressResult.error) {
-					throw unspentAddressResult.data;
-				}
-				await Promise.all(
-					unspentAddressResult.data.map(({ data, result }) => {
-						if (result && result?.length > 0) {
-							return result.map((unspentAddress: IUtxo) => {
-								balance = balance + unspentAddress.value;
-								utxos.push({
-									...data,
-									...unspentAddress,
-								});
-							});
+			// Instead of scanning all addresses, adhere to the gap limit.
+			if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
+				await Promise.all([
+					Object.values(allAddresses).map((a) => {
+						if (Math.abs(a.index - addressIndex) <= GAP_LIMIT) {
+							addresses[a.scriptHash] = a;
 						}
 					}),
-				);
-			}),
-		);
+					Object.values(allChangeAddresses).map((a) => {
+						if (Math.abs(a.index - changeAddressIndex) <= GAP_LIMIT) {
+							changeAddresses[a.scriptHash] = a;
+						}
+					}),
+				]);
+			} else {
+				addresses = allAddresses;
+				changeAddresses = allChangeAddresses;
+			}
+		});
+
+		// Make sure we're re-check existing utxos that may exist outside the gap limit and putting them in the necessary format.
+		currentWallet.utxos[selectedNetwork].map((utxo) => {
+			existingUtxos[utxo.scriptHash] = utxo;
+		});
+
+		const unspentAddressResult = await electrum.listUnspentAddressScriptHashes({
+			scriptHashes: {
+				key: 'scriptHash',
+				data: {
+					...addresses,
+					...changeAddresses,
+					...existingUtxos,
+				},
+			},
+			network: selectedNetwork,
+		});
+		if (unspentAddressResult.error) {
+			throw unspentAddressResult.data;
+		}
+		unspentAddressResult.data.map(({ data, result }) => {
+			if (result?.length > 0) {
+				return result.map((unspentAddress: IUtxo) => {
+					balance = balance + unspentAddress.value;
+					utxos.push({
+						...data,
+						...unspentAddress,
+					});
+				});
+			}
+		});
+
 		return ok({ utxos, balance });
 	} catch (e) {
 		return err(e);
