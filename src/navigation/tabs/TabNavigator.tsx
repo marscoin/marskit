@@ -114,26 +114,35 @@ export const TabBar = ({
 		[navigation],
 	);
 
-	const isWalletScreenFocused = isFocused && screen === 'Wallets';
+	const isWalletScreenFocused = useMemo(
+		() => isFocused && screen === 'Wallets',
+		[isFocused, screen],
+	);
 
-	const androidStyles = {
-		borderColor: white08,
-		borderTopColor: '#272727',
-		borderBottomColor: '#272727',
-	};
+	const borderStyles = useMemo(() => {
+		const androidStyles = {
+			borderColor: white08,
+			borderTopColor: '#272727',
+			borderBottomColor: '#272727',
+		};
 
-	const iosStyles = {
-		borderColor: white08,
-	};
+		const iosStyles = {
+			borderColor: white08,
+		};
+		return Platform.OS === 'android' ? androidStyles : iosStyles;
+	}, [white08]);
 
-	const borderStyles = Platform.OS === 'android' ? androidStyles : iosStyles;
+	const bottom = useMemo(() => Math.max(insets.bottom, 16), [insets.bottom]);
+
+	const sendXml = useMemo(() => sendIcon('white'), []);
+	const receiveXml = useMemo(() => receiveIcon('white'), []);
 
 	return (
 		<>
-			<View style={[styles.tabRoot, { bottom: Math.max(insets.bottom, 16) }]}>
+			<View style={[styles.tabRoot, { bottom }]}>
 				<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
 					<BlurView style={styles.send}>
-						<SvgXml xml={sendIcon('white')} width={13} height={13} />
+						<SvgXml xml={sendXml} width={13} height={13} />
 						<Text02M style={styles.tabText}>Send</Text02M>
 					</BlurView>
 				</TouchableOpacity>
@@ -145,7 +154,7 @@ export const TabBar = ({
 				</TouchableOpacity>
 				<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
 					<BlurView style={styles.receive}>
-						<SvgXml xml={receiveIcon('white')} width={13} height={13} />
+						<SvgXml xml={receiveXml} width={13} height={13} />
 						<Text02M style={styles.tabText}>Receive</Text02M>
 					</BlurView>
 				</TouchableOpacity>
@@ -175,10 +184,8 @@ const TabNavigator = (): ReactElement => {
 	}, []);
 
 	return (
-		<Tab.Navigator tabBar={tabBar}>
-			<Tab.Group screenOptions={tabScreenOptions}>
-				<Tab.Screen name="WalletsStack" component={WalletsStack} />
-			</Tab.Group>
+		<Tab.Navigator tabBar={tabBar} screenOptions={tabScreenOptions}>
+			<Tab.Screen name="WalletsStack" component={WalletsStack} />
 		</Tab.Navigator>
 	);
 };
