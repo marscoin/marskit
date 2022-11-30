@@ -159,7 +159,7 @@ export const updateAddressIndexes = async ({
 		selectedNetwork,
 	});
 	const addressTypes = getAddressTypes();
-	let addressTypesToCheck = Object.keys(addressTypes);
+	let addressTypesToCheck = Object.keys(addressTypes) as TAddressType[];
 	if (addressType) {
 		addressTypesToCheck = await Promise.all(
 			addressTypesToCheck.filter(
@@ -534,7 +534,7 @@ export const clearUtxos = async ({
 };
 
 export const updateWalletBalance = ({
-	balance = 0,
+	balance,
 	selectedWallet = undefined,
 	selectedNetwork = undefined,
 }: {

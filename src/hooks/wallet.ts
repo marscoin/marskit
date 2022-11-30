@@ -29,7 +29,7 @@ export function useBalance({
 
 		if (onchain) {
 			balance +=
-				store.wallet?.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
+				store.wallet.wallets[selectedWallet]?.balance[selectedNetwork] ?? 0;
 		}
 
 		if (lightning) {
