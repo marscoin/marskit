@@ -38,7 +38,7 @@ const sortOrder = ['p2wpkh', 'p2sh', 'p2pkh'];
 const AddressTypeSettings = ({
 	navigation,
 }: SettingsScreenProps<'AddressTypePreference'>): ReactElement => {
-	const [addressTypeState, setAddressTypeState] = useState<TAddressType>('');
+	const [addressTypeState, setAddressTypeState] = useState<TAddressType>();
 	const addressTypes = useAppSelector((state) => state.wallet.addressTypes);
 	const selectedWallet = useAppSelector((state) => state.wallet.selectedWallet);
 	const selectedNetwork = useAppSelector(
@@ -77,7 +77,7 @@ const AddressTypeSettings = ({
 			if (selectedAddressType === addressTypeState) {
 				return addressTypeState === type;
 			}
-			if (addressTypeState === '') {
+			if (!addressTypeState) {
 				return selectedAddressType === type;
 			}
 			return addressTypeState === type;
@@ -89,16 +89,16 @@ const AddressTypeSettings = ({
 		() => [
 			{
 				title: 'Bitcoin address type',
-				data: addressTypesList.map((bitcoinUnit) => ({
+				data: addressTypesList.map((addressType) => ({
 					type: 'button',
-					value: checkAddressTypeListCheckmark(bitcoinUnit.value),
-					description: bitcoinUnit.description,
-					title: bitcoinUnit.label,
+					value: checkAddressTypeListCheckmark(addressType.value),
+					description: addressType.description,
+					title: addressType.label,
 					useCheckmark: true,
 					onPress: async (): Promise<void> => {
 						navigation.goBack();
-						updateSettings({ addressType: bitcoinUnit.value });
-						setAddressTypePreference(bitcoinUnit.value);
+						updateSettings({ addressType: addressType.value });
+						setAddressTypePreference(addressType.value);
 						await refreshWallet({ lightning: false, onchain: true });
 					},
 				})),

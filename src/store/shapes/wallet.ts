@@ -6,7 +6,7 @@ import {
 	IBitcoinTransactionData,
 	defaultBitcoinTransactionData,
 	IKeyDerivationPath,
-	IAddressType,
+	IAddressTypes,
 	TAssetNetwork,
 	IAddress,
 	IAddressContent,
@@ -15,7 +15,7 @@ import { IHeader } from '../../utils/types/electrum';
 
 export const assetNetworks: TAssetNetwork[] = ['bitcoin', 'lightning'];
 
-export const addressTypes: IAddressType = {
+export const addressTypes: IAddressTypes = {
 	p2pkh: {
 		path: "m/44'/0'/0'/0/0",
 		type: 'p2pkh',

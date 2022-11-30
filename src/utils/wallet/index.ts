@@ -29,7 +29,7 @@ import {
 	TKeyDerivationAccount,
 	TKeyDerivationAccountType,
 	TKeyDerivationPurpose,
-	IAddressType,
+	IAddressTypes,
 	IKeyDerivationPathData,
 	ETransactionDefaults,
 	IFormattedTransactionContent,
@@ -1311,7 +1311,7 @@ export const getSelectedAddressType = ({
  * @return {string}
  */
 export const getSelectedWallet = (): string => {
-	return getWalletStore()?.selectedWallet ?? EWallet.defaultWallet;
+	return getWalletStore().selectedWallet ?? EWallet.defaultWallet;
 };
 
 /**
@@ -2007,14 +2007,8 @@ export const createDefaultWallet = async ({
 }: ICreateWallet): Promise<Result<IDefaultWallet>> => {
 	try {
 		if (!addressTypes) {
-			//addressTypes = getAddressTypes().p2wpkh;
-			addressTypes = {
-				p2wpkh: {
-					label: 'bech32',
-					path: "m/84'/0'/0'/0/0",
-					type: 'p2wpkh',
-				},
-			};
+			// if nothing else specified use only Native Segwit by default
+			addressTypes = { p2wpkh: getAddressTypes().p2wpkh };
 		}
 		const selectedAddressType = getSelectedAddressType({});
 
@@ -2114,7 +2108,7 @@ export const createDefaultWallet = async ({
  * small = Sort by and use smallest UTXO first. Higher fee, but hides your largest UTXO's and increases privacy.
  * consolidate = Use all available UTXO's regardless of the amount being sent. Preferable to use this method when fees are low in order to reduce fees in future transactions.
  */
-export interface IAddressTypes {
+export interface IAddressIOTypes {
 	inputs: {
 		[key in TAddressType]: number;
 	};
@@ -2212,7 +2206,7 @@ export const autoCoinSelect = async ({
 		}
 
 		// Get all input and output address types for fee calculation.
-		let addressTypes: IAddressTypes | { inputs: {}; outputs: {} } = {
+		let addressTypes: IAddressIOTypes | { inputs: {}; outputs: {} } = {
 			inputs: {},
 			outputs: {},
 		};
@@ -2395,10 +2389,11 @@ export const getKeyDerivationPathObject = ({
 
 /**
  * Returns available address types for the given network and wallet
- * @return IAddressType
+ * @return IAddressTypes
  */
-export const getAddressTypes = (): IAddressType =>
-	getWalletStore().addressTypes;
+export const getAddressTypes = (): IAddressTypes => {
+	return getWalletStore().addressTypes;
+};
 
 /**
  * The method returns the base key derivation path for a given address type.
@@ -2476,20 +2471,18 @@ export const getReceiveAddress = ({
 		if (!addressType) {
 			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
 		}
-		const wallet = getWalletStore()?.wallets[selectedWallet];
-		const addressIndex = wallet?.addressIndex[selectedNetwork];
+		const wallet = getWalletStore().wallets[selectedWallet];
+		const addressIndex = wallet.addressIndex[selectedNetwork];
 		let receiveAddress = addressIndex[addressType]?.address;
 		if (receiveAddress) {
 			return ok(receiveAddress);
 		}
-		const addresses: IAddress =
-			getWalletStore()?.wallets[selectedWallet].addresses[selectedNetwork][
-				addressType
-			];
+		const addresses: IAddress = wallet.addresses[selectedNetwork][addressType];
+
 		// Check if addresses were generated, but the index has not been set yet.
 		if (
 			Object.keys(addresses).length > 0 &&
-			addressIndex[addressType]?.index < 0
+			addressIndex[addressType].index < 0
 		) {
 			// Grab and return the address at index 0.
 			const address = Object.values(addresses).filter(

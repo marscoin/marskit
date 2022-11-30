@@ -9,7 +9,7 @@ export enum EPaymentType {
 	received = 'received',
 }
 
-export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh' | string;
+export type TAddressType = 'p2wpkh' | 'p2sh' | 'p2pkh';
 export type TAddressFormat = 'p2wpkh' | 'p2sh' | 'p2pkh'; //"84" | "49" | "44";
 export type TKeyDerivationAccountType = 'onchain';
 export type TKeyDerivationPurpose = '84' | '49' | '44' | string; //"p2wpkh" | "p2sh" | "p2pkh";
@@ -98,14 +98,14 @@ export enum EBoost {
 }
 
 export interface IAddressData {
+	type: TAddressType;
 	path: string;
-	type: 'p2wpkh' | 'p2sh' | 'p2pkh';
 	label: string;
 }
 
-export interface IAddressType {
-	[key: string]: IAddressData;
-}
+export type IAddressTypes = {
+	[key in TAddressType]: IAddressData;
+};
 
 // m / purpose' / coin_type' / account' / change / address_index
 export interface IKeyDerivationPath {
@@ -127,7 +127,7 @@ export interface IWallet {
 	error: boolean;
 	selectedNetwork: TAvailableNetworks;
 	selectedWallet: string;
-	addressTypes: IAddressType;
+	addressTypes: IAddressTypes;
 	exchangeRates: IExchangeRates;
 	header: IWalletItem<IHeader>;
 	wallets: { [key: string]: IDefaultWalletShape };
@@ -158,7 +158,7 @@ export interface ICreateWallet {
 	bip39Passphrase?: string;
 	addressAmount?: number;
 	changeAddressAmount?: number;
-	addressTypes?: IAddressType;
+	addressTypes?: Partial<IAddressTypes>;
 	selectedNetwork?: TAvailableNetworks;
 }
 
