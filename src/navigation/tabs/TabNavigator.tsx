@@ -42,8 +42,9 @@ const navOptions: NativeStackNavigationOptions = {
 	headerShown: false,
 };
 
-const screenOptions = {
+const screenOptions: NativeStackNavigationOptions = {
 	...navOptions,
+	animation: 'slide_from_right',
 };
 
 const modalOptions = {
@@ -53,12 +54,10 @@ const modalOptions = {
 const WalletsStack = (): ReactElement => {
 	return (
 		<Stack.Navigator initialRouteName="Wallets" screenOptions={navOptions}>
-			<Stack.Screen
-				name="Wallets"
-				component={WalletsScreen}
-				options={screenOptions}
-			/>
-			<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
+			<Stack.Group screenOptions={screenOptions}>
+				<Stack.Screen name="Wallets" component={WalletsScreen} />
+				<Stack.Screen name="WalletsDetail" component={WalletsDetail} />
+			</Stack.Group>
 			<Stack.Group screenOptions={modalOptions}>
 				<Stack.Screen name="AuthCheck" component={AuthCheck} />
 			</Stack.Group>
@@ -170,15 +169,12 @@ export const TabBar = ({
 	);
 };
 
-const TabNavigator = (): ReactElement => {
-	const tabScreenOptions = useMemo(
-		() => ({
-			tabBarHideOnKeyboard: true,
-			headerShown: false,
-		}),
-		[],
-	);
+const tabScreenOptions = {
+	tabBarHideOnKeyboard: true,
+	headerShown: false,
+};
 
+const TabNavigator = (): ReactElement => {
 	const tabBar = useCallback((props) => {
 		return <TabBar {...props} />;
 	}, []);
