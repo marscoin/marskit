@@ -40,6 +40,7 @@ import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
 import BitcoinLogo from '../../../assets/bitcoin-logo-small.svg';
 import { createLightningInvoice } from '../../../store/actions/lightning';
 import { useLightningBalance } from '../../../hooks/lightning';
+import { sleep } from '../../../utils/helpers';
 
 const QrIcon = (): ReactElement => {
 	return (
@@ -157,6 +158,8 @@ const Receive = ({ navigation }): ReactElement => {
 		if (!loading) {
 			setLoading(true);
 		}
+		// Gives the modal animation time to start.
+		await sleep(50);
 		await Promise.all([getLightningInvoice(), getAddress()]);
 		setLoading(false);
 	}, [getAddress, getLightningInvoice, loading, receiveNavigationIsOpen]);
@@ -165,11 +168,14 @@ const Receive = ({ navigation }): ReactElement => {
 		if (!receiveNavigationIsOpen) {
 			return;
 		}
-		resetInvoice();
-		// Only refresh LDK if we have a remote balance.
-		if (lightningBalance.remoteBalance > 0) {
-			refreshLdk({ selectedWallet, selectedNetwork }).then();
-		}
+		// Gives the modal animation time to start.
+		sleep(50).then(() => {
+			resetInvoice();
+			// Only refresh LDK if we have a remote balance.
+			if (lightningBalance.remoteBalance > 0) {
+				refreshLdk({ selectedWallet, selectedNetwork }).then();
+			}
+		});
 	}, [
 		selectedNetwork,
 		selectedWallet,
@@ -181,7 +187,10 @@ const Receive = ({ navigation }): ReactElement => {
 		if (!receiveNavigationIsOpen) {
 			return;
 		}
-		setInvoiceDetails().then();
+		// Gives the modal animation time to start.
+		sleep(50).then(() => {
+			setInvoiceDetails().then();
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		amount,
@@ -192,9 +201,12 @@ const Receive = ({ navigation }): ReactElement => {
 	]);
 
 	useEffect(() => {
-		if (tags.length !== 0 && receiveAddress && receiveNavigationIsOpen) {
-			updateMetaIncTxTags(receiveAddress, lightningInvoice, tags);
-		}
+		// Gives the modal animation time to start.
+		sleep(50).then(() => {
+			if (tags.length !== 0 && receiveAddress && receiveNavigationIsOpen) {
+				updateMetaIncTxTags(receiveAddress, lightningInvoice, tags);
+			}
+		});
 	}, [receiveAddress, lightningInvoice, tags, receiveNavigationIsOpen]);
 
 	const uri = useMemo((): string => {

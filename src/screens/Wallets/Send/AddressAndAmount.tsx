@@ -52,6 +52,7 @@ import type { SendStackParamList } from '../../../navigation/bottom-sheet/SendNa
 import { useBalance } from '../../../hooks/wallet';
 import Money from '../../../components/Money';
 import { useLightningBalance } from '../../../hooks/lightning';
+import { sleep } from '../../../utils/helpers';
 
 const AddressAndAmount = ({
 	navigation,
@@ -118,7 +119,10 @@ const AddressAndAmount = ({
 		if (!sendNavigationIsOpen) {
 			return;
 		}
-		getDecodeAndSetLightningInvoice().then();
+		// Gives the modal animation time to start.
+		sleep(50).then(() => {
+			getDecodeAndSetLightningInvoice().then();
+		});
 	}, [
 		getDecodeAndSetLightningInvoice,
 		sendNavigationIsOpen,
@@ -346,12 +350,15 @@ const AddressAndAmount = ({
 		if (!sendNavigationIsOpen) {
 			return;
 		}
-		// try to update fees on this screen, because they will be used on next one
-		updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }).then();
+		// Gives the modal animation time to start.
+		sleep(50).then(() => {
+			// try to update fees on this screen, because they will be used on next one
+			updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }).then();
 
-		if (lightningBalance.localBalance > 0) {
-			refreshLdk({ selectedWallet, selectedNetwork }).then();
-		}
+			if (lightningBalance.localBalance > 0) {
+				refreshLdk({ selectedWallet, selectedNetwork }).then();
+			}
+		});
 	}, [
 		sendNavigationIsOpen,
 		lightningBalance.localBalance,
