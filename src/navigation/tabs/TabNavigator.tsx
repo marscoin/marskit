@@ -6,10 +6,10 @@ import {
 	createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import {
-	createNativeStackNavigator,
-	NativeStackNavigationOptions,
-	NativeStackNavigationProp,
-} from '@react-navigation/native-stack';
+	createStackNavigator,
+	StackNavigationOptions,
+	TransitionPresets,
+} from '@react-navigation/stack';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,8 +25,6 @@ import { toggleView } from '../../store/actions/user';
 import useColors from '../../hooks/colors';
 import { TAssetType } from '../../store/types/wallet';
 
-export type TabNavigationProp = NativeStackNavigationProp<TabStackParamList>;
-
 export type TabStackParamList = {
 	Wallets: undefined;
 	WalletsDetail: {
@@ -36,15 +34,15 @@ export type TabStackParamList = {
 };
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator<TabStackParamList>();
+const Stack = createStackNavigator<TabStackParamList>();
 
-const navOptions: NativeStackNavigationOptions = {
+const navOptions: StackNavigationOptions = {
 	headerShown: false,
 };
 
-const screenOptions: NativeStackNavigationOptions = {
+const screenOptions: StackNavigationOptions = {
 	...navOptions,
-	animation: 'slide_from_right',
+	...TransitionPresets.SlideFromRightIOS,
 };
 
 const modalOptions = {
