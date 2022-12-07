@@ -1,4 +1,10 @@
-import React, { memo, ReactElement, useState, useCallback } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	useState,
+	useCallback,
+	useMemo,
+} from 'react';
 import { useSelector } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
@@ -30,7 +36,10 @@ const Wallets = ({ navigation }: TabScreenProps<'Wallets'>): ReactElement => {
 		(state: Store) => state.settings.hideOnboardingMessage,
 	);
 	const widgets = useSelector((state: Store) => state.widgets.widgets);
-	const empty = useNoTransactions() && Object.values(widgets).length === 0;
+	const noTransactions = useNoTransactions();
+	const empty = useMemo(() => {
+		return noTransactions && Object.values(widgets).length === 0;
+	}, [noTransactions, widgets]);
 	const colors = useColors();
 
 	const toggleHideBalance = (): void => {
