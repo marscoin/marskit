@@ -38,7 +38,7 @@
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
     "@react-navigation/stack": "^6.3.4",
-    "@reduxjs/toolkit": "^1.8.4",
+    "@reduxjs/toolkit": "^1.9.1",
     "@shopify/react-native-skia": "0.1.141",
     "@synonymdev/blocktank-client": "0.0.47",
     "@synonymdev/react-native-ldk": "0.0.76",

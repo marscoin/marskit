@@ -41,6 +41,10 @@ import BitcoinLogo from '../../../assets/bitcoin-logo-small.svg';
 import { createLightningInvoice } from '../../../store/actions/lightning';
 import { useLightningBalance } from '../../../hooks/lightning';
 import { sleep } from '../../../utils/helpers';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const QrIcon = memo(
 	(): ReactElement => {
@@ -72,12 +76,8 @@ const Receive = ({ navigation }): ReactElement => {
 	const receiveNavigationIsOpen = useSelector(
 		(store: Store) => store.user.viewController.receiveNavigation.isOpen,
 	);
-	const selectedWallet = useSelector(
-		(store: Store) => store.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(store: Store) => store.wallet.selectedNetwork,
-	);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const addressType = useSelector(
 		(store: Store) =>
 			store.wallet.wallets[selectedWallet].addressType[selectedNetwork],
