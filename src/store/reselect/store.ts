@@ -9,8 +9,9 @@ import { IBlocktank } from '../types/blocktank';
 import { IFees } from '../types/fees';
 import { ISlashtags } from '../types/slashtags';
 import { IUser } from '../types/user';
-import { lightningState, walletState } from './wallet';
+import { walletState } from './wallet';
 import { settingsState } from './settings';
+import { lightningState } from './lightning';
 
 export const getStoreSelector = createSelector(
 	(state: Store): Store => state,
