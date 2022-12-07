@@ -42,15 +42,18 @@ import { createLightningInvoice } from '../../../store/actions/lightning';
 import { useLightningBalance } from '../../../hooks/lightning';
 import { sleep } from '../../../utils/helpers';
 
-const QrIcon = (): ReactElement => {
-	return (
-		<View style={styles.qrIconContainer}>
-			<View style={styles.qrIcon}>
-				<BitcoinLogo />
+const QrIcon = memo(
+	(): ReactElement => {
+		return (
+			<View style={styles.qrIconContainer}>
+				<View style={styles.qrIcon}>
+					<BitcoinLogo />
+				</View>
 			</View>
-		</View>
-	);
-};
+		);
+	},
+	() => true,
+);
 
 const Receive = ({ navigation }): ReactElement => {
 	const dimensions = useWindowDimensions();
