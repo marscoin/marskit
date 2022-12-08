@@ -9,6 +9,7 @@ import {
 	IFormattedTransaction,
 	IFormattedTransactionContent,
 	IWallet,
+	TAddressType,
 } from '../types/wallet';
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate/types';
@@ -44,17 +45,27 @@ export const selectedNetworkSelector = createSelector(
 
 /**
  * Returns wallet data for the currently selected wallet.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @returns {IDefaultWalletShape}
  */
 export const currentWalletSelector = createSelector(
 	[
 		walletsState,
 		(currentWallet, selectedWallet: string): string => selectedWallet,
 	],
-	(currentWallet, selectedWallet) => {
+	(currentWallet, selectedWallet): IDefaultWalletShape => {
 		return currentWallet[selectedWallet];
 	},
 );
 
+/**
+ * Returns the selected address type for a given wallet and network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {TAddressType}
+ */
 export const addressTypeSelector = createSelector(
 	[
 		walletsState,
@@ -62,13 +73,13 @@ export const addressTypeSelector = createSelector(
 		(wallets, selectedWallet, selectedNetwork): TAvailableNetworks =>
 			selectedNetwork,
 	],
-	(wallets, selectedWallet, selectedNetwork) => {
+	(wallets, selectedWallet, selectedNetwork): TAddressType => {
 		return wallets[selectedWallet].addressType[selectedNetwork];
 	},
 );
 
 /**
- * Returns wallet data for the currently selected wallet.
+ * Returns exchange rate information.
  */
 export const exchangeRatesSelector = createSelector(
 	exchangeRatesState,
@@ -79,6 +90,10 @@ export const exchangeRatesSelector = createSelector(
 
 /**
  * Returns object of on-chain transactions for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IFormattedTransaction}
  */
 export const transactionsSelector = createSelector(
 	[
@@ -97,6 +112,10 @@ export const transactionsSelector = createSelector(
 
 /**
  * Returns transaction data for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IBitcoinTransactionData}
  */
 export const transactionSelector = createSelector(
 	[
@@ -118,6 +137,10 @@ export const transactionSelector = createSelector(
 
 /**
  * Returns boosted transactions for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IBoostedTransaction}
  */
 export const boostedTransactionsSelector = createSelector(
 	[
@@ -138,6 +161,10 @@ export const boostedTransactionsSelector = createSelector(
 
 /**
  * Returns unconfirmed transactions for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IFormattedTransactionContent[]}
  */
 export const unconfirmedTransactionsSelector = createSelector(
 	[
@@ -161,7 +188,7 @@ export const unconfirmedTransactionsSelector = createSelector(
 );
 
 /**
- * Returns the selected wallet id.
+ * Returns the wallet store object.
  */
 export const walletSelector = createSelector(
 	walletState,

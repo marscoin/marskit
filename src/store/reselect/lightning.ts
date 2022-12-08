@@ -12,7 +12,12 @@ export const lightningSelector = createSelector(
 );
 
 /**
- * Returns the current lightning balance.
+ * Returns the current lightning balance for a given wallet.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @param {boolean} subtractReserveBalance
+ * @returns {number}
  */
 export const lightningBalanceSelector = createSelector(
 	[
@@ -61,6 +66,13 @@ export const lightningBalanceSelector = createSelector(
 	},
 );
 
+/**
+ * Returns open lightning channel ids for a given wallet and network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {TOpenChannelIds}
+ */
 export const openChannelIdsSelector = createSelector(
 	[
 		nodesState,

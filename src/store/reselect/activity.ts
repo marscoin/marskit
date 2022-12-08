@@ -11,6 +11,12 @@ export const activityItemsSelector = createSelector(
 	(activityItems): IActivityItem[] => activityItems,
 );
 
+/**
+ * Returns an individual activity item by the provided id.
+ * @param {Store} state
+ * @param {string} activityId
+ * @returns {string}
+ */
 export const activityItemSelector = createSelector(
 	[
 		activityItemsState,

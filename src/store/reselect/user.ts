@@ -26,6 +26,9 @@ export const viewControllersSelector = createSelector(
 
 /**
  * Returns specified viewController data.
+ * @param {Store} state
+ * @param {TViewController} viewController
+ * @returns {IViewControllerData}
  */
 export const viewControllerSelector = createSelector(
 	[
@@ -37,6 +40,12 @@ export const viewControllerSelector = createSelector(
 		viewControllers[viewController],
 );
 
+/**
+ * Returns boolean on whether a given viewController is open.
+ * @param {Store} state
+ * @param {TViewController} viewController
+ * @returns {boolean}
+ */
 export const viewControllerIsOpenSelector = createSelector(
 	[
 		viewControllerState,

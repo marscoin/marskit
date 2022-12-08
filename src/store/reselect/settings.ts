@@ -84,6 +84,14 @@ export const coinSelectPreferenceSelector = createSelector(
 	coinSelectPreferenceState,
 	(coinSelectPreference): TCoinSelectPreference => coinSelectPreference,
 );
+
+/**
+ * Returns custom Electrum peers for a given network.
+ * @param {Store} state
+ * @param {TAvailableNetworks} selectedNetwork
+ * @param {boolean} subtractReserveBalance
+ * @returns {ICustomElectrumPeer[]}
+ */
 export const customElectrumPeersSelector = createSelector(
 	[
 		customElectrumPeersState,
