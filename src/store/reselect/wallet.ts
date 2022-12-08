@@ -14,7 +14,6 @@ import {
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate/types';
 
-const entireState = (state: Store): Store => state;
 export const walletState = (state: Store): IWallet => state.wallet;
 export const walletsState = (
 	state: Store,
@@ -188,10 +187,7 @@ export const unconfirmedTransactionsSelector = createSelector(
 /**
  * Returns the wallet store object.
  */
-export const walletSelector = createSelector(
-	entireState,
-	(state: Store): IWallet => state.wallet,
-);
+export const walletSelector = (state: Store): IWallet => state.wallet;
 
 /**
  * Returns the current on-chain balance.

@@ -12,15 +12,11 @@ import {
 } from '../types/settings';
 import { TAvailableNetworks } from '../../utils/networks';
 
-const entireState = (state: Store): Store => state;
 export const settingsState = (state: Store): ISettings => state.settings;
 const customElectrumPeersState = (state: Store): TCustomElectrumPeers =>
 	state.settings.customElectrumPeers;
 
-export const settingsSelector = createSelector(
-	[entireState],
-	(state): ISettings => state.settings,
-);
+export const settingsSelector = (state: Store): ISettings => state.settings;
 export const selectedCurrencySelector = createSelector(
 	[settingsState],
 	(settings): string => settings.selectedCurrency,
