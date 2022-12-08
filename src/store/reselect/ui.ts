@@ -1,10 +1,10 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { TProfileLink } from '../types/ui';
+import { IUi, TProfileLink } from '../types/ui';
 
-const profileLinkState = (state: Store): TProfileLink => state.ui.profileLink;
+const uiState = (state: Store): IUi => state.ui;
 
 export const profileLinkSelector = createSelector(
-	profileLinkState,
-	(profileLink): TProfileLink => profileLink,
+	[uiState],
+	(ui): TProfileLink => ui.profileLink,
 );

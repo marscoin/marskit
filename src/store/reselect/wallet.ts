@@ -14,6 +14,7 @@ import {
 import { TAvailableNetworks } from '../../utils/networks';
 import { IExchangeRates } from '../../utils/exchange-rate/types';
 
+const entireState = (state: Store): Store => state;
 export const walletState = (state: Store): IWallet => state.wallet;
 export const walletsState = (
 	state: Store,
@@ -31,16 +32,16 @@ export const addressTypesState = (state: Store): IAddressTypes =>
  * Returns the selected wallet id.
  */
 export const selectedWalletSelector = createSelector(
-	selectedWalletState,
-	(selectedWallet): string => selectedWallet,
+	[walletState],
+	(wallet): string => wallet.selectedWallet,
 );
 
 /**
  * Returns the selected network id (TAvailableNetworks)
  */
 export const selectedNetworkSelector = createSelector(
-	selectedNetworkState,
-	(selectedNetwork): TAvailableNetworks => selectedNetwork,
+	[walletState],
+	(wallet): TAvailableNetworks => wallet.selectedNetwork,
 );
 
 /**
@@ -81,12 +82,9 @@ export const addressTypeSelector = createSelector(
 /**
  * Returns exchange rate information.
  */
-export const exchangeRatesSelector = createSelector(
-	exchangeRatesState,
-	(exchangeRates) => {
-		return exchangeRates;
-	},
-);
+export const exchangeRatesSelector = createSelector([walletState], (wallet) => {
+	return wallet.exchangeRates;
+});
 
 /**
  * Returns object of on-chain transactions for the currently selected wallet & network.
@@ -191,8 +189,8 @@ export const unconfirmedTransactionsSelector = createSelector(
  * Returns the wallet store object.
  */
 export const walletSelector = createSelector(
-	walletState,
-	(wallet): IWallet => wallet,
+	entireState,
+	(state: Store): IWallet => state.wallet,
 );
 
 /**
@@ -208,6 +206,6 @@ export const onChainBalanceSelector = createSelector(
 );
 
 export const addressTypesSelector = createSelector(
-	addressTypesState,
-	(addressTypes): IAddressTypes => addressTypes,
+	[walletState],
+	(wallet): IAddressTypes => wallet.addressTypes,
 );

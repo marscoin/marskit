@@ -1,24 +1,19 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
 import { IGetOrderResponse, IService } from '@synonymdev/blocktank-client';
-import { TPaidBlocktankOrders } from '../types/blocktank';
+import { IBlocktank, TPaidBlocktankOrders } from '../types/blocktank';
 
-const serviceListState = (state: Store): IService[] =>
-	state.blocktank.serviceList;
-const blocktankOrdersState = (state: Store): IGetOrderResponse[] =>
-	state.blocktank.orders;
-const blocktankPaidOrdersState = (state: Store): TPaidBlocktankOrders =>
-	state.blocktank.paidOrders;
+const blocktankState = (state: Store): IBlocktank => state.blocktank;
 
 export const blocktankServiceListSelector = createSelector(
-	serviceListState,
-	(serviceList): IService[] => serviceList,
+	blocktankState,
+	(blocktank): IService[] => blocktank.serviceList,
 );
 export const blocktankOrdersSelector = createSelector(
-	blocktankOrdersState,
-	(orders): IGetOrderResponse[] => orders ?? [],
+	blocktankState,
+	(blocktank): IGetOrderResponse[] => blocktank.orders ?? [],
 );
 export const blocktankPaidOrdersSelector = createSelector(
-	blocktankPaidOrdersState,
-	(paidOrders): TPaidBlocktankOrders => paidOrders,
+	blocktankState,
+	(blocktank): TPaidBlocktankOrders => blocktank.paidOrders,
 );

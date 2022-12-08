@@ -1,13 +1,14 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { TLastUsedTags, TTags } from '../types/metadata';
+import { IMetadata, TLastUsedTags, TTags } from '../types/metadata';
 
-const tagsState = (state: Store): TTags => state.metadata.tags;
-const lastUsedTagsState = (state: Store): TLastUsedTags =>
-	state.metadata.lastUsedTags;
+const metadataState = (state: Store): IMetadata => state.metadata;
 
-export const tagsSelector = createSelector(tagsState, (tags): TTags => tags);
+export const tagsSelector = createSelector(
+	[metadataState],
+	(metadata): TTags => metadata.tags,
+);
 export const lastUsedTagsSelector = createSelector(
-	lastUsedTagsState,
-	(lastUsedTags): TLastUsedTags => lastUsedTags,
+	[metadataState],
+	(metadata): TLastUsedTags => metadata.lastUsedTags,
 );

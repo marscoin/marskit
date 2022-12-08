@@ -1,14 +1,16 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { IActivityItem } from '../types/activity';
+import { IActivity, IActivityItem } from '../types/activity';
 import { defaultActivityItemShape } from '../shapes/activity';
+
+const activityState = (state: Store): IActivity => state.activity;
 
 const activityItemsState = (state: Store): IActivityItem[] =>
 	state.activity.items;
 
 export const activityItemsSelector = createSelector(
-	activityItemsState,
-	(activityItems): IActivityItem[] => activityItems,
+	[activityState],
+	(activity): IActivityItem[] => activity.items,
 );
 
 /**

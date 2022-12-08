@@ -1,10 +1,10 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { IOnchainFees } from '../types/fees';
+import { IFees, IOnchainFees } from '../types/fees';
 
-const onChainFeesState = (state: Store): IOnchainFees => state.fees.onchain;
+const feesState = (state: Store): IFees => state.fees;
 
 export const onChainFeesSelector = createSelector(
-	onChainFeesState,
-	(onChainFees): IOnchainFees => onChainFees,
+	[feesState],
+	(fees): IOnchainFees => fees.onchain,
 );

@@ -1,16 +1,15 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { IWidget } from '../types/widgets';
+import { IWidget, IWidgets } from '../types/widgets';
 
-const widgetsState = (state: Store): { [url: string]: IWidget } =>
-	state.widgets.widgets;
+export const widgetsState = (state: Store): IWidgets => state.widgets;
 
 /**
  * Returns all widgets.
  */
 export const widgetsSelector = createSelector(
-	widgetsState,
-	(widgets): { [url: string]: IWidget } => widgets,
+	[widgetsState],
+	(widgets): { [url: string]: IWidget } => widgets.widgets,
 );
 
 /**

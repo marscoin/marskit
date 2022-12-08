@@ -9,56 +9,55 @@ import { IBlocktank } from '../types/blocktank';
 import { IFees } from '../types/fees';
 import { ISlashtags } from '../types/slashtags';
 import { IUser } from '../types/user';
-import { walletState } from './wallet';
-import { settingsState } from './settings';
-import { lightningState } from './lightning';
+
+const entireState = (state: Store): Store => state;
 
 export const getStoreSelector = createSelector(
-	(state: Store): Store => state,
+	entireState,
 	(state): Store => JSON.parse(JSON.stringify(state)),
 );
 
 export const getWalletStoreSelector = createSelector(
-	walletState,
-	(wallet): IWallet => JSON.parse(JSON.stringify(wallet)),
+	[entireState],
+	(state): IWallet => JSON.parse(JSON.stringify(state.wallet)),
 );
 
 export const getSettingsStoreSelector = createSelector(
-	settingsState,
-	(settings): ISettings => JSON.parse(JSON.stringify(settings)),
+	[entireState],
+	(state): ISettings => JSON.parse(JSON.stringify(state.settings)),
 );
 
 export const getMetaDataStoreSelector = createSelector(
-	(state: Store): IMetadata => state.metadata,
-	(metadata): IMetadata => JSON.parse(JSON.stringify(metadata)),
+	[entireState],
+	(state): IMetadata => JSON.parse(JSON.stringify(state.metadata)),
 );
 
 export const getActivityStoreSelector = createSelector(
-	(state: Store): IActivity => state.activity,
-	(activity): IActivity => JSON.parse(JSON.stringify(activity)),
+	entireState,
+	(state): IActivity => JSON.parse(JSON.stringify(state.activity)),
 );
 
 export const getLightningStoreSelector = createSelector(
-	lightningState,
-	(lightning): ILightning => JSON.parse(JSON.stringify(lightning)),
+	entireState,
+	(state): ILightning => JSON.parse(JSON.stringify(state.lightning)),
 );
 
 export const getBlocktankStoreSelector = createSelector(
-	(state: Store): IBlocktank => state.blocktank,
-	(blocktank): IBlocktank => JSON.parse(JSON.stringify(blocktank)),
+	entireState,
+	(state): IBlocktank => JSON.parse(JSON.stringify(state.blocktank)),
 );
 
 export const getFeesStoreSelector = createSelector(
-	(state: Store): IFees => state.fees,
-	(fees): IFees => JSON.parse(JSON.stringify(fees)),
+	entireState,
+	(state): IFees => JSON.parse(JSON.stringify(state.fees)),
 );
 
 export const getSlashtagsStoreSelector = createSelector(
-	(state: Store): ISlashtags => state.slashtags,
-	(slashtags): ISlashtags => JSON.parse(JSON.stringify(slashtags)),
+	entireState,
+	(state): ISlashtags => JSON.parse(JSON.stringify(state.slashtags)),
 );
 
 export const getUserStoreSelector = createSelector(
-	(state: Store): IUser => state.user,
-	(user): IUser => JSON.parse(JSON.stringify(user)),
+	entireState,
+	(state): IUser => JSON.parse(JSON.stringify(state.user)),
 );
