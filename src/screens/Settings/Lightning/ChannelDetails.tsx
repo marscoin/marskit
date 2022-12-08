@@ -21,9 +21,9 @@ import {
 import { showSuccessNotification } from '../../../utils/notifications';
 import { ITransaction, ITxHash } from '../../../utils/wallet';
 import { getTransactions } from '../../../utils/wallet/electrum';
-import Store from '../../../store/types';
 import { getBlockExplorerLink } from '../../../utils/wallet/transactions';
 import { openURL } from '../../../utils/helpers';
+import { selectedNetworkSelector } from '../../../store/reselect/wallet';
 
 const Section = memo(
 	({
@@ -60,9 +60,7 @@ const ChannelDetails = ({ route, navigation }): ReactElement => {
 	const { spendingAvailable, receivingAvailable, capacity } =
 		useLightningChannelBalance(channelId);
 	const channel = useLightningChannelData(channelId);
-	const selectedNetwork = useSelector(
-		(store: Store) => store.wallet.selectedNetwork,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const [txTime, setTxTime] = useState<undefined | string>();
 
 	useEffect(() => {
