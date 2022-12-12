@@ -41,9 +41,7 @@ const RestoringScreen = (): ReactElement => {
 			return;
 		}
 
-		(async (): Promise<void> => {
-			await onRemoteRestore();
-		})();
+		onRemoteRestore().then();
 	}, [onRemoteRestore]);
 
 	let color: keyof IColors = 'brand';
