@@ -11,7 +11,6 @@ import { toggleView } from '../../store/actions/ui';
 import GlowImage from '../../components/GlowImage';
 import { addTodo, removeTodo } from '../../store/actions/todos';
 import { closeAllChannels } from '../../utils/lightning';
-import Store from '../../store/types';
 import {
 	useBottomSheetBackPress,
 	useSnapPoints,
@@ -20,6 +19,11 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
+import { startCoopCloseTimestampSelector } from '../../store/reselect/user';
 
 const imageSrc = require('../../assets/illustrations/exclamation-mark.png');
 
@@ -29,15 +33,9 @@ const GIVE_UP = 1000 * 60 * 30;
 const ForceTransfer = (): ReactElement => {
 	const snapPoints = useSnapPoints('large');
 	const insets = useSafeAreaInsets();
-	const startTime = useSelector(
-		(state: Store) => state.user.startCoopCloseTimestamp,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const startTime = useSelector(startCoopCloseTimestampSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	const buttonContainerStyles = useMemo(
 		() => ({

@@ -24,7 +24,6 @@ import Button from '../../components/Button';
 import AmountToggle from '../../components/AmountToggle';
 import FancySlider from '../../components/FancySlider';
 import NumberPadLightning from './NumberPadLightning';
-import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
 import {
 	resetOnChainTransaction,
@@ -36,6 +35,12 @@ import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
 import { convertCurrency } from '../../utils/blocktank';
 import { SPENDING_LIMIT_RATIO } from '../../utils/wallet/constants';
 import type { LightningScreenProps } from '../../navigation/types';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
+import { blocktankServiceSelector } from '../../store/reselect/blocktank';
+import { selectedCurrencySelector } from '../../store/reselect/settings';
 
 const QuickSetup = ({
 	navigation,
@@ -45,18 +50,10 @@ const QuickSetup = ({
 	const [totalBalance, setTotalBalance] = useState(0);
 	const [spendingAmount, setSpendingAmount] = useState(0);
 	const currentBalance = useBalance({ onchain: true });
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const blocktankService = useSelector(
-		(state: Store) => state.blocktank.serviceList[0],
-	);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const blocktankService = useSelector(blocktankServiceSelector);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
 
 	const savingsAmount = totalBalance - spendingAmount;
 	const spendingPercentage = Math.round((spendingAmount / totalBalance) * 100);

@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { processInputData } from '../../utils/scanner';
-import Store from '../../store/types';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
 import NavigationHeader from '../../components/NavigationHeader';
 import { showErrorNotification } from '../../utils/notifications';
@@ -11,18 +10,18 @@ import ScannerComponent from './ScannerComponent';
 import type { RootStackScreenProps } from '../../navigation/types';
 import DetectSwipe from '../../components/DetectSwipe';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
 
 const ScannerScreen = ({
 	navigation,
 	route,
 }: RootStackScreenProps<'Scanner'>): ReactElement => {
 	const onScan = route.params?.onScan;
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
 	const sdk = useSlashtagsSDK();
 
 	const onSwipeRight = (): void => {

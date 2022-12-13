@@ -8,6 +8,7 @@ import {
 	IDefaultWalletShape,
 	IFormattedTransaction,
 	IFormattedTransactionContent,
+	IUtxo,
 	IWallet,
 	TAddressType,
 } from '../types/wallet';
@@ -50,12 +51,9 @@ export const selectedNetworkSelector = createSelector(
  * @returns {IDefaultWalletShape}
  */
 export const currentWalletSelector = createSelector(
-	[
-		walletsState,
-		(currentWallet, selectedWallet: string): string => selectedWallet,
-	],
-	(currentWallet, selectedWallet): IDefaultWalletShape => {
-		return currentWallet[selectedWallet];
+	[walletState, (wallet, selectedWallet: string): string => selectedWallet],
+	(wallet, selectedWallet): IDefaultWalletShape => {
+		return wallet.wallets[selectedWallet];
 	},
 );
 
@@ -67,14 +65,11 @@ export const currentWalletSelector = createSelector(
  * @returns {TAddressType}
  */
 export const addressTypeSelector = createSelector(
-	[
-		walletsState,
-		(wallets, selectedWallet: string): string => selectedWallet,
-		(wallets, selectedWallet, selectedNetwork): TAvailableNetworks =>
-			selectedNetwork,
-	],
-	(wallets, selectedWallet, selectedNetwork): TAddressType => {
-		return wallets[selectedWallet].addressType[selectedNetwork];
+	[walletState],
+	(wallet): TAddressType => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
+		return wallet.wallets[selectedWallet].addressType[selectedNetwork];
 	},
 );
 
@@ -93,17 +88,11 @@ export const exchangeRatesSelector = createSelector([walletState], (wallet) => {
  * @returns {IFormattedTransaction}
  */
 export const transactionsSelector = createSelector(
-	[
-		walletsState,
-		(currentWallet, selectedWallet: string): string => selectedWallet,
-		(
-			currentWallet,
-			selectedWallet,
-			selectedNetwork: TAvailableNetworks,
-		): TAvailableNetworks => selectedNetwork,
-	],
-	(currentWallet, selectedWallet, selectedNetwork): IFormattedTransaction => {
-		return currentWallet[selectedWallet].transactions[selectedNetwork] || {};
+	[walletState],
+	(wallet): IFormattedTransaction => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
+		return wallet.wallets[selectedWallet].transactions[selectedNetwork] || {};
 	},
 );
 
@@ -115,19 +104,50 @@ export const transactionsSelector = createSelector(
  * @returns {IBitcoinTransactionData}
  */
 export const transactionSelector = createSelector(
-	[
-		walletsState,
-		(currentWallet, selectedWallet: string): string => selectedWallet,
-		(
-			currentWallet,
-			selectedWallet,
-			selectedNetwork: TAvailableNetworks,
-		): TAvailableNetworks => selectedNetwork,
-	],
-	(currentWallet, selectedWallet, selectedNetwork): IBitcoinTransactionData => {
+	[walletState],
+	(wallet): IBitcoinTransactionData => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
 		return (
-			currentWallet[selectedWallet].transaction[selectedNetwork] ||
+			wallet.wallets[selectedWallet].transaction[selectedNetwork] ||
 			defaultBitcoinTransactionData
+		);
+	},
+);
+
+/**
+ * Returns transaction fee for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IBitcoinTransactionData}
+ */
+export const transactionFeeSelector = createSelector(
+	[walletState],
+	(wallet): number | undefined => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
+		return (
+			wallet.wallets[selectedWallet].transaction[selectedNetwork].fee ||
+			defaultBitcoinTransactionData.fee
+		);
+	},
+);
+
+/**
+ * Returns whether transaction is set to max for the currently selected wallet & network.
+ * @param {Store} state
+ * @param {string} selectedWallet
+ * @param {TAvailableNetworks} selectedNetwork
+ * @returns {IBitcoinTransactionData}
+ */
+export const transactionMaxSelector = createSelector(
+	[walletState],
+	(wallet): boolean => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
+		return (
+			wallet.wallets[selectedWallet].transaction[selectedNetwork].max ?? false
 		);
 	},
 );
@@ -140,18 +160,12 @@ export const transactionSelector = createSelector(
  * @returns {IBoostedTransaction}
  */
 export const boostedTransactionsSelector = createSelector(
-	[
-		walletsState,
-		(currentWallet, selectedWallet: string): string => selectedWallet,
-		(
-			currentWallet,
-			selectedWallet,
-			selectedNetwork: TAvailableNetworks,
-		): TAvailableNetworks => selectedNetwork,
-	],
-	(currentWallet, selectedWallet, selectedNetwork): IBoostedTransaction => {
+	[walletState],
+	(wallet): IBoostedTransaction => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
 		return (
-			currentWallet[selectedWallet].boostedTransactions[selectedNetwork] || {}
+			wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork] || {}
 		);
 	},
 );
@@ -164,22 +178,12 @@ export const boostedTransactionsSelector = createSelector(
  * @returns {IFormattedTransactionContent[]}
  */
 export const unconfirmedTransactionsSelector = createSelector(
-	[
-		walletsState,
-		(currentWallet, selectedWallet: string): string => selectedWallet,
-		(
-			currentWallet,
-			selectedWallet,
-			selectedNetwork: TAvailableNetworks,
-		): TAvailableNetworks => selectedNetwork,
-	],
-	(
-		currentWallet,
-		selectedWallet,
-		selectedNetwork,
-	): IFormattedTransactionContent[] => {
+	[walletState],
+	(wallet): IFormattedTransactionContent[] => {
+		const selectedWallet = wallet.selectedWallet;
+		const selectedNetwork = wallet.selectedNetwork;
 		const transactions: IFormattedTransaction =
-			currentWallet[selectedWallet].transactions[selectedNetwork] || {};
+			wallet.wallets[selectedWallet].transactions[selectedNetwork] || {};
 		return Object.values(transactions).filter((tx) => tx.height < 1);
 	},
 );
@@ -201,7 +205,18 @@ export const onChainBalanceSelector = createSelector(
 	},
 );
 
+export const utxosSelector = createSelector(walletState, (wallet): IUtxo[] => {
+	const selectedWallet = wallet.selectedWallet;
+	const selectedNetwork = wallet.selectedNetwork;
+	return wallet.wallets[selectedWallet]?.utxos[selectedNetwork] || [];
+});
+
 export const addressTypesSelector = createSelector(
 	[walletState],
 	(wallet): IAddressTypes => wallet.addressTypes,
+);
+
+export const walletExistsSelector = createSelector(
+	[walletState],
+	(wallet): boolean => wallet.walletExists,
 );

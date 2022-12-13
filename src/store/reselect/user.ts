@@ -18,3 +18,23 @@ export const ignoreBackupTimestampSelector = createSelector(
 	[userState],
 	(user): number => user.ignoreBackupTimestamp,
 );
+
+export const requiresRemoteRestoreSelector = createSelector(
+	[userState],
+	(user): boolean => user.requiresRemoteRestore,
+);
+
+export const ignoreHighBalanceTimestampSelector = createSelector(
+	[userState],
+	(user): number => user.ignoreHighBalanceTimestamp,
+);
+
+export const ignoreHighBalanceCountSelector = createSelector(
+	[userState],
+	(user): number => user.ignoreHighBalanceCount,
+);
+
+export const startCoopCloseTimestampSelector = createSelector(
+	[userState],
+	(user): number => user.startCoopCloseTimestamp,
+);

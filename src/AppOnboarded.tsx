@@ -15,6 +15,15 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from './utils/notifications';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from './store/reselect/wallet';
+import {
+	isConnectedToElectrumSelector,
+	isOnlineSelector,
+} from './store/reselect/ui';
+import { enableAutoReadClipboardSelector } from './store/reselect/settings';
 
 const AppOnboarded = (): ReactElement => {
 	const appState = useRef(AppState.currentState);
@@ -22,16 +31,12 @@ const AppOnboarded = (): ReactElement => {
 	const { satoshis: onChainBalance } = useBalance({ onchain: true });
 	const { satoshis: lightningBalance } = useBalance({ lightning: true });
 	const enableAutoReadClipboard = useAppSelector(
-		(state) => state.settings.enableAutoReadClipboard,
+		enableAutoReadClipboardSelector,
 	);
-	const selectedWallet = useAppSelector((state) => state.wallet.selectedWallet);
-	const selectedNetwork = useAppSelector(
-		(state) => state.wallet.selectedNetwork,
-	);
-	const isOnline = useAppSelector((state) => state.ui.isOnline);
-	const isConnectedToElectrum = useAppSelector(
-		(state) => state.ui.isConnectedToElectrum,
-	);
+	const selectedWallet = useAppSelector(selectedWalletSelector);
+	const selectedNetwork = useAppSelector(selectedNetworkSelector);
+	const isOnline = useAppSelector(isOnlineSelector);
+	const isConnectedToElectrum = useAppSelector(isConnectedToElectrumSelector);
 
 	// on App start
 	useEffect(() => {

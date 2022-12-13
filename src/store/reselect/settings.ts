@@ -7,10 +7,12 @@ import {
 	TCoinSelectPreference,
 	TCustomElectrumPeers,
 	TReceiveOption,
+	TTheme,
 	TTransactionSpeed,
 	TUnitPreference,
 } from '../types/settings';
 import { TAvailableNetworks } from '../../utils/networks';
+import themes from '../../styles/themes';
 
 export const settingsState = (state: Store): ISettings => state.settings;
 const customElectrumPeersState = (state: Store): TCustomElectrumPeers =>
@@ -92,4 +94,21 @@ export const receivePreferenceSelector = createSelector(
 export const pinForPaymentsSelector = createSelector(
 	[settingsState],
 	(settings): boolean => settings.pinForPayments,
+);
+export const themeSelector = createSelector(
+	[settingsState],
+	(settings): TTheme => settings.theme,
+);
+export const themeColorsSelector = createSelector(
+	[settingsState],
+	(settings): any => themes[settings.theme].colors,
+);
+export const selectedLanguageSelector = createSelector(
+	[settingsState],
+	(settings): string => settings.selectedLanguage,
+);
+
+export const enableAutoReadClipboardSelector = createSelector(
+	[settingsState],
+	(settings): boolean => settings.enableAutoReadClipboard,
 );

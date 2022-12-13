@@ -28,37 +28,34 @@ import {
 } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
 import { addTodo } from '../../store/actions/todos';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+	transactionFeeSelector,
+} from '../../store/reselect/wallet';
+import {
+	blocktankOrderSelector,
+	blocktankServiceSelector,
+} from '../../store/reselect/blocktank';
 
 const CustomConfirm = ({
 	navigation,
 	route,
 }: LightningScreenProps<'CustomConfirm'>): ReactElement => {
 	const { spendingAmount, receivingAmount } = route.params;
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [weeks, setWeeks] = useState(6);
 	const [orderId, setOrderId] = useState(route.params.orderId);
-	const blocktankService = useSelector(
-		(state: Store) => state.blocktank.serviceList[0],
+	const blocktankService = useSelector(blocktankServiceSelector);
+	const order = useSelector((state: Store) =>
+		blocktankOrderSelector(state, orderId),
 	);
-
-	const orders = useSelector((state: Store) => state.blocktank.orders);
-	const order = useMemo(() => {
-		// assume we found our order in store
-		return orders.find((o) => o._id === orderId)!;
-	}, [orderId, orders]);
 
 	const blocktankPurchaseFee = useDisplayValues(order?.price ?? 0);
-	const transactionFee = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork].fee,
-	);
+	const transactionFee = useSelector(transactionFeeSelector);
 	const fiatTransactionFee = useDisplayValues(transactionFee ?? 0);
 	const channelOpenCost = useMemo(() => {
 		return (

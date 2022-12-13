@@ -51,6 +51,18 @@ import {
 } from '../../../store/actions/lightning';
 import { ETransactionDefaults } from '../../../store/types/wallet';
 import { useBalance } from '../../../hooks/wallet';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
+import {
+	channelsSelector,
+	closedChannelsSelector,
+	openChannelIdsSelector,
+	isChannelReadySelector,
+	pendingChannelsSelector,
+} from '../../../store/reselect/lightning';
+import { enableDevOptionsSelector } from '../../../store/reselect/settings';
 
 const Channel = memo(
 	({
@@ -119,47 +131,29 @@ const Channels = ({ navigation }): ReactElement => {
 	const colors = useColors();
 	const balance = useBalance({ onchain: true });
 
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const channels = useSelector((state: Store) =>
+		channelsSelector(state, selectedWallet, selectedNetwork),
 	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
+	const openChannelIds = useSelector((state: Store) =>
+		openChannelIdsSelector(state, selectedWallet, selectedNetwork),
 	);
-	const channels = useSelector(
-		(state: Store) =>
-			state.lightning?.nodes[selectedWallet]?.channels[selectedNetwork] ?? {},
-	);
-	const openChannelIds = useSelector(
-		(state: Store) =>
-			state.lightning?.nodes[selectedWallet]?.openChannelIds[selectedNetwork] ??
-			[],
-	);
-	const enableDevOptions = useSelector(
-		(state: Store) => state.settings.enableDevOptions,
-	);
+	const enableDevOptions = useSelector(enableDevOptionsSelector);
 
 	const { localBalance, remoteBalance } = useLightningBalance(false);
 
-	const openChannels = useMemo(() => {
-		return openChannelIds.filter((channelId) => {
-			const channel = channels[channelId];
-			return channel?.is_channel_ready;
-		});
-	}, [channels, openChannelIds]);
+	const openChannels = useSelector((state: Store) =>
+		isChannelReadySelector(state, selectedWallet, selectedNetwork),
+	);
 
-	const pendingChannels = useMemo(() => {
-		return openChannelIds.filter((channelId) => {
-			const channel = channels[channelId];
-			return !channel?.is_channel_ready;
-		});
-	}, [channels, openChannelIds]);
+	const pendingChannels = useSelector((state: Store) =>
+		pendingChannelsSelector(state, selectedWallet, selectedNetwork),
+	);
 
-	const closedChannels = useMemo(() => {
-		const allChannelKeys = Object.keys(channels);
-		return allChannelKeys.filter((key) => {
-			return !openChannelIds.includes(key);
-		});
-	}, [channels, openChannelIds]);
+	const closedChannels = useSelector((state: Store) =>
+		closedChannelsSelector(state, selectedWallet, selectedNetwork),
+	);
 
 	const handleAdd = useCallback((): void => {
 		navigation.navigate('LightningRoot', {

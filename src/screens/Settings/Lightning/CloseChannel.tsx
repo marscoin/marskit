@@ -8,7 +8,6 @@ import NavigationHeader from '../../../components/NavigationHeader';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { closeChannel, refreshLdk } from '../../../utils/lightning';
-import Store from '../../../store/types';
 import {
 	useLightningChannelData,
 	useLightningChannelName,
@@ -18,6 +17,10 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const imageSrc = require('../../../assets/illustrations/switch.png');
 
@@ -28,12 +31,8 @@ const CloseChannel = ({
 	const { channelId } = route.params;
 	const [loading, setLoading] = useState<boolean>(false);
 
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	const channel = useLightningChannelData(channelId);
 	const name = useLightningChannelName(channelId);

@@ -22,12 +22,18 @@ import {
 	Subtitle,
 	View,
 } from '../../styles/components';
-import Store from '../../store/types';
 import { refreshWallet } from '../../utils/wallet';
 import { groupActivityItems, filterActivityItems } from '../../utils/activity';
 import ListItem from './ListItem';
 import { RootNavigationProp } from '../../navigation/types';
 import { formatBoostedActivityItems } from '../../utils/boost';
+import {
+	boostedTransactionsSelector,
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
+import { activityItemsSelector } from '../../store/reselect/activity';
+import { tagsSelector } from '../../store/reselect/metadata';
 
 const ListHeaderComponent = memo(
 	(): ReactElement => {
@@ -56,18 +62,11 @@ const ActivityList = ({
 	filter?: {};
 }): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const boostedTransactions = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
-	);
-	const items = useSelector((state: Store) => state.activity.items);
-	const tags = useSelector((state: Store) => state.metadata.tags);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const boostedTransactions = useSelector(boostedTransactionsSelector);
+	const items = useSelector(activityItemsSelector);
+	const tags = useSelector(tagsSelector);
 	const formattedBoostItems = useMemo(() => {
 		return formatBoostedActivityItems({
 			items,

@@ -61,3 +61,13 @@ export const profileLinkSelector = createSelector(
 	[uiState],
 	(ui): TProfileLink => ui.profileLink,
 );
+
+export const isOnlineSelector = createSelector(
+	[uiState],
+	(ui): boolean => ui.isOnline,
+);
+
+export const isConnectedToElectrumSelector = createSelector(
+	[uiState],
+	(ui): boolean => ui.isConnectedToElectrum,
+);

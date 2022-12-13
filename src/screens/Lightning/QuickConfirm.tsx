@@ -15,12 +15,16 @@ import AmountToggle from '../../components/AmountToggle';
 import Percentage from '../../components/Percentage';
 import SwipeToConfirm from '../../components/SwipeToConfirm';
 import PieChart from './PieChart';
-import Store from '../../store/types';
 import { sleep } from '../../utils/helpers';
 import { confirmChannelPurchase } from '../../store/actions/blocktank';
 import { addTodo } from '../../store/actions/todos';
 import useDisplayValues from '../../hooks/displayValues';
 import type { LightningScreenProps } from '../../navigation/types';
+import {
+	selectedNetworkSelector,
+	transactionFeeSelector,
+} from '../../store/reselect/wallet';
+import { blocktankOrdersSelector } from '../../store/reselect/blocktank';
 
 const PIE_SIZE = 140;
 const PIE_SHIFT = 70;
@@ -30,22 +34,14 @@ const QuickConfirm = ({
 	route,
 }: LightningScreenProps<'QuickConfirm'>): ReactElement => {
 	const { spendingAmount, total, orderId } = route.params;
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
-	const orders = useSelector((state: Store) => state.blocktank.orders);
+	const orders = useSelector(blocktankOrdersSelector);
 	const order = useMemo(() => {
 		return orders.find((o) => o._id === orderId);
 	}, [orderId, orders]);
 	const blocktankPurchaseFee = useDisplayValues(order?.price ?? 0);
-	const transactionFee = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].transaction[selectedNetwork].fee,
-	);
+	const transactionFee = useSelector(transactionFeeSelector);
 	const fiatTransactionFee = useDisplayValues(transactionFee ?? 0);
 	const channelOpenCost = useMemo(() => {
 		return (

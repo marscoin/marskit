@@ -1,12 +1,12 @@
 // Component currenlty unused
 
-import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { LayoutAnimation, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import Store from '../../store/types';
-import { EPaymentType, IFormattedTransaction } from '../../store/types/wallet';
+import { EPaymentType } from '../../store/types/wallet';
 import {
 	View,
 	BoostIcon,
@@ -19,6 +19,11 @@ import { btcToSats } from '../../utils/helpers';
 import { getDisplayValues } from '../../utils/exchange-rate';
 import { canBoost } from '../../utils/wallet/transactions';
 import { RootNavigationProp } from '../../navigation/types';
+import {
+	boostedTransactionsSelector,
+	onChainBalanceSelector,
+	unconfirmedTransactionsSelector,
+} from '../../store/reselect/wallet';
 
 /**
  * Returns the appropriate text for the boost card.
@@ -83,34 +88,9 @@ const BoostCard = memo(
 );
 
 const BoostCards = (): ReactElement | null => {
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const transactions: IFormattedTransaction = useSelector(
-		(state: Store) =>
-			state.wallet?.wallets[selectedWallet]?.transactions[selectedNetwork] ||
-			[],
-	);
-
-	const boostedTransactions = useSelector(
-		(state: Store) =>
-			state.wallet?.wallets[selectedWallet]?.boostedTransactions[
-				selectedNetwork
-			],
-	);
-
-	const balance: number = useSelector(
-		(state: Store) =>
-			state.wallet?.wallets[selectedWallet]?.balance[selectedNetwork] || 0,
-	);
-
-	const unconfirmedTransactions = useMemo(
-		() => Object.values(transactions).filter((tx) => tx.height < 1),
-		[transactions],
-	);
+	const boostedTransactions = useSelector(boostedTransactionsSelector);
+	const balance: number = useSelector(onChainBalanceSelector);
+	const unconfirmedTransactions = useSelector(unconfirmedTransactionsSelector);
 
 	const hasEnoughToBoost = useCallback(
 		(txid): boolean => canBoost(txid).canBoost,

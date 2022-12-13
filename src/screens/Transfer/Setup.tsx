@@ -22,7 +22,6 @@ import { useLightningBalance } from '../../hooks/lightning';
 import { showErrorNotification } from '../../utils/notifications';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { useSelector } from 'react-redux';
-import Store from '../../store/types';
 import { SPENDING_LIMIT_RATIO } from '../../utils/wallet/constants';
 import { convertCurrency } from '../../utils/blocktank';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
@@ -31,6 +30,12 @@ import {
 	setupOnChainTransaction,
 } from '../../store/actions/wallet';
 import type { TransferScreenProps } from '../../navigation/types';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
+import { blocktankServiceSelector } from '../../store/reselect/blocktank';
+import { selectedCurrencySelector } from '../../store/reselect/settings';
 
 const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 	const balance = useBalance({ onchain: true, lightning: true });
@@ -39,18 +44,10 @@ const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 	const [loading, setLoading] = useState(false);
 	const [spendingAmount, setSpendingAmount] = useState(currentSpendingAmount);
 
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const blocktankService = useSelector(
-		(state: Store) => state.blocktank.serviceList[0],
-	);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const blocktankService = useSelector(blocktankServiceSelector);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
 
 	useFocusEffect(
 		useCallback(() => {

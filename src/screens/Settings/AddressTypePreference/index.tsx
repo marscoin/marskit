@@ -14,6 +14,11 @@ import { TAddressType } from '../../../store/types/wallet';
 import { updateSettings } from '../../../store/actions/settings';
 import { useAppSelector } from '../../../hooks/redux';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import {
+	addressTypesSelector,
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const typesDescriptions = {
 	p2wpkh: {
@@ -39,11 +44,9 @@ const AddressTypeSettings = ({
 	navigation,
 }: SettingsScreenProps<'AddressTypePreference'>): ReactElement => {
 	const [addressTypeState, setAddressTypeState] = useState<TAddressType>();
-	const addressTypes = useAppSelector((state) => state.wallet.addressTypes);
-	const selectedWallet = useAppSelector((state) => state.wallet.selectedWallet);
-	const selectedNetwork = useAppSelector(
-		(state) => state.wallet.selectedNetwork,
-	);
+	const addressTypes = useAppSelector(addressTypesSelector);
+	const selectedWallet = useAppSelector(selectedWalletSelector);
+	const selectedNetwork = useAppSelector(selectedNetworkSelector);
 
 	const addressTypesList = useMemo(() => {
 		return Object.values(addressTypes)

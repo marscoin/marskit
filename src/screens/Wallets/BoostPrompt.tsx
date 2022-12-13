@@ -41,6 +41,10 @@ import { useTransactionDetails } from '../../hooks/transaction';
 import { useFeeText } from '../../hooks/fees';
 import { useAppSelector } from '../../hooks/redux';
 import { viewControllerSelector } from '../../store/reselect/ui';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
 
 const BoostForm = ({
 	activityItem,
@@ -49,12 +53,8 @@ const BoostForm = ({
 }): ReactElement => {
 	const transaction = useTransactionDetails();
 	const feeEstimates = useSelector((store: Store) => store.fees.onchain);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
 
 	const [preparing, setPreparing] = useState(true);
 	const [loading, setLoading] = useState(false);

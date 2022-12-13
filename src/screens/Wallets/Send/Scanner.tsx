@@ -3,22 +3,21 @@ import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { processInputData } from '../../../utils/scanner';
-import Store from '../../../store/types';
 import NavigationHeader from '../../../components/NavigationHeader';
 import ScannerComponent from '../../Scanner/ScannerComponent';
 import { showErrorNotification } from '../../../utils/notifications';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
 import type { SendScreenProps } from '../../../navigation/types';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const ScannerScreen = ({
 	navigation,
 }: SendScreenProps<'Scanner'>): ReactElement => {
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
 	const sdk = useSlashtagsSDK();
 
 	const onRead = async (data: string): Promise<void> => {

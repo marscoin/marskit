@@ -40,6 +40,18 @@ import { showErrorNotification } from '../../utils/notifications';
 import { startChannelPurchase } from '../../store/actions/blocktank';
 import { convertCurrency } from '../../utils/blocktank';
 import { useFocusEffect } from '@react-navigation/native';
+import {
+	selectedCurrencySelector,
+	unitPreferenceSelector,
+} from '../../store/reselect/settings';
+import {
+	blocktankProductIdSelector,
+	blocktankServiceSelector,
+} from '../../store/reselect/blocktank';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
 
 type TPackages = {
 	id: string;
@@ -89,9 +101,7 @@ const CustomSetup = ({
 	const [loading, setLoading] = useState(false);
 	const currentBalance = useBalance({ onchain: true });
 	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
 
 	const spending = route.params?.spending;
 	const [keybrd, setKeybrd] = useState(false);
@@ -116,22 +126,11 @@ const CustomSetup = ({
 	const [availableReceivingPackages, setAvailableReceivingPackages] = useState<
 		TPackages[]
 	>([]);
-
-	const productId = useSelector(
-		(state: Store) => state.blocktank?.serviceList[0]?.product_id ?? '',
-	);
-	const unitPreference = useSelector(
-		(state: Store) => state.settings.unitPreference,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const blocktankService = useSelector(
-		(state: Store) => state.blocktank.serviceList[0],
-	);
+	const productId = useSelector(blocktankProductIdSelector);
+	const unitPreference = useSelector(unitPreferenceSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const blocktankService = useSelector(blocktankServiceSelector);
 
 	const unit = useMemo(() => {
 		if (unitPreference === 'fiat') {
