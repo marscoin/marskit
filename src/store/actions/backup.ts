@@ -106,51 +106,56 @@ export const performRemoteLdkBackup = async (
 export const performFullRestoreFromLatestBackup = async (
 	slashtag: Slashtag,
 ): Promise<Result<string>> => {
-	const selectedNetwork = getSelectedNetwork();
+	try {
+		const selectedNetwork = getSelectedNetwork();
 
-	const res = await listBackups(
-		slashtag,
-		EBackupCategories.ldkComplete,
-		selectedNetwork,
-	);
-	if (res.isErr()) {
-		return err(res.error);
+		const res = await listBackups(
+			slashtag,
+			EBackupCategories.ldkComplete,
+			selectedNetwork,
+		);
+		if (res.isErr()) {
+			return err(res.error);
+		}
+
+		if (res.value.length === 0) {
+			return ok('No remote LDK backups found');
+		}
+
+		const fetchRes = await fetchBackup(
+			slashtag,
+			res.value[0].timestamp,
+			EBackupCategories.ldkComplete,
+			selectedNetwork,
+		);
+		if (fetchRes.isErr()) {
+			return err(fetchRes.error);
+		}
+
+		const storageRes = await setLdkStoragePath();
+		if (storageRes.isErr()) {
+			return err(storageRes.error);
+		}
+
+		const backup: TAccountBackup = JSON.parse(
+			bytesToString(fetchRes.value.content),
+		);
+
+		//TODO add "sweepChannelsOnStartup: true" when lib has been updated
+		const importRes = await lm.importAccount({
+			backup,
+		});
+		if (importRes.isErr()) {
+			return err(importRes.error);
+		}
+
+		await setAccount({ name: backup.account.name, seed: backup.account.seed });
+
+		return ok('Restore success');
+	} catch (e) {
+		console.log(e);
+		return err(e);
 	}
-
-	if (res.value.length === 0) {
-		return ok('No remote LDK backups found');
-	}
-
-	const fetchRes = await fetchBackup(
-		slashtag,
-		res.value[0].timestamp,
-		EBackupCategories.ldkComplete,
-		selectedNetwork,
-	);
-	if (fetchRes.isErr()) {
-		return err(fetchRes.error);
-	}
-
-	const storageRes = await setLdkStoragePath();
-	if (storageRes.isErr()) {
-		return err(storageRes.error);
-	}
-
-	const backup: TAccountBackup = JSON.parse(
-		bytesToString(fetchRes.value.content),
-	);
-
-	//TODO add "sweepChannelsOnStartup: true" when lib has been updated
-	const importRes = await lm.importAccount({
-		backup,
-	});
-	if (importRes.isErr()) {
-		return err(importRes.error);
-	}
-
-	await setAccount({ name: backup.account.name, seed: backup.account.seed });
-
-	return ok('Restore success');
 };
 
 export const setRemoteBackupsEnabled = (
