@@ -27,7 +27,6 @@ module.exports = (async () => {
       assetExts: assetExts.filter((ext) => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg'],
       extraNodeModules: {
-        ...require('node-libs-react-native'),
         "sodium-native": path.resolve(__dirname, './node_modules/react-native-libsodium'),
       },
       blacklistRE: exclusionList([
