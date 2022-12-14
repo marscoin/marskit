@@ -10,29 +10,27 @@ import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { Subtitle, Text01M } from '../../styles/components';
-import Store from '../../store/types';
 import { groupActivityItems } from '../../utils/activity';
 import Button from '../../components/Button';
 import { RootNavigationProp } from '../../navigation/types';
 import { toggleView } from '../../store/actions/ui';
 import { formatBoostedActivityItems } from '../../utils/boost';
 import ListItem, { EmptyItem } from './ListItem';
+import {
+	boostedTransactionsSelector,
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
+import { activityItemsSelector } from '../../store/reselect/activity';
 
 const MAX_ACTIVITY_ITEMS = 3;
 
 const ActivityList = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const boostedTransactions = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
-	);
-	const items = useSelector((state: Store) => state.activity.items);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const boostedTransactions = useSelector(boostedTransactionsSelector);
+	const items = useSelector(activityItemsSelector);
 
 	const boostFilteredItems = useMemo(() => {
 		return formatBoostedActivityItems({

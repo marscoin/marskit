@@ -1,10 +1,14 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import Store from './../../../store/types';
 import { IListData, ItemData } from '../../../components/List';
 import SettingsView from '../SettingsView';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import {
+	addressTypeSelector,
+	selectedNetworkSelector,
+} from '../../../store/reselect/wallet';
+import { enableDevOptionsSelector } from '../../../store/reselect/settings';
 
 const typesDescriptions = {
 	p2wpkh: 'Native Segwit',
@@ -21,22 +25,11 @@ const networkLabels = {
 const AdvancedSettings = ({
 	navigation,
 }: SettingsScreenProps<'AdvancedSettings'>): ReactElement => {
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const selectedAddressType = useSelector(addressTypeSelector);
 
-	const selectedAddressType = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet].addressType[selectedNetwork],
-	);
-
-	const enableDevOptions = useSelector(
-		(state: Store) => state.settings.enableDevOptions,
-	);
+	const enableDevOptions = useSelector(enableDevOptionsSelector);
 
 	const SettingsListData: IListData[] = useMemo(() => {
 		const payments: ItemData[] = [

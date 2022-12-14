@@ -13,7 +13,6 @@ import { ISlashtags } from '../../store/types/slashtags';
 import SwitchRow from '../../components/SwitchRow';
 import { updateSlashPayConfig } from '../../utils/slashtags';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
-import Store from '../../store/types';
 import { updateSettings } from '../../store/actions/settings';
 import DetectSwipe from '../../components/DetectSwipe';
 import type {
@@ -21,6 +20,11 @@ import type {
 	RootStackScreenProps,
 } from '../../navigation/types';
 import { useScreenSize } from '../../hooks/screen';
+import { enableOfflinePaymentsSelector } from '../../store/reselect/settings';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
 
 const crownImageSrc = require('../../assets/illustrations/crown.png');
 const coinsImageSrc = require('../../assets/illustrations/coins.png');
@@ -42,15 +46,9 @@ export const ProfileIntro = memo(
 );
 
 export const OfflinePayments = ({ navigation }): JSX.Element => {
-	const enableOfflinePayments = useSelector(
-		(state: Store) => state.settings.enableOfflinePayments,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const enableOfflinePayments = useSelector(enableOfflinePaymentsSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	const sdk = useSlashtagsSDK();
 

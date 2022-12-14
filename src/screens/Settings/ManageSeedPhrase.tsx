@@ -15,19 +15,16 @@ import {
 } from '../../utils/wallet';
 import { getLastWordInString, setKeychainValue } from '../../utils/helpers';
 import Button from '../../components/Button';
-import Store from '../../store/types';
 import { useSelector } from 'react-redux';
 import { resetSelectedWallet } from '../../store/actions/wallet';
 import SafeAreaView from '../../components/SafeAreaView';
 import * as bip39 from 'bip39';
+import { selectedWalletSelector } from '../../store/reselect/wallet';
+import { selectedLanguageSelector } from '../../store/reselect/settings';
 
 const ManageSeedPhrase = (): ReactElement => {
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedLanguage = useSelector(
-		(state: Store) => state.settings.selectedLanguage,
-	);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedLanguage = useSelector(selectedLanguageSelector);
 	const [wordlist] = useState(bip39.wordlists[selectedLanguage]);
 	const [mnemonic, setMnemonic] = useState('');
 	const [currentMnemonic, setCurrentMnemonic] = useState('');

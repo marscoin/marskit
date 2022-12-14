@@ -5,25 +5,24 @@ import { useSelector } from 'react-redux';
 import { View as ThemedView } from '../../../styles/components';
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
 import { updateSlashPayConfig } from '../../../utils/slashtags';
+import {
+	enableOfflinePaymentsSelector,
+	receivePreferenceSelector,
+} from '../../../store/reselect/settings';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const PaymentPreference = (): ReactElement => {
 	const sdk = useSlashtagsSDK();
-	const receivePreference = useSelector(
-		(state: Store) => state.settings.receivePreference,
-	);
-	const enableOfflinePayments = useSelector(
-		(state: Store) => state.settings.enableOfflinePayments,
-	);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const receivePreference = useSelector(receivePreferenceSelector);
+	const enableOfflinePayments = useSelector(enableOfflinePaymentsSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	const settingsListData: IListData[] = useMemo(
 		() => [

@@ -1,7 +1,6 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Store from '../../../store/types';
 import actions from '../../../store/actions/actions';
 import { IListData } from '../../../components/List';
 import {
@@ -21,15 +20,14 @@ import { resetTodos } from '../../../store/actions/todos';
 import { resetUiStore } from '../../../store/actions/ui';
 import { resetSettingsStore, wipeApp } from '../../../store/actions/settings';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { selectedWalletSelector } from '../../../store/reselect/wallet';
 
 const DevSettings = ({
 	navigation,
 }: SettingsScreenProps<'DevSettings'>): ReactElement => {
 	const dispatch = useDispatch();
 	const [throwError, setThrowError] = useState(false);
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
+	const selectedWallet = useSelector(selectedWalletSelector);
 
 	const settingsListData: IListData[] = useMemo(
 		() => [

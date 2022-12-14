@@ -8,23 +8,22 @@ import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import GlowImage from '../../components/GlowImage';
 import Button from '../../components/Button';
-import Store from '../../store/types';
 import { closeAllChannels } from '../../utils/lightning';
 import { startCoopCloseTimer } from '../../store/actions/user';
 import { addTodo } from '../../store/actions/todos';
 import type { TransferScreenProps } from '../../navigation/types';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../store/reselect/wallet';
 
 const imageSrc = require('../../assets/illustrations/exclamation-mark.png');
 
 const Availability = ({
 	navigation,
 }: TransferScreenProps<'Availability'>): ReactElement => {
-	const selectedWallet = useSelector(
-		(state: Store) => state.wallet.selectedWallet,
-	);
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	const onCancel = (): void => {
 		navigation.goBack();
