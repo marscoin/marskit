@@ -21,3 +21,8 @@ export const slashtagsLinksSelector = createSelector(
 	[slashtagsState],
 	(slashtags): LocalLink[] => slashtags.links,
 );
+
+export const onboardedContactsSelector = createSelector(
+	[slashtagsState],
+	(slashtags): boolean => slashtags.onboardedContacts,
+);

@@ -11,6 +11,10 @@ import {
 	fiatToBitcoinUnit,
 	getDisplayValues,
 } from '../../../utils/exchange-rate';
+import {
+	selectedCurrencySelector,
+	unitPreferenceSelector,
+} from '../../../store/reselect/settings';
 
 /**
  * Handles the number pad logic (add/remove/clear) for invoices.
@@ -20,12 +24,8 @@ const ReceiveNumberPad = ({ onDone }: { onDone: () => void }): ReactElement => {
 	const [prefixZeros, setPrefixZeros] = useState(0);
 	const invoice = useSelector((store: Store) => store.receive);
 	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
-	const unitPreference = useSelector(
-		(store: Store) => store.settings.unitPreference,
-	);
-	const currency = useSelector(
-		(store: Store) => store.settings.selectedCurrency,
-	);
+	const unitPreference = useSelector(unitPreferenceSelector);
+	const currency = useSelector(selectedCurrencySelector);
 	const exchangeRate = useExchangeRate(currency);
 
 	// Add, shift and update the current invoice amount based on the provided fiat value or bitcoin unit.

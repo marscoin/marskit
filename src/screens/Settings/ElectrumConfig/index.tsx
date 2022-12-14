@@ -34,6 +34,8 @@ import {
 	RadioButtonItem,
 } from '../../../components/RadioButton';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { selectedNetworkSelector } from '../../../store/reselect/wallet';
+import { customElectrumPeersSelector } from '../../../store/reselect/settings';
 
 const radioButtons: RadioButtonItem[] = [
 	{ label: 'TCP', value: 'tcp' },
@@ -67,11 +69,9 @@ const validateInput = ({
 const ElectrumConfig = ({
 	navigation,
 }: SettingsScreenProps<'ElectrumConfig'>): ReactElement => {
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
-	const customElectrumPeers = useSelector(
-		(state: Store) => state.settings.customElectrumPeers[selectedNetwork],
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const customElectrumPeers = useSelector((state: Store) =>
+		customElectrumPeersSelector(state, selectedNetwork),
 	);
 	const savedPeer = customElectrumPeers[0];
 	const [host, setHost] = useState(savedPeer?.host || '');

@@ -3,15 +3,18 @@ import { View, StyleSheet, GestureResponderEvent } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { TouchableOpacity, SwitchIcon } from '../../styles/components';
-import Store from '../../store/types';
 import { Text02B } from '../../styles/components';
 import { updateSettings } from '../../store/actions/settings';
 import useDisplayValues from '../../hooks/displayValues';
 import { IColors } from '../../styles/colors';
 import {
-	selectedNetworkSelector,
-	selectedWalletSelector,
+	onChainBalanceSelector,
+	transactionMaxSelector,
 } from '../../store/reselect/wallet';
+import {
+	bitcoinUnitSelector,
+	unitPreferenceSelector,
+} from '../../store/reselect/settings';
 
 type NumberPadButtons = {
 	color?: keyof IColors;
@@ -26,25 +29,12 @@ const NumberPadButtons = ({
 	onMaxPress,
 	onDone,
 }: NumberPadButtons): ReactElement => {
-	const selectedWallet = useSelector(selectedWalletSelector);
-	const selectedNetwork = useSelector(selectedNetworkSelector);
-
-	const balance = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork],
-	);
+	const balance = useSelector(onChainBalanceSelector);
+	const bitcoinUnit = useSelector(bitcoinUnitSelector);
+	const unitPreference = useSelector(unitPreferenceSelector);
+	const isMaxSendAmount = useSelector(transactionMaxSelector);
 
 	const displayValues = useDisplayValues(balance);
-	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
-	const unitPreference = useSelector(
-		(state: Store) => state.settings.unitPreference,
-	);
-
-	const isMaxSendAmount = useSelector(
-		(state: Store) =>
-			state.wallet.wallets[selectedWallet]?.transaction[selectedNetwork]?.max ??
-			false,
-	);
 
 	// BTC -> satoshi -> fiat
 	const nextUnit = useMemo(() => {

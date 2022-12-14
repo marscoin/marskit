@@ -8,19 +8,17 @@ import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigati
 import GradientView from '../../../components/GradientView';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
-import Store from '../../../store/types';
 import { toggleView } from '../../../store/actions/ui';
 import { updateSettings } from '../../../store/actions/settings';
 import type { PinScreenProps } from '../../../navigation/types';
+import { pinForPaymentsSelector } from '../../../store/reselect/settings';
 
 const imageSrc = require('../../../assets/illustrations/check.png');
 
 const Result = ({ route }: PinScreenProps<'Result'>): ReactElement => {
 	const { bio } = route.params;
 	const insets = useSafeAreaInsets();
-	const pinForPayments = useSelector(
-		(state: Store) => state.settings.pinForPayments,
-	);
+	const pinForPayments = useSelector(pinForPaymentsSelector);
 
 	const nextButtonContainer = useMemo(
 		() => ({

@@ -7,15 +7,27 @@ import Store from '../store/types';
 import { useBalance } from '../hooks/wallet';
 import { updateSettings } from '../store/actions/settings';
 import Money from './Money';
-import { useClaimableBalance } from '../hooks/lightning';
+import { claimableBalanceSelector } from '../store/reselect/lightning';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../store/reselect/wallet';
+import {
+	balanceUnitSelector,
+	hideBalanceSelector,
+} from '../store/reselect/settings';
 
 /**
  * Displays the total available balance for the current wallet & network.
  */
 const BalanceHeader = (): ReactElement => {
-	const claimableBalance = useClaimableBalance();
-	const balanceUnit = useSelector((store: Store) => store.settings.balanceUnit);
-	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
+	const balanceUnit = useSelector(balanceUnitSelector);
+	const hideBalance = useSelector(hideBalanceSelector);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const claimableBalance = useSelector((state: Store) =>
+		claimableBalanceSelector(state, selectedWallet, selectedNetwork),
+	);
 	const { satoshis } = useBalance({
 		onchain: true,
 		lightning: true,

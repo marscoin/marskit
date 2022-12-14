@@ -14,7 +14,6 @@ import { View } from '../../styles/components';
 import { useNoTransactions } from '../../hooks/wallet';
 import useColors from '../../hooks/colors';
 import { updateSettings } from '../../store/actions/settings';
-import Store from '../../store/types';
 import { refreshWallet } from '../../utils/wallet';
 import ActivityListShort from '../../screens/Activity/ActivityListShort';
 import EmptyWallet from '../../screens/Activity/EmptyWallet';
@@ -28,6 +27,11 @@ import BetaWarning from '../../components/BetaWarning';
 import Assets from '../../components/Assets';
 import Header from './Header';
 import type { WalletScreenProps } from '../../navigation/types';
+import {
+	hideBalanceSelector,
+	hideOnboardingMessageSelector,
+} from '../../store/reselect/settings';
+import { widgetsSelector } from '../../store/reselect/widgets';
 
 const Wallets = ({
 	navigation,
@@ -37,11 +41,9 @@ const Wallets = ({
 	const [refreshing, setRefreshing] = useState(false);
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 	const colors = useColors();
-	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
-	const hideOnboardingSetting = useSelector(
-		(state: Store) => state.settings.hideOnboardingMessage,
-	);
-	const widgets = useSelector((state: Store) => state.widgets.widgets);
+	const hideBalance = useSelector(hideBalanceSelector);
+	const hideOnboardingSetting = useSelector(hideOnboardingMessageSelector);
+	const widgets = useSelector(widgetsSelector);
 	const noTransactions = useNoTransactions();
 	const empty = useMemo(() => {
 		return noTransactions && Object.values(widgets).length === 0;

@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -17,6 +17,7 @@ import { IActivityItem } from '../../store/types/activity';
 import Store from '../../store/types';
 import { useProfile } from '../../hooks/slashtags';
 import { EPaymentType } from '../../store/types/wallet';
+import { slashTagsUrlSelector } from '../../store/reselect/metadata';
 
 const Avatar = ({ url }: { url: string }): ReactElement => {
 	const { profile } = useProfile(url);
@@ -57,15 +58,9 @@ const ListItem = ({
 	onPress: () => void;
 }): ReactElement => {
 	const { id, txType, value, message, formattedDate } = item;
-	const slashTagsUrls = useSelector(
-		(state: Store) => state.metadata?.slashTagsUrls,
+	const slashTagsUrl = useSelector((state: Store) =>
+		slashTagsUrlSelector(state, id),
 	);
-	const slashTagsUrl = useMemo(() => {
-		if (slashTagsUrls && id in slashTagsUrls) {
-			return slashTagsUrls[id];
-		}
-		return '';
-	}, [id, slashTagsUrls]);
 
 	const title = txType === EPaymentType.sent ? 'Sent' : 'Received';
 

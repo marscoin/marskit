@@ -57,7 +57,10 @@ const TabBar = ({
 
 	return (
 		<View style={[styles.tabRoot, { bottom }]}>
-			<TouchableOpacity onPress={onSendPress} style={styles.blurContainer}>
+			<TouchableOpacity
+				activeOpacity={0.8}
+				onPress={onSendPress}
+				style={styles.blurContainer}>
 				<BlurView style={styles.send}>
 					<SvgXml xml={sendXml} width={13} height={13} />
 					<Text02M style={styles.tabText}>Send</Text02M>
@@ -69,7 +72,10 @@ const TabBar = ({
 				style={[styles.tabScan, borderStyles]}>
 				<ScanIcon width={32} height={32} />
 			</TouchableOpacity>
-			<TouchableOpacity onPress={onReceivePress} style={styles.blurContainer}>
+			<TouchableOpacity
+				activeOpacity={0.8}
+				onPress={onReceivePress}
+				style={styles.blurContainer}>
 				<BlurView style={styles.receive}>
 					<SvgXml xml={receiveXml} width={13} height={13} />
 					<Text02M style={styles.tabText}>Receive</Text02M>

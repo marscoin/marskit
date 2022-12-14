@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 import { UnitBitcoinIcon, UnitSatoshiIcon } from '../../../styles/components';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { bitcoinUnitSelector } from '../../../store/reselect/settings';
 
 const bitcoinUnits = [
 	{
@@ -26,9 +26,7 @@ const bitcoinUnits = [
 const BitcoinUnitSettings = ({
 	navigation,
 }: SettingsScreenProps<'BitcoinUnitSettings'>): ReactElement => {
-	const selectedBitcoinUnit = useSelector(
-		(state: Store) => state.settings.bitcoinUnit,
-	);
+	const selectedBitcoinUnit = useSelector(bitcoinUnitSelector);
 
 	const currencyListData: IListData[] = useMemo(
 		() => [

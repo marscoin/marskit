@@ -7,7 +7,6 @@ import { Text01S } from '../../../styles/components';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
-import Store from '../../../store/types';
 import { ignoreBackup } from '../../../store/actions/user';
 import { toggleView } from '../../../store/actions/ui';
 import { useNoTransactions } from '../../../hooks/wallet';
@@ -19,6 +18,10 @@ import {
 	useBottomSheetBackPress,
 	useSnapPoints,
 } from '../../../hooks/bottomSheet';
+import {
+	backupVerifiedSelector,
+	ignoreBackupTimestampSelector,
+} from '../../../store/reselect/user';
 
 const imageSrc = require('../../../assets/illustrations/safe.png');
 
@@ -50,12 +53,8 @@ const BackupPrompt = (): ReactElement => {
 	const { satoshis: balance } = useBalance({ onchain: true, lightning: true });
 	const empty = useNoTransactions();
 	const viewControllers = useAppSelector(viewControllersSelector);
-	const ignoreTimestamp = useSelector(
-		(state: Store) => state.user.ignoreBackupTimestamp,
-	);
-	const backupVerified = useSelector(
-		(state: Store) => state.user.backupVerified,
-	);
+	const ignoreTimestamp = useSelector(ignoreBackupTimestampSelector);
+	const backupVerified = useSelector(backupVerifiedSelector);
 
 	useBottomSheetBackPress('backupPrompt');
 

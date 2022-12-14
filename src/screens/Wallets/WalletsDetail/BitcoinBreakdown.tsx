@@ -21,7 +21,7 @@ import { useBalance } from '../../../hooks/wallet';
 import Money from '../../../components/Money';
 import { RootNavigationProp } from '../../../navigation/types';
 import { getOpenChannels } from '../../../utils/lightning';
-import Store from '../../../store/types';
+import { isGeoBlockedSelector } from '../../../store/reselect/user';
 
 const NetworkRow = ({
 	title,
@@ -63,9 +63,7 @@ const NetworkRow = ({
 
 const BitcoinBreakdown = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
-	const isGeoBlocked = useSelector(
-		(store: Store) => store.user?.isGeoBlocked ?? false,
-	);
+	const isGeoBlocked = useSelector(isGeoBlockedSelector);
 	const { satoshis: onchain } = useBalance({ onchain: true });
 	const { satoshis: lightning } = useBalance({ lightning: true });
 	const [hasLightning, setHasLightning] = useState<boolean>(false);

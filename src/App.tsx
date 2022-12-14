@@ -25,6 +25,10 @@ import AppUpdate from './screens/AppUpdate';
 import AppOnboarded from './AppOnboarded';
 
 import './utils/translations';
+import { themeSelector } from './store/reselect/settings';
+import { walletExistsSelector } from './store/reselect/wallet';
+import { requiresRemoteRestoreSelector } from './store/reselect/user';
+import { availableUpdateTypeSelector } from './store/reselect/ui';
 
 if (Platform.OS === 'android') {
 	if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -33,14 +37,10 @@ if (Platform.OS === 'android') {
 }
 
 const App = (): ReactElement => {
-	const theme = useAppSelector((state) => state.settings.theme);
-	const walletExists = useAppSelector((state) => state.wallet.walletExists);
-	const requiresRemoteRestore = useAppSelector(
-		(state) => state.user.requiresRemoteRestore,
-	);
-	const availableUpdateType = useAppSelector(
-		(state) => state.ui.availableUpdateType,
-	);
+	const theme = useAppSelector(themeSelector);
+	const walletExists = useAppSelector(walletExistsSelector);
+	const requiresRemoteRestore = useAppSelector(requiresRemoteRestoreSelector);
+	const availableUpdateType = useAppSelector(availableUpdateTypeSelector);
 
 	// on App start
 	useEffect(() => {

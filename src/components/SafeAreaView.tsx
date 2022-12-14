@@ -4,9 +4,8 @@ import {
 	SafeAreaView as SafeAreaViewRN,
 } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
-import Store from '../store/types';
-import themes from '../styles/themes';
 import { StyleSheet } from 'react-native';
+import { themeColorsSelector } from '../store/reselect/settings';
 
 interface Props extends PropsWithChildren<any> {
 	children: any;
@@ -18,9 +17,7 @@ const SafeAreaView = ({
 	style = {},
 	...props
 }: Props): ReactElement => {
-	const colors = useSelector(
-		(state: Store) => themes[state.settings.theme].colors,
-	);
+	const colors = useSelector(themeColorsSelector);
 
 	const safeAreaStyles = useMemo(() => {
 		return {

@@ -4,16 +4,15 @@ import { Result } from '@synonymdev/result';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
+import {
+	coinSelectAutoSelector,
+	coinSelectPreferenceSelector,
+} from '../../../store/reselect/settings';
 
 const CoinSelectSettings = (): ReactElement => {
-	const selectedAutoPilot = useSelector(
-		(state: Store) => state.settings.coinSelectAuto,
-	);
-	const coinSelectPreference = useSelector(
-		(state: Store) => state.settings.coinSelectPreference,
-	);
+	const selectedAutoPilot = useSelector(coinSelectAutoSelector);
+	const coinSelectPreference = useSelector(coinSelectPreferenceSelector);
 
 	const settingsListData: IListData[] = useMemo(
 		() => [

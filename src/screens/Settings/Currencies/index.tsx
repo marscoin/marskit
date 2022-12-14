@@ -3,21 +3,18 @@ import { useSelector } from 'react-redux';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { mostUsedExchangeTickers } from '../../../utils/exchange-rate/types';
 import { updateSettings } from '../../../store/actions/settings';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { exchangeRatesSelector } from '../../../store/reselect/wallet';
+import { selectedCurrencySelector } from '../../../store/reselect/settings';
 
 const CurrenciesSettings = ({
 	navigation,
 }: SettingsScreenProps<'CurrenciesSettings'>): ReactElement => {
-	const exchangeRates = useSelector(
-		(state: Store) => state.wallet.exchangeRates,
-	);
+	const exchangeRates = useSelector(exchangeRatesSelector);
 
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
 
 	const onSetCurrency = (currency: string): void => {
 		updateSettings({ selectedCurrency: currency });

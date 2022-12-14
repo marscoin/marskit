@@ -12,11 +12,15 @@ import { toggleView } from '../../store/actions/ui';
 import GlowImage from '../../components/GlowImage';
 import { openURL } from '../../utils/helpers';
 import { useAppSelector } from '../../hooks/redux';
-import { viewControllersSelector } from '../../store/reselect/ui';
+import {
+	availableUpdateTypeSelector,
+	viewControllersSelector,
+} from '../../store/reselect/ui';
 import {
 	useBottomSheetBackPress,
 	useSnapPoints,
 } from '../../hooks/bottomSheet';
+import { ignoreAppUpdateTimestampSelector } from '../../store/reselect/user';
 
 const imageSrc = require('../../assets/illustrations/bitkit-logo.png');
 
@@ -35,10 +39,8 @@ const AppUpdatePrompt = (): ReactElement => {
 	const snapPoints = useSnapPoints('large');
 	const insets = useSafeAreaInsets();
 	const viewControllers = useAppSelector(viewControllersSelector);
-	const updateType = useAppSelector((state) => state.ui.availableUpdateType);
-	const ignoreTimestamp = useAppSelector(
-		(state) => state.user.ignoreAppUpdateTimestamp,
-	);
+	const updateType = useAppSelector(availableUpdateTypeSelector);
+	const ignoreTimestamp = useAppSelector(ignoreAppUpdateTimestampSelector);
 
 	useBottomSheetBackPress('appUpdatePrompt');
 

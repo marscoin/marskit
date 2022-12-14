@@ -18,6 +18,12 @@ import {
 	useBottomSheetBackPress,
 	useSnapPoints,
 } from '../../hooks/bottomSheet';
+import {
+	ignoreHighBalanceCountSelector,
+	ignoreHighBalanceTimestampSelector,
+} from '../../store/reselect/user';
+import { bitcoinUnitSelector } from '../../store/reselect/settings';
+import { exchangeRatesSelector } from '../../store/reselect/wallet';
 
 const imageSrc = require('../../assets/illustrations/exclamation-mark.png');
 
@@ -51,13 +57,11 @@ const HighBalanceWarning = (): ReactElement => {
 	const snapPoints = useSnapPoints('medium');
 	const insets = useSafeAreaInsets();
 	const balance = useBalance({ onchain: true, lightning: true });
-	const count = useAppSelector((state) => state.user.ignoreHighBalanceCount);
-	const bitcoinUnit = useAppSelector((state) => state.settings.bitcoinUnit);
-	const exchangeRates = useAppSelector((state) => state.wallet.exchangeRates);
+	const count = useAppSelector(ignoreHighBalanceCountSelector);
+	const bitcoinUnit = useAppSelector(bitcoinUnitSelector);
+	const exchangeRates = useAppSelector(exchangeRatesSelector);
 	const viewControllers = useAppSelector(viewControllersSelector);
-	const ignoreTimestamp = useAppSelector(
-		(state) => state.user.ignoreHighBalanceTimestamp,
-	);
+	const ignoreTimestamp = useAppSelector(ignoreHighBalanceTimestampSelector);
 
 	useBottomSheetBackPress('highBalance');
 

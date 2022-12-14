@@ -8,9 +8,9 @@ import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import type { LightningScreenProps } from '../../navigation/types';
-import Store from '../../store/types';
 import { useBalance } from '../../hooks/wallet';
 import { ETransactionDefaults } from '../../store/types/wallet';
+import { isGeoBlockedSelector } from '../../store/reselect/user';
 
 const imageSrc = require('../../assets/illustrations/lightning.png');
 
@@ -18,9 +18,7 @@ const Introduction = ({
 	navigation,
 }: LightningScreenProps<'Introduction'>): ReactElement => {
 	const balance = useBalance({ onchain: true });
-	const isGeoBlocked = useSelector(
-		(state: Store) => state.user?.isGeoBlocked ?? false,
-	);
+	const isGeoBlocked = useSelector(isGeoBlockedSelector);
 
 	const txt = useMemo(() => {
 		if (isGeoBlocked) {

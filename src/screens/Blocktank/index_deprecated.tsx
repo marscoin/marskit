@@ -8,7 +8,6 @@ import {
 import NavigationHeader from '../../components/NavigationHeader';
 import { FlatList, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
-import Store from '../../store/types';
 import useDisplayValues from '../../hooks/displayValues';
 import LightingIcon from '../../assets/lightning-logo.svg';
 import { IService } from '@synonymdev/blocktank-client';
@@ -17,6 +16,7 @@ import { refreshServiceList } from '../../store/actions/blocktank';
 import { updateExchangeRates } from '../../store/actions/wallet';
 import { showErrorNotification } from '../../utils/notifications';
 import SafeAreaView from '../../components/SafeAreaView';
+import { blocktankSelector } from '../../store/reselect/blocktank';
 
 const ListItem = ({
 	item,
@@ -57,9 +57,7 @@ const ListItem = ({
 };
 
 const BlocktankScreen = ({ navigation }): ReactElement => {
-	const { serviceList, orders } = useSelector(
-		(state: Store) => state.blocktank,
-	);
+	const { serviceList, orders } = useSelector(blocktankSelector);
 
 	const [refreshing, setRefreshing] = useState(false);
 

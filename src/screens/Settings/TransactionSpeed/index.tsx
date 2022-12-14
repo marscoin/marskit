@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { updateSettings } from '../../../store/actions/settings';
 import {
 	SpeedFastIcon,
@@ -12,6 +11,7 @@ import {
 	SettingsIcon,
 } from '../../../styles/components';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { transactionSpeedSelector } from '../../../store/reselect/settings';
 
 const transactionSpeeds = [
 	{
@@ -47,9 +47,7 @@ const transactionSpeeds = [
 const TransactionSpeedSettings = ({
 	navigation,
 }: SettingsScreenProps<'TransactionSpeedSettings'>): ReactElement => {
-	const selectedTransactionSpeed = useSelector(
-		(state: Store) => state.settings.transactionSpeed,
-	);
+	const selectedTransactionSpeed = useSelector(transactionSpeedSelector);
 
 	const currencyListData: IListData[] = useMemo(
 		() => [

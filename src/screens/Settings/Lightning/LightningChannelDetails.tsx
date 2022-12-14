@@ -12,6 +12,12 @@ import useDisplayValues from '../../../hooks/displayValues';
 import Button from '../../../components/Button';
 import Dialog from '../../../components/Dialog';
 import { useAppSelector } from '../../../hooks/redux';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
+import { channelIsOpenSelector } from '../../../store/reselect/lightning';
+import Store from '../../../store/types';
 
 interface Props extends PropsWithChildren<any> {
 	route: { params: { channel: any } };
@@ -32,18 +38,11 @@ const LightningChannelDetails = (props: Props): ReactElement => {
 		uptime,
 	} = useMemo(() => channel, [channel]);
 
-	const selectedWallet = useAppSelector((store) => store.wallet.selectedWallet);
-	const selectedNetwork = useAppSelector(
-		(store) => store.wallet.selectedNetwork,
+	const selectedWallet = useAppSelector(selectedWalletSelector);
+	const selectedNetwork = useAppSelector(selectedNetworkSelector);
+	const isOpen = useAppSelector((state: Store) =>
+		channelIsOpenSelector(state, selectedWallet, selectedNetwork, chanId),
 	);
-	const openChannelIds = useAppSelector(
-		(store) =>
-			store.lightning.nodes[selectedWallet].openChannelIds[selectedNetwork],
-	);
-
-	const isOpen = useMemo(() => {
-		return openChannelIds.includes(chanId);
-	}, [chanId, openChannelIds]);
 
 	const [showDialog, setShowDialog] = useState(false);
 

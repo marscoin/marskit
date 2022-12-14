@@ -13,14 +13,12 @@ import NavigationHeader from '../../../components/NavigationHeader';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import { getNodeId } from '../../../utils/lightning';
 import { showSuccessNotification } from '../../../utils/notifications';
-import Store from '../../../store/types';
+import { selectedNetworkSelector } from '../../../store/reselect/wallet';
 
 const LightningNodeInfo = ({ navigation }): ReactElement => {
 	const [nodeId, setNodeId] = useState('');
 	const [error, setError] = useState('');
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 
 	useEffect(() => {
 		(async (): Promise<void> => {

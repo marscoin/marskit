@@ -2,7 +2,6 @@ import React, { memo, ReactElement, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
-import { useAppSelector } from '../hooks/redux';
 import { updateUser } from '../store/actions/user';
 import {
 	View,
@@ -17,12 +16,17 @@ import {
 } from '../utils/notifications';
 import { connectToElectrum } from '../utils/wallet/electrum';
 import Button from './Button';
+import {
+	isConnectedToElectrumSelector,
+	isOnlineSelector,
+} from '../store/reselect/ui';
+import { useSelector } from 'react-redux';
 
 const ConnectivityIndicator = (): ReactElement => {
 	const [isLoading, setIsLoading] = useState(false);
-	const { isOnline, isConnectedToElectrum } = useAppSelector(
-		(state) => state.ui,
-	);
+
+	const isConnectedToElectrum = useSelector(isConnectedToElectrumSelector);
+	const isOnline = useSelector(isOnlineSelector);
 
 	if (isOnline && isConnectedToElectrum) {
 		return <></>;

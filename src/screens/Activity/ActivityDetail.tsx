@@ -77,9 +77,14 @@ import {
 } from '../../utils/boost';
 import { EPaymentType } from '../../store/types/wallet';
 import {
+	boostedTransactionsSelector,
 	selectedNetworkSelector,
-	selectedWalletSelector,
 } from '../../store/reselect/wallet';
+import {
+	slashTagsUrlSelector,
+	tagSelector,
+} from '../../store/reselect/metadata';
+import { activityItemsSelector } from '../../store/reselect/activity';
 
 const Section = memo(
 	({ title, value }: { title: string; value: React.ReactNode }) => {
@@ -153,17 +158,13 @@ const ActivityDetail = (props: Props): ReactElement => {
 		timestamp,
 		address,
 	} = item;
-	const tags = useSelector((store: Store) => store.metadata.tags[id]) ?? [];
-	const slashTagsUrl = useSelector(
-		(store: Store) => store.metadata.slashTagsUrls[id],
+	const tags = useSelector((state: Store) => tagSelector(state, id));
+	const slashTagsUrl = useSelector((state: Store) =>
+		slashTagsUrlSelector(state, id),
 	);
-	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const activityItems = useSelector((store: Store) => store.activity.items);
-	const boostedTransactions = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet].boostedTransactions[selectedNetwork],
-	);
+	const activityItems = useSelector(activityItemsSelector);
+	const boostedTransactions = useSelector(boostedTransactionsSelector);
 
 	const boostedParents = useMemo(() => {
 		return getBoostedTransactionParents({

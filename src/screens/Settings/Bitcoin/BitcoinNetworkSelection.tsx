@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { EAvailableNetworks } from '../../../utils/networks';
 import {
 	updateAddressIndexes,
@@ -21,13 +20,12 @@ import {
 	getSelectedAddressType,
 } from '../../../utils/wallet';
 import { SettingsScreenProps } from '../../../navigation/types';
+import { selectedNetworkSelector } from '../../../store/reselect/wallet';
 
 const BitcoinNetworkSelection = ({
 	navigation,
 }: SettingsScreenProps<'BitcoinNetworkSelection'>): ReactElement => {
-	const selectedNetwork = useSelector(
-		(state: Store) => state.wallet.selectedNetwork,
-	);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const Networks: IListData[] = useMemo(
 		() => [
 			{

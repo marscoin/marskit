@@ -1,12 +1,17 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import Store from './../../../store/types';
 import { IListData } from '../../../components/List';
 import SettingsView from './../SettingsView';
 import { resetTodos } from '../../../store/actions/todos';
 import Dialog from '../../../components/Dialog';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import {
+	bitcoinUnitSelector,
+	selectedCurrencySelector,
+	showSuggestionsSelector,
+	transactionSpeedSelector,
+} from '../../../store/reselect/settings';
 
 const unitsBitcoin = {
 	satoshi: 'Satoshis',
@@ -25,21 +30,10 @@ const GeneralSettings = ({
 }: SettingsScreenProps<'GeneralSettings'>): ReactElement => {
 	const [showDialog, setShowDialog] = useState(false);
 
-	const showSuggestions = useSelector(
-		(state: Store) => state.settings.showSuggestions,
-	);
-
-	const selectedTransactionSpeed = useSelector(
-		(state: Store) => state.settings.transactionSpeed,
-	);
-
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-
-	const selectedBitcoinUnit = useSelector(
-		(state: Store) => state.settings.bitcoinUnit,
-	);
+	const showSuggestions = useSelector(showSuggestionsSelector);
+	const selectedTransactionSpeed = useSelector(transactionSpeedSelector);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
+	const selectedBitcoinUnit = useSelector(bitcoinUnitSelector);
 
 	const SettingsListData: IListData[] = useMemo(
 		() => [
