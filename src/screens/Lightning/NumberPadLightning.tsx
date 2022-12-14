@@ -3,11 +3,15 @@ import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import NumberPad from '../../components/NumberPad';
-import Store from '../../store/types';
 import useDisplayValues, { useExchangeRate } from '../../hooks/displayValues';
 import { fiatToBitcoinUnit } from '../../utils/exchange-rate';
 import { btcToSats } from '../../utils/helpers';
 import NumberPadButtons from '../Wallets/NumberPadButtons';
+import {
+	bitcoinUnitSelector,
+	selectedCurrencySelector,
+	unitPreferenceSelector,
+} from '../../store/reselect/settings';
 
 const NumberPadLightning = ({
 	sats,
@@ -25,13 +29,9 @@ const NumberPadLightning = ({
 	const [decimalMode, setDecimalMode] = useState(false);
 	const [prefixZeros, setPrefixZeros] = useState(0);
 
-	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
-	const unitPreference = useSelector(
-		(store: Store) => store.settings.unitPreference,
-	);
-	const currency = useSelector(
-		(store: Store) => store.settings.selectedCurrency,
-	);
+	const bitcoinUnit = useSelector(bitcoinUnitSelector);
+	const unitPreference = useSelector(unitPreferenceSelector);
+	const currency = useSelector(selectedCurrencySelector);
 	const exchangeRate = useExchangeRate(currency);
 	const displayValue = useDisplayValues(sats);
 

@@ -13,9 +13,9 @@ import {
 	getSelectedSlashtag,
 	onSDKError,
 } from '../utils/slashtags';
-import Store from '../store/types';
 import { updateSeederMaybe } from '../store/actions/slashtags';
 import { SLASHTAGS_SEEDER_TOPIC } from '@env';
+import { seedHashSelector } from '../store/reselect/wallet';
 
 export const RAWS = RAWSFactory({
 	setItem: (key: string, value: string) => {
@@ -52,10 +52,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	const [sdk, setSDK] = useState<SDK>();
 
 	// Load primaryKey from keychain
-	const seedHash = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[store.wallet.selectedWallet]?.seedHash,
-	);
+	const seedHash = useSelector(seedHashSelector);
 
 	useEffect(() => {
 		if (!seedHash) {

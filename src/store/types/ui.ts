@@ -39,8 +39,10 @@ export type TProfileLink = {
 	url: string;
 };
 
+export type TAvailableUpdateType = 'critical' | 'optional' | null;
+
 export interface IUi {
-	availableUpdateType: 'critical' | 'optional' | null;
+	availableUpdateType: TAvailableUpdateType;
 	isConnectedToElectrum: boolean;
 	isOnline: boolean;
 	profileLink: TProfileLink;

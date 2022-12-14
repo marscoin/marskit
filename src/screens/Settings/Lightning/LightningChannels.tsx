@@ -4,17 +4,15 @@ import { useSelector } from 'react-redux';
 
 import { Feather, Text, TouchableOpacity } from '../../../styles/components';
 import List from '../../../components/List';
-import Store from '../../../store/types';
 import { truncate } from '../../../utils/helpers';
 import SafeAreaView from '../../../components/SafeAreaView';
+import { blocktankNodeInfoSelector } from '../../../store/reselect/blocktank';
 
 const LightningChannels = ({ navigation }): ReactElement => {
 	const [channelList] = useState<any[]>([]);
 
 	const [peerList] = useState<any[]>([]);
-	const nodeInfo = useSelector(
-		(state: Store) => state.blocktank.info?.node_info,
-	);
+	const nodeInfo = useSelector(blocktankNodeInfoSelector);
 
 	const ListData = [
 		{

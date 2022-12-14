@@ -27,6 +27,7 @@ import { getBlockExplorerLink } from '../../../utils/wallet/transactions';
 import { openURL } from '../../../utils/helpers';
 import { SettingsScreenProps } from '../../../navigation/types';
 import { getIcon } from './index';
+import { blocktankPaidOrderSelector } from '../../../store/reselect/blocktank';
 
 const Section = memo(
 	({
@@ -58,16 +59,10 @@ const BlocktankOrderDetails = ({
 }: SettingsScreenProps<'BlocktankOrderDetails'>): ReactElement => {
 	const { blocktankOrder } = route.params;
 
-	const paidBlocktankOrders = useSelector(
-		(state: Store) => state.blocktank.paidOrders,
+	const paidOrderTxid = useSelector((state: Store) =>
+		blocktankPaidOrderSelector(state, blocktankOrder._id),
 	);
 
-	const paidOrderTxid = useMemo(() => {
-		if (blocktankOrder._id in paidBlocktankOrders) {
-			return paidBlocktankOrders[blocktankOrder._id];
-		}
-		return '';
-	}, [blocktankOrder._id, paidBlocktankOrders]);
 	const Icon = useMemo(
 		() => getIcon(blocktankOrder.state),
 		[blocktankOrder?.state],

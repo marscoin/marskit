@@ -3,6 +3,7 @@ import Store from '../types';
 import {
 	IUi,
 	IViewControllerData,
+	TAvailableUpdateType,
 	TProfileLink,
 	TUserViewController,
 	TViewController,
@@ -70,4 +71,9 @@ export const isOnlineSelector = createSelector(
 export const isConnectedToElectrumSelector = createSelector(
 	[uiState],
 	(ui): boolean => ui.isConnectedToElectrum,
+);
+
+export const availableUpdateTypeSelector = createSelector(
+	[uiState],
+	(ui): TAvailableUpdateType => ui.availableUpdateType,
 );

@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { LayoutAnimation, StyleProp, View, ViewStyle } from 'react-native';
 
 import { Pressable } from '../styles/components';
-import Store from '../store/types';
 import Money from '../components/Money';
+import { unitPreferenceSelector } from '../store/reselect/settings';
 
 /**
  * Displays the total amount of sats specified and it's corresponding fiat value.
@@ -28,9 +28,7 @@ const AmountToggle = ({
 	style?: StyleProp<ViewStyle>;
 	onPress?: () => void;
 }): ReactElement => {
-	const unitPreference = useSelector(
-		(state: Store) => state.settings.unitPreference,
-	);
+	const unitPreference = useSelector(unitPreferenceSelector);
 
 	const primary = unit ?? unitPreference;
 

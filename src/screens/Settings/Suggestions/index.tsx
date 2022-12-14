@@ -1,19 +1,17 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import Store from './../../../store/types';
 import { IListData } from '../../../components/List';
 import SettingsView from './../SettingsView';
 import { updateSettings } from '../../../store/actions/settings';
 import { resetTodos } from '../../../store/actions/todos';
 import Dialog from '../../../components/Dialog';
+import { showSuggestionsSelector } from '../../../store/reselect/settings';
 
 const SuggestionsSettings = (): ReactElement => {
 	const [showDialog, setShowDialog] = useState(false);
 
-	const showSuggestions = useSelector(
-		(state: Store) => state.settings.showSuggestions,
-	);
+	const showSuggestions = useSelector(showSuggestionsSelector);
 
 	const SettingsListData: IListData[] = useMemo(
 		() => [

@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import NumberPadButtons from '../NumberPadButtons';
 import NumberPad from '../../../components/NumberPad';
 import Store from '../../../store/types';
-import { defaultBitcoinTransactionData } from '../../../store/types/wallet';
 import { btcToSats } from '../../../utils/helpers';
 import { useExchangeRate } from '../../../hooks/displayValues';
 import {
@@ -19,7 +18,12 @@ import {
 import {
 	selectedNetworkSelector,
 	selectedWalletSelector,
+	transactionSelector,
 } from '../../../store/reselect/wallet';
+import {
+	selectedCurrencySelector,
+	unitPreferenceSelector,
+} from '../../../store/reselect/settings';
 
 /**
  * Handles the number pad logic (add/remove/clear) for on-chain transactions.
@@ -33,20 +37,12 @@ const SendNumberPad = ({ onDone }: { onDone: () => void }): ReactElement => {
 
 	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
 
-	const unitPreference = useSelector(
-		(store: Store) => store.settings.unitPreference,
-	);
+	const unitPreference = useSelector(unitPreferenceSelector);
 
-	const currency = useSelector(
-		(store: Store) => store.settings.selectedCurrency,
-	);
+	const currency = useSelector(selectedCurrencySelector);
 	const exchangeRate = useExchangeRate(currency);
 
-	const transaction = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.transaction[selectedNetwork] ||
-			defaultBitcoinTransactionData,
-	);
+	const transaction = useSelector(transactionSelector);
 
 	/*
 	 * Retrieves total value of all outputs. Excludes change address.

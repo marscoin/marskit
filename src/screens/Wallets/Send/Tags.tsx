@@ -6,7 +6,6 @@ import { BottomSheetTextInput, Caption13Up } from '../../../styles/components';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import GradientView from '../../../components/GradientView';
 import Tag from '../../../components/Tag';
-import Store from '../../../store/types';
 import { addTxTag } from '../../../store/actions/wallet';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
 import { showErrorNotification } from '../../../utils/notifications';
@@ -16,14 +15,13 @@ import {
 	selectedNetworkSelector,
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
+import { lastUsedTagsSelector } from '../../../store/reselect/metadata';
 
 const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 	const [text, setText] = useState('');
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const lastUsedTags = useSelector(
-		(store: Store) => store.metadata.lastUsedTags,
-	);
+	const lastUsedTags = useSelector(lastUsedTagsSelector);
 
 	const handleSubmit = async (): Promise<void> => {
 		if (text.length === 0) {

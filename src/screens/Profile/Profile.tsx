@@ -31,7 +31,6 @@ import {
 	UsersIcon,
 	View as ThemedView,
 } from '../../styles/components';
-import Store from '../../store/types';
 import { BasicProfile } from '../../store/types/slashtags';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { truncate } from '../../utils/helpers';
@@ -45,11 +44,10 @@ import IconButton from '../../components/IconButton';
 import ProfileEdit from './ProfileEdit';
 import { ProfileIntro, OfflinePayments } from './ProfileOnboarding';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { onboardingProfileStepSelector } from '../../store/reselect/slashtags';
 
 const Profile = memo((props: RootStackScreenProps<'Profile'>): ReactElement => {
-	const onboardingProfileStep = useSelector(
-		(state: Store) => state.slashtags.onboardingProfileStep,
-	);
+	const onboardingProfileStep = useSelector(onboardingProfileStepSelector);
 
 	switch (onboardingProfileStep) {
 		case 'Intro':

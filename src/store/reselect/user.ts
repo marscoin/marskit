@@ -38,3 +38,8 @@ export const startCoopCloseTimestampSelector = createSelector(
 	[userState],
 	(user): number => user.startCoopCloseTimestamp,
 );
+
+export const ignoreAppUpdateTimestampSelector = createSelector(
+	[userState],
+	(user): number => user.ignoreAppUpdateTimestamp,
+);

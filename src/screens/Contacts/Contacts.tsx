@@ -13,17 +13,15 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import SearchInput from '../../components/SearchInput';
 import ContactsList from '../../components/ContactsList';
 import { toggleView } from '../../store/actions/ui';
-import Store from '../../store/types';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { RootStackScreenProps } from '../../navigation/types';
 import AddContact from './AddContact';
+import { onboardedContactsSelector } from '../../store/reselect/slashtags';
 
 export const Contacts = (
 	props: RootStackScreenProps<'Contacts'>,
 ): JSX.Element => {
-	const onboardedContacts = useSelector(
-		(state: Store) => state.slashtags.onboardedContacts,
-	);
+	const onboardedContacts = useSelector(onboardedContactsSelector);
 
 	return onboardedContacts ? (
 		<ContactsScreen {...props} />

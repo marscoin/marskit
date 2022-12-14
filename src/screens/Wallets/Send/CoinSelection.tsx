@@ -16,7 +16,6 @@ import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigati
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
 import Store from '../../../store/types';
-import { useTransactionDetails } from '../../../hooks/transaction';
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import {
@@ -30,7 +29,10 @@ import type { SendScreenProps } from '../../../navigation/types';
 import {
 	selectedNetworkSelector,
 	selectedWalletSelector,
+	transactionSelector,
+	utxosSelector,
 } from '../../../store/reselect/wallet';
+import { coinSelectPreferenceSelector } from '../../../store/reselect/settings';
 
 /**
  * Some UTXO's may contain the same tx_hash.
@@ -97,20 +99,12 @@ const CoinSelection = ({
 		}),
 		[insets.bottom],
 	);
+
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-
-	const transaction = useTransactionDetails();
-	const utxos: IUtxo[] =
-		useSelector(
-			(state: Store) =>
-				state.wallet.wallets[selectedWallet].utxos[selectedNetwork],
-		) ?? [];
-
-	const coinSelectPreference = useSelector(
-		(state: Store) => state.settings.coinSelectPreference,
-	);
-
+	const transaction = useSelector(transactionSelector);
+	const utxos: IUtxo[] = useSelector(utxosSelector);
+	const coinSelectPreference = useSelector(coinSelectPreferenceSelector);
 	const preference = useMemo(
 		() => preferences[coinSelectPreference],
 		[coinSelectPreference],
@@ -125,7 +119,7 @@ const CoinSelection = ({
 	const txInputValue = useMemo(
 		() => getTransactionInputValue({ selectedNetwork, selectedWallet }),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[selectedWallet, selectedNetwork, transaction.inputs],
+		[selectedWallet, selectedNetwork, inputs],
 	);
 	const txInputDV = useDisplayValues(txInputValue);
 	const inputKeys = useMemo(

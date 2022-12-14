@@ -4,10 +4,10 @@ import b4a from 'b4a';
 
 import { IListData } from '../../../components/List';
 import SettingsView from '../SettingsView';
-import Store from '../../../store/types';
 import { useSelectedSlashtag } from '../../../hooks/slashtags';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
 import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
+import { lastSentSelector } from '../../../store/reselect/slashtags';
 
 const SlashtagsSettings = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
@@ -20,9 +20,7 @@ const SlashtagsSettings = (): ReactElement => {
 	const [driveVersion, setDriveVersion] = useState(1);
 	const [profileError, setProfileError] = useState();
 
-	const lastSeed = useSelector(
-		(store: Store) => store.slashtags.seeder?.lastSent,
-	);
+	const lastSeed = useSelector(lastSentSelector);
 
 	const [seederStatus, setSeederStatus] = useState({
 		seeded: false,

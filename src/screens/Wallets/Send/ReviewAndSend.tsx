@@ -27,7 +27,6 @@ import SwipeToConfirm from '../../../components/SwipeToConfirm';
 import AmountToggle from '../../../components/AmountToggle';
 import Tag from '../../../components/Tag';
 import ContactSmall from '../../../components/ContactSmall';
-import Store from '../../../store/types';
 import { IOutput } from '../../../store/types/wallet';
 import { useTransactionDetails } from '../../../hooks/transaction';
 import {
@@ -63,9 +62,16 @@ import { useLightningBalance } from '../../../hooks/lightning';
 import Button from '../../../components/Button';
 import { showErrorNotification } from '../../../utils/notifications';
 import {
+	exchangeRatesSelector,
+	onChainBalanceSelector,
 	selectedNetworkSelector,
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
+import {
+	bitcoinUnitSelector,
+	enableSendAmountWarningSelector,
+} from '../../../store/reselect/settings';
+import { onChainFeesSelector } from '../../../store/reselect/fees';
 
 const Section = memo(
 	({
@@ -96,10 +102,8 @@ const ReviewAndSend = ({
 	navigation,
 }: SendScreenProps<'ReviewAndSend'>): ReactElement => {
 	const insets = useSafeAreaInsets();
-	const feeEstimates = useSelector((store: Store) => store.fees.onchain);
-	const enableSendAmountWarning = useSelector(
-		(store: Store) => store.settings.enableSendAmountWarning,
-	);
+	const feeEstimates = useSelector(onChainFeesSelector);
+	const enableSendAmountWarning = useSelector(enableSendAmountWarningSelector);
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [showDialog1, setShowDialog1] = useState(false);
@@ -117,10 +121,7 @@ const ReviewAndSend = ({
 	);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const onChainBalance = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet]?.balance[selectedNetwork],
-	);
+	const onChainBalance = useSelector(onChainBalanceSelector);
 
 	const lightningBalance = useLightningBalance(false);
 	const transaction = useTransactionDetails();
@@ -406,10 +407,8 @@ const ReviewAndSend = ({
 		navigation,
 		transaction.lightningInvoice,
 	]);
-	const bitcoinUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
-	const exchangeRates = useSelector(
-		(state: Store) => state.wallet.exchangeRates,
-	);
+	const bitcoinUnit = useSelector(bitcoinUnitSelector);
+	const exchangeRates = useSelector(exchangeRatesSelector);
 
 	const handleTagRemove = useCallback(
 		(tag) => {

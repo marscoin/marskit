@@ -18,9 +18,8 @@ import {
 } from '@shopify/react-native-skia';
 
 import { View } from '../styles/components';
-import Store from '../store/types';
-import themes from '../styles/themes';
 import { IColors } from '../styles/colors';
+import { themeColorsSelector } from '../store/reselect/settings';
 
 const DURATION = 500;
 
@@ -76,9 +75,7 @@ const GlowingBackground = ({
 	topLeft?: keyof IColors;
 	bottomRight?: keyof IColors;
 }): ReactElement => {
-	const colors = useSelector(
-		(state: Store) => themes[state.settings.theme].colors,
-	);
+	const colors = useSelector(themeColorsSelector);
 	topLeft = topLeft ? colors[topLeft] || topLeft : colors.background;
 	bottomRight = bottomRight ?? colors.background;
 	const [topLeftItems, setTopLeftItems] = useState([{ color: topLeft, id: 0 }]);

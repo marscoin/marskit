@@ -19,6 +19,11 @@ import { useAppSelector } from '../hooks/redux';
 import { useBalance } from '../hooks/wallet';
 import Dialog from './Dialog';
 import type { RootNavigationProp } from '../navigation/types';
+import {
+	pinSelector,
+	showSuggestionsSelector,
+} from '../store/reselect/settings';
+import { todosSelector } from '../store/reselect/todos';
 
 const Suggestions = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
@@ -26,11 +31,9 @@ const Suggestions = (): ReactElement => {
 	const [index, setIndex] = useState(0);
 	const [showDialog, setShowDialog] = useState(false);
 	const { satoshis: balance } = useBalance({ onchain: true, lightning: true });
-	const todos = useAppSelector((state) => state.todos);
-	const pinTodoDone = useAppSelector((state) => state.settings.pin);
-	const showSuggestions = useAppSelector(
-		(state) => state.settings.showSuggestions,
-	);
+	const todos = useAppSelector(todosSelector);
+	const pinTodoDone = useAppSelector(pinSelector);
+	const showSuggestions = useAppSelector(showSuggestionsSelector);
 
 	const carouselStyle = useMemo(() => ({ width }), [width]);
 	const panGestureHandlerProps = useMemo(

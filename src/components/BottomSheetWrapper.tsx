@@ -42,6 +42,7 @@ import BottomSheetGradient from './BottomSheetGradient';
 import { IColors } from '../styles/colors';
 import { useAppSelector } from '../hooks/redux';
 import { viewControllerSelector } from '../store/reselect/ui';
+import { themeSelector } from '../store/reselect/settings';
 
 export interface BottomSheetWrapperProps {
 	children: ReactElement;
@@ -68,7 +69,7 @@ const BottomSheetWrapper = forwardRef(
 	): ReactElement => {
 		const bottomSheetRef = useRef<BottomSheet>(null);
 		const data = useAppSelector((state) => viewControllerSelector(state, view));
-		const settingsTheme = useAppSelector((state) => state.settings.theme);
+		const settingsTheme = useAppSelector(themeSelector);
 		const theme = useMemo(() => themes[settingsTheme], [settingsTheme]);
 		const handleIndicatorStyle = useMemo(
 			() => ({ backgroundColor: theme.colors.gray2 }),

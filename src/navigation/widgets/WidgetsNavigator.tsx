@@ -11,7 +11,7 @@ import {
 	HelloWidgets,
 } from '../../screens/Widgets/WidgetsOnboarding';
 import WidgetsSuggestions from '../../screens/Widgets/WidgetsSuggestions';
-import Store from '../../store/types';
+import { onboardedWidgetsSelector } from '../../store/reselect/widgets';
 
 export type WidgetsNavigationProp =
 	NativeStackNavigationProp<WidgetsStackParamList>;
@@ -29,9 +29,7 @@ const navOptions: NativeStackNavigationOptions = {
 };
 
 const WidgetsNavigator = (): ReactElement => {
-	const onboardedWidgets = useSelector(
-		(state: Store) => state.widgets?.onboardedWidgets,
-	);
+	const onboardedWidgets = useSelector(onboardedWidgetsSelector);
 
 	return (
 		<Stack.Navigator

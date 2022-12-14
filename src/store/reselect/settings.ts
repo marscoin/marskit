@@ -1,6 +1,6 @@
 import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
-import { TBitcoinUnit } from '../types/wallet';
+import { TBalanceUnit, TBitcoinUnit } from '../types/wallet';
 import {
 	ICustomElectrumPeer,
 	ISettings,
@@ -38,6 +38,10 @@ export const coinSelectAutoSelector = createSelector(
 export const hideOnboardingMessageSelector = createSelector(
 	[settingsState],
 	(settings): boolean => settings.hideOnboardingMessage,
+);
+export const balanceUnitSelector = createSelector(
+	[settingsState],
+	(settings): TBalanceUnit => settings.balanceUnit,
 );
 export const hideBalanceSelector = createSelector(
 	[settingsState],
@@ -111,4 +115,9 @@ export const selectedLanguageSelector = createSelector(
 export const enableAutoReadClipboardSelector = createSelector(
 	[settingsState],
 	(settings): boolean => settings.enableAutoReadClipboard,
+);
+
+export const enableSendAmountWarningSelector = createSelector(
+	[settingsState],
+	(settings): boolean => settings.enableSendAmountWarning,
 );

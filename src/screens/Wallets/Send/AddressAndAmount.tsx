@@ -26,7 +26,6 @@ import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigati
 import AmountToggle from '../../../components/AmountToggle';
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
-import Store from '../../../store/types';
 import { ETransactionDefaults, IOutput } from '../../../store/types/wallet';
 import { getTransactionOutputValue } from '../../../utils/wallet/transactions';
 import {
@@ -58,6 +57,10 @@ import {
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
 import { viewControllerIsOpenSelector } from '../../../store/reselect/ui';
+import {
+	coinSelectAutoSelector,
+	unitPreferenceSelector,
+} from '../../../store/reselect/settings';
 
 const AddressAndAmount = ({
 	navigation,
@@ -80,15 +83,11 @@ const AddressAndAmount = ({
 	);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const coinSelectAuto = useSelector(
-		(state: Store) => state.settings.coinSelectAuto,
-	);
+	const coinSelectAuto = useSelector(coinSelectAutoSelector);
 	const sendNavigationIsOpen = useSelector((state) =>
 		viewControllerIsOpenSelector(state, 'sendNavigation'),
 	);
-	const unitPreference = useSelector(
-		(state: Store) => state.settings.unitPreference,
-	);
+	const unitPreference = useSelector(unitPreferenceSelector);
 
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 	const [handledOsPaste, setHandledOsPaste] = useState(false);

@@ -1,26 +1,26 @@
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import Store from '../store/types';
 import { getDisplayValues, getExchangeRate } from '../utils/exchange-rate';
 import { IDisplayValues } from '../utils/exchange-rate/types';
 import { TBitcoinUnit } from '../store/types/wallet';
+import {
+	bitcoinUnitSelector,
+	selectedCurrencySelector,
+} from '../store/reselect/settings';
+import { exchangeRatesSelector } from '../store/reselect/wallet';
 
 export default function useDisplayValues(
 	satoshis: number,
 	bitcoinUnit?: TBitcoinUnit,
 ): IDisplayValues {
-	const stateUnit = useSelector((state: Store) => state.settings.bitcoinUnit);
-	const selectedCurrency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
+	const stateUnit = useSelector(bitcoinUnitSelector);
+	const selectedCurrency = useSelector(selectedCurrencySelector);
+	const exchangeRates = useSelector(exchangeRatesSelector);
+	const exchangeRate = useMemo(
+		() => getExchangeRate(selectedCurrency),
+		[selectedCurrency],
 	);
-	const exchangeRates = useSelector(
-		(state: Store) => state.wallet.exchangeRates,
-	);
-	const currency = useSelector(
-		(state: Store) => state.settings.selectedCurrency,
-	);
-	const exchangeRate = useMemo(() => getExchangeRate(currency), [currency]);
 	bitcoinUnit = useMemo(
 		() => bitcoinUnit ?? stateUnit,
 		[bitcoinUnit, stateUnit],
@@ -33,21 +33,19 @@ export default function useDisplayValues(
 		return getDisplayValues({
 			satoshis,
 			exchangeRate,
-			currency,
+			currency: selectedCurrency,
 			currencySymbol,
 			bitcoinUnit,
 			locale: 'en-US', //TODO get from native module
 		});
-	}, [satoshis, exchangeRate, currency, currencySymbol, bitcoinUnit]);
+	}, [satoshis, exchangeRate, selectedCurrency, currencySymbol, bitcoinUnit]);
 }
 
 /**
  * Returns 0 if no exchange rate for currency found or something goes wrong
  */
 export const useExchangeRate = (currency = 'EUR'): number => {
-	const exchangeRates = useSelector(
-		(state: Store) => state.wallet.exchangeRates,
-	);
+	const exchangeRates = useSelector(exchangeRatesSelector);
 	return useMemo(
 		() => exchangeRates[currency]?.rate ?? 0,
 		[currency, exchangeRates],

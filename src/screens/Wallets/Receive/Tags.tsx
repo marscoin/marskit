@@ -6,17 +6,15 @@ import { BottomSheetTextInput, Caption13Up } from '../../../styles/components';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import GradientView from '../../../components/GradientView';
 import Tag from '../../../components/Tag';
-import Store from '../../../store/types';
 import { updateInvoice } from '../../../store/actions/receive';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
 import { Keyboard } from '../../../hooks/keyboard';
 import { ReceiveScreenProps } from '../../../navigation/types';
+import { lastUsedTagsSelector } from '../../../store/reselect/metadata';
 
 const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 	const [text, setText] = useState('');
-	const lastUsedTags = useSelector(
-		(store: Store) => store.metadata.lastUsedTags,
-	);
+	const lastUsedTags = useSelector(lastUsedTagsSelector);
 
 	const handleSubmit = useCallback(async (): Promise<void> => {
 		if (text.length === 0) {

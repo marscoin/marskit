@@ -19,3 +19,8 @@ export const widgetSelector = createSelector(
 	[widgetsState, (widgets, url: string): string => url],
 	(widgets, url): IWidget => widgets[url],
 );
+
+export const onboardedWidgetsSelector = createSelector(
+	[widgetsState],
+	(widgets): boolean => widgets?.onboardedWidgets,
+);

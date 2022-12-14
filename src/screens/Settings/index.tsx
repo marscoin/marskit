@@ -12,19 +12,17 @@ import { View as ThemedView } from '../../styles/components';
 import { IListData, ItemData } from '../../components/List';
 import SettingsView from './SettingsView';
 import GlowImage from '../../components/GlowImage';
-import Store from '../../store/types';
 import { updateSettings } from '../../store/actions/settings';
 import { showSuccessNotification } from '../../utils/notifications';
 import { SettingsScreenProps } from '../../navigation/types';
+import { enableDevOptionsSelector } from '../../store/reselect/settings';
 
 const imageSrc = require('./../../assets/illustrations/cog.png');
 
 const MainSettings = ({
 	navigation,
 }: SettingsScreenProps<'MainSettings'>): ReactElement => {
-	const enableDevOptions = useSelector(
-		(state: Store) => state.settings.enableDevOptions,
-	);
+	const enableDevOptions = useSelector(enableDevOptionsSelector);
 	const [enableDevOptionsCount, setEnableDevOptionsCount] = useState(0);
 
 	const updateDevOptions = useCallback(() => {

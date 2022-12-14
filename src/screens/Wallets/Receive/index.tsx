@@ -26,7 +26,6 @@ import {
 	TouchableOpacity,
 	AnimatedView,
 } from '../../../styles/components';
-import Store from '../../../store/types';
 import { resetInvoice } from '../../../store/actions/receive';
 import { updateMetaIncTxTags } from '../../../store/actions/metadata';
 import { getReceiveAddress } from '../../../utils/wallet';
@@ -43,9 +42,11 @@ import { useLightningBalance } from '../../../hooks/lightning';
 import { sleep } from '../../../utils/helpers';
 import { viewControllerIsOpenSelector } from '../../../store/reselect/ui';
 import {
+	addressTypeSelector,
 	selectedNetworkSelector,
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
+import { receiveSelector } from '../../../store/reselect/receive';
 
 const QrIcon = memo(
 	(): ReactElement => {
@@ -71,18 +72,13 @@ const Receive = ({ navigation }): ReactElement => {
 		[insets.bottom],
 	);
 
-	const { amount, message, tags } = useSelector(
-		(store: Store) => store.receive,
-	);
+	const { amount, message, tags } = useSelector(receiveSelector);
 	const receiveNavigationIsOpen = useSelector((state) =>
 		viewControllerIsOpenSelector(state, 'receiveNavigation'),
 	);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const addressType = useSelector(
-		(store: Store) =>
-			store.wallet.wallets[selectedWallet].addressType[selectedNetwork],
-	);
+	const addressType = useSelector(addressTypeSelector);
 
 	const [loading, setLoading] = useState(true);
 	const [isSharing, setIsSharing] = useState(false);

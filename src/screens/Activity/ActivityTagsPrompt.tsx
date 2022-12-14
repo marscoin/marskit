@@ -9,7 +9,6 @@ import {
 } from '../../styles/components';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import Store from '../../store/types';
 import { toggleView } from '../../store/actions/ui';
 import Tag from '../../components/Tag';
 import { addMetaTxTag, addTag, deleteTag } from '../../store/actions/metadata';
@@ -21,12 +20,11 @@ import {
 	useBottomSheetBackPress,
 	useSnapPoints,
 } from '../../hooks/bottomSheet';
+import { lastUsedTagsSelector } from '../../store/reselect/metadata';
 
 const Form = ({ id }: { id: string }): ReactElement => {
 	const [text, setText] = useState('');
-	const lastUsedTags = useSelector(
-		(store: Store) => store.metadata.lastUsedTags,
-	);
+	const lastUsedTags = useSelector(lastUsedTagsSelector);
 
 	const handleTagChoose = async (tag: string): Promise<void> => {
 		const res = addMetaTxTag(id, tag);
