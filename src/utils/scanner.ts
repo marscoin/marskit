@@ -21,12 +21,16 @@ import {
 	parseOnChainPaymentRequest,
 } from './wallet/transactions';
 import { getLightningStore } from '../store/helpers';
-import { showErrorNotification, showInfoNotification } from './notifications';
+import {
+	showErrorNotification,
+	showInfoNotification,
+	showSuccessNotification,
+} from './notifications';
 import { updateBitcoinTransaction } from '../store/actions/wallet';
 import { getBalance, getSelectedNetwork, getSelectedWallet } from './wallet';
 import { toggleView } from '../store/actions/ui';
 import { handleSlashtagURL } from './slashtags';
-import { decodeLightningInvoice } from './lightning';
+import { addPeer, decodeLightningInvoice } from './lightning';
 import {
 	availableNetworks,
 	EAvailableNetworks,
@@ -34,6 +38,7 @@ import {
 	TAvailableNetworks,
 } from './networks';
 import { getSlashPayConfig } from '../utils/slashtags';
+import { savePeer } from '../store/actions/lightning';
 
 const availableNetworksList = availableNetworks();
 
@@ -45,6 +50,7 @@ export enum EQRDataType {
 	slashAuthURL = 'slashAuthURL',
 	slashtagURL = 'slashURL',
 	slashFeedURL = 'slashFeedURL',
+	nodeId = 'nodeId',
 	//TODO add xpub, lightning node peer etc
 }
 
@@ -107,6 +113,8 @@ export const validateAddress = ({
 /**
  * This method processes, decodes and handles all scanned/pasted information provided by the user.
  * @param {string} data
+ * @param {'mainScanner' | 'sendScanner'} [source]
+ * @param {SDK} sdk
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {string} [selectedWallet]
  */
@@ -352,6 +360,18 @@ export const decodeQRData = async (
 				network: selectedNetwork,
 				sats: decodedInvoice.value?.amount_satoshis ?? 0,
 				message: decodedInvoice.value?.description ?? '',
+			});
+		}
+	}
+
+	if (!foundNetworksInQR.length) {
+		// Attempt to determine if it's a node id to connect with and add.
+		const dataSplit = data.split(':');
+		if (dataSplit.length === 2 && dataSplit[0].includes('@')) {
+			foundNetworksInQR.push({
+				qrDataType: EQRDataType.nodeId,
+				url: data,
+				network: selectedNetwork,
 			});
 		}
 	}
@@ -684,6 +704,49 @@ export const handleData = async ({
 				message: 'LNURL Withdraw is not yet supported.',
 			});
 			return ok(EQRDataType.lnurlWithdraw);
+		}
+
+		case EQRDataType.nodeId: {
+			const peer = data?.url;
+			if (!peer) {
+				return err('Unable to interpret peer information.');
+			}
+			if (peer.includes('onion')) {
+				const msg = 'Unable to add tor nodes at this time.';
+				showErrorNotification({
+					title: 'Error adding lightning peer',
+					message: msg,
+				});
+				return err(msg);
+			}
+			const addPeerRes = await addPeer({
+				peer,
+				timeout: 5000,
+			});
+			if (addPeerRes.isErr()) {
+				showErrorNotification({
+					title: 'Unable to add lightning peer',
+					message: addPeerRes.error.message,
+				});
+				return err('Unable to add lightning peer.');
+			}
+			const savePeerRes = savePeer({ selectedWallet, selectedNetwork, peer });
+			if (savePeerRes.isErr()) {
+				showErrorNotification({
+					title: 'Unable to save lightning peer',
+					message: savePeerRes.error.message,
+				});
+				return err(savePeerRes.error.message);
+			}
+			showSuccessNotification({
+				title: savePeerRes.value,
+				message: 'Lightning peer added & saved',
+			});
+			toggleView({
+				view: 'sendNavigation',
+				data: { isOpen: false },
+			});
+			return ok(EQRDataType.nodeId);
 		}
 
 		default:
