@@ -58,6 +58,8 @@ import { toggleView } from '../../store/actions/ui';
 import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 import { showSuccessNotification } from '../notifications';
+import { TLightningNodeVersion } from '../../store/types/lightning';
+import { TCreatePaymentReq } from '@synonymdev/react-native-ldk/dist/utils/types';
 
 let LDKIsStayingSynced = false;
 
@@ -808,7 +810,8 @@ export const addPeers = async ({
  * Returns an array of pending and open channels
  * @returns Promise<Result<TChannel[]>>
  */
-export const getLightningChannels = ldk.listChannels;
+export const getLightningChannels = (): Promise<Result<TChannel[]>> =>
+	ldk.listChannels();
 
 /**
  * Returns an array of unconfirmed/pending lightning channels from either storage or directly from the LDK node.
@@ -887,9 +890,10 @@ export const getOpenChannels = async ({
 
 /**
  * Returns LDK and c-bindings version.
- * @returns {Promise<Result<{ c_bindings: string; ldk: string }>}
+ * @returns {Promise<Result<TLightningNodeVersion>}
  */
-export const getNodeVersion = ldk.version;
+export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> =>
+	ldk.version();
 
 /**
  * Attempts to close a channel given its channelId and counterPartyNodeId.
@@ -1009,7 +1013,9 @@ export const closeAllChannels = async ({
  * @param {TCreatePaymentReq}
  * @returns {Promise<Result<TInvoice>>}
  */
-export const createPaymentRequest = ldk.createPaymentRequest;
+export const createPaymentRequest = (
+	req: TCreatePaymentReq,
+): Promise<Result<TInvoice>> => ldk.createPaymentRequest(req);
 
 /**
  * Attempts to pay a bolt11 invoice.

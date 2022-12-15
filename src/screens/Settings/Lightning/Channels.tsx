@@ -6,6 +6,8 @@ import React, {
 	useCallback,
 } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import Share from 'react-native-share';
+
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import {
@@ -63,6 +65,7 @@ import {
 	pendingChannelsSelector,
 } from '../../../store/reselect/lightning';
 import { enableDevOptionsSelector } from '../../../store/reselect/settings';
+import { zipLogs } from '../../../utils/lightning/logs';
 
 const Channel = memo(
 	({
@@ -382,6 +385,27 @@ const Channels = ({ navigation }): ReactElement => {
 									showSuccessNotification({
 										title: 'Copied Node ID to Clipboard',
 										message: nodeId.value,
+									});
+								}}
+							/>
+
+							<Button
+								style={styles.button}
+								text={'Share logs'}
+								onPress={async (): Promise<void> => {
+									const res = await zipLogs();
+									if (res.isErr()) {
+										return showErrorNotification({
+											title: 'Failed to share logs',
+											message: res.error.message,
+										});
+									}
+
+									// Share the zip file
+									await Share.open({
+										type: 'application/zip',
+										url: `file://${res.value}`,
+										title: 'LDK logs',
 									});
 								}}
 							/>
