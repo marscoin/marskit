@@ -60,8 +60,8 @@ const listLogs = async (path: string, limit: number): Promise<string[]> => {
 	let list = await RNFS.readDir(path);
 
 	//Filter for log files only
-	list = list.filter((a) => {
-		return a.isFile() && a.name.indexOf('.log') > -1;
+	list = list.filter((f) => {
+		return f.isFile() && f.name.indexOf('.log') > -1 && f.size > 0;
 	});
 
 	//Newest first
