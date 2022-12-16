@@ -978,16 +978,15 @@ export const getNextAvailableAddress = async ({
 			}
 
 			//Store all addresses that are to be searched and used in this method.
-			let allAddresses: IAddressContent[] = Object.values(addresses).slice(
-				addressIndex.index,
-				addressCount,
+			let allAddresses: IAddressContent[] = Object.values(addresses).filter(
+				({ index }) => index >= addressIndex.index,
 			);
 			let addressesToScan = allAddresses;
 
 			//Store all change addresses that are to be searched and used in this method.
 			let allChangeAddresses: IAddressContent[] = Object.values(
 				changeAddresses,
-			).slice(changeAddressIndex.index, changeAddressCount);
+			).filter(({ index }) => index >= changeAddressIndex.index);
 			let changeAddressesToScan = allChangeAddresses;
 
 			//Prep for batch request
