@@ -159,6 +159,12 @@ const styles = StyleSheet.create({
 	},
 	confetti: {
 		...StyleSheet.absoluteFillObject,
+		// fix Android confetti height
+		...Platform.select({
+			android: {
+				width: '200%',
+			},
+		}),
 		zIndex: 1,
 	},
 	error: {
