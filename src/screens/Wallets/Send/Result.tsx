@@ -14,6 +14,15 @@ import { toggleView } from '../../../store/actions/ui';
 import { navigate } from '../../../navigation/root/RootNavigator';
 import Store from '../../../store/types';
 import type { SendScreenProps } from '../../../navigation/types';
+import {
+	resetOnChainTransaction,
+	setupOnChainTransaction,
+} from '../../../store/actions/wallet';
+import { activityItemSelector } from '../../../store/reselect/activity';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
 
 const confettiSrc = require('../../../assets/lottie/confetti-green.json');
 
@@ -24,8 +33,11 @@ const Result = ({
 	const { success, txId, errorTitle, errorMessage } = route.params;
 	const insets = useSafeAreaInsets();
 	const animationRef = useRef<Lottie>(null);
-	const activityItems = useSelector((state: Store) => state.activity.items);
-	const activityItem = activityItems.find((item) => item.id === txId);
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const activityItem = useSelector((state: Store) =>
+		activityItemSelector(state, txId),
+	);
 
 	const buttonContainer = useMemo(
 		() => ({
@@ -65,13 +77,20 @@ const Result = ({
 		}
 	};
 
-	const navigateToSend = (): void => {
+	const navigateToSend = async (): Promise<void> => {
 		if (success) {
 			toggleView({
 				view: 'sendNavigation',
 				data: { isOpen: false },
 			});
 		} else {
+			//If unable to broadcast for any reason, reset the transaction object and try again.
+			await resetOnChainTransaction({ selectedWallet, selectedNetwork });
+			await setupOnChainTransaction({
+				selectedWallet,
+				selectedNetwork,
+				rbf: false,
+			});
 			navigation.navigate('ReviewAndSend');
 		}
 	};
