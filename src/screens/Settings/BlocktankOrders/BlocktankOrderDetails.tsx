@@ -7,10 +7,8 @@ import {
 	ScrollView,
 	TouchableOpacity,
 	ActivityIndicator,
-	Platform,
 } from 'react-native';
 
-import { version as appVersion } from '../../../../package.json';
 import {
 	Caption13Up,
 	Caption13M,
@@ -28,6 +26,7 @@ import { openURL } from '../../../utils/helpers';
 import { SettingsScreenProps } from '../../../navigation/types';
 import { getIcon } from './index';
 import { blocktankPaidOrderSelector } from '../../../store/reselect/blocktank';
+import { createSupportLink } from '../../../utils/support';
 
 const Section = memo(
 	({
@@ -203,12 +202,13 @@ const BlocktankOrderDetails = ({
 					<Button
 						text="Contact Support"
 						size="large"
-						onPress={(): void => {
-							let mailToStr = `mailto:support@synonym.to?subject=Blocktank Support: ${blocktankOrder._id}&body=Blocktank Order ID: ${blocktankOrder._id}\nPlatform: ${Platform.OS}\nBitkit Version: ${appVersion}`;
-							if (paidOrderTxid) {
-								mailToStr += `\nTransaction ID: ${paidOrderTxid}`;
-							}
-							openURL(mailToStr).then();
+						onPress={async (): Promise<void> => {
+							await openURL(
+								await createSupportLink(
+									blocktankOrder._id,
+									`Transaction ID: ${paidOrderTxid}`,
+								),
+							);
 						}}
 					/>
 				</View>
