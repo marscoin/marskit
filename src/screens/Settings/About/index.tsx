@@ -36,6 +36,7 @@ import { openURL } from '../../../utils/helpers';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import SettingsView from '../SettingsView';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { createSupportLink } from '../../../utils/support';
 
 const imageSrc = require('../../../assets/powered-by.png');
 
@@ -102,8 +103,8 @@ const About = ({
 					{
 						title: 'Support',
 						type: 'button',
-						onPress: (): void => {
-							openURL('mailto:support@synonym.to?subject=Bitkit').then();
+						onPress: async (): Promise<void> => {
+							await openURL(await createSupportLink());
 						},
 					},
 					{
@@ -187,8 +188,8 @@ const About = ({
 				<View style={styles.socialLinks}>
 					<Pressable
 						style={styles.socialLink}
-						onPress={(): void => {
-							openURL('mailto:support@synonym.to?subject=Bitkit');
+						onPress={async (): Promise<void> => {
+							await openURL(await createSupportLink());
 						}}>
 						<EmailIcon height={24} width={24} />
 					</Pressable>
