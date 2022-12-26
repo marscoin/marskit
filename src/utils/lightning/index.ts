@@ -9,6 +9,7 @@ import lm, {
 	TChannelManagerPayment,
 	TChannelManagerPaymentSent,
 	TCloseChannelReq,
+	TCreatePaymentReq,
 	THeader,
 	TInvoice,
 	TPaymentReq,
@@ -42,6 +43,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { header as defaultHeader } from '../../store/shapes/wallet';
 import {
 	addLightningPayment,
+	removePeer,
 	updateClaimableBalance,
 	updateLightningChannels,
 	updateLightningNodeId,
@@ -63,7 +65,7 @@ import { updateSlashPayConfig } from '../slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 import { showSuccessNotification } from '../notifications';
 import { TLightningNodeVersion } from '../../store/types/lightning';
-import { TCreatePaymentReq } from '@synonymdev/react-native-ldk/dist/utils/types';
+import { getBlocktankInfo, isGeoBlocked } from '../blocktank';
 
 let LDKIsStayingSynced = false;
 
@@ -134,7 +136,6 @@ export const setupLdk = async ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		await ldk.reset();
 		const genesisHash = await getBlockHashFromHeight({
 			height: 0,
 		});
@@ -218,6 +219,7 @@ export const setupLdk = async ({
 				selectedWallet,
 			}),
 			updateLightningNodeVersion(),
+			removeUnusedPeers({ selectedWallet, selectedNetwork }),
 		]);
 		if (shouldRefreshLdk) {
 			await refreshLdk({ selectedWallet, selectedNetwork });
@@ -416,7 +418,6 @@ export const refreshLdk = async ({
 			await Promise.all([
 				updateLightningChannels({ selectedWallet, selectedNetwork }),
 				updateClaimableBalance({ selectedNetwork, selectedWallet }),
-				addPeers({ selectedNetwork, selectedWallet }),
 			]);
 		});
 		return ok('');
@@ -779,7 +780,8 @@ export const addPeers = async ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
-		const blocktankLightningPeers = nodeUris;
+		const geoBlocked = await isGeoBlocked(true);
+		const blocktankLightningPeers = geoBlocked ? [] : nodeUris; //No need to add Blocktank node if they're geo-blocked.
 		const defaultLightningPeers = DEFAULT_LIGHTNING_PEERS[selectedNetwork];
 		const customLightningPeers = getCustomLightningPeers({
 			selectedNetwork,
@@ -1014,7 +1016,7 @@ export const closeAllChannels = async ({
 
 /**
  * Attempts to create a bolt11 invoice.
- * @param {TCreatePaymentReq}
+ * @param {TCreatePaymentReq} req
  * @returns {Promise<Result<TInvoice>>}
  */
 export const createPaymentRequest = (
@@ -1230,4 +1232,60 @@ export const getClaimableBalance = async ({
 		return 0;
 	}
 	return Math.abs(lightningBalance.satoshis - claimableBalance.value);
+};
+
+/**
+ * Removes unused peers by comparing saved peers to the channel list to prevent unnecessarily connecting to them on subsequent startups.
+ * Will ensure Blocktank's node is not removed if previously added.
+ * TODO: This logic should be moved to react-native-ldk in future versions, but is handled here for now as a means to whitelist the Blocktank node and prevent disconnecting from Blocktank between channel purchase and channel open.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<Result<string>>}
+ */
+export const removeUnusedPeers = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const getChannelsResponse = await getLightningChannels();
+	if (getChannelsResponse.isErr()) {
+		return err(getChannelsResponse.error.message);
+	}
+	const channels = getChannelsResponse.value;
+	const channelNodeIds = channels.map(
+		(channel) => channel.counterparty_node_id,
+	);
+	const blocktankInfo = await getBlocktankInfo(true);
+	const blocktankPubKey = blocktankInfo.node_info.public_key;
+	const peers = await lm.getPeers();
+
+	await Promise.all(
+		peers.map((peer) => {
+			if (
+				!channelNodeIds.includes(peer.pubKey) && // If no channels exist for a given peer, remove them.
+				peer.pubKey !== blocktankPubKey // Ensure we don't disconnect from Blocktank if it was previously added as a peer.
+			) {
+				const peerStr = `${peer.pubKey}@${peer.address}:${peer.port}`;
+				// Remove peer from local storage.
+				removePeer({ selectedWallet, selectedNetwork, peer: peerStr });
+				// Instruct LDK to disconnect from peer.
+				lm.removePeer({
+					timeout: 5000,
+					pubKey: peer.pubKey,
+					address: peer.address,
+					port: peer.port,
+				}).then();
+			}
+		}),
+	);
+	return ok('Unused peers removed.');
 };

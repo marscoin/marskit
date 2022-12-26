@@ -8,10 +8,14 @@ import bt, {
 } from '@synonymdev/blocktank-client';
 import { TAvailableNetworks } from '../networks';
 import { err, ok, Result } from '@synonymdev/result';
-import { getNodeId, refreshLdk } from '../lightning';
+import { addPeers, getNodeId, refreshLdk } from '../lightning';
 import { refreshOrder } from '../../store/actions/blocktank';
 import { sleep } from '../helpers';
-import { getBlocktankStore, getSettingsStore } from '../../store/helpers';
+import {
+	getBlocktankStore,
+	getSettingsStore,
+	getUserStore,
+} from '../../store/helpers';
 import { showSuccessNotification } from '../notifications';
 import { TGeoBlockResponse } from '../../store/types/blocktank';
 import { setGeoBlock, updateUser } from '../../store/actions/user';
@@ -38,10 +42,21 @@ export const setupBlocktank = (selectedNetwork: TAvailableNetworks): void => {
 };
 
 /**
+ * Retrieve Blocktank info from either storage or via the api.
+ * @param {boolean} [fromStorage] If true, will attempt to retrieve from storage first and only fallback to the api if needed.
  * @returns {Promise<IGetInfoResponse>}
  */
-export const getBlocktankInfo = (): Promise<IGetInfoResponse> => {
-	return bt.getInfo();
+export const getBlocktankInfo = async (
+	fromStorage = false,
+): Promise<IGetInfoResponse> => {
+	let blocktankInfo: IGetInfoResponse | undefined;
+	if (fromStorage) {
+		blocktankInfo = getBlocktankStore().info;
+	}
+	if (!blocktankInfo || !blocktankInfo?.node_info?.public_key) {
+		blocktankInfo = await bt.getInfo();
+	}
+	return blocktankInfo;
 };
 
 /**
@@ -72,6 +87,11 @@ export const buyChannel = async (
 	data: IBuyChannelRequest,
 ): Promise<Result<IBuyChannelResponse>> => {
 	try {
+		// Ensure we're properly connected to the Blocktank node prior to buying a channel.
+		const addPeersRes = await addPeers({});
+		if (addPeersRes.isErr()) {
+			return err('Unable to add Blocktank node as a peer at this time.');
+		}
 		const buyRes = await bt.buyChannel(data);
 		return ok(buyRes);
 	} catch (e) {
@@ -240,8 +260,20 @@ export const getStateMessage = (code: number): string => {
 	return `Unknown code: ${code}`;
 };
 
-export const isGeoBlocked = async (): Promise<boolean> => {
+/**
+ * Retrieve geo-block info from either storage or via the api.
+ * @param {boolean} [fromStorage] If true, will attempt to retrieve from storage first and only fallback to the api if needed.
+ * @returns {Promise<boolean>}
+ */
+export const isGeoBlocked = async (fromStorage = false): Promise<boolean> => {
 	try {
+		let geoBlocked: boolean | undefined;
+		if (fromStorage) {
+			geoBlocked = getUserStore()?.isGeoBlocked;
+			if (geoBlocked !== undefined) {
+				return geoBlocked;
+			}
+		}
 		const response = await fetch(
 			'https://blocktank.synonym.to/api/v1/channel/geocheck',
 		);

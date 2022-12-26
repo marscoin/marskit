@@ -21,6 +21,7 @@ import {
 } from '../../../utils/wallet';
 import { SettingsScreenProps } from '../../../navigation/types';
 import { selectedNetworkSelector } from '../../../store/reselect/wallet';
+import { resetLdk } from '../../../utils/lightning';
 
 const BitcoinNetworkSelection = ({
 	navigation,
@@ -55,6 +56,8 @@ const BitcoinNetworkSelection = ({
 								selectedNetwork: network,
 								addressType,
 							});
+							// Switching networks requires us to reset LDK.
+							await resetLdk();
 							// Start wallet services with the newly selected network.
 							await startWalletServices({ selectedNetwork: network });
 							await updateOnchainFeeEstimates({

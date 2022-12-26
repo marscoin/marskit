@@ -164,6 +164,24 @@ const lightning = (
 				},
 			};
 
+		case actions.REMOVE_LIGHTNING_PEER:
+			let newPeers: string[] = state.nodes[selectedWallet]?.peers[
+				selectedNetwork
+			].filter((existingPeer) => existingPeer !== action.payload.peer);
+			return {
+				...state,
+				nodes: {
+					...state.nodes,
+					[selectedWallet]: {
+						...state.nodes[selectedWallet],
+						peers: {
+							...state.nodes[selectedWallet]?.peers,
+							[selectedNetwork]: newPeers,
+						},
+					},
+				},
+			};
+
 		case actions.UPDATE_CLAIMABLE_BALANCE:
 			return {
 				...state,
