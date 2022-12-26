@@ -409,6 +409,43 @@ export const savePeer = ({
 	return ok('Successfully Saved Lightning Peer.');
 };
 
+/**
+ * Attempts to remove a custom lightning peer from storage.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} peer
+ * @returns {Result<string>}
+ */
+export const removePeer = ({
+	selectedWallet,
+	selectedNetwork,
+	peer,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+	peer: string;
+}): Result<string> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!peer) {
+		return err('Invalid Peer Data');
+	}
+	const payload = {
+		peer,
+		selectedWallet,
+		selectedNetwork,
+	};
+	dispatch({
+		type: actions.REMOVE_LIGHTNING_PEER,
+		payload,
+	});
+	return ok('Successfully Removed Lightning Peer');
+};
+
 export const updateClaimableBalance = async ({
 	selectedWallet,
 	selectedNetwork,
