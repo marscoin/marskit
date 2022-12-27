@@ -180,18 +180,14 @@ export const watchPendingOrders = (): void => {
 };
 
 /**
- * Return orders that are below the specified state and not expired.
+ * Return orders that are less than or equal to the specified order state.
  * @param pendingOrderState
  */
 export const getPendingOrders = (
 	pendingOrderState = 300,
 ): IGetOrderResponse[] => {
 	const orders = getBlocktankStore().orders;
-	return orders.filter(
-		(order) =>
-			order.state <= pendingOrderState &&
-			order.order_expiry > new Date().getTime(),
-	);
+	return orders.filter((order) => order.state <= pendingOrderState);
 };
 
 /**
