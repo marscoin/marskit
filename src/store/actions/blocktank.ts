@@ -120,6 +120,7 @@ export const refreshOrder = async (
 				}
 			}
 
+			// blocktank-client code reference: https://github.com/synonymdev/blocktank-client/blob/f8a20c35a4953435cecf8f718ee555e311e1db9b/src/services/client.ts#L15
 			// update suggestions cards
 			if ([150, 300, 400, 410, 450, 500].includes(getOrderRes.value.state)) {
 				removeTodo('lightningSettingUp');
@@ -130,14 +131,11 @@ export const refreshOrder = async (
 			}
 		}
 
-		const storedOrder = getBlocktankStore().orders.filter(
+		const storedOrder = getBlocktankStore().orders.find(
 			(o) =>
 				o._id === orderId || (orderResponse && orderResponse._id === o._id),
 		);
-		if (
-			storedOrder.length > 0 &&
-			storedOrder[0].state === orderResponse.state
-		) {
+		if (storedOrder && storedOrder.state === orderResponse.state) {
 			return ok(orderResponse);
 		}
 
