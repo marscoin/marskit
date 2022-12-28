@@ -80,7 +80,7 @@ export const updateWallet = (payload): Promise<Result<string>> => {
  * @param {number} [changeAddressAmount]
  * @param {string} [mnemonic]
  * @param {string} [bip39Passphrase]
- * @param {IAddressType} [addressTypes]
+ * @param {Partial<IAddressTypes>} [addressTypes]
  * @return {Promise<Result<string>>}
  */
 export const createWallet = async ({
@@ -951,6 +951,63 @@ export const setupOnChainTransaction = async ({
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Retrieves the next available change address data.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {EAddressType} [addressType]
+ * @returns {Promise<Result<IAddressContent>>}
+ */
+export const getChangeAddress = async ({
+	selectedWallet,
+	selectedNetwork,
+	addressType,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+	addressType?: EAddressType;
+}): Promise<Result<IAddressContent>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!addressType) {
+		addressType = getSelectedAddressType({ selectedWallet, selectedNetwork });
+	}
+
+	const { currentWallet } = getCurrentWallet({
+		selectedWallet,
+		selectedNetwork,
+	});
+
+	const changeAddressIndexContent =
+		currentWallet.changeAddressIndex[selectedNetwork][addressType];
+
+	if (
+		changeAddressIndexContent &&
+		changeAddressIndexContent?.address &&
+		changeAddressIndexContent.index >= 0
+	) {
+		return ok(changeAddressIndexContent);
+	}
+
+	// It's possible we haven't set the change address index yet. Generate one on the fly.
+	const generateAddressResponse = await generateAddresses({
+		selectedWallet,
+		selectedNetwork,
+		addressAmount: 0,
+		changeAddressAmount: 1,
+		addressType,
+	});
+	if (generateAddressResponse.isErr()) {
+		console.log(generateAddressResponse.error.message);
+		return err('Unable to successfully generate a change address.');
+	}
+	return ok(generateAddressResponse.value.changeAddresses[0]);
 };
 
 /**
