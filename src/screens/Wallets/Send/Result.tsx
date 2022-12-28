@@ -84,6 +84,11 @@ const Result = ({
 				data: { isOpen: false },
 			});
 		} else {
+			/*
+				TODO: Add ability to distinguish between errors sent to this component.
+				 If unable to connect to or broadcast through Electrum, attempt to broadcast using the Blocktank api.
+				 If unable to properly create a valid transaction for any reason, reset the tx state as done below.
+			*/
 			//If unable to broadcast for any reason, reset the transaction object and try again.
 			await resetOnChainTransaction({ selectedWallet, selectedNetwork });
 			await setupOnChainTransaction({
@@ -91,7 +96,9 @@ const Result = ({
 				selectedNetwork,
 				rbf: false,
 			});
-			navigation.navigate('ReviewAndSend');
+			// The transaction was reset due to an unknown broadcast or construction error.
+			// Navigate back to the main send screen to re-enter information.
+			navigation.navigate('AddressAndAmount');
 		}
 	};
 

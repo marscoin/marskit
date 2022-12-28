@@ -39,6 +39,7 @@ import validate, {
 import {
 	addBoostedTransaction,
 	deleteOnChainTransactionById,
+	getChangeAddress,
 	setupOnChainTransaction,
 	updateBitcoinTransaction,
 } from '../../store/actions/wallet';
@@ -69,7 +70,7 @@ export const parseOnChainPaymentRequest = (
 }> => {
 	try {
 		if (!data) {
-			return err(data);
+			return err('No data provided to parseOnChainPaymentRequest.');
 		}
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -338,11 +339,15 @@ export const getTotalFee = ({
 			if (!selectedWallet) {
 				selectedWallet = getSelectedWallet();
 			}
-			const { currentWallet } = getCurrentWallet({
+			const txDataResponse = getOnchainTransactionData({
 				selectedNetwork,
 				selectedWallet,
 			});
-			transaction = currentWallet?.transaction[selectedNetwork];
+			if (txDataResponse.isErr()) {
+				// If error, return minimum fallback fee.
+				return Number(satsPerByte) * fallBackFee || fallBackFee;
+			}
+			transaction = txDataResponse.value;
 		}
 
 		const inputs = transaction.inputs || [];
@@ -452,11 +457,10 @@ const createPsbtFromTransactionData = async ({
 	const {
 		inputs = [],
 		outputs = [],
-		changeAddress,
 		fee = ETransactionDefaults.recommendedBaseFee,
 		rbf,
 	} = transactionData;
-	let message = transactionData.message;
+	let { changeAddress, message } = transactionData;
 
 	//Get balance of current inputs.
 	const balance = getTransactionInputValue({
@@ -482,15 +486,33 @@ const createPsbtFromTransactionData = async ({
 		const changeAddressValue = balance - (outputValue + fee);
 		// Ensure we're not creating unspendable dust.
 		// If we have less than 2x the recommended base fee, just contribute it to the fee in this transaction.
-		if (changeAddressValue > ETransactionDefaults.recommendedBaseFee * 2) {
+		if (changeAddressValue > ETransactionDefaults.dustLimit) {
 			targets.push({
 				address: changeAddress,
 				value: changeAddressValue,
 				index: targets.length,
 			});
 		}
+		// Looks like we don't need a change address.
+		// Double check we don't have any spare sats hanging around.
 	} else if (outputValue + fee < balance) {
-		return err('Unsure what to do with the change.');
+		// If we have spare sats hanging around and the difference is greater than the dust limit, generate a changeAddress to send them to.
+		const diffValue = balance - (outputValue + fee);
+		if (diffValue > ETransactionDefaults.dustLimit) {
+			const changeAddressRes = await getChangeAddress({
+				selectedWallet,
+				selectedNetwork,
+			});
+			if (changeAddressRes.isErr()) {
+				return err(changeAddressRes.error.message);
+			}
+			changeAddress = changeAddressRes.value.address;
+			targets.push({
+				address: changeAddress,
+				value: diffValue,
+				index: targets.length,
+			});
+		}
 	}
 
 	//Embed any OP_RETURN messages.
@@ -686,6 +708,11 @@ export const createTransaction = ({
 			transactionData = transactionDataRes.value;
 		}
 
+		//Remove any outputs that are below the dust limit and apply them to the fee.
+		if (transactionData && transactionData?.outputs) {
+			transactionData.outputs = removeDustOutputs(transactionData.outputs);
+		}
+
 		const inputValue = getTransactionInputValue({
 			selectedNetwork,
 			selectedWallet,
@@ -705,6 +732,8 @@ export const createTransaction = ({
 			return resolve(err(message));
 		}
 		const fee = inputValue - outputValue;
+
+		//Refuse tx if the fee is greater than the amount we're attempting to send.
 		if (fee > inputValue) {
 			const message = 'Fee is larger than the intended payment.';
 			showErrorNotification({ title: 'Unable to create transaction', message });
@@ -751,6 +780,19 @@ export const createTransaction = ({
 		} catch (e) {
 			return resolve(err(e));
 		}
+	});
+};
+
+/**
+ * Removes outputs that are below the dust limit.
+ * @param {IOutput[]} outputs
+ * @returns {IOutput[]}
+ */
+export const removeDustOutputs = (outputs: IOutput[]): IOutput[] => {
+	return outputs.filter((output) => {
+		return (
+			output && output?.value && output.value > ETransactionDefaults.dustLimit
+		);
 	});
 };
 
@@ -1051,6 +1093,7 @@ export const getTransactionInputs = ({
  * @param {EFeeIds} [selectedFeeId]
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {number} [index]
  * @param {IBitcoinTransactionData} [transaction]
  */
 export const updateFee = ({
@@ -1399,16 +1442,8 @@ export const validateTransaction = (
 		if (outputsReduce.isErr()) {
 			return err(outputsReduce.error.message);
 		}
-		const inputsValue = inputsReduce.value;
-		const outputsValue = outputsReduce.value;
-		const fee = transaction.fee;
-		const changeAddressValue = inputsValue - outputsValue - fee;
-		if (changeAddressValue && changeAddressValue < baseFee) {
-			return err(
-				'Change address value is too low. Consider sending all funds instead.',
-			);
-		}
 
+		const fee = transaction.fee;
 		if (fee < baseFee) {
 			return err(`Fee must be larger than ${baseFee}`);
 		}
