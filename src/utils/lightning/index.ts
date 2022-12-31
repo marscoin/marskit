@@ -1289,3 +1289,71 @@ export const removeUnusedPeers = async ({
 	);
 	return ok('Unused peers removed.');
 };
+
+/**
+ * Returns the lightning balance of all known open and pending channels.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {boolean} [includeReserveBalance] Whether or not to include each channel's reserve balance (~1% per channel participant) in the returned balance.
+ * @returns {Promise<{ localBalance: number; remoteBalance: number; }>}
+ */
+export const getLightningBalance = async ({
+	selectedWallet,
+	selectedNetwork,
+	includeReserveBalance = true,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+	includeReserveBalance?: boolean;
+}): Promise<{
+	localBalance: number;
+	remoteBalance: number;
+}> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const lightning = await getLightningStore();
+
+	const openChannelIds =
+		lightning.nodes[selectedWallet].openChannelIds[selectedNetwork];
+	const channels = lightning.nodes[selectedWallet].channels[selectedNetwork];
+	const openChannels = openChannelIds.filter((channelId) => {
+		const channel = channels[channelId];
+		return channel?.is_channel_ready;
+	});
+
+	const localBalance = Object.values(channels).reduce((acc, cur) => {
+		if (openChannels.includes(cur.channel_id)) {
+			if (!includeReserveBalance) {
+				return acc + cur.outbound_capacity_sat;
+			} else {
+				return (
+					acc +
+					cur.outbound_capacity_sat +
+					(cur?.unspendable_punishment_reserve ?? 0)
+				);
+			}
+		}
+		return acc;
+	}, 0);
+
+	const remoteBalance = Object.values(channels).reduce((acc, cur) => {
+		if (openChannelIds.includes(cur.channel_id)) {
+			if (!includeReserveBalance) {
+				return acc + cur.inbound_capacity_sat;
+			} else {
+				return (
+					acc +
+					cur.inbound_capacity_sat +
+					(cur?.unspendable_punishment_reserve ?? 0)
+				);
+			}
+		}
+		return acc;
+	}, 0);
+
+	return { localBalance, remoteBalance };
+};
