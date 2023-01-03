@@ -746,7 +746,7 @@ export const createTransaction = ({
 				selectedNetwork,
 			);
 			if (bip32InterfaceRes.isErr()) {
-				return err(bip32InterfaceRes.error.message);
+				return resolve(err(bip32InterfaceRes.error.message));
 			}
 
 			//Create PSBT before signing inputs

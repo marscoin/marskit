@@ -821,7 +821,7 @@ export const setupOnChainTransaction = async ({
 	selectedNetwork,
 	addressType,
 	inputTxHashes,
-	rbf = true,
+	rbf = false,
 	submitDispatch = true,
 }: {
 	selectedWallet?: TWalletName;
@@ -1015,7 +1015,7 @@ export const getChangeAddress = async ({
  * @param selectedWallet
  * @param selectedNetwork
  * @param transaction
- * @return {Promise<void>}
+ * @return {Promise<Result<string>>}
  */
 export const updateBitcoinTransaction = async ({
 	transaction,
@@ -1025,7 +1025,7 @@ export const updateBitcoinTransaction = async ({
 	transaction: IBitcoinTransactionData;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
+}): Promise<Result<string>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1058,7 +1058,10 @@ export const updateBitcoinTransaction = async ({
 			type: actions.UPDATE_ON_CHAIN_TRANSACTION,
 			payload,
 		});
-	} catch {}
+		return ok('Transaction updated');
+	} catch (e) {
+		return err(e);
+	}
 };
 
 export const updateSelectedFeeId = async ({
@@ -1069,7 +1072,7 @@ export const updateSelectedFeeId = async ({
 	feeId?: EFeeIds;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
+}): Promise<Result<string>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1082,12 +1085,16 @@ export const updateSelectedFeeId = async ({
 			selectedNetwork,
 		});
 		if (transactionResponse.isErr()) {
-			return;
+			return err(transactionResponse.error.message);
 		}
 		const transaction = transactionResponse.value;
 		transaction.selectedFeeId = feeId;
-		return await updateBitcoinTransaction({ transaction });
-	} catch {}
+		await updateBitcoinTransaction({ transaction });
+		return ok('Fee updated');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
 
 export const resetOnChainTransaction = ({
@@ -1096,7 +1103,7 @@ export const resetOnChainTransaction = ({
 }: {
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-} = {}): void => {
+} = {}): Result<string> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1113,7 +1120,11 @@ export const resetOnChainTransaction = ({
 			type: actions.RESET_ON_CHAIN_TRANSACTION,
 			payload,
 		});
-	} catch {}
+		return ok('Transaction reseted');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
 
 export const updateSelectedAddressType = ({
