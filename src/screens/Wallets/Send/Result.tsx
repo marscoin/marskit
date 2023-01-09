@@ -94,7 +94,6 @@ const Result = ({
 			await setupOnChainTransaction({
 				selectedWallet,
 				selectedNetwork,
-				rbf: false,
 			});
 			// The transaction was reset due to an unknown broadcast or construction error.
 			// Navigate back to the main send screen to re-enter information.

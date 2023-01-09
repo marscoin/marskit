@@ -99,7 +99,6 @@ const QuickSetup = ({
 			setupOnChainTransaction({
 				selectedNetwork,
 				selectedWallet,
-				rbf: false,
 			}).then();
 		}, [selectedNetwork, selectedWallet]),
 	);
