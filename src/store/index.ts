@@ -31,9 +31,10 @@ const __enableDebugger__ = ENABLE_REDUX_FLIPPER
 const __enableLogger__ = ENABLE_REDUX_LOGGER
 	? ENABLE_REDUX_LOGGER === 'true'
 	: true;
-const __enableImmutableCheck__ = ENABLE_REDUX_IMMUTABLE_CHECK
-	? ENABLE_REDUX_IMMUTABLE_CHECK === 'true'
-	: true;
+const __enableImmutableCheck__ =
+	__DEV__ && ENABLE_REDUX_IMMUTABLE_CHECK
+		? ENABLE_REDUX_IMMUTABLE_CHECK === 'true'
+		: false;
 const __enableMigrationDebug__ = ENABLE_MIGRATION_DEBUG
 	? ENABLE_MIGRATION_DEBUG === 'true'
 	: false;
