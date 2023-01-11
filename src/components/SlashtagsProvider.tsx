@@ -14,7 +14,7 @@ import {
 	onSDKError,
 } from '../utils/slashtags';
 import { updateSeederMaybe } from '../store/actions/slashtags';
-import { SLASHTAGS_SEEDER_TOPIC } from '@env';
+import { SLASHTAGS_SEEDER_TOPIC, DISABLE_SLASHTAGS } from '@env';
 import { seedHashSelector } from '../store/reselect/wallet';
 
 export const RAWS = RAWSFactory({
@@ -87,7 +87,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			relaySocket.onclose = reconnect;
 		};
 
-		createSDK(relaySocket);
+		!DISABLE_SLASHTAGS && createSDK(relaySocket);
 
 		function createSDK(relay: WebSocket): void {
 			const _sdk = new SDK({
@@ -154,7 +154,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			!unmounted && setOpened(true);
 
 			// If corestore is closed for some reason, should not try to load drives
-			if (sdk.closed) {
+			if (!sdk || sdk.closed) {
 				return;
 			}
 
@@ -218,7 +218,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	return (
 		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk opened
 		<SlashtagsContext.Provider value={{ sdk: sdk as SDK, contacts }}>
-			{opened && children}
+			{(opened || DISABLE_SLASHTAGS) && children}
 		</SlashtagsContext.Provider>
 	);
 };

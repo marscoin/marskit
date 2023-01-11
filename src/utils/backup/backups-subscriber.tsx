@@ -2,8 +2,9 @@ import React, { ReactElement, useEffect } from 'react';
 import lm from '@synonymdev/react-native-ldk';
 import { performRemoteLdkBackup } from '../../store/actions/backup';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { DISABLE_SLASHTAGS } from '@env';
 
-const BackupSubscriber = (): ReactElement => {
+const EnabledSlashtag = (): ReactElement => {
 	const { slashtag } = useSelectedSlashtag();
 
 	//TODO perform other backup types
@@ -20,6 +21,10 @@ const BackupSubscriber = (): ReactElement => {
 	}, [slashtag]);
 
 	return <></>;
+};
+
+const BackupSubscriber = (): ReactElement => {
+	return !DISABLE_SLASHTAGS ? <EnabledSlashtag /> : <></>;
 };
 
 export default BackupSubscriber;

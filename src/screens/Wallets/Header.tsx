@@ -9,8 +9,9 @@ import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { RootNavigationProp } from '../../navigation/types';
+import { DISABLE_SLASHTAGS } from '@env';
 
-const Header = (): ReactElement => {
+const EnabledSlashtagsProfileButton = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
 
 	const { url } = useSelectedSlashtag();
@@ -18,14 +19,50 @@ const Header = (): ReactElement => {
 	// but if useProfile is blocked, then everything is too, better solve that.
 	const { profile } = useProfile(url);
 
-	const openProfile = useCallback(
-		() => navigation.navigate('Profile'),
-		[navigation],
+	const openProfile = useCallback(() => {
+		navigation.navigate('Profile');
+	}, [navigation]);
+
+	return (
+		<TouchableOpacity
+			style={styles.leftColumn}
+			activeOpacity={1}
+			onPress={openProfile}>
+			<ProfileImage
+				size={32}
+				url={url}
+				image={profile?.image}
+				style={styles.profileImage}
+			/>
+			{profile?.name ? (
+				<Title>{truncate(profile?.name, 20)}</Title>
+			) : (
+				<Title>Your name</Title>
+			)}
+		</TouchableOpacity>
 	);
-	const openContacts = useCallback(
-		() => navigation.navigate('Contacts'),
-		[navigation],
+};
+
+const ProfileButton = (): ReactElement => {
+	return DISABLE_SLASHTAGS ? (
+		<TouchableOpacity
+			style={styles.leftColumn}
+			activeOpacity={1}
+			onPress={(): void => {}}>
+			<ProfileImage size={32} url={''} image={''} style={styles.profileImage} />
+			<Title color="gray">Slashtags disabled</Title>
+		</TouchableOpacity>
+	) : (
+		<EnabledSlashtagsProfileButton />
 	);
+};
+
+const Header = (): ReactElement => {
+	const navigation = useNavigation<RootNavigationProp>();
+
+	const openContacts = useCallback(() => {
+		!DISABLE_SLASHTAGS && navigation.navigate('Contacts');
+	}, [navigation]);
 	const openSettings = useCallback(
 		() => navigation.navigate('Settings', { screen: 'MainSettings' }),
 		[navigation],
@@ -33,22 +70,7 @@ const Header = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity
-				style={styles.leftColumn}
-				activeOpacity={1}
-				onPress={openProfile}>
-				<ProfileImage
-					size={32}
-					url={url}
-					image={profile?.image}
-					style={styles.profileImage}
-				/>
-				{profile?.name ? (
-					<Title>{truncate(profile?.name, 20)}</Title>
-				) : (
-					<Title>Your name</Title>
-				)}
-			</TouchableOpacity>
+			<ProfileButton />
 			<View style={styles.middleColumn} />
 			<View style={styles.rightColumn}>
 				<TouchableOpacity
