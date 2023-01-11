@@ -32,7 +32,8 @@ module.exports = (async () => {
       blacklistRE: exclusionList([
         /android\/build\/nodejs-native-assets-temp-build\/.*/,
         /\/nodejs-assets\/.*/,
-        /\/node_modules\/sodium-native\/.*/
+        /\/node_modules\/sodium-native\/.*/,
+        /\/android\/build\/*/,
       ])
     },
   };
