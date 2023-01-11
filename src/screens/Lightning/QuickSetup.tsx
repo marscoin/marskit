@@ -83,7 +83,7 @@ const QuickSetup = ({
 	useEffect(() => {
 		setTotalBalance(spendingLimit);
 	}, [
-		blocktankService.max_chan_spending,
+		blocktankService?.max_chan_spending,
 		currentBalance.satoshis,
 		spendingLimit,
 	]);
