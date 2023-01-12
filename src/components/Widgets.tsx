@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { navigate } from '../navigation/root/RootNavigator';
 import Store from '../store/types';
 import { View, TouchableOpacity } from '../styles/components';
-import { Subtitle, Text01M } from '../styles/text';
+import { Subtitle, Text, Text01M } from '../styles/text';
 import { PlusIcon, ListIcon, XIcon } from '../styles/icons';
 import { SUPPORTED_FEED_TYPES } from '../utils/widgets';
 import { setWidgetsSortOrder } from '../store/actions/widgets';
@@ -29,6 +29,7 @@ import FeedWidget from './FeedWidget';
 import HeadlinesWidget from './HeadlinesWidget';
 import BlocksWidget from './BlocksWidget';
 import FactsWidget from './FactsWidget';
+import { DISABLE_SLASHTAGS } from '@env';
 
 export const Widgets = ({ onEditStart, onEditEnd }): ReactElement => {
 	const widgets = useSelector((state: Store) => state.widgets.widgets);
@@ -160,7 +161,14 @@ export const Widgets = ({ onEditStart, onEditEnd }): ReactElement => {
 		navigate('WidgetsRoot');
 	}, []);
 
-	return (
+	return DISABLE_SLASHTAGS ? (
+		<>
+			<View style={styles.titleRow}>
+				<Subtitle style={styles.title}>Widgets</Subtitle>
+			</View>
+			<Text color="gray">SLASHTAGS DISABLED</Text>
+		</>
+	) : (
 		<>
 			<View style={styles.titleRow}>
 				<Subtitle style={styles.title}>Widgets</Subtitle>
