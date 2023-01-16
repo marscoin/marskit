@@ -1,9 +1,10 @@
 import { Platform } from 'react-native';
-import { robotoWeights, sanFranciscoWeights } from 'react-native-typography';
+import { sanFranciscoWeights } from 'react-native-typography';
 import styled from './styled-components';
+import { IThemeColors } from './themes';
 
 type TextProps = {
-	color?: string;
+	color?: keyof IThemeColors;
 };
 
 export const Display = styled.Text<TextProps & { lineHeight?: string }>(
@@ -37,8 +38,7 @@ export const Subtitle = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.bold.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.bold.fontFamily,
-			fontWeight: robotoWeights.bold.fontWeight,
+			fontFamily: 'Roboto-Bold',
 		},
 	}),
 	fontSize: '17px',
@@ -52,8 +52,7 @@ export const Text = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.medium.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	color: theme.colors[color ?? 'text'],
@@ -66,8 +65,7 @@ export const Text01S = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.regular.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.regular.fontFamily,
-			fontWeight: robotoWeights.regular.fontWeight,
+			fontFamily: 'Roboto-Regular',
 		},
 	}),
 	fontSize: '17px',
@@ -82,8 +80,7 @@ export const Text01M = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.semibold.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	fontSize: '17px',
@@ -97,8 +94,7 @@ export const Text01B = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.bold.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.bold.fontFamily,
-			fontWeight: robotoWeights.bold.fontWeight,
+			fontFamily: 'Roboto-Bold',
 		},
 	}),
 	fontSize: '17px',
@@ -112,8 +108,7 @@ export const Text02S = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.regular.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.regular.fontFamily,
-			fontWeight: robotoWeights.regular.fontWeight,
+			fontFamily: 'Roboto-Regular',
 		},
 	}),
 	fontSize: '15px',
@@ -128,8 +123,7 @@ export const Text02M = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.semibold.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	fontSize: '15px',
@@ -144,8 +138,7 @@ export const Text02B = styled.Text<TextProps & { size?: string }>(
 				fontWeight: sanFranciscoWeights.bold.fontWeight,
 			},
 			android: {
-				fontFamily: robotoWeights.bold.fontFamily,
-				fontWeight: robotoWeights.bold.fontWeight,
+				fontFamily: 'Roboto-Bold',
 			},
 		}),
 		fontSize: size ? size : '15px',
@@ -160,8 +153,7 @@ export const Text13S = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.regular.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.regular.fontFamily,
-			fontWeight: robotoWeights.regular.fontWeight,
+			fontFamily: 'Roboto-Regular',
 		},
 	}),
 	fontSize: '13px',
@@ -175,8 +167,7 @@ export const Text13UP = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.medium.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	fontSize: '13px',
@@ -191,8 +182,7 @@ export const Caption13S = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.regular.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.regular.fontFamily,
-			fontWeight: robotoWeights.regular.fontWeight,
+			fontFamily: 'Roboto-Regular',
 		},
 	}),
 	fontSize: '13px',
@@ -206,8 +196,7 @@ export const Caption13M = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.semibold.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	fontSize: '13px',
@@ -221,8 +210,7 @@ export const Caption13Up = styled.Text<TextProps>(({ theme, color }) => ({
 			fontWeight: sanFranciscoWeights.medium.fontWeight,
 		},
 		android: {
-			fontFamily: robotoWeights.medium.fontFamily,
-			fontWeight: robotoWeights.medium.fontWeight,
+			fontFamily: 'Roboto-Medium',
 		},
 	}),
 	fontSize: '13px',

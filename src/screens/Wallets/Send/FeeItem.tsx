@@ -14,21 +14,21 @@ import {
 	SpeedNormalIcon,
 	SpeedSlowIcon,
 } from '../../../styles/icons';
-import { EFeeIds } from '../../../store/types/fees';
+import { EFeeId } from '../../../store/types/fees';
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
 
 const FeeItem = ({
 	id,
-	isSelected,
 	sats,
+	isSelected = false,
 	onPress,
 }: {
-	id: EFeeIds;
+	id: EFeeId;
 	sats: number;
-	isSelected: boolean;
-	onPress: (event: GestureResponderEvent) => void;
+	isSelected?: boolean;
+	onPress?: (event: GestureResponderEvent) => void;
 }): ReactElement => {
 	const colors = useColors();
 	const { title, description } = FeeText[id];
@@ -36,15 +36,15 @@ const FeeItem = ({
 
 	const icon = useMemo(() => {
 		switch (id) {
-			case EFeeIds.instant:
+			case EFeeId.instant:
 				return <SpeedFastIcon color="brand" />;
-			case EFeeIds.fast:
+			case EFeeId.fast:
 				return <SpeedFastIcon color="brand" />;
-			case EFeeIds.normal:
+			case EFeeId.normal:
 				return <SpeedNormalIcon color="brand" />;
-			case EFeeIds.slow:
+			case EFeeId.slow:
 				return <SpeedSlowIcon color="brand" />;
-			case EFeeIds.custom:
+			case EFeeId.custom:
 				return <SettingsIcon color="gray1" width={32} height={32} />;
 		}
 	}, [id]);
@@ -55,7 +55,7 @@ const FeeItem = ({
 				onPress={onPress}
 				style={[
 					styles.root,
-					isSelected ? { backgroundColor: colors.white08 } : null,
+					isSelected && { backgroundColor: colors.white08 },
 				]}>
 				<View style={styles.imageContainer}>{icon}</View>
 
@@ -75,7 +75,7 @@ const FeeItem = ({
 					</View>
 				</View>
 			</TouchableOpacity>
-			{id !== EFeeIds.custom && <View style={styles.divider} />}
+			{id !== EFeeId.custom && <View style={styles.divider} />}
 		</>
 	);
 };

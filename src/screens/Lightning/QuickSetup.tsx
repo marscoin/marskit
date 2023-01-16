@@ -56,7 +56,7 @@ const QuickSetup = ({
 	const spendingPercentage = Math.round((spendingAmount / totalBalance) * 100);
 	const savingsPercentage = Math.round((savingsAmount / totalBalance) * 100);
 
-	const handleChange = useCallback((v) => {
+	const handleChange = useCallback((v: number) => {
 		setSpendingAmount(Math.round(v));
 	}, []);
 
@@ -83,7 +83,7 @@ const QuickSetup = ({
 	useEffect(() => {
 		setTotalBalance(spendingLimit);
 	}, [
-		blocktankService.max_chan_spending,
+		blocktankService?.max_chan_spending,
 		currentBalance.satoshis,
 		spendingLimit,
 	]);
@@ -99,7 +99,6 @@ const QuickSetup = ({
 			setupOnChainTransaction({
 				selectedNetwork,
 				selectedWallet,
-				rbf: false,
 			}).then();
 		}, [selectedNetwork, selectedWallet]),
 	);

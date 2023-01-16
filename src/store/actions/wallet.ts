@@ -1,17 +1,18 @@
 import actions from './actions';
 import {
 	EPaymentType,
+	IAddresses,
 	IAddress,
-	IAddressContent,
 	ICreateWallet,
-	IFormattedTransaction,
+	IFormattedTransactions,
 	IKeyDerivationPath,
 	IBitcoinTransactionData,
 	IUtxo,
 	EAddressType,
-	IBoostedTransaction,
+	IBoostedTransactions,
 	EBoost,
 	TWalletName,
+	IWalletStore,
 } from '../types/wallet';
 import {
 	createDefaultWallet,
@@ -26,12 +27,12 @@ import {
 	getSelectedAddressType,
 	getSelectedNetwork,
 	getSelectedWallet,
-	ITransaction,
 	refreshWallet,
 	removeDuplicateAddresses,
 } from '../../utils/wallet';
 import { getDispatch, getFeesStore, getWalletStore } from '../helpers';
 import { TAvailableNetworks } from '../../utils/networks';
+import { objectKeys } from '../../utils/objectKeys';
 import { err, ok, Result } from '@synonymdev/result';
 import {
 	getOnchainTransactionData,
@@ -49,7 +50,7 @@ import {
 	getTransactions,
 	getUtxos,
 } from '../../utils/wallet/electrum';
-import { EFeeIds } from '../types/fees';
+import { EFeeId } from '../types/fees';
 import { IHeader } from '../../utils/types/electrum';
 import { toggleView } from './ui';
 import {
@@ -63,14 +64,14 @@ import { defaultWalletShape, TAddressIndexInfo } from '../shapes/wallet';
 
 const dispatch = getDispatch();
 
-export const updateWallet = (payload): Promise<Result<string>> => {
-	return new Promise(async (resolve) => {
-		await dispatch({
-			type: actions.UPDATE_WALLET,
-			payload,
-		});
-		resolve(ok(''));
+export const updateWallet = (
+	payload: Partial<IWalletStore>,
+): Result<string> => {
+	dispatch({
+		type: actions.UPDATE_WALLET,
+		payload,
 	});
+	return ok('');
 };
 
 /**
@@ -106,7 +107,7 @@ export const createWallet = async ({
 		if (response.isErr()) {
 			return err(response.error.message);
 		}
-		await dispatch({
+		dispatch({
 			type: actions.CREATE_WALLET,
 			payload: response.value,
 		});
@@ -123,7 +124,7 @@ export const updateExchangeRates = async (): Promise<Result<string>> => {
 		return err(res.error);
 	}
 
-	await dispatch({
+	dispatch({
 		type: actions.UPDATE_WALLET,
 		payload: { exchangeRates: res.value },
 	});
@@ -223,7 +224,7 @@ export const updateAddressIndexes = async ({
 				lastUsedChangeAddressIndex = response.value?.lastUsedChangeAddressIndex;
 			}
 
-			await dispatch({
+			dispatch({
 				type: actions.UPDATE_ADDRESS_INDEX,
 				payload: {
 					addressIndex,
@@ -256,7 +257,7 @@ export const generateNewReceiveAddress = async ({
 	selectedNetwork?: TAvailableNetworks;
 	addressType?: EAddressType;
 	keyDerivationPath?: IKeyDerivationPath;
-}): Promise<Result<IAddressContent>> => {
+}): Promise<Result<IAddress>> => {
 	try {
 		if (!selectedWallet) {
 			selectedWallet = getSelectedWallet();
@@ -301,8 +302,7 @@ export const generateNewReceiveAddress = async ({
 			}
 			keyDerivationPath = keyDerivationPathResponse.value;
 		}
-		const addresses: IAddress =
-			currentWallet.addresses[selectedNetwork][addressType];
+		const addresses = currentWallet.addresses[selectedNetwork][addressType];
 		const currentAddressIndex =
 			currentWallet.addressIndex[selectedNetwork][addressType].index;
 		const nextAddressIndex = await Promise.all(
@@ -314,7 +314,7 @@ export const generateNewReceiveAddress = async ({
 		// Check if the next address index already exists or if it needs to be generated.
 		if (nextAddressIndex?.length > 0) {
 			// Update addressIndex and return the address content.
-			await dispatch({
+			dispatch({
 				type: actions.UPDATE_ADDRESS_INDEX,
 				payload: {
 					addressIndex: nextAddressIndex[0],
@@ -344,7 +344,7 @@ export const generateNewReceiveAddress = async ({
 			return err('Unable to generate addresses at this time.');
 		}
 		const newAddressIndex = addAddressesRes.value.addresses[addressKeys[0]];
-		await dispatch({
+		dispatch({
 			type: actions.UPDATE_ADDRESS_INDEX,
 			payload: {
 				addressIndex: newAddressIndex,
@@ -438,7 +438,7 @@ export const addAddresses = async ({
 		changeAddresses,
 		addressType,
 	};
-	await dispatch({
+	dispatch({
 		type: actions.ADD_ADDRESSES,
 		payload,
 	});
@@ -493,7 +493,7 @@ export const updateUtxos = ({
 			utxos: filteredUtxos,
 			balance,
 		};
-		await dispatch({
+		dispatch({
 			type: actions.UPDATE_UTXOS,
 			payload,
 		});
@@ -526,7 +526,7 @@ export const clearUtxos = async ({
 		utxos: [],
 		balance: 0,
 	};
-	await dispatch({
+	dispatch({
 		type: actions.UPDATE_UTXOS,
 		payload,
 	});
@@ -576,7 +576,7 @@ export interface ITransactionData {
 	value: number;
 }
 
-export const updateTransactions = ({
+export const updateTransactions = async ({
 	selectedWallet,
 	selectedNetwork,
 	scanAllAddresses = false,
@@ -584,107 +584,101 @@ export const updateTransactions = ({
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 	scanAllAddresses?: boolean;
-}): Promise<Result<IFormattedTransaction>> => {
-	return new Promise(async (resolve) => {
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		const { currentWallet } = getCurrentWallet({
-			selectedWallet,
-			selectedNetwork,
-		});
-
-		const history = await getAddressHistory({
-			selectedNetwork,
-			selectedWallet,
-			scanAllAddresses,
-		});
-
-		if (history.isErr()) {
-			return resolve(err(history.error.message));
-		}
-
-		if (!history?.value?.length) {
-			return resolve(ok({}));
-		}
-
-		const getTransactionsResponse = await getTransactions({
-			txHashes: history.value || [],
-			selectedNetwork,
-		});
-		if (getTransactionsResponse.isErr()) {
-			return resolve(err(getTransactionsResponse.error.message));
-		}
-		let transactions: ITransaction<ITransactionData>[] =
-			getTransactionsResponse.value.data;
-
-		if (!Array.isArray(transactions)) {
-			return resolve(ok({}));
-		}
-
-		const formatTransactionsResponse = await formatTransactions({
-			selectedNetwork,
-			selectedWallet,
-			transactions,
-		});
-		if (formatTransactionsResponse.isErr()) {
-			return resolve(err(formatTransactionsResponse.error.message));
-		}
-		const formattedTransactions: IFormattedTransaction = {};
-
-		const storedTransactions = currentWallet.transactions[selectedNetwork];
-
-		let notificationTxid: string | undefined;
-
-		Object.keys(formatTransactionsResponse.value).forEach((txid) => {
-			//If the tx is new or the tx now has a block height (state changed to confirmed)
-			if (
-				!storedTransactions[txid] ||
-				storedTransactions[txid].height !==
-					formatTransactionsResponse.value[txid].height
-			) {
-				formattedTransactions[txid] = formatTransactionsResponse.value[txid];
-			}
-
-			// if the tx is new incoming - show notification
-			if (
-				!storedTransactions[txid] &&
-				formatTransactionsResponse.value[txid].type === EPaymentType.received
-			) {
-				notificationTxid = txid;
-			}
-		});
-
-		//No new or updated transactions
-		if (!Object.keys(formattedTransactions)?.length) {
-			return resolve(ok(storedTransactions));
-		}
-
-		const payload = {
-			transactions: formattedTransactions,
-			selectedNetwork,
-			selectedWallet,
-		};
-		await dispatch({
-			type: actions.UPDATE_TRANSACTIONS,
-			payload,
-		});
-		if (notificationTxid) {
-			toggleView({
-				view: 'newTxPrompt',
-				data: {
-					isOpen: true,
-					txid: notificationTxid,
-				},
-			});
-		}
-
-		updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
-		return resolve(ok(formattedTransactions));
+}): Promise<Result<IFormattedTransactions>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const { currentWallet } = getCurrentWallet({
+		selectedWallet,
+		selectedNetwork,
 	});
+
+	const history = await getAddressHistory({
+		selectedNetwork,
+		selectedWallet,
+		scanAllAddresses,
+	});
+	if (history.isErr()) {
+		return err(history.error.message);
+	}
+	if (!history.value.length) {
+		return ok({});
+	}
+
+	const getTransactionsResponse = await getTransactions({
+		txHashes: history.value,
+		selectedNetwork,
+	});
+	if (getTransactionsResponse.isErr()) {
+		return err(getTransactionsResponse.error.message);
+	}
+	const transactions = getTransactionsResponse.value.data;
+
+	const formatTransactionsResponse = await formatTransactions({
+		selectedNetwork,
+		selectedWallet,
+		transactions,
+	});
+	if (formatTransactionsResponse.isErr()) {
+		return err(formatTransactionsResponse.error.message);
+	}
+	const formattedTransactions: IFormattedTransactions = {};
+	const storedTransactions = currentWallet.transactions[selectedNetwork];
+
+	let notificationTxid: string | undefined;
+
+	Object.keys(formatTransactionsResponse.value).forEach((txid) => {
+		//If the tx is new or the tx now has a block height (state changed to confirmed)
+		if (
+			!storedTransactions[txid] ||
+			storedTransactions[txid].height !==
+				formatTransactionsResponse.value[txid].height
+		) {
+			formattedTransactions[txid] = formatTransactionsResponse.value[txid];
+		}
+
+		// if the tx is new incoming - show notification
+		if (
+			!storedTransactions[txid] &&
+			formatTransactionsResponse.value[txid].type === EPaymentType.received
+		) {
+			notificationTxid = txid;
+		}
+	});
+
+	//No new or updated transactions
+	if (!Object.keys(formattedTransactions).length) {
+		return ok(storedTransactions);
+	}
+
+	const payload = {
+		transactions: formattedTransactions,
+		selectedNetwork,
+		selectedWallet,
+	};
+	dispatch({
+		type: actions.UPDATE_TRANSACTIONS,
+		payload,
+	});
+	if (notificationTxid) {
+		toggleView({
+			view: 'newTxPrompt',
+			data: {
+				isOpen: true,
+				txid: notificationTxid,
+			},
+		});
+		toggleView({
+			view: 'receiveNavigation',
+			data: { isOpen: false },
+		});
+	}
+
+	updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
+	return ok(formattedTransactions);
 };
 
 /**
@@ -714,7 +708,7 @@ export const deleteOnChainTransactionById = async ({
 			selectedNetwork,
 			selectedWallet,
 		};
-		await dispatch({
+		dispatch({
 			type: actions.DELETE_ON_CHAIN_TRANSACTION,
 			payload,
 		});
@@ -761,7 +755,7 @@ export const addBoostedTransaction = async ({
 			boostedTransactions,
 		});
 		parentTransactions.push(oldTxId);
-		const boostedTransaction: IBoostedTransaction = {
+		const boostedTransaction: IBoostedTransactions = {
 			[oldTxId]: {
 				parentTransactions: parentTransactions,
 				childTransaction: newTxId,
@@ -774,7 +768,7 @@ export const addBoostedTransaction = async ({
 			selectedNetwork,
 			selectedWallet,
 		};
-		await dispatch({
+		dispatch({
 			type: actions.ADD_BOOSTED_TRANSACTION,
 			payload,
 		});
@@ -793,11 +787,9 @@ export const resetSelectedWallet = async ({
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
-	await dispatch({
+	dispatch({
 		type: actions.RESET_SELECTED_WALLET,
-		payload: {
-			selectedWallet,
-		},
+		payload: { selectedWallet },
 	});
 	await createWallet({ walletName: selectedWallet });
 	await refreshWallet({});
@@ -821,7 +813,7 @@ export const setupOnChainTransaction = async ({
 	selectedNetwork,
 	addressType,
 	inputTxHashes,
-	rbf = true,
+	rbf = false,
 	submitDispatch = true,
 }: {
 	selectedWallet?: TWalletName;
@@ -860,7 +852,7 @@ export const setupOnChainTransaction = async ({
 
 		if (!inputs.length) {
 			// If inputs were previously selected, leave them.
-			if (transaction?.inputs && transaction.inputs.length > 0) {
+			if (transaction.inputs && transaction.inputs.length > 0) {
 				inputs = transaction.inputs;
 			} else {
 				// Otherwise, lets use our available utxo's.
@@ -875,16 +867,14 @@ export const setupOnChainTransaction = async ({
 		const currentChangeAddresses =
 			currentWallet.changeAddresses[selectedNetwork];
 
-		const addressTypes = getAddressTypes();
-		let changeAddresses: IAddress = {};
-		await Promise.all(
-			Object.keys(addressTypes).map((key) => {
-				changeAddresses = {
-					...changeAddresses,
-					...currentChangeAddresses[key],
-				};
-			}),
-		);
+		const addressTypes = objectKeys(getAddressTypes());
+		let changeAddresses: IAddresses = {};
+		addressTypes.forEach((key) => {
+			changeAddresses = {
+				...changeAddresses,
+				...currentChangeAddresses[key],
+			};
+		});
 		const changeAddressesArr = Object.values(changeAddresses).map(
 			({ address }) => address,
 		);
@@ -958,7 +948,7 @@ export const setupOnChainTransaction = async ({
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {EAddressType} [addressType]
- * @returns {Promise<Result<IAddressContent>>}
+ * @returns {Promise<Result<IAddress>>}
  */
 export const getChangeAddress = async ({
 	selectedWallet,
@@ -968,7 +958,7 @@ export const getChangeAddress = async ({
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 	addressType?: EAddressType;
-}): Promise<Result<IAddressContent>> => {
+}): Promise<Result<IAddress>> => {
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
@@ -988,7 +978,6 @@ export const getChangeAddress = async ({
 		currentWallet.changeAddressIndex[selectedNetwork][addressType];
 
 	if (
-		changeAddressIndexContent &&
 		changeAddressIndexContent?.address &&
 		changeAddressIndexContent.index >= 0
 	) {
@@ -1015,7 +1004,7 @@ export const getChangeAddress = async ({
  * @param selectedWallet
  * @param selectedNetwork
  * @param transaction
- * @return {Promise<void>}
+ * @return {Promise<Result<string>>}
  */
 export const updateBitcoinTransaction = async ({
 	transaction,
@@ -1025,7 +1014,7 @@ export const updateBitcoinTransaction = async ({
 	transaction: IBitcoinTransactionData;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
+}): Promise<Result<string>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1058,18 +1047,21 @@ export const updateBitcoinTransaction = async ({
 			type: actions.UPDATE_ON_CHAIN_TRANSACTION,
 			payload,
 		});
-	} catch {}
+		return ok('Transaction updated');
+	} catch (e) {
+		return err(e);
+	}
 };
 
 export const updateSelectedFeeId = async ({
-	feeId = EFeeIds.none,
+	feeId,
 	selectedWallet,
 	selectedNetwork,
 }: {
-	feeId?: EFeeIds;
+	feeId: EFeeId;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-}): Promise<void> => {
+}): Promise<Result<string>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1082,12 +1074,16 @@ export const updateSelectedFeeId = async ({
 			selectedNetwork,
 		});
 		if (transactionResponse.isErr()) {
-			return;
+			return err(transactionResponse.error.message);
 		}
 		const transaction = transactionResponse.value;
 		transaction.selectedFeeId = feeId;
-		return await updateBitcoinTransaction({ transaction });
-	} catch {}
+		await updateBitcoinTransaction({ transaction });
+		return ok('Fee updated');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
 
 export const resetOnChainTransaction = ({
@@ -1096,7 +1092,7 @@ export const resetOnChainTransaction = ({
 }: {
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-} = {}): void => {
+} = {}): Result<string> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -1113,7 +1109,11 @@ export const resetOnChainTransaction = ({
 			type: actions.RESET_ON_CHAIN_TRANSACTION,
 			payload,
 		});
-	} catch {}
+		return ok('Transaction reseted');
+	} catch (e) {
+		console.log(e);
+		return err(e);
+	}
 };
 
 export const updateSelectedAddressType = ({
@@ -1352,8 +1352,8 @@ export const setupFeeForOnChainTransaction = async ({
 		const res = updateFee({
 			selectedNetwork,
 			selectedWallet,
-			satsPerByte: fees[EFeeIds.normal],
-			selectedFeeId: EFeeIds.normal,
+			satsPerByte: fees[EFeeId.normal],
+			selectedFeeId: EFeeId.normal,
 		});
 
 		if (res.isErr()) {
@@ -1449,34 +1449,32 @@ export const setZeroIndexAddresses = async ({
 	let changeAddressIndex = addressIndexInfo.changeAddressIndex;
 
 	let payload: {
-		addressIndex?: IAddressContent;
-		changeAddressIndex?: IAddressContent;
+		addressIndex?: IAddress;
+		changeAddressIndex?: IAddress;
 	} = {};
 
 	if (addressIndex.index < 0) {
-		const addresses: IAddress =
-			getWalletStore().wallets[selectedWallet].addresses[selectedNetwork][
+		const addresses =
+			getWalletStore().wallets[selectedWallet]?.addresses[selectedNetwork][
 				addressType
 			];
-		const filterRes = Object.values(addresses).filter((a) => a.index === 0);
-		if (filterRes.length) {
-			payload.addressIndex = filterRes[0];
+		const filterRes = Object.values(addresses).find((a) => a.index === 0);
+		if (filterRes) {
+			payload.addressIndex = filterRes;
 		}
 	}
 	if (changeAddressIndex.index < 0) {
-		const changeAddresses: IAddress =
-			getWalletStore().wallets[selectedWallet].changeAddresses[selectedNetwork][
-				addressType
-			];
-		const filterRes = Object.values(changeAddresses).filter(
-			(a) => a.index === 0,
-		);
-		if (filterRes.length) {
-			payload.changeAddressIndex = filterRes[0];
+		const changeAddresses =
+			getWalletStore().wallets[selectedWallet]?.changeAddresses[
+				selectedNetwork
+			][addressType];
+		const filterRes = Object.values(changeAddresses).find((a) => a.index === 0);
+		if (filterRes) {
+			payload.changeAddressIndex = filterRes;
 		}
 	}
 
-	await dispatch({
+	dispatch({
 		type: actions.UPDATE_ADDRESS_INDEX,
 		payload: {
 			...payload,

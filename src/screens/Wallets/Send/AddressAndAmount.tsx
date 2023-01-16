@@ -36,7 +36,6 @@ import {
 	showErrorNotification,
 	showInfoNotification,
 } from '../../../utils/notifications';
-import { useTransactionDetails } from '../../../hooks/transaction';
 import { updateOnchainFeeEstimates } from '../../../store/actions/fees';
 import { decodeLightningInvoice, refreshLdk } from '../../../utils/lightning';
 import { processInputData } from '../../../utils/scanner';
@@ -55,6 +54,7 @@ import { sleep } from '../../../utils/helpers';
 import {
 	selectedNetworkSelector,
 	selectedWalletSelector,
+	transactionSelector,
 } from '../../../store/reselect/wallet';
 import { viewControllerIsOpenSelector } from '../../../store/reselect/ui';
 import {
@@ -84,6 +84,7 @@ const AddressAndAmount = ({
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const coinSelectAuto = useSelector(coinSelectAutoSelector);
+	const transaction = useSelector(transactionSelector);
 	const sendNavigationIsOpen = useSelector((state) =>
 		viewControllerIsOpenSelector(state, 'sendNavigation'),
 	);
@@ -91,7 +92,6 @@ const AddressAndAmount = ({
 
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 	const [handledOsPaste, setHandledOsPaste] = useState(false);
-	const transaction = useTransactionDetails();
 	const sdk = useSlashtagsSDK();
 
 	const getDecodeAndSetLightningInvoice =
@@ -201,8 +201,17 @@ const AddressAndAmount = ({
 		}
 	}, [decodedInvoiceAmount, getOutput?.value, lightningInvoice]);
 
+	const onContinue = useCallback((): void => {
+		let view: keyof SendStackParamList = 'ReviewAndSend';
+		// If auto coin-select is disabled and there is no lightning invoice.
+		if (!coinSelectAuto && !transaction?.lightningInvoice) {
+			view = 'CoinSelection';
+		}
+		navigation.navigate(view);
+	}, [coinSelectAuto, transaction?.lightningInvoice, navigation]);
+
 	const handlePaste = useCallback(
-		async (txt) => {
+		async (txt: string) => {
 			let clipboardData = txt;
 			if (!clipboardData) {
 				clipboardData = await Clipboard.getString();
@@ -214,7 +223,6 @@ const AddressAndAmount = ({
 				});
 				return;
 			}
-			console.log({ clipboardData });
 			const result = await processInputData({
 				data: clipboardData,
 				source: 'sendScanner',
@@ -222,7 +230,6 @@ const AddressAndAmount = ({
 				selectedNetwork,
 				selectedWallet,
 			});
-			console.log({ result });
 			if (result.isErr()) {
 				// Even though we're not able to interpret the data, pass it to the text input for editing.
 				updateBitcoinTransaction({
@@ -233,8 +240,11 @@ const AddressAndAmount = ({
 					},
 				}).then();
 			}
+			if (result.isOk() && result.value.amount) {
+				onContinue();
+			}
 		},
-		[index, value, selectedNetwork, selectedWallet, sdk],
+		[index, value, selectedNetwork, selectedWallet, sdk, onContinue],
 	);
 
 	const handleScan = (): void => {
@@ -246,7 +256,7 @@ const AddressAndAmount = ({
 	};
 
 	const handleTagRemove = useCallback(
-		(tag) => {
+		(tag: string) => {
 			const res = removeTxTag({ tag, selectedNetwork, selectedWallet });
 			if (res.isErr()) {
 				showErrorNotification({
@@ -369,13 +379,22 @@ const AddressAndAmount = ({
 	]);
 
 	const isInvalid = useCallback(() => {
+		// onchain transaction, but amount is below dust limit
 		if (
 			validate(address) &&
 			amount <= ETransactionDefaults.recommendedBaseFee
 		) {
 			return true;
 		}
-		return !validate(address) && !transaction?.lightningInvoice;
+		// no valid address or lightning invoice
+		if (!validate(address) && !transaction?.lightningInvoice) {
+			return true;
+		}
+		// valid lightning invoice, but amount is 0
+		if (!validate(address) && transaction?.lightningInvoice && amount === 0) {
+			return true;
+		}
+		return false;
 	}, [address, amount, transaction?.lightningInvoice]);
 
 	/**
@@ -519,14 +538,7 @@ const AddressAndAmount = ({
 											size="large"
 											text="Continue"
 											disabled={isInvalid()}
-											onPress={(): void => {
-												let view: keyof SendStackParamList = 'ReviewAndSend';
-												// If auto coin-select is disabled and there is no lightning invoice.
-												if (!coinSelectAuto && !transaction?.lightningInvoice) {
-													view = 'CoinSelection';
-												}
-												navigation.navigate(view);
-											}}
+											onPress={onContinue}
 										/>
 									)}
 								</View>

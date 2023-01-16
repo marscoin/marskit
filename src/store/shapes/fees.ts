@@ -1,49 +1,57 @@
-import { EFeeIds, IFees } from '../types/fees';
+import { EFeeId, IFees } from '../types/fees';
 
 export type TFeeText = {
 	title: string;
 	description: string;
+	shortRange: string;
 	shortDescription: string;
 };
 
 type TFeeTexts = {
-	[key in EFeeIds]: TFeeText;
+	[key in EFeeId]: TFeeText;
 };
 
 export const FeeText: TFeeTexts = {
-	instant: {
+	[EFeeId.instant]: {
 		title: 'Instant',
 		description: '±2-10 seconds',
+		shortRange: '2-10s',
 		shortDescription: '±2s',
 	},
-	fast: {
+	[EFeeId.fast]: {
 		title: 'Fast',
 		description: '±10-20 minutes',
+		shortRange: '10-20m',
 		shortDescription: '±10m',
 	},
-	normal: {
+	[EFeeId.normal]: {
 		title: 'Normal',
 		description: '±20-60 minutes',
+		shortRange: '20-60m',
 		shortDescription: '±20m',
 	},
-	slow: {
+	[EFeeId.slow]: {
 		title: 'Slow',
 		description: '±1-2 hours',
+		shortRange: '1-2h',
 		shortDescription: '±1h',
 	},
-	minimum: {
+	[EFeeId.minimum]: {
 		title: 'Minimum',
 		description: '+2 hours',
+		shortRange: '+2h',
 		shortDescription: '+2h',
 	},
-	custom: {
+	[EFeeId.custom]: {
 		title: 'Custom',
 		description: 'Depends on the fee',
+		shortRange: 'Depends on the fee',
 		shortDescription: 'Depends on the fee',
 	},
-	none: {
+	[EFeeId.none]: {
 		title: '',
 		description: '',
+		shortRange: '',
 		shortDescription: '',
 	},
 };
