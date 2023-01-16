@@ -23,6 +23,7 @@ import useColors from '../hooks/colors';
 
 const CIRCLE_SIZE = 32;
 const GRAB_SIZE = 64;
+const SNAP_POINT_SIZE = 5;
 
 const valueToX = (
 	value: number,
@@ -176,7 +177,7 @@ const FancySlider = ({
 				}
 
 				// handle snapPoint
-				if (snapPoint) {
+				if (snapPoint !== undefined) {
 					const delta = maximumValue - minimumValue;
 					const snapPointX = (endPosition / delta) * snapPoint;
 
@@ -211,9 +212,13 @@ const FancySlider = ({
 		outputRange: [0, endPosition],
 	});
 
-	const snapPointTranslateX = snapPoint
-		? (containerWidth / maximumValue - minimumValue) * snapPoint
-		: null;
+	let snapPointTranslateX;
+	if (containerWidth > 0 && snapPoint !== undefined) {
+		snapPointTranslateX =
+			SNAP_POINT_SIZE / 2 +
+			((containerWidth - SNAP_POINT_SIZE * 2) / maximumValue - minimumValue) *
+				snapPoint;
+	}
 
 	const minTrackWidth = pan.x.interpolate({
 		inputRange: [0, endPosition],
@@ -265,7 +270,7 @@ const FancySlider = ({
 						},
 					]}
 				/>
-				{snapPointTranslateX ? (
+				{snapPointTranslateX !== undefined ? (
 					<Animated.View
 						style={[
 							styles.snapPoint,
@@ -353,7 +358,7 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		left: 0,
 		height: 16,
-		width: 5,
+		width: SNAP_POINT_SIZE,
 	},
 	glow: {
 		position: 'absolute',
