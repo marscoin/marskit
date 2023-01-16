@@ -21,7 +21,7 @@ import { resetUiStore } from '../../../store/actions/ui';
 import { resetSettingsStore, wipeApp } from '../../../store/actions/settings';
 import type { SettingsScreenProps } from '../../../navigation/types';
 import { selectedWalletSelector } from '../../../store/reselect/wallet';
-import { DISABLE_SLASHTAGS } from '@env';
+import { isSlashtagsDisabled } from '../../../utils/slashtags';
 
 const DevSettings = ({
 	navigation,
@@ -37,10 +37,10 @@ const DevSettings = ({
 				data: [
 					{
 						title:
-							'Slashtags Settings' + (DISABLE_SLASHTAGS ? ' disabled' : ''),
+							'Slashtags Settings' + (isSlashtagsDisabled ? ' disabled' : ''),
 						type: EItemType.button,
 						onPress: (): void => {
-							!DISABLE_SLASHTAGS && navigation.navigate('SlashtagsSettings');
+							!isSlashtagsDisabled && navigation.navigate('SlashtagsSettings');
 						},
 					},
 				],

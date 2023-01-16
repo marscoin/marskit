@@ -12,9 +12,10 @@ import {
 	decodeJSON,
 	getSelectedSlashtag,
 	onSDKError,
+	isSlashtagsDisabled,
 } from '../utils/slashtags';
 import { updateSeederMaybe } from '../store/actions/slashtags';
-import { SLASHTAGS_SEEDER_TOPIC, DISABLE_SLASHTAGS } from '@env';
+import { SLASHTAGS_SEEDER_TOPIC } from '@env';
 import { seedHashSelector } from '../store/reselect/wallet';
 
 export const RAWS = RAWSFactory({
@@ -87,7 +88,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 			relaySocket.onclose = reconnect;
 		};
 
-		!DISABLE_SLASHTAGS && createSDK(relaySocket);
+		!isSlashtagsDisabled && createSDK(relaySocket);
 
 		function createSDK(relay: WebSocket): void {
 			const _sdk = new SDK({
@@ -218,7 +219,7 @@ export const SlashtagsProvider = ({ children }): JSX.Element => {
 	return (
 		// Do not render children (depending on the sdk) until the primary key is loaded and the sdk opened
 		<SlashtagsContext.Provider value={{ sdk: sdk as SDK, contacts }}>
-			{(opened || DISABLE_SLASHTAGS) && children}
+			{(opened || isSlashtagsDisabled) && children}
 		</SlashtagsContext.Provider>
 	);
 };

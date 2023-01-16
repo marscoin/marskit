@@ -2,7 +2,7 @@ import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import b4a from 'b4a';
 import mime from 'mime/lite';
 import debounce from 'lodash.debounce';
-import { SLASHTAGS_SEEDER_BASE_URL } from '@env';
+import { DISABLE_SLASHTAGS, SLASHTAGS_SEEDER_BASE_URL } from '@env';
 
 import { navigate } from '../../navigation/root/RootNavigator';
 import { BasicProfile, SlashPayConfig } from '../../store/types/slashtags';
@@ -431,3 +431,5 @@ export const readAsDataURL = async (
 
 	return base64 && `data:${mimeType};base64,${base64}`;
 };
+
+export const isSlashtagsDisabled = DISABLE_SLASHTAGS === 'true';
