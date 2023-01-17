@@ -314,20 +314,27 @@ export const generateAddresses = async ({
 /**
  * Returns private key for the provided address data.
  * @param {IAddress} addressData
+ * @param {TAvailableNetworks} [selectedNetwork]
  * @return {Promise<Result<string>>}
  */
 export const getPrivateKey = async ({
 	addressData,
+	selectedNetwork,
 }: {
 	addressData: IAddress;
+	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
 	try {
 		if (!addressData) {
 			return err('No addressContent specified.');
 		}
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
 
 		const getPrivateKeyShapeShape = DefaultNodeJsMethodsShape.getPrivateKey();
 		getPrivateKeyShapeShape.data.path = addressData.path;
+		getPrivateKeyShapeShape.data.selectedNetwork = selectedNetwork;
 		const getPrivateKeyResponse = await invokeNodeJsMethod(
 			getPrivateKeyShapeShape,
 		);
@@ -1283,7 +1290,7 @@ export const getSelectedNetwork = (): TAvailableNetworks => {
 
 /**
  * Returns the currently selected address type (p2pkh | p2sh | p2wpkh | p2tr).
- * @return {TAddressType}
+ * @returns {EAddressType}
  */
 export const getSelectedAddressType = ({
 	selectedWallet,
@@ -2409,7 +2416,7 @@ export const getAddressTypes = (): IAddressTypes => {
 
 /**
  * The method returns the base key derivation path for a given address type.
- * @param {TAddressType} [addressType]
+ * @param {EAddressType} [addressType]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {TWalletName} [selectedWallet]
  * @param {boolean} [changeAddress]
@@ -2619,7 +2626,7 @@ export const getBalance = ({
  * Returns the difference between the current address index and the last used address index.
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
- * @param {TAddressType} [addressType]
+ * @param {EAddressType} [addressType]
  * @returns {Result<{ addressDelta: number; changeAddressDelta: number }>}
  */
 export const getGapLimit = ({

@@ -20,6 +20,7 @@ const methods = {
 	[ENodeJsMethod.getPrivateKey]: {},
 	[ENodeJsMethod.getScriptHash]: {},
 	[ENodeJsMethod.getAddress]: {},
+	[ENodeJsMethod.getPrivateKey]: {},
 };
 const listeners = {};
 
