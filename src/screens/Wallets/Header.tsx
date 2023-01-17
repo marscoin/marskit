@@ -9,7 +9,7 @@ import ProfileImage from '../../components/ProfileImage';
 import { truncate } from '../../utils/helpers';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { RootNavigationProp } from '../../navigation/types';
-import { DISABLE_SLASHTAGS } from '@env';
+import { isSlashtagsDisabled } from '../../utils/slashtags';
 
 const EnabledSlashtagsProfileButton = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
@@ -44,7 +44,7 @@ const EnabledSlashtagsProfileButton = (): ReactElement => {
 };
 
 const ProfileButton = (): ReactElement => {
-	return DISABLE_SLASHTAGS ? (
+	return isSlashtagsDisabled ? (
 		<TouchableOpacity
 			style={styles.leftColumn}
 			activeOpacity={1}
@@ -61,7 +61,7 @@ const Header = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
 
 	const openContacts = useCallback(() => {
-		!DISABLE_SLASHTAGS && navigation.navigate('Contacts');
+		!isSlashtagsDisabled && navigation.navigate('Contacts');
 	}, [navigation]);
 	const openSettings = useCallback(
 		() => navigation.navigate('Settings', { screen: 'MainSettings' }),

@@ -29,7 +29,7 @@ import FeedWidget from './FeedWidget';
 import HeadlinesWidget from './HeadlinesWidget';
 import BlocksWidget from './BlocksWidget';
 import FactsWidget from './FactsWidget';
-import { DISABLE_SLASHTAGS } from '@env';
+import { isSlashtagsDisabled } from '../utils/slashtags';
 
 export const Widgets = ({
 	onEditStart,
@@ -166,7 +166,7 @@ export const Widgets = ({
 		navigate('WidgetsRoot');
 	}, []);
 
-	return DISABLE_SLASHTAGS ? (
+	return isSlashtagsDisabled ? (
 		<>
 			<View style={styles.titleRow}>
 				<Subtitle style={styles.title}>Widgets</Subtitle>
