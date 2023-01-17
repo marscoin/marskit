@@ -179,6 +179,7 @@ const getAllAddresses = async ({
 	addressAmount?: number;
 }): Promise<Result<TAddressViewerData>> => {
 	const responseData = { ...defaultAllAddressesData };
+	const start = performance.now();
 	await Promise.all(
 		Object.values(addressTypes).map(async ({ path, type }) => {
 			const keyDerivationPathResponse = getKeyDerivationPathObject({
@@ -213,6 +214,12 @@ const getAllAddresses = async ({
 				changeAddresses,
 			};
 		}),
+	);
+	const end = performance.now();
+	console.log(
+		`Time To Generate ${
+			addressAmount * Object.keys(addressTypes).length
+		} Addresses: ${end - start} ms`,
 	);
 	return ok(responseData);
 };
@@ -403,7 +410,7 @@ const AddressViewer = ({
 				(a) => a.index,
 			);
 			const maxIndex = Math.max(...indexes);
-			await setConfig({
+			setConfig({
 				...config,
 				addressIndex: maxIndex + 1,
 			});
@@ -521,7 +528,7 @@ const AddressViewer = ({
 				(a) => a.index,
 			);
 			const maxIndex = Math.max(...indexes);
-			await setConfig({
+			setConfig({
 				...newConfig,
 				addressIndex: maxIndex + 1,
 			});
@@ -618,15 +625,11 @@ const AddressViewer = ({
 	 */
 	const utxoIsSelected = useCallback(
 		(utxo: IUtxo): boolean => {
-			let isSelected = false;
-			if (utxos) {
-				isSelected = !!selectedUtxos.find(
-					(u) => u.address === utxo.address && u.tx_pos === utxo.tx_pos,
-				);
-			}
-			return isSelected;
+			return selectedUtxos.some(
+				(u) => u.address === utxo.address && u.tx_pos === utxo.tx_pos,
+			);
 		},
-		[selectedUtxos, utxos],
+		[selectedUtxos],
 	);
 
 	/**
@@ -660,7 +663,7 @@ const AddressViewer = ({
 			if (utxosLength <= 0) {
 				return;
 			}
-			await resetOnChainTransaction({
+			resetOnChainTransaction({
 				selectedWallet,
 				selectedNetwork,
 			});
@@ -673,7 +676,7 @@ const AddressViewer = ({
 			if (transactionRes.isErr()) {
 				return;
 			}
-			const receiveAddress = await getReceiveAddress({
+			const receiveAddress = getReceiveAddress({
 				selectedWallet,
 				selectedNetwork,
 			});
