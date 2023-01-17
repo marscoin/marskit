@@ -199,20 +199,24 @@ const getAllAddresses = async ({
 				changeAddressIndex: config.addressIndex,
 				addressType: type,
 			});
-			if (generateAddressResponse.isErr()) {
-				return err(generateAddressResponse.error.message);
-			}
-			let addresses = Object.values(
-				generateAddressResponse.value.addresses,
-			).sort((a, b) => a.index - b.index);
-			let changeAddresses = Object.values(
-				generateAddressResponse.value.changeAddresses,
-			).sort((a, b) => a.index - b.index);
+			if (generateAddressResponse.isOk()) {
+				let addresses = Object.values(
+					generateAddressResponse.value.addresses,
+				).sort((a, b) => a.index - b.index);
+				let changeAddresses = Object.values(
+					generateAddressResponse.value.changeAddresses,
+				).sort((a, b) => a.index - b.index);
 
-			responseData[type] = {
-				addresses,
-				changeAddresses,
-			};
+				responseData[type] = {
+					addresses,
+					changeAddresses,
+				};
+			} else {
+				console.log(
+					'generateAddressResponse error',
+					generateAddressResponse.error.message,
+				);
+			}
 		}),
 	);
 	const end = performance.now();
