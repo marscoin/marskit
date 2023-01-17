@@ -53,6 +53,11 @@ const AdvancedSettings = ({
 				type: EItemType.button,
 				onPress: (): void => navigation.navigate('BlocktankOrders'),
 			},
+			{
+				title: 'Address Viewer',
+				type: EItemType.button,
+				onPress: (): void => navigation.navigate('AddressViewer'),
+			},
 		];
 
 		const networks: ItemData[] = [
@@ -92,7 +97,7 @@ const AdvancedSettings = ({
 				data: networks,
 			},
 		];
-	}, [navigation, selectedAddressType, selectedNetwork, enableDevOptions]);
+	}, [selectedAddressType, enableDevOptions, navigation, selectedNetwork]);
 
 	return (
 		<SettingsView

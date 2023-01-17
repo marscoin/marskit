@@ -39,11 +39,16 @@ export interface IGetUtxosResponse {
 	balance: number;
 }
 
+export type TUnspentAddressScriptHashData = {
+	[x: string]: IUtxo | IAddress;
+};
+
 /**
- * Returns utxos for a given wallet and network along with the available balance.
+ * Returns UTXO's for a given wallet and network along with the available balance.
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
  * @param {boolean} [scanAllAddresses]
+ * @returns {Promise<Result<IGetUtxosResponse>>}
  */
 export const getUtxos = async ({
 	selectedWallet,
@@ -69,90 +74,134 @@ export const getUtxos = async ({
 		const addressTypes = objectKeys(getAddressTypes());
 		let addresses = {} as IAddresses;
 		let changeAddresses = {} as IAddresses;
-		let utxos: IUtxo[] = [];
 		let existingUtxos: { [key: string]: IUtxo } = {};
-		let balance = 0;
 
-		addressTypes.map(async (addressType) => {
-			if (!selectedNetwork) {
-				selectedNetwork = getSelectedNetwork();
-			}
-			if (!selectedWallet) {
-				selectedWallet = getSelectedWallet();
-			}
-			const addressCount = Object.keys(
-				currentWallet.addresses[selectedNetwork][addressType],
-			)?.length;
-			// Check if addresses of this type have been generated. If not, skip.
-			if (addressCount <= 0) {
-				return;
-			}
+		await Promise.all(
+			addressTypes.map(async (addressType) => {
+				if (!selectedNetwork) {
+					selectedNetwork = getSelectedNetwork();
+				}
+				if (!selectedWallet) {
+					selectedWallet = getSelectedWallet();
+				}
+				const addressCount = Object.keys(
+					currentWallet.addresses[selectedNetwork][addressType],
+				)?.length;
+				// Check if addresses of this type have been generated. If not, skip.
+				if (addressCount <= 0) {
+					return;
+				}
 
-			// Grab the current index for both addresses and change addresses.
-			const addressIndex =
-				currentWallet.addressIndex[selectedNetwork][addressType].index;
-			const changeAddressIndex =
-				currentWallet.changeAddressIndex[selectedNetwork][addressType].index;
+				// Grab the current index for both addresses and change addresses.
+				const addressIndex =
+					currentWallet.addressIndex[selectedNetwork][addressType].index;
+				const changeAddressIndex =
+					currentWallet.changeAddressIndex[selectedNetwork][addressType].index;
 
-			// Grab all addresses and change addresses.
-			const allAddresses =
-				currentWallet.addresses[selectedNetwork][addressType];
-			const allChangeAddresses =
-				currentWallet.changeAddresses[selectedNetwork][addressType];
+				// Grab all addresses and change addresses.
+				const allAddresses =
+					currentWallet.addresses[selectedNetwork][addressType];
+				const allChangeAddresses =
+					currentWallet.changeAddresses[selectedNetwork][addressType];
 
-			// Instead of scanning all addresses, adhere to the gap limit.
-			if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
-				Object.values(allAddresses).map((a) => {
-					if (Math.abs(a.index - addressIndex) <= GAP_LIMIT) {
-						addresses[a.scriptHash] = a;
-					}
-				});
-				Object.values(allChangeAddresses).map((a) => {
-					if (Math.abs(a.index - changeAddressIndex) <= GAP_LIMIT) {
-						changeAddresses[a.scriptHash] = a;
-					}
-				});
-			} else {
-				addresses = allAddresses;
-				changeAddresses = allChangeAddresses;
-			}
-		});
+				// Instead of scanning all addresses, adhere to the gap limit.
+				if (!scanAllAddresses && addressIndex >= 0 && changeAddressIndex >= 0) {
+					Object.values(allAddresses).map((a) => {
+						if (Math.abs(a.index - addressIndex) <= GAP_LIMIT) {
+							addresses[a.scriptHash] = a;
+						}
+					});
+					Object.values(allChangeAddresses).map((a) => {
+						if (Math.abs(a.index - changeAddressIndex) <= GAP_LIMIT) {
+							changeAddresses[a.scriptHash] = a;
+						}
+					});
+				} else {
+					addresses = { ...addresses, ...allAddresses };
+					changeAddresses = { ...changeAddresses, ...allChangeAddresses };
+				}
+			}),
+		);
 
 		// Make sure we're re-check existing utxos that may exist outside the gap limit and putting them in the necessary format.
 		currentWallet.utxos[selectedNetwork].map((utxo) => {
 			existingUtxos[utxo.scriptHash] = utxo;
 		});
 
-		const unspentAddressResult = await electrum.listUnspentAddressScriptHashes({
-			scriptHashes: {
-				key: 'scriptHash',
-				data: {
-					...addresses,
-					...changeAddresses,
-					...existingUtxos,
-				},
-			},
-			network: selectedNetwork,
-		});
-		if (unspentAddressResult.error) {
-			throw unspentAddressResult.data;
-		}
-		unspentAddressResult.data.map(({ data, result }) => {
-			if (result?.length > 0) {
-				return result.map((unspentAddress: IUtxo) => {
-					balance = balance + unspentAddress.value;
-					utxos.push({
-						...data,
-						...unspentAddress,
-					});
-				});
-			}
-		});
+		const data: TUnspentAddressScriptHashData = {
+			...addresses,
+			...changeAddresses,
+			...existingUtxos,
+		};
 
-		return ok({ utxos, balance });
+		return listUnspentAddressScriptHashes({ addresses: data, selectedNetwork });
 	} catch (e) {
 		return err(e);
 	}
+};
+
+/**
+ * Formats a provided array of addresses a returns their UTXO's & balances.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {IAddress[]} allAddresses
+ * @returns {Promise<Result<IGetUtxosResponse>>}
+ */
+export const getAddressUtxos = async ({
+	selectedNetwork,
+	allAddresses,
+}: {
+	selectedNetwork?: TAvailableNetworks;
+	allAddresses: IAddress[];
+}): Promise<Result<IGetUtxosResponse>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	let addresses: IAddresses = {};
+	allAddresses.map((a) => {
+		addresses[a.scriptHash] = a;
+	});
+	return listUnspentAddressScriptHashes({ selectedNetwork, addresses });
+};
+
+/**
+ * Queries Electrum to return the available UTXO's and balance of the provided addresses.
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TUnspentAddressScriptHashData} addresses
+ */
+export const listUnspentAddressScriptHashes = async ({
+	selectedNetwork,
+	addresses,
+}: {
+	selectedNetwork?: TAvailableNetworks;
+	addresses: TUnspentAddressScriptHashData;
+}): Promise<Result<IGetUtxosResponse>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	const unspentAddressResult = await electrum.listUnspentAddressScriptHashes({
+		scriptHashes: {
+			key: 'scriptHash',
+			data: addresses,
+		},
+		network: selectedNetwork,
+	});
+	if (unspentAddressResult.error) {
+		throw unspentAddressResult.data;
+	}
+	let balance = 0;
+	let utxos: IUtxo[] = [];
+	unspentAddressResult.data.map(({ data, result }) => {
+		if (result?.length > 0) {
+			return result.map((unspentAddress: IUtxo) => {
+				balance = balance + unspentAddress.value;
+				utxos.push({
+					...data,
+					...unspentAddress,
+				});
+			});
+		}
+	});
+	return ok({ utxos, balance });
 };
 
 export interface ISubscribeToAddress {

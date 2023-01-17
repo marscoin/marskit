@@ -813,6 +813,7 @@ export const setupOnChainTransaction = async ({
 	selectedNetwork,
 	addressType,
 	inputTxHashes,
+	utxos,
 	rbf = false,
 	submitDispatch = true,
 }: {
@@ -820,6 +821,7 @@ export const setupOnChainTransaction = async ({
 	selectedNetwork?: TAvailableNetworks;
 	addressType?: EAddressType; // Preferred address type for change address.
 	inputTxHashes?: string[]; // Used to pre-specify inputs to use by tx_hash
+	utxos?: IUtxo[]; // Used to pre-specify utxos to use
 	rbf?: boolean; // Enable or disable rbf.
 	submitDispatch?: boolean; //Should we dispatch this and update the store.
 } = {}): Promise<Result<IBitcoinTransactionData>> => {
@@ -848,6 +850,8 @@ export const setupOnChainTransaction = async ({
 			inputs = currentWallet.utxos[selectedNetwork].filter((utxo) =>
 				inputTxHashes.includes(utxo.tx_hash),
 			);
+		} else if (utxos) {
+			inputs = utxos;
 		}
 
 		if (!inputs.length) {
