@@ -493,7 +493,7 @@ const AddressViewer = ({
 				...config,
 				addressType: _addressType,
 			};
-			await setConfig(newConfig);
+			setConfig(newConfig);
 			updateSelectedAddress(newConfig, allAddresses);
 		},
 		[allAddresses, config, updateSelectedAddress],
