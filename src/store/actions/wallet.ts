@@ -247,6 +247,50 @@ export const updateAddressIndexes = async ({
 	return ok(updated ? 'Successfully updated indexes.' : 'No update needed.');
 };
 
+/**
+ * Resets address indexes back to the app's default/original state.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {void}
+ */
+export const resetAddressIndexes = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet: TWalletName;
+	selectedNetwork: TAvailableNetworks;
+}): void => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const addressTypes = getAddressTypes();
+	const addressTypeKeys = Object.keys(addressTypes) as EAddressType[];
+	addressTypeKeys.map((addressType) => {
+		dispatch({
+			type: actions.UPDATE_ADDRESS_INDEX,
+			payload: {
+				selectedWallet,
+				selectedNetwork,
+				addressIndex:
+					defaultWalletShape.addressIndex[selectedNetwork][addressType],
+				changeAddressIndex:
+					defaultWalletShape.changeAddressIndex[selectedNetwork][addressType],
+				lastUsedAddressIndex:
+					defaultWalletShape.lastUsedAddressIndex[selectedNetwork][addressType],
+				lastUsedChangeAddressIndex:
+					defaultWalletShape.lastUsedChangeAddressIndex[selectedNetwork][
+						addressType
+					],
+				addressType,
+			},
+		});
+	});
+};
+
 export const generateNewReceiveAddress = async ({
 	selectedWallet,
 	selectedNetwork,

@@ -60,6 +60,9 @@ import {
 } from '../../store/helpers';
 import {
 	addAddresses,
+	clearUtxos,
+	generateNewReceiveAddress,
+	resetAddressIndexes,
 	setZeroIndexAddresses,
 	updateAddressIndexes,
 	updateExchangeRates,
@@ -2471,7 +2474,7 @@ export const getAddressTypePath = ({
  * @param {TWalletName} [selectedWallet]
  * @return {Result<string>}
  */
-export const getReceiveAddress = ({
+export const getReceiveAddress = async ({
 	addressType,
 	selectedNetwork,
 	selectedWallet,
@@ -2479,7 +2482,7 @@ export const getReceiveAddress = ({
 	addressType?: EAddressType;
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: TWalletName;
-}): Result<string> => {
+}): Promise<Result<string>> => {
 	try {
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
@@ -2504,12 +2507,21 @@ export const getReceiveAddress = ({
 			addressIndex[addressType].index < 0
 		) {
 			// Grab and return the address at index 0.
-			const address = Object.values(addresses).filter(
-				(addr) => addr.index === 0,
-			);
-			if (address.length > 0 && address[0]?.address) {
-				return ok(address[0].address);
+			const address = Object.values(addresses).find(({ index }) => index === 0);
+			if (address) {
+				return ok(address.address);
 			}
+		}
+		// Fallback to generating a new receive address on the fly.
+		const generatedAddress = await generateNewReceiveAddress({
+			selectedWallet,
+			selectedNetwork,
+			addressType,
+		});
+		if (generatedAddress.isOk()) {
+			return ok(generatedAddress.value.address);
+		} else {
+			console.log(generatedAddress.error.message);
 		}
 		return err('No receive address available.');
 	} catch (e) {
@@ -2737,4 +2749,36 @@ export const getAddressIndexInfo = ({
 		lastUsedAddressIndex,
 		lastUsedChangeAddressIndex,
 	};
+};
+
+/**
+ * This method will clear the utxo array for each address type and reset the
+ * address indexes back to the original/default app values. Once cleared & reset
+ * the app will rescan the wallet's addresses from index zero.
+ * @param selectedWallet
+ * @param selectedNetwork
+ */
+export const rescanAddresses = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<Result<string>> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	await clearUtxos({ selectedWallet, selectedNetwork }).then();
+	await resetAddressIndexes({ selectedWallet, selectedNetwork });
+	return await refreshWallet({
+		onchain: true,
+		lightning: false,
+		scanAllAddresses: true,
+		selectedWallet,
+		selectedNetwork,
+		updateAllAddressTypes: true,
+	});
 };

@@ -2037,7 +2037,10 @@ export const setupCpfp = async ({
 		return err(response.error?.message);
 	}
 
-	const receiveAddress = getReceiveAddress({ selectedWallet, selectedNetwork });
+	const receiveAddress = await getReceiveAddress({
+		selectedWallet,
+		selectedNetwork,
+	});
 	if (receiveAddress.isErr()) {
 		return err(receiveAddress.error.message);
 	}

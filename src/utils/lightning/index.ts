@@ -163,7 +163,7 @@ export const setupLdk = async ({
 				break;
 		}
 		const getAddress = async (): Promise<string> => {
-			const res = getReceiveAddress({ selectedNetwork, selectedWallet });
+			const res = await getReceiveAddress({ selectedNetwork, selectedWallet });
 			if (res.isOk()) {
 				return res.value;
 			}
