@@ -132,7 +132,7 @@ const Receive = ({
 				setReceiveAddress(response.value.address);
 			}
 		} else {
-			const response = getReceiveAddress({
+			const response = await getReceiveAddress({
 				selectedNetwork,
 				selectedWallet,
 				addressType,

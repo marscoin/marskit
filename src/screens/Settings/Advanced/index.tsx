@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { EItemType, IListData, ItemData } from '../../../components/List';
@@ -7,9 +7,11 @@ import { enableDevOptionsSelector } from '../../../store/reselect/settings';
 import { EAddressType } from '../../../store/types/wallet';
 import {
 	addressTypeSelector,
+	selectedWalletSelector,
 	selectedNetworkSelector,
 } from '../../../store/reselect/wallet';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { rescanAddresses } from '../../../utils/wallet';
 
 const typesDescriptions = {
 	[EAddressType.p2wpkh]: 'Native Segwit',
@@ -26,9 +28,12 @@ const networkLabels = {
 const AdvancedSettings = ({
 	navigation,
 }: SettingsScreenProps<'AdvancedSettings'>): ReactElement => {
+	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const selectedAddressType = useSelector(addressTypeSelector);
 	const enableDevOptions = useSelector(enableDevOptionsSelector);
+
+	const [rescanning, setRescanning] = useState(false);
 
 	const SettingsListData: IListData[] = useMemo(() => {
 		const payments: ItemData[] = [
@@ -57,6 +62,16 @@ const AdvancedSettings = ({
 				title: 'Address Viewer',
 				type: EItemType.button,
 				onPress: (): void => navigation.navigate('AddressViewer'),
+			},
+			{
+				title: 'Rescan Addresses',
+				value: rescanning ? 'Rescanning...' : '',
+				type: EItemType.textButton,
+				onPress: async (): Promise<void> => {
+					setRescanning(true);
+					await rescanAddresses({ selectedWallet, selectedNetwork });
+					setRescanning(false);
+				},
 			},
 		];
 
@@ -97,7 +112,14 @@ const AdvancedSettings = ({
 				data: networks,
 			},
 		];
-	}, [selectedAddressType, enableDevOptions, navigation, selectedNetwork]);
+	}, [
+		selectedAddressType,
+		rescanning,
+		enableDevOptions,
+		navigation,
+		selectedWallet,
+		selectedNetwork,
+	]);
 
 	return (
 		<SettingsView

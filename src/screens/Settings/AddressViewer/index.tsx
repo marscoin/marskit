@@ -680,7 +680,7 @@ const AddressViewer = ({
 			if (transactionRes.isErr()) {
 				return;
 			}
-			const receiveAddress = getReceiveAddress({
+			const receiveAddress = await getReceiveAddress({
 				selectedWallet,
 				selectedNetwork,
 			});
