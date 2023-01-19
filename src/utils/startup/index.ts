@@ -171,6 +171,7 @@ export const startWalletServices = async ({
 					lightning: isConnectedToElectrum,
 					scanAllAddresses: restore,
 					updateAllAddressTypes: restore,
+					showNotification: !restore,
 				}),
 			]);
 		}
