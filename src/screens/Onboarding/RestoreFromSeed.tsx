@@ -240,21 +240,21 @@ const RestoreFromSeed = (): ReactElement => {
 				<View style={styles.buttonsContainer}>
 					{!showPassphrase && (
 						<Button
-							disabled={!enableButtons}
-							size="large"
 							style={styles.button}
-							onPress={handleAdvanced}
 							text="Advanced"
+							size="large"
 							variant="secondary"
+							disabled={!enableButtons}
+							onPress={handleAdvanced}
 						/>
 					)}
 
 					<Button
-						disabled={!enableButtons}
-						size="large"
 						style={styles.button}
-						onPress={handleRestore}
 						text={showPassphrase ? 'Restore Wallet' : 'Restore'}
+						size="large"
+						disabled={!enableButtons}
+						onPress={handleRestore}
 					/>
 				</View>
 				<SafeAreaInsets type="bottom" />
@@ -294,7 +294,6 @@ const styles = StyleSheet.create({
 	shadowContainer: {
 		height: 120,
 		marginHorizontal: -50,
-		marginBottom: -30,
 	},
 	content: {
 		paddingHorizontal: 48,
@@ -318,12 +317,12 @@ const styles = StyleSheet.create({
 		marginTop: 16,
 	},
 	buttonsContainer: {
-		marginTop: 28,
-		marginHorizontal: -8,
+		marginTop: 'auto',
 		flexDirection: 'row',
 	},
 	button: {
 		flex: 1,
+		marginTop: 28,
 		marginHorizontal: 8,
 	},
 });

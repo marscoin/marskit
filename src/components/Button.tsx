@@ -44,7 +44,9 @@ const Button = ({
 				...(variant === 'primary'
 					? styles.buttonPrimary
 					: { ...styles.buttonSecondary, borderColor }),
-				...(disabled && !icon ? { backgroundColor: 'transparent' } : {}),
+				...(disabled && !icon
+					? { backgroundColor: 'transparent', borderColor: 'transparent' }
+					: {}),
 				...(disabled && icon ? { opacity: disabled ? 0.5 : 1 } : {}),
 			},
 			style,

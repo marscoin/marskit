@@ -16,6 +16,7 @@ module.exports = {
 				'onboarding',
 				'profile',
 				'receive',
+				'restore',
 				'scan',
 				'security',
 				'send',
