@@ -1125,19 +1125,22 @@ export const getNextAvailableAddress = async ({
 						newChangeAddressIndex = index >= 0 ? index + 1 : index;
 					}
 
-					//Filter for and return the new index.
-					const allAddressValues = Object.values(allAddresses);
-					const nextAvailableAddress = allAddressValues.filter(
+					//Find and return the new address index.
+					const nextAvailableAddress = Object.values(allAddresses).find(
 						({ index }) => index === newAddressIndex,
 					);
-					const nextAvailableChangeAddress = allAddressValues.filter(
-						({ index }) => index === newChangeAddressIndex,
-					);
+					//Find and return the new change address index.
+					const nextAvailableChangeAddress = Object.values(
+						allChangeAddresses,
+					).find(({ index }) => index === newChangeAddressIndex);
+					if (!nextAvailableAddress || !nextAvailableChangeAddress) {
+						return lastKnownIndexes();
+					}
 					return resolve(
 						ok({
-							addressIndex: nextAvailableAddress[0],
+							addressIndex: nextAvailableAddress,
 							lastUsedAddressIndex,
-							changeAddressIndex: nextAvailableChangeAddress[0],
+							changeAddressIndex: nextAvailableChangeAddress,
 							lastUsedChangeAddressIndex,
 						}),
 					);
