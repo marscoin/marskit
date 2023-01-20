@@ -621,13 +621,15 @@ export interface ITransactionData {
 }
 
 export const updateTransactions = async ({
+	scanAllAddresses = false,
+	showNotification = true,
 	selectedWallet,
 	selectedNetwork,
-	scanAllAddresses = false,
 }: {
+	scanAllAddresses?: boolean;
+	showNotification?: boolean;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-	scanAllAddresses?: boolean;
 }): Promise<Result<IFormattedTransactions>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
@@ -707,7 +709,7 @@ export const updateTransactions = async ({
 		type: actions.UPDATE_TRANSACTIONS,
 		payload,
 	});
-	if (notificationTxid) {
+	if (notificationTxid && showNotification) {
 		toggleView({
 			view: 'newTxPrompt',
 			data: {

@@ -109,6 +109,7 @@ export const refreshWallet = async ({
 	lightning = true,
 	scanAllAddresses = false, // If set to false, on-chain scanning will adhere to the gap limit (20).
 	updateAllAddressTypes = false, // If set to true, Bitkit will generate, check and update all available address types.
+	showNotification = true, // Whether to show newTxPrompt on new incoming transactions.
 	selectedWallet,
 	selectedNetwork,
 }: {
@@ -116,6 +117,7 @@ export const refreshWallet = async ({
 	lightning?: boolean;
 	scanAllAddresses?: boolean;
 	updateAllAddressTypes?: boolean;
+	showNotification?: boolean;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<string>> => {
@@ -156,9 +158,10 @@ export const refreshWallet = async ({
 						scanAllAddresses,
 					}),
 					updateTransactions({
+						scanAllAddresses,
+						showNotification,
 						selectedWallet,
 						selectedNetwork,
-						scanAllAddresses,
 					}),
 				]);
 			}
