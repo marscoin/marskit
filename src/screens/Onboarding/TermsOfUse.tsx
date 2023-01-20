@@ -10,13 +10,22 @@ import { openURL } from '../../utils/helpers';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 
 import termsOfUseText from '../../assets/tos';
+import { wipeApp } from '../../store/actions/settings';
 
 const TermsOfUse = ({
 	navigation,
 }: OnboardingStackScreenProps<'TermsOfUse'>): ReactElement => {
 	const [termsOfUse, setTermsOfUse] = useState(false);
 	const [privacyPolicy, setPrivacyPolicy] = useState(false);
-	const onPress = (): void => navigation.navigate('Welcome');
+	const onPress = (): void => {
+		// Ensure the app is sufficiently wiped of data from any previous install.
+		wipeApp({
+			selectedWallet: 'wallet0',
+			showNotification: false,
+			restartApp: false,
+		}).then();
+		navigation.navigate('Welcome');
+	};
 
 	const isValid = termsOfUse && privacyPolicy;
 

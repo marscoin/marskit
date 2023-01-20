@@ -5,7 +5,7 @@ import { Platform, BackHandler } from 'react-native';
 import actions from './actions';
 import { getDispatch } from '../helpers';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
-import { resetKeychainValue } from '../../utils/helpers';
+import { getAllKeychainKeys, resetKeychainValue } from '../../utils/helpers';
 import { wipeLdkStorage } from '../../utils/lightning';
 import { removePin } from '../../utils/settings';
 import { TAvailableNetworks } from '../../utils/networks';
@@ -35,12 +35,18 @@ export const resetSettingsStore = (): Result<string> => {
  * This method will wipe all data for the specified wallet.
  * @async
  * @param {TWalletName} [selectedWallet]
+ * @param {boolean} [showNotification]
+ * @param {boolean} [restartApp]
  * @return {Promise<Result<string>>}
  */
 export const wipeApp = async ({
 	selectedWallet,
+	showNotification = true,
+	restartApp = true,
 }: {
 	selectedWallet?: TWalletName;
+	showNotification?: boolean;
+	restartApp?: boolean;
 }): Promise<Result<string>> => {
 	try {
 		if (!selectedWallet) {
@@ -50,24 +56,28 @@ export const wipeApp = async ({
 		// Reset everything else
 		await Promise.all([
 			removePin(),
-			wipeKeychain({ selectedWallet }),
+			wipeKeychain(),
 			wipeLdkStorage({ selectedWallet }),
 		]);
 
 		// Reset Redux stores & persisted storage
 		dispatch({ type: actions.WIPE_APP });
 
-		showSuccessNotification({
-			title: 'Bitkit Wiped Successfully',
-			message: 'All app data has been reset.',
-		});
+		if (showNotification) {
+			showSuccessNotification({
+				title: 'Bitkit Wiped Successfully',
+				message: 'All app data has been reset.',
+			});
+		}
 
 		// BackHandler.exitApp() works fine on Android and closes the app
 		// for iOS we are using react-native-restart to restart the app
-		if (Platform.OS === 'android') {
-			BackHandler.exitApp();
-		} else {
-			RNRestart.Restart();
+		if (restartApp) {
+			if (Platform.OS === 'android') {
+				BackHandler.exitApp();
+			} else {
+				RNRestart.Restart();
+			}
 		}
 		return ok('');
 	} catch (e) {
@@ -78,21 +88,15 @@ export const wipeApp = async ({
 
 /**
  * Wipes all known device keychain data.
- * @param {TWalletName} [selectedWallet]
- * @returns {void}
+ * @returns {Promise<void>}
  */
-export const wipeKeychain = async ({
-	selectedWallet,
-}: {
-	selectedWallet: string;
-}): Promise<void> => {
-	await Promise.all([
-		resetKeychainValue({ key: selectedWallet }),
-		resetKeychainValue({ key: `${selectedWallet}passphrase` }),
-		resetKeychainValue({ key: `${selectedWallet}ldkaccount` }),
-		resetKeychainValue({ key: 'pin' }),
-		resetKeychainValue({ key: 'pinAttemptsRemaining' }),
-	]);
+export const wipeKeychain = async (): Promise<void> => {
+	const allServices = await getAllKeychainKeys();
+	await Promise.all(
+		allServices.map((key) => {
+			resetKeychainValue({ key });
+		}),
+	);
 };
 
 /**

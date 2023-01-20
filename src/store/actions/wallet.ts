@@ -837,7 +837,6 @@ export const resetSelectedWallet = async ({
 		type: actions.RESET_SELECTED_WALLET,
 		payload: { selectedWallet },
 	});
-	await createWallet({ walletName: selectedWallet });
 	await refreshWallet({});
 };
 
@@ -850,7 +849,11 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 		type: actions.RESET_WALLET_STORE,
 	});
 	await createWallet({});
-	await refreshWallet({});
+	await refreshWallet({
+		scanAllAddresses: true,
+		updateAllAddressTypes: true,
+		showNotification: false,
+	});
 	return ok('');
 };
 

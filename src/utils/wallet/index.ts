@@ -374,7 +374,7 @@ export const slashtagsPrimaryKey = async (seed: Buffer): Promise<string> => {
 
 const setKeychainSlashtagsPrimaryKey = async (seed: Buffer): Promise<void> => {
 	const primaryKey = await slashtagsPrimaryKey(seed);
-	setKeychainValue({
+	await setKeychainValue({
 		key: slashtagsPrimaryKeyKeyChainName(seedHash(seed)),
 		value: primaryKey,
 	});
