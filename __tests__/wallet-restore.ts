@@ -255,13 +255,13 @@ describe('Wallet - wallet restore and receive', () => {
 			state.wallet.wallets.wallet0.changeAddressIndex.bitcoinRegtest;
 
 		expect(changeAddressIndex.p2wpkh).toStrictEqual({
-			address: 'bcrt1qcr8te4kr609gcawutmrza0j4xv80jy8zeqchgx',
-			path: "m/84'/0'/0'/0/0",
+			address: 'bcrt1q8c6fshw2dlwun7ekn9qwf37cu2rn755ufhry49',
+			path: "m/84'/0'/0'/1/0",
 			publicKey:
-				'0330d54fd0dd420a6e5f8d3624f5f3482cae350f79d5f0753bf5beef9c2d91af3c',
+				'03025324888e429ab8e3dbaf1f7802648b9cd01e9b418485c5fa4c1b9b5700e1a6',
 			index: 0,
 			scriptHash:
-				'6e4f16236139f15046b38f399a683fb2aa8edf5fd128b3e5db017fb0ac74078a',
+				'48d4bc4257d5177c6a44dfa0e3fd17916fc15b39b8a1cbb0aa297b059f826425',
 		});
 
 		// check utxos

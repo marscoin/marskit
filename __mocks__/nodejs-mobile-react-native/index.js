@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 
+EventEmitter.defaultMaxListeners = 1000;
 const clientEmitter = new EventEmitter();
 const serverEmitter = new EventEmitter();
 const eventName = 'message';
