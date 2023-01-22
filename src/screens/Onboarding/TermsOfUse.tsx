@@ -17,17 +17,24 @@ const TermsOfUse = ({
 }: OnboardingStackScreenProps<'TermsOfUse'>): ReactElement => {
 	const [termsOfUse, setTermsOfUse] = useState(false);
 	const [privacyPolicy, setPrivacyPolicy] = useState(false);
-	const onPress = (): void => {
+	const [loading, setLoading] = useState(false);
+
+	const onPress = async (): Promise<void> => {
+		setLoading(true);
 		// Ensure the app is sufficiently wiped of data from any previous install.
-		wipeApp({
+		const wipeAppRes = await wipeApp({
 			selectedWallet: 'wallet0',
 			showNotification: false,
 			restartApp: false,
-		}).then();
+		});
+		setLoading(false);
+		if (wipeAppRes.isErr()) {
+			return;
+		}
 		navigation.navigate('Welcome');
 	};
 
-	const isValid = termsOfUse && privacyPolicy;
+	const isValid = termsOfUse && privacyPolicy && !loading;
 
 	return (
 		<GlowingBackground topLeft="brand">
