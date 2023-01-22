@@ -10,15 +10,31 @@ import { openURL } from '../../utils/helpers';
 import type { OnboardingStackScreenProps } from '../../navigation/types';
 
 import termsOfUseText from '../../assets/tos';
+import { wipeApp } from '../../store/actions/settings';
 
 const TermsOfUse = ({
 	navigation,
 }: OnboardingStackScreenProps<'TermsOfUse'>): ReactElement => {
 	const [termsOfUse, setTermsOfUse] = useState(false);
 	const [privacyPolicy, setPrivacyPolicy] = useState(false);
-	const onPress = (): void => navigation.navigate('Welcome');
+	const [loading, setLoading] = useState(false);
 
-	const isValid = termsOfUse && privacyPolicy;
+	const onPress = async (): Promise<void> => {
+		setLoading(true);
+		// Ensure the app is sufficiently wiped of data from any previous install.
+		const wipeAppRes = await wipeApp({
+			selectedWallet: 'wallet0',
+			showNotification: false,
+			restartApp: false,
+		});
+		setLoading(false);
+		if (wipeAppRes.isErr()) {
+			return;
+		}
+		navigation.navigate('Welcome');
+	};
+
+	const isValid = termsOfUse && privacyPolicy && !loading;
 
 	return (
 		<GlowingBackground topLeft="brand">

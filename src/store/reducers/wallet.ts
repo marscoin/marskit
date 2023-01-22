@@ -6,7 +6,7 @@ import {
 	EOutput,
 	IWalletStore,
 } from '../types/wallet';
-import { defaultWalletStoreShape } from '../shapes/wallet';
+import { defaultWalletShape, defaultWalletStoreShape } from '../shapes/wallet';
 
 const wallet = (
 	state: IWalletStore = defaultWalletStoreShape,
@@ -193,12 +193,11 @@ const wallet = (
 			};
 
 		case actions.RESET_SELECTED_WALLET:
-			const wallets = state.wallets;
-			delete wallets[selectedWallet];
 			return {
 				...state,
 				wallets: {
-					...wallets,
+					...state.wallets,
+					[selectedWallet]: defaultWalletShape,
 				},
 			};
 

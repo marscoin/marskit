@@ -74,6 +74,14 @@ export const getKeychainValue = async ({
 	});
 };
 
+/**
+ * Returns an array of all known Keychain keys.
+ * @returns {Promise<string[]>}
+ */
+export const getAllKeychainKeys = async (): Promise<string[]> => {
+	return await Keychain.getAllGenericPasswordServices();
+};
+
 //WARNING: This will wipe the specified key's value from storage
 export const resetKeychainValue = async ({
 	key = '',
