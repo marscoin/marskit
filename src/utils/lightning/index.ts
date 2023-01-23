@@ -1253,6 +1253,27 @@ export const getClaimableBalance = async ({
 };
 
 /**
+ * Returns an array of peers that have been previously added and saved to storage.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
+export const getPeersFromStorage = ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+}): string[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	return getLightningStore().nodes[selectedWallet].peers[selectedNetwork];
+};
+
+/**
  * Removes unused peers by comparing saved peers to the channel list to prevent unnecessarily connecting to them on subsequent startups.
  * Will ensure Blocktank's node is not removed if previously added.
  * TODO: This logic should be moved to react-native-ldk in future versions, but is handled here for now as a means to whitelist the Blocktank node and prevent disconnecting from Blocktank between channel purchase and channel open.
