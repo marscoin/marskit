@@ -8,14 +8,14 @@ import { DownArrow, UpArrow } from '../styles/icons';
 import { IThemeColors } from '../styles/themes';
 import Money from './Money';
 
+export type TStatus = 'pending' | 'open' | 'closed';
+
 const LightningChannel = ({
 	channel,
-	pending = false,
-	closed = false,
+	status = 'pending',
 }: {
 	channel: TChannel;
-	pending?: boolean;
-	closed?: boolean;
+	status: TStatus;
 }): ReactElement => {
 	const { spendingAvailable, receivingAvailable, capacity } =
 		useLightningChannelBalance(channel);
@@ -25,7 +25,7 @@ const LightningChannel = ({
 	let receivingColor: keyof IThemeColors = 'white5';
 	let receivingAvailableColor: keyof IThemeColors = 'white';
 
-	if (closed) {
+	if (status === 'closed') {
 		spendingColor = 'gray5';
 		spendingAvailableColor = 'gray3';
 		receivingColor = 'gray5';
@@ -41,7 +41,7 @@ const LightningChannel = ({
 	};
 
 	return (
-		<View style={pending && styles.pending}>
+		<View style={status === 'pending' && styles.pending}>
 			<View style={styles.balances}>
 				<View style={styles.balance}>
 					<UpArrow color={spendingAvailableColor} width={14} height={14} />

@@ -9,7 +9,6 @@ import {
 import { TChannel } from '@synonymdev/react-native-ldk';
 
 import MainSettings from '../../screens/Settings';
-import ManageSeedPhrase from '../../screens/Settings/ManageSeedPhrase';
 import CurrenciesSettings from '../../screens/Settings/Currencies';
 import ElectrumConfig from '../../screens/Settings/ElectrumConfig';
 import CoinSelectPreference from '../../screens/Settings/CoinSelectPreference';
@@ -76,7 +75,6 @@ export type SettingsStackParamList = {
 	ResetAndRestore: undefined;
 	BitcoinNetworkSelection: undefined;
 	LightningNodeInfo: undefined;
-	ManageSeedPhrase: undefined;
 	Channels: undefined;
 	ChannelDetails: { channel: TChannel };
 	CloseConnection: { channelId: string };
@@ -143,7 +141,6 @@ const SettingsNavigator = (): ReactElement => {
 				component={BitcoinNetworkSelection}
 			/>
 			<Stack.Screen name="LightningNodeInfo" component={LightningNodeInfo} />
-			<Stack.Screen name="ManageSeedPhrase" component={ManageSeedPhrase} />
 			<Stack.Screen name="Channels" component={Channels} />
 			<Stack.Screen name="ChannelDetails" component={ChannelDetails} />
 			<Stack.Screen name="CloseConnection" component={CloseConnection} />

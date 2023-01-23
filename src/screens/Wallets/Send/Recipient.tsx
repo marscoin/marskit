@@ -173,7 +173,6 @@ const Recipient = ({
 	]);
 
 	const onScan = (data: TProcessedData): void => {
-		console.log({ data });
 		if (data.type === EQRDataType.lightningPaymentRequest && data.amount) {
 			navigation.navigate('ReviewAndSend');
 		} else {
@@ -191,7 +190,11 @@ const Recipient = ({
 
 	const onContinue = async (): Promise<void> => {
 		await Keyboard.dismiss();
-		navigation.navigate('Amount');
+		if (transaction.lightningInvoice && decodedInvoiceAmount > 0) {
+			navigation.navigate('ReviewAndSend');
+		} else {
+			navigation.navigate('Amount');
+		}
 	};
 
 	const handlePaste = useCallback(
