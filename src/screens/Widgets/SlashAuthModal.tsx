@@ -27,16 +27,20 @@ import {
 	showErrorNotification,
 	showSuccessNotification,
 } from '../../utils/notifications';
+import { ellipse } from '../../utils/helpers';
 import { setAuthWidget } from '../../store/actions/widgets';
 import Divider from '../../components/Divider';
 import { useSnapPoints } from '../../hooks/bottomSheet';
 import { rootNavigation } from '../../navigation/root/RootNavigator';
 import HourglassSpinner from '../../components/HourglassSpinner';
+import GlowImage from '../../components/GlowImage';
 import { useAppSelector } from '../../hooks/redux';
 import {
 	viewControllerIsOpenSelector,
 	viewControllerSelector,
 } from '../../store/reselect/ui';
+
+const imageSrc = require('../../assets/illustrations/keyring.png');
 
 export type BackupNavigationProp =
 	NativeStackNavigationProp<BackupStackParamList>;
@@ -72,9 +76,9 @@ const _SlashAuthModal = (): ReactElement => {
 	const [anonymous, setAnonymous] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const view = useAppSelector((state) =>
-		viewControllerSelector(state, 'slashauthModal'),
-	);
+	const view = useAppSelector((state) => {
+		return viewControllerSelector(state, 'slashauthModal');
+	});
 	const _url = view.url as string;
 
 	const parsed = useMemo(() => SlashURL.parse(_url), [_url]);
@@ -84,11 +88,11 @@ const _SlashAuthModal = (): ReactElement => {
 	const { profile } = useProfile(url);
 
 	const server: IContactRecord = useMemo(() => {
-		return { url, ...profile, name: profile?.name || '' };
+		return { url, ...profile, name: profile.name || '' };
 	}, [url, profile]);
 
 	const rootContact: IContactRecord = useMemo(() => {
-		return { url: slashtag.url, name: ' ' };
+		return { url: slashtag.url, name: 'Your Name' };
 	}, [slashtag]);
 
 	// const sdk = useSlashtagsSDK();
@@ -102,22 +106,17 @@ const _SlashAuthModal = (): ReactElement => {
 	// return { url: anonymousSlashtag.url, name: 'Anonymous' };
 	// }, [anonymousSlashtag]);
 
+	const serviceName = useMemo(() => {
+		return server.name || ellipse(server.url, 25);
+	}, [server]);
+
 	const text = useMemo(() => {
-		const s = (server.name || server.url).trim?.();
-		if (s) {
-			if (isLoading) {
-				return `Signing in to ${s}...`;
-			} else {
-				return `Do you want to sign in to ${s} with your profile?`;
-			}
+		if (isLoading) {
+			return `Signing in to ${serviceName}...`;
 		} else {
-			if (isLoading) {
-				return 'Signing in...';
-			} else {
-				return 'Do you want to sign in with your profile?';
-			}
+			return `Sign in to ${serviceName} with your profile?`;
 		}
-	}, [server, isLoading]);
+	}, [serviceName, isLoading]);
 
 	const insets = useSafeAreaInsets();
 	const buttonContainerStyles = useMemo(
@@ -128,7 +127,14 @@ const _SlashAuthModal = (): ReactElement => {
 		[insets.bottom],
 	);
 
-	const signIn = useCallback(async (): Promise<void> => {
+	const onCancel = useCallback((): void => {
+		toggleView({
+			view: 'slashauthModal',
+			data: { isOpen: false },
+		});
+	}, []);
+
+	const onContinue = useCallback(async (): Promise<void> => {
 		setIsLoading(true);
 
 		const client = new Client(slashtag);
@@ -184,7 +190,7 @@ const _SlashAuthModal = (): ReactElement => {
 					image={server?.image}
 					size={32}
 				/>
-				<Title>{server.name}</Title>
+				<Title>{serviceName}</Title>
 			</View>
 			<Text01S color="gray1" style={styles.text}>
 				{text}
@@ -201,14 +207,28 @@ const _SlashAuthModal = (): ReactElement => {
 			/>*/}
 
 			{isLoading && <HourglassSpinner />}
+			{!isLoading && <GlowImage image={imageSrc} imageSize={240} />}
 
 			<View style={buttonContainerStyles}>
 				<Button
+					style={styles.button}
 					size="large"
-					text="Sign in"
-					disabled={isLoading}
-					onPress={signIn}
+					text="Cancel"
+					variant="secondary"
+					onPress={onCancel}
 				/>
+				{!isLoading && (
+					<>
+						<View style={styles.divider} />
+						<Button
+							style={styles.button}
+							size="large"
+							text="Sign in"
+							disabled={isLoading}
+							onPress={onContinue}
+						/>
+					</>
+				)}
 			</View>
 		</View>
 	);
@@ -247,8 +267,15 @@ const styles = StyleSheet.create({
 		marginBottom: 32,
 	},
 	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
 		marginTop: 'auto',
-		width: '100%',
+	},
+	button: {
+		flex: 1,
+	},
+	divider: {
+		width: 16,
 	},
 });
 

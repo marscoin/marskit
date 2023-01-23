@@ -85,9 +85,9 @@ const ContactsList = ({
 		return Object.values(contacts)
 			.sort((a, b) => (a.name > b.name ? 1 : -1))
 			.filter(
-				({ name }) =>
-					searchFilter.length === 0 ||
-					name?.toLowerCase().includes(searchFilter?.toLowerCase()),
+				({ name, url }) =>
+					url.toLowerCase().includes(searchFilter.toLowerCase()) ||
+					name?.toLowerCase().includes(searchFilter.toLowerCase()),
 			);
 	}, [contacts, searchFilter]);
 
