@@ -10,7 +10,9 @@ import { Caption13Up, Caption13M, Text01M } from '../../../styles/text';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
-import LightningChannel from '../../../components/LightningChannel';
+import LightningChannel, {
+	TStatus,
+} from '../../../components/LightningChannel';
 import Money from '../../../components/Money';
 import {
 	useLightningChannelBalance,
@@ -34,7 +36,7 @@ import {
 } from '../../../styles/icons';
 import type { SettingsScreenProps } from '../../../navigation/types';
 
-export const getStatus = (state: number): React.FC<SvgProps> => {
+export const getOrderStatus = (state: number): React.FC<SvgProps> => {
 	// possible order states
 	// https://github.com/synonymdev/blocktank-server/blob/master/src/Orders/Order.js
 	switch (state) {
@@ -179,7 +181,7 @@ const ChannelDetails = ({
 	// TODO: show status for non-blocktank channels
 	const Status = useMemo(() => {
 		if (blocktankOrder) {
-			return getStatus(blocktankOrder.state);
+			return getOrderStatus(blocktankOrder.state);
 		}
 
 		return null;
@@ -229,6 +231,14 @@ const ChannelDetails = ({
 		);
 	};
 
+	const getChannelStatus = (): TStatus => {
+		if (channel.is_channel_ready) {
+			return channel.is_usable ? 'open' : 'pending';
+		} else {
+			return 'closed';
+		}
+	};
+
 	return (
 		<ThemedView style={styles.root}>
 			<SafeAreaInsets type="top" />
@@ -240,11 +250,7 @@ const ChannelDetails = ({
 			/>
 			<ScrollView contentContainerStyle={styles.content}>
 				<View style={styles.channel}>
-					<LightningChannel
-						channel={channel}
-						pending={channel.is_channel_ready && !channel.is_usable}
-						closed={!channel.is_channel_ready}
-					/>
+					<LightningChannel channel={channel} status={getChannelStatus()} />
 				</View>
 
 				{blocktankOrder && (

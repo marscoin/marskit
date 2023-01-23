@@ -22,7 +22,9 @@ import { ChevronRight, DownArrow, UpArrow } from '../../../styles/icons';
 import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
-import LightningChannel from '../../../components/LightningChannel';
+import LightningChannel, {
+	TStatus,
+} from '../../../components/LightningChannel';
 import Money from '../../../components/Money';
 import useColors from '../../../hooks/colors';
 import { refreshOrdersList } from '../../../store/actions/blocktank';
@@ -121,10 +123,21 @@ const Channel = memo(
 		onPress: (channel: TChannel) => void;
 	}): ReactElement => {
 		const name = useLightningChannelName(channel);
+
+		const getChannelStatus = (): TStatus => {
+			if (pending) {
+				return 'pending';
+			} else if (closed) {
+				return 'closed';
+			} else {
+				return 'open';
+			}
+		};
+
 		return (
 			<TouchableOpacity
-				onPress={(): void => onPress(channel)}
-				style={styles.nRoot}>
+				style={styles.nRoot}
+				onPress={(): void => onPress(channel)}>
 				<View style={styles.nTitle}>
 					<Text01M
 						style={styles.nName}
@@ -135,7 +148,7 @@ const Channel = memo(
 					</Text01M>
 					<ChevronRight color="gray1" />
 				</View>
-				<LightningChannel channel={channel} pending={pending} closed={closed} />
+				<LightningChannel channel={channel} status={getChannelStatus()} />
 			</TouchableOpacity>
 		);
 	},
