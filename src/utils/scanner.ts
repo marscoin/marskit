@@ -42,6 +42,12 @@ import { getSlashPayConfig } from './slashtags';
 import { savePeer } from '../store/actions/lightning';
 import { TWalletName } from '../store/types/wallet';
 import { sendNavigation } from '../navigation/bottom-sheet/SendNavigation';
+import {
+	handleLnurlAuth,
+	handleLnurlChannel,
+	handleLnurlPay,
+	handleLnurlWithdraw,
+} from './lnurl';
 
 const availableNetworksList = availableNetworks();
 
@@ -774,216 +780,28 @@ export const handleData = async ({
 		}
 
 		case EQRDataType.lnurlPay: {
-			showInfoNotification({
-				title: 'Not Supported',
-				message: 'LNURL-Pay is not yet supported.',
-			});
-			return ok({ type: EQRDataType.lnurlPay });
-
-			/*const nodeId = await getNodeId();
-			if (nodeId.isErr()) {
-				const msg =
-					'Unable to startup local lightning node at this time. Please try again or restart the app.';
-				showErrorNotification({
-					title: 'LNURL-Pay Error',
-					message: msg,
-				});
-				return err(msg);
-			}
-
 			const params = data.lnUrlParams! as LNURLPayParams;
-			const milliSats = params.minSendable;
-
-			const callbackRes = await createPayRequestUrl({
+			return await handleLnurlPay({ params, selectedWallet, selectedNetwork });
+		}
+		case EQRDataType.lnurlChannel: {
+			const params = data.lnUrlParams! as LNURLChannelParams;
+			return await handleLnurlChannel({
 				params,
-				milliSats,
-				comment: 'Bitkit LNURL-Pay',
-			});
-			if (callbackRes.isErr()) {
-				showErrorNotification({
-					title: 'LNURL-Pay failed',
-					message: callbackRes.error.message,
-				});
-				return err(callbackRes.error.message);
-			}
-
-			const invoice = callbackRes.value;
-
-			//Now that we have the invoice, process it.
-			return await processInputData({
-				data: invoice,
 				selectedWallet,
 				selectedNetwork,
-			});*/
+			});
 		}
-
-		case EQRDataType.lnurlChannel: {
-			showInfoNotification({
-				title: 'Not Supported',
-				message: 'LNURL-Channel is not yet supported.',
-			});
-			return ok({ type: EQRDataType.lnurlChannel });
-
-			/*const params = data.lnUrlParams! as LNURLChannelParams;
-			const peer = params.uri;
-			if (peer.includes('onion')) {
-				const msg = 'Unable to add tor nodes at this time.';
-				showErrorNotification({
-					title: 'LNURL-Channel Request Error',
-					message: `Error adding lightning peer: ${msg}`,
-				});
-				return err(msg);
-			}
-
-			const nodeId = await getNodeId();
-			if (nodeId.isErr()) {
-				const msg =
-					'Unable to startup local lightning node at this time. Please try again or restart the app.';
-				showErrorNotification({
-					title: 'LNURL-Channel Request Error',
-					message: msg,
-				});
-				return err(msg);
-			}
-
-			const addPeerRes = await addPeer({
-				peer,
-				timeout: 5000,
-			});
-			if (addPeerRes.isErr()) {
-				showErrorNotification({
-					title: 'LNURL-Channel Request Error',
-					message: `Error adding lightning peer: ${addPeerRes.error.message}`,
-				});
-				return err('Unable to add lightning peer.');
-			}
-			const savePeerRes = savePeer({ selectedWallet, selectedNetwork, peer });
-			if (savePeerRes.isErr()) {
-				showErrorNotification({
-					title: 'LNURL-Channel Request Error',
-					message: `Unable to save lightning peer: ${savePeerRes.error.message}`,
-				});
-				return err(savePeerRes.error.message);
-			}
-
-			const callbackRes = await createChannelRequestUrl({
-				localNodeId: nodeId.value,
-				params,
-				isPrivate: true,
-				cancel: false,
-			});
-			if (callbackRes.isErr()) {
-				showErrorNotification({
-					title: 'LNURL-Channel Request failed',
-					message: callbackRes.error.message,
-				});
-				return err(callbackRes.error.message);
-			}
-
-			showSuccessNotification({
-				title: 'Success!',
-				message: peer
-					? `Successfully requested channel from: ${peer}.`
-					: 'Successfully requested channel.',
-			});
-			return ok(EQRDataType.lnurlAuth);*/
-		}
-
 		case EQRDataType.lnurlAuth: {
-			showInfoNotification({
-				title: 'Not Supported',
-				message: 'LNURL-Auth is not yet supported.',
-			});
-			return ok({ type: EQRDataType.lnurlAuth });
-
-			/*const getMnemonicPhraseResponse = await getMnemonicPhrase(selectedWallet);
-			if (getMnemonicPhraseResponse.isErr()) {
-				return err(getMnemonicPhraseResponse.error.message);
-			}
-
-			const authRes = await lnAuth({
-				params: data.lnUrlParams as LNURLAuthParams,
-				// @ts-ignore
-				network: selectedNetwork,
-				bip32Mnemonic: getMnemonicPhraseResponse.value,
-			});
-			if (authRes.isErr()) {
-				showErrorNotification({
-					title: 'LNURL-Auth failed',
-					message: authRes.error.message,
-				});
-				return err(authRes.error.message);
-			}
-
-			showSuccessNotification({
-				title: 'Authenticated!',
-				message: data.lnUrlParams?.domain
-					? `Successfully logged into: ${data.lnUrlParams?.domain}.`
-					: 'Successfully logged in.',
-			});
-			return ok(EQRDataType.lnurlAuth);*/
+			const params = data.lnUrlParams as LNURLAuthParams;
+			return await handleLnurlAuth({ params, selectedWallet, selectedNetwork });
 		}
 		case EQRDataType.lnurlWithdraw: {
-			showInfoNotification({
-				title: 'Not Supported',
-				message: 'LNURL-Withdraw is not yet supported.',
-			});
-			return ok({ type: EQRDataType.lnurlWithdraw });
-
-			/*let params = data.lnUrlParams as LNURLWithdrawParams;
-			const amountSats = params.maxWithdrawable / 1000; //Convert msats to sats.
-			const description = params?.defaultDescription ?? '';
-
-			// Determine if we have enough receiving capacity before proceeding.
-			const lightningBalance = await getLightningBalance({
-				selectedWallet,
-				selectedNetwork,
-				includeReserveBalance: false,
-			});
-
-			if (lightningBalance.remoteBalance < amountSats) {
-				const msg =
-					'Not enough inbound/receiving capacity to complete lnurl-withdraw request.';
-				showErrorNotification({
-					title: 'LNURL-Withdraw Error',
-					message: msg,
-				});
-				return err(msg);
-			}
-
-			const invoice = await createLightningInvoice({
-				expiryDeltaSeconds: 3600,
-				amountSats,
-				description,
-				selectedWallet,
-				selectedNetwork,
-			});
-			if (invoice.isErr()) {
-				const msg = 'Unable to successfully create invoice for lnurl-withdraw.';
-				showErrorNotification({
-					title: 'LNURL-Withdraw Error',
-					message: msg,
-				});
-				return err(msg);
-			}
-			const callbackRes = await createWithdrawCallbackUrl({
+			let params = data.lnUrlParams as LNURLWithdrawParams;
+			return await handleLnurlWithdraw({
 				params,
-				paymentRequest: invoice.value.to_str,
+				selectedWallet,
+				selectedNetwork,
 			});
-			if (callbackRes.isErr()) {
-				console.log(callbackRes.error.message);
-				const msg = 'Unable to resolve and finalize lnurl-withdraw.';
-				showErrorNotification({
-					title: 'LNURL-Withdraw Error',
-					message: msg,
-				});
-				return err(msg);
-			}
-			showSuccessNotification({
-				title: 'Withdraw Requested',
-				message: 'LNURL Withdraw was successfully requested.',
-			});
-			return ok(EQRDataType.lnurlWithdraw);*/
 		}
 
 		case EQRDataType.nodeId: {
