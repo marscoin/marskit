@@ -68,6 +68,7 @@ export const rootNavigation = {
 			navigationRef.navigate(...args);
 		} else {
 			// Decide what to do if react navigation is not ready
+			console.log('rootNavigation not ready');
 		}
 	},
 };

@@ -73,7 +73,8 @@ export const sendNavigation = {
 		if (navigationRef.isReady()) {
 			navigationRef.navigate(...args);
 		} else {
-			// Decide what to do if react navigation is not ready
+			// sendNavigation not ready, try again after a short wait
+			setTimeout(() => sendNavigation.navigate(...args), 200);
 		}
 	},
 };

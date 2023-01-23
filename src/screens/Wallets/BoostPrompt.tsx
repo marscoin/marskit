@@ -225,45 +225,59 @@ const BoostForm = ({
 	);
 
 	return (
-		<View style={styles.boostForm}>
+		<>
 			{showCustom ? (
-				<AdjustValue
-					value={Title}
-					description={Description}
-					decreaseValue={onDecreaseValue}
-					increaseValue={onIncreaseValue}
-					decreaseDisabled={satsPerByte <= minFee}
-				/>
+				<Text02S color="gray1">
+					Your transaction may settle faster if you include an additional
+					network fee. Set your custom fee below.
+				</Text02S>
 			) : (
-				<ImageText
-					title="Boost"
-					description={duration}
-					value={Number(boostFee.toFixed(0))}
-					icon={<TimerIconAlt color="yellow" width={26} height={26} />}
-					onPress={onSwitchView}
-				/>
+				<Text02S color="gray1">
+					Your transaction may settle faster if you include an additional
+					network fee. Here is a recommendation:
+				</Text02S>
 			)}
 
-			<View style={styles.footer}>
-				{showCustom && (
-					<Button
-						style={styles.button}
-						text="Use Recommended Fee"
-						textStyle={styles.buttonText}
+			<View style={styles.boostForm}>
+				{showCustom ? (
+					<AdjustValue
+						value={Title}
+						description={Description}
+						decreaseValue={onDecreaseValue}
+						increaseValue={onIncreaseValue}
+						decreaseDisabled={satsPerByte <= minFee}
+					/>
+				) : (
+					<ImageText
+						title="Boost"
+						description={duration}
+						value={Number(boostFee.toFixed(0))}
+						icon={<TimerIconAlt color="yellow" width={26} height={26} />}
 						onPress={onSwitchView}
 					/>
 				)}
 
-				<SwipeToConfirm
-					text="Swipe To Boost"
-					color="yellow"
-					onConfirm={handleBoost}
-					icon={<TimerIconAlt width={30} height={30} color="black" />}
-					loading={loading}
-					confirmed={loading}
-				/>
+				<View style={styles.footer}>
+					{showCustom && (
+						<Button
+							style={styles.button}
+							text="Use Recommended Fee"
+							textStyle={styles.buttonText}
+							onPress={onSwitchView}
+						/>
+					)}
+
+					<SwipeToConfirm
+						text="Swipe To Boost"
+						color="yellow"
+						onConfirm={handleBoost}
+						icon={<TimerIconAlt width={30} height={30} color="black" />}
+						loading={loading}
+						confirmed={loading}
+					/>
+				</View>
 			</View>
-		</View>
+		</>
 	);
 };
 
@@ -285,10 +299,6 @@ const BoostPrompt = (): ReactElement => {
 					title="Boost transaction"
 					displayBackButton={false}
 				/>
-				<Text02S color="gray1">
-					Your transaction may settle faster if you include an additional
-					network fee. Here is a recommendation:
-				</Text02S>
 
 				{isOpen && activityItem && <BoostForm activityItem={activityItem} />}
 
