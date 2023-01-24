@@ -1,10 +1,9 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Result } from '@synonymdev/result';
 
 import { Display, Text01S } from '../../styles/text';
 import { IColors } from '../../styles/colors';
-import { restoreRemoteBackups } from '../../utils/startup';
+import { restoreRemoteBackups, startWalletServices } from '../../utils/startup';
 import { sleep } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { updateUser } from '../../store/actions/user';
@@ -13,6 +12,8 @@ import SafeAreaInsets from '../../components/SafeAreaInsets';
 import GlowImage from '../../components/GlowImage';
 import Button from '../../components/Button';
 import LoadingWalletScreen from './Loading';
+import { showErrorNotification } from '../../utils/notifications';
+import Dialog from '../../components/Dialog';
 
 const checkImageSrc = require('../../assets/illustrations/check.png');
 const crossImageSrc = require('../../assets/illustrations/cross.png');
@@ -22,6 +23,9 @@ let attemptedAutoRestore = false;
 const RestoringScreen = (): ReactElement => {
 	const [showRestored, setShowRestored] = useState(false);
 	const [showFailed, setShowFailed] = useState(false);
+	const [proceedWBIsLoading, setProceedWBIsLoading] = useState(false);
+	const [tryAgainCount, setTryAgainCount] = useState(0);
+	const [showCautionDialog, setShowCautionDialog] = useState(false);
 	const slashtag = useSelectedSlashtag();
 
 	const onRemoteRestore = useCallback(async (): Promise<void> => {
@@ -37,6 +41,22 @@ const RestoringScreen = (): ReactElement => {
 
 		setShowRestored(true);
 	}, [slashtag]);
+
+	const proceedWithoutBackup = useCallback(async () => {
+		setShowCautionDialog(false);
+		setProceedWBIsLoading(true);
+		const res = await startWalletServices({ restore: false });
+		if (res.isErr()) {
+			showErrorNotification({
+				title: 'Error: Unable to proceed without a backup',
+				message: res.error.message,
+			});
+			return;
+		}
+		setProceedWBIsLoading(false);
+		// This will navigate the user to the main wallet view once startWalletServices has run successfully.
+		updateUser({ requiresRemoteRestore: false });
+	}, []);
 
 	useEffect(() => {
 		if (attemptedAutoRestore) {
@@ -57,9 +77,16 @@ const RestoringScreen = (): ReactElement => {
 			: 'Failed to recover backed up data.';
 		const imageSrc = showRestored ? checkImageSrc : crossImageSrc;
 		const buttonText = showRestored ? 'Get Started' : 'Try Again';
-		const onPress = showRestored
-			? (): Result<string> => updateUser({ requiresRemoteRestore: false }) //App.tsx will show wallet now
-			: (): Promise<void> => onRemoteRestore().then().catch(console.error);
+
+		const onPress = (): void => {
+			if (showRestored) {
+				//App.tsx will show wallet now
+				updateUser({ requiresRemoteRestore: false });
+			} else {
+				onRemoteRestore().then().catch(console.error);
+				setTryAgainCount(tryAgainCount + 1);
+			}
+		};
 
 		content = (
 			<View style={styles.content}>
@@ -70,7 +97,29 @@ const RestoringScreen = (): ReactElement => {
 
 				<View style={styles.buttonContainer}>
 					<Button onPress={onPress} size="large" text={buttonText} />
+					{tryAgainCount > 1 && showFailed && (
+						<Button
+							loading={proceedWBIsLoading}
+							style={styles.proceedButton}
+							onPress={(): void => {
+								setShowCautionDialog(true);
+							}}
+							size="large"
+							text="Proceed Without Backup"
+						/>
+					)}
 				</View>
+
+				<Dialog
+					visible={showCautionDialog}
+					title="Are You Sure?"
+					description="If you previously had a lightning backup it will be overwritten and lost. This could result in a loss of funds."
+					confirmText="Yes, Proceed"
+					onCancel={(): void => {
+						setShowCautionDialog(false);
+					}}
+					onConfirm={proceedWithoutBackup}
+				/>
 
 				<SafeAreaInsets type="bottom" />
 			</View>
@@ -92,6 +141,9 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		marginTop: 'auto',
+	},
+	proceedButton: {
+		marginTop: 5,
 	},
 });
 
