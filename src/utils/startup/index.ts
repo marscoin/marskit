@@ -70,8 +70,8 @@ export const restoreRemoteBackups = async (
 	if (res.isErr()) {
 		return err(res.error);
 	}
-
-	return await startWalletServices({ restore: true });
+	// Only set restore to true if we found that a backup exists to restore with.
+	return await startWalletServices({ restore: res.value.backupExists });
 };
 
 /**
