@@ -105,7 +105,7 @@ export const performRemoteLdkBackup = async (
 
 export const performFullRestoreFromLatestBackup = async (
 	slashtag: Slashtag,
-): Promise<Result<string>> => {
+): Promise<Result<{ backupExists: boolean }>> => {
 	try {
 		const selectedNetwork = getSelectedNetwork();
 
@@ -118,8 +118,9 @@ export const performFullRestoreFromLatestBackup = async (
 			return err(res.error);
 		}
 
+		// No backup exists for the provided slashtag.
 		if (res.value.length === 0) {
-			return ok('No remote LDK backups found');
+			return ok({ backupExists: false });
 		}
 
 		const fetchRes = await fetchBackup(
@@ -151,7 +152,8 @@ export const performFullRestoreFromLatestBackup = async (
 
 		await setAccount({ name: backup.account.name, seed: backup.account.seed });
 
-		return ok('Restore success');
+		// Restore success
+		return ok({ backupExists: true });
 	} catch (e) {
 		console.log(e);
 		return err(e);
