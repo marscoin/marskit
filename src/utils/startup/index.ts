@@ -56,7 +56,12 @@ export const restoreSeed = async ({
 	mnemonic: string;
 	bip39Passphrase?: string;
 }): Promise<Result<string>> => {
-	const res = await createWallet({ mnemonic, bip39Passphrase });
+	const res = await createWallet({
+		mnemonic,
+		bip39Passphrase,
+		addressAmount: 25,
+		changeAddressAmount: 25,
+	});
 	if (res.isErr()) {
 		return res;
 	}
