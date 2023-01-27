@@ -62,6 +62,7 @@ const AdvancedSettings = ({
 				title: 'Rescan Addresses',
 				value: rescanning ? 'Rescanning...' : '',
 				type: EItemType.textButton,
+				enabled: !rescanning,
 				onPress: async (): Promise<void> => {
 					setRescanning(true);
 					await rescanAddresses({ selectedWallet, selectedNetwork });
