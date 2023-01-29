@@ -456,6 +456,7 @@ const Channels = ({
 							text="Refresh LDK"
 							loading={refreshingLdk}
 							onPress={onRefreshLdk}
+							testID="RefreshLDK"
 						/>
 						<Button
 							style={styles.devButton}
@@ -466,6 +467,7 @@ const Channels = ({
 								await setupLdk({ selectedWallet, selectedNetwork });
 								setRestartingLdk(false);
 							}}
+							testID="RestartLDK"
 						/>
 						<Button
 							style={styles.devButton}
@@ -476,6 +478,7 @@ const Channels = ({
 								await rebroadcastAllKnownTransactions();
 								setRebroadcastingLdk(false);
 							}}
+							testID="RebroadcastLDKTXS"
 						/>
 						<Button
 							style={styles.devButton}
@@ -493,6 +496,7 @@ const Channels = ({
 									message: nodeId.value,
 								});
 							}}
+							testID="CopyNodeId"
 						/>
 
 						{openChannels.length > 0 && (
