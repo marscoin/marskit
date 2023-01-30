@@ -211,7 +211,7 @@ export const generateAddresses = async ({
 	addressIndex = 0,
 	changeAddressIndex = 0,
 	selectedNetwork,
-	keyDerivationPath = defaultKeyDerivationPath,
+	keyDerivationPath = { ...defaultKeyDerivationPath },
 	accountType = 'onchain',
 	addressType,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
@@ -276,8 +276,10 @@ export const generateAddresses = async ({
 			changeAddressArray.map(async (_item, i) => {
 				try {
 					const index = i + changeAddressIndex;
+					const path = { ...keyDerivationPath };
+					path.addressIndex = `${index}`;
 					const changeAddressPath = formatKeyDerivationPath({
-						path: keyDerivationPath,
+						path,
 						selectedNetwork,
 						accountType,
 						changeAddress: true,
@@ -2778,6 +2780,8 @@ export const rescanAddresses = async ({
 	}
 	await clearUtxos({ selectedWallet, selectedNetwork }).then();
 	await resetAddressIndexes({ selectedWallet, selectedNetwork });
+	// Wait to generate our zero index addresses.
+	await createZeroIndexAddresses({ selectedWallet, selectedNetwork });
 	return await refreshWallet({
 		onchain: true,
 		lightning: false,
@@ -2786,4 +2790,39 @@ export const rescanAddresses = async ({
 		selectedNetwork,
 		updateAllAddressTypes: true,
 	});
+};
+
+/**
+ * Creates and sets zero address indexes for each address type.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Promise<void>}
+ */
+export const createZeroIndexAddresses = async ({
+	selectedWallet,
+	selectedNetwork,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+}): Promise<void> => {
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	const addressTypes = getAddressTypes();
+	await Promise.all(
+		Object.values(addressTypes).map(async ({ type }) => {
+			await addAddresses({
+				selectedWallet,
+				selectedNetwork,
+				addressAmount: 1,
+				changeAddressAmount: 1,
+				addressIndex: 0,
+				changeAddressIndex: 0,
+				addressType: type,
+			});
+		}),
+	);
 };

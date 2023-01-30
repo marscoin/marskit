@@ -1169,7 +1169,7 @@ export const resetOnChainTransaction = ({
 	}
 };
 
-export const updateSelectedAddressType = ({
+export const updateSelectedAddressType = async ({
 	addressType,
 	selectedWallet,
 	selectedNetwork,
@@ -1177,13 +1177,23 @@ export const updateSelectedAddressType = ({
 	addressType: EAddressType;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
-}): void => {
+}): Promise<void> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
 	if (!selectedWallet) {
 		selectedWallet = getSelectedWallet();
 	}
+	// Ensure zero index addresses are set when switching address types.
+	await addAddresses({
+		selectedWallet,
+		selectedNetwork,
+		addressType,
+		addressAmount: 1,
+		changeAddressAmount: 1,
+		addressIndex: 0,
+		changeAddressIndex: 0,
+	});
 
 	dispatch({
 		type: actions.UPDATE_SELECTED_ADDRESS_TYPE,
