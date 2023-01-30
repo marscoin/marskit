@@ -184,7 +184,14 @@ export const EmptyItem = ({
 
 const Avatar = ({ url }: { url: string }): ReactElement => {
 	const { profile } = useProfile(url);
-	return <ProfileImage url={url} image={profile.image} size={32} />;
+	return (
+		<ProfileImage
+			style={styles.icon}
+			url={url}
+			image={profile.image}
+			size={32}
+		/>
+	);
 };
 
 const ActivityListItem = ({

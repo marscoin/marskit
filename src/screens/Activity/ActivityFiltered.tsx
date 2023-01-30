@@ -66,7 +66,11 @@ const ActivityFiltered = ({
 	}, [currentTab, search, tags]);
 
 	const activityPadding = useMemo(() => {
-		return { paddingTop: radiusContainerHeight, paddingBottom: insets.bottom };
+		return {
+			paddingTop: radiusContainerHeight,
+			// add space for TabBar
+			paddingBottom: insets.bottom + 100,
+		};
 	}, [radiusContainerHeight, insets.bottom]);
 
 	const addTag = (tag): void => setTags((t) => [...t, tag]);

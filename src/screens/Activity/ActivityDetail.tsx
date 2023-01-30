@@ -28,12 +28,15 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { View as ThemedView } from '../../styles/components';
 import { Caption13M, Caption13Up, Text02M, Title } from '../../styles/text';
 import {
+	CalendarIcon,
 	CheckCircleIcon,
 	ClockIcon,
 	GitBranchIcon,
+	HourglassIcon,
 	LightningIcon,
 	ReceiveIcon,
 	SendIcon,
+	SpeedFastIcon,
 	TagIcon,
 	TimerIcon,
 	TimerIconAlt,
@@ -59,7 +62,6 @@ import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 import { useAppSelector } from '../../hooks/redux';
 import useDisplayValues from '../../hooks/displayValues';
-import { useFeeText } from '../../hooks/fees';
 import Store from '../../store/types';
 import { toggleView } from '../../store/actions/ui';
 import { EPaymentType } from '../../store/types/wallet';
@@ -67,7 +69,6 @@ import {
 	activityItemSelector,
 	activityItemsSelector,
 } from '../../store/reselect/activity';
-import { FeeText } from '../../store/shapes/fees';
 import {
 	deleteMetaTxTag,
 	deleteMetaSlashTagsUrlTag,
@@ -153,7 +154,6 @@ const OnchainActivityDetail = ({
 		txType,
 		value,
 		fee,
-		feeRate,
 		confirmed,
 		timestamp,
 		isBoosted,
@@ -164,7 +164,6 @@ const OnchainActivityDetail = ({
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const activityItems = useSelector(activityItemsSelector);
 	const boostedTransactions = useSelector(boostedTransactionsSelector);
-	const feeText = useFeeText(feeRate);
 	const feeDisplay = useDisplayValues(btcToSats(fee));
 	const [txDetails, setTxDetails] = useState<ITransaction<ITxHash>['result']>();
 	const slashTagsUrl = useAppSelector((state) => {
@@ -294,8 +293,8 @@ const OnchainActivityDetail = ({
 
 	let status = (
 		<View style={styles.row}>
-			<ClockIcon style={styles.rowIcon} color="brand" />
-			<Text02M color="white">Confirming</Text02M>
+			<HourglassIcon style={styles.rowIcon} color="brand" />
+			<Text02M color="brand">Confirming</Text02M>
 		</View>
 	);
 
@@ -338,13 +337,13 @@ const OnchainActivityDetail = ({
 
 			<View style={styles.sectionContainer}>
 				<Section
-					title="Speed and fee"
+					title="Fee"
 					value={
 						<View style={styles.row}>
 							<TimerIcon style={styles.rowIcon} color="brand" />
 							<Text02M>
-								{feeText.title} ({feeDisplay.fiatSymbol}
-								{feeDisplay.fiatFormatted})
+								{feeDisplay.fiatSymbol}
+								{feeDisplay.fiatFormatted}
 							</Text02M>
 						</View>
 					}
@@ -356,24 +355,30 @@ const OnchainActivityDetail = ({
 				<Section
 					title="Date"
 					value={
-						<Text02M>
-							{new Date(timestamp).toLocaleString(undefined, {
-								month: 'long',
-								day: 'numeric',
-							})}
-						</Text02M>
+						<View style={styles.row}>
+							<CalendarIcon style={styles.rowIcon} color="brand" />
+							<Text02M>
+								{new Date(timestamp).toLocaleString(undefined, {
+									month: 'long',
+									day: 'numeric',
+								})}
+							</Text02M>
+						</View>
 					}
 				/>
 				<Section
 					title="Time"
 					value={
-						<Text02M>
-							{new Date(timestamp).toLocaleString(undefined, {
-								hour: 'numeric',
-								minute: 'numeric',
-								hour12: false,
-							})}
-						</Text02M>
+						<View style={styles.row}>
+							<ClockIcon style={styles.rowIcon} color="brand" />
+							<Text02M>
+								{new Date(timestamp).toLocaleString(undefined, {
+									hour: 'numeric',
+									minute: 'numeric',
+									hour12: false,
+								})}
+							</Text02M>
+						</View>
 					}
 				/>
 			</View>
@@ -618,11 +623,17 @@ const LightningActivityDetail = ({
 
 			<View style={styles.sectionContainer}>
 				<Section
-					title="Speed and fee"
+					title="Fee"
 					value={
 						<View style={styles.row}>
-							<TimerIcon style={styles.rowIcon} color="purple" />
-							<Text02M>{FeeText.instant.title} ($0.01)</Text02M>
+							<SpeedFastIcon
+								style={styles.rowIcon}
+								color="purple"
+								width={16}
+								height={16}
+							/>
+							{/* TODO: get actual fee */}
+							<Text02M>$0.01</Text02M>
 						</View>
 					}
 				/>
@@ -633,24 +644,30 @@ const LightningActivityDetail = ({
 				<Section
 					title="Date"
 					value={
-						<Text02M>
-							{new Date(timestamp).toLocaleString(undefined, {
-								month: 'long',
-								day: 'numeric',
-							})}
-						</Text02M>
+						<View style={styles.row}>
+							<CalendarIcon style={styles.rowIcon} color="purple" />
+							<Text02M>
+								{new Date(timestamp).toLocaleString(undefined, {
+									month: 'long',
+									day: 'numeric',
+								})}
+							</Text02M>
+						</View>
 					}
 				/>
 				<Section
 					title="Time"
 					value={
-						<Text02M>
-							{new Date(timestamp).toLocaleString(undefined, {
-								hour: 'numeric',
-								minute: 'numeric',
-								hour12: false,
-							})}
-						</Text02M>
+						<View style={styles.row}>
+							<ClockIcon style={styles.rowIcon} color="purple" />
+							<Text02M>
+								{new Date(timestamp).toLocaleString(undefined, {
+									hour: 'numeric',
+									minute: 'numeric',
+									hour12: false,
+								})}
+							</Text02M>
+						</View>
 					}
 				/>
 			</View>
@@ -659,7 +676,6 @@ const LightningActivityDetail = ({
 				<>
 					{(tags.length !== 0 || slashTagsUrl) && (
 						<View style={styles.sectionContainer}>
-							{/* ContactSection */}
 							{slashTagsUrl && (
 								<Section
 									title="Contact"
