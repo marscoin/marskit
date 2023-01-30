@@ -163,9 +163,10 @@ const _Item = memo((item: ItemData): ReactElement => {
 
 		return (
 			<TouchableOpacity
+				disabled={!enabled}
 				style={styles.item}
 				activeOpacity={0.6}
-				onPress={enabled ? _onPress : undefined}
+				onPress={_onPress}
 				testID={testID}>
 				<View style={styles.leftColumn}>
 					{Icon && (
