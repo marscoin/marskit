@@ -138,7 +138,7 @@ describe('Wallet - new wallet, send and receive', () => {
 		expect(tx11?.inputs?.length).toBe(1);
 		expect(tx11?.changeAddress).toBeDefined();
 		expect(tx11?.rbf).toBe(false);
-		expect(tx11?.satsPerByte).toBe(1);
+		expect(tx11?.satsPerByte).toBe(2);
 		expect(tx11?.transactionSize).toBe(250);
 
 		// set address and amount
@@ -154,7 +154,7 @@ describe('Wallet - new wallet, send and receive', () => {
 		const tx12 =
 			store.getState().wallet.wallets.wallet0.transaction.bitcoinRegtest;
 		expect(tx12?.outputs?.[0].address).toBe(receivingAddress1);
-		expect(tx12?.satsPerByte).toBe(1);
+		expect(tx12?.satsPerByte).toBe(2);
 
 		// setting fee too high should return an error
 		res = updateFee({ satsPerByte: 100_000_000, transaction: tx12 });
