@@ -321,7 +321,7 @@ export const constructByteCountParam = (
  * Attempt to estimate the current fee for a given wallet and its UTXO's
  */
 export const getTotalFee = ({
-	satsPerByte = 1,
+	satsPerByte = 2,
 	selectedWallet,
 	selectedNetwork,
 	message = '',
@@ -552,18 +552,16 @@ const createPsbtFromTransactionData = async ({
 
 	//Add Inputs from inputs array
 	try {
-		await Promise.all(
-			inputs.map(async (input) => {
-				const path = input.path;
-				const keyPair: BIP32Interface = root.derivePath(path);
-				await addInput({
-					psbt,
-					keyPair,
-					input,
-					selectedNetwork,
-				});
-			}),
-		);
+		for await (const input of inputs) {
+			const path = input.path;
+			const keyPair: BIP32Interface = root.derivePath(path);
+			await addInput({
+				psbt,
+				keyPair,
+				input,
+				selectedNetwork,
+			});
+		}
 	} catch (e) {
 		return err(e);
 	}
@@ -1610,6 +1608,7 @@ export const sendMax = ({
 				const newFee = getTotalFee({
 					satsPerByte: transaction.satsPerByte ?? 1,
 					message: transaction.message,
+					transaction,
 				});
 				const _transaction: IBitcoinTransactionData = {
 					fee: newFee,

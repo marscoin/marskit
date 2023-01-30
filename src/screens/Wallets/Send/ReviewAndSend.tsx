@@ -337,10 +337,20 @@ const ReviewAndSend = ({
 			selectedNetwork,
 		});
 		if (response.isErr()) {
-			_onError(
-				'Error: Unable to Broadcast Transaction',
-				'Please check your connection and try again.',
-			);
+			// Check if it failed to broadcast due to low fee.
+			if (response.error.message.includes('min relay fee not met')) {
+				_onError(
+					'Error: Minimum relay fee not met',
+					'Please increase your fee and try again.',
+				);
+			} else {
+				// Most likely a connection error with the Electrum server.
+				// TODO: Add a backup method to broadcast via an api if unable to broadcast through Electrum.
+				_onError(
+					'Error: Unable to Broadcast Transaction',
+					'Please check your connection and try again.',
+				);
+			}
 			setIsLoading(false);
 			return;
 		}

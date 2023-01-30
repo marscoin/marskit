@@ -47,7 +47,7 @@ const AddressTypeSettings = ({
 					useCheckmark: true,
 					onPress: async (): Promise<void> => {
 						navigation.goBack();
-						updateSelectedAddressType({ addressType: addressType.type });
+						await updateSelectedAddressType({ addressType: addressType.type });
 						await refreshWallet({ lightning: false, onchain: true });
 					},
 					testID: addressType.type,
