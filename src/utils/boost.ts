@@ -271,6 +271,7 @@ export const formatBoostedActivityItems = ({
 			id: rootParent.id,
 			txType: rootParent.txType,
 			value,
+			fee: rootParent.fee + item.fee,
 			address: rootParent.address,
 			timestamp: item.timestamp,
 			isBoosted: true,

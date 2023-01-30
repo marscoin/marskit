@@ -2177,10 +2177,12 @@ export const broadcastBoost = async ({
 	selectedWallet,
 	selectedNetwork,
 	oldTxId,
+	oldFee,
 }: {
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 	oldTxId: string;
+	oldFee: number;
 }): Promise<Result<Partial<TOnchainActivityItem>>> => {
 	try {
 		if (!selectedWallet) {
@@ -2239,7 +2241,7 @@ export const broadcastBoost = async ({
 		const updatedActivityItemData: Partial<TOnchainActivityItem> = {
 			txId: newTxId,
 			address: transaction.changeAddress ?? '',
-			fee: satsToBtc(Number(transaction.fee)),
+			fee: oldFee + satsToBtc(Number(transaction.fee)),
 			isBoosted: true,
 			timestamp: new Date().getTime(),
 		};

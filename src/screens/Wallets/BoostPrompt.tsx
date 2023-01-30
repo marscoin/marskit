@@ -170,6 +170,7 @@ const BoostForm = ({
 				selectedWallet,
 				selectedNetwork,
 				oldTxId: activityItem.txId,
+				oldFee: activityItem.fee,
 			});
 			if (response.isOk()) {
 				// Optimistically/immediately update activity item
