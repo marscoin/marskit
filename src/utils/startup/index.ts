@@ -18,7 +18,6 @@ import {
 import { connectToElectrum, subscribeToHeader } from '../wallet/electrum';
 import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 import { keepLdkSynced, setupLdk } from '../lightning';
-import { updateUi } from '../../store/actions/ui';
 import { setupBlocktank, watchPendingOrders } from '../blocktank';
 import { removeExpiredLightningInvoices } from '../../store/actions/lightning';
 import { updateSlashPayConfig } from '../slashtags';
@@ -56,7 +55,12 @@ export const restoreSeed = async ({
 	mnemonic: string;
 	bip39Passphrase?: string;
 }): Promise<Result<string>> => {
-	const res = await createWallet({ mnemonic, bip39Passphrase });
+	const res = await createWallet({
+		mnemonic,
+		bip39Passphrase,
+		addressAmount: 25,
+		changeAddressAmount: 25,
+	});
 	if (res.isErr()) {
 		return res;
 	}
@@ -112,14 +116,7 @@ export const startWalletServices = async ({
 		// Before we do anything we should connect to an Electrum server
 		if (onchain || lightning) {
 			const electrumResponse = await connectToElectrum({ selectedNetwork });
-			if (electrumResponse.isErr()) {
-				// showErrorNotification({
-				// 	title: 'Unable to connect to Electrum Server',
-				// 	message:
-				// 		electrumResponse?.error?.message ??
-				// 		'Unable to connect to Electrum Server',
-				// });
-			} else {
+			if (electrumResponse.isOk()) {
 				isConnectedToElectrum = true;
 				// Ensure the on-chain wallet & LDK syncs when a new block is detected.
 				const onReceive = (): void => {
@@ -133,7 +130,6 @@ export const startWalletServices = async ({
 				// Ensure we are subscribed to and save new header information.
 				subscribeToHeader({ selectedNetwork, onReceive }).then();
 			}
-			updateUi({ isConnectedToElectrum });
 		}
 
 		const mnemonicResponse = await getMnemonicPhrase();
