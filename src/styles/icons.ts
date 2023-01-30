@@ -24,6 +24,7 @@ import {
 	userMinusIcon,
 	gitBranchIcon,
 	noteIcon,
+	calendarIcon,
 	checkCircleIcon,
 	clockIcon,
 	timerIcon,
@@ -66,6 +67,7 @@ import {
 	minusCircledIcon,
 	plusCircledIcon,
 	keyIcon,
+	hourglassIcon,
 } from '../assets/icons/wallet';
 import {
 	chevronRightIcon,
@@ -163,6 +165,14 @@ export const NoteIcon = styled(SvgXml).attrs((props) => ({
 	color: props.color ? props.theme.colors[props.color] : 'white',
 }));
 
+export const CalendarIcon = styled(SvgXml).attrs((props) => ({
+	xml: calendarIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '13px',
+	width: props.width ?? '12px',
+}))<IconProps>((props) => ({
+	color: props.color ? props.theme.colors[props.color] : 'white',
+}));
+
 export const CheckCircleIcon = styled(SvgXml).attrs((props) => ({
 	xml: checkCircleIcon(props.color ? props.theme.colors[props.color] : 'white'),
 	height: props.height ?? '16px',
@@ -175,6 +185,14 @@ export const ClockIcon = styled(SvgXml).attrs((props) => ({
 	xml: clockIcon(props.color ? props.theme.colors[props.color] : 'white'),
 	height: props.height ?? '16px',
 	width: props.width ?? '16px',
+}))<IconProps>((props) => ({
+	color: props.color ? props.theme.colors[props.color] : 'white',
+}));
+
+export const HourglassIcon = styled(SvgXml).attrs((props) => ({
+	xml: hourglassIcon(props.color ? props.theme.colors[props.color] : 'white'),
+	height: props.height ?? '13px',
+	width: props.width ?? '9px',
 }))<IconProps>((props) => ({
 	color: props.color ? props.theme.colors[props.color] : 'white',
 }));
