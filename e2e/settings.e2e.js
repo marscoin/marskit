@@ -342,6 +342,7 @@ describe('Settings', () => {
 			await element(by.id('NavigationBack')).tap();
 			await element(by.id('AddressTypePreference')).tap();
 			await element(by.id('p2pkh')).tap();
+			await sleep(1000); // We need a second after switching address types.
 
 			// check address in Address Viewer
 			await element(by.id('AddressViewer')).tap();
