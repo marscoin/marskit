@@ -24,7 +24,12 @@ import { getBlockExplorerLink } from '../../../utils/wallet/transactions';
 import { openURL } from '../../../utils/helpers';
 import { createSupportLink } from '../../../utils/support';
 import Store from '../../../store/types';
-import { selectedNetworkSelector } from '../../../store/reselect/wallet';
+import {
+	selectedNetworkSelector,
+	selectedWalletSelector,
+} from '../../../store/reselect/wallet';
+import { enableDevOptionsSelector } from '../../../store/reselect/settings';
+import { openChannelIdsSelector } from '../../../store/reselect/lightning';
 import { getStateMessage } from '../../../utils/blocktank';
 import {
 	ArrowCounterClock,
@@ -167,7 +172,9 @@ const ChannelDetails = ({
 	const name = useLightningChannelName(channel);
 	const { spendingAvailable, receivingAvailable, capacity } =
 		useLightningChannelBalance(channel);
+	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const enableDevOptions = useSelector(enableDevOptionsSelector);
 	const [txTime, setTxTime] = useState<undefined | string>();
 
 	const blocktankOrders = useSelector((state: Store) => {
@@ -176,6 +183,10 @@ const ChannelDetails = ({
 
 	const blocktankOrder = Object.values(blocktankOrders).find((order) => {
 		return order.channel_open_tx?.transaction_id === channel.funding_txid;
+	});
+
+	const openChannelIds = useSelector((state: Store) => {
+		return openChannelIdsSelector(state, selectedWallet, selectedNetwork);
 	});
 
 	// TODO: show status for non-blocktank channels
@@ -232,6 +243,19 @@ const ChannelDetails = ({
 	};
 
 	const getChannelStatus = (): TStatus => {
+		if (blocktankOrder) {
+			if ([0, 100, 150, 200].includes(blocktankOrder.state)) {
+				return 'pending';
+			}
+			if ([400, 410].includes(blocktankOrder.state)) {
+				return 'closed';
+			}
+		}
+
+		if (openChannelIds.includes(channel.channel_id)) {
+			return 'pending';
+		}
+
 		if (channel.is_channel_ready) {
 			return channel.is_usable ? 'open' : 'pending';
 		} else {
@@ -434,6 +458,24 @@ const ChannelDetails = ({
 						}}
 					/>
 				</View>
+
+				{enableDevOptions && (
+					<View style={styles.section}>
+						<View style={styles.sectionTitle}>
+							<Caption13Up color="gray1">Debug</Caption13Up>
+						</View>
+						<Section
+							name="Is Usable?"
+							value={<Caption13M>{channel.is_usable.toString()}</Caption13M>}
+						/>
+						<Section
+							name="Is Ready?"
+							value={
+								<Caption13M>{channel.is_channel_ready.toString()}</Caption13M>
+							}
+						/>
+					</View>
+				)}
 
 				<View style={styles.buttons}>
 					{blocktankOrder && (
