@@ -465,20 +465,26 @@ export const addPaidBlocktankOrder = ({
  * Creates, broadcasts and confirms a given Blocktank channel purchase by orderId.
  * @param {string} orderId
  * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TWalletName} [selectedWallet]
  * @returns {Promise<Result<string>>}
  */
 export const confirmChannelPurchase = async ({
 	orderId,
 	selectedNetwork,
+	selectedWallet,
 }: {
 	orderId: string;
 	selectedNetwork?: TAvailableNetworks;
+	selectedWallet?: TWalletName;
 }): Promise<Result<string>> => {
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
 
-	const rawTx = await createTransaction({ selectedNetwork });
+	const rawTx = await createTransaction({ selectedWallet, selectedNetwork });
 	if (rawTx.isErr()) {
 		showErrorNotification({
 			title: 'Unable To Create Transaction',
@@ -488,8 +494,9 @@ export const confirmChannelPurchase = async ({
 	}
 	const broadcastResponse = await broadcastTransaction({
 		rawTx: rawTx.value.hex,
-		selectedNetwork,
 		subscribeToOutputAddress: false,
+		selectedWallet,
+		selectedNetwork,
 	});
 	if (broadcastResponse.isErr()) {
 		showErrorNotification({
@@ -501,10 +508,15 @@ export const confirmChannelPurchase = async ({
 	addPaidBlocktankOrder({ orderId, txid: broadcastResponse.value });
 
 	// Reset tx data.
-	resetOnChainTransaction({ selectedNetwork });
+	resetOnChainTransaction({ selectedWallet, selectedNetwork });
 
 	watchOrder(orderId).then();
 	removeTodo('lightning');
-	refreshWallet({ onchain: true, lightning: false }).then();
+	refreshWallet({
+		onchain: true,
+		lightning: false, // No need to refresh lightning wallet at this time.
+		selectedWallet,
+		selectedNetwork,
+	}).then();
 	return ok(broadcastResponse.value);
 };
