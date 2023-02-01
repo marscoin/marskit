@@ -46,19 +46,20 @@ import {
 import useColors from '../../../hooks/colors';
 import useDisplayValues from '../../../hooks/displayValues';
 import { FeeText } from '../../../store/shapes/fees';
-import { hasEnabledAuthentication } from '../../../utils/settings';
 import { EFeeId } from '../../../store/types/fees';
 import {
 	decodeLightningInvoice,
 	payLightningInvoice,
 } from '../../../utils/lightning';
+import { getFiatDisplayValues } from '../../../utils/exchange-rate';
+import { showErrorNotification } from '../../../utils/notifications';
 import { refreshWallet } from '../../../utils/wallet';
 import type { SendScreenProps } from '../../../navigation/types';
 import Dialog from '../../../components/Dialog';
-import { getFiatDisplayValues } from '../../../utils/exchange-rate';
 import { useLightningBalance } from '../../../hooks/lightning';
+import Biometrics from '../../../components/Biometrics';
 import Button from '../../../components/Button';
-import { showErrorNotification } from '../../../utils/notifications';
+import Store from '../../../store/types';
 import {
 	exchangeRatesSelector,
 	onChainBalanceSelector,
@@ -102,16 +103,30 @@ const ReviewAndSend = ({
 	navigation,
 }: SendScreenProps<'ReviewAndSend'>): ReactElement => {
 	const insets = useSafeAreaInsets();
+	const selectedWallet = useSelector(selectedWalletSelector);
+	const selectedNetwork = useSelector(selectedNetworkSelector);
+	const onChainBalance = useSelector(onChainBalanceSelector);
+	const transaction = useSelector(transactionSelector);
+	const lightningBalance = useLightningBalance(false);
+	const bitcoinUnit = useSelector(bitcoinUnitSelector);
+	const exchangeRates = useSelector(exchangeRatesSelector);
 	const feeEstimates = useSelector(onChainFeesSelector);
 	const enableSendAmountWarning = useSelector(enableSendAmountWarningSelector);
+	const pin = useSelector((state: Store) => state.settings.pin);
+	const biometrics = useSelector((state: Store) => state.settings.biometrics);
+	const pinForPayments = useSelector(
+		(state: Store) => state.settings.pinForPayments,
+	);
 
 	const [isLoading, setIsLoading] = useState(false);
+	const [showBiotmetrics, setShowBiometrics] = useState(false);
 	const [showDialog1, setShowDialog1] = useState(false);
 	const [showDialog2, setShowDialog2] = useState(false);
 	const [showDialog3, setShowDialog3] = useState(false);
 	const [showDialog4, setShowDialog4] = useState(false);
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string }>();
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
+
 	const nextButtonContainer = useMemo(
 		() => ({
 			...styles.nextButtonContainer,
@@ -119,11 +134,6 @@ const ReviewAndSend = ({
 		}),
 		[insets.bottom],
 	);
-	const selectedWallet = useSelector(selectedWalletSelector);
-	const selectedNetwork = useSelector(selectedNetworkSelector);
-	const onChainBalance = useSelector(onChainBalanceSelector);
-	const transaction = useSelector(transactionSelector);
-	const lightningBalance = useLightningBalance(false);
 
 	const decodeAndSetLightningInvoice = async (): Promise<void> => {
 		try {
@@ -186,13 +196,8 @@ const ReviewAndSend = ({
 	 * Returns the current address to send funds to.
 	 */
 	const address = useMemo((): string => {
-		try {
-			return getOutput?.address || '';
-		} catch (e) {
-			console.log(e);
-			return '';
-		}
-	}, [getOutput?.address]);
+		return getOutput.address ?? '';
+	}, [getOutput.address]);
 
 	const selectedFeeId = useMemo(
 		() => transaction.selectedFeeId ?? EFeeId.slow,
@@ -200,11 +205,7 @@ const ReviewAndSend = ({
 	);
 
 	const satsPerByte = useMemo((): number => {
-		try {
-			return transaction.satsPerByte ?? 1;
-		} catch (e) {
-			return 1;
-		}
+		return transaction.satsPerByte ?? 1;
 	}, [transaction.satsPerByte]);
 
 	const getFee = useCallback(
@@ -397,35 +398,40 @@ const ReviewAndSend = ({
 			? ` (${totalFeeDisplay.fiatSymbol} ${totalFeeDisplay.fiatFormatted})`
 			: '';
 
-	const confirmPayment = useCallback(async () => {
-		const { pin, pinForPayments } = hasEnabledAuthentication();
-		const runCreateTxMethods = (): void => {
-			if (transaction.lightningInvoice) {
-				createLightningTransaction().then();
-			} else {
-				createOnChainTransaction().then();
-			}
-		};
+	const runCreateTxMethods = useCallback((): void => {
+		if (transaction.lightningInvoice) {
+			createLightningTransaction().then();
+		} else {
+			createOnChainTransaction().then();
+		}
+	}, [
+		transaction.lightningInvoice,
+		createLightningTransaction,
+		createOnChainTransaction,
+	]);
 
+	const navigateToPin = useCallback(() => {
+		navigation.navigate('PinCheck', {
+			onSuccess: () => {
+				navigation.pop();
+				runCreateTxMethods();
+			},
+		});
+	}, [navigation, runCreateTxMethods]);
+
+	const confirmPayment = useCallback(async () => {
 		if (pin && pinForPayments) {
 			setIsLoading(false);
-			navigation.navigate('AuthCheck', {
-				onSuccess: () => {
-					navigation.pop();
-					runCreateTxMethods();
-				},
-			});
+
+			if (biometrics) {
+				setShowBiometrics(true);
+			} else {
+				navigateToPin();
+			}
 		} else {
 			runCreateTxMethods();
 		}
-	}, [
-		createLightningTransaction,
-		createOnChainTransaction,
-		navigation,
-		transaction.lightningInvoice,
-	]);
-	const bitcoinUnit = useSelector(bitcoinUnitSelector);
-	const exchangeRates = useSelector(exchangeRatesSelector);
+	}, [pin, pinForPayments, biometrics, navigateToPin, runCreateTxMethods]);
 
 	const handleTagRemove = useCallback(
 		(tag: string) => {
@@ -523,194 +529,209 @@ const ReviewAndSend = ({
 	}, [customDescription, selectedFeeId]);
 
 	return (
-		<GradientView style={styles.container}>
-			<BottomSheetNavigationHeader title="Review & Send" />
-			<View style={styles.content}>
-				<AmountToggle
-					style={styles.amountToggle}
-					sats={amount}
-					reverse={true}
-				/>
-
-				<View style={styles.sectionContainer}>
-					<Section
-						title={
-							transaction.slashTagsUrl || !decodedInvoice ? 'To' : 'Invoice'
-						}
-						value={
-							transaction.slashTagsUrl ? (
-								<ContactSmall url={transaction.slashTagsUrl} size="large" />
-							) : (
-								<Text02M numberOfLines={1} ellipsizeMode="middle">
-									{decodedInvoice ? decodedInvoice.to_str : address}
-								</Text02M>
-							)
-						}
+		<>
+			<GradientView style={styles.container}>
+				<BottomSheetNavigationHeader title="Review & Send" />
+				<View style={styles.content}>
+					<AmountToggle
+						style={styles.amountToggle}
+						sats={amount}
+						reverse={true}
 					/>
-				</View>
 
-				{!transaction.lightningInvoice ? (
 					<View style={styles.sectionContainer}>
 						<Section
-							title="Speed and fee"
-							onPress={(): void => navigation.navigate('FeeRate')}
-							value={
-								<>
-									<TimerIcon style={styles.icon} color="brand" />
-									<Text02M>
-										{FeeText[selectedFeeId].title}
-										{feeAmount}
-									</Text02M>
-									<PenIcon height={16} width={20} />
-								</>
+							title={
+								transaction.slashTagsUrl || !decodedInvoice ? 'To' : 'Invoice'
 							}
-						/>
-						<Section
-							title="Confirming in"
-							onPress={(): void => navigation.navigate('FeeRate')}
 							value={
-								<>
-									<ClockIcon style={styles.icon} color="brand" />
-									<Text02M>{feeDescription}</Text02M>
-								</>
+								transaction.slashTagsUrl ? (
+									<ContactSmall url={transaction.slashTagsUrl} size="large" />
+								) : (
+									<Text02M numberOfLines={1} ellipsizeMode="middle">
+										{decodedInvoice ? decodedInvoice.to_str : address}
+									</Text02M>
+								)
 							}
 						/>
 					</View>
-				) : (
-					<View style={styles.sectionContainer}>
-						<Section
-							title="Speed and fee"
-							value={
-								<>
-									<TimerIcon style={styles.icon} color="purple" />
-									<Text02M>{FeeText.instant.title} (±$0.01)</Text02M>
-								</>
-							}
-						/>
-						{decodedInvoice?.expiry_time && (
+
+					{!transaction.lightningInvoice ? (
+						<View style={styles.sectionContainer}>
 							<Section
-								title="Invoice expiration"
+								title="Speed and fee"
+								onPress={(): void => navigation.navigate('FeeRate')}
 								value={
 									<>
-										<ClockIcon style={styles.icon} color="purple" />
+										<TimerIcon style={styles.icon} color="brand" />
 										<Text02M>
-											{(decodedInvoice.expiry_time / 60).toFixed()} minutes
+											{FeeText[selectedFeeId].title}
+											{feeAmount}
 										</Text02M>
+										<PenIcon height={16} width={20} />
 									</>
 								}
 							/>
-						)}
-					</View>
-				)}
+							<Section
+								title="Confirming in"
+								onPress={(): void => navigation.navigate('FeeRate')}
+								value={
+									<>
+										<ClockIcon style={styles.icon} color="brand" />
+										<Text02M>{feeDescription}</Text02M>
+									</>
+								}
+							/>
+						</View>
+					) : (
+						<View style={styles.sectionContainer}>
+							<Section
+								title="Speed and fee"
+								value={
+									<>
+										<TimerIcon style={styles.icon} color="purple" />
+										<Text02M>{FeeText.instant.title} (±$0.01)</Text02M>
+									</>
+								}
+							/>
+							{decodedInvoice?.expiry_time && (
+								<Section
+									title="Invoice expiration"
+									value={
+										<>
+											<ClockIcon style={styles.icon} color="purple" />
+											<Text02M>
+												{(decodedInvoice.expiry_time / 60).toFixed()} minutes
+											</Text02M>
+										</>
+									}
+								/>
+							)}
+						</View>
+					)}
 
-				{decodedInvoice?.description ? (
+					{decodedInvoice?.description ? (
+						<View style={styles.sectionContainer}>
+							<Section
+								title="Note"
+								value={<Text02M>{decodedInvoice?.description}</Text02M>}
+							/>
+						</View>
+					) : null}
+
 					<View style={styles.sectionContainer}>
 						<Section
-							title="Note"
-							value={<Text02M>{decodedInvoice?.description}</Text02M>}
+							title="Tags"
+							value={
+								<View>
+									<View style={styles.tagsContainer}>
+										{transaction.tags?.map((tag) => (
+											<Tag
+												key={tag}
+												style={styles.tag}
+												value={tag}
+												onClose={(): void => handleTagRemove(tag)}
+											/>
+										))}
+									</View>
+									<View style={styles.tagsContainer}>
+										<Button
+											color="white04"
+											text="Add Tag"
+											icon={<TagIcon color="brand" width={16} />}
+											onPress={(): void => {
+												Keyboard.dismiss();
+												navigation.navigate('Tags');
+											}}
+										/>
+									</View>
+								</View>
+							}
 						/>
 					</View>
-				) : null}
 
-				<View style={styles.sectionContainer}>
-					<Section
-						title="Tags"
-						value={
-							<View>
-								<View style={styles.tagsContainer}>
-									{transaction.tags?.map((tag) => (
-										<Tag
-											key={tag}
-											style={styles.tag}
-											value={tag}
-											onClose={(): void => handleTagRemove(tag)}
-										/>
-									))}
-								</View>
-								<View style={styles.tagsContainer}>
-									<Button
-										color="white04"
-										text="Add Tag"
-										icon={<TagIcon color="brand" width={16} />}
-										onPress={(): void => {
-											Keyboard.dismiss();
-											navigation.navigate('Tags');
-										}}
-									/>
-								</View>
-							</View>
-						}
-					/>
+					<View style={nextButtonContainer}>
+						<SwipeToConfirm
+							text="Swipe To Pay"
+							onConfirm={onSwipeToPay}
+							icon={<Checkmark width={30} height={30} color="black" />}
+							loading={isLoading}
+							confirmed={isLoading}
+						/>
+					</View>
 				</View>
 
-				<View style={nextButtonContainer}>
-					<SwipeToConfirm
-						text="Swipe To Pay"
-						onConfirm={onSwipeToPay}
-						icon={<Checkmark width={30} height={30} color="black" />}
-						loading={isLoading}
-						confirmed={isLoading}
-					/>
-				</View>
-			</View>
+				<Dialog
+					visible={showDialog1}
+					title="Are You Sure?"
+					description="It appears you are sending over $100. Do you want to continue?"
+					confirmText="Yes, Send"
+					onCancel={(): void => {
+						setShowDialog1(false);
+						setTimeout(() => navigation.goBack(), 100);
+					}}
+					onConfirm={(): void => {
+						setShowDialog1(false);
+						confirmPayment();
+					}}
+				/>
+				<Dialog
+					visible={showDialog2}
+					title="Are You Sure?"
+					description="It appears you are sending over 50% of your total balance. Do you want to continue?"
+					confirmText="Yes, Send"
+					onCancel={(): void => {
+						setShowDialog2(false);
+						setTimeout(() => navigation.goBack(), 100);
+					}}
+					onConfirm={(): void => {
+						setShowDialog2(false);
+						confirmPayment();
+					}}
+				/>
+				<Dialog
+					visible={showDialog3}
+					title="Are You Sure?"
+					description="The transaction fee appears to be over 50% of the amount you are sending. Do you want to continue?"
+					confirmText="Yes, Send"
+					onCancel={(): void => {
+						setShowDialog3(false);
+						setTimeout(() => navigation.goBack(), 100);
+					}}
+					onConfirm={(): void => {
+						setShowDialog3(false);
+						confirmPayment();
+					}}
+				/>
+				<Dialog
+					visible={showDialog4}
+					title="Are You Sure?"
+					description="The transaction fee appears to be over $10. Do you want to continue?"
+					confirmText="Yes, Send"
+					onCancel={(): void => {
+						setShowDialog4(false);
+						setTimeout(() => navigation.goBack(), 100);
+					}}
+					onConfirm={(): void => {
+						setShowDialog4(false);
+						confirmPayment();
+					}}
+				/>
+			</GradientView>
 
-			<Dialog
-				visible={showDialog1}
-				title="Are You Sure?"
-				description="It appears you are sending over $100. Do you want to continue?"
-				confirmText="Yes, Send"
-				onCancel={(): void => {
-					setShowDialog1(false);
-					setTimeout(() => navigation.goBack(), 100);
-				}}
-				onConfirm={(): void => {
-					setShowDialog1(false);
-					confirmPayment();
-				}}
-			/>
-			<Dialog
-				visible={showDialog2}
-				title="Are You Sure?"
-				description="It appears you are sending over 50% of your total balance. Do you want to continue?"
-				confirmText="Yes, Send"
-				onCancel={(): void => {
-					setShowDialog2(false);
-					setTimeout(() => navigation.goBack(), 100);
-				}}
-				onConfirm={(): void => {
-					setShowDialog2(false);
-					confirmPayment();
-				}}
-			/>
-			<Dialog
-				visible={showDialog3}
-				title="Are You Sure?"
-				description="The transaction fee appears to be over 50% of the amount you are sending. Do you want to continue?"
-				confirmText="Yes, Send"
-				onCancel={(): void => {
-					setShowDialog3(false);
-					setTimeout(() => navigation.goBack(), 100);
-				}}
-				onConfirm={(): void => {
-					setShowDialog3(false);
-					confirmPayment();
-				}}
-			/>
-			<Dialog
-				visible={showDialog4}
-				title="Are You Sure?"
-				description="The transaction fee appears to be over $10. Do you want to continue?"
-				confirmText="Yes, Send"
-				onCancel={(): void => {
-					setShowDialog4(false);
-					setTimeout(() => navigation.goBack(), 100);
-				}}
-				onConfirm={(): void => {
-					setShowDialog4(false);
-					confirmPayment();
-				}}
-			/>
-		</GradientView>
+			{showBiotmetrics && (
+				<Biometrics
+					onSuccess={(): void => {
+						setShowBiometrics(false);
+						runCreateTxMethods();
+					}}
+					onFailure={(): void => {
+						setShowBiometrics(false);
+						navigateToPin();
+					}}
+				/>
+			)}
+		</>
 	);
 };
 
