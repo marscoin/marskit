@@ -20,7 +20,7 @@ import { showSuccessNotification } from '../notifications';
 import { TGeoBlockResponse } from '../../store/types/blocktank';
 import { setGeoBlock, updateUser } from '../../store/actions/user';
 import { fiatToBitcoinUnit, getFiatDisplayValues } from '../exchange-rate';
-import { getBalance } from '../wallet';
+import { getBalance, refreshWallet } from '../wallet';
 import { IDisplayValues, IFiatDisplayValues } from '../exchange-rate/types';
 import { EBitcoinUnit } from '../../store/types/wallet';
 
@@ -161,6 +161,8 @@ export const finalizeChannel = async (
 				title: 'Lightning Channel Finalized',
 				message: 'Blocktank will open a channel shortly...',
 			});
+			// Once finalized, refresh on-chain & lightning.
+			await refreshWallet({});
 			return ok(finalizeChannelResponse);
 		}
 		return err('Unable to finalize the Blocktank channel.');
