@@ -7,7 +7,6 @@ import React, {
 	useState,
 } from 'react';
 import {
-	ActivityIndicator,
 	Animated,
 	PanResponder,
 	StyleProp,
@@ -19,8 +18,9 @@ import {
 import { View as ThemedView } from '../styles/components';
 import { Text02M } from '../styles/text';
 import { RightArrow } from '../styles/icons';
-import useColors from '../hooks/colors';
 import { IThemeColors } from '../styles/themes';
+import useColors from '../hooks/colors';
+import { LoadingSpinner } from './Spinner';
 
 const CIRCLE_SIZE = 60;
 const GRAB_SIZE = 120;
@@ -182,7 +182,7 @@ const SwipeToConfirm = ({
 							{icon}
 						</Animated.View>
 						<Animated.View style={[styles.icon, { opacity: loadingOpacity }]}>
-							<ActivityIndicator color="black" />
+							<LoadingSpinner size={34} />
 						</Animated.View>
 					</Animated.View>
 				</Animated.View>

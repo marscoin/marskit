@@ -301,6 +301,7 @@ const ElectrumConfig = ({
 
 					<View style={styles.buttons}>
 						<Button
+							style={styles.button}
 							text="Reset To Default"
 							variant="secondary"
 							size="large"
@@ -309,6 +310,7 @@ const ElectrumConfig = ({
 						/>
 						<View style={styles.divider} />
 						<Button
+							style={styles.button}
 							text="Connect To Host"
 							size="large"
 							loading={loading}
@@ -354,6 +356,9 @@ const styles = StyleSheet.create({
 	buttons: {
 		marginTop: 16,
 		flexDirection: 'row',
+	},
+	button: {
+		flex: 1,
 	},
 	divider: {
 		width: 16,

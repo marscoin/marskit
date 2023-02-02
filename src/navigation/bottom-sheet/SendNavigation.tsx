@@ -14,11 +14,11 @@ import FeeCustom from '../../screens/Wallets/Send/FeeCustom';
 import ReviewAndSend from '../../screens/Wallets/Send/ReviewAndSend';
 import Tags from '../../screens/Wallets/Send/Tags';
 import AutoRebalance from '../../screens/Wallets/Send/AutoRebalance';
+import PinCheck from '../../screens/Wallets/Send/PinCheck';
 import Result from '../../screens/Wallets/Send/Result';
 import Scanner from '../../screens/Wallets/Send/Scanner';
 import Contacts from '../../screens/Wallets/Send/Contacts';
 import CoinSelection from '../../screens/Wallets/Send/CoinSelection';
-import AuthCheck from '../../screens/Wallets/Send/SendAuthCheck';
 import { NavigationContainer } from '../../styles/components';
 import {
 	resetOnChainTransaction,
@@ -32,7 +32,7 @@ import { createNavigationContainerRef } from '@react-navigation/native';
 export type SendNavigationProp = NativeStackNavigationProp<SendStackParamList>;
 
 export type SendStackParamList = {
-	AuthCheck: { onSuccess: () => void };
+	PinCheck: { onSuccess: () => void };
 	Recipient: undefined;
 	Amount: undefined;
 	Scanner: { onScan: (data: TProcessedData) => void } | undefined;
@@ -103,8 +103,8 @@ const SendNavigation = (): ReactElement => {
 					<Stack.Screen name="ReviewAndSend" component={ReviewAndSend} />
 					<Stack.Screen name="Tags" component={Tags} />
 					<Stack.Screen name="AutoRebalance" component={AutoRebalance} />
+					<Stack.Screen name="PinCheck" component={PinCheck} />
 					<Stack.Screen name="Result" component={Result} />
-					<Stack.Screen name="AuthCheck" component={AuthCheck} />
 				</Stack.Navigator>
 			</NavigationContainer>
 		</BottomSheetWrapper>

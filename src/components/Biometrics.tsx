@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import rnBiometrics from 'react-native-biometrics';
 
 import { View, TouchableOpacity } from '../styles/components';
@@ -25,10 +26,10 @@ const getIcon = ({
 		}
 		const biometryType = biometryData?.biometryType;
 		if (biometryType === 'FaceID') {
-			return <MaterialIcons name={'face'} size={65} />;
+			return <MaterialIcons name="face" size={65} />;
 		}
 		if (biometryType === 'TouchID' || biometryType === 'Biometrics') {
-			return <Ionicons name={'ios-finger-print'} size={65} />;
+			return <Ionicons name="ios-finger-print" size={65} />;
 		}
 
 		return <></>;
@@ -56,6 +57,7 @@ const Biometrics = ({
 	style,
 	children,
 }: BiometricsComponent): ReactElement => {
+	const insets = useSafeAreaInsets();
 	const [biometryData, setBiometricData] = useState<IsSensorAvailableResult>();
 
 	useEffect(() => {
@@ -79,7 +81,7 @@ const Biometrics = ({
 				return 'Loading Biometrics...';
 			}
 			if (biometryData?.available && biometryData?.biometryType) {
-				return `${biometryData.biometryType} Enabled`;
+				return `Authenticate with ${biometryData.biometryType}`;
 			}
 			return 'It appears that your device does not support Biometric security.';
 		} catch {
@@ -97,6 +99,7 @@ const Biometrics = ({
 				rnBiometrics
 					.simplePrompt({
 						promptMessage: promptMessage || '',
+						cancelButtonText: 'Use PIN code',
 					})
 					.then(({ success }) => {
 						if (success) {
@@ -120,7 +123,7 @@ const Biometrics = ({
 	return (
 		<View color="transparent" style={[styles.container, style]}>
 			<TouchableOpacity
-				style={styles.container}
+				style={[styles.container, { paddingBottom: insets.bottom + 120 }]}
 				color="transparent"
 				activeOpacity={0.6}
 				onPress={(): void => authenticate()}
@@ -135,6 +138,7 @@ const Biometrics = ({
 
 const styles = StyleSheet.create({
 	container: {
+		...StyleSheet.absoluteFillObject,
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
