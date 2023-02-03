@@ -1126,8 +1126,9 @@ export const updateFee = ({
 		if (transactionDataResponse.isErr()) {
 			return err(transactionDataResponse.error.message);
 		}
-		transaction =
-			transactionDataResponse?.value ?? defaultBitcoinTransactionData;
+		transaction = transactionDataResponse?.value ?? {
+			...defaultBitcoinTransactionData,
+		};
 	}
 	const inputTotal = getTransactionInputValue({
 		selectedNetwork,

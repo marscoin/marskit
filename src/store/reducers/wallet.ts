@@ -6,7 +6,10 @@ import {
 	EOutput,
 	IWalletStore,
 } from '../types/wallet';
-import { defaultWalletShape, defaultWalletStoreShape } from '../shapes/wallet';
+import {
+	getDefaultWalletShape,
+	defaultWalletStoreShape,
+} from '../shapes/wallet';
 
 const wallet = (
 	state: IWalletStore = defaultWalletStoreShape,
@@ -197,7 +200,7 @@ const wallet = (
 				...state,
 				wallets: {
 					...state.wallets,
-					[selectedWallet]: defaultWalletShape,
+					[selectedWallet]: getDefaultWalletShape(),
 				},
 			};
 

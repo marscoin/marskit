@@ -60,7 +60,7 @@ import {
 import { getBoostedTransactionParents } from '../../utils/boost';
 import { updateSlashPayConfig } from '../../utils/slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
-import { defaultWalletShape, TAddressIndexInfo } from '../shapes/wallet';
+import { getDefaultWalletShape, TAddressIndexInfo } from '../shapes/wallet';
 
 const dispatch = getDispatch();
 
@@ -85,7 +85,7 @@ export const updateWallet = (
  * @return {Promise<Result<string>>}
  */
 export const createWallet = async ({
-	walletName = defaultWalletShape.id,
+	walletName = getDefaultWalletShape().id,
 	addressAmount = GENERATE_ADDRESS_AMOUNT,
 	changeAddressAmount = GENERATE_ADDRESS_AMOUNT,
 	mnemonic = '',
@@ -269,6 +269,7 @@ export const resetAddressIndexes = ({
 
 	const addressTypes = getAddressTypes();
 	const addressTypeKeys = Object.keys(addressTypes) as EAddressType[];
+	const defaultWalletShape = getDefaultWalletShape();
 	addressTypeKeys.map((addressType) => {
 		dispatch({
 			type: actions.UPDATE_ADDRESS_INDEX,
