@@ -14,12 +14,14 @@ import {
 import { IHeader } from '../../utils/types/electrum';
 import { EAvailableNetworks } from '../../utils/networks';
 import { objectKeys } from '../../utils/objectKeys';
+import cloneDeep from 'lodash.clonedeep';
 
-const cloneDeep = require('lodash.clonedeep');
+export const assetNetworks: Readonly<TAssetNetwork[]> = [
+	'bitcoin',
+	'lightning',
+];
 
-export const assetNetworks: TAssetNetwork[] = ['bitcoin', 'lightning'];
-
-export const addressTypes: IAddressTypes = {
+export const addressTypes: Readonly<IAddressTypes> = {
 	[EAddressType.p2pkh]: {
 		path: "m/44'/0'/0'/0/0",
 		type: EAddressType.p2pkh,
@@ -37,41 +39,43 @@ export const addressTypes: IAddressTypes = {
 	},
 };
 
-export const bitcoinTransaction: IWalletItem<IBitcoinTransactionData> = {
+export const bitcoinTransaction: Readonly<
+	IWalletItem<IBitcoinTransactionData>
+> = {
 	bitcoin: defaultBitcoinTransactionData,
 	bitcoinTestnet: defaultBitcoinTransactionData,
 	bitcoinRegtest: defaultBitcoinTransactionData,
 };
 
-export const numberTypeItems: IWalletItem<number> = {
+export const numberTypeItems: Readonly<IWalletItem<number>> = {
 	bitcoin: 0,
 	bitcoinTestnet: 0,
 	bitcoinRegtest: 0,
 	timestamp: null,
 };
 
-export const arrayTypeItems: IWalletItem<[]> = {
+export const arrayTypeItems: Readonly<IWalletItem<[]>> = {
 	bitcoin: [],
 	bitcoinTestnet: [],
 	bitcoinRegtest: [],
 	timestamp: null,
 };
 
-export const objectTypeItems = {
+export const objectTypeItems: Readonly<IWalletItem<{}>> = {
 	bitcoin: {},
 	bitcoinTestnet: {},
 	bitcoinRegtest: {},
 	timestamp: null,
 };
 
-export const stringTypeItems: IWalletItem<string> = {
+export const stringTypeItems: Readonly<IWalletItem<string>> = {
 	bitcoin: '',
 	bitcoinTestnet: '',
 	bitcoinRegtest: '',
 	timestamp: null,
 };
 
-export const addressContent: IAddress = {
+export const addressContent: Readonly<IAddress> = {
 	index: -1,
 	path: '',
 	address: '',
@@ -126,7 +130,7 @@ export const getAddressesShape = (): IWalletItem<
 	});
 };
 
-export const defaultKeyDerivationPath: IKeyDerivationPath = {
+export const defaultKeyDerivationPath: Readonly<IKeyDerivationPath> = {
 	purpose: '84',
 	coinType: '0',
 	account: '0',
@@ -134,13 +138,13 @@ export const defaultKeyDerivationPath: IKeyDerivationPath = {
 	addressIndex: '0',
 };
 
-export const header: IHeader = {
+export const header: Readonly<IHeader> = {
 	height: 0,
 	hash: '',
 	hex: '',
 };
 
-export const defaultWalletShape: IWallet = {
+export const defaultWalletShape: Readonly<IWallet> = {
 	id: 'wallet0',
 	name: '',
 	type: 'default',
@@ -180,7 +184,7 @@ export const defaultWalletShape: IWallet = {
 	transaction: bitcoinTransaction,
 };
 
-export const defaultWalletStoreShape: IWalletStore = {
+export const defaultWalletStoreShape: Readonly<IWalletStore> = {
 	walletExists: false,
 	selectedNetwork: EAvailableNetworks.bitcoin,
 	selectedWallet: 'wallet0',

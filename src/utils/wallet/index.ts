@@ -2574,7 +2574,7 @@ export const getAssetNames = ({
 	if (!selectedNetwork) {
 		selectedNetwork = getSelectedNetwork();
 	}
-	const assetNames: string[] = assetNetworks;
+	const assetNames: string[] = [...assetNetworks];
 	try {
 		// TODO: Grab available tokens/assets.
 	} catch {}
