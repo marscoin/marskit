@@ -10,7 +10,7 @@ import { networks, TAvailableNetworks } from '../networks';
 import {
 	assetNetworks,
 	defaultKeyDerivationPath,
-	defaultWalletShape,
+	getDefaultWalletShape,
 	defaultWalletStoreShape,
 	TAddressIndexInfo,
 } from '../../store/shapes/wallet';
@@ -1321,7 +1321,7 @@ export const getSelectedAddressType = ({
 	if (wallet?.addressType[selectedNetwork]) {
 		return wallet.addressType[selectedNetwork];
 	} else {
-		return defaultWalletShape.addressType[selectedNetwork];
+		return getDefaultWalletShape().addressType[selectedNetwork];
 	}
 };
 
@@ -2026,7 +2026,7 @@ export const formatRbfData = async (
  * @return {Promise<Result<IWallets>>}
  */
 export const createDefaultWallet = async ({
-	walletName = defaultWalletShape.id,
+	walletName = getDefaultWalletShape().id,
 	addressAmount = GENERATE_ADDRESS_AMOUNT,
 	changeAddressAmount = GENERATE_ADDRESS_AMOUNT,
 	mnemonic = '',
@@ -2059,6 +2059,7 @@ export const createDefaultWallet = async ({
 		});
 
 		const seed = await bip39.mnemonicToSeed(mnemonic, bip39Passphrase);
+		const defaultWalletShape = getDefaultWalletShape();
 
 		//Generate a set of addresses & changeAddresses for each network.
 		const addressesObj = defaultWalletShape.addresses;
@@ -2073,9 +2074,6 @@ export const createDefaultWallet = async ({
 			Object.values(addressTypes).map(async ({ type, path }) => {
 				if (!selectedNetwork) {
 					selectedNetwork = getSelectedNetwork();
-				}
-				if (selectedAddressType !== type) {
-					return;
 				}
 				const pathObject = getKeyDerivationPathObject({
 					path,
@@ -2096,14 +2094,18 @@ export const createDefaultWallet = async ({
 					return err(generatedAddresses.error);
 				}
 				const { addresses, changeAddresses } = generatedAddresses.value;
-				const addressIndexFilter = Object.values(addresses).filter(
+				const addressIndexFilter = Object.values(addresses).find(
 					(a) => a.index === 0,
 				);
-				addressIndex[selectedNetwork][type] = addressIndexFilter[0];
-				const changeAddressIndexFilter = Object.values(changeAddresses).filter(
+				if (addressIndexFilter) {
+					addressIndex[selectedNetwork][type] = addressIndexFilter;
+				}
+				const changeAddressIndexFilter = Object.values(changeAddresses).find(
 					(a) => a.index === 0,
 				);
-				changeAddressIndex[selectedNetwork][type] = changeAddressIndexFilter[0];
+				if (changeAddressIndexFilter) {
+					changeAddressIndex[selectedNetwork][type] = changeAddressIndexFilter;
+				}
 				addressesObj[selectedNetwork][type] = addresses;
 				changeAddressesObj[selectedNetwork][type] = changeAddresses;
 			}),

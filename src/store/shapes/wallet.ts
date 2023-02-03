@@ -15,6 +15,8 @@ import { IHeader } from '../../utils/types/electrum';
 import { EAvailableNetworks } from '../../utils/networks';
 import { objectKeys } from '../../utils/objectKeys';
 
+const cloneDeep = require('lodash.clonedeep');
+
 export const assetNetworks: TAssetNetwork[] = ['bitcoin', 'lightning'];
 
 export const addressTypes: IAddressTypes = {
@@ -85,7 +87,7 @@ export const getAddressTypeContent = <T>(data: T): IAddressTypeContent<T> => {
 		content[addressType] = data;
 	});
 
-	return content;
+	return cloneDeep(content);
 };
 
 export type IAddressTypeContent<T> = {
@@ -102,7 +104,7 @@ export type TAddressIndexInfo = {
 export const getAddressIndexShape = (): IWalletItem<
 	IAddressTypeContent<IAddress>
 > => {
-	return {
+	return cloneDeep({
 		[EAvailableNetworks.bitcoin]:
 			getAddressTypeContent<IAddress>(addressContent),
 		[EAvailableNetworks.bitcoinTestnet]:
@@ -110,18 +112,18 @@ export const getAddressIndexShape = (): IWalletItem<
 		[EAvailableNetworks.bitcoinRegtest]:
 			getAddressTypeContent<IAddress>(addressContent),
 		timestamp: null,
-	};
+	});
 };
 
 export const getAddressesShape = (): IWalletItem<
 	IAddressTypeContent<IAddresses>
 > => {
-	return {
+	return cloneDeep({
 		[EAvailableNetworks.bitcoin]: getAddressTypeContent<IAddresses>({}),
 		[EAvailableNetworks.bitcoinTestnet]: getAddressTypeContent<IAddresses>({}),
 		[EAvailableNetworks.bitcoinRegtest]: getAddressTypeContent<IAddresses>({}),
 		timestamp: null,
-	};
+	});
 };
 
 export const defaultKeyDerivationPath: IKeyDerivationPath = {
@@ -190,4 +192,8 @@ export const defaultWalletStoreShape: IWalletStore = {
 		bitcoinRegtest: header,
 	},
 	wallets: {},
+};
+
+export const getDefaultWalletShape = (): IWallet => {
+	return cloneDeep(defaultWalletShape);
 };
