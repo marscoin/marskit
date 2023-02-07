@@ -287,7 +287,10 @@ export const getByteCount = (
 			//Multiply by 2 to help ensure Electrum servers will broadcast the tx.
 			messageByteCount = messageByteCount * 2;
 		} catch {}
-		return Math.ceil(totalWeight / 4) + messageByteCount;
+		const res = Math.ceil(totalWeight / 4) + messageByteCount;
+		return res > ETransactionDefaults.recommendedBaseFee
+			? res
+			: ETransactionDefaults.recommendedBaseFee;
 	} catch (e) {
 		return ETransactionDefaults.recommendedBaseFee;
 	}
@@ -1342,11 +1345,8 @@ export const autoCoinSelect = async ({
 			}),
 		]);
 
-		let baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
-		if (baseFee < ETransactionDefaults.recommendedBaseFee) {
-			baseFee = ETransactionDefaults.recommendedBaseFee;
-		}
-		let fee = baseFee * satsPerByte;
+		const baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
+		const fee = baseFee * satsPerByte;
 
 		//Ensure we can still cover the transaction with the previously selected UTXO's. Add more UTXO's if not.
 		const totalTxCost = amountToSend + fee;
