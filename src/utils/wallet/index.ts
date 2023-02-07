@@ -2272,11 +2272,8 @@ export const autoCoinSelect = async ({
 			}),
 		]);
 
-		let baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
-		if (baseFee < ETransactionDefaults.recommendedBaseFee) {
-			baseFee = ETransactionDefaults.recommendedBaseFee;
-		}
-		let fee = baseFee * satsPerByte;
+		const baseFee = getByteCount(addressTypes.inputs, addressTypes.outputs);
+		const fee = baseFee * satsPerByte;
 
 		//Ensure we can still cover the transaction with the previously selected UTXO's. Add more UTXO's if not.
 		const totalTxCost = amountToSend + fee;
