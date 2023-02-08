@@ -16,6 +16,7 @@ import { Text01S, Text02S } from '../../styles/text';
 import { ClipboardTextIcon, CornersOutIcon } from '../../styles/icons';
 import type { RootStackParamList } from '../../navigation/types';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
+import { SlashURL } from '@synonymdev/slashtags-sdk';
 
 const AddContact = ({
 	navigation,
@@ -35,24 +36,32 @@ const AddContact = ({
 
 		if (url === '') {
 			return;
-		}
-
-		if (url === myProfileURL) {
+		} else if (url === myProfileURL) {
 			setError('You cannot add yourself as a contact.');
 			return;
+		} else if (!url.startsWith('slash:')) {
+			// Handle z32 key without slash: scheme prefix
+			try {
+				SlashURL.decode(url);
+				handleSlashtagURL('slash:' + url, onError, onContact);
+			} catch {
+				onError();
+			}
+		} else {
+			handleSlashtagURL(url, onError, onContact);
 		}
 
-		handleSlashtagURL(
-			url,
-			(_error) => setError('This is not a valid key.'),
-			(_url) => {
-				setAddContactURL('');
-				toggleView({
-					view: 'addContactModal',
-					data: { isOpen: false },
-				});
-			},
-		);
+		function onError(): void {
+			setError('This is not a valid key.');
+		}
+
+		function onContact(): void {
+			setAddContactURL('');
+			toggleView({
+				view: 'addContactModal',
+				data: { isOpen: false },
+			});
+		}
 	};
 
 	const pasteAddContact = async (): Promise<void> => {
