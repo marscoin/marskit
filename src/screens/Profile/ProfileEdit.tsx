@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback, memo } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { View as ThemedView } from '../../styles/components';
+import { ScrollView, View as ThemedView } from '../../styles/components';
 import { Text02S } from '../../styles/text';
 import { PlusIcon } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -120,42 +120,44 @@ export const ProfileEdit = ({
 				}}
 			/>
 			<KeyboardAvoidingView behavior="padding" style={styles.content}>
-				<ProfileCard
-					url={url}
-					editable={true}
-					resolving={false}
-					profile={profile}
-					onChange={setField}
-				/>
-				<Divider />
-				<ProfileLinks links={links} editable={true} />
-				<Button
-					text="Add Link"
-					style={styles.addLinkButton}
-					onPress={(): void => {
-						navigation.navigate('ProfileAddLink');
-					}}
-					icon={
-						<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
-					}
-				/>
-				<Divider />
-				<Text02S color="gray1">
-					Please note that all your profile information will be publicly
-					available and visible.
-				</Text02S>
+				<ScrollView style={styles.scroll}>
+					<ProfileCard
+						url={url}
+						editable={true}
+						resolving={false}
+						profile={profile}
+						onChange={setField}
+					/>
+					<Divider />
+					<ProfileLinks links={links} editable={true} />
+					<Button
+						text="Add Link"
+						style={styles.addLinkButton}
+						onPress={(): void => {
+							navigation.navigate('ProfileAddLink');
+						}}
+						icon={
+							<PlusIcon color="brand" width={16} style={styles.addLinkButton} />
+						}
+					/>
+					<Divider />
+					<Text02S color="gray1">
+						Please note that all your profile information will be publicly
+						available and visible.
+					</Text02S>
 
-				{(!onboardedProfile || hasEdited) && (
-					<View style={buttonContainerStyles}>
-						<Button
-							style={styles.button}
-							text={onboardedProfile ? 'Save Profile' : 'Continue'}
-							size="large"
-							disabled={!isValid()}
-							onPress={save}
-						/>
-					</View>
-				)}
+					{(!onboardedProfile || hasEdited) && (
+						<View style={buttonContainerStyles}>
+							<Button
+								style={styles.button}
+								text={onboardedProfile ? 'Save Profile' : 'Continue'}
+								size="large"
+								disabled={!isValid()}
+								onPress={save}
+							/>
+						</View>
+					)}
+				</ScrollView>
 			</KeyboardAvoidingView>
 			<SafeAreaInsets type="bottom" />
 		</ThemedView>
@@ -164,6 +166,9 @@ export const ProfileEdit = ({
 
 const styles = StyleSheet.create({
 	container: {
+		flex: 1,
+	},
+	scroll: {
 		flex: 1,
 	},
 	header: {
