@@ -20,11 +20,11 @@ import { useAppSelector } from '../hooks/redux';
 import { useBalance } from '../hooks/wallet';
 import Dialog from './Dialog';
 import type { RootNavigationProp } from '../navigation/types';
+import { todosSelector } from '../store/reselect/todos';
 import {
 	pinSelector,
 	showSuggestionsSelector,
 } from '../store/reselect/settings';
-import { todosSelector } from '../store/reselect/todos';
 
 const Suggestions = (): ReactElement => {
 	const navigation = useNavigation<RootNavigationProp>();
@@ -92,23 +92,13 @@ const Suggestions = (): ReactElement => {
 		[balance, navigation, pinTodoDone],
 	);
 
-	const handleOnClose = useCallback(
-		(id: TTodoType): void => {
-			const todoIndex = todos.findIndex((todo) => todo === id);
-			// avoid crash when deleting last item
-			if (todoIndex === todos.length - 1) {
-				setIndex(todos.length - 2);
-			}
-			removeTodo(id);
-		},
-		[todos],
-	);
-
 	if (!todos.length || !showSuggestions) {
 		return <></>;
 	}
 
 	const todoItems = todos.map((id) => allTodos.find((todo) => todo.id === id)!);
+	// avoid crash when deleting last item
+	const defaultIndex = Math.min(index, todos.length - 1);
 
 	return (
 		<>
@@ -117,7 +107,7 @@ const Suggestions = (): ReactElement => {
 				<Carousel
 					style={carouselStyle}
 					data={todoItems}
-					defaultIndex={index}
+					defaultIndex={defaultIndex}
 					loop={false}
 					height={170}
 					width={170}
@@ -133,7 +123,7 @@ const Suggestions = (): ReactElement => {
 							image={item.image}
 							dismissable={item.dismissable}
 							onPress={handleOnPress}
-							onClose={handleOnClose}
+							onClose={removeTodo}
 						/>
 					)}
 				/>

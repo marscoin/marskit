@@ -8,6 +8,7 @@ import { TProtocol } from '../../store/types/settings';
 
 const hardcodedPeers = require('rn-electrum-client/helpers/peers.json');
 
+const POLLING_INTERVAL = 1000 * 20;
 export const defaultElectrumPorts = ['51002', '50002', '51001', '50001'];
 
 /**
@@ -125,8 +126,6 @@ export const getPeers = async ({
 	}
 };
 
-const POLLING_INTERVAL = 1000 * 10;
-
 type ElectrumConnectionPubSub = {
 	publish: (isConnected: boolean) => void;
 	subscribe: (
@@ -139,12 +138,31 @@ type ElectrumConnectionSubscription = {
 };
 
 /**
- * PubSub for Electrum server connection
+ * Background task that checks the connection to the Electrum server with a PubSub
  * If connection was lost this will try to reconnect in the specified interval
  */
 export const electrumConnection = ((): ElectrumConnectionPubSub => {
 	let subscribers: Set<(isConnected: boolean) => void> = new Set();
 	let latestState: boolean | null = null;
+
+	setInterval(async () => {
+		try {
+			const { error } = await electrum.pingServer();
+
+			if (error) {
+				console.log('Connection to Electrum Server lost, reconnecting...');
+				const response = await connectToElectrum({});
+
+				if (response.isErr()) {
+					electrumConnection.publish(false);
+				}
+			} else {
+				electrumConnection.publish(true);
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}, POLLING_INTERVAL);
 
 	function publish(isConnected: boolean): void {
 		// Skip if no subscribers
@@ -152,14 +170,8 @@ export const electrumConnection = ((): ElectrumConnectionPubSub => {
 			return;
 		}
 
-		// Skip the first check
-		if (latestState === null) {
-			latestState = isConnected;
-			return;
-		}
-
 		// Skip if state hasn't changed
-		if (isConnected === latestState) {
+		if (latestState === isConnected) {
 			return;
 		}
 
@@ -172,27 +184,12 @@ export const electrumConnection = ((): ElectrumConnectionPubSub => {
 	): ElectrumConnectionSubscription {
 		subscribers.add(callback);
 
-		const timerId = setInterval(async () => {
-			// Check the connection
-			const { error } = await electrum.pingServer();
-			electrumConnection.publish(!error);
-
-			// Try to reconnect
-			if (error) {
-				connectToElectrum({});
-			}
-		}, POLLING_INTERVAL);
-
 		return {
 			remove: (): void => {
-				clearInterval(timerId);
 				subscribers.delete(callback);
 			},
 		};
 	}
 
-	return {
-		publish,
-		subscribe,
-	};
+	return { publish, subscribe };
 })();
