@@ -10,7 +10,6 @@ import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { RefreshControl, ScrollView } from 'react-native-gesture-handler';
 
-import { View as ThemedView } from '../../styles/components';
 import { useNoTransactions } from '../../hooks/wallet';
 import useColors from '../../hooks/colors';
 import { updateSettings } from '../../store/actions/settings';
@@ -96,33 +95,28 @@ const Wallets = ({
 							tintColor={colors.refreshControl}
 						/>
 					}>
-					<ThemedView
-						style={styles.content}
-						// prevent touch event propagating
-						onStartShouldSetResponder={(): boolean => true}>
-						<DetectSwipe
-							onSwipeLeft={toggleHideBalance}
-							onSwipeRight={toggleHideBalance}>
-							<View>
-								<BalanceHeader />
-							</View>
-						</DetectSwipe>
+					<DetectSwipe
+						onSwipeLeft={toggleHideBalance}
+						onSwipeRight={toggleHideBalance}>
+						<View>
+							<BalanceHeader />
+						</View>
+					</DetectSwipe>
 
-						{hideOnboarding ? (
-							<>
-								<Suggestions />
-								<View style={styles.contentPadding}>
-									<ConnectivityIndicator />
-									<Assets />
-									<Widgets />
-									<ActivityListShort />
-									<BetaWarning />
-								</View>
-							</>
-						) : (
-							<EmptyWallet />
-						)}
-					</ThemedView>
+					{hideOnboarding ? (
+						<>
+							<Suggestions />
+							<View style={styles.contentPadding}>
+								<ConnectivityIndicator />
+								<Assets />
+								<Widgets />
+								<ActivityListShort />
+								<BetaWarning />
+							</View>
+						</>
+					) : (
+						<EmptyWallet />
+					)}
 				</ScrollView>
 			</DetectSwipe>
 		</SafeAreaView>

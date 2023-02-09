@@ -99,9 +99,8 @@ const App = (): ReactElement => {
 		<ThemeProvider theme={currentTheme}>
 			<SafeAreaProvider>
 				<StatusBar />
-				<Pressable style={styles.tapListener} onPress={onAppPress}>
-					<RootComponent />
-				</Pressable>
+				<Pressable style={styles.tapListener} onPress={onAppPress} />
+				<RootComponent />
 				<Toast config={toastConfig} />
 			</SafeAreaProvider>
 		</ThemeProvider>
@@ -110,6 +109,7 @@ const App = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	tapListener: {
+		...StyleSheet.absoluteFillObject,
 		flex: 1,
 	},
 });
