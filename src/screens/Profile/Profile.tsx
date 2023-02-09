@@ -34,6 +34,7 @@ import {
 	UsersIcon,
 } from '../../styles/icons';
 import { BasicProfile } from '../../store/types/slashtags';
+import { onboardingProfileStepSelector } from '../../store/reselect/slashtags';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { truncate } from '../../utils/helpers';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -46,10 +47,17 @@ import IconButton from '../../components/IconButton';
 import ProfileEdit from './ProfileEdit';
 import { ProfileIntro, OfflinePayments } from './ProfileOnboarding';
 import type { RootStackScreenProps } from '../../navigation/types';
-import { onboardingProfileStepSelector } from '../../store/reselect/slashtags';
 
 const Profile = memo((props: RootStackScreenProps<'Profile'>): ReactElement => {
+	const { url } = useSelectedSlashtag();
+	const { profile } = useProfile(url);
 	const onboardingProfileStep = useSelector(onboardingProfileStepSelector);
+
+	// TEMP: remove after full backups are working
+	// skip onboarding if we have a profile already
+	if (profile.name) {
+		return <ProfileScreen {...props} />;
+	}
 
 	switch (onboardingProfileStep) {
 		case 'Intro':
@@ -59,7 +67,6 @@ const Profile = memo((props: RootStackScreenProps<'Profile'>): ReactElement => {
 		case 'OfflinePayments':
 			return <OfflinePayments {...props} />;
 		case 'Done':
-			return <ProfileScreen {...props} />;
 		default:
 			return <ProfileScreen {...props} />;
 	}
