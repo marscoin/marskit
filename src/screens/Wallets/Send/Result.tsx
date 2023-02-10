@@ -193,7 +193,10 @@ const Result = ({
 		<GradientView style={styles.container}>
 			<>
 				{success && (
-					<View style={styles.confetti} pointerEvents="none">
+					<View
+						testID="SendSuccess"
+						style={styles.confetti}
+						pointerEvents="none">
 						<Lottie ref={animationRef} source={confettiSrc} autoPlay loop />
 					</View>
 				)}
@@ -224,6 +227,7 @@ const Result = ({
 					size="large"
 					text={closeText}
 					onPress={handleClose}
+					testID="Close"
 				/>
 				{!success && (
 					<>

@@ -92,6 +92,7 @@ const NewTxPrompt = (): ReactElement => {
 							sats={activityItem.value}
 							reverse={true}
 							onPress={handlePress}
+							testID="NewTxPrompt"
 						/>
 					)}
 				</View>
