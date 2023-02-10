@@ -289,7 +289,7 @@ const Receive = ({
 			} catch (error) {
 				console.log(error);
 			} finally {
-				setIsSharing(true);
+				setIsSharing(false);
 			}
 		},
 		[],
