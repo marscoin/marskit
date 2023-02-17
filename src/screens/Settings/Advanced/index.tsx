@@ -12,6 +12,7 @@ import {
 } from '../../../store/reselect/wallet';
 import type { SettingsScreenProps } from '../../../navigation/types';
 import { rescanAddresses } from '../../../utils/wallet';
+import { updateTransactions } from '../../../store/actions/wallet';
 
 const typesDescriptions = {
 	[EAddressType.p2wpkh]: 'Native Segwit',
@@ -68,6 +69,13 @@ const AdvancedSettings = ({
 				onPress: async (): Promise<void> => {
 					setRescanning(true);
 					await rescanAddresses({ selectedWallet, selectedNetwork });
+					await updateTransactions({
+						scanAllAddresses: true,
+						replaceStoredTransactions: true,
+						selectedWallet,
+						selectedNetwork,
+						showNotification: false,
+					});
 					setRescanning(false);
 				},
 			},
