@@ -621,13 +621,23 @@ export interface ITransactionData {
 	value: number;
 }
 
+/**
+ * Retrieves, formats & stores the transaction history for the selected wallet/network.
+ * @param {boolean} [scanAllAddresses]
+ * @param {boolean} [replaceStoredTransactions] Setting this to true will set scanAllAddresses to true as well.
+ * @param {boolean} [showNotification]
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ */
 export const updateTransactions = async ({
 	scanAllAddresses = false,
+	replaceStoredTransactions = false,
 	showNotification = true,
 	selectedWallet,
 	selectedNetwork,
 }: {
 	scanAllAddresses?: boolean;
+	replaceStoredTransactions?: boolean;
 	showNotification?: boolean;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
@@ -646,7 +656,7 @@ export const updateTransactions = async ({
 	const history = await getAddressHistory({
 		selectedNetwork,
 		selectedWallet,
-		scanAllAddresses,
+		scanAllAddresses: scanAllAddresses || replaceStoredTransactions,
 	});
 	if (history.isErr()) {
 		return err(history.error.message);
@@ -671,6 +681,20 @@ export const updateTransactions = async ({
 	});
 	if (formatTransactionsResponse.isErr()) {
 		return err(formatTransactionsResponse.error.message);
+	}
+
+	if (replaceStoredTransactions) {
+		// No need to check the existing txs. Update with the returned formatTransactionsResponse.
+		dispatch({
+			type: actions.UPDATE_TRANSACTIONS,
+			payload: {
+				transactions: formatTransactionsResponse.value,
+				selectedNetwork,
+				selectedWallet,
+			},
+		});
+		updateSlashPayConfig({ sdk, selectedWallet, selectedNetwork });
+		return ok(formatTransactionsResponse.value);
 	}
 	const formattedTransactions: IFormattedTransactions = {};
 	const storedTransactions = currentWallet.transactions[selectedNetwork];

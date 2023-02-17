@@ -1485,7 +1485,7 @@ export const getInputData = async ({
 					? [vout.scriptPubKey.address]
 					: [];
 				const value = vout.value;
-				const key = data.tx_hash;
+				const key = `${data.tx_hash}${vout.n}`;
 				inputData[key] = { addresses, value };
 			});
 		}
@@ -1543,38 +1543,36 @@ export const formatTransactions = async ({
 	let addresses = {} as IAddresses;
 	let changeAddresses = {} as IAddresses;
 
-	await Promise.all([
-		addressTypes.map((addressType) => {
-			// Check if addresses of this type have been generated. If not, skip.
-			if (Object.keys(currentAddresses[addressType])?.length > 0) {
-				addresses = { ...addresses, ...currentAddresses[addressType] };
-			}
-		}),
-		addressTypes.map((addressType) => {
-			// Check if change addresses of this type have been generated. If not, skip.
-			if (Object.keys(currentChangeAddresses[addressType])?.length > 0) {
-				changeAddresses = {
-					...changeAddresses,
-					...currentChangeAddresses[addressType],
-				};
-			}
-		}),
-	]);
+	addressTypes.map((addressType) => {
+		// Check if addresses of this type have been generated. If not, skip.
+		if (Object.keys(currentAddresses[addressType])?.length > 0) {
+			addresses = { ...addresses, ...currentAddresses[addressType] };
+		}
+	});
+	addressTypes.map((addressType) => {
+		// Check if change addresses of this type have been generated. If not, skip.
+		if (Object.keys(currentChangeAddresses[addressType])?.length > 0) {
+			changeAddresses = {
+				...changeAddresses,
+				...currentChangeAddresses[addressType],
+			};
+		}
+	});
 
-	const addressScriptHashes = Object.keys(addresses);
-	const changeAddressScriptHashes = Object.keys(changeAddresses);
-	const [addressArray, changeAddressArray] = await Promise.all([
-		addressScriptHashes.map((key) => {
-			return addresses[key].address;
-		}),
-		changeAddressScriptHashes.map((key) => {
-			return changeAddresses[key].address;
-		}),
-	]);
+	// Create combined address/change-address object for easier/faster reference later on.
+	const combinedAddressObj: { [key: string]: IAddress } = {};
+	[...Object.values(addresses), ...Object.values(changeAddresses)].map(
+		(data) => {
+			combinedAddressObj[data.address] = data;
+		},
+	);
 
 	const formattedTransactions: IFormattedTransactions = {};
+	transactions.map(async ({ data, result }) => {
+		if (!result?.txid) {
+			return;
+		}
 
-	transactions.map(({ data, result }) => {
 		let totalInputValue = 0; // Total value of all inputs.
 		let matchedInputValue = 0; // Total value of all inputs with addresses that belong to this wallet.
 		let totalOutputValue = 0; // Total value of all outputs.
@@ -1583,7 +1581,7 @@ export const formatTransactions = async ({
 
 		//Iterate over each input
 		const vin = result?.vin ?? [];
-		vin.map(({ txid, scriptSig }) => {
+		vin.map(({ txid, scriptSig, vout }) => {
 			//Push any OP_RETURN messages to messages array
 			try {
 				const asm = scriptSig.asm;
@@ -1593,14 +1591,11 @@ export const formatTransactions = async ({
 				}
 			} catch {}
 
-			const { addresses: _addresses, value } = inputData[txid];
+			const { addresses: _addresses, value } = inputData[`${txid}${vout}`];
 			totalInputValue = totalInputValue + value;
 			Array.isArray(_addresses) &&
 				_addresses.map((address) => {
-					if (
-						addressArray.includes(address) ||
-						changeAddressArray.includes(address)
-					) {
+					if (address in combinedAddressObj) {
 						matchedInputValue = matchedInputValue + value;
 					}
 				});
@@ -1617,18 +1612,11 @@ export const formatTransactions = async ({
 			totalOutputValue = totalOutputValue + value;
 			Array.isArray(_addresses) &&
 				_addresses.map((address) => {
-					if (
-						addressArray.includes(address) ||
-						changeAddressArray.includes(address)
-					) {
+					if (address in combinedAddressObj) {
 						matchedOutputValue = matchedOutputValue + value;
 					}
 				});
 		});
-
-		if (!result?.txid) {
-			return;
-		}
 
 		const txid = result.txid;
 		const type =
