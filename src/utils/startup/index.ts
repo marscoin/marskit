@@ -160,7 +160,7 @@ export const startWalletServices = async ({
 
 		if (onchain || lightning) {
 			await Promise.all([
-				updateOnchainFeeEstimates({ selectedNetwork }),
+				updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true }),
 				// if we restore wallet, we need to generate addresses for all types
 				refreshWallet({
 					onchain: isConnectedToElectrum,

@@ -128,6 +128,7 @@ const ReviewAndSend = ({
 	const [showDialog2, setShowDialog2] = useState(false);
 	const [showDialog3, setShowDialog3] = useState(false);
 	const [showDialog4, setShowDialog4] = useState(false);
+	const [showDialog5, setShowDialog5] = useState(false);
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string }>();
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 
@@ -493,6 +494,16 @@ const ReviewAndSend = ({
 			return;
 		}
 
+		// Check if the user is setting the minimum relay fee given the current fee environment.
+		if (
+			transaction?.satsPerByte &&
+			// This check is to prevent situations where all values are set to 1sat/vbyte. Where setting 1sat/vbyte is perfectly fine.
+			feeEstimates.minimum < feeEstimates.slow &&
+			transaction.satsPerByte <= feeEstimates.minimum
+		) {
+			setShowDialog5(true);
+		}
+
 		// fee > 50% of send amount
 		if (!transaction?.lightningInvoice && feeSats > amount / 2) {
 			setShowDialog3(true);
@@ -506,7 +517,10 @@ const ReviewAndSend = ({
 		bitcoinUnit,
 		feeSats,
 		transaction?.lightningInvoice,
+		transaction.satsPerByte,
 		enableSendAmountWarning,
+		feeEstimates.minimum,
+		feeEstimates.slow,
 		confirmPayment,
 		lightningBalance.localBalance,
 		onChainBalance,
@@ -759,6 +773,19 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={(): void => {
 						setShowDialog4(false);
+						confirmPayment();
+					}}
+				/>
+				<Dialog
+					visible={showDialog5}
+					title="Fee is potentially too low"
+					description={`The fee you are trying to set is below ${feeEstimates.minimum} sats and may be too low due to current network conditions. This transaction may fail, take a while to confirm, or get trimmed from the mempool. Do you wish to proceed?`}
+					onCancel={(): void => {
+						setShowDialog5(false);
+						setTimeout(() => navigation.goBack(), 100);
+					}}
+					onConfirm={async (): Promise<void> => {
+						setShowDialog5(false);
 						confirmPayment();
 					}}
 				/>
