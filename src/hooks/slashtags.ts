@@ -26,9 +26,15 @@ export const useSelectedSlashtag = (): {
 /**
  * Watches the public profile of a local or remote slashtag by its url.
  * Overrides name property if it is saved as a contact record!
+ *
+ * Note: by default it will _NOT_ resolve profile from remote peers (or seeder)
+ * to avoid unnecessary UI blocking. Use `opts.resolve = true` if needed.
  */
 export const useProfile = (
 	url: string,
+	opts?: {
+		resolve?: boolean;
+	},
 ): { resolving: boolean; profile: BasicProfile } => {
 	const sdk = useSlashtagsSDK();
 	const contactRecord = useSlashtags().contacts[url];
@@ -43,7 +49,14 @@ export const useProfile = (
 			: profile;
 	}, [profile, contactRecord]);
 
+	const shouldResolve = opts?.resolve ? true : false;
+
 	useEffect(() => {
+		// Skip resolving profile from peers to avoid blocking UI
+		if (!shouldResolve) {
+			return;
+		}
+
 		let unmounted = false;
 		if (sdk.closed) {
 			console.debug('useProfile: SKIP sdk is closed');
@@ -82,7 +95,7 @@ export const useProfile = (
 			drive.core.removeAllListeners();
 			drive.close();
 		};
-	}, [url, sdk]);
+	}, [url, sdk, shouldResolve]);
 
 	return {
 		resolving,

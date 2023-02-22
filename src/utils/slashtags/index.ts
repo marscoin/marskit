@@ -19,6 +19,7 @@ import { createLightningInvoice } from '../../store/actions/lightning';
 import { getSettingsStore } from '../../store/helpers';
 import { TAvailableNetworks } from '../networks';
 import { TWalletName } from '../../store/types/wallet';
+import { cacheProfile } from '../../store/actions/slashtags';
 
 /**
  * Handles pasting or scanning a slash:// url
@@ -91,6 +92,8 @@ export const saveProfile = async (
 			message: error.message,
 		}),
 	);
+
+	cacheProfile(slashtag.url, drive.files.feed.fork, drive.version, profile);
 
 	drive.close();
 };
