@@ -129,6 +129,7 @@ const ReviewAndSend = ({
 	const [showDialog3, setShowDialog3] = useState(false);
 	const [showDialog4, setShowDialog4] = useState(false);
 	const [showDialog5, setShowDialog5] = useState(false);
+	const [dialogWarnings, setDialogWarnings] = useState<string[]>([]);
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string }>();
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 
@@ -424,18 +425,54 @@ const ReviewAndSend = ({
 		});
 	}, [navigation, runCreateTxMethods]);
 
-	const confirmPayment = useCallback(async () => {
-		if (pin && pinForPayments) {
-			if (biometrics) {
-				setShowBiometrics(true);
-			} else {
-				setIsLoading(false);
-				navigateToPin();
-			}
-		} else {
-			runCreateTxMethods();
+	const showDialogWarning = useCallback((dialogId) => {
+		switch (dialogId) {
+			case 'dialog1':
+				setShowDialog1(true);
+				break;
+			case 'dialog2':
+				setShowDialog2(true);
+				break;
+			case 'dialog3':
+				setShowDialog3(true);
+				break;
+			case 'dialog4':
+				setShowDialog4(true);
+				break;
+			case 'dialog5':
+				setShowDialog5(true);
+				break;
 		}
-	}, [pin, pinForPayments, biometrics, navigateToPin, runCreateTxMethods]);
+	}, []);
+
+	const confirmPayment = useCallback(
+		(warnings: string[] = []) => {
+			if (warnings.length > 0) {
+				showDialogWarning(warnings[0]);
+				setDialogWarnings(warnings.slice(1));
+				return;
+			}
+
+			if (pin && pinForPayments) {
+				if (biometrics) {
+					setShowBiometrics(true);
+				} else {
+					setIsLoading(false);
+					navigateToPin();
+				}
+			} else {
+				runCreateTxMethods();
+			}
+		},
+		[
+			biometrics,
+			navigateToPin,
+			pin,
+			pinForPayments,
+			runCreateTxMethods,
+			showDialogWarning,
+		],
+	);
 
 	const handleTagRemove = useCallback(
 		(tag: string) => {
@@ -451,6 +488,7 @@ const ReviewAndSend = ({
 	);
 
 	const onSwipeToPay = useCallback(async () => {
+		const warnings: string[] = [];
 		setIsLoading(true);
 
 		const { fiatValue: amountFiat } = getFiatDisplayValues({
@@ -471,27 +509,23 @@ const ReviewAndSend = ({
 		if (transaction?.lightningInvoice) {
 			// If lightning tx use lightning balance.
 			if (amount > lightningBalance.localBalance / 2) {
-				setShowDialog2(true);
-				return;
+				warnings.push('dialog2');
 			}
 		} else {
 			// If on-chain tx use on-chain balance.
 			if (amount > onChainBalance / 2) {
-				setShowDialog2(true);
-				return;
+				warnings.push('dialog2');
 			}
 		}
 
 		// amount > 100$ and enableSendAmountWarning
 		if (amountFiat > 100 && enableSendAmountWarning) {
-			setShowDialog1(true);
-			return;
+			warnings.push('dialog1');
 		}
 
 		// fee > 10$
 		if (feeFiat > 10) {
-			setShowDialog4(true);
-			return;
+			warnings.push('dialog4');
 		}
 
 		// Check if the user is setting the minimum relay fee given the current fee environment.
@@ -501,16 +535,14 @@ const ReviewAndSend = ({
 			feeEstimates.minimum < feeEstimates.slow &&
 			transaction.satsPerByte <= feeEstimates.minimum
 		) {
-			setShowDialog5(true);
+			warnings.push('dialog5');
 		}
 
 		// fee > 50% of send amount
 		if (!transaction?.lightningInvoice && feeSats > amount / 2) {
-			setShowDialog3(true);
-			return;
+			warnings.push('dialog3');
 		}
-
-		confirmPayment();
+		confirmPayment(warnings);
 	}, [
 		amount,
 		exchangeRates,
@@ -730,7 +762,7 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={(): void => {
 						setShowDialog1(false);
-						confirmPayment();
+						confirmPayment(dialogWarnings);
 					}}
 				/>
 				<Dialog
@@ -744,7 +776,7 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={(): void => {
 						setShowDialog2(false);
-						confirmPayment();
+						confirmPayment(dialogWarnings);
 					}}
 					visibleTestID="DialogSend50"
 				/>
@@ -759,7 +791,7 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={(): void => {
 						setShowDialog3(false);
-						confirmPayment();
+						confirmPayment(dialogWarnings);
 					}}
 				/>
 				<Dialog
@@ -773,7 +805,7 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={(): void => {
 						setShowDialog4(false);
-						confirmPayment();
+						confirmPayment(dialogWarnings);
 					}}
 				/>
 				<Dialog
@@ -786,7 +818,7 @@ const ReviewAndSend = ({
 					}}
 					onConfirm={async (): Promise<void> => {
 						setShowDialog5(false);
-						confirmPayment();
+						confirmPayment(dialogWarnings);
 					}}
 				/>
 			</GradientView>
