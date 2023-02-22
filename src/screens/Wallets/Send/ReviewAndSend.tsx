@@ -446,10 +446,10 @@ const ReviewAndSend = ({
 	}, []);
 
 	const confirmPayment = useCallback(
-		(dialogs: string[] = []) => {
-			if (dialogs.length > 0) {
-				showDialogWarning(dialogs[0]);
-				setDialogWarnings(dialogs.slice(1));
+		(warnings: string[] = []) => {
+			if (warnings.length > 0) {
+				showDialogWarning(warnings[0]);
+				setDialogWarnings(warnings.slice(1));
 				return;
 			}
 
