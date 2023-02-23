@@ -11,7 +11,7 @@ import lm, {
 	TAccount,
 	TAccountBackup,
 	TChannel,
-	TChannelManagerPayment,
+	TChannelManagerClaim,
 	TChannelManagerPaymentSent,
 	TCloseChannelReq,
 	TCreatePaymentReq,
@@ -279,7 +279,7 @@ export const handleLightningPaymentSubscription = async ({
 	selectedWallet,
 	selectedNetwork,
 }: {
-	payment: TChannelManagerPayment;
+	payment: TChannelManagerClaim;
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<void> => {
@@ -346,7 +346,7 @@ export const subscribeToLightningPayments = ({
 	if (!paymentSubscription) {
 		paymentSubscription = ldk.onEvent(
 			EEventTypes.channel_manager_payment_claimed,
-			(res: TChannelManagerPayment) => {
+			(res: TChannelManagerClaim) => {
 				handleLightningPaymentSubscription({
 					payment: res,
 					selectedNetwork,

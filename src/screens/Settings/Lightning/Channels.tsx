@@ -69,7 +69,7 @@ import { SettingsScreenProps } from '../../../navigation/types';
 /**
  * Convert pending (non-channel) blocktank orders to (fake) channels.
  * @param {IGetOrderResponse[]} orders
- * @param {nodeKey} string
+ * @param {string} nodeKey
  */
 const getPendingBlocktankChannels = (
 	orders: IGetOrderResponse[],
@@ -82,7 +82,7 @@ const getPendingBlocktankChannels = (
 	const failedOrders: TChannel[] = [];
 
 	orders.forEach((order) => {
-		const fakeChannel = {
+		const fakeChannel: TChannel = {
 			channel_id: order._id,
 			is_public: false,
 			is_usable: false,
@@ -92,11 +92,14 @@ const getPendingBlocktankChannels = (
 			counterparty_node_id: nodeKey,
 			funding_txid: order.channel_open_tx?.transaction_id,
 			// channel_type: string,
-			user_channel_id: 0,
+			user_channel_id: '0',
 			// short_channel_id: number,
 			inbound_capacity_sat: order.local_balance,
 			outbound_capacity_sat: order.remote_balance,
 			channel_value_satoshis: order.local_balance + order.remote_balance,
+			short_channel_id: order._id,
+			config_forwarding_fee_base_msat: 0,
+			config_forwarding_fee_proportional_millionths: 0,
 		};
 
 		if ([0, 100, 150, 200].includes(order.state)) {
