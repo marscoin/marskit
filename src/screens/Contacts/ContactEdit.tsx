@@ -22,7 +22,7 @@ export const ContactEdit = ({
 	const url = route.params.url;
 	const saved = useSlashtags().contacts[url];
 	const { slashtag } = useSelectedSlashtag();
-	const contact = useProfile(url);
+	const contact = useProfile(url, { resolve: !saved });
 	const { keyboardShown } = useKeyboard();
 	const [form, setForm] = useState<BasicProfile>(saved || {});
 
