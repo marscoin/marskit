@@ -35,9 +35,11 @@ export const ProfileEdit = ({
 	const { url, slashtag } = useSelectedSlashtag();
 	const { profile: savedProfile } = useProfile(url);
 
+	// TODO: after full backup, onboarding step should be set to DONE
+	// for now, we check if there is a savedProfile as a sign of onboarding done.
 	const onboardedProfile =
 		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
-		'Done';
+			'Done' || !!savedProfile;
 
 	const buttonContainerStyles = useMemo(
 		() => ({
