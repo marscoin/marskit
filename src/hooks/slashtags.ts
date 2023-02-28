@@ -27,8 +27,10 @@ export const useSelectedSlashtag = (): {
  * Watches the public profile of a local or remote slashtag by its url.
  * Overrides name property if it is saved as a contact record!
  *
- * Note: by default it will _NOT_ resolve profile from remote peers (or seeder)
- * to avoid unnecessary UI blocking. Use `opts.resolve = true` if needed.
+ * @param {boolean} [opts.resolve = false]
+ * Resolve profile updates from remote peers (or seeder).
+ * Defaults to false.
+ * To force resolving profiles set `opts.resolve = true`.
  */
 export const useProfile = (
 	url: string,
@@ -49,7 +51,7 @@ export const useProfile = (
 			: profile;
 	}, [profile, contactRecord]);
 
-	const shouldResolve = opts?.resolve ? true : false;
+	const shouldResolve = Boolean(opts?.resolve);
 
 	useEffect(() => {
 		// Skip resolving profile from peers to avoid blocking UI

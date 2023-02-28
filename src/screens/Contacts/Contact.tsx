@@ -49,7 +49,7 @@ export const Contact = ({
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 
-	const { profile } = useProfile(url);
+	const { profile } = useProfile(url, { resolve: true });
 	const { slashtag } = useSelectedSlashtag();
 	const sdk = useSlashtagsSDK();
 	const contactRecord = useSlashtags().contacts[url];
