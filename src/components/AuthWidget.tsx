@@ -35,7 +35,7 @@ const AuthWidget = ({
 	const [showButtons, setShowButtons] = useState(false);
 	const [showDialog, setShowDialog] = useState(false);
 
-	const { profile } = useProfile(url);
+	const { profile } = useProfile(url, { resolve: true });
 	const { slashtag } = useSelectedSlashtag();
 
 	const switchShowButtons = (): void => {
