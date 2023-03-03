@@ -24,6 +24,7 @@ import { useProfile } from '../../hooks/slashtags';
 import { useFeeText } from '../../hooks/fees';
 import { EPaymentType } from '../../store/types/wallet';
 import { slashTagsUrlSelector } from '../../store/reselect/metadata';
+import { truncate } from '../../utils/helpers';
 
 export const ListItem = ({
 	title,
@@ -44,7 +45,7 @@ export const ListItem = ({
 			<View>
 				<Text01M>{title}</Text01M>
 				<Caption13M style={styles.description} color="gray1" numberOfLines={1}>
-					{description}
+					{truncate(description, 35)}
 				</Caption13M>
 			</View>
 		</View>

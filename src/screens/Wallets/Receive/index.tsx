@@ -314,16 +314,17 @@ const Receive = ({
 		return (
 			<View style={styles.slide}>
 				<TouchableOpacity
+					style={styles.qrCode}
 					color="white"
 					activeOpacity={1}
 					onPress={(): void => handleCopy(uri, 'unified')}
 					onLongPress={handleCopyQrCode}
-					style={styles.qrCode}
 					testID="QRCode"
 					accessibilityLabel={uri}>
 					<QRCode
 						value={uri}
 						size={qrSize}
+						quietZone={16}
 						getRef={(c): void => {
 							if (c) {
 								c.toDataURL((data: string) => (qrRef.current = data));
@@ -552,11 +553,11 @@ const styles = StyleSheet.create({
 	},
 	qrCode: {
 		borderRadius: 10,
-		padding: 16,
 		position: 'relative',
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginBottom: 32,
+		overflow: 'hidden',
 	},
 	qrIconContainer: {
 		...StyleSheet.absoluteFillObject,
