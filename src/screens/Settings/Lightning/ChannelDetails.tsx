@@ -30,7 +30,10 @@ import {
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
 import { enableDevOptionsSelector } from '../../../store/reselect/settings';
-import { openChannelIdsSelector } from '../../../store/reselect/lightning';
+import {
+	channelIsOpenSelector,
+	openChannelIdsSelector,
+} from '../../../store/reselect/lightning';
 import { getStateMessage } from '../../../utils/blocktank';
 import {
 	ArrowCounterClock,
@@ -41,6 +44,7 @@ import {
 	XIcon,
 } from '../../../styles/icons';
 import type { SettingsScreenProps } from '../../../navigation/types';
+import { useAppSelector } from '../../../hooks/redux';
 
 export const getOrderStatus = (state: number): React.FC<SvgProps> => {
 	// possible order states
@@ -189,6 +193,15 @@ const ChannelDetails = ({
 
 	const openChannelIds = useSelector((state: Store) => {
 		return openChannelIdsSelector(state, selectedWallet, selectedNetwork);
+	});
+
+	const channelIsOpen = useAppSelector((state) => {
+		return channelIsOpenSelector(
+			state,
+			selectedWallet,
+			selectedNetwork,
+			channel.channel_id,
+		);
 	});
 
 	// TODO: show status for non-blocktank channels
@@ -503,16 +516,18 @@ const ChannelDetails = ({
 							<View style={styles.divider} />
 						</>
 					)}
-					<Button
-						style={styles.button}
-						text={t('close_conn')}
-						size="large"
-						onPress={(): void =>
-							navigation.navigate('CloseConnection', {
-								channelId: channel.channel_id,
-							})
-						}
-					/>
+					{channelIsOpen && (
+						<Button
+							style={styles.button}
+							text={t('close_conn')}
+							size="large"
+							onPress={(): void =>
+								navigation.navigate('CloseConnection', {
+									channelId: channel.channel_id,
+								})
+							}
+						/>
+					)}
 				</View>
 
 				<SafeAreaInsets type="bottom" />

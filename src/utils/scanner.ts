@@ -295,9 +295,11 @@ export const decodeQRData = async (
 		data.toLowerCase().startsWith('lnbc') ||
 		data.toLowerCase().startsWith('lnurl')
 	) {
-		//If it's a lightning URI
-		let invoice = data.replace('lightning:', '').toLowerCase();
-
+		//If it's a lightning URI, remove "lightning:", everything to the left of it.
+		let invoice = data
+			.replace(/^.*?(lightning:)/i, '')
+			.trim()
+			.toLowerCase();
 		//Attempt to handle any lnurl request.
 		if (invoice.startsWith('lnurl')) {
 			const res = await getLNURLParams(invoice);
