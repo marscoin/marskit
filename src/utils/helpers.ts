@@ -251,10 +251,6 @@ export const truncate = (text: string, length: number): string => {
  * @returns {string}
  */
 export const ellipse = (text: string, length: number = 15): string => {
-	if (!text) {
-		return '...';
-	}
-
 	const leftLength = (length - 3) / 2;
 	const rightLength = (length - 3) / 2;
 
