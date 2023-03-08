@@ -196,12 +196,11 @@ const ChannelDetails = ({
 	});
 
 	const channelIsOpen = useAppSelector((state) => {
-		const channelId = channel?.channel_id ?? ''; //If a channel is not confirmed it's likely a channel id is not yet assigned.
 		return channelIsOpenSelector(
 			state,
 			selectedWallet,
 			selectedNetwork,
-			channelId,
+			channel.channel_id,
 		);
 	});
 
