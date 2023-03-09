@@ -61,7 +61,7 @@ export const useFeedWidget = ({
 
 		return function cleanup() {
 			unmounted = true;
-			drive.close();
+			drive.core.removeAllListeners();
 		};
 	}, [url, sdk, feed]);
 
