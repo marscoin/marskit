@@ -75,7 +75,19 @@ export const decodeWidgetFieldValue = (
 
 			return json;
 
-		default:
-			return buf && b4a.toString(buf).slice(0, 35);
+		default: {
+			let val: any = buf && b4a.toString(buf).slice(0, 35);
+			// Remove extra JSON stringification
+			if (typeof val === 'string') {
+				try {
+					val = JSON.parse(val);
+				} catch {}
+			}
+			// Avoid [object Object]
+			if (typeof val === 'object') {
+				val = JSON.stringify(val);
+			}
+			return val;
+		}
 	}
 };
