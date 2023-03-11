@@ -37,7 +37,7 @@ export const FeedWidget = ({
 		<BaseFeedWidget
 			url={url}
 			name={name || widget.feed.name}
-			label={widget.feed.field.name}
+			label={widget.feed.field?.name}
 			isEditing={isEditing}
 			onLongPress={onLongPress}
 			right={<DefaultRightComponent value={value?.toString()} />}

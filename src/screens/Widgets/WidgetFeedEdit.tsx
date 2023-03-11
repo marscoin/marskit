@@ -153,7 +153,7 @@ export const WidgetFeedEdit = ({
 				type: config.type,
 				description: config.description,
 				icon: config.icon,
-				field: config.fields?.find((f) => f.name === selectedField),
+				field: config.fields?.find?.((f) => f.name === selectedField),
 			} as IWidget['feed']);
 		}
 
@@ -175,7 +175,7 @@ export const WidgetFeedEdit = ({
 			description: config.description ?? '',
 			icon: config.icon ?? '',
 			type: config.type ?? '',
-			field: config.fields?.find((f) => f.name === selectedField)!,
+			field: config.fields?.find?.((f) => f.name === selectedField),
 		},
 	};
 

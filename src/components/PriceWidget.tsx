@@ -111,7 +111,7 @@ const PriceWidget = ({
 	useEffect(() => {
 		let unmounted = false;
 
-		if (!drive) {
+		if (!drive || !widget.feed.field?.files[period]) {
 			return;
 		}
 		drive
@@ -126,7 +126,7 @@ const PriceWidget = ({
 		return function cleanup() {
 			unmounted = true;
 		};
-	}, [drive, widget.feed.field.files, period]);
+	}, [drive, widget.feed.field?.files, period]);
 
 	const change = useMemo((): {
 		color: keyof IThemeColors;
@@ -150,7 +150,7 @@ const PriceWidget = ({
 		<BaseFeedWidget
 			url={url}
 			name={t('widget_price')}
-			label={widget.feed.field.name}
+			label={widget.feed.field?.name}
 			icon={<ChartLineIcon width={32} height={32} />}
 			isEditing={isEditing}
 			middle={<Chart color={change.color} values={pastValues} />}
