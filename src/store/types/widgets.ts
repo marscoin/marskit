@@ -20,7 +20,7 @@ export interface SlashFeedJSON {
 export interface IWidget {
 	feed: Pick<SlashFeedJSON, 'name' | 'type'> & {
 		icon: string;
-		field: SlashFeedJSON['fields'][0];
+		field?: SlashFeedJSON['fields'][0];
 	};
 	magiclink?: boolean;
 }
