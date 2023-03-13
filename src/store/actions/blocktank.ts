@@ -13,7 +13,12 @@ import {
 	updateBitcoinTransaction,
 } from './wallet';
 import { addTodo, removeTodo } from './todos';
-import { getBlocktankStore, getDispatch, getFeesStore } from '../helpers';
+import {
+	getBlocktankStore,
+	getDispatch,
+	getFeesStore,
+	getTodosStore,
+} from '../helpers';
 import * as blocktank from '../../utils/blocktank';
 import {
 	getBalance,
@@ -70,12 +75,7 @@ export const refreshServiceList = async (): Promise<Result<string>> => {
  * @returns {Promise<Result<string>>}
  */
 export const refreshOrdersList = async (): Promise<Result<string>> => {
-	const orders = getBlocktankStore().orders;
-	// https://github.com/synonymdev/blocktank-server/blob/master/src/Orders/Order.js#L27
-	const unsettledStatuses = [0, 100, 150, 200, 300, 350, 400, 500];
-	const unsettledOrders = orders.filter((order) => {
-		return unsettledStatuses.includes(order.state);
-	});
+	const unsettledOrders = blocktank.getPendingOrders();
 
 	try {
 		const promises = unsettledOrders.map((order) => refreshOrder(order._id));
@@ -97,6 +97,9 @@ export const refreshOrder = async (
 	orderResponse?: IGetOrderResponse,
 ): Promise<Result<IGetOrderResponse>> => {
 	try {
+		const currentOrders = getBlocktankStore().orders;
+		const filteredOrders = currentOrders.filter((o) => o._id !== orderId);
+
 		if (!orderResponse) {
 			const getOrderRes = await blocktank.getOrder(orderId);
 			if (getOrderRes.isErr()) {
@@ -105,7 +108,7 @@ export const refreshOrder = async (
 			orderResponse = getOrderRes.value;
 
 			// Attempt to finalize the channel open.
-			if (getOrderRes.value.state === 100) {
+			if (orderResponse.state === 100) {
 				const finalizeRes = await finalizeChannel(orderId);
 				if (finalizeRes.isOk()) {
 					removeTodo('lightning');
@@ -117,20 +120,48 @@ export const refreshOrder = async (
 				}
 			}
 
+			const allOrders = [...filteredOrders, orderResponse];
+			const orderStates = allOrders.map((o) => o.state);
+			const todos = getTodosStore();
+			const isCloseInProgress = todos.some((todo) => {
+				return ['transferToSavings', 'transferClosingChannel'].includes(todo);
+			});
+
+			// check if all orders have any of the states
+			const allOrdersHaveState = (states: number[]): boolean => {
+				return orderStates.every((orderState) => states.includes(orderState));
+			};
+
+			// check if one of the orders has any of the states
+			const oneOrderHasState = (states: number[]): boolean => {
+				return orderStates.some((orderState) => states.includes(orderState));
+			};
+
 			// update suggestions cards
-			// TODO: fix for multiple channels
 			// blocktank-client code reference: https://github.com/synonymdev/blocktank-client/blob/f8a20c35a4953435cecf8f718ee555e311e1db9b/src/services/client.ts#L15
-			if ([150, 350, 400, 410, 450, 500].includes(getOrderRes.value.state)) {
+			// all orders finalized/failed
+			if (allOrdersHaveState([150, 350, 400, 410, 450, 500])) {
 				removeTodo('lightningSettingUp');
-				removeTodo('transferInProgress');
+				removeTodo('transferToSpending');
+
+				// at least one channel open while others are finalized
+				// addtionally check for ongoing closes (1 block lag for BT to change state)
+				if (oneOrderHasState([500]) && !isCloseInProgress) {
+					addTodo('transfer');
+				}
 			}
 
-			if (getOrderRes.value.state === 500) {
-				addTodo('transfer');
+			// all orders closed/failed
+			if (allOrdersHaveState([150, 400, 410, 450])) {
+				removeTodo('transferToSpending');
+				removeTodo('transferToSavings');
+				removeTodo('transferClosingChannel');
+				removeTodo('transfer');
+				addTodo('lightning');
 			}
 		}
 
-		const storedOrder = getBlocktankStore().orders.find(
+		const storedOrder = currentOrders.find(
 			(o) =>
 				o._id === orderId || (orderResponse && orderResponse._id === o._id),
 		);
@@ -179,7 +210,7 @@ export const buyChannel = async (
 			return err(res.error.message);
 		}
 
-		if (res.value?.order_id) {
+		if (res.value.order_id) {
 			//Fetches and updates the user's order list
 			await refreshOrder(res.value.order_id);
 		} else {

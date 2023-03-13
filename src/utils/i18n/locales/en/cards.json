@@ -15,9 +15,13 @@
 		"title": "Transfer",
 		"description": "Spend or save"
 	},
-	"transferInProgress": {
+	"transferToSpending": {
 		"title": "Transferring",
 		"description": "Ready in ±20m"
+	},
+	"transferToSavings": {
+		"title": "Transferring",
+		"description": "Ready in ±60m"
 	},
 	"transferClosingChannel": {
 		"title": "Initiating...",

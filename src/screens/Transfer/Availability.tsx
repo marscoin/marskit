@@ -9,6 +9,7 @@ import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import GlowImage from '../../components/GlowImage';
 import Button from '../../components/Button';
+import { refreshWallet } from '../../utils/wallet';
 import { closeAllChannels } from '../../utils/lightning';
 import { startCoopCloseTimer } from '../../store/actions/user';
 import { addTodo, removeTodo } from '../../store/actions/todos';
@@ -36,21 +37,18 @@ const Availability = ({
 			selectedNetwork,
 			selectedWallet,
 		});
-		if (closeResponse.isErr()) {
+
+		removeTodo('transfer');
+
+		if (closeResponse.isOk() && closeResponse.value.length === 0) {
+			addTodo('transferToSavings');
+			await refreshWallet();
+			navigation.navigate('Success', { type: 'savings' });
+			return;
+		} else {
 			startCoopCloseTimer();
 			addTodo('transferClosingChannel');
 			navigation.navigate('Interrupted');
-			return;
-		}
-		if (closeResponse.isOk()) {
-			if (closeResponse.value.length === 0) {
-				navigation.navigate('Success', { type: 'savings' });
-			} else {
-				startCoopCloseTimer();
-				removeTodo('transfer');
-				addTodo('transferClosingChannel');
-				navigation.navigate('Interrupted');
-			}
 		}
 	};
 

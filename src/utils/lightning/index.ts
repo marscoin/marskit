@@ -13,6 +13,7 @@ import lm, {
 	TChannel,
 	TChannelManagerClaim,
 	TChannelManagerPaymentSent,
+	TChannelUpdate,
 	TCloseChannelReq,
 	TCreatePaymentReq,
 	THeader,
@@ -141,6 +142,10 @@ export const setupLdk = async ({
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
+
+		// start from a clean slate
+		await resetLdk();
+
 		const genesisHash = await getBlockHashFromHeight({
 			height: 0,
 		});
@@ -188,18 +193,20 @@ export const setupLdk = async ({
 			return err(storageRes.error);
 		}
 		const lmStart = await lm.start({
-			getBestBlock,
 			genesisHash: genesisHash.value,
 			account: account.value,
+			feeRate: 1000,
+			network,
+			getBestBlock,
 			getAddress,
-			getScriptPubKeyHistory: (scriptPubkey) =>
-				getScriptPubKeyHistory(scriptPubkey, selectedNetwork),
 			broadcastTransaction: _broadcastTransaction,
 			getTransactionData: (txId) => getTransactionData(txId, selectedNetwork),
-			getTransactionPosition: (params) =>
-				getTransactionPosition({ ...params, selectedNetwork }),
-			network,
-			feeRate: 1000,
+			getScriptPubKeyHistory: (scriptPubkey) => {
+				return getScriptPubKeyHistory(scriptPubkey, selectedNetwork);
+			},
+			getTransactionPosition: (params) => {
+				return getTransactionPosition({ ...params, selectedNetwork });
+			},
 		});
 
 		if (lmStart.isErr()) {
@@ -357,13 +364,17 @@ export const subscribeToLightningPayments = ({
 		);
 	}
 	if (!onChannelSubscription) {
-		onChannelSubscription = ldk.onEvent(EEventTypes.new_channel, () => {
-			showSuccessNotification({
-				title: i18n.t('lightning:channel_opened_title'),
-				message: i18n.t('lightning:channel_opened_msg'),
-			});
-			refreshLdk({ selectedWallet, selectedNetwork }).then();
-		});
+		onChannelSubscription = ldk.onEvent(
+			EEventTypes.new_channel,
+			(_res: TChannelUpdate) => {
+				// TODO: channel not open yet, change toast text or remove
+				showSuccessNotification({
+					title: i18n.t('lightning:channel_opened_title'),
+					message: i18n.t('lightning:channel_opened_msg'),
+				});
+				refreshLdk({ selectedWallet, selectedNetwork }).then();
+			},
+		);
 	}
 };
 
@@ -406,8 +417,9 @@ export const refreshLdk = async ({
 			selectedNetwork = getSelectedNetwork();
 		}
 
-		const nodeIdRes = await promiseTimeout<Result<string>>(2000, getNodeId());
-		if (nodeIdRes.isErr()) {
+		const isRunning = await isLdkRunning();
+		if (!isRunning) {
+			await resetLdk();
 			// Attempt to reset LDK.
 			const setupResponse = await setupLdk({
 				selectedNetwork,
@@ -419,6 +431,7 @@ export const refreshLdk = async ({
 			}
 			keepLdkSynced({ selectedNetwork }).then();
 		}
+
 		const syncRes = await lm.syncLdk();
 		if (syncRes.isErr()) {
 			return err(syncRes.error.message);
@@ -638,14 +651,28 @@ export const getTransactionPosition = async ({
 		height,
 		selectedNetwork,
 	});
-	// @ts-ignore
 	if (response.error || isNaN(response.data?.pos) || response.data?.pos < 0) {
 		return -1;
 	}
-	// @ts-ignore
 	return response.data.pos;
 };
 
+/**
+ * Check if LDK is running.
+ * @returns {Promise<boolean>}
+ */
+export const isLdkRunning = async (): Promise<boolean> => {
+	const getNodeIdResponse = await promiseTimeout<Result<string>>(
+		2000,
+		getNodeId(),
+	);
+
+	if (getNodeIdResponse.isOk()) {
+		return true;
+	} else {
+		return false;
+	}
+};
 /**
  * Returns the current LDK node id.
  * @returns {Promise<Result<string>>}
@@ -829,6 +856,7 @@ export const getLightningChannels = (): Promise<Result<TChannel[]>> => {
 
 /**
  * Returns an array of unconfirmed/pending lightning channels from either storage or directly from the LDK node.
+ * CURRENTLY UNUSED
  * @param {boolean} [fromStorage]
  * @param {TWalletName} [selectedWallet]
  * @param {TAvailableNetworks} [selectedNetwork]
@@ -862,7 +890,7 @@ export const getPendingChannels = async ({
 		channels = channelsResponse.value;
 	}
 	const pendingChannels = channels.filter(
-		(channel) => !channel?.is_channel_ready,
+		(channel) => !channel.is_channel_ready,
 	);
 	return ok(pendingChannels);
 };
@@ -880,17 +908,18 @@ export const getOpenChannels = async ({
 	selectedWallet?: TWalletName;
 	selectedNetwork?: TAvailableNetworks;
 }): Promise<Result<TChannel[]>> => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
 	let channels: TChannel[];
+	const node = getLightningStore().nodes[selectedWallet];
+
 	if (fromStorage) {
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
-		if (!selectedNetwork) {
-			selectedNetwork = getSelectedNetwork();
-		}
-		channels = Object.values(
-			getLightningStore().nodes[selectedWallet].channels[selectedNetwork],
-		);
+		channels = Object.values(node.channels[selectedNetwork]);
 	} else {
 		const getChannelsResponse = await getLightningChannels();
 		if (getChannelsResponse.isErr()) {
@@ -898,9 +927,12 @@ export const getOpenChannels = async ({
 		}
 		channels = getChannelsResponse.value;
 	}
-	const openChannels = Object.values(channels).filter(
-		(channel) => channel?.is_channel_ready,
-	);
+
+	const openChannelIds = node.openChannelIds[selectedNetwork];
+	const openChannels = channels.filter((channel) => {
+		return openChannelIds.includes(channel.channel_id);
+	});
+
 	return ok(openChannels);
 };
 
@@ -908,8 +940,9 @@ export const getOpenChannels = async ({
  * Returns LDK and c-bindings version.
  * @returns {Promise<Result<TLightningNodeVersion>}
  */
-export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> =>
-	ldk.version();
+export const getNodeVersion = (): Promise<Result<TLightningNodeVersion>> => {
+	return ldk.version();
+};
 
 /**
  * Attempts to close a channel given its channelId and counterPartyNodeId.

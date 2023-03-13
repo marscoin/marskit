@@ -38,6 +38,11 @@ export const startCoopCloseTimer = (): Result<string> => {
 	return ok('');
 };
 
+export const clearCoopCloseTimer = (): Result<string> => {
+	dispatch({ type: actions.CLEAR_COOP_CLOSE_TIMER });
+	return ok('');
+};
+
 export const verifyBackup = (): Result<string> => {
 	dispatch({ type: actions.VERIFY_BACKUP });
 	return ok('');

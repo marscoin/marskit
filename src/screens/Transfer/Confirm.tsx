@@ -17,11 +17,11 @@ import { confirmChannelPurchase } from '../../store/actions/blocktank';
 import { useLightningBalance } from '../../hooks/lightning';
 import useDisplayValues from '../../hooks/displayValues';
 import type { TransferScreenProps } from '../../navigation/types';
+import { blocktankOrdersSelector } from '../../store/reselect/blocktank';
 import {
 	selectedNetworkSelector,
 	transactionFeeSelector,
 } from '../../store/reselect/wallet';
-import { blocktankOrdersSelector } from '../../store/reselect/blocktank';
 
 const PIE_SIZE = 140;
 const PIE_SHIFT = 70;
@@ -73,9 +73,10 @@ const Confirm = ({
 			}
 			setLoading(false);
 			removeTodo('transfer');
-			addTodo('transferInProgress');
+			addTodo('transferToSpending');
 			navigation.navigate('Success', { type: 'spending' });
 		} else {
+			setLoading(false);
 			// spending -> savings
 			navigation.navigate('Availability');
 		}

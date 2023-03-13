@@ -15,9 +15,13 @@
 		"title": "Перенести",
 		"description": "Spend or save"
 	},
-	"transferInProgress": {
+	"transferToSpending": {
 		"title": "Перенос",
 		"description": "Готово ±20m"
+	},
+	"transferToSavings": {
+		"title": "Перенос",
+		"description": "Готово ±60m"
 	},
 	"transferClosingChannel": {
 		"title": "Инициализация...",

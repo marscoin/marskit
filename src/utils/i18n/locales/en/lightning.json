@@ -87,6 +87,7 @@
 	"total_size": "Total channel size",
 	"other": "Other",
 	"opened_on": "Opened on",
+	"closed_on": "Closed on",
 	"copied_couterparty": "Copied Counterparty Node ID to Clipboard",
 	"debug": "Debug",
 	"is_usable": "Is Usable?",

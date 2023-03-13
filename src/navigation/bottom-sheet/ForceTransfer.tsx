@@ -25,6 +25,7 @@ import {
 	selectedWalletSelector,
 } from '../../store/reselect/wallet';
 import { startCoopCloseTimestampSelector } from '../../store/reselect/user';
+import { clearCoopCloseTimer } from '../../store/actions/user';
 
 const imageSrc = require('../../assets/illustrations/exclamation-mark.png');
 
@@ -69,9 +70,10 @@ const ForceTransfer = (): ReactElement => {
 			if (closeResponse.isOk()) {
 				if (closeResponse.value.length === 0) {
 					console.log('coop close success.');
+					clearCoopCloseTimer();
 					clearInterval(interval);
 					removeTodo('transferClosingChannel');
-					addTodo('transferInProgress');
+					addTodo('transferToSavings');
 				} else {
 					console.log('coop close failed.');
 					console.log({ closeResponse: closeResponse.value });
@@ -83,6 +85,7 @@ const ForceTransfer = (): ReactElement => {
 			const isTimeoutOver = Number(new Date()) - startTime > GIVE_UP;
 			if (isTimeoutOver) {
 				console.log('giving up on coop close.');
+				clearCoopCloseTimer();
 				clearInterval(interval);
 				showBottomSheet('forceTransfer');
 				return;
@@ -124,7 +127,7 @@ const ForceTransfer = (): ReactElement => {
 				});
 
 				removeTodo('transferClosingChannel');
-				addTodo('transferInProgress');
+				addTodo('transferToSavings');
 				closeBottomSheet('forceTransfer');
 			} else {
 				console.log('force close failed.');
@@ -157,7 +160,7 @@ const ForceTransfer = (): ReactElement => {
 						style={styles.button}
 						variant="secondary"
 						size="large"
-						text={t('later')}
+						text={t('cancel')}
 						onPress={onCancel}
 					/>
 					<View style={styles.divider} />

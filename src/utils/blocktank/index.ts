@@ -6,8 +6,9 @@ import bt, {
 	IGetOrderResponse,
 	IService,
 } from '@synonymdev/blocktank-client';
-import { EAvailableNetworks, TAvailableNetworks } from '../networks';
 import { err, ok, Result } from '@synonymdev/result';
+
+import { EAvailableNetworks, TAvailableNetworks } from '../networks';
 import { addPeers, getNodeId, refreshLdk } from '../lightning';
 import { refreshOrder } from '../../store/actions/blocktank';
 import { sleep } from '../helpers';
@@ -23,6 +24,9 @@ import { fiatToBitcoinUnit, getFiatDisplayValues } from '../exchange-rate';
 import { getBalance, refreshWallet } from '../wallet';
 import { IDisplayValues, IFiatDisplayValues } from '../exchange-rate/types';
 import { EBitcoinUnit } from '../../store/types/wallet';
+
+// https://github.com/synonymdev/blocktank-server/blob/master/src/Orders/Order.js#L27
+export const unsettledStatuses = [0, 100, 200, 300, 350, 500];
 
 /**
  * Sets the selectedNetwork for Blocktank.
@@ -118,20 +122,16 @@ export const getOrder = async (
 /**
  * Returns the data of a provided orderId from storage.
  * @param {string} orderId
- * @returns {Promise<Result<IGetOrderResponse>>}
+ * @returns {Result<IGetOrderResponse>}
  */
-export const getOrderFromStorage = async (
+export const getOrderFromStorage = (
 	orderId: string,
-): Promise<Result<IGetOrderResponse>> => {
-	try {
-		const order = getBlocktankStore().orders.filter((o) => o._id === orderId);
-		if (order?.length > 0) {
-			return ok(order[0]);
-		}
-		return err('Order not found.');
-	} catch (e) {
-		return err(e);
+): Result<IGetOrderResponse> => {
+	const order = getBlocktankStore().orders.find((o) => o._id === orderId);
+	if (order) {
+		return ok(order);
 	}
+	return err('Order not found.');
 };
 
 /**
@@ -177,19 +177,20 @@ export const finalizeChannel = async (
  * @returns {void}
  */
 export const watchPendingOrders = (): void => {
-	const pendingOrders = getPendingOrders() ?? [];
+	const pendingOrders = getPendingOrders();
 	pendingOrders.forEach((order) => watchOrder(order._id));
 };
 
 /**
  * Return orders that are less than or equal to the specified order state.
- * @param pendingOrderState
+ * @returns {IGetOrderResponse[]} pending Blocktank orders
  */
-export const getPendingOrders = (
-	pendingOrderState = 300,
-): IGetOrderResponse[] => {
+export const getPendingOrders = (): IGetOrderResponse[] => {
 	const orders = getBlocktankStore().orders;
-	return orders.filter((order) => order.state <= pendingOrderState);
+	const unsettledOrders = orders.filter((order) => {
+		return unsettledStatuses.includes(order.state);
+	});
+	return unsettledOrders;
 };
 
 /**
@@ -201,25 +202,21 @@ export const watchOrder = async (
 	orderId: string,
 	frequency = 15000,
 ): Promise<Result<string>> => {
-	let orderComplete = false;
+	let settled = false;
 	let error: string = '';
-	const orderData = await getOrderFromStorage(orderId);
+	const orderData = getOrderFromStorage(orderId);
 	if (orderData.isErr()) {
 		return err(orderData.error.message);
 	}
 	const expiry = orderData.value.order_expiry;
-	while (!orderComplete && !error) {
+	while (!settled && !error) {
 		const res = await refreshOrder(orderId);
 		if (res.isErr()) {
 			error = res.error.message;
 			break;
 		}
-		if (res.value.state >= 200) {
-			orderComplete = true;
-			break;
-		}
-		if (new Date().getTime() >= expiry) {
-			error = 'Order has expired.';
+		if (!unsettledStatuses.includes(res.value.state)) {
+			settled = true;
 			break;
 		}
 		await sleep(frequency);
