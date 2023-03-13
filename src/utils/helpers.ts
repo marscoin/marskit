@@ -20,7 +20,7 @@ export const promiseTimeout = <T>(
 	promise: Promise<any>,
 ): Promise<T> => {
 	let id: NodeJS.Timeout | undefined;
-	let timeout = new Promise((resolve) => {
+	const timeout = new Promise((resolve) => {
 		id = setTimeout(() => {
 			resolve(err('Timed Out.'));
 		}, ms);
@@ -531,8 +531,53 @@ export const applyAlpha = (hexColor: string, alpha: number): string => {
 
 /**
  * Pauses execution of a function.
- * @param {number} [ms]
+ * @param {number} ms The time to wait in milliseconds.
+ * @returns {Promise<void>}
  */
 export const sleep = (ms = 1000): Promise<void> => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 };
+
+/**
+ * Tries to resolve a Promise N times, with a delay between each attempt.
+ * @param {() => Promise<T>} toTry The Promise to try to resolve.
+ * @param {number} [times] The maximum number of attempts (must be greater than 0).
+ * @param {number} [interval] The interval of time between each attempt in milliseconds.
+ * @returns {Promise<T>} The resolution of the Promise.
+ */
+export async function tryNTimes<T>({
+	toTry,
+	times = 5,
+	interval = 50,
+}: {
+	toTry: () => Promise<Result<T>>;
+	times?: number;
+	interval?: number;
+}): Promise<T> {
+	if (times < 1) {
+		throw new Error(
+			`Bad argument: 'times' must be greater than 0, but ${times} was received.`,
+		);
+	}
+	let attemptCount = 0;
+	while (true) {
+		try {
+			const result = await toTry();
+			console.log({ result });
+			if (result.isErr()) {
+				console.log('failed.');
+				if (++attemptCount >= times) {
+					throw result.error;
+				}
+			} else {
+				return result.value;
+			}
+		} catch (error) {
+			console.log('failed.');
+			if (++attemptCount >= times) {
+				throw error;
+			}
+		}
+		await sleep(interval);
+	}
+}

@@ -53,7 +53,7 @@ import {
 	updateLightningNodeId,
 	updateLightningNodeVersion,
 } from '../../store/actions/lightning';
-import { promiseTimeout, reduceValue, sleep } from '../helpers';
+import { promiseTimeout, reduceValue, sleep, tryNTimes } from '../helpers';
 import { broadcastTransaction } from '../wallet/transactions';
 import {
 	EActivityType,
@@ -673,6 +673,18 @@ export const isLdkRunning = async (): Promise<boolean> => {
 		return false;
 	}
 };
+
+/**
+ * Pauses execution until LDK is setup.
+ * @returns {Promise<void>}
+ */
+export const waitForLdk = async (): Promise<void> => {
+	await tryNTimes({
+		toTry: getNodeId,
+		interval: 500,
+	});
+};
+
 /**
  * Returns the current LDK node id.
  * @returns {Promise<Result<string>>}
