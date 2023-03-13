@@ -34,6 +34,7 @@ import {
 	channelIsOpenSelector,
 	openChannelIdsSelector,
 } from '../../../store/reselect/lightning';
+import { blocktankOrdersSelector } from '../../../store/reselect/blocktank';
 import { getStateMessage } from '../../../utils/blocktank';
 import {
 	ArrowCounterClock,
@@ -175,20 +176,22 @@ const ChannelDetails = ({
 	const { t } = useTranslation('lightning');
 	const { channel } = route.params;
 
+	const [txTime, setTxTime] = useState<string>();
 	const name = useLightningChannelName(channel);
 	const { spendingAvailable, receivingAvailable, capacity } =
 		useLightningChannelBalance(channel);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const enableDevOptions = useSelector(enableDevOptionsSelector);
-	const [txTime, setTxTime] = useState<undefined | string>();
-
-	const blocktankOrders = useSelector((state: Store) => {
-		return state.blocktank.orders;
-	});
-
+	const blocktankOrders = useSelector(blocktankOrdersSelector);
 	const blocktankOrder = Object.values(blocktankOrders).find((order) => {
-		return order.channel_open_tx?.transaction_id === channel.funding_txid;
+		// real channel
+		if (channel.funding_txid) {
+			return order.channel_open_tx?.transaction_id === channel.funding_txid;
+		}
+
+		// fake channel
+		return order._id === channel.channel_id;
 	});
 
 	const openChannelIds = useSelector((state: Store) => {
@@ -271,15 +274,28 @@ const ChannelDetails = ({
 		}
 
 		if (openChannelIds.includes(channel.channel_id)) {
-			return 'pending';
+			return channel.is_usable ? 'open' : 'pending';
 		}
 
-		if (channel.is_channel_ready) {
-			return channel.is_usable ? 'open' : 'pending';
-		} else {
-			return 'closed';
-		}
+		return 'closed';
 	};
+
+	let channelCloseTime: string | undefined;
+	if (blocktankOrder?.channel_close_tx) {
+		channelCloseTime = t('intl:dateTime', {
+			v: new Date(blocktankOrder.channel_close_tx.ts),
+			formatParams: {
+				v: {
+					year: 'numeric',
+					month: 'short',
+					day: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric',
+					hour12: false,
+				},
+			},
+		});
+	}
 
 	return (
 		<ThemedView style={styles.root}>
@@ -460,6 +476,12 @@ const ChannelDetails = ({
 						<Section
 							name={t('opened_on')}
 							value={<Caption13M>{txTime}</Caption13M>}
+						/>
+					)}
+					{channelCloseTime && (
+						<Section
+							name={t('closed_on')}
+							value={<Caption13M>{channelCloseTime}</Caption13M>}
 						/>
 					)}
 					<Section

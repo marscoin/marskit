@@ -1,6 +1,6 @@
-import Store from '../types';
 import { createSelector } from '@reduxjs/toolkit';
 import { IGetOrderResponse, IService } from '@synonymdev/blocktank-client';
+import Store from '../types';
 import { IBlocktank, TPaidBlocktankOrders } from '../types/blocktank';
 
 const blocktankState = (state: Store): IBlocktank => state.blocktank;
@@ -16,13 +16,13 @@ export const blocktankServiceSelector = createSelector(
 );
 export const blocktankOrdersSelector = createSelector(
 	blocktankState,
-	(blocktank): IGetOrderResponse[] => blocktank.orders ?? [],
+	(blocktank): IGetOrderResponse[] => blocktank.orders,
 );
 /**
  * Returns a blocktank order for a given order ID.
  */
 export const blocktankOrderSelector = createSelector(
-	[blocktankState, (blocktank, orderId: string): string => orderId],
+	[blocktankState, (_blocktank, orderId: string): string => orderId],
 	(blocktank, orderId): IGetOrderResponse => {
 		return blocktank.orders.find((o) => o._id === orderId)!;
 	},
@@ -35,7 +35,7 @@ export const blocktankPaidOrdersSelector = createSelector(
  * Returns a paid blocktank order txid given its order ID.
  */
 export const blocktankPaidOrderSelector = createSelector(
-	[blocktankState, (blocktank, orderId: string): string => orderId],
+	[blocktankState, (_blocktank, orderId: string): string => orderId],
 	(blocktank, orderId): string => {
 		const paidBlocktankOrders = blocktank.paidOrders;
 		if (orderId in paidBlocktankOrders) {
@@ -57,5 +57,5 @@ export const blocktankNodeInfoSelector = createSelector(
 		active_channels_count: number;
 		uris: string[];
 		public_key: string;
-	} => blocktank.info?.node_info,
+	} => blocktank.info.node_info,
 );
