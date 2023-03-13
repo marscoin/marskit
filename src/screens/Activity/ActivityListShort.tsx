@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 
-import { Subtitle, Text01M } from '../../styles/text';
+import { Subtitle, Text02M } from '../../styles/text';
 import { groupActivityItems } from '../../utils/activity';
 import { showBottomSheet } from '../../store/actions/ui';
 import { IActivityItemFormatted } from '../../store/types/activity';
@@ -69,7 +69,8 @@ const ActivityListShort = (): ReactElement => {
 				<>
 					{groupedItems.map((item) => renderItem({ item }))}
 					<Button
-						text={<Text01M color="white8">{t('activity_show_all')}</Text01M>}
+						style={styles.button}
+						text={<Text02M color="white8">{t('activity_show_all')}</Text02M>}
 						size="large"
 						variant="transparent"
 						onPress={navigateToActivityFiltered}
@@ -87,6 +88,9 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		marginBottom: 23,
+	},
+	button: {
+		marginTop: -16,
 	},
 });
 

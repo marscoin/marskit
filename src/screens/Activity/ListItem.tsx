@@ -40,20 +40,15 @@ export const ListItem = ({
 	isSend?: boolean;
 }): ReactElement => (
 	<>
-		<View style={styles.columnLeft}>
-			{icon}
-			<View>
-				<Text01M>{title}</Text01M>
-				<Caption13M style={styles.description} color="gray1" numberOfLines={1}>
-					{truncate(description, 35)}
-				</Caption13M>
-			</View>
+		{icon}
+		<View style={styles.text}>
+			<Text01M>{title}</Text01M>
+			<Caption13M color="gray1">{truncate(description, 35)}</Caption13M>
 		</View>
 
 		{amount ? (
-			<View style={styles.columnRight}>
+			<View style={styles.amount}>
 				<Money
-					style={styles.value}
 					sats={amount}
 					enableHide={true}
 					size="text01m"
@@ -61,7 +56,6 @@ export const ListItem = ({
 					highlight={true}
 				/>
 				<Money
-					style={styles.value}
 					sats={amount}
 					enableHide={true}
 					size="caption13M"
@@ -92,10 +86,8 @@ const OnchainListItem = ({
 	} = item;
 	const { shortRange: feeRateDescription } = useFeeText(feeRate);
 
-	// TODO: check if transfer to savings or spending.
-	const isTransferringToSavings = false;
-
 	const isSend = txType === EPaymentType.sent;
+	const isTransferringToSpending = isTransfer && isSend;
 
 	let title = t(isSend ? 'activity_sent' : 'activity_received');
 
@@ -116,18 +108,7 @@ const OnchainListItem = ({
 	if (isTransfer) {
 		title = t('activity_transfer');
 
-		if (isTransferringToSavings) {
-			description = t(
-				confirmed
-					? 'activity_transfer_savings_done'
-					: 'activity_transfer_savings_inprogress',
-			);
-			icon = (
-				<ThemedView style={styles.icon} color="orange16">
-					<TransferIcon height={13} color="orange" />
-				</ThemedView>
-			);
-		} else {
+		if (isTransferringToSpending) {
 			description = t(
 				confirmed
 					? 'activity_transfer_spending_done'
@@ -136,6 +117,17 @@ const OnchainListItem = ({
 			icon = (
 				<ThemedView style={styles.icon} color="purple16">
 					<TransferIcon height={13} color="purple" />
+				</ThemedView>
+			);
+		} else {
+			description = t(
+				confirmed
+					? 'activity_transfer_savings_done'
+					: 'activity_transfer_savings_inprogress',
+			);
+			icon = (
+				<ThemedView style={styles.icon} color="orange16">
+					<TransferIcon height={13} color="orange" />
 				</ThemedView>
 			);
 		}
@@ -252,18 +244,11 @@ const styles = StyleSheet.create({
 	root: {
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 		borderBottomWidth: 1,
-		paddingBottom: 16,
-		marginBottom: 16,
+		paddingBottom: 24,
+		marginBottom: 24,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	columnLeft: {
-		flexDirection: 'row',
-		alignItems: 'center',
-	},
-	columnRight: {
-		justifyContent: 'flex-end',
+		minHeight: 65,
 	},
 	icon: {
 		borderRadius: 20,
@@ -271,14 +256,17 @@ const styles = StyleSheet.create({
 		height: 32,
 		justifyContent: 'center',
 		alignItems: 'center',
+		alignSelf: 'center',
 		marginRight: 16,
 	},
-	description: {
-		marginTop: 4,
-		overflow: 'hidden',
+	text: {
+		justifyContent: 'space-between',
+		marginRight: 'auto',
 	},
-	value: {
-		justifyContent: 'flex-end',
+	amount: {
+		justifyContent: 'space-between',
+		alignItems: 'flex-end',
+		marginLeft: 'auto',
 	},
 });
 

@@ -34,16 +34,12 @@ const NetworkRow = ({
 }): ReactElement => {
 	return (
 		<View color="transparent" style={styles.networkRow}>
-			<View color="transparent" style={styles.titleContainer}>
-				<View style={[styles.networkIconContainer, { backgroundColor: color }]}>
-					{icon}
-				</View>
-				<View color="transparent">
-					<Text01M>{title}</Text01M>
-					<Caption13M color="gray1">{subtitle}</Caption13M>
-				</View>
+			<View style={[styles.icon, { backgroundColor: color }]}>{icon}</View>
+			<View style={styles.text} color="transparent">
+				<Text01M>{title}</Text01M>
+				<Caption13M color="gray1">{subtitle}</Caption13M>
 			</View>
-			<View color="transparent" style={styles.valueContainer}>
+			<View style={styles.amount} color="transparent">
 				<Money sats={satoshis} size="text01m" enableHide={true} />
 				<Money
 					sats={satoshis}
@@ -82,12 +78,12 @@ const BitcoinBreakdown = (): ReactElement => {
 	}, [hasLightning, isGeoBlocked, navigation]);
 
 	return (
-		<View color="transparent" style={styles.container}>
+		<>
 			<NetworkRow
 				title={t('details_savings_title')}
 				subtitle={t('details_savings_subtitle')}
 				color="rgba(247, 147, 26, 0.16)"
-				icon={<SavingsIcon color="orange" width={17} height={17} />}
+				icon={<SavingsIcon color="brand" width={17} height={17} />}
 				satoshis={onchain}
 			/>
 			<View color="transparent" style={styles.transferRow}>
@@ -106,35 +102,38 @@ const BitcoinBreakdown = (): ReactElement => {
 				icon={<CoinsIcon color="purple" width={13} height={13} />}
 				satoshis={lightning}
 			/>
-		</View>
+		</>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {},
 	networkRow: {
 		flexDirection: 'row',
-		alignItems: 'center',
 		justifyContent: 'space-between',
+		minHeight: 40,
+	},
+	icon: {
+		backgroundColor: 'rgba(185, 92, 232, 0.16)',
+		borderRadius: 20,
+		height: 32,
+		width: 32,
+		justifyContent: 'center',
+		alignItems: 'center',
+		alignSelf: 'center',
+		marginRight: 16,
+	},
+	text: {
+		justifyContent: 'space-between',
+	},
+	amount: {
+		justifyContent: 'space-between',
+		alignItems: 'flex-end',
+		marginLeft: 'auto',
 	},
 	transferRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingVertical: 16,
-	},
-	line: {
-		flex: 1,
-		height: 1,
-	},
-	networkIconContainer: {
-		backgroundColor: 'rgba(185, 92, 232, 0.16)',
-		borderRadius: 30,
-		overflow: 'hidden',
-		height: 32,
-		width: 32,
-		marginRight: 14,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	transferButton: {
 		paddingHorizontal: 15,
@@ -145,12 +144,9 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginHorizontal: 16,
 	},
-	titleContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-	},
-	valueContainer: {
-		alignItems: 'flex-end',
+	line: {
+		flex: 1,
+		height: 1,
 	},
 });
 
