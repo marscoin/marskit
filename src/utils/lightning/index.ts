@@ -72,6 +72,7 @@ import { showSuccessNotification } from '../notifications';
 import { TLightningNodeVersion } from '../../store/types/lightning';
 import { getBlocktankInfo, isGeoBlocked } from '../blocktank';
 import i18n from '../i18n';
+import { updateOnchainFeeEstimates } from '../../store/actions/fees';
 
 let LDKIsStayingSynced = false;
 
@@ -1022,6 +1023,9 @@ export const closeAllChannels = async ({
 		if (refreshRes.isErr()) {
 			return err(refreshRes.error.message);
 		}
+
+		// Update fees before closing channels
+		await updateOnchainFeeEstimates({ selectedNetwork, forceUpdate: true });
 
 		const channelsUnableToCoopClose: TChannel[] = [];
 		await Promise.all(
