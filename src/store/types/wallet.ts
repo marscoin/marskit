@@ -3,6 +3,7 @@ import { IExchangeRates } from '../../utils/exchange-rate/types';
 import { IAddressTypeContent } from '../shapes/wallet';
 import { EFeeId } from './fees';
 import { IHeader } from '../../utils/types/electrum';
+import { IVin } from '../../utils/wallet';
 
 export enum EPaymentType {
 	sent = 'sent',
@@ -196,6 +197,7 @@ export interface IFormattedTransaction {
 	txid: string;
 	messages: string[];
 	timestamp: number;
+	vin: IVin[];
 }
 
 export interface IFormattedTransactions {

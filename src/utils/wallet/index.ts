@@ -1444,8 +1444,8 @@ type InputData = {
 };
 
 export const getInputData = async ({
+	inputs,
 	selectedNetwork,
-	inputs = [],
 }: {
 	inputs: { tx_hash: string; vout: number }[];
 	selectedNetwork?: TAvailableNetworks;
@@ -1485,13 +1485,13 @@ export const getInputData = async ({
 };
 
 export const formatTransactions = async ({
+	transactions,
 	selectedNetwork,
 	selectedWallet,
-	transactions = [],
 }: {
+	transactions: ITransaction<IUtxo>[];
 	selectedNetwork?: TAvailableNetworks;
 	selectedWallet?: TWalletName;
-	transactions: ITransaction<IUtxo>[];
 }): Promise<Result<IFormattedTransactions>> => {
 	if (transactions.length < 1) {
 		return ok({});
@@ -1508,14 +1508,9 @@ export const formatTransactions = async ({
 	});
 
 	// Batch and pre-fetch input data.
-	let inputs: { tx_hash: string; vout: number }[] = [];
-	transactions.map(({ result }) => {
-		const vin = result?.vin ?? [];
-		vin.map((v) => {
-			const txid = v?.txid ?? '';
-			const vout = v?.vout ?? '';
-			inputs.push({ tx_hash: txid, vout });
-		});
+	const inputs: { tx_hash: string; vout: number }[] = [];
+	transactions.forEach(({ result }) => {
+		result.vin.forEach((v) => inputs.push({ tx_hash: v.txid, vout: v.vout }));
 	});
 	const inputDataResponse = await getInputData({
 		selectedNetwork,
@@ -1535,10 +1530,11 @@ export const formatTransactions = async ({
 	addressTypes.map((addressType) => {
 		// Check if addresses of this type have been generated. If not, skip.
 		if (Object.keys(currentAddresses[addressType])?.length > 0) {
-			addresses = { ...addresses, ...currentAddresses[addressType] };
+			addresses = {
+				...addresses,
+				...currentAddresses[addressType],
+			};
 		}
-	});
-	addressTypes.map((addressType) => {
 		// Check if change addresses of this type have been generated. If not, skip.
 		if (Object.keys(currentChangeAddresses[addressType])?.length > 0) {
 			changeAddresses = {
@@ -1558,7 +1554,7 @@ export const formatTransactions = async ({
 
 	const formattedTransactions: IFormattedTransactions = {};
 	transactions.map(async ({ data, result }) => {
-		if (!result?.txid) {
+		if (!result.txid) {
 			return;
 		}
 
@@ -1569,8 +1565,7 @@ export const formatTransactions = async ({
 		let messages: string[] = []; // Array of OP_RETURN messages.
 
 		//Iterate over each input
-		const vin = result?.vin ?? [];
-		vin.map(({ txid, scriptSig, vout }) => {
+		result.vin.map(({ txid, scriptSig, vout }) => {
 			//Push any OP_RETURN messages to messages array
 			try {
 				const asm = scriptSig.asm;
@@ -1582,29 +1577,26 @@ export const formatTransactions = async ({
 
 			const { addresses: _addresses, value } = inputData[`${txid}${vout}`];
 			totalInputValue = totalInputValue + value;
-			Array.isArray(_addresses) &&
-				_addresses.map((address) => {
-					if (address in combinedAddressObj) {
-						matchedInputValue = matchedInputValue + value;
-					}
-				});
+			_addresses.map((address) => {
+				if (address in combinedAddressObj) {
+					matchedInputValue = matchedInputValue + value;
+				}
+			});
 		});
 
 		//Iterate over each output
-		const vout = result?.vout || [];
-		vout.map(({ scriptPubKey, value }) => {
+		result.vout.map(({ scriptPubKey, value }) => {
 			const _addresses = scriptPubKey.addresses
 				? scriptPubKey.addresses
 				: scriptPubKey.address
 				? [scriptPubKey.address]
 				: [];
 			totalOutputValue = totalOutputValue + value;
-			Array.isArray(_addresses) &&
-				_addresses.map((address) => {
-					if (address in combinedAddressObj) {
-						matchedOutputValue = matchedOutputValue + value;
-					}
-				});
+			_addresses.map((address) => {
+				if (address in combinedAddressObj) {
+					matchedOutputValue = matchedOutputValue + value;
+				}
+			});
 		});
 
 		const txid = result.txid;
@@ -1620,7 +1612,7 @@ export const formatTransactions = async ({
 		const { address, height, scriptHash } = data;
 		let timestamp = Date.now();
 
-		if (height > 0 && result?.blocktime) {
+		if (height > 0 && result.blocktime) {
 			timestamp = result.blocktime * 1000;
 		}
 
@@ -1639,8 +1631,10 @@ export const formatTransactions = async ({
 			txid,
 			messages,
 			timestamp,
+			vin: result.vin,
 		};
 	});
+
 	return ok(formattedTransactions);
 };
 
@@ -1799,8 +1793,8 @@ export const getRbfData = async ({
 
 	const insAndOuts = await Promise.all(
 		txData.map(({ result }) => {
-			const vin = result?.vin ?? [];
-			const vout = result?.vout ?? [];
+			const vin = result.vin ?? [];
+			const vout = result.vout ?? [];
 			return { vins: vin, vouts: vout };
 		}),
 	);
@@ -2478,7 +2472,7 @@ export const getReceiveAddress = async ({
 		}
 		const wallet = getWalletStore().wallets[selectedWallet];
 		const addressIndex = wallet.addressIndex[selectedNetwork];
-		let receiveAddress = addressIndex[addressType]?.address;
+		const receiveAddress = addressIndex[addressType].address;
 		if (receiveAddress) {
 			return ok(receiveAddress);
 		}

@@ -1,4 +1,7 @@
+import { IGetOrderResponse } from '@synonymdev/blocktank-client';
+
 import { btcToSats } from '../helpers';
+import i18n from '../../utils/i18n';
 import { TPaidBlocktankOrders } from '../../store/types/blocktank';
 import { EPaymentType, IFormattedTransaction } from '../../store/types/wallet';
 import {
@@ -7,7 +10,6 @@ import {
 	IActivityItemFormatted,
 	TOnchainActivityItem,
 } from '../../store/types/activity';
-import i18n from '../../utils/i18n';
 
 /**
  * Converts a formatted transaction to an activity item
@@ -17,9 +19,11 @@ import i18n from '../../utils/i18n';
 export const onChainTransactionToActivityItem = ({
 	transaction,
 	blocktankTransactions,
+	blocktankOrders,
 }: {
 	transaction: IFormattedTransaction;
 	blocktankTransactions: TPaidBlocktankOrders;
+	blocktankOrders: IGetOrderResponse[];
 }): TOnchainActivityItem => {
 	// subtract fee from amount if applicable
 	const amount =
@@ -28,9 +32,16 @@ export const onChainTransactionToActivityItem = ({
 			: transaction.value;
 
 	// check if tx is a payment to Blocktank (i.e. transfer to spending)
-	const isTransferTx = !!Object.values(blocktankTransactions).find(
+	const isTransferToSpending = !!Object.values(blocktankTransactions).find(
 		(txId) => transaction.txid === txId,
 	);
+
+	// check if tx is a payment from Blocktank (i.e. transfer to savings)
+	const isTransferToSavings = !!blocktankOrders.find((order) => {
+		return !!transaction.vin.find(
+			(input) => input.txid === order.channel_close_tx?.transaction_id,
+		);
+	});
 
 	return {
 		id: transaction.txid,
@@ -43,7 +54,7 @@ export const onChainTransactionToActivityItem = ({
 		address: transaction.address,
 		confirmed: transaction.height > 0,
 		isBoosted: false,
-		isTransfer: isTransferTx,
+		isTransfer: isTransferToSavings || isTransferToSpending,
 		timestamp: transaction.timestamp,
 	};
 };
