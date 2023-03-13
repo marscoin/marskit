@@ -150,7 +150,7 @@ const HeadlinesWidget = ({
 			)}
 			<Dialog
 				visible={showDialog}
-				title={t('widget_delete_title', { name: t('widget_headlines') })}
+				title={t('widget_delete_title')}
 				description={t('widget_delete_desc', { name: t('widget_headlines') })}
 				confirmText={t('widget_delete_yes')}
 				onCancel={(): void => {

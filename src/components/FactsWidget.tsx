@@ -139,7 +139,7 @@ const FactsWidget = ({
 			)}
 			<Dialog
 				visible={showDialog}
-				title={t('widget_delete_title', { name: t('widget_facts') })}
+				title={t('widget_delete_title')}
 				description={t('widget_delete_desc', { name: t('widget_facts') })}
 				confirmText={t('widget_delete_yes')}
 				onCancel={(): void => {

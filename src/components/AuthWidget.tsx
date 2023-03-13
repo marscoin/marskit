@@ -117,7 +117,7 @@ const AuthWidget = ({
 			</View>
 			<Dialog
 				visible={showDialog}
-				title={t('widget_delete_title', { name: profile.name })}
+				title={t('widget_delete_title')}
 				description={t('widget_delete_desc', { name: profile.name })}
 				confirmText={t('widget_delete_yes')}
 				onCancel={(): void => {
