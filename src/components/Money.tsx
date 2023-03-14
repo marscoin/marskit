@@ -150,7 +150,12 @@ const Money = (props: IMoney): ReactElement => {
 	}, [highlight, dv, unit, sats]);
 
 	if (hide) {
-		prim = ' • • • • • • • • • •';
+		if (size === 'display') {
+			prim = ' • • • • • • • • • •';
+		} else {
+			prim = ' • • • • •';
+		}
+
 		secd = '';
 	}
 

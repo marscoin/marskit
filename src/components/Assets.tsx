@@ -38,7 +38,7 @@ const Assets = (): ReactElement => {
 const styles = StyleSheet.create({
 	title: {
 		marginTop: 32,
-		marginBottom: 8,
+		marginBottom: 23,
 	},
 });
 

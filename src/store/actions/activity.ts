@@ -52,10 +52,9 @@ export const updateActivityList = (): Result<string> => {
  * @returns {Promise<Result<string>>}
  */
 export const updateOnChainActivityList = (): Result<string> => {
-	const { currentWallet, selectedNetwork, selectedWallet } = getCurrentWallet(
-		{},
-	);
+	const { currentWallet, selectedNetwork, selectedWallet } = getCurrentWallet();
 	const blocktankTransactions = getBlocktankStore().paidOrders;
+	const blocktankOrders = getBlocktankStore().orders;
 	const boostedTransactions =
 		currentWallet.boostedTransactions[selectedNetwork];
 
@@ -71,6 +70,7 @@ export const updateOnChainActivityList = (): Result<string> => {
 		return onChainTransactionToActivityItem({
 			transaction: tx,
 			blocktankTransactions,
+			blocktankOrders,
 		});
 	});
 

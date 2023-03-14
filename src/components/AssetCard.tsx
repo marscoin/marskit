@@ -1,6 +1,10 @@
 import React, { memo, ReactElement } from 'react';
-import { GestureResponderEvent, Pressable, StyleSheet } from 'react-native';
-import { View } from '../styles/components';
+import {
+	View,
+	GestureResponderEvent,
+	Pressable,
+	StyleSheet,
+} from 'react-native';
 import { Text01M, Caption13M } from '../styles/text';
 import Money from '../components/Money';
 
@@ -21,28 +25,20 @@ const AssetCard = ({
 }): ReactElement => {
 	return (
 		<Pressable style={styles.container} onPress={onPress} testID={testID}>
-			<View color="transparent" style={styles.col1}>
-				{icon}
-				<View color="transparent" style={styles.titleContainer}>
-					<Text01M>{name}</Text01M>
-					<Caption13M color="gray1">{ticker}</Caption13M>
-				</View>
+			<View style={styles.icon}>{icon}</View>
+			<View style={styles.text}>
+				<Text01M>{name}</Text01M>
+				<Caption13M color="gray1">{ticker}</Caption13M>
 			</View>
 
-			<View color="transparent" style={styles.col2}>
-				<Money
-					sats={satoshis}
-					enableHide={true}
-					size="text01m"
-					style={styles.value}
-				/>
+			<View style={styles.amount}>
+				<Money sats={satoshis} enableHide={true} size="text01m" />
 				<Money
 					sats={satoshis}
 					enableHide={true}
 					size="caption13M"
 					showFiat={true}
 					color="gray1"
-					style={styles.value}
 				/>
 			</View>
 		</Pressable>
@@ -51,26 +47,26 @@ const AssetCard = ({
 
 const styles = StyleSheet.create({
 	container: {
-		minHeight: 88,
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		flexDirection: 'row',
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 		borderBottomWidth: 1,
-	},
-	col1: {
-		justifyContent: 'space-between',
-		alignItems: 'center',
+		paddingBottom: 24,
+		// marginBottom: 24,
 		flexDirection: 'row',
+		justifyContent: 'space-between',
+		minHeight: 65,
 	},
-	col2: {
-		alignContent: 'flex-end',
+	icon: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginRight: 16,
 	},
-	titleContainer: {
-		marginLeft: 16,
+	text: {
+		justifyContent: 'space-between',
 	},
-	value: {
-		justifyContent: 'flex-end',
+	amount: {
+		justifyContent: 'space-between',
+		alignItems: 'flex-end',
+		marginLeft: 'auto',
 	},
 });
 

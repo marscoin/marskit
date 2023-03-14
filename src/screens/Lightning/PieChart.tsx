@@ -131,8 +131,8 @@ const PieChart = ({
 
 	return (
 		<Canvas style={{ width: whole, height: whole }}>
-			<Circle c={vec(center)} r={r * 1.2} color={colors.purple} opacity={0.3}>
-				<BlurMask blur={60} style="normal" />
+			<Circle c={vec(center)} r={r * 1.2} color={colors.purple} opacity={0.2}>
+				<BlurMask blur={30} style="normal" />
 			</Circle>
 			{content}
 			{dashedLine}

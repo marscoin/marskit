@@ -134,7 +134,7 @@ export const BaseFeedWidget = ({
 
 			<Dialog
 				visible={showDialog}
-				title={t('widget_delete_title', { name })}
+				title={t('widget_delete_title')}
 				description={t('widget_delete_desc', { name })}
 				confirmText={t('widget_delete_yes')}
 				onCancel={(): void => {

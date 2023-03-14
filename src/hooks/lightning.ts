@@ -63,7 +63,7 @@ export const useLightningBalance = (
 					return (
 						acc +
 						cur.inbound_capacity_sat +
-						(cur?.unspendable_punishment_reserve ?? 0)
+						(cur.unspendable_punishment_reserve ?? 0)
 					);
 				}
 			}
@@ -90,12 +90,12 @@ export const useLightningChannelBalance = (
 		capacity: 0, // Total capacity of the channel. (spendingTotal + receivingTotal)
 	};
 
-	const channel_value_satoshis = channel.channel_value_satoshis ?? 0;
+	const channel_value_satoshis = channel.channel_value_satoshis;
 	const unspendable_punishment_reserve =
 		channel.unspendable_punishment_reserve ?? 0;
-	const outbound_capacity_sat = channel.outbound_capacity_sat ?? 0;
-	const balance_sat = channel.balance_sat ?? 0;
-	const inbound_capacity_sat = channel.inbound_capacity_sat ?? 0;
+	const outbound_capacity_sat = channel.outbound_capacity_sat;
+	const balance_sat = channel.balance_sat;
+	const inbound_capacity_sat = channel.inbound_capacity_sat;
 
 	balance.spendingTotal =
 		outbound_capacity_sat + unspendable_punishment_reserve;

@@ -8,7 +8,8 @@ export type TTodoType =
 	| 'lightning'
 	| 'lightningSettingUp'
 	| 'transfer'
-	| 'transferInProgress'
+	| 'transferToSpending'
+	| 'transferToSavings'
 	| 'transferClosingChannel'
 	| 'slashtagsProfile'
 	| 'buyBitcoin';

@@ -288,7 +288,9 @@ const Recipient = ({
 				txt.includes(':') ||
 				txt.includes('?') ||
 				txt.includes('bitcoin') ||
-				txt.includes('lightning');
+				txt.includes('lightning') ||
+				txt.startsWith('ln');
+
 			// Workaround for capturing an invoice from a potential OS paste.
 			if (!handledOsPaste && includesKeyword) {
 				handlePaste(txt).then();

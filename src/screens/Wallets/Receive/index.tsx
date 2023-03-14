@@ -41,7 +41,7 @@ import { generateNewReceiveAddress } from '../../../store/actions/wallet';
 import { viewControllerIsOpenSelector } from '../../../store/reselect/ui';
 import { useLightningBalance } from '../../../hooks/lightning';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
-import { refreshLdk } from '../../../utils/lightning';
+import { refreshLdk, waitForLdk } from '../../../utils/lightning';
 import { getUnifiedUri } from '../../../utils/receive';
 import { ellipsis, sleep } from '../../../utils/helpers';
 import { getReceiveAddress } from '../../../utils/wallet';
@@ -124,6 +124,8 @@ const Receive = ({
 		) {
 			return;
 		}
+
+		await waitForLdk();
 
 		const response = await createLightningInvoice({
 			amountSats: amount,

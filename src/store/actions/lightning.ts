@@ -88,16 +88,16 @@ export const updateLightningChannels = async ({
 		return err(lightningChannels.error.message);
 	}
 
-	const channels: { [key: string]: TChannel } = {};
+	const channels: { [channelId: string]: TChannel } = {};
 	const openChannelIds: string[] = [];
-	await Promise.all(
-		lightningChannels.value.map((channel) => {
-			channels[channel.channel_id] = channel;
-			if (!openChannelIds.includes(channel.channel_id)) {
-				openChannelIds.push(channel.channel_id);
-			}
-		}),
-	);
+
+	lightningChannels.value.forEach((channel) => {
+		channels[channel.channel_id] = channel;
+		if (!openChannelIds.includes(channel.channel_id)) {
+			openChannelIds.push(channel.channel_id);
+		}
+	});
+
 	const payload = {
 		channels,
 		openChannelIds,

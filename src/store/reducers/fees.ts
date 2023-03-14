@@ -4,12 +4,6 @@ import { IFees } from '../types/fees';
 
 const fees = (state: IFees = defaultFeesShape, action): IFees => {
 	switch (action.type) {
-		case actions.UPDATE_FEES:
-			return {
-				...state,
-				...action.payload,
-			};
-
 		case actions.UPDATE_ONCHAIN_FEE_ESTIMATES:
 			return {
 				...state,

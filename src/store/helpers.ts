@@ -1,4 +1,5 @@
 import { Dispatch } from 'redux';
+import cloneDeep from 'lodash.clonedeep';
 
 import store from '../store';
 import Store, { EStore } from './types';
@@ -10,47 +11,64 @@ import { ILightning } from './types/lightning';
 import { IBlocktank } from './types/blocktank';
 import { IFees } from './types/fees';
 import { ISlashtags } from './types/slashtags';
+import { ITodos } from './types/todos';
 import { IUi } from './types/ui';
 import { IUser } from './types/user';
 import { IWidgetsStore } from './types/widgets';
-import cloneDeep from 'lodash.clonedeep';
 
 /*
 Used to retrieve the store outside of a component.
  */
-export const getStore = (): Store => cloneDeep(store.getState());
+export const getStore = (): Store => {
+	return cloneDeep(store.getState());
+};
+export const getWalletStore = (): IWalletStore => {
+	return cloneDeep(store.getState()[EStore.wallet]);
+};
 
-export const getWalletStore = (): IWalletStore =>
-	cloneDeep(store.getState()[EStore.wallet]);
+export const getSettingsStore = (): ISettings => {
+	return cloneDeep(store.getState()[EStore.settings]);
+};
 
-export const getSettingsStore = (): ISettings =>
-	cloneDeep(store.getState()[EStore.settings]);
+export const getMetaDataStore = (): IMetadata => {
+	return cloneDeep(store.getState()[EStore.metadata]);
+};
 
-export const getMetaDataStore = (): IMetadata =>
-	cloneDeep(store.getState()[EStore.metadata]);
+export const getActivityStore = (): IActivity => {
+	return cloneDeep(store.getState()[EStore.activity]);
+};
 
-export const getActivityStore = (): IActivity =>
-	cloneDeep(store.getState()[EStore.activity]);
+export const getLightningStore = (): ILightning => {
+	return cloneDeep(store.getState()[EStore.lightning]);
+};
 
-export const getLightningStore = (): ILightning =>
-	cloneDeep(store.getState()[EStore.lightning]);
+export const getBlocktankStore = (): IBlocktank => {
+	return cloneDeep(store.getState()[EStore.blocktank]);
+};
 
-export const getBlocktankStore = (): IBlocktank =>
-	cloneDeep(store.getState()[EStore.blocktank]);
+export const getFeesStore = (): IFees => {
+	return cloneDeep(store.getState()[EStore.fees]);
+};
 
-export const getFeesStore = (): IFees =>
-	cloneDeep(store.getState()[EStore.fees]);
+export const getSlashtagsStore = (): ISlashtags => {
+	return cloneDeep(store.getState()[EStore.slashtags]);
+};
 
-export const getSlashtagsStore = (): ISlashtags =>
-	cloneDeep(store.getState()[EStore.slashtags]);
+export const getTodosStore = (): ITodos => {
+	return cloneDeep(store.getState()[EStore.todos]);
+};
 
-export const getUiStore = (): IUi => cloneDeep(store.getState()[EStore.ui]);
+export const getUiStore = (): IUi => {
+	return cloneDeep(store.getState()[EStore.ui]);
+};
 
-export const getUserStore = (): IUser =>
-	cloneDeep(store.getState()[EStore.user]);
+export const getUserStore = (): IUser => {
+	return cloneDeep(store.getState()[EStore.user]);
+};
 
-export const getWidgetsStore = (): IWidgetsStore =>
-	cloneDeep(store.getState()[EStore.widgets]);
+export const getWidgetsStore = (): IWidgetsStore => {
+	return cloneDeep(store.getState()[EStore.widgets]);
+};
 
 /*
 Used to get dispatch outside of a component.

@@ -66,6 +66,11 @@ import { enableDevOptionsSelector } from '../../../store/reselect/settings';
 import { TRANSACTION_DEFAULTS } from '../../../utils/wallet/constants';
 import { zipLogs } from '../../../utils/lightning/logs';
 import { SettingsScreenProps } from '../../../navigation/types';
+import {
+	blocktankOrdersSelector,
+	blocktankPaidOrdersSelector,
+} from '../../../store/reselect/blocktank';
+import { TPaidBlocktankOrders } from '../../../store/types/blocktank';
 
 /**
  * Convert pending (non-channel) blocktank orders to (fake) channels.
@@ -74,6 +79,7 @@ import { SettingsScreenProps } from '../../../navigation/types';
  */
 const getPendingBlocktankChannels = (
 	orders: IGetOrderResponse[],
+	paidOrders: TPaidBlocktankOrders,
 	nodeKey: string,
 ): {
 	pendingOrders: TChannel[];
@@ -82,7 +88,9 @@ const getPendingBlocktankChannels = (
 	const pendingOrders: TChannel[] = [];
 	const failedOrders: TChannel[] = [];
 
-	orders.forEach((order) => {
+	Object.keys(paidOrders).forEach((orderId) => {
+		const order = orders.find((o) => o._id === orderId)!;
+
 		const fakeChannel: TChannel = {
 			channel_id: order._id,
 			is_public: false,
@@ -150,7 +158,7 @@ const Channel = memo(
 						ellipsizeMode="middle">
 						{name}
 					</Text01M>
-					<ChevronRight color="gray1" />
+					<ChevronRight color="gray1" height={15} />
 				</View>
 				<LightningChannel channel={channel} status={getChannelStatus()} />
 			</TouchableOpacity>
@@ -204,9 +212,8 @@ const Channels = ({
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const enableDevOptions = useSelector(enableDevOptionsSelector);
 
-	const blocktankOrders = useSelector((state: Store) => {
-		return state.blocktank.orders;
-	});
+	const blocktankOrders = useSelector(blocktankOrdersSelector);
+	const paidOrders = useSelector(blocktankPaidOrdersSelector);
 	const openChannels = useSelector((state: Store) => {
 		return openChannelsSelector(state, selectedWallet, selectedNetwork);
 	});
@@ -222,20 +229,20 @@ const Channels = ({
 
 	const { pendingOrders, failedOrders } = getPendingBlocktankChannels(
 		blocktankOrders,
+		paidOrders,
 		blocktankNodeKey,
 	);
 	const pendingConnections = [...pendingOrders, ...pendingChannels];
 
 	const handleAdd = useCallback((): void => {
 		navigation.navigate('LightningRoot', {
-			screen: 'Introduction',
+			screen: 'CustomSetup',
+			params: { spending: true },
 		});
 
 		// TODO: Update this view once we enable creating channels with nodes other than Blocktank.
-		//navigation.navigate('LightningAddConnection');
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		// navigation.navigate('LightningAddConnection');
+	}, [navigation]);
 
 	const handleExportLogs = useCallback(async (): Promise<void> => {
 		const result = await zipLogs();
@@ -381,10 +388,17 @@ const Channels = ({
 					</>
 				)}
 
-				<Caption13Up color="gray1" style={styles.sectionTitle}>
-					{t('conn_open')}
-				</Caption13Up>
-				<ChannelList channels={openChannels} onChannelPress={onChannelPress} />
+				{openChannels.length > 0 && (
+					<>
+						<Caption13Up color="gray1" style={styles.sectionTitle}>
+							{t('conn_open')}
+						</Caption13Up>
+						<ChannelList
+							channels={openChannels}
+							onChannelPress={onChannelPress}
+						/>
+					</>
+				)}
 
 				{showClosed && (
 					<AnimatedView entering={FadeIn} exiting={FadeOut}>

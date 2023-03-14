@@ -37,6 +37,12 @@ const user = (state: IUser = defaultUserShape, action): IUser => {
 				startCoopCloseTimestamp: Number(new Date()),
 			};
 
+		case actions.CLEAR_COOP_CLOSE_TIMER:
+			return {
+				...state,
+				startCoopCloseTimestamp: 0,
+			};
+
 		case actions.VERIFY_BACKUP:
 			return {
 				...state,

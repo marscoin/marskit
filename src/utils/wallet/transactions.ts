@@ -1440,20 +1440,12 @@ export interface ICanBoostResponse {
 export const canBoost = (txid: string): ICanBoostResponse => {
 	const failure = { canBoost: false, rbf: false, cpfp: false };
 	try {
-		let type = EPaymentType.sent;
-		if (!txid) {
-			return failure;
-		}
 		const settings = getSettingsStore();
 		const rbfEnabled = settings.rbf;
 		const transactionResponse = getTransactionById({ txid });
 		if (transactionResponse.isErr()) {
 			return failure;
 		}
-		if (transactionResponse.value.height > 0) {
-			return failure;
-		}
-		type = transactionResponse.value.type;
 
 		const balance = getOnChainBalance();
 		const { currentWallet, selectedNetwork } = getCurrentWallet();
@@ -1462,17 +1454,21 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 			(utxo) => txid === utxo.tx_hash,
 		);
 
+		const { type, matchedOutputValue, totalOutputValue, fee, height } =
+			transactionResponse.value;
+
+		// transaction already confirmed
+		if (height > 0) {
+			return failure;
+		}
+
 		/*
 		 * For an RBF, technically we can reduce the output value and apply it to the fee,
 		 * but this might cause issues when paying a merchant that requested a specific amount.
 		 */
-
-		const { matchedOutputValue, totalOutputValue, fee, height } =
-			transactionResponse.value;
 		const rbf =
 			rbfEnabled &&
 			type === EPaymentType.sent &&
-			height <= 0 &&
 			balance >= TRANSACTION_DEFAULTS.recommendedBaseFee &&
 			matchedOutputValue !== totalOutputValue &&
 			matchedOutputValue > fee &&
@@ -1480,10 +1476,10 @@ export const canBoost = (txid: string): ICanBoostResponse => {
 
 		// Performing a CPFP tx requires a new tx and higher fee.
 		const cpfp =
-			height <= 0 &&
 			hasUtxo &&
 			btcToSats(matchedOutputValue) >=
 				TRANSACTION_DEFAULTS.recommendedBaseFee * 3;
+
 		return { canBoost: rbf || cpfp, rbf, cpfp };
 	} catch (e) {
 		return failure;

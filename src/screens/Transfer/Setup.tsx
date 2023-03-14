@@ -37,7 +37,10 @@ import { EBitcoinUnit } from '../../store/types/wallet';
 const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 	const { t } = useTranslation('lightning');
 	const { satoshis: onChainBalance } = useBalance({ onchain: true });
-	const { satoshis: lightningBalance } = useBalance({ lightning: true });
+	const { satoshis: lightningBalance } = useBalance({
+		lightning: true,
+		subtractReserveBalance: false,
+	});
 	const [keybrd, setKeybrd] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [spendingAmount, setSpendingAmount] = useState(lightningBalance);

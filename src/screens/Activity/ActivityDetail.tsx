@@ -186,7 +186,7 @@ const OnchainActivityDetail = ({
 					});
 					return;
 				}
-				const txData: ITransaction<ITxHash>[] = txResponse.value.data;
+				const txData = txResponse.value.data;
 				if (txData.length === 0) {
 					showErrorNotification({
 						title: t('activity_error_get'),
@@ -289,7 +289,7 @@ const OnchainActivityDetail = ({
 
 	let status = (
 		<View style={styles.row}>
-			<HourglassIcon style={styles.rowIcon} color="brand" />
+			<HourglassIcon style={styles.rowIcon} color="brand" width={16} />
 			<Text02M color="brand">{t('activity_confirming')}</Text02M>
 		</View>
 	);
@@ -352,7 +352,7 @@ const OnchainActivityDetail = ({
 					title={t('activity_date')}
 					value={
 						<View style={styles.row}>
-							<CalendarIcon style={styles.rowIcon} color="brand" />
+							<CalendarIcon style={styles.rowIcon} color="brand" width={16} />
 							<Text02M>
 								{t('intl:dateTime', {
 									v: new Date(timestamp),
@@ -499,12 +499,10 @@ const OnchainActivityDetail = ({
 						<>
 							<View style={styles.sectionContainer}>
 								<Section
-									title={t('activity_input', {
-										count: txDetails?.vin?.length ?? 0,
-									})}
+									title={t('activity_input', { count: txDetails.vin.length })}
 									value={txDetails.vin.map((v) => {
-										const txid = v?.txid ?? '';
-										const vout = v?.vout ?? '';
+										const txid = v.txid;
+										const vout = v.vout;
 										const i = txid + ':' + vout;
 										return <Text02M key={i}>{i}</Text02M>;
 									})}
