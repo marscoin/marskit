@@ -24,15 +24,6 @@ export const updateOnchainFeeEstimates = async ({
 
 	if (forceUpdate || (timestamp && difference > REFRESH_INTERVAL)) {
 		const feeEstimates = await getFeeEstimates(selectedNetwork);
-
-		// TODO: set fees for LDK
-		// LDK expects fees to be satoshis per 1000 Weight Units
-		// await ldk.updateFees({
-		// 	highPriority: feeEstimates.fast * 250,
-		// 	normal: feeEstimates.normal * 250,
-		// 	background: feeEstimates.minimum * 250,
-		// });
-
 		dispatch({
 			type: actions.UPDATE_ONCHAIN_FEE_ESTIMATES,
 			payload: feeEstimates,

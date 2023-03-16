@@ -41,6 +41,7 @@ import {
 import { TAvailableNetworks } from '../networks';
 import {
 	getBlocktankStore,
+	getFeesStore,
 	getLightningStore,
 	getWalletStore,
 } from '../../store/helpers';
@@ -193,10 +194,16 @@ export const setupLdk = async ({
 		if (storageRes.isErr()) {
 			return err(storageRes.error);
 		}
+		const fees = getFeesStore().onchain;
 		const lmStart = await lm.start({
 			genesisHash: genesisHash.value,
 			account: account.value,
-			feeRate: 1000,
+			getFees: () =>
+				Promise.resolve({
+					highPriority: fees.fast * 1000,
+					normal: fees.normal * 1000,
+					background: fees.slow * 1000,
+				}),
 			network,
 			getBestBlock,
 			getAddress,
@@ -213,12 +220,6 @@ export const setupLdk = async ({
 		if (lmStart.isErr()) {
 			return err(lmStart.error.message);
 		}
-
-		await ldk.updateFees({
-			highPriority: 1250,
-			normal: 1250,
-			background: 1250,
-		});
 
 		const nodeIdRes = await ldk.nodeId();
 		if (nodeIdRes.isErr()) {
