@@ -15,6 +15,9 @@ import { useDebouncedEffect } from '../../hooks/helpers';
 import { settingsSelector } from '../../store/reselect/settings';
 import { metadataState } from '../../store/reselect/metadata';
 import { widgetsState } from '../../store/reselect/widgets';
+import { activityItemsState } from '../../store/reselect/activity';
+import { EActivityType } from '../../store/types/activity';
+import { blocktankSelector } from '../../store/reselect/blocktank';
 
 const BACKUP_DEBOUNCE = 5000;
 
@@ -25,6 +28,8 @@ const EnabledSlashtag = (): ReactElement => {
 	const settings = useSelector(settingsSelector);
 	const metadata = useSelector(metadataState);
 	const widgets = useSelector(widgetsState);
+	const activity = useSelector(activityItemsState);
+	const blocktank = useSelector(blocktankSelector);
 
 	useEffect(() => {
 		const sub = lm.subscribeToBackups((res) => {
@@ -88,6 +93,59 @@ const EnabledSlashtag = (): ReactElement => {
 			}).then();
 		},
 		[backup.remoteMetadataBackupSynced, slashtag, metadata, selectedNetwork],
+		BACKUP_DEBOUNCE,
+	);
+
+	// Attempts to backup ldkActivity anytime remoteLdkActivityBackupSynced is set to false.
+	useDebouncedEffect(
+		() => {
+			if (backup.remoteLdkActivityBackupSynced) {
+				return;
+			}
+
+			const ldkActivity = activity.filter(
+				(a) => a.activityType === EActivityType.lightning,
+			);
+
+			performRemoteBackup({
+				slashtag,
+				isSyncedKey: 'remoteLdkActivityBackupSynced',
+				backupCategory: EBackupCategories.ldkActivity,
+				selectedNetwork,
+				backup: ldkActivity,
+			}).then();
+		},
+		[backup.remoteLdkActivityBackupSynced, slashtag, activity, selectedNetwork],
+		BACKUP_DEBOUNCE,
+	);
+
+	// Attempts to backup blocktank anytime remoteBlocktankBackupSynced is set to false.
+	useDebouncedEffect(
+		() => {
+			if (backup.remoteBlocktankBackupSynced) {
+				return;
+			}
+
+			const back = {
+				orders: blocktank.orders,
+				paidOrders: blocktank.paidOrders,
+			};
+
+			performRemoteBackup({
+				slashtag,
+				isSyncedKey: 'remoteBlocktankBackupSynced',
+				backupCategory: EBackupCategories.blocktank,
+				selectedNetwork,
+				backup: back,
+			}).then();
+		},
+		[
+			backup.remoteBlocktankBackupSynced,
+			slashtag,
+			blocktank.orders,
+			blocktank.paidOrders,
+			selectedNetwork,
+		],
 		BACKUP_DEBOUNCE,
 	);
 

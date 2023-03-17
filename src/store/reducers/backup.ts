@@ -1,5 +1,6 @@
 import actions from '../actions/actions';
 import { defaultBackupShape } from '../shapes/backup';
+import { EActivityType } from '../types/activity';
 import { IBackup } from '../types/backup';
 
 const backup = (state: IBackup = defaultBackupShape, action): IBackup => {
@@ -34,6 +35,19 @@ const backup = (state: IBackup = defaultBackupShape, action): IBackup => {
 			return {
 				...state,
 				remoteMetadataBackupSynced: false,
+			};
+
+		case actions.ADD_ACTIVITY_ITEM:
+			// we only listen for LN activity here
+			return action.payload.activityType === EActivityType.lightning
+				? { ...state, remoteLdkActivityBackupSynced: false }
+				: state;
+
+		case actions.ADD_PAID_BLOCKTANK_ORDER:
+		case actions.UPDATE_BLOCKTANK_ORDER:
+			return {
+				...state,
+				remoteBlocktankBackupSynced: false,
 			};
 
 		case actions.RESET_BACKUP_STORE:

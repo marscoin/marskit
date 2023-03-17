@@ -17,12 +17,17 @@ import {
 	addMetaSlashTagsUrlTag,
 } from '../src/store/actions/metadata';
 import {
+	performBlocktankRestore,
+	performLdkActivityRestore,
 	performMetadataRestore,
 	performRemoteBackup,
 	performSettingsRestore,
 	performWidgetsRestore,
 } from '../src/store/actions/backup';
 import {
+	getActivityStore,
+	getBlocktankStore,
+	getDispatch,
 	getMetaDataStore,
 	getSettingsStore,
 	getWidgetsStore,
@@ -36,6 +41,18 @@ import {
 	setFeedWidget,
 	updateWidgets,
 } from '../src/store/actions/widgets';
+import {
+	addActivityItem,
+	resetActivityStore,
+} from '../src/store/actions/activity';
+import { EActivityType } from '../src/store/types/activity';
+import { EPaymentType } from '../src/store/types/wallet';
+import {
+	addPaidBlocktankOrder,
+	resetBlocktankStore,
+} from '../src/store/actions/blocktank';
+import actions from '../src/store/actions/actions';
+import { defaultOrderResponse } from '../src/store/shapes/blocktank';
 
 jest.setTimeout(30000);
 
@@ -196,5 +213,88 @@ describe('Remote backups', () => {
 		expect(restoreRes.value.backupExists).toEqual(true);
 		expect(store.getState().widgets).toEqual(backup);
 		expect(store.getState().backup.remoteWidgetsBackupSynced).toEqual(true);
+	});
+
+	it('Backups and restores LDK Activity', async () => {
+		addActivityItem({
+			id: 'id',
+			activityType: EActivityType.lightning,
+			txType: EPaymentType.received,
+			txId: 'txId',
+			message: '',
+			address: 'invoice',
+			value: 1,
+			timestamp: new Date().getTime(),
+		});
+
+		const backup = getActivityStore().items.filter(
+			(a) => a.activityType === EActivityType.lightning,
+		);
+
+		const uploadRes = await performRemoteBackup({
+			slashtag,
+			isSyncedKey: 'remoteLdkActivityBackupSynced',
+			backupCategory: EBackupCategories.ldkActivity,
+			backup,
+		});
+
+		if (uploadRes.isErr()) {
+			throw uploadRes.error;
+		}
+
+		resetActivityStore();
+		expect(store.getState().activity.items.length).toEqual(0);
+
+		const restoreRes = await performLdkActivityRestore({
+			slashtag,
+		});
+
+		if (restoreRes.isErr()) {
+			throw restoreRes.error;
+		}
+
+		expect(restoreRes.value.backupExists).toEqual(true);
+		expect(store.getState().activity.items).toEqual(backup);
+		expect(store.getState().backup.remoteLdkActivityBackupSynced).toEqual(true);
+	});
+
+	it('Backups and restores Blocktank orders', async () => {
+		const dispatch = getDispatch();
+		addPaidBlocktankOrder({ orderId: 'id', txid: 'txid' });
+		dispatch({
+			type: actions.UPDATE_BLOCKTANK_ORDER,
+			payload: defaultOrderResponse,
+		});
+
+		const { orders, paidOrders } = getBlocktankStore();
+		const backup = { orders, paidOrders };
+
+		const uploadRes = await performRemoteBackup({
+			slashtag,
+			isSyncedKey: 'remoteBlocktankBackupSynced',
+			backupCategory: EBackupCategories.blocktank,
+			backup,
+		});
+
+		if (uploadRes.isErr()) {
+			throw uploadRes.error;
+		}
+
+		resetBlocktankStore();
+		expect(store.getState().blocktank.orders.length).toEqual(0);
+		expect(store.getState().blocktank.paidOrders).toMatchObject({});
+
+		const restoreRes = await performBlocktankRestore({
+			slashtag,
+		});
+
+		if (restoreRes.isErr()) {
+			throw restoreRes.error;
+		}
+
+		expect(restoreRes.value.backupExists).toEqual(true);
+		expect(store.getState().blocktank.orders).toEqual(backup.orders);
+		expect(store.getState().blocktank.paidOrders).toEqual(backup.paidOrders);
+		expect(store.getState().backup.remoteBlocktankBackupSynced).toEqual(true);
 	});
 });
