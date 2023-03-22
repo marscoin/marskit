@@ -23,7 +23,7 @@ import { showSuccessNotification } from '../../../utils/notifications';
 import { getTransactions } from '../../../utils/wallet/electrum';
 import { getBlockExplorerLink } from '../../../utils/wallet/transactions';
 import { openURL } from '../../../utils/helpers';
-import { createSupportLink } from '../../../utils/support';
+import { createOrderSupportLink } from '../../../utils/support';
 import Store from '../../../store/types';
 import {
 	selectedNetworkSelector,
@@ -255,12 +255,11 @@ const ChannelDetails = ({
 	}, [selectedNetwork, channel.funding_txid, t]);
 
 	const openSupportLink = async (order: IGetOrderResponse): Promise<void> => {
-		await openURL(
-			await createSupportLink(
-				order._id,
-				`Transaction ID: ${order.channel_open_tx?.transaction_id}`,
-			),
+		const link = await createOrderSupportLink(
+			order._id,
+			`Transaction ID: ${order.channel_open_tx?.transaction_id}`,
 		);
+		await openURL(link);
 	};
 
 	const getChannelStatus = (): TStatus => {

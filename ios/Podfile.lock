@@ -442,6 +442,8 @@ PODS:
     - React-Core
   - RNDeviceInfo (10.3.0):
     - React-Core
+  - RNExitApp (1.1.0):
+    - React
   - RNFS (2.20.0):
     - React-Core
   - RNGestureHandler (2.9.0):
@@ -589,6 +591,7 @@ DEPENDENCIES:
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
+  - RNExitApp (from `../node_modules/react-native-exit-app`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
@@ -732,6 +735,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-clipboard/clipboard"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
+  RNExitApp:
+    :path: "../node_modules/react-native-exit-app"
   RNFS:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
@@ -832,6 +837,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 32e04877e57e0eeab26e45817e3fd532e7d302fb
   RNCClipboard: 4b8bec7c195e27bcec746f52dff7601161683249
   RNDeviceInfo: 4701f0bf2a06b34654745053db0ce4cb0c53ada7
+  RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333

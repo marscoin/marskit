@@ -21,29 +21,31 @@ type GlowProps = {
 	style?: object;
 };
 
-const Glow = memo(({ color, size = 600, style }: GlowProps): ReactElement => {
-	const opacity = useValue(0);
-	const cstyle = useMemo(
-		() => ({ width: size, height: size, ...style }),
-		[size, style],
-	);
+export const Glow = memo(
+	({ color, size = 600, style }: GlowProps): ReactElement => {
+		const opacity = useValue(0);
+		const cstyle = useMemo(
+			() => ({ width: size, height: size, ...style }),
+			[size, style],
+		);
 
-	useEffect(() => {
-		runTiming(opacity, 0.4, { duration: 300 });
-	}, [opacity]);
+		useEffect(() => {
+			runTiming(opacity, 0.4, { duration: 300 });
+		}, [opacity]);
 
-	return (
-		<Canvas style={cstyle}>
-			<Rect x={0} y={0} width={size} height={size} opacity={opacity}>
-				<RadialGradient
-					c={vec(size / 2, size / 2)}
-					r={size / 2}
-					colors={[color, 'transparent']}
-				/>
-			</Rect>
-		</Canvas>
-	);
-});
+		return (
+			<Canvas style={cstyle}>
+				<Rect x={0} y={0} width={size} height={size} opacity={opacity}>
+					<RadialGradient
+						c={vec(size / 2, size / 2)}
+						r={size / 2}
+						colors={[color, 'transparent']}
+					/>
+				</Rect>
+			</Canvas>
+		);
+	},
+);
 
 type GlowWrapperProps = {
 	color: keyof IThemeColors;
