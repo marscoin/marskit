@@ -63,11 +63,12 @@ const AppUpdatePrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 		return (
 			enabled &&
 			DISABLE_PERIODIC_REMINDERS !== 'true' &&
-			!updateInfo?.critical &&
+			updateInfo !== null &&
+			!updateInfo.critical &&
 			isTimeoutOver &&
 			!anyBottomSheetIsOpen
 		);
-	}, [enabled, updateInfo?.critical, ignoreTimestamp, anyBottomSheetIsOpen]);
+	}, [enabled, updateInfo, ignoreTimestamp, anyBottomSheetIsOpen]);
 
 	useEffect(() => {
 		if (!shouldShowBottomSheet) {
