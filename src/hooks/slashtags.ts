@@ -42,7 +42,7 @@ export const useProfile = (
 	const contactRecord = useSlashtags().contacts[url];
 	const [resolving, setResolving] = useState(true);
 	const profile = useSelector((state: Store) => {
-		return state.slashtags.profiles?.[url]?.profile || {};
+		return state.slashtags.profiles?.[url]?.profile;
 	});
 
 	const withContactRecord = useMemo(() => {
@@ -51,7 +51,11 @@ export const useProfile = (
 			: profile;
 	}, [profile, contactRecord]);
 
-	const shouldResolve = Boolean(opts?.resolve);
+	const shouldResolve = Boolean(
+		opts?.resolve ||
+			// If We are restoring wallet, try to resolve anyways
+			!profile,
+	);
 
 	useEffect(() => {
 		// Skip resolving profile from peers to avoid blocking UI
@@ -101,7 +105,7 @@ export const useProfile = (
 
 	return {
 		resolving,
-		profile: withContactRecord,
+		profile: withContactRecord || {},
 	};
 };
 
