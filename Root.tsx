@@ -27,14 +27,8 @@ const Root = (): ReactElement => {
 		</Provider>
 	);
 
-	if (__DEV__) {
-		return content;
-	}
-
 	return <ErrorBoundary>{content}</ErrorBoundary>;
 };
-
-export default Root;
 
 const styles = StyleSheet.create({
 	container: {
@@ -42,3 +36,5 @@ const styles = StyleSheet.create({
 		backgroundColor: 'black',
 	},
 });
+
+export default Root;

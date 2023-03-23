@@ -1,15 +1,17 @@
-import React, { ReactElement, Component, ErrorInfo } from 'react';
-import { Text, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import React, {
+	Component,
+	ErrorInfo,
+	PropsWithChildren,
+	ReactNode,
+} from 'react';
+import AppError from './screens/AppError';
 
+type ReactError = Error & ErrorInfo;
 type State = {
-	error: null | any;
+	error: ReactError | null;
 };
 
-type Props = {
-	children: ReactElement;
-};
-
-export default class ErrorBoundary extends Component<Props, State> {
+export default class ErrorBoundary extends Component<PropsWithChildren, State> {
 	state: State = {
 		error: null,
 	};
@@ -22,41 +24,13 @@ export default class ErrorBoundary extends Component<Props, State> {
 		console.error('ErrorBoundary componentDidCatch', error, errorInfo);
 	}
 
-	render(): ReactElement {
+	render(): ReactNode {
 		const { error } = this.state;
-		if (!error) {
+
+		if (!error || __DEV__) {
 			return this.props.children;
 		}
 
-		return (
-			<SafeAreaView style={styles.root}>
-				<ScrollView style={styles.root}>
-					<Text style={styles.header}>Oops! There's an error:</Text>
-					<Text style={styles.text}>{error.message}</Text>
-					<Text style={styles.header}>Component stack:</Text>
-					<Text style={styles.text}>{error.componentStack}</Text>
-					<Text style={styles.header}>Stack:</Text>
-					<Text style={styles.text}>{error.stack}</Text>
-				</ScrollView>
-			</SafeAreaView>
-		);
+		return <AppError error={error} />;
 	}
 }
-
-const styles = StyleSheet.create({
-	root: {
-		backgroundColor: 'black',
-		paddingHorizontal: 16,
-		flex: 1,
-	},
-	header: {
-		fontSize: 16,
-		fontWeight: 'bold',
-		textAlign: 'center',
-		color: 'orange',
-		marginVertical: 8,
-	},
-	text: {
-		color: 'white',
-	},
-});

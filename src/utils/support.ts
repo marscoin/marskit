@@ -3,35 +3,23 @@ import { getBuildNumber, getVersion } from 'react-native-device-info';
 import { getNodeId, getNodeVersion } from './lightning';
 import { getStore } from '../store/helpers';
 
+const SUPPORT_EMAIL = 'support@synonym.to';
+
 /**
  * Support link for opening device mail app.
- * Includes BT orders, device details, app version and LDK node info.
- * @param orderId
- * @param additionalContext
+ * Includes an optional message, device details, app version and LDK node info.
+ * @param message
  * @returns {Promise<`mailto:support@synonym.to?subject=Bitkit support&body=${string}`>}
  */
 export const createSupportLink = async (
-	orderId = '',
-	additionalContext = '',
+	subject?: string,
+	message?: string,
 ): Promise<string> => {
-	const email = 'support@synonym.to';
-	const subject = 'Bitkit support';
+	subject = subject ?? 'Bitkit Support';
 	let body = '';
 
-	if (orderId) {
-		body += `\nBlocktank order ID: ${orderId}`;
-	} else {
-		//No specific order ID so add all of them
-		let orders = getStore().blocktank.orders;
-		if (orders.length > 0) {
-			body += `\nBlocktank order IDs: ${orders
-				.map((o) => `${o._id}`)
-				.join(', ')}`;
-		}
-	}
-
-	if (additionalContext) {
-		body += `\n${additionalContext}`;
+	if (message) {
+		body += `${message}\n`;
 	}
 
 	body += `\nPlatform: ${Platform.OS}`;
@@ -47,5 +35,35 @@ export const createSupportLink = async (
 		body += `\nLDK node ID: ${nodeId.value}`;
 	}
 
-	return `mailto:${email}?subject=${subject}&body=${body}`;
+	return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+};
+
+/**
+ * Support link for opening device mail app.
+ * Includes BT orders, device details, app version and LDK node info.
+ * @param orderId
+ * @param additionalContext
+ * @returns {Promise<`mailto:support@synonym.to?subject=Bitkit support&body=${string}`>}
+ */
+export const createOrderSupportLink = async (
+	orderId: string,
+	additionalContext: string,
+): Promise<string> => {
+	let body = '';
+
+	if (orderId) {
+		body += `\nBlocktank order ID: ${orderId}`;
+	} else {
+		//No specific order ID so add all of them
+		const orders = getStore().blocktank.orders;
+		if (orders.length > 0) {
+			body += `\nBlocktank order IDs: ${orders.map((o) => o._id).join(', ')}`;
+		}
+	}
+
+	if (additionalContext) {
+		body += `\n${additionalContext}`;
+	}
+
+	return createSupportLink('Bitkit Support [Channel]', body);
 };
