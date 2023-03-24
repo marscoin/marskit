@@ -578,3 +578,40 @@ export async function tryNTimes<T>({
 		await sleep(interval);
 	}
 }
+
+export type TGetMinMaxObject<T> = { min: T | undefined; max: T | undefined };
+
+/**
+ * Accepts an array of objects and returns the minimum and maximum object based off of the provided key.
+ * @template T
+ * @param {T[]} arr
+ * @param {string} key
+ * @returns { min: T | undefined; max: T | undefined }
+ */
+export const getMinMaxObjects = <T>({
+	arr = [],
+	key = '',
+}: {
+	arr: T[];
+	key: string;
+}): TGetMinMaxObject<T> => {
+	let min, max;
+	arr.forEach((item) => {
+		if (key in item && typeof item[key] === 'number') {
+			const index = item[key];
+			if (!min) {
+				min = item;
+			}
+			if (!max) {
+				max = item;
+			}
+			if (index < min[key]) {
+				min = item;
+			}
+			if (index > max[key]) {
+				max = item;
+			}
+		}
+	});
+	return { min, max };
+};

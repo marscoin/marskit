@@ -8,7 +8,6 @@ import { err, ok, Result } from '@synonymdev/result';
 
 import { networks, TAvailableNetworks } from '../networks';
 import {
-	defaultKeyDerivationPath,
 	getDefaultWalletShape,
 	defaultWalletStoreShape,
 	TAddressIndexInfo,
@@ -197,7 +196,7 @@ export const generateAddresses = async ({
 	addressIndex = 0,
 	changeAddressIndex = 0,
 	selectedNetwork,
-	keyDerivationPath = { ...defaultKeyDerivationPath },
+	keyDerivationPath,
 	accountType = 'onchain',
 	addressType,
 }: IGenerateAddresses): Promise<Result<IGenerateAddressesResponse>> => {
@@ -212,6 +211,18 @@ export const generateAddresses = async ({
 			addressType = getSelectedAddressType({ selectedNetwork, selectedWallet });
 		}
 
+		if (!keyDerivationPath) {
+			// Set derivation path accordingly based on address type.
+			const keyDerivationPathResponse = getKeyDerivationPath({
+				selectedNetwork,
+				addressType,
+			});
+			if (keyDerivationPathResponse.isErr()) {
+				return err(keyDerivationPathResponse.error.message);
+			}
+			keyDerivationPath = keyDerivationPathResponse.value;
+		}
+
 		const type = addressType;
 		const addresses = {} as IAddresses;
 		const changeAddresses = {} as IAddresses;
@@ -222,7 +233,11 @@ export const generateAddresses = async ({
 			addressArray.map(async (_item, i) => {
 				try {
 					const index = i + addressIndex;
-					let path = { ...keyDerivationPath };
+					// This check isn't needed, but satisfies a ts bug.
+					if (!keyDerivationPath) {
+						return err('');
+					}
+					const path = { ...keyDerivationPath };
 					path.addressIndex = `${index}`;
 					const addressPath = formatKeyDerivationPath({
 						path,
@@ -262,6 +277,10 @@ export const generateAddresses = async ({
 			changeAddressArray.map(async (_item, i) => {
 				try {
 					const index = i + changeAddressIndex;
+					// This check isn't needed, but satisfies a ts bug.
+					if (!keyDerivationPath) {
+						return err('');
+					}
 					const path = { ...keyDerivationPath };
 					path.addressIndex = `${index}`;
 					const changeAddressPath = formatKeyDerivationPath({
@@ -455,40 +474,33 @@ export const formatKeyDerivationPath = ({
 };
 
 /**
- * Returns the preferred derivation path for the specified wallet and network.
- * @param {string} [selectedWallet]
+ * Returns the derivation path object for the specified addressType and network.
+ * @param {EAddressType} addressType
  * @param {TAvailableNetworks} [selectedNetwork]
- * @return {string}
+ * @returns Result<IKeyDerivationPath>
  */
 export const getKeyDerivationPath = ({
-	selectedWallet,
+	addressType,
 	selectedNetwork,
 }: {
-	selectedWallet?: TWalletName;
+	addressType: EAddressType;
 	selectedNetwork?: TAvailableNetworks;
-}): IKeyDerivationPath => {
+}): Result<IKeyDerivationPath> => {
 	try {
-		if (!selectedWallet) {
-			selectedWallet = getSelectedWallet();
-		}
 		if (!selectedNetwork) {
 			selectedNetwork = getSelectedNetwork();
 		}
 		const addressTypes = getAddressTypes();
-		const addressType = getSelectedAddressType({
+		const keyDerivationPathResponse = getKeyDerivationPathObject({
 			selectedNetwork,
-			selectedWallet,
-		});
-		const path = formatKeyDerivationPath({
 			path: addressTypes[addressType].path,
-			selectedNetwork,
 		});
-		if (path.isErr()) {
-			return defaultKeyDerivationPath;
+		if (keyDerivationPathResponse.isErr()) {
+			return err(keyDerivationPathResponse.error.message);
 		}
-		return path.value.pathObject;
+		return ok(keyDerivationPathResponse.value);
 	} catch (e) {
-		return e;
+		return err(e);
 	}
 };
 

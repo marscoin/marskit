@@ -21,6 +21,7 @@ import {
 import { addElectrumPeer } from '../src/store/actions/settings';
 import { getScriptHash } from '../src/utils/wallet';
 import initWaitForElectrumToSync from './utils/wait-for-electrum';
+import { runStorageCheck } from '../src/utils/wallet/checks';
 
 jest.setTimeout(60_000);
 
@@ -94,6 +95,16 @@ describe('Wallet - new wallet, send and receive', () => {
 		if (res.isErr()) {
 			throw res.error;
 		}
+
+		// run storage check
+		res = await runStorageCheck({
+			selectedWallet: 'wallet0',
+			selectedNetwork: 'bitcoinRegtest',
+		});
+		if (res.isErr()) {
+			throw res.error;
+		}
+		expect(typeof res.value).toEqual('All Match');
 
 		const addressIndex1 =
 			store.getState().wallet.wallets.wallet0.addressIndex.bitcoinRegtest
