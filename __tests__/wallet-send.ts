@@ -104,7 +104,7 @@ describe('Wallet - new wallet, send and receive', () => {
 		if (res.isErr()) {
 			throw res.error;
 		}
-		expect(typeof res.value).toEqual('All Match');
+		expect(res.value).toEqual('All Match');
 
 		const addressIndex1 =
 			store.getState().wallet.wallets.wallet0.addressIndex.bitcoinRegtest
