@@ -233,11 +233,7 @@ export const generateAddresses = async ({
 			addressArray.map(async (_item, i) => {
 				try {
 					const index = i + addressIndex;
-					// This check isn't needed, but satisfies a ts bug.
-					if (!keyDerivationPath) {
-						return err('');
-					}
-					const path = { ...keyDerivationPath };
+					const path = { ...keyDerivationPath! };
 					path.addressIndex = `${index}`;
 					const addressPath = formatKeyDerivationPath({
 						path,
@@ -277,11 +273,7 @@ export const generateAddresses = async ({
 			changeAddressArray.map(async (_item, i) => {
 				try {
 					const index = i + changeAddressIndex;
-					// This check isn't needed, but satisfies a ts bug.
-					if (!keyDerivationPath) {
-						return err('');
-					}
-					const path = { ...keyDerivationPath };
+					const path = { ...keyDerivationPath! };
 					path.addressIndex = `${index}`;
 					const changeAddressPath = formatKeyDerivationPath({
 						path,
