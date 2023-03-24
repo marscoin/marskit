@@ -50,7 +50,7 @@ import {
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { getExchangeRates } from '../../utils/exchange-rate';
-import { objectsMatch } from '../../utils/helpers';
+import { objectsMatch, removeKeyFromObject } from '../../utils/helpers';
 import {
 	getAddressHistory,
 	getTransactions,
@@ -1634,7 +1634,10 @@ export const replaceImpactedAddresses = async ({
 				const invalidScriptHash = impactedAddress.storedAddress.scriptHash;
 				const validScriptHash = impactedAddress.generatedAddress.scriptHash;
 				// Remove invalid address
-				delete newAddresses[addressType][invalidScriptHash];
+				newAddresses[addressType] = removeKeyFromObject(
+					invalidScriptHash,
+					newAddresses[addressType],
+				);
 				// Add valid address data
 				newAddresses[addressType][validScriptHash] =
 					impactedAddress.generatedAddress;
@@ -1654,7 +1657,10 @@ export const replaceImpactedAddresses = async ({
 				const invalidScriptHash = impactedAddress.storedAddress.scriptHash;
 				const validScriptHash = impactedAddress.generatedAddress.scriptHash;
 				// Remove invalid address
-				delete newChangeAddresses[addressType][invalidScriptHash];
+				newChangeAddresses[addressType] = removeKeyFromObject(
+					invalidScriptHash,
+					newChangeAddresses[addressType],
+				);
 				// Add valid address data
 				newChangeAddresses[addressType][validScriptHash] =
 					impactedAddress.generatedAddress;

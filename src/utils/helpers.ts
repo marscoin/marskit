@@ -615,3 +615,8 @@ export const getMinMaxObjects = <T>({
 	});
 	return { min, max };
 };
+
+export const removeKeyFromObject = (
+	key: string,
+	{ [key]: _, ...rest }: Record<string, any>,
+): Record<string, any> => rest;
