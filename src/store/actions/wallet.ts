@@ -50,7 +50,7 @@ import {
 	IGenerateAddressesResponse,
 } from '../../utils/types';
 import { getExchangeRates } from '../../utils/exchange-rate';
-import { objectsMatch } from '../../utils/helpers';
+import { objectsMatch, removeKeyFromObject } from '../../utils/helpers';
 import {
 	getAddressHistory,
 	getTransactions,
@@ -68,6 +68,7 @@ import { getBoostedTransactionParents } from '../../utils/boost';
 import { updateSlashPayConfig } from '../../utils/slashtags';
 import { sdk } from '../../components/SlashtagsProvider';
 import { getDefaultWalletShape, TAddressIndexInfo } from '../shapes/wallet';
+import { TGetImpactedAddressesRes } from '../types/checks';
 
 const dispatch = getDispatch();
 
@@ -1583,4 +1584,112 @@ export const setZeroIndexAddresses = async ({
 	});
 
 	return ok('Set Zero Index Addresses.');
+};
+
+/**
+ * Used to update/replace mismatched addresses.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {TGetImpactedAddressesRes} impactedAddresses
+ * @returns {Promise<Result<string>>}
+ */
+export const replaceImpactedAddresses = async ({
+	selectedWallet,
+	selectedNetwork,
+	impactedAddresses,
+}: {
+	selectedWallet?: TWalletName;
+	selectedNetwork?: TAvailableNetworks;
+	impactedAddresses: TGetImpactedAddressesRes; // Retrieved from getImpactedAddresses
+}): Promise<Result<string>> => {
+	try {
+		if (!selectedNetwork) {
+			selectedNetwork = getSelectedNetwork();
+		}
+		if (!selectedWallet) {
+			selectedWallet = getSelectedWallet();
+		}
+
+		const { currentWallet } = getCurrentWallet({
+			selectedWallet,
+			selectedNetwork,
+		});
+
+		const newAddresses = currentWallet.addresses[selectedNetwork];
+		const newChangeAddresses = currentWallet.changeAddresses[selectedNetwork];
+
+		const newAddressIndexes = currentWallet.addressIndex[selectedNetwork];
+		const newChangeAddressIndexes =
+			currentWallet.changeAddressIndex[selectedNetwork];
+
+		const allImpactedAddresses = impactedAddresses.impactedAddresses;
+		const allImpactedChangeAddresses =
+			impactedAddresses.impactedChangeAddresses;
+
+		allImpactedAddresses.map(({ addressType, addresses }) => {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			addresses.map((impactedAddress) => {
+				const invalidScriptHash = impactedAddress.storedAddress.scriptHash;
+				const validScriptHash = impactedAddress.generatedAddress.scriptHash;
+				// Remove invalid address
+				newAddresses[addressType] = removeKeyFromObject(
+					invalidScriptHash,
+					newAddresses[addressType],
+				);
+				// Add valid address data
+				newAddresses[addressType][validScriptHash] =
+					impactedAddress.generatedAddress;
+				// Update address index info
+				const currentAddressIndex = newAddressIndexes[addressType].index;
+				if (currentAddressIndex === impactedAddress.storedAddress.index) {
+					newAddressIndexes[addressType] = impactedAddress.generatedAddress;
+				}
+			});
+		});
+
+		allImpactedChangeAddresses.map(({ addressType, addresses }) => {
+			if (!selectedNetwork) {
+				selectedNetwork = getSelectedNetwork();
+			}
+			addresses.map((impactedAddress) => {
+				const invalidScriptHash = impactedAddress.storedAddress.scriptHash;
+				const validScriptHash = impactedAddress.generatedAddress.scriptHash;
+				// Remove invalid address
+				newChangeAddresses[addressType] = removeKeyFromObject(
+					invalidScriptHash,
+					newChangeAddresses[addressType],
+				);
+				// Add valid address data
+				newChangeAddresses[addressType][validScriptHash] =
+					impactedAddress.generatedAddress;
+				// Update address index info
+				const currentChangeAddressIndex =
+					newChangeAddressIndexes[addressType].index;
+				if (currentChangeAddressIndex === impactedAddress.storedAddress.index) {
+					newChangeAddressIndexes[addressType] =
+						impactedAddress.generatedAddress;
+				}
+			});
+		});
+
+		const payload = {
+			newAddresses,
+			newAddressIndexes,
+			newChangeAddresses,
+			newChangeAddressIndexes,
+			selectedWallet,
+			selectedNetwork,
+		};
+
+		dispatch({
+			type: actions.REPLACE_IMPACTED_ADDRESSES,
+			payload,
+		});
+
+		return ok('Replaced impacted addresses');
+	} catch (e) {
+		return err(e);
+	}
 };

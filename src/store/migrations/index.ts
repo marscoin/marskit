@@ -2,6 +2,7 @@ import { PersistedState } from 'redux-persist';
 import { defaultActivityShape } from '../shapes/activity';
 import { defaultTodosShape } from '../shapes/todos';
 import { defaultViewControllers } from '../shapes/ui';
+import { defaultChecksShape } from '../shapes/checks';
 
 // add migrations for every persisted store version change
 // NOTE: state reconciliation works only 2 levels deep
@@ -76,6 +77,12 @@ const migrations = {
 		return {
 			...state,
 			todos: defaultTodosShape,
+		};
+	},
+	9: (state): PersistedState => {
+		return {
+			...state,
+			checks: defaultChecksShape,
 		};
 	},
 };

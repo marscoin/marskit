@@ -15,6 +15,7 @@ import fees from './fees';
 import metadata from './metadata';
 import slashtags from './slashtags';
 import widgets from './widgets';
+import checks from './checks';
 
 const appReducer = combineReducers({
 	ui,
@@ -31,6 +32,7 @@ const appReducer = combineReducers({
 	metadata,
 	slashtags,
 	widgets,
+	checks,
 });
 
 const rootReducer = (

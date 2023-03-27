@@ -27,6 +27,7 @@ import { performFullRestoreFromLatestBackup } from '../../store/actions/backup';
 import { promiseTimeout } from '../helpers';
 import { TAvailableNetworks } from '../networks';
 import { TWalletName } from '../../store/types/wallet';
+import { runChecks } from '../wallet/checks';
 
 /**
  * Creates a new wallet from scratch
@@ -170,6 +171,7 @@ export const startWalletServices = async ({
 					showNotification: !restore,
 				}),
 			]);
+			await runChecks({ selectedWallet, selectedNetwork });
 		}
 
 		if (lightning) {

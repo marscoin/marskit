@@ -328,6 +328,25 @@ const wallet = (
 				},
 			};
 
+		case actions.REPLACE_IMPACTED_ADDRESSES:
+			return {
+				...state,
+				wallets: {
+					...state.wallets,
+					[selectedWallet]: {
+						...state.wallets[selectedWallet],
+						addresses: {
+							...state.wallets[selectedWallet].addresses,
+							[selectedNetwork]: action.payload.newAddresses,
+						},
+						changeAddresses: {
+							...state.wallets[selectedWallet].changeAddresses,
+							[selectedNetwork]: action.payload.newChangeAddresses,
+						},
+					},
+				},
+			};
+
 		case actions.RESET_WALLET_STORE:
 			return defaultWalletStoreShape;
 
