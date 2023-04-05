@@ -1,5 +1,7 @@
 import { sleep, checkComplete, markComplete } from './helpers';
 
+const __DEV__ = process.env.DEBUG === 'true';
+
 describe('Settings', () => {
 	beforeAll(async () => {
 		await device.launchApp();
@@ -430,7 +432,9 @@ describe('Settings', () => {
 			}
 
 			await element(by.id('Settings')).tap();
-			await element(by.id('DevOptions')).multiTap(5); // enable dev mode
+			if (!__DEV__) {
+				await element(by.id('DevOptions')).multiTap(5); // enable dev mode
+			}
 			await element(by.id('AdvancedSettings')).tap();
 			await element(by.id('Channels')).tap();
 			await element(by.id('CopyNodeId')).tap();
@@ -444,7 +448,9 @@ describe('Settings', () => {
 			await expect(element(by.id('LDKNodeID'))).toBeVisible();
 			await element(by.id('NavigationBack')).tap();
 			await element(by.id('NavigationBack')).tap();
-			await element(by.id('DevOptions')).multiTap(5); // disable dev mode
+			if (!__DEV__) {
+				await element(by.id('DevOptions')).multiTap(5); // disable dev mode
+			}
 			await sleep(1000);
 			markComplete('s8');
 		});
@@ -474,6 +480,34 @@ describe('Settings', () => {
 			await waitFor(element(by.id('Connected'))).toBeVisible();
 			await sleep(1000);
 			markComplete('s9');
+		});
+	});
+
+	describe('Dev Settings', () => {
+		it('Shows the crash error screen when triggering render error', async () => {
+			if (checkComplete('s10')) {
+				return;
+			}
+
+			await element(by.id('Settings')).tap();
+			if (!__DEV__) {
+				await element(by.id('DevOptions')).multiTap(5); // enable dev mode
+			}
+			await element(by.id('DevSettings')).tap();
+			await expect(element(by.id('SlashtagsSettings'))).toBeVisible();
+
+			// Error screen will not be rendered in development mode
+			if (__DEV__) {
+				markComplete('s10');
+				return;
+			}
+
+			await element(by.id('List')).scrollTo('bottom');
+			await element(by.id('TriggerRenderError')).tap();
+			await expect(element(by.id('ErrorClose'))).toBeVisible();
+			await expect(element(by.id('ErrorReport'))).toBeVisible();
+
+			markComplete('s10');
 		});
 	});
 });
