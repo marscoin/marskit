@@ -35,8 +35,10 @@ import BottomSheet, {
 	BottomSheetBackdrop,
 	BottomSheetBackgroundProps,
 	BottomSheetBackdropProps,
+	useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'styled-components/native';
+import { DISABLE_LOOP_ANIMATION } from '@env';
 
 import { IColors } from '../styles/colors';
 import { closeBottomSheet } from '../store/actions/ui';
@@ -74,6 +76,8 @@ const BottomSheetWrapper = forwardRef(
 			() => ({ backgroundColor: theme.colors.gray2 }),
 			[theme.colors.gray2],
 		);
+
+		const testAnimationConfigs = useBottomSheetTimingConfigs({ duration: 1 });
 
 		// https://github.com/gorhom/react-native-bottom-sheet/issues/770#issuecomment-1072113936
 		// do not activate BottomSheet if swipe horizontally, this allows using Swiper inside of it
@@ -166,7 +170,10 @@ const BottomSheetWrapper = forwardRef(
 				handleHeight={animatedHandleHeight}
 				snapPoints={snapPoints}
 				activeOffsetX={activeOffsetX}
-				activeOffsetY={activeOffsetY}>
+				activeOffsetY={activeOffsetY}
+				animationConfigs={
+					DISABLE_LOOP_ANIMATION ? testAnimationConfigs : undefined
+				}>
 				<BottomSheetView
 					style={styles.container}
 					onLayout={handleContentLayout}>

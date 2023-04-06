@@ -19,6 +19,8 @@ export type ViewControllerParamList = {
 	receiveNavigation: undefined;
 	sendNavigation: { screen: keyof SendStackParamList } | undefined;
 	slashauthModal: { url: string };
+	timeRangePrompt: undefined;
+	tagsPrompt: undefined;
 };
 
 export type TViewController = keyof ViewControllerParamList;
@@ -60,4 +62,6 @@ export interface IUi {
 	isOnline: boolean;
 	profileLink: TProfileLink;
 	viewControllers: TUiViewController;
+	timeZone: string;
+	language: string;
 }

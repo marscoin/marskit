@@ -32,8 +32,15 @@ const ActivityListShort = (): ReactElement => {
 	}, [items]);
 
 	const renderItem = useCallback(
-		// eslint-disable-next-line react/no-unused-prop-types
-		({ item }: { item: string | IActivityItemFormatted }): ReactNode => {
+		({
+			item,
+			index,
+		}: {
+			// eslint-disable-next-line react/no-unused-prop-types
+			item: string | IActivityItemFormatted;
+			// eslint-disable-next-line react/no-unused-prop-types
+			index: number;
+		}): ReactNode => {
 			if (typeof item === 'string') {
 				return;
 			}
@@ -45,6 +52,7 @@ const ActivityListShort = (): ReactElement => {
 					onPress={(): void =>
 						navigation.navigate('ActivityDetail', { id: item.id })
 					}
+					testID={`ActivityShort-${index}`}
 				/>
 			);
 		},
@@ -67,13 +75,14 @@ const ActivityListShort = (): ReactElement => {
 				<EmptyItem onPress={navigateToReceive} />
 			) : (
 				<>
-					{groupedItems.map((item) => renderItem({ item }))}
+					{groupedItems.map((item, index) => renderItem({ item, index }))}
 					<Button
 						style={styles.button}
 						text={<Text02M color="white8">{t('activity_show_all')}</Text02M>}
 						size="large"
 						variant="transparent"
 						onPress={navigateToActivityFiltered}
+						testID="ActivityShowAll"
 					/>
 				</>
 			)}

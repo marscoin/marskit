@@ -159,6 +159,7 @@ const ReceiveDetails = ({
 										onPress={(): void => {
 											navigation.navigate('Tags');
 										}}
+										testID="TagsAdd"
 									/>
 								</View>
 
@@ -177,6 +178,7 @@ const ReceiveDetails = ({
 								size="large"
 								text={t('receive_show_qr')}
 								onPress={onNavigateBack}
+								testID="ShowQrReceive"
 							/>
 						</View>
 					</>

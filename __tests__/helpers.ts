@@ -3,6 +3,7 @@ import {
 	timeAgo,
 	isObjPartialMatch,
 	ellipsis,
+	generateCalendar,
 } from '../src/utils/helpers';
 
 describe('removeKeysFromObject', () => {
@@ -87,5 +88,64 @@ describe('isObjPartialMatch', () => {
 		expect(f({ a: { c: 1 } }, { a: { b: 1 } })).toEqual(false);
 
 		expect(f({ a: 1 }, { a: [] })).toEqual(true);
+	});
+});
+
+describe('calendar', () => {
+	it('can generate calendar', () => {
+		const date = new Date(Date.UTC(2020, 11, 31, 23, 59, 59));
+
+		// december, week starts from monday
+		const ruUtc = generateCalendar(date, 'ru-RU', 'UTC');
+		expect(ruUtc).toEqual({
+			weeks: [
+				[null, 1, 2, 3, 4, 5, 6],
+				[7, 8, 9, 10, 11, 12, 13],
+				[14, 15, 16, 17, 18, 19, 20],
+				[21, 22, 23, 24, 25, 26, 27],
+				[28, 29, 30, 31, null, null, null],
+			],
+			weekDays: [1, 2, 3, 4, 5, 6, 7],
+		});
+
+		// december, week starts from sunday
+		const usUtc = generateCalendar(date, 'en-US', 'UTC');
+		expect(usUtc).toEqual({
+			weeks: [
+				[null, null, 1, 2, 3, 4, 5],
+				[6, 7, 8, 9, 10, 11, 12],
+				[13, 14, 15, 16, 17, 18, 19],
+				[20, 21, 22, 23, 24, 25, 26],
+				[27, 28, 29, 30, 31, null, null],
+			],
+			weekDays: [7, 1, 2, 3, 4, 5, 6],
+		});
+
+		// january, week starts from monday
+		const ruMoscow = generateCalendar(date, 'ru-RU', 'Europe/Moscow');
+		expect(ruMoscow).toEqual({
+			weeks: [
+				[null, null, null, null, 1, 2, 3],
+				[4, 5, 6, 7, 8, 9, 10],
+				[11, 12, 13, 14, 15, 16, 17],
+				[18, 19, 20, 21, 22, 23, 24],
+				[25, 26, 27, 28, 29, 30, 31],
+			],
+			weekDays: [1, 2, 3, 4, 5, 6, 7],
+		});
+
+		// january, week starts from sunday
+		const usMoscow = generateCalendar(date, 'en-US', 'Europe/Moscow');
+		expect(usMoscow).toEqual({
+			weeks: [
+				[null, null, null, null, null, 1, 2],
+				[3, 4, 5, 6, 7, 8, 9],
+				[10, 11, 12, 13, 14, 15, 16],
+				[17, 18, 19, 20, 21, 22, 23],
+				[24, 25, 26, 27, 28, 29, 30],
+				[31, null, null, null, null, null, null],
+			],
+			weekDays: [7, 1, 2, 3, 4, 5, 6],
+		});
 	});
 });

@@ -82,3 +82,7 @@ export const availableUpdateSelector = createSelector(
 	[uiState],
 	(ui) => ui.availableUpdate,
 );
+
+export const timeZoneSelector = createSelector([uiState], (ui) => ui.timeZone);
+
+export const languageSelector = createSelector([uiState], (ui) => ui.language);

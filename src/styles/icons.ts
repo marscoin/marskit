@@ -89,6 +89,8 @@ import {
 	listIcon,
 	sortAscendingIcon,
 	arrowCounterClock,
+	leftSign,
+	rightSign,
 } from '../assets/icons/settings';
 
 type IconProps = {
@@ -225,7 +227,7 @@ export const TimerSpeedIcon = styled(SvgXml).attrs((props) => ({
 
 export const MagnifyingGlassIcon = styled(SvgXml).attrs((props) => ({
 	xml: magnifyingGlassIcon(
-		props.color ? props.theme.colors[props.color] : '#8E8E93',
+		props.color ? props.theme.colors[props.color] : 'white',
 	),
 	height: props.height ?? '20px',
 	width: props.width ?? '20px',
@@ -834,4 +836,24 @@ export const LightBulbIcon = styled(SvgXml).attrs((props) => ({
 	width: props.width ?? '64px',
 }))<IconProps>((props) => ({
 	color: props.color ? props.theme.colors[props.color] : '#FF6600',
+}));
+
+export const LeftSign = styled(SvgXml).attrs((props) => ({
+	xml: leftSign(
+		props.color ? props.theme.colors[props.color] : props.theme.colors.gray2,
+	),
+	height: props.height ?? '18px',
+	width: props.width ?? '11px',
+}))<IconProps>((props) => ({
+	color: props.color ? props.theme.colors[props.color] : 'white',
+}));
+
+export const RightSign = styled(SvgXml).attrs((props) => ({
+	xml: rightSign(
+		props.color ? props.theme.colors[props.color] : props.theme.colors.gray2,
+	),
+	height: props.height ?? '18px',
+	width: props.width ?? '11px',
+}))<IconProps>((props) => ({
+	color: props.color ? props.theme.colors[props.color] : 'white',
 }));

@@ -1,8 +1,9 @@
 import React, { ReactElement, useCallback, useMemo } from 'react';
-import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { receiveIcon, sendIcon } from '../assets/icons/tabs';
 import { showBottomSheet } from '../store/actions/ui';
@@ -10,9 +11,12 @@ import useColors from '../hooks/colors';
 import { useAppSelector } from '../hooks/redux';
 import { Text02M } from '../styles/text';
 import { ScanIcon } from '../styles/icons';
+import { AnimatedView } from '../styles/components';
 import BlurView from '../components/BlurView';
 import type { RootNavigationProp } from '../navigation/types';
 import { betaRiskAcceptedSelector } from '../store/reselect/user';
+import { objectKeys } from '../utils/objectKeys';
+import { viewControllersSelector } from '../store/reselect/ui';
 
 const TabBar = ({
 	navigation,
@@ -23,6 +27,11 @@ const TabBar = ({
 	const insets = useSafeAreaInsets();
 	const { t } = useTranslation('wallet');
 	const betaRiskAccepted = useAppSelector(betaRiskAcceptedSelector);
+	const viewControllers = useAppSelector(viewControllersSelector);
+	const anyBottomSheetIsOpen = useMemo(() => {
+		const viewControllerKeys = objectKeys(viewControllers);
+		return viewControllerKeys.some((view) => viewControllers[view].isOpen);
+	}, [viewControllers]);
 
 	const onReceivePress = useCallback((): void => {
 		if (betaRiskAccepted) {
@@ -59,8 +68,16 @@ const TabBar = ({
 	const sendXml = useMemo(() => sendIcon('white'), []);
 	const receiveXml = useMemo(() => receiveIcon('white'), []);
 
+	if (anyBottomSheetIsOpen) {
+		return <></>;
+	}
+
 	return (
-		<View style={[styles.tabRoot, { bottom }]}>
+		<AnimatedView
+			color="transparent"
+			style={[styles.tabRoot, { bottom }]}
+			entering={FadeIn}
+			exiting={FadeOut}>
 			<TouchableOpacity
 				activeOpacity={0.8}
 				onPress={onSendPress}
@@ -87,7 +104,7 @@ const TabBar = ({
 					<Text02M style={styles.tabText}>{t('receive')}</Text02M>
 				</BlurView>
 			</TouchableOpacity>
-		</View>
+		</AnimatedView>
 	);
 };
 

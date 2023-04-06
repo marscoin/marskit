@@ -579,6 +579,68 @@ export async function tryNTimes<T>({
 	}
 }
 
+export const generateCalendar = (
+	date: Date,
+	locale: string,
+	timeZone: string,
+): {
+	weekDays: Array<number>;
+	weeks: Array<Array<number | null>>;
+} => {
+	let firstDayOfWeek = 1;
+	if (locale === 'en-US') {
+		firstDayOfWeek = 7;
+	}
+
+	const weekDays: Array<number> = [];
+	for (let i = 0; i < 7; i++) {
+		weekDays.push(((i - 1 + firstDayOfWeek) % 7) + 1);
+	}
+
+	// we are using Intl API here, to be able to set different timezones in tests
+	const month = Number(
+		new Intl.DateTimeFormat(undefined, {
+			month: 'numeric',
+			timeZone,
+		}).format(date),
+	);
+	const year = Number(
+		new Intl.DateTimeFormat(undefined, {
+			year: 'numeric',
+			timeZone,
+		}).format(date),
+	);
+
+	const daysInMonth = new Date(year, month, 0).getDate();
+	const firstDayOfMonth = new Date(year, month - 1, 1).getDay() || 7; // sunday=0, convert to 7
+
+	let day = 0;
+	const weeks: Array<Array<number | null>> = [];
+
+	while (day <= daysInMonth) {
+		const week: Array<number | null> = [];
+
+		for (let i of weekDays) {
+			if (day === 0 && i === firstDayOfMonth) {
+				week.push(1);
+				day = 2;
+			} else if (day === 0) {
+				week.push(null);
+			} else if (day > daysInMonth) {
+				week.push(null);
+				day++;
+			} else {
+				week.push(day);
+				day++;
+			}
+		}
+
+		weeks.push(week);
+	}
+
+	return { weeks, weekDays };
+};
+
 export type TGetMinMaxObject<T> = { min: T | undefined; max: T | undefined };
 
 /**

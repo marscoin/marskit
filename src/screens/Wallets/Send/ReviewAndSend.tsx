@@ -724,6 +724,7 @@ const ReviewAndSend = ({
 												Keyboard.dismiss();
 												navigation.navigate('Tags');
 											}}
+											testID="TagsAddSend"
 										/>
 									</View>
 								</View>

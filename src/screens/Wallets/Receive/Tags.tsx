@@ -99,6 +99,7 @@ const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 					onSubmitEditing={handleSubmit}
 					maxLength={15}
 					returnKeyType="done"
+					testID="TagInputReceive"
 				/>
 
 				<View style={buttonContainerStyles}>

@@ -2,6 +2,7 @@ import SDK from '@synonymdev/slashtags-sdk/index.old';
 import RAM from 'random-access-memory';
 import { stringToBytes } from '@synonymdev/react-native-lnurl/dist/utils/helpers';
 
+import '../src/utils/i18n';
 import {
 	EBackupCategories,
 	fetchBackup,

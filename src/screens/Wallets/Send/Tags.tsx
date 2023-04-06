@@ -113,6 +113,7 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 					onSubmitEditing={handleSubmit}
 					maxLength={15}
 					returnKeyType="done"
+					testID="TagInputSend"
 				/>
 
 				<View style={buttonContainerStyles}>

@@ -1,35 +1,17 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { Platform, NativeModules } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 import { ENABLE_I18NEXT_DEBUGGER } from '@env';
 
 import resources from './locales';
+import { updateUi } from '../../store/actions/ui';
 
 const __enableDebugger__ = ENABLE_I18NEXT_DEBUGGER
 	? ENABLE_I18NEXT_DEBUGGER === 'true'
 	: __DEV__;
 
 const getDeviceLanguage = (): string => {
-	let language = '';
-	try {
-		if (Platform.OS === 'ios') {
-			language =
-				NativeModules.SettingsManager.settings.AppleLocale ||
-				NativeModules.SettingsManager.settings.AppleLanguages[0];
-		} else {
-			language = NativeModules.I18nManager.localeIdentifier;
-		}
-	} catch (e) {
-		language = 'en';
-	}
-
-	// Android returns specific locales that iOS does not i.e. en_US, en_GB.
-	// If we want to support very specific locales we'll need to add a way to map them here.
-	if (language.indexOf('_')) {
-		language = language.split('_')[0];
-	}
-
-	return language;
+	return RNLocalize.getLocales()[0].languageTag;
 };
 
 export const defaultNS = 'common';
@@ -53,6 +35,29 @@ i18n
 		},
 		returnNull: false,
 	})
-	.then();
+	.then(() => {
+		let timeZone = RNLocalize.getTimeZone();
+
+		// if polyfill is used, we need to set default timezone
+		// https://formatjs.io/docs/polyfills/intl-datetimeformat/#default-timezone
+		if ('__setDefaultTimeZone' in Intl.DateTimeFormat) {
+			// formatjs doesn't know GMT, that is used by default in github actions
+			if (timeZone === 'GMT') {
+				timeZone = 'Etc/GMT';
+			}
+
+			try {
+				// @ts-ignore __setDefaultTimeZone doesn't exist in native API
+				Intl.DateTimeFormat.__setDefaultTimeZone(timeZone);
+			} catch (e) {
+				console.log(`error settings timezone to: ${timeZone} fallback to UTC`);
+				// @ts-ignore __setDefaultTimeZone doesn't exist in native API
+				Intl.DateTimeFormat.__setDefaultTimeZone('UTC');
+				timeZone = 'UTC';
+			}
+		}
+
+		updateUi({ timeZone, language: i18n.language });
+	});
 
 export default i18n;

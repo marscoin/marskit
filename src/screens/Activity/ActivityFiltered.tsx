@@ -6,22 +6,27 @@ import {
 	TouchableOpacity,
 	View,
 	GestureResponderEvent,
+	Keyboard,
+	ScrollView,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../styles/components';
 import { Caption13M } from '../../styles/text';
+import { CalendarIcon, TagIcon } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
 import SearchInput from '../../components/SearchInput';
 import ActivityList from './ActivityList';
 import BlurView from '../../components/BlurView';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import FilterAccessory from '../../components/FilterAccessory';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 import { EPaymentType } from '../../store/types/wallet';
 import DetectSwipe from '../../components/DetectSwipe';
 import type { WalletScreenProps } from '../../navigation/types';
+import TimeRangePrompt from './TimeRangePrompt';
+import { showBottomSheet, closeBottomSheet } from '../../store/actions/ui';
+import TagsPrompt from './TagsPrompt';
 
 const tabs = [
 	{ id: 'all', filter: {} },
@@ -34,10 +39,12 @@ const Tab = ({
 	text,
 	active = false,
 	onPress,
+	testID,
 }: {
 	text: string;
 	active?: boolean;
 	onPress: (event: GestureResponderEvent) => void;
+	testID?: string;
 }): ReactElement => {
 	const colors = useColors();
 	const style = useMemo(
@@ -48,7 +55,10 @@ const Tab = ({
 	);
 
 	return (
-		<TouchableOpacity style={[styles.tab, style]} onPress={onPress}>
+		<TouchableOpacity
+			style={[styles.tab, style]}
+			onPress={onPress}
+			testID={testID}>
 			<Caption13M color={active ? 'white' : 'gray1'}>{text}</Caption13M>
 		</TouchableOpacity>
 	);
@@ -63,11 +73,12 @@ const ActivityFiltered = ({
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(0);
 	const [currentTab, setCurrentTab] = useState(0);
 	const [search, setSearch] = useState('');
+	const [timerange, setTimerange] = useState([]);
 	const [tags, setTags] = useState<string[]>([]);
 
 	const filter = useMemo(() => {
-		return { ...tabs[currentTab].filter, search, tags };
-	}, [currentTab, search, tags]);
+		return { ...tabs[currentTab].filter, search, tags, timerange };
+	}, [currentTab, search, tags, timerange]);
 
 	const activityPadding = useMemo(() => {
 		return {
@@ -77,8 +88,13 @@ const ActivityFiltered = ({
 		};
 	}, [radiusContainerHeight, insets.bottom]);
 
-	const addTag = (tag): void => setTags((tg) => [...tg, tag]);
-	const removeTag = (tag): void => setTags((tg) => tg.filter((x) => x !== tag));
+	const addTag = (tag: string): void => {
+		setTags((tg) => [...tg, tag]);
+		closeBottomSheet('tagsPrompt');
+	};
+	const removeTag = (tag: string): void => {
+		setTags((tg) => tg.filter((x) => x !== tag));
+	};
 
 	const onSwipeLeft = (): void => {
 		if (currentTab < tabs.length - 1) {
@@ -112,18 +128,50 @@ const ActivityFiltered = ({
 								style={styles.searchInput}
 								value={search}
 								onChangeText={setSearch}>
-								{tags.length > 0 && (
-									<View style={styles.tags}>
-										{tags.map((tg) => (
-											<Tag
-												style={styles.tag}
-												key={tg}
-												value={tg}
-												onClose={(): void => removeTag(t)}
-											/>
-										))}
-									</View>
-								)}
+								<View style={styles.searchButtons}>
+									{tags.length > 0 && (
+										<ScrollView
+											horizontal={true}
+											showsHorizontalScrollIndicator={false}
+											style={styles.tags}>
+											{tags.map((tg) => (
+												<Tag
+													style={styles.tag}
+													key={tg}
+													value={tg}
+													onClose={(): void => removeTag(tg)}
+													testID={tg}
+												/>
+											))}
+										</ScrollView>
+									)}
+									<TouchableOpacity
+										style={styles.filterButton}
+										onPress={(): void => {
+											Keyboard.dismiss();
+											showBottomSheet('tagsPrompt');
+										}}
+										testID="TagsPrompt">
+										<TagIcon
+											height={25}
+											width={25}
+											color={tags.length === 0 ? 'gray1' : 'brand'}
+										/>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.filterButton}
+										onPress={(): void => {
+											Keyboard.dismiss();
+											showBottomSheet('timeRangePrompt');
+										}}
+										testID="TimeRangePrompt">
+										<CalendarIcon
+											height={25}
+											width={25}
+											color={timerange.length === 0 ? 'gray1' : 'brand'}
+										/>
+									</TouchableOpacity>
+								</View>
 							</SearchInput>
 							<View style={styles.tabContainer}>
 								{tabs.map((tab, index) => (
@@ -132,6 +180,7 @@ const ActivityFiltered = ({
 										text={t('activity_tabs.' + tab.id)}
 										active={currentTab === index}
 										onPress={(): void => setCurrentTab(index)}
+										testID={`Tab-${tab.id}`}
 									/>
 								))}
 							</View>
@@ -157,7 +206,8 @@ const ActivityFiltered = ({
 					</View>
 				</DetectSwipe>
 			</ThemedView>
-			<FilterAccessory tags={tags} addTag={addTag} />
+			<TimeRangePrompt onChange={setTimerange} />
+			<TagsPrompt tags={tags} onAddTag={addTag} />
 		</>
 	);
 };
@@ -204,12 +254,26 @@ const styles = StyleSheet.create({
 	},
 	tag: {
 		marginRight: 8,
-		marginBottom: 8,
+		marginVertical: 4,
+	},
+	searchButtons: {
+		flexDirection: 'row',
+		flexWrap: 'nowrap',
+		alignContent: 'center',
+		justifyContent: 'center',
+		flex: 1,
+		marginRight: 10,
 	},
 	tags: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		marginTop: 8,
+		flexShrink: 1,
+		alignSelf: 'center',
+	},
+	filterButton: {
+		paddingHorizontal: 7,
+		alignContent: 'center',
+		justifyContent: 'center',
 	},
 });
 

@@ -529,6 +529,7 @@ const Receive = ({
 					size="large"
 					text={t('receive_specify')}
 					onPress={(): void => navigation.navigate('ReceiveDetails')}
+					testID="SpecifyInvoiceButton"
 				/>
 			</View>
 		</View>

@@ -1,6 +1,7 @@
 import BitcoinJsonRpc from 'bitcoin-json-rpc';
 import * as electrum from 'rn-electrum-client/helpers';
 
+import '../src/utils/i18n';
 import store from '../src/store';
 import { createNewWallet, startWalletServices } from '../src/utils/startup';
 import {

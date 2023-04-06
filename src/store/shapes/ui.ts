@@ -22,6 +22,8 @@ export const defaultViewControllers: IUi['viewControllers'] = {
 	receiveNavigation: defaultViewController,
 	sendNavigation: defaultViewController,
 	slashauthModal: defaultViewController,
+	timeRangePrompt: defaultViewController,
+	tagsPrompt: defaultViewController,
 };
 
 export const defaultUiShape: IUi = {
@@ -31,4 +33,6 @@ export const defaultUiShape: IUi = {
 	profileLink: { title: '', url: '' },
 	// Used to control bottom-sheets throughout the app
 	viewControllers: defaultViewControllers,
+	timeZone: 'UTC',
+	language: 'en',
 };

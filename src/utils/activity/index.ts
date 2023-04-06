@@ -105,11 +105,13 @@ export const filterActivityItems = (
 		types = [],
 		tags = [],
 		txType,
+		timerange = [],
 	}: {
 		search?: string;
 		types?: EActivityType[];
 		tags?: string[];
 		txType?: EPaymentType;
+		timerange?: number[];
 	},
 ): IActivityItem[] => {
 	const lowerSearch = search.toLowerCase();
@@ -134,6 +136,14 @@ export const filterActivityItems = (
 
 		// type doesn't match
 		if (types.length > 0 && !types.includes(item.activityType)) {
+			return false;
+		}
+
+		// timerange doesn't match
+		if (
+			timerange.length > 0 &&
+			(item.timestamp < timerange[0] || item.timestamp > timerange[1])
+		) {
 			return false;
 		}
 
