@@ -438,10 +438,8 @@ export const refreshLdk = async ({
 		if (syncRes.isErr()) {
 			return err(syncRes.error.message);
 		}
-		await Promise.all([
-			updateLightningChannels({ selectedWallet, selectedNetwork }),
-			updateClaimableBalance({ selectedNetwork, selectedWallet }),
-		]);
+		await updateLightningChannels({ selectedWallet, selectedNetwork });
+		await updateClaimableBalance({ selectedNetwork, selectedWallet });
 		return ok('');
 	} catch (e) {
 		console.log(e);
