@@ -4,6 +4,7 @@ import { TWalletName } from '../types/wallet';
 import { getSelectedNetwork, getSelectedWallet } from '../../utils/wallet';
 import { TAvailableNetworks } from '../../utils/networks';
 import { TStorageWarning } from '../types/checks';
+import { getWarnings } from '../../utils/checks';
 
 const dispatch = getDispatch();
 
@@ -38,4 +39,53 @@ export const addWarning = ({
 			selectedNetwork,
 		},
 	});
+};
+
+/**
+ * Updates a single warning in the warnings array by id.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {string} id
+ * @param {TStorageWarning} warningData
+ * @returns {TStorageWarning[]}
+ */
+export const updateWarning = ({
+	selectedWallet,
+	selectedNetwork,
+	id,
+	warningData,
+}: {
+	selectedWallet: TWalletName;
+	selectedNetwork: TAvailableNetworks;
+	id: string;
+	warningData: TStorageWarning;
+}): TStorageWarning[] => {
+	if (!selectedWallet) {
+		selectedWallet = getSelectedWallet();
+	}
+
+	if (!selectedNetwork) {
+		selectedNetwork = getSelectedNetwork();
+	}
+
+	const warnings = getWarnings({ selectedWallet, selectedNetwork });
+	const newWarnings = warnings.map((warning) => {
+		if (warning.id === id) {
+			return {
+				...warning,
+				...warningData,
+			};
+		}
+		return warning;
+	});
+
+	dispatch({
+		type: actions.UPDATE_WARNINGS,
+		payload: {
+			selectedWallet,
+			selectedNetwork,
+			warnings: newWarnings,
+		},
+	});
+	return newWarnings;
 };

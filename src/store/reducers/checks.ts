@@ -34,6 +34,18 @@ const checks = (
 				},
 			};
 
+		case actions.UPDATE_WARNINGS:
+			return {
+				...state,
+				[selectedWallet]: {
+					...state[selectedWallet],
+					warnings: {
+						...state[selectedWallet].warnings,
+						[selectedNetwork]: action.payload.warnings,
+					},
+				},
+			};
+
 		case actions.CREATE_WALLET:
 			return {
 				...state,

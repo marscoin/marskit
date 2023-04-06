@@ -15,6 +15,7 @@ import { ITodos } from './types/todos';
 import { IUi } from './types/ui';
 import { IUser } from './types/user';
 import { IWidgetsStore } from './types/widgets';
+import { IChecksShape } from './types/checks';
 
 /*
 Used to retrieve the store outside of a component.
@@ -68,6 +69,10 @@ export const getUserStore = (): IUser => {
 
 export const getWidgetsStore = (): IWidgetsStore => {
 	return cloneDeep(store.getState()[EStore.widgets]);
+};
+
+export const getChecksStore = (): IChecksShape => {
+	return cloneDeep(store.getState()[EStore.checks]);
 };
 
 /*

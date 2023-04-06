@@ -1618,8 +1618,8 @@ export const replaceImpactedAddresses = async ({
 		const newAddresses = currentWallet.addresses[selectedNetwork];
 		const newChangeAddresses = currentWallet.changeAddresses[selectedNetwork];
 
-		const newAddressIndexes = currentWallet.addressIndex[selectedNetwork];
-		const newChangeAddressIndexes =
+		const newAddressIndex = currentWallet.addressIndex[selectedNetwork];
+		const newChangeAddressIndex =
 			currentWallet.changeAddressIndex[selectedNetwork];
 
 		const allImpactedAddresses = impactedAddresses.impactedAddresses;
@@ -1642,9 +1642,9 @@ export const replaceImpactedAddresses = async ({
 				newAddresses[addressType][validScriptHash] =
 					impactedAddress.generatedAddress;
 				// Update address index info
-				const currentAddressIndex = newAddressIndexes[addressType].index;
+				const currentAddressIndex = newAddressIndex[addressType].index;
 				if (currentAddressIndex === impactedAddress.storedAddress.index) {
-					newAddressIndexes[addressType] = impactedAddress.generatedAddress;
+					newAddressIndex[addressType] = impactedAddress.generatedAddress;
 				}
 			});
 		});
@@ -1666,19 +1666,18 @@ export const replaceImpactedAddresses = async ({
 					impactedAddress.generatedAddress;
 				// Update address index info
 				const currentChangeAddressIndex =
-					newChangeAddressIndexes[addressType].index;
+					newChangeAddressIndex[addressType].index;
 				if (currentChangeAddressIndex === impactedAddress.storedAddress.index) {
-					newChangeAddressIndexes[addressType] =
-						impactedAddress.generatedAddress;
+					newChangeAddressIndex[addressType] = impactedAddress.generatedAddress;
 				}
 			});
 		});
 
 		const payload = {
 			newAddresses,
-			newAddressIndexes,
+			newAddressIndex,
 			newChangeAddresses,
-			newChangeAddressIndexes,
+			newChangeAddressIndex,
 			selectedWallet,
 			selectedNetwork,
 		};

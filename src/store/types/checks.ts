@@ -42,8 +42,10 @@ export type TImpactedAddresses = {
 };
 
 export type TStorageWarning = {
-	id: number;
+	id: string;
+	warningId: EWarningIds;
 	data: TGetImpactedAddressesRes;
+	warningReported: boolean;
 	timestamp: number;
 };
 

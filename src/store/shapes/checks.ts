@@ -10,7 +10,9 @@ export const getDefaultChecksContent = (): IChecksContent => {
 	return cloneDeep(defaultChecksContent);
 };
 
-export const defaultChecksShape: Readonly<IChecksShape> = {};
+export const defaultChecksShape: Readonly<IChecksShape> = {
+	wallet0: getDefaultChecksContent(),
+};
 
 export const getDefaultChecksShape = (): IChecksShape => {
 	return cloneDeep(defaultChecksShape);

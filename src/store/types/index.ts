@@ -12,6 +12,7 @@ import { IFees } from './fees';
 import { IMetadata } from './metadata';
 import { ISlashtags } from './slashtags';
 import { IWidgetsStore } from './widgets';
+import { IChecksContent } from './checks';
 
 export enum EStore {
 	ui = 'ui',
@@ -28,6 +29,7 @@ export enum EStore {
 	metadata = 'metadata',
 	slashtags = 'slashtags',
 	widgets = 'widgets',
+	checks = 'checks',
 }
 
 interface Store {
@@ -45,6 +47,7 @@ interface Store {
 	[EStore.metadata]: IMetadata;
 	[EStore.slashtags]: ISlashtags;
 	[EStore.widgets]: IWidgetsStore;
+	[EStore.checks]: IChecksContent;
 }
 
 export default Store;
