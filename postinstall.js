@@ -1,6 +1,5 @@
 var exec = require('child_process').exec;
 var os = require('os');
-var postInstallSlashtags = require('./postinstall-slashtags.js')
 
 const baseCommand = `
 cd nodejs-assets/nodejs-project &&
@@ -20,6 +19,3 @@ if (os.type() === 'Darwin') {
 } else {
 	postInstallLinWin();
 }
-
-postInstallSlashtags()
-

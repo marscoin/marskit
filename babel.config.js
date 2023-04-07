@@ -1,7 +1,11 @@
+const { types } = require('@babel/core');
+
 module.exports = {
 	presets: ['module:metro-react-native-babel-preset'],
 	plugins: [
-		// needed to make `for await (` work in js
+		// Support bigint literal `0n`
+		transformBigIntLiteral,
+		// Support `for await () {}`
 		'@babel/plugin-proposal-async-generator-functions',
 		[
 			'module:react-native-dotenv',
@@ -18,3 +22,19 @@ module.exports = {
 		},
 	},
 };
+
+// Copied from unsupported https://github.com/babel/babel/pull/10102/files
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function transformBigIntLiteral() {
+	return {
+		visitor: {
+			// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+			BigIntLiteral(path) {
+				const bigintCall = types.callExpression(types.identifier('BigInt'), [
+					types.stringLiteral(path.node.value),
+				]);
+				path.replaceWith(bigintCall);
+			},
+		},
+	};
+}
