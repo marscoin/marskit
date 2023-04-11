@@ -1,4 +1,4 @@
-import SDK from '@synonymdev/slashtags-sdk/index.old';
+import SDK from '@synonymdev/slashtags-sdk';
 import RAM from 'random-access-memory';
 import { stringToBytes } from '@synonymdev/react-native-lnurl/dist/utils/helpers';
 

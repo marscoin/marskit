@@ -1,6 +1,7 @@
 import React, { memo, ReactElement, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { __DISABLE_SLASHTAGS__ } from '../../../constants/env';
 import actions from '../../../store/actions/actions';
 import {
 	clearUtxos,
@@ -44,14 +45,14 @@ const DevSettings = ({
 		warningsSelector(state, selectedWallet, selectedNetwork),
 	);
 
-	const settingsListData: IListData[] = [
+  const settingsListData: IListData[] = [
 		{
 			title: 'Slashtags',
 			data: [
 				{
 					title: 'Slashtags Settings',
 					type: EItemType.button,
-					enabled: !isSlashtagsDisabled,
+					enabled: !__DISABLE_SLASHTAGS__,
 					testID: 'SlashtagsSettings',
 					onPress: (): void => {
 						navigation.navigate('SlashtagsSettings');

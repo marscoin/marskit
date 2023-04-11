@@ -55,3 +55,10 @@ if (typeof Intl === 'undefined') {
 	require('@formatjs/intl-relativetimeformat/locale-data/en');
 	require('@formatjs/intl-relativetimeformat/locale-data/ru');
 }
+
+if (!Symbol.asyncIterator) {
+	Symbol.asyncIterator = '@@asyncIterator';
+}
+if (!Symbol.iterator) {
+	Symbol.iterator = '@@iterator';
+}
