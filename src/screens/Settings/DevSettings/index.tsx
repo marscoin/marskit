@@ -24,7 +24,6 @@ import {
 	selectedNetworkSelector,
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
-import { isSlashtagsDisabled } from '../../../utils/slashtags';
 import { resetMetaStore } from '../../../store/actions/metadata';
 import { EItemType, IListData } from '../../../components/List';
 import SettingsView from './../SettingsView';
@@ -45,7 +44,7 @@ const DevSettings = ({
 		warningsSelector(state, selectedWallet, selectedNetwork),
 	);
 
-  const settingsListData: IListData[] = [
+	const settingsListData: IListData[] = [
 		{
 			title: 'Slashtags',
 			data: [
