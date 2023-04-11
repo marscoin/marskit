@@ -2,7 +2,7 @@ import { EAddressType, IAddress, IWalletItem, TWalletName } from './wallet';
 import { TAvailableNetworks } from '../../utils/networks';
 
 export enum EWarningIds {
-	'storageCheck' = 826,
+	'storageCheck' = 888,
 }
 
 export type TMinMaxAddressData = {

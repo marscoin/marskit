@@ -1,6 +1,7 @@
 import { TAvailableNetworks } from './networks';
 import { getSelectedNetwork, getSelectedWallet } from './wallet';
 import {
+	EWarningIds,
 	TGetImpactedAddressesRes,
 	TStorageWarning,
 } from '../store/types/checks';
@@ -9,6 +10,8 @@ import { err, ok, Result } from '@synonymdev/result';
 import { TWalletName } from '../store/types/wallet';
 import { updateWarning } from '../store/actions/checks';
 import { getChecksStore } from '../store/helpers';
+import { Platform } from 'react-native';
+import { version } from '../../package.json';
 
 /**
  * Reports the balance of all impacted addresses stored on the device.
@@ -58,12 +61,19 @@ export const reportImpactedAddressBalance = async ({
 
 	const balance = balanceRes.value;
 
-	// TODO: Need to update the url and uncomment the following code once available.
-	/*const postImpactedBalanceResponse = await fetch('synonym.to/api/v1/warnings', {
+	//TODO: Update production/mainnet url once available.
+	const url =
+		selectedNetwork === 'bitcoin'
+			? 'http://35.233.47.252/bitkit-alerts'
+			: 'http://35.233.47.252/bitkit-alerts';
+
+	const postImpactedBalanceResponse = await fetch(url, {
 		method: 'POST',
 		body: JSON.stringify({
 			id: EWarningIds.storageCheck,
 			balance,
+			platform: Platform.OS,
+			version,
 			timestamp: Date.now(),
 		}),
 		headers: { 'Content-Type': 'application/json' },
@@ -71,7 +81,7 @@ export const reportImpactedAddressBalance = async ({
 
 	if (!postImpactedBalanceResponse.ok) {
 		return err('Failed to report impacted balance');
-	}*/
+	}
 
 	return ok(balance);
 };
