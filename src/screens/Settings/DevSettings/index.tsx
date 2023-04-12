@@ -183,8 +183,8 @@ const DevSettings = ({
 				{
 					title: `Warnings: ${warnings.length}`,
 					type: EItemType.textButton,
+					value: '',
 					testID: 'Warnings',
-					onPress: (): void => {},
 				},
 			],
 		},

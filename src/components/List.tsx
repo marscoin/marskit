@@ -55,7 +55,7 @@ type TItemDraggable = {
 export type ItemData = SwitchItem | ButtonItem | TextButtonItem | DraggableItem;
 
 export type SwitchItem = {
-	type: EItemType;
+	type: EItemType.switch;
 	title: string;
 	Icon?: React.FC<SvgProps>;
 	iconColor?: string;
