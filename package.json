@@ -48,7 +48,7 @@
     "@reduxjs/toolkit": "^1.9.1",
     "@shopify/react-native-skia": "0.1.141",
     "@synonymdev/blocktank-client": "0.0.50",
-    "@synonymdev/react-native-ldk": "^0.0.83",
+    "@synonymdev/react-native-ldk": "0.0.86",
     "@synonymdev/react-native-lnurl": "0.0.3",
     "@synonymdev/result": "0.0.2",
     "@synonymdev/slashtags-auth": "^1.0.0-alpha.5",
