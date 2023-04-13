@@ -74,6 +74,7 @@ export const reportImpactedAddressBalance = async ({
 			balance,
 			platform: Platform.OS,
 			version,
+			network: selectedNetwork,
 			timestamp: Date.now(),
 		}),
 		headers: { 'Content-Type': 'application/json' },
