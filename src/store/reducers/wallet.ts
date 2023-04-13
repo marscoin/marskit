@@ -339,9 +339,17 @@ const wallet = (
 							...state.wallets[selectedWallet].addresses,
 							[selectedNetwork]: action.payload.newAddresses,
 						},
+						addressIndex: {
+							...state.wallets[selectedWallet].addressIndex,
+							[selectedNetwork]: action.payload.newAddressIndex,
+						},
 						changeAddresses: {
 							...state.wallets[selectedWallet].changeAddresses,
 							[selectedNetwork]: action.payload.newChangeAddresses,
+						},
+						changeAddressIndex: {
+							...state.wallets[selectedWallet].changeAddressIndex,
+							[selectedNetwork]: action.payload.newChangeAddressIndex,
 						},
 					},
 				},

@@ -130,6 +130,7 @@ const actions = {
 
 	//Checks
 	ADD_WARNING: 'ADD_WARNING',
+	UPDATE_WARNINGS: 'UPDATE_WARNINGS',
 	RESET_CHECKS_STORE: 'RESET_CHECKS_STORE',
 };
 export default actions;

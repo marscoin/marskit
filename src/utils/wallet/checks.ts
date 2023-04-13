@@ -9,6 +9,7 @@ import { TAvailableNetworks } from '../networks';
 import { err, ok, Result } from '@synonymdev/result';
 import { getMinMaxObjects, TGetMinMaxObject } from '../helpers';
 import isEqual from 'lodash.isequal';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
 	generateAddresses,
@@ -31,6 +32,10 @@ import {
 	TMinMaxAddressData,
 	TMinMaxData,
 } from '../../store/types/checks';
+import {
+	reportImpactedAddressBalance,
+	reportUnreportedWarnings,
+} from '../checks';
 
 export const runChecks = async ({
 	selectedWallet,
@@ -53,6 +58,9 @@ export const runChecks = async ({
 	if (storageCheckRes.isOk()) {
 		ranStorageCheck = true;
 	}
+
+	reportUnreportedWarnings({ selectedWallet, selectedNetwork }).then();
+
 	return ok({
 		ranStorageCheck,
 	});
@@ -118,11 +126,24 @@ export const runStorageCheck = async ({
 		return err(replaceImpactedAddressesRes.error.message);
 	}
 
-	// Add warning info in the event it's needed for future use and debugging.
+	let warningReported = false;
+
+	// Report the impacted address balance.
+	const reportRes = await reportImpactedAddressBalance({
+		selectedNetwork,
+		impactedAddressRes: getImpactedAddressesRes.value,
+	});
+	if (reportRes.isOk()) {
+		warningReported = true;
+	}
+
+	// Add/Save warning info locally in the event it's needed for future use and debugging.
 	addWarning({
 		warning: {
-			id: EWarningIds.storageCheck,
+			id: uuidv4(),
+			warningId: EWarningIds.storageCheck,
 			data: getImpactedAddressesRes.value,
+			warningReported,
 			timestamp: new Date().getTime(),
 		},
 		selectedWallet,
