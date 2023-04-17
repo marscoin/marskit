@@ -61,10 +61,9 @@ export const reportImpactedAddressBalance = async ({
 
 	const balance = balanceRes.value;
 
-	//TODO: Update production/mainnet url once available.
 	const url =
 		selectedNetwork === 'bitcoin'
-			? 'http://35.233.47.252/bitkit-alerts'
+			? 'https://api.blocktank.to/bk-info'
 			: 'http://35.233.47.252/bitkit-alerts';
 
 	const postImpactedBalanceResponse = await fetch(url, {
