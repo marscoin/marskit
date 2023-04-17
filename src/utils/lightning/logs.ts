@@ -71,7 +71,7 @@ const listLogs = async (path: string, limit: number): Promise<string[]> => {
 	//Newest first
 	list.sort((a, b) => {
 		return (
-			(a.mtime ?? new Date()).getTime() - (b.mtime ?? new Date()).getTime()
+			(b.mtime ?? new Date()).getTime() - (a.mtime ?? new Date()).getTime()
 		);
 	});
 
