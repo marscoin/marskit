@@ -9,39 +9,37 @@ import { PlusIcon } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import SafeAreaInsets from '../../components/SafeAreaInsets';
-import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
+import Divider from '../../components/Divider';
+import useKeyboard from '../../hooks/keyboard';
+import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import {
 	setLinks,
 	setOnboardingProfileStep,
 } from '../../store/actions/slashtags';
-import Store from '../../store/types';
+import { removeTodo } from '../../store/actions/todos';
 import { BasicProfile } from '../../store/types/slashtags';
+import { slashtagsLinksSelector } from '../../store/reselect/slashtags';
+import { onboardingProfileStepSelector } from '../../store/reselect/slashtags';
+import { arraysMatch } from '../../utils/helpers';
 import { saveProfile } from '../../utils/slashtags';
 import type { RootStackScreenProps } from '../../navigation/types';
-import { arraysMatch } from '../../utils/helpers';
-import Divider from '../../components/Divider';
-import { removeTodo } from '../../store/actions/todos';
-import useKeyboard from '../../hooks/keyboard';
 
 export const ProfileEdit = ({
 	navigation,
 }: RootStackScreenProps<'Profile' | 'ProfileEdit'>): JSX.Element => {
 	const { t } = useTranslation('slashtags');
-	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
-	const links = useSelector((state: Store) => state.slashtags.links);
-	const [hasEdited, setHasEdited] = useState(false);
 	const { keyboardShown } = useKeyboard();
+	const [hasEdited, setHasEdited] = useState(false);
+	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
+	const links = useSelector(slashtagsLinksSelector);
+	const onboardingStep = useSelector(onboardingProfileStepSelector);
 
 	const { url, slashtag } = useSelectedSlashtag();
 	const { profile: savedProfile } = useProfile(url);
 
-	// TODO: after full backup, onboarding step should be set to DONE
-	// for now, we check if there is a savedProfile as a sign of onboarding done.
-	const onboardedProfile =
-		useSelector((state: Store) => state.slashtags.onboardingProfileStep) ===
-			'Done' || !!savedProfile;
+	const onboardedProfile = onboardingStep === 'Done';
 
 	const buttonContainerStyles = useMemo(
 		() => ({
