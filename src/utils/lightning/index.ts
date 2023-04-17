@@ -24,7 +24,6 @@ import lm, {
 } from '@synonymdev/react-native-ldk';
 
 import {
-	getBlockHashFromHeight,
 	getBlockHeader,
 	getBlockHex,
 	getScriptPubKeyHistory,
@@ -148,12 +147,6 @@ export const setupLdk = async ({
 		// start from a clean slate
 		await resetLdk();
 
-		const genesisHash = await getBlockHashFromHeight({
-			height: 0,
-		});
-		if (genesisHash.isErr()) {
-			return err(genesisHash.error.message);
-		}
 		const account = await getAccount({ selectedWallet });
 		if (account.isErr()) {
 			return err(account.error.message);
@@ -196,7 +189,6 @@ export const setupLdk = async ({
 		}
 		const fees = getFeesStore().onchain;
 		const lmStart = await lm.start({
-			genesisHash: genesisHash.value,
 			account: account.value,
 			getFees: () =>
 				Promise.resolve({
