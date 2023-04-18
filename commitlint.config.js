@@ -22,6 +22,7 @@ module.exports = {
 				'security',
 				'send',
 				'settings',
+				'slashpay',
 				'suggestions',
 				'tokens',
 				'transfer',

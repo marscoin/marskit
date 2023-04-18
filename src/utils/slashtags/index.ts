@@ -14,7 +14,7 @@ import {
 	getSelectedNetwork,
 	getSelectedWallet,
 } from '../wallet';
-import { decodeLightningInvoice } from '../lightning';
+import { decodeLightningInvoice, waitForLdk } from '../lightning';
 import { createLightningInvoice } from '../../store/actions/lightning';
 import { getSettingsStore } from '../../store/helpers';
 import { TAvailableNetworks } from '../networks';
@@ -187,6 +187,8 @@ export const updateSlashPayConfig = debounce(
 		const drive = slashtag.drivestore.get();
 		const payConfig: SlashPayConfig =
 			(await drive.get('/slashpay.json').then(decodeJSON).catch(noop)) || [];
+
+		await waitForLdk();
 
 		const { currentLightningNode } = getCurrentWallet({
 			selectedWallet,

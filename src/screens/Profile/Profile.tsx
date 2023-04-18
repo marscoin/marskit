@@ -48,15 +48,7 @@ import { ProfileIntro, OfflinePayments } from './ProfileOnboarding';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 const Profile = memo((props: RootStackScreenProps<'Profile'>): ReactElement => {
-	const { url } = useSelectedSlashtag();
-	const { profile } = useProfile(url);
 	const onboardingProfileStep = useSelector(onboardingProfileStepSelector);
-
-	// TEMP: remove after full backups are working
-	// skip onboarding if we have a profile already
-	if (profile.name) {
-		return <ProfileScreen {...props} />;
-	}
 
 	switch (onboardingProfileStep) {
 		case 'Intro':

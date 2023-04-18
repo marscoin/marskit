@@ -515,8 +515,9 @@ const ReviewAndSend = ({
 			warnings.push('dialog4');
 		}
 
-		// Check if the user is setting the minimum relay fee given the current fee environment.
+		// Check if the user is setting the minimum fee given the current fee environment.
 		if (
+			!transaction.lightningInvoice &&
 			transaction.satsPerByte &&
 			// This check is to prevent situations where all values are set to 1sat/vbyte. Where setting 1sat/vbyte is perfectly fine.
 			feeEstimates.minimum < feeEstimates.slow &&
