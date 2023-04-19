@@ -20,8 +20,8 @@ import {
 	RadialGradient,
 	Rect,
 	rect,
-	useCanvas,
 	useComputedValue,
+	useValue,
 	vec,
 } from '@shopify/react-native-skia';
 import { useSelector } from 'react-redux';
@@ -44,6 +44,7 @@ import { capitalize } from '../../../utils/helpers';
 import DetectSwipe from '../../../components/DetectSwipe';
 import { EBitcoinUnit } from '../../../store/types/wallet';
 import type { WalletScreenProps } from '../../../navigation/types';
+import { SkiaMutableValue } from '@shopify/react-native-skia/src/values/types';
 
 const updateHeight = ({
 	height = new Animated.Value(0),
@@ -59,8 +60,13 @@ const updateHeight = ({
 	} catch {}
 };
 
-const Glow = ({ color }: { color: string }): ReactElement => {
-	const { size } = useCanvas();
+const Glow = ({
+	color,
+	size,
+}: {
+	color: string;
+	size: SkiaMutableValue<{ width: number; height: number }>;
+}): ReactElement => {
 	const rct = useComputedValue(
 		() => rect(0, 0, size.current.width, size.current.height),
 		[size],
@@ -85,6 +91,7 @@ const WalletsDetail = ({
 	const bitcoinUnit = useSelector((store: Store) => store.settings.bitcoinUnit);
 	const hideBalance = useSelector((state: Store) => state.settings.hideBalance);
 	const colors = useColors();
+	const size = useValue({ width: 0, height: 0 });
 	const title = capitalize(assetType);
 	const [showDetails, setShowDetails] = useState(true);
 	const [radiusContainerHeight, setRadiusContainerHeight] = useState(400);
@@ -156,8 +163,8 @@ const WalletsDetail = ({
 			</View>
 			<View color="transparent" style={styles.radiusContainer}>
 				<BlurView>
-					<Canvas style={styles.glowCanvas}>
-						<Glow color={colors.brand} />
+					<Canvas style={styles.glowCanvas} onSize={size}>
+						<Glow color={colors.brand} size={size} />
 					</Canvas>
 					<View
 						style={styles.assetDetailContainer}

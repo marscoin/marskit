@@ -1,11 +1,40 @@
-import React, { memo } from 'react';
-import { Animated, Easing } from 'react-native';
+import React, { memo, useEffect } from 'react';
 import { __DISABLE_LOOP_ANIMATION__ } from '../constants/env';
+import Animated, {
+	cancelAnimation,
+	Easing,
+	useSharedValue,
+	withRepeat,
+	withTiming,
+	useAnimatedStyle,
+} from 'react-native-reanimated';
 
 const imageSrc = require('../assets/spinner-gradient.png');
 
 export const LoadingSpinner = memo(({ size = 45 }: { size?: number }) => {
-	const spinValue = new Animated.Value(0);
+	const spinValue = useSharedValue(0);
+
+	useEffect(() => {
+		spinValue.value = withRepeat(
+			withTiming(360, {
+				duration: 1000,
+				easing: Easing.linear,
+			}),
+			-1,
+		);
+		return (): void => cancelAnimation(spinValue);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			transform: [
+				{
+					rotateZ: `${spinValue.value}deg`,
+				},
+			],
+		};
+	}, [spinValue.value]);
 
 	if (__DISABLE_LOOP_ANIMATION__) {
 		return (
@@ -13,18 +42,9 @@ export const LoadingSpinner = memo(({ size = 45 }: { size?: number }) => {
 		);
 	}
 
-	Animated.loop(
-		Animated.timing(spinValue, {
-			toValue: 360,
-			duration: 100000,
-			easing: Easing.linear,
-			useNativeDriver: true,
-		}),
-	).start();
-
 	return (
 		<Animated.Image
-			style={{ height: size, width: size, transform: [{ rotate: spinValue }] }}
+			style={{ ...animatedStyle, height: size, width: size }}
 			source={imageSrc}
 		/>
 	);
