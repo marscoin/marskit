@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { SDK, SlashURL } from '@synonymdev/slashtags-sdk';
+import SDK, { SlashURL } from '@synonymdev/slashtags-sdk';
 
 import { useSlashtags, useSlashtagsSDK } from '../components/SlashtagsProvider';
 import { BasicProfile, IRemote } from '../store/types/slashtags';

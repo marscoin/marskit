@@ -107,6 +107,7 @@ export const SlashtagsProvider = ({
 				// like random access react native after m1 support. or react-native-fs?
 				storage: RAWS,
 				// TODO(slashtags): add settings to customize this relay or use native
+				// @ts-ignore
 				relay,
 			});
 
