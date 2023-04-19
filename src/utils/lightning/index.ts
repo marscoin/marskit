@@ -1098,7 +1098,7 @@ export const payLightningInvoice = async (
 		const payResponse = await lm.payWithTimeout({
 			paymentRequest: invoice,
 			amountSats: sats ?? 0,
-			timeout: 30000,
+			timeout: 60000,
 		});
 		if (payResponse.isErr()) {
 			return err(payResponse.error.message);
