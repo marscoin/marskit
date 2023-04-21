@@ -21,7 +21,10 @@ import {
 	getSelectedWallet,
 	refreshWallet,
 } from './index';
-import { replaceImpactedAddresses } from '../../store/actions/wallet';
+import {
+	clearUtxos,
+	replaceImpactedAddresses,
+} from '../../store/actions/wallet';
 import { addWarning } from '../../store/actions/checks';
 import {
 	EWarningIds,
@@ -149,6 +152,8 @@ export const runStorageCheck = async ({
 		selectedWallet,
 		selectedNetwork,
 	});
+
+	await clearUtxos({ selectedWallet, selectedNetwork });
 
 	await refreshWallet({
 		onchain: true,
