@@ -20,10 +20,16 @@ Switch to the Node.js version defined in `.nvmrc`. If `nvm` (or similiar) is ins
 yarn install
 ```
 
-4. Set environment variables for development (optional)
+4. Setup iOS or Android dependencies
 
 ```shell
-cp .env.development.template .env.development
+yarn setup-ios
+```
+
+or
+
+```shell
+yarn setup-android
 ```
 
 5. Start the project

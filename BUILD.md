@@ -30,18 +30,6 @@ or
 yarn setup-android
 ```
 
-5. Run the app
-
-```shell
-yarn ios
-```
-
-or
-
-```shell
-yarn android
-```
-
 ## Build
 
 For iOS: Open the `ios` folder in Xcode to build the project.
