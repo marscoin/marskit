@@ -93,7 +93,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "to.synonym.bitkit.wallet"
+    namespace "com.bitkit"
     defaultConfig {
         applicationId "to.synonym.bitkit.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
