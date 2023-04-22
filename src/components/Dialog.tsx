@@ -50,7 +50,6 @@ const Dialog = ({
 			// use it with presentationStyle="fullScreen" to get a black background
 			// https://github.com/facebook/react-native/issues/34018
 			transparent={true}
-			presentationStyle="fullScreen"
 			visible={visible}
 			onRequestClose={onRequestClose}>
 			<View style={styles.centeredView}>
