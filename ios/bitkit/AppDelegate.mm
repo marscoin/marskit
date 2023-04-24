@@ -2,6 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
+#import <React/RCTRootView.h>
 
 @implementation AppDelegate
 
@@ -12,7 +13,16 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
-  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+  BOOL result = [super application:application didFinishLaunchingWithOptions:launchOptions];
+  // adding it for boot splash BEGIN
+  // TODO: upgrade when RN 0.72 is out
+  // https://github.com/facebook/react-native/issues/35937#issuecomment-1421641189
+  RCTRootView *rootView = (RCTRootView *)self.window.rootViewController.view;
+  UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+  UIViewController *vc = [sb instantiateInitialViewController];
+  rootView.loadingView = vc.view;
+  // adding it for boot splash END
+  return result;
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
