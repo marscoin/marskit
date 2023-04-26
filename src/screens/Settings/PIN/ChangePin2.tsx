@@ -30,16 +30,19 @@ const ChangePin2 = ({
 	const [wrongPin, setWrongPin] = useState<boolean>(false);
 	const { brand, brand08 } = useColors();
 
-	const handleOnPress = (n: string | number): void => {
-		setPin((p) => {
-			if (p.length === 4) {
-				return p;
+	const handleOnPress = (key: string): void => {
+		if (key === 'delete') {
+			if (pin.length !== 0) {
+				vibrate();
+				setPin((p) => p.slice(0, -1));
 			}
-			return p + String(n);
-		});
+		} else {
+			if (pin.length !== 4) {
+				vibrate();
+				setPin((p) => p + key);
+			}
+		}
 	};
-
-	const handleOnRemove = (): void => setPin((p) => p.slice(0, -1));
 
 	// reset pin on back
 	useFocusEffect(useCallback(() => setPin(''), []));
@@ -69,7 +72,7 @@ const ChangePin2 = ({
 	}, [pin, origPIN, navigation]);
 
 	return (
-		<ThemedView style={styles.container}>
+		<ThemedView style={styles.container} testID="ChangePIN2">
 			<SafeAreaInsets type="top" />
 			<NavigationHeader
 				title={t(origPIN ? 'cp_retype_title' : 'cp_setnew_title')}
@@ -84,7 +87,11 @@ const ChangePin2 = ({
 
 			<View style={styles.wrongPin}>
 				{wrongPin ? (
-					<AnimatedView color="transparent" entering={FadeIn} exiting={FadeOut}>
+					<AnimatedView
+						color="transparent"
+						entering={FadeIn}
+						exiting={FadeOut}
+						testID="WrongPIN">
 						<Text02S color="brand">{t('cp_try_again')}</Text02S>
 					</AnimatedView>
 				) : (
@@ -113,7 +120,6 @@ const ChangePin2 = ({
 				style={styles.numberpad}
 				type="simple"
 				onPress={handleOnPress}
-				onRemove={handleOnRemove}
 			/>
 		</ThemedView>
 	);
