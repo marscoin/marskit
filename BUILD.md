@@ -18,6 +18,18 @@ Switch to the Node.js version defined in `.nvmrc`. If `nvm` (or similiar) is ins
 yarn install
 ```
 
+4. Setup iOS or Android dependencies
+
+```shell
+yarn setup-ios
+```
+
+or
+
+```shell
+yarn setup-android
+```
+
 ## Build
 
 For iOS: Open the `ios` folder in Xcode to build the project.

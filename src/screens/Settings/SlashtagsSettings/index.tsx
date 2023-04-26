@@ -123,7 +123,8 @@ const SlashtagsSettings = (): ReactElement => {
 					{
 						title: 'close relay socket',
 						type: EItemType.button,
-						onPress: () => sdk._relaySocket.close(),
+						onPress: () =>
+							sdk?._relaySocket ? sdk._relaySocket.close() : null,
 					},
 				],
 			},

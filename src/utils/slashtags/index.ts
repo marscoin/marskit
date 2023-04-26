@@ -1,4 +1,4 @@
-import { SDK, SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
+import SDK, { SlashURL, Slashtag, Hyperdrive } from '@synonymdev/slashtags-sdk';
 import b4a from 'b4a';
 import mime from 'mime/lite';
 import debounce from 'lodash.debounce';

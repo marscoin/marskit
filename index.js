@@ -1,3 +1,4 @@
+import './shim';
 import { AppRegistry, LogBox, Text, TextInput } from 'react-native';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 

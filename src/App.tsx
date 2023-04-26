@@ -1,5 +1,3 @@
-import '../shim';
-
 import React, {
 	memo,
 	ReactElement,

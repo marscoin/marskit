@@ -37,20 +37,21 @@ if (typeof localStorage !== 'undefined') {
 // crypto is loaded first, so it can populate global.crypto
 require('crypto');
 
-// Intl JS api
-if (typeof Intl === 'undefined') {
-	require('@formatjs/intl-getcanonicallocales/polyfill');
+// RN still doesn't suppor full spec of Intl API
+if (!Intl.Locale) {
 	require('@formatjs/intl-locale/polyfill');
-	require('@formatjs/intl-pluralrules/polyfill');
-	require('@formatjs/intl-pluralrules/locale-data/en');
-	require('@formatjs/intl-pluralrules/locale-data/ru');
+}
+if (!NumberFormat.formatToParts) {
 	require('@formatjs/intl-numberformat/polyfill');
 	require('@formatjs/intl-numberformat/locale-data/en');
 	require('@formatjs/intl-numberformat/locale-data/ru');
-	require('@formatjs/intl-datetimeformat/polyfill');
-	require('@formatjs/intl-datetimeformat/locale-data/en');
-	require('@formatjs/intl-datetimeformat/locale-data/ru');
-	require('@formatjs/intl-datetimeformat/add-all-tz');
+}
+if (!Intl.PluralRules) {
+	require('@formatjs/intl-pluralrules/polyfill');
+	require('@formatjs/intl-pluralrules/locale-data/en');
+	require('@formatjs/intl-pluralrules/locale-data/ru');
+}
+if (!Intl.RelativeTimeFormat) {
 	require('@formatjs/intl-relativetimeformat/polyfill');
 	require('@formatjs/intl-relativetimeformat/locale-data/en');
 	require('@formatjs/intl-relativetimeformat/locale-data/ru');
@@ -61,24 +62,4 @@ if (!Symbol.asyncIterator) {
 }
 if (!Symbol.iterator) {
 	Symbol.iterator = '@@iterator';
-}
-
-if (!Promise.allSettled) {
-	// RN only supports Promise.allSettled after v0.70.6
-	// https://stackoverflow.com/a/70114114/1231070
-	// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-	Promise.allSettled = (promises) =>
-		Promise.all(
-			promises.map((pr) =>
-				pr
-					.then((value) => ({
-						status: 'fulfilled',
-						value,
-					}))
-					.catch((reason) => ({
-						status: 'rejected',
-						reason,
-					})),
-			),
-		);
 }

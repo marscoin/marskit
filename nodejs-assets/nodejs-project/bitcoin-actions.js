@@ -103,7 +103,7 @@ class BitcoinActions {
             }
             if (!this.root || !this.seed) {
                 await this.setup({
-                    selectedNetwork: this.selectedNetwork,
+                    selectedNetwork,
                     data: { mnemonic: this.mnemonic , bip39Passphrase: this.bip39Passphrase }
                 });
             }
