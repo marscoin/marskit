@@ -98,7 +98,7 @@ const Feed = ({
 	title: string;
 	url: string;
 	testID?: string;
-}): JSX.Element => {
+}): ReactElement => {
 	return (
 		<TouchableOpacity
 			activeOpacity={0.9}

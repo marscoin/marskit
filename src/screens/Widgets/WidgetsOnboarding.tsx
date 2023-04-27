@@ -83,7 +83,7 @@ const Layout = ({
 	illustration: ImageSourcePropType;
 	children: ReactNode;
 	onNext: () => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const { t } = useTranslation('slashtags');
 
 	const onSwipeRight = (): void => {

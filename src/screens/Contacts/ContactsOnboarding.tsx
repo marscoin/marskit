@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Trans, useTranslation } from 'react-i18next';
@@ -15,9 +15,9 @@ const imageSrc = require('../../assets/illustrations/book.png');
 
 type ContactsOnboardingProps = StackScreenProps<RootStackParamList, 'Contacts'>;
 
-export const ContactsOnboarding = ({
+const ContactsOnboarding = ({
 	navigation,
-}: ContactsOnboardingProps): JSX.Element => {
+}: ContactsOnboardingProps): ReactElement => {
 	const { t } = useTranslation('slashtags');
 
 	return (

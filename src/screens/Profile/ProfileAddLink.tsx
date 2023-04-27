@@ -15,7 +15,7 @@ import { addLink } from '../../store/actions/slashtags';
 import { useAppSelector } from '../../hooks/redux';
 import { profileLinkSelector } from '../../store/reselect/ui';
 
-export const ProfileAddLinkForm = ({
+const ProfileAddLinkForm = ({
 	navigation,
 }: RootStackScreenProps<'ProfileAddLink'>): ReactElement => {
 	const { t } = useTranslation('slashtags');

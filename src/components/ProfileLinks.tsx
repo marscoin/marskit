@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import {
 	View,
 	TouchableOpacity,
@@ -24,7 +24,7 @@ const ProfileLinks = ({
 	links: LocalLink[];
 	editable?: boolean;
 	style?: StyleProp<ViewStyle>;
-}): JSX.Element => {
+}): ReactElement => {
 	const { t } = useTranslation('slashtags');
 
 	return (

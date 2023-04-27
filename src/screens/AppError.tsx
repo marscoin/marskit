@@ -1,4 +1,4 @@
-import React, { ErrorInfo } from 'react';
+import React, { ErrorInfo, ReactElement } from 'react';
 import {
 	View,
 	Text,
@@ -19,7 +19,7 @@ const imageSrc = require('../assets/illustrations/cross.png');
 
 type ReactError = Error & ErrorInfo;
 
-const AppError = ({ error }: { error: ReactError }): JSX.Element => {
+const AppError = ({ error }: { error: ReactError }): ReactElement => {
 	const onClose = (): void => {
 		RNExitApp.exitApp();
 	};

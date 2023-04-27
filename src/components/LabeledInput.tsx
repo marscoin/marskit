@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React, { ReactElement, RefObject } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { TextInput, BottomSheetTextInput } from '../styles/components';
 import { Caption13Up } from '../styles/text';
@@ -29,7 +29,7 @@ const LabeledInput = ({
 	placeholder,
 	style,
 	maxLength,
-}: LabeledInputProps): JSX.Element => {
+}: LabeledInputProps): ReactElement => {
 	const numberOfChildren = React.Children.toArray(children).length;
 
 	const textInputStyle =

@@ -11,7 +11,7 @@ import Animated, {
 
 const imageSrc = require('../assets/spinner-gradient.png');
 
-export const LoadingSpinner = memo(({ size = 45 }: { size?: number }) => {
+const LoadingSpinner = memo(({ size = 45 }: { size?: number }) => {
 	const spinValue = useSharedValue(0);
 
 	useEffect(() => {
@@ -49,3 +49,5 @@ export const LoadingSpinner = memo(({ size = 45 }: { size?: number }) => {
 		/>
 	);
 });
+
+export default memo(LoadingSpinner);

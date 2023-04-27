@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, ReactElement } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -16,10 +16,10 @@ import Divider from '../../components/Divider';
 import useKeyboard from '../../hooks/keyboard';
 import HourglassSpinner from '../../components/HourglassSpinner';
 
-export const ContactEdit = ({
+const ContactEdit = ({
 	navigation,
 	route,
-}: RootStackScreenProps<'ContactEdit'>): JSX.Element => {
+}: RootStackScreenProps<'ContactEdit'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const url = route.params.url;
 	const saved = useSlashtags().contacts[url];

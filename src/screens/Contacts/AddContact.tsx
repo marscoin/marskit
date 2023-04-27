@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -23,7 +23,7 @@ const AddContact = ({
 	navigation,
 }: {
 	navigation: StackNavigationProp<RootStackParamList, 'Contacts'>;
-}): JSX.Element => {
+}): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const snapPoints = useSnapPoints('small');
 	const [addContactURL, setAddContactURL] = useState('');

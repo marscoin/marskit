@@ -221,7 +221,7 @@ const _SlashAuthModal = (): ReactElement => {
 	);
 };
 
-export const SlashAuthModal = (): ReactElement => {
+const SlashAuthModal = (): ReactElement => {
 	const snapPoints = useSnapPoints('large');
 	useBottomSheetBackPress('slashauthModal');
 

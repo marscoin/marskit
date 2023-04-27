@@ -28,7 +28,7 @@ const suggestions = [
 	'Spotify',
 ];
 
-export const ProfileLinkSuggestions = ({
+const ProfileLinkSuggestions = ({
 	navigation,
 }: RootStackScreenProps<'ProfileLinkSuggestions'>): ReactElement => {
 	const { t } = useTranslation('slashtags');

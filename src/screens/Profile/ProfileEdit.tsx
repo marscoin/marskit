@@ -1,4 +1,11 @@
-import React, { useState, useMemo, useEffect, useCallback, memo } from 'react';
+import React, {
+	useState,
+	useMemo,
+	useEffect,
+	useCallback,
+	memo,
+	ReactElement,
+} from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -26,9 +33,9 @@ import { arraysMatch } from '../../utils/helpers';
 import { saveProfile } from '../../utils/slashtags';
 import type { RootStackScreenProps } from '../../navigation/types';
 
-export const ProfileEdit = ({
+const ProfileEdit = ({
 	navigation,
-}: RootStackScreenProps<'Profile' | 'ProfileEdit'>): JSX.Element => {
+}: RootStackScreenProps<'Profile' | 'ProfileEdit'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const { keyboardShown } = useKeyboard();
 	const [hasEdited, setHasEdited] = useState(false);

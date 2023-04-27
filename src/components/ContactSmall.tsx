@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { ReactElement, memo } from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 import { TouchableOpacity } from '../styles/components';
@@ -7,7 +7,7 @@ import { useProfile } from '../hooks/slashtags';
 import ProfileImage from './ProfileImage';
 import { XIcon } from '../styles/icons';
 
-export const ContactSmall = ({
+const ContactSmall = ({
 	url,
 	size = 'small',
 	style,
@@ -19,7 +19,7 @@ export const ContactSmall = ({
 	style?: StyleProp<ViewStyle>;
 	onPress?: () => void;
 	onDelete?: () => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const { profile } = useProfile(url);
 
 	return (

@@ -55,7 +55,7 @@ export const SlashtagsProvider = ({
 	children,
 }: {
 	children: ReactElement;
-}): JSX.Element => {
+}): ReactElement => {
 	const [primaryKey, setPrimaryKey] = useState<string>();
 	const [opened, setOpened] = useState(false);
 	const [contacts, setContacts] = useState<ISlashtagsContext['contacts']>({});

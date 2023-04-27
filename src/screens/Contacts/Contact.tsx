@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -37,10 +37,10 @@ import {
 } from '../../store/reselect/wallet';
 import { showErrorNotification } from '../../utils/notifications';
 
-export const Contact = ({
+const Contact = ({
 	navigation,
 	route,
-}: RootStackScreenProps<'Contact'>): JSX.Element => {
+}: RootStackScreenProps<'Contact'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const { url } = route.params;
 	const [showDialog, setShowDialog] = useState(false);

@@ -35,7 +35,7 @@ import {
 } from '../../utils/widgets';
 import Divider from '../../components/Divider';
 import HourglassSpinner from '../../components/HourglassSpinner';
-import { SlashtagURL } from '../../components/SlashtagURL';
+import SlashtagURL from '../../components/SlashtagURL';
 import PriceWidget from '../../components/PriceWidget';
 import HeadlinesWidget from '../../components/HeadlinesWidget';
 import BlocksWidget from '../../components/BlocksWidget';
@@ -45,7 +45,7 @@ import FactsWidget from '../../components/FactsWidget';
 
 type Config = Partial<SlashFeedJSON> & { icon?: string };
 
-export const WidgetFeedEdit = ({
+const WidgetFeedEdit = ({
 	navigation,
 	route,
 }: RootStackScreenProps<'WidgetFeedEdit'>): ReactElement => {

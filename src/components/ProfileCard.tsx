@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { ReactElement, useRef } from 'react';
 import {
 	View,
 	TouchableOpacity,
@@ -14,14 +14,14 @@ import { TextInputNoOutline } from '../styles/components';
 import { Text, Headline } from '../styles/text';
 import { CameraIcon } from '../styles/icons';
 import ProfileImage from './ProfileImage';
-import { SlashtagURL } from './SlashtagURL';
+import SlashtagURL from './SlashtagURL';
 import { BasicProfile } from '../store/types/slashtags';
 import { truncate } from '../utils/helpers';
 
 export const MAX_NAME_LENGTH = 50;
 export const MAX_BIO_LENGTH = 160;
 
-export const ProfileCard = ({
+const ProfileCard = ({
 	url,
 	profile,
 	editable,
@@ -35,7 +35,7 @@ export const ProfileCard = ({
 	contact?: boolean;
 	resolving: boolean;
 	onChange?: (name: string, value: string) => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const theme = useTheme();
 	const { t } = useTranslation('slashtags');
 	const bioRef = useRef<TextInput>(null);
