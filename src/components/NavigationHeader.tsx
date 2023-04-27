@@ -16,16 +16,18 @@ import { Keyboard } from '../hooks/keyboard';
 const ActionButton = memo(
 	({
 		children,
+		style,
 		onPress,
 		testID,
 	}: {
 		children?: JSX.Element;
+		style?: StyleProp<ViewStyle>;
 		onPress?: (event: GestureResponderEvent) => void;
 		testID?: string;
 	}): ReactElement => {
 		return (
 			<TouchableOpacity
-				style={styles.action}
+				style={[styles.action, style]}
 				activeOpacity={onPress ? 0.6 : 1}
 				onPress={onPress}
 				testID={testID}>
@@ -106,7 +108,10 @@ const NavigationHeader = ({
 		<View style={container}>
 			<View style={actionColumn}>
 				{showBack && (
-					<ActionButton onPress={handleBackPress} testID="NavigationBack">
+					<ActionButton
+						style={styles.backButton}
+						onPress={handleBackPress}
+						testID="NavigationBack">
 						<BackIcon width={20} height={20} />
 					</ActionButton>
 				)}
@@ -123,7 +128,10 @@ const NavigationHeader = ({
 					</ActionButton>
 				)}
 				{onClosePress && (
-					<ActionButton onPress={onClosePress} testID="NavigationClose">
+					<ActionButton
+						style={styles.closeButton}
+						onPress={onClosePress}
+						testID="NavigationClose">
 						<XIcon width={24} height={24} />
 					</ActionButton>
 				)}
@@ -162,6 +170,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		maxWidth: ACTION_WIDTH,
+	},
+	backButton: {
+		paddingLeft: 11,
+	},
+	closeButton: {
+		paddingRight: 11,
 	},
 });
 
