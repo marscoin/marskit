@@ -5,7 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Caption13Up, Display, Text01S } from '../../styles/text';
 import { LightningIcon } from '../../styles/icons';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import AmountToggle from '../../components/AmountToggle';
@@ -65,7 +65,7 @@ const QuickConfirm = ({
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('add_instant_payments')}
 				onClosePress={(): void => {
@@ -123,7 +123,7 @@ const QuickConfirm = ({
 					</View>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-around',
 	},
 	buttonContainer: {
-		marginBottom: 16,
+		marginTop: 'auto',
 	},
 });
 

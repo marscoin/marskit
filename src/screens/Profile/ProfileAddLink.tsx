@@ -1,6 +1,5 @@
 import React, { useMemo, ReactElement, useCallback, memo } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../styles/components';
@@ -8,31 +7,25 @@ import { Text02S, Text02B } from '../../styles/text';
 import Button from '../../components/Button';
 import LabeledInput from '../../components/LabeledInput';
 import { RootStackScreenProps } from '../../navigation/types';
-import { updateProfileLink } from '../../store/actions/ui';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
-import { addLink } from '../../store/actions/slashtags';
+import SafeAreaInset from '../../components/SafeAreaInset';
+import KeyboardAvoidingView from '../../components/KeyboardAvoidingView';
+import { Keyboard } from '../../hooks/keyboard';
 import { useAppSelector } from '../../hooks/redux';
+import { addLink } from '../../store/actions/slashtags';
+import { updateProfileLink } from '../../store/actions/ui';
 import { profileLinkSelector } from '../../store/reselect/ui';
 
 const ProfileAddLinkForm = ({
 	navigation,
 }: RootStackScreenProps<'ProfileAddLink'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
-	const insets = useSafeAreaInsets();
 	const form = useAppSelector(profileLinkSelector);
 
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
-
-	const saveLink = useCallback((): void => {
+	const onSave = useCallback(async (): Promise<void> => {
 		addLink(form);
 		updateProfileLink({ title: '', url: '' });
+		await Keyboard.dismiss();
 		navigation.goBack();
 	}, [form, navigation]);
 
@@ -43,9 +36,9 @@ const ProfileAddLinkForm = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('profile_add_link')} />
-			<View style={styles.content}>
+			<KeyboardAvoidingView style={styles.content}>
 				<LabeledInput
 					style={styles.input}
 					label={t('profile_link_label')}
@@ -78,16 +71,17 @@ const ProfileAddLinkForm = ({
 					{t('profile_link_public')}
 				</Text02S>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						text={t('save')}
 						size="large"
 						disabled={!isValid}
-						onPress={saveLink}
+						onPress={onSave}
 					/>
 				</View>
-			</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
+			</KeyboardAvoidingView>
 		</ThemedView>
 	);
 };
@@ -104,10 +98,10 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 	},
 	note: {
-		marginTop: 32,
+		marginTop: 8,
 	},
 	buttonContainer: {
-		marginTop: 16,
+		marginTop: 'auto',
 		flexDirection: 'row',
 		justifyContent: 'center',
 	},

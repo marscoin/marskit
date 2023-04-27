@@ -36,7 +36,7 @@ import { createSupportLink } from '../../../utils/support';
 import NavigationHeader from '../../../components/NavigationHeader';
 import List, { EItemType, IListData } from '../../../components/List';
 import GlowingBackground from '../../../components/GlowingBackground';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import type { SettingsScreenProps } from '../../../navigation/types';
 
 const imageSrc = require('../../../assets/powered-by.png');
@@ -148,7 +148,7 @@ const About = ({
 
 	return (
 		<GlowingBackground bottomRight="brand">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('about_title')}
 				onClosePress={(): void => {
@@ -227,7 +227,7 @@ const About = ({
 					</View>
 				</View>
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 		</GlowingBackground>
 	);

@@ -1,12 +1,12 @@
 import React, { memo, ReactElement, useEffect, useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { __DISABLE_PERIODIC_REMINDERS__ } from '../../constants/env';
 import { Caption13Up, Display, Text02S } from '../../styles/text';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowImage from '../../components/GlowImage';
 import Button from '../../components/Button';
 import { ignoreHighBalance } from '../../store/actions/user';
@@ -69,7 +69,6 @@ const HighBalanceWarning = ({
 }): ReactElement => {
 	const { t } = useTranslation('other');
 	const snapPoints = useSnapPoints('medium');
-	const insets = useSafeAreaInsets();
 	const balance = useBalance({ onchain: true, lightning: true });
 	const count = useAppSelector(ignoreHighBalanceCountSelector);
 	const bitcoinUnit = useAppSelector(bitcoinUnitSelector);
@@ -85,14 +84,6 @@ const HighBalanceWarning = ({
 			.filter((view) => view !== 'highBalance')
 			.some((view) => viewControllers[view].isOpen);
 	}, [viewControllers]);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const { fiatValue } = getFiatDisplayValues({
 		satoshis: balance.satoshis,
@@ -165,19 +156,15 @@ const HighBalanceWarning = ({
 					title={t('high_title')}
 					displayBackButton={false}
 				/>
-
 				<View style={styles.amountContainer}>
 					<Caption13Up color="gray1">{t('high_text1')}</Caption13Up>
 					<Amount style={styles.amount} />
 				</View>
-
 				<Text02S style={styles.text} color="gray1">
 					{t('high_text2_beta')}
 				</Text02S>
-
 				<GlowImage image={imageSrc} imageSize={180} glowColor="yellow" />
-
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					{!BETA && (
 						<>
 							<Button
@@ -197,6 +184,7 @@ const HighBalanceWarning = ({
 						onPress={onDismiss}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

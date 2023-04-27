@@ -57,8 +57,7 @@ import {
 	canBoost,
 	getBlockExplorerLink,
 } from '../../utils/wallet/transactions';
-import SafeAreaView from '../../components/SafeAreaView';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 import { useAppSelector } from '../../hooks/redux';
@@ -863,7 +862,8 @@ const ActivityDetail = ({
 	}
 
 	return (
-		<SafeAreaView onLayout={handleLayout}>
+		<ThemedView style={styles.root} onLayout={handleLayout}>
+			<SafeAreaInset type="top" />
 			<Canvas style={[styles.canvas, size]}>
 				<Glow color={glowColor} size={size} />
 			</Canvas>
@@ -894,14 +894,17 @@ const ActivityDetail = ({
 				{/* {activityType === EActivityType.tether && (
 					<TetherActivityDetail item={item} />
 				)} */}
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 			<ActivityTagsPrompt />
-		</SafeAreaView>
+		</ThemedView>
 	);
 };
 
 const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+	},
 	scrollContent: {
 		paddingHorizontal: 16,
 		flexGrow: 1,
@@ -960,7 +963,6 @@ const styles = StyleSheet.create({
 	buttonDetailsContainer: {
 		flex: 1,
 		justifyContent: 'flex-end',
-		marginBottom: 16,
 	},
 	button: {
 		marginHorizontal: 8,

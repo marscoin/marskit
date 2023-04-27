@@ -11,7 +11,7 @@ import {
 	NewspaperIcon,
 } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import DetectSwipe from '../../components/DetectSwipe';
 import Divider from '../../components/Divider';
 import Button from '../../components/Button';
@@ -37,7 +37,7 @@ const WidgetsSuggestions = ({
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('widget_add')}
 				onClosePress={(): void => {
@@ -83,7 +83,7 @@ const WidgetsSuggestions = ({
 					</View>
 				</View>
 			</DetectSwipe>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		flexDirection: 'row',
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 	button: {
 		flex: 1,

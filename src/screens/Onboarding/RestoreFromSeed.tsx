@@ -21,7 +21,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Display, Text01S, Text02S } from '../../styles/text';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import SeedInput from '../../components/SeedInput';
 import SeedInputAccessory from '../../components/SeedInputAccessory';
 import VerticalShadow from '../../components/VerticalShadow';
@@ -175,7 +175,7 @@ const RestoreFromSeed = (): ReactElement => {
 	return (
 		<GlowingBackground key="back" topLeft="blue">
 			<View style={styles.header}>
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader displayBackButton={true} />
 			</View>
 
@@ -260,7 +260,7 @@ const RestoreFromSeed = (): ReactElement => {
 						testID="RestoreButton"
 					/>
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 
 			{showPassphrase ? (
@@ -301,7 +301,6 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		paddingHorizontal: 32,
-		paddingBottom: 16,
 		flexGrow: 1,
 		justifyContent: 'space-between',
 	},

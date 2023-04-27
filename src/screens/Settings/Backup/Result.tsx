@@ -1,10 +1,10 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -16,14 +16,6 @@ const imageSrc = require('../../../assets/illustrations/check.png');
 
 const Result = ({ navigation }: BackupScreenProps<'Result'>): ReactElement => {
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const handleButtonPress = (): void => {
 		verifyBackup();
@@ -41,7 +33,7 @@ const Result = ({ navigation }: BackupScreenProps<'Result'>): ReactElement => {
 
 			<GlowImage image={imageSrc} imageSize={200} glowColor="green" />
 
-			<View style={nextButtonContainer}>
+			<View style={styles.buttonContainer}>
 				<Button
 					size="large"
 					text={t('ok')}
@@ -49,6 +41,7 @@ const Result = ({ navigation }: BackupScreenProps<'Result'>): ReactElement => {
 					testID="OK"
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -60,10 +53,9 @@ const styles = StyleSheet.create({
 	text: {
 		paddingHorizontal: 32,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 		paddingHorizontal: 32,
-		width: '100%',
 	},
 });
 

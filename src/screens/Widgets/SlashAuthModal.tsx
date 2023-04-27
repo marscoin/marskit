@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Client } from '@synonymdev/slashtags-auth';
 import { SlashURL } from '@synonymdev/slashtags-sdk';
 import { useSelector } from 'react-redux';
@@ -16,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import Button from '../../components/Button';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { closeBottomSheet } from '../../store/actions/ui';
 import { useBottomSheetBackPress } from '../../hooks/bottomSheet';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
@@ -116,15 +116,6 @@ const _SlashAuthModal = (): ReactElement => {
 		return t(isLoading ? 'signin_to_loading' : 'signin_to', { serviceName });
 	}, [serviceName, isLoading, t]);
 
-	const insets = useSafeAreaInsets();
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
-
 	const onCancel = useCallback((): void => {
 		closeBottomSheet('slashauthModal');
 	}, []);
@@ -196,7 +187,7 @@ const _SlashAuthModal = (): ReactElement => {
 			{isLoading && <HourglassSpinner />}
 			{!isLoading && <GlowImage image={imageSrc} imageSize={240} />}
 
-			<View style={buttonContainerStyles}>
+			<View style={styles.buttonContainer}>
 				<Button
 					style={styles.button}
 					size="large"
@@ -217,6 +208,7 @@ const _SlashAuthModal = (): ReactElement => {
 					</>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };

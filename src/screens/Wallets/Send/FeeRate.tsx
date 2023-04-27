@@ -1,7 +1,6 @@
 import React, { memo, ReactElement, useMemo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Caption13Up } from '../../../styles/text';
@@ -24,23 +23,15 @@ import {
 	selectedWalletSelector,
 	transactionSelector,
 } from '../../../store/reselect/wallet';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 
 const FeeRate = ({ navigation }: SendScreenProps<'FeeRate'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const transaction = useSelector(transactionSelector);
 	const feeEstimates = useSelector((store: Store) => store.fees.onchain);
 	const balance = useBalance({ onchain: true });
-
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const selectedFeeId = transaction.selectedFeeId;
 	const satsPerByte = transaction.satsPerByte;
@@ -193,7 +184,7 @@ const FeeRate = ({ navigation }: SendScreenProps<'FeeRate'>): ReactElement => {
 						onPress={onCustomPress}
 					/>
 				)}
-				<View style={nextButtonContainer}>
+				<View style={styles.buttonContainer}>
 					<Button
 						size="large"
 						text={t('continue')}
@@ -202,6 +193,7 @@ const FeeRate = ({ navigation }: SendScreenProps<'FeeRate'>): ReactElement => {
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -217,7 +209,7 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 		marginLeft: 16,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 		paddingHorizontal: 16,
 	},

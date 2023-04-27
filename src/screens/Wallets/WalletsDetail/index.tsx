@@ -34,7 +34,7 @@ import { useBalance } from '../../../hooks/wallet';
 import useColors from '../../../hooks/colors';
 import ActivityList from '../../Activity/ActivityList';
 import BitcoinBreakdown from './BitcoinBreakdown';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Money from '../../../components/Money';
 import BlurView from '../../../components/BlurView';
 import { EActivityType } from '../../../store/types/activity';
@@ -173,7 +173,7 @@ const WalletsDetail = ({
 							const hh = e.nativeEvent.layout.height;
 							setRadiusContainerHeight((h) => (h === 400 ? hh : h));
 						}}>
-						<SafeAreaInsets type="top" />
+						<SafeAreaInset type="top" />
 						<NavigationHeader />
 
 						<AnimatedView
@@ -207,7 +207,7 @@ const WalletsDetail = ({
 								)}
 							</View>
 
-							{showDetails ? (
+							{showDetails && (
 								<AnimatedView
 									color="transparent"
 									entering={FadeIn}
@@ -231,12 +231,12 @@ const WalletsDetail = ({
 
 									{assetType === 'bitcoin' && <BitcoinBreakdown />}
 								</AnimatedView>
-							) : null}
+							)}
 						</AnimatedView>
 					</View>
 				</BlurView>
 			</View>
-			<SafeAreaInsets type="bottom" maxPaddingBottom={20} />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</AnimatedView>
 	);
 };

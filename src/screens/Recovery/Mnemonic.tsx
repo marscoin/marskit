@@ -1,6 +1,5 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../styles/components';
@@ -8,7 +7,7 @@ import { Text01M, Text01S } from '../../styles/text';
 import { showErrorNotification } from '../../utils/notifications';
 import { getBip39Passphrase, getMnemonicPhrase } from '../../utils/wallet';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import { Word } from '../Settings/Backup/ShowMnemonic';
 import { RecoveryStackScreenProps } from '../../navigation/types';
@@ -19,7 +18,6 @@ const Mnemonic = ({
 	const { t } = useTranslation('security');
 	const [seed, setSeed] = useState<string[]>([]);
 	const [passphrase, setPassphrase] = useState('');
-	const insets = useSafeAreaInsets();
 
 	useEffect(() => {
 		const getSeed = async (): Promise<void> => {
@@ -41,19 +39,11 @@ const Mnemonic = ({
 		getSeed();
 	}, [t]);
 
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
-
 	const onBack = (): void => navigation.goBack();
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('mnemonic_phrase')} />
 			<View style={styles.content}>
 				<Text01S style={styles.text} color="gray1">
@@ -91,7 +81,7 @@ const Mnemonic = ({
 					</View>
 				)}
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						text={t('back')}
@@ -100,6 +90,7 @@ const Mnemonic = ({
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

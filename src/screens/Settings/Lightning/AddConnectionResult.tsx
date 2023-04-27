@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -16,7 +16,7 @@ const AddConnectionResult = ({
 }: SettingsScreenProps<'LightningAddConnectionResult'>): ReactElement => {
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title="Connection opened" />
 			<View style={styles.content}>
 				<Text01S color="gray1" style={styles.text}>
@@ -35,7 +35,7 @@ const AddConnectionResult = ({
 							navigation.goBack();
 						}}
 					/>
-					<SafeAreaInsets type="bottom" />
+					<SafeAreaInset type="bottom" minPadding={16} />
 				</View>
 			</View>
 		</ThemedView>

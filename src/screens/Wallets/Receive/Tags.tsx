@@ -1,22 +1,16 @@
-import React, {
-	memo,
-	ReactElement,
-	useCallback,
-	useMemo,
-	useState,
-} from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import React, { memo, ReactElement, useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { BottomSheetTextInput } from '../../../styles/components';
 import { Caption13Up } from '../../../styles/text';
 import GradientView from '../../../components/GradientView';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
-import useKeyboard, { Keyboard } from '../../../hooks/keyboard';
+import { Keyboard } from '../../../hooks/keyboard';
 import { lastUsedTagsSelector } from '../../../store/reselect/metadata';
 import { updateInvoice } from '../../../store/actions/receive';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
@@ -24,23 +18,8 @@ import { ReceiveScreenProps } from '../../../navigation/types';
 
 const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const { keyboardShown } = useKeyboard();
-	const insets = useSafeAreaInsets();
 	const [text, setText] = useState('');
 	const lastUsedTags = useSelector(lastUsedTagsSelector);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown
-				? Platform.OS === 'ios'
-					? 16
-					: 40
-				: insets.bottom + 16,
-		}),
-		[keyboardShown, insets.bottom],
-	);
 
 	const handleSubmit = useCallback(async (): Promise<void> => {
 		if (text.length === 0) {
@@ -103,7 +82,7 @@ const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 					testID="TagInputReceive"
 				/>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						text={t('tags_add_button')}
 						size="large"
@@ -113,6 +92,7 @@ const Tags = ({ navigation }: ReceiveScreenProps<'Tags'>): ReactElement => {
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

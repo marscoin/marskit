@@ -5,7 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { View } from '../../styles/components';
 import { Display, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
@@ -35,7 +35,7 @@ const Introduction = ({
 	return (
 		<GlowingBackground topLeft="purple">
 			<View color="transparent" style={styles.slide}>
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader
 					onClosePress={(): void => {
 						navigation.navigate('Wallet');
@@ -87,7 +87,7 @@ const Introduction = ({
 						</>
 					)}
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</GlowingBackground>
 	);
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		alignItems: 'stretch',
-		marginBottom: 16,
 	},
 	imageContainer: {
 		flex: 4,

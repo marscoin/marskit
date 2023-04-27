@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Caption13Up, Caption13M, Text01M } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
 // import LightningChannel from '../../../components/LightningChannel';
@@ -31,7 +31,7 @@ const AddConnection = ({
 }: SettingsScreenProps<'LightningAddConnection'>): ReactElement => {
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title="Add new connection" />
 
 			<ScrollView contentContainerStyle={styles.content}>
@@ -109,8 +109,8 @@ const AddConnection = ({
 							navigation.navigate('LightningAddConnectionResult')
 						}
 					/>
-					<SafeAreaInsets type="bottom" />
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 		</ThemedView>
 	);

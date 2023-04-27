@@ -5,7 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01B, Text01S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -70,7 +70,7 @@ const CloseConnection = ({
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('close_conn')}
 				onClosePress={(): void => navigation.navigate('Wallet')}
@@ -88,7 +88,7 @@ const CloseConnection = ({
 
 				<GlowImage image={imageSrc} imageSize={200} glowColor="yellow" />
 
-				<View style={styles.buttons}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						text={t('cancel')}
@@ -106,7 +106,7 @@ const CloseConnection = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };
@@ -120,10 +120,10 @@ const styles = StyleSheet.create({
 		marginTop: 8,
 		paddingHorizontal: 16,
 	},
-	buttons: {
+	buttonContainer: {
+		marginTop: 'auto',
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginBottom: 16,
 	},
 	button: {
 		flex: 1,

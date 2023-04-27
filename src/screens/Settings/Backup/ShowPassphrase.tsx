@@ -1,15 +1,15 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01S, Text01M, Text02S } from '../../../styles/text';
+import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
+import GradientView from '../../../components/GradientView';
 import Button from '../../../components/Button';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
-import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
-import GradientView from '../../../components/GradientView';
 import type { BackupScreenProps } from '../../../navigation/types';
 
 const ShowPassphrase = ({
@@ -18,14 +18,6 @@ const ShowPassphrase = ({
 }: BackupScreenProps<'ShowPassphrase'>): ReactElement => {
 	const { t } = useTranslation('security');
 	const { bip39Passphrase, seed } = route.params;
-	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	useBottomSheetBackPress('backupNavigation');
 
@@ -54,7 +46,7 @@ const ShowPassphrase = ({
 					/>
 				</Text02S>
 
-				<View style={nextButtonContainer}>
+				<View style={styles.buttonContainer}>
 					<Button
 						size="large"
 						text={t('continue')}
@@ -64,6 +56,7 @@ const ShowPassphrase = ({
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -85,9 +78,8 @@ const styles = StyleSheet.create({
 	p: {
 		marginBottom: 8,
 	},
-	nextButtonContainer: {
-		marginTop: 22,
-		width: '100%',
+	buttonContainer: {
+		marginTop: 'auto',
 	},
 });
 

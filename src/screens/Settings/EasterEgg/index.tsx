@@ -5,9 +5,10 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import Button from '../../../components/Button';
 import GlowingBackground from '../../../components/GlowingBackground';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import NavigationHeader from '../../../components/NavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import { Display } from '../../../styles/text';
-import SettingsView from './../SettingsView';
+import type { SettingsScreenProps } from '../../../navigation/types';
 
 const imageSrc = require('../../../assets/illustrations/orange-pill.png');
 
@@ -19,7 +20,9 @@ const appStoreUrl =
 		? 'https://testflight.apple.com/join/lGXhnwcC'
 		: `https://play.google.com/store/apps/details?id=${androidPackageName}`;
 
-const EasterEgg = (): ReactElement => {
+const EasterEgg = ({
+	navigation,
+}: SettingsScreenProps<'EasterEgg'>): ReactElement => {
 	const { t } = useTranslation('settings');
 
 	const onShare = async (): Promise<void> => {
@@ -31,35 +34,49 @@ const EasterEgg = (): ReactElement => {
 
 	return (
 		<GlowingBackground bottomRight="brand">
-			<SettingsView title={t('about.op_title')} showBackNavigation={true} />
-			<View style={styles.alignCenter}>
-				<Image source={imageSrc} />
-			</View>
-			<View style={styles.intro}>
-				<Display color="white" style={styles.text}>
-					<Trans
-						t={t}
-						i18nKey="about.op_text"
-						parent={Display}
-						components={{
-							brand: <Display color="brand" style={styles.text} />,
-						}}
+			<SafeAreaInset type="top" />
+			<NavigationHeader
+				title={t('about.op_title')}
+				onClosePress={(): void => {
+					navigation.navigate('Wallet');
+				}}
+			/>
+			<View style={styles.root}>
+				<View style={styles.alignCenter}>
+					<Image source={imageSrc} />
+				</View>
+				<View style={styles.intro}>
+					<Display color="white" style={styles.text}>
+						<Trans
+							t={t}
+							i18nKey="about.op_text"
+							parent={Display}
+							components={{
+								brand: <Display color="brand" style={styles.text} />,
+							}}
+						/>
+					</Display>
+				</View>
+
+				<View style={styles.buttonContainer}>
+					<Button
+						style={styles.button}
+						text={t('about.op_share')}
+						size="large"
+						onPress={onShare}
 					/>
-				</Display>
+				</View>
 			</View>
-			<View style={styles.alignCenter}>
-				<Button
-					style={styles.button}
-					text={t('about.op_share')}
-					onPress={onShare}
-				/>
-			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
 
 const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+		paddingHorizontal: 16,
+	},
 	intro: {
 		marginBottom: 40,
 		flexDirection: 'column',
@@ -79,13 +96,13 @@ const styles = StyleSheet.create({
 	alignCenter: {
 		alignItems: 'center',
 	},
+	buttonContainer: {
+		marginTop: 'auto',
+		flexDirection: 'row',
+		justifyContent: 'center',
+	},
 	button: {
-		marginLeft: 16,
-		marginRight: 16,
-		marginBottom: 16,
-		width: '100%',
-		maxWidth: 343,
-		height: 56,
+		flex: 1,
 	},
 });
 

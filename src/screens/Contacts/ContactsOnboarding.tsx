@@ -7,7 +7,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import { Display, Text01S } from '../../styles/text';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { setOnboardedContacts } from '../../store/actions/slashtags';
 import { RootStackParamList } from '../../navigation/types';
 
@@ -22,7 +22,7 @@ const ContactsOnboarding = ({
 
 	return (
 		<GlowingBackground topLeft="brand">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('contacts')}
 				displayBackButton={false}
@@ -60,7 +60,7 @@ const ContactsOnboarding = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		marginHorizontal: 32,
-		paddingBottom: 16,
 	},
 	imageContainer: {
 		flex: 1,

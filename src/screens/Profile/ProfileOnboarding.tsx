@@ -14,7 +14,7 @@ import { Display, Text01S, Text02S } from '../../styles/text';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import { ISlashtags } from '../../store/types/slashtags';
 import SwitchRow from '../../components/SwitchRow';
@@ -147,7 +147,7 @@ const Layout = memo(
 
 		return (
 			<GlowingBackground topLeft="brand">
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader
 					title={header}
 					displayBackButton={true}
@@ -171,7 +171,7 @@ const Layout = memo(
 						/>
 					</View>
 				</DetectSwipe>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</GlowingBackground>
 		);
 	},
@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		paddingHorizontal: 32,
-		paddingBottom: 16,
 	},
 	imageContainer: {
 		flex: 1,

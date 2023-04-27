@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { AnimatedView } from '../styles/components';
 import { Text02S, Subtitle } from '../styles/text';
 import NumberPad from './NumberPad';
-import SafeAreaInsets from './SafeAreaInsets';
+import SafeAreaInset from './SafeAreaInset';
 import GlowingBackground from './GlowingBackground';
 import useColors from '../hooks/colors';
 import { wipeApp } from '../store/actions/settings';
@@ -145,7 +145,7 @@ const PinPad = ({
 	return (
 		<GlowingBackground topLeft="brand">
 			<View style={styles.header}>
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader displayBackButton={showBackNavigation} />
 			</View>
 			<View style={styles.container} testID="PinPad">

@@ -10,7 +10,7 @@ import {
 import { PlusIcon } from '../../styles/icons';
 import ContactsOnboarding from './ContactsOnboarding';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import SearchInput from '../../components/SearchInput';
 import ContactsList from '../../components/ContactsList';
 import { showBottomSheet } from '../../store/actions/ui';
@@ -44,7 +44,7 @@ const ContactsScreen = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('contacts')}
 				onClosePress={(): void => {
@@ -101,8 +101,7 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		justifyContent: 'space-between',
-		margin: 20,
-		marginTop: 0,
+		paddingHorizontal: 16,
 	},
 	searchRow: {
 		flexDirection: 'row',

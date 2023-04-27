@@ -1,11 +1,11 @@
-import React, { memo, ReactElement, useCallback, useMemo } from 'react';
+import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S } from '../../../styles/text';
 import GradientView from '../../../components/GradientView';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { closeBottomSheet } from '../../../store/actions/ui';
@@ -14,14 +14,6 @@ const imageSrc = require('../../../assets/illustrations/tag.png');
 
 const Metadata = (): ReactElement => {
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const handleButtonPress = useCallback((): void => {
 		closeBottomSheet('backupNavigation');
@@ -37,7 +29,7 @@ const Metadata = (): ReactElement => {
 
 			<GlowImage image={imageSrc} imageSize={200} />
 
-			<View style={buttonContainerStyles}>
+			<View style={styles.buttonContainer}>
 				<Button
 					size="large"
 					text={t('ok')}
@@ -45,6 +37,7 @@ const Metadata = (): ReactElement => {
 					testID="OK"
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

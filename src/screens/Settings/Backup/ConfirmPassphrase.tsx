@@ -1,14 +1,14 @@
-import React, { memo, ReactElement, useMemo, useState } from 'react';
+import React, { memo, ReactElement, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { BottomSheetTextInput } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
+import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
+import GradientView from '../../../components/GradientView';
 import Button from '../../../components/Button';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
-import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
-import GradientView from '../../../components/GradientView';
 import type { BackupScreenProps } from '../../../navigation/types';
 
 const ConfirmPassphrase = ({
@@ -18,15 +18,6 @@ const ConfirmPassphrase = ({
 	const { t } = useTranslation('security');
 	const { bip39Passphrase: origPass } = route.params;
 	const [bip39Passphrase, setPassphrase] = useState<string>('');
-
-	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	useBottomSheetBackPress('backupNavigation');
 
@@ -49,7 +40,7 @@ const ConfirmPassphrase = ({
 					/>
 				</View>
 
-				<View style={nextButtonContainer}>
+				<View style={styles.buttonContainer}>
 					<Button
 						disabled={bip39Passphrase !== origPass}
 						size="large"
@@ -58,6 +49,7 @@ const ConfirmPassphrase = ({
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -74,9 +66,8 @@ const styles = StyleSheet.create({
 		marginTop: 32,
 		flex: 1,
 	},
-	nextButtonContainer: {
-		marginTop: 22,
-		width: '100%',
+	buttonContainer: {
+		marginTop: 'auto',
 	},
 });
 

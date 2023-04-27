@@ -7,7 +7,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { AnimatedView } from '../../styles/components';
 import { Caption13Up, Display, Text01S, Text01M } from '../../styles/text';
 import { LightningIcon, PenIcon } from '../../styles/icons';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import SwipeToConfirm from '../../components/SwipeToConfirm';
@@ -92,7 +92,7 @@ const CustomConfirm = ({
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('add_instant_payments')}
 				onClosePress={(): void => {
@@ -159,7 +159,6 @@ const CustomConfirm = ({
 							loading={loading}
 							confirmed={loading}
 						/>
-						<SafeAreaInsets type="bottom" />
 					</AnimatedView>
 				)}
 
@@ -199,6 +198,7 @@ const CustomConfirm = ({
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };

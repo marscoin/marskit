@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Display, Text01B, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import GlowImage from '../../components/GlowImage';
@@ -54,7 +54,7 @@ const Availability = ({
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('availability_title')}
 				displayBackButton={false}
@@ -90,7 +90,7 @@ const Availability = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		marginTop: 'auto',
-		marginBottom: 16,
 		flexDirection: 'row',
 		justifyContent: 'center',
 	},

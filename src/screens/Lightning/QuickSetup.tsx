@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 import { AnimatedView } from '../../styles/components';
 import { Caption13Up, Display, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Percentage from '../../components/Percentage';
@@ -197,7 +197,7 @@ const QuickSetup = ({
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('add_instant_payments')}
 				onClosePress={(): void => {
@@ -272,7 +272,6 @@ const QuickSetup = ({
 								testID="QuickSetupContinue"
 								onPress={onContinue}
 							/>
-							<SafeAreaInsets type="bottom" />
 						</AnimatedView>
 					)}
 				</View>
@@ -289,6 +288,7 @@ const QuickSetup = ({
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		marginTop: 8,
-		marginBottom: 16,
 		paddingHorizontal: 16,
 	},
 	text: {

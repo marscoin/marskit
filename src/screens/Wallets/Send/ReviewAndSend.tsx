@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import { StyleSheet, View, TouchableOpacity, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TInvoice } from '@synonymdev/react-native-ldk';
 import { useTranslation } from 'react-i18next';
 
@@ -59,6 +58,7 @@ import { getFiatDisplayValues } from '../../../utils/exchange-rate';
 import { showErrorNotification } from '../../../utils/notifications';
 import { refreshWallet } from '../../../utils/wallet';
 import type { SendScreenProps } from '../../../navigation/types';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Dialog from '../../../components/Dialog';
 import { useLightningBalance } from '../../../hooks/lightning';
 import Biometrics from '../../../components/Biometrics';
@@ -109,7 +109,6 @@ const ReviewAndSend = ({
 	navigation,
 }: SendScreenProps<'ReviewAndSend'>): ReactElement => {
 	const { t, i18n } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const onChainBalance = useSelector(onChainBalanceSelector);
@@ -133,14 +132,6 @@ const ReviewAndSend = ({
 	const [dialogWarnings, setDialogWarnings] = useState<string[]>([]);
 	const [rawTx, setRawTx] = useState<{ hex: string; id: string }>();
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
-
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const decodeAndSetLightningInvoice = async (): Promise<void> => {
 		try {
@@ -705,7 +696,7 @@ const ReviewAndSend = ({
 						/>
 					</View>
 
-					<View style={nextButtonContainer}>
+					<View style={styles.buttonContainer}>
 						<SwipeToConfirm
 							text={t('send_swipe')}
 							onConfirm={onSwipeToPay}
@@ -789,6 +780,7 @@ const ReviewAndSend = ({
 						confirmPayment(dialogWarnings);
 					}}
 				/>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</GradientView>
 
 			{showBiotmetrics && (
@@ -851,7 +843,7 @@ const styles = StyleSheet.create({
 		marginRight: 8,
 		marginBottom: 8,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 	},
 });

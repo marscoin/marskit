@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { View as ThemedView } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
 import ContactsList from '../../components/ContactsList';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { addMetaSlashTagsUrlTag } from '../../store/actions/metadata';
 import { RootStackScreenProps } from '../../navigation/types';
 
@@ -17,7 +17,7 @@ const ActivityAssignContact = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('contact_assign')} />
 			<View style={styles.content}>
 				<ContactsList
@@ -27,7 +27,7 @@ const ActivityAssignContact = ({
 					}}
 				/>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

@@ -6,7 +6,7 @@ import React, {
 	memo,
 	ReactElement,
 } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -14,12 +14,12 @@ import { ScrollView, View as ThemedView } from '../../styles/components';
 import { Text02S } from '../../styles/text';
 import { PlusIcon } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
+import KeyboardAvoidingView from '../../components/KeyboardAvoidingView';
 import Button from '../../components/Button';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import Divider from '../../components/Divider';
-import useKeyboard from '../../hooks/keyboard';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import {
 	setLinks,
@@ -37,7 +37,6 @@ const ProfileEdit = ({
 	navigation,
 }: RootStackScreenProps<'Profile' | 'ProfileEdit'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
-	const { keyboardShown } = useKeyboard();
 	const [hasEdited, setHasEdited] = useState(false);
 	const [fields, setFields] = useState<Omit<BasicProfile, 'links'>>({});
 	const links = useSelector(slashtagsLinksSelector);
@@ -47,15 +46,6 @@ const ProfileEdit = ({
 	const { profile: savedProfile } = useProfile(url);
 
 	const onboardedProfile = onboardingStep === 'Done';
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown ? (Platform.OS === 'ios' ? 16 : 40) : 0,
-		}),
-		[keyboardShown],
-	);
 
 	useEffect(() => {
 		const savedLinks = savedProfile?.links || [];
@@ -120,7 +110,7 @@ const ProfileEdit = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				style={styles.header}
 				title={t(onboardedProfile ? 'profile' : 'profile_create')}
@@ -128,8 +118,10 @@ const ProfileEdit = ({
 					navigation.navigate(onboardedProfile ? 'Profile' : 'Wallet');
 				}}
 			/>
-			<KeyboardAvoidingView behavior="padding" style={styles.content}>
-				<ScrollView style={styles.scroll}>
+			<KeyboardAvoidingView style={styles.content}>
+				<ScrollView
+					contentContainerStyle={styles.scrollContent}
+					showsVerticalScrollIndicator={false}>
 					<ProfileCard
 						url={url}
 						editable={true}
@@ -140,8 +132,8 @@ const ProfileEdit = ({
 					<Divider />
 					<ProfileLinks links={links} editable={true} />
 					<Button
-						text={t('profile_add_link')}
 						style={styles.addLinkButton}
+						text={t('profile_add_link')}
 						onPress={(): void => {
 							navigation.navigate('ProfileAddLink');
 						}}
@@ -152,20 +144,19 @@ const ProfileEdit = ({
 					<Divider />
 					<Text02S color="gray1">{t('profile_public_warn')}</Text02S>
 
-					{(!onboardedProfile || hasEdited) && (
-						<View style={buttonContainerStyles}>
-							<Button
-								style={styles.button}
-								text={t(onboardedProfile ? 'profile_save' : 'continue')}
-								size="large"
-								disabled={!isValid()}
-								onPress={save}
-							/>
-						</View>
-					)}
+					{/* leave button visible over keyboard for onboarding */}
+					<View style={onboardedProfile && styles.bottom}>
+						<Button
+							style={styles.button}
+							text={t(onboardedProfile ? 'profile_save' : 'continue')}
+							size="large"
+							disabled={!hasEdited || !isValid()}
+							onPress={save}
+						/>
+					</View>
 				</ScrollView>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</KeyboardAvoidingView>
-			<SafeAreaInsets type="bottom" />
 		</ThemedView>
 	);
 };
@@ -174,28 +165,26 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	scroll: {
-		flex: 1,
-	},
 	header: {
 		paddingBottom: 32,
 	},
 	content: {
+		flex: 1,
 		flexGrow: 1,
 		paddingHorizontal: 16,
-		paddingBottom: 16,
+	},
+	scrollContent: {
+		flexGrow: 1,
 	},
 	addLinkButton: {
 		alignSelf: 'flex-start',
 	},
-	buttonContainer: {
-		flexDirection: 'row',
-		justifyContent: 'center',
+	bottom: {
 		marginTop: 'auto',
 	},
 	button: {
 		flex: 1,
-		margin: 16,
+		marginTop: 16,
 	},
 });
 

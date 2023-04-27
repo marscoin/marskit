@@ -1,23 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Keyboard as RNKeyboard, Platform } from 'react-native';
+import { Keyboard as RNKeyboard, Platform, KeyboardEvent } from 'react-native';
 
 const useKeyboard = (): {
 	keyboardShown: boolean;
+	keyboardHeight: number;
 } => {
 	const [keyboardShown, setKeyboardShown] = useState(false);
+	const [keyboardHeight, setKeyboardHeight] = useState(0);
 
 	useEffect(() => {
 		const keyboardDidShowListener = RNKeyboard.addListener(
 			'keyboardDidShow',
-			() => {
-				setKeyboardShown(true); // or some other action
+			(event: KeyboardEvent) => {
+				setKeyboardShown(true);
+				setKeyboardHeight(event.endCoordinates.height);
 			},
 		);
 		const keyboardDidHideListener = RNKeyboard.addListener(
 			// ios has keyboardWillHide, android doesn't
 			Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
 			() => {
-				setKeyboardShown(false); // or some other action
+				setKeyboardShown(false);
+				setKeyboardHeight(0);
 			},
 		);
 
@@ -29,6 +33,7 @@ const useKeyboard = (): {
 
 	return {
 		keyboardShown,
+		keyboardHeight,
 	};
 };
 

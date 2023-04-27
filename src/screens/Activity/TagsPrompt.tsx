@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Subtitle, Text02S, Text13UP } from '../../styles/text';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { closeBottomSheet } from '../../store/actions/ui';
 import {
 	useBottomSheetBackPress,
@@ -60,7 +60,7 @@ const TagsPrompt = ({
 					)}
 				</View>
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);
@@ -69,7 +69,7 @@ const TagsPrompt = ({
 const styles = StyleSheet.create({
 	root: {
 		flex: 1,
-		padding: 16,
+		paddingHorizontal: 16,
 	},
 	title: {
 		marginBottom: 25,

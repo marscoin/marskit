@@ -38,7 +38,7 @@ import { onboardingProfileStepSelector } from '../../store/reselect/slashtags';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import { truncate } from '../../utils/helpers';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import ProfileCard from '../../components/ProfileCard';
 import Tooltip from '../../components/Tooltip';
 import Divider from '../../components/Divider';
@@ -99,7 +99,7 @@ const ProfileScreen = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				style={styles.header}
 				title={t('profile')}
@@ -154,7 +154,7 @@ const ProfileScreen = ({
 						)}
 					</View>
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" />
 			</ScrollView>
 		</ThemedView>
 	);

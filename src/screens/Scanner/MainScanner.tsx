@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { processInputData } from '../../utils/scanner';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import NavigationHeader from '../../components/NavigationHeader';
 import { showErrorNotification } from '../../utils/notifications';
 import ScannerComponent from './ScannerComponent';
@@ -58,7 +58,7 @@ const ScannerScreen = ({
 	return (
 		<DetectSwipe onSwipeRight={onSwipeRight}>
 			<ScannerComponent onRead={onRead}>
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader
 					style={styles.navigationHeader}
 					title={t('qr_scan_any')}
