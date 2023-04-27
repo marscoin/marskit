@@ -30,7 +30,10 @@ const ProfileLinks = ({
 	return (
 		<View style={style}>
 			{!editable && links?.length === 0 ? (
-				<Text02S color="gray1">{t('contact_no_links')}</Text02S>
+				<>
+					<Text02S color="gray1">{t('contact_no_links')}</Text02S>
+					<Divider />
+				</>
 			) : (
 				links.map((link): JSX.Element => {
 					const trimmedUrl = link.url
@@ -64,12 +67,10 @@ const ProfileLinks = ({
 							onPress={(): void => {
 								openURL(link.url);
 							}}>
-							<Caption13Up color="gray1" style={styles.label}>
+							<Caption13Up style={styles.label} color="gray1">
 								{link.title}
 							</Caption13Up>
-							<Text02M numberOfLines={1} style={styles.url}>
-								{trimmedUrl}
-							</Text02M>
+							<Text02M numberOfLines={1}>{trimmedUrl}</Text02M>
 							<Divider />
 						</TouchableOpacity>
 					);
@@ -82,9 +83,6 @@ const ProfileLinks = ({
 const styles = StyleSheet.create({
 	label: {
 		marginBottom: 8,
-	},
-	url: {
-		lineHeight: 15,
 	},
 	input: {
 		marginBottom: 16,

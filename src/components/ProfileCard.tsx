@@ -23,17 +23,19 @@ export const MAX_BIO_LENGTH = 160;
 
 const ProfileCard = ({
 	url,
+	resolving,
 	profile,
 	editable,
 	contact,
-	resolving,
+	autoFocus,
 	onChange,
 }: {
 	url: string;
+	resolving: boolean;
 	profile?: BasicProfile;
 	editable?: boolean;
 	contact?: boolean;
-	resolving: boolean;
+	autoFocus?: boolean;
 	onChange?: (name: string, value: string) => void;
 }): ReactElement => {
 	const theme = useTheme();
@@ -52,7 +54,7 @@ const ProfileCard = ({
 				<View style={styles.text}>
 					{editable && !resolving ? (
 						<TextInputNoOutline
-							autoFocus={!name}
+							autoFocus={autoFocus || !name}
 							// placeholder doesn't like the lineHeight
 							style={[
 								theme.fonts.bold,

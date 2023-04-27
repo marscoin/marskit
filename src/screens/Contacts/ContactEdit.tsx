@@ -69,6 +69,7 @@ const ContactEdit = ({
 					profile={profile}
 					editable={true}
 					contact={true}
+					autoFocus={!!savedContact}
 					onChange={(_, value): void =>
 						setForm((prev) => ({ ...prev, name: value }))
 					}

@@ -7,6 +7,7 @@ type LabeledInputProps = {
 	label: string;
 	children?: JSX.Element | JSX.Element[];
 	ref?: RefObject<any>;
+	autoFocus?: boolean;
 	multiline?: boolean;
 	value?: string;
 	returnKeyType?: 'default' | 'next' | 'done';
@@ -21,6 +22,7 @@ const LabeledInput = ({
 	label,
 	children,
 	ref,
+	autoFocus,
 	multiline,
 	value,
 	returnKeyType = 'done',
@@ -63,6 +65,7 @@ const LabeledInput = ({
 						color="white"
 						autoCapitalize="none"
 						autoCorrect={false}
+						autoFocus={autoFocus}
 						placeholder={placeholder}
 						minHeight={multiline ? 72 : 52}
 						onChangeText={onChange}

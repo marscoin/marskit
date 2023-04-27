@@ -26,16 +26,17 @@ export interface IColors {
 	gray336: string;
 	gray324: string;
 	gray308: string;
-	white84: string;
-	white08: string;
-	white05: string;
-	white04: string;
 	white01: string;
+	white04: string;
+	white05: string;
+	white08: string;
 	white1: string;
 	white3: string;
 	white5: string;
 	white8: string;
+	white16: string;
 	white32: string;
+	white84: string;
 	red16: string;
 	orange16: string;
 	green16: string;
@@ -92,16 +93,17 @@ const colors: IColors = {
 	gray336: 'rgba(72, 72, 74, 0.36)',
 	gray324: 'rgba(72, 72, 74, 0.24)',
 	gray308: 'rgba(72, 72, 74, 0.08)',
-	white84: 'rgba(255, 255, 255, 0.84)',
-	white08: 'rgba(255, 255, 255, 0.08)',
-	white05: 'rgba(255, 255, 255, 0.05)',
-	white04: 'rgba(255, 255, 255, 0.04)',
 	white01: 'rgba(255, 255, 255, 0.01)',
+	white04: 'rgba(255, 255, 255, 0.04)',
+	white05: 'rgba(255, 255, 255, 0.05)',
+	white08: 'rgba(255, 255, 255, 0.08)',
 	white1: 'rgba(255, 255, 255, 0.1)',
 	white3: 'rgba(255, 255, 255, 0.3)',
 	white5: 'rgba(255, 255, 255, 0.5)',
 	white8: 'rgba(255, 255, 255, 0.8)',
+	white16: 'rgba(255, 255, 255, 0.16)',
 	white32: 'rgba(255, 255, 255, 0.32)',
+	white84: 'rgba(255, 255, 255, 0.84)',
 	red16: 'rgba(233, 81, 100, 0.16)',
 	orange16: 'rgba(247, 147, 26, 0.16)',
 	green16: 'rgba(117, 191, 114, 0.16)',

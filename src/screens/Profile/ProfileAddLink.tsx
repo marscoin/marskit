@@ -41,6 +41,7 @@ const ProfileAddLinkForm = ({
 			<KeyboardAvoidingView style={styles.content}>
 				<LabeledInput
 					style={styles.input}
+					autoFocus={true}
 					label={t('profile_link_label')}
 					placeholder={t('profile_link_label_placeholder')}
 					value={form.title}

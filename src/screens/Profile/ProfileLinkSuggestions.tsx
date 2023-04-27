@@ -48,7 +48,7 @@ const ProfileLinkSuggestions = ({
 						key={suggestion}
 						text={suggestion}
 						style={styles.button}
-						color="white32"
+						color="white16"
 						onPress={(): void => handleChoose(suggestion)}
 					/>
 				))}

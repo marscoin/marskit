@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
 import { Image, View, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+
 import { BasicProfile } from '../store/types/slashtags';
+import useColors from '../hooks/colors';
 import Jdenticon from './Jdenticon';
 
 const ProfileImage = ({
@@ -15,6 +17,8 @@ const ProfileImage = ({
 	style?: ViewStyle;
 	size: number;
 }): JSX.Element => {
+	const { gray5 } = useColors();
+
 	// Support svg data urls
 	const xml = useMemo(() => {
 		if (image?.startsWith('data:image/svg+xml;base64,')) {
@@ -29,14 +33,14 @@ const ProfileImage = ({
 
 	const _style: ViewStyle = useMemo(
 		() => ({
-			backgroundColor: xml ? 'transparent' : '#222',
+			backgroundColor: xml ? 'transparent' : gray5,
 			borderRadius: size,
 			overflow: 'hidden',
 			height: size,
 			width: size,
 			...style,
 		}),
-		[xml, size, style],
+		[xml, size, style, gray5],
 	);
 
 	return (

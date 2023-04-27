@@ -43,6 +43,7 @@ import ProfileCard from '../../components/ProfileCard';
 import Tooltip from '../../components/Tooltip';
 import Divider from '../../components/Divider';
 import IconButton from '../../components/IconButton';
+import ProfileImage from '../../components/ProfileImage';
 import ProfileEdit from './ProfileEdit';
 import { ProfileIntro, OfflinePayments } from './ProfileOnboarding';
 import type { RootStackScreenProps } from '../../navigation/types';
@@ -112,49 +113,45 @@ const ProfileScreen = ({
 				actionIcon={<UsersIcon height={24} width={24} />}
 			/>
 
-			<ScrollView>
-				<View style={styles.content}>
-					<ProfileCard url={url} profile={profile} resolving={false} />
-					<Divider />
-					<View style={styles.bottom}>
-						<View style={styles.bottomHeader}>
-							<IconButton
-								style={styles.iconButton}
-								onPress={(): void => {
-									navigation.navigate('ProfileDetails');
-								}}>
-								<InfoIcon height={20} width={20} color="brand" />
-							</IconButton>
-							<IconButton style={styles.iconButton} onPress={handleCopy}>
-								<CopyIcon height={24} width={24} color="brand" />
-							</IconButton>
-							<IconButton
-								style={styles.iconButton}
-								disabled={isSharing}
-								onPress={handleShare}>
-								<ShareIcon height={24} width={24} color="brand" />
-							</IconButton>
-							<IconButton
-								style={styles.iconButton}
-								onPress={(): void => {
-									navigation.navigate('ProfileEdit');
-								}}>
-								<PencileIcon height={20} width={20} color="brand" />
-							</IconButton>
-						</View>
-						<QRView url={url} profile={profile} qrRef={qrRef} />
-						{showCopy && (
-							<AnimatedView
-								entering={FadeIn.duration(500)}
-								exiting={FadeOut.duration(500)}
-								color="transparent"
-								style={styles.tooltip}>
-								<Tooltip text={t('contact_copied')} />
-							</AnimatedView>
-						)}
-					</View>
+			<ScrollView contentContainerStyle={styles.content}>
+				<ProfileCard url={url} profile={profile} resolving={false} />
+				<Divider />
+				<View style={styles.actions}>
+					<IconButton
+						style={styles.iconButton}
+						onPress={(): void => {
+							navigation.navigate('ProfileDetails');
+						}}>
+						<InfoIcon height={20} width={20} color="brand" />
+					</IconButton>
+					<IconButton style={styles.iconButton} onPress={handleCopy}>
+						<CopyIcon height={24} width={24} color="brand" />
+					</IconButton>
+					<IconButton
+						style={styles.iconButton}
+						disabled={isSharing}
+						onPress={handleShare}>
+						<ShareIcon height={24} width={24} color="brand" />
+					</IconButton>
+					<IconButton
+						style={styles.iconButton}
+						onPress={(): void => {
+							navigation.navigate('ProfileEdit');
+						}}>
+						<PencileIcon height={20} width={20} color="brand" />
+					</IconButton>
 				</View>
-				<SafeAreaInset type="bottom" />
+				<QRView url={url} profile={profile} qrRef={qrRef} />
+				{showCopy && (
+					<AnimatedView
+						entering={FadeIn.duration(500)}
+						exiting={FadeOut.duration(500)}
+						color="transparent"
+						style={styles.tooltip}>
+						<Tooltip text={t('contact_copied')} />
+					</AnimatedView>
+				)}
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 		</ThemedView>
 	);
@@ -207,39 +204,39 @@ const QRView = ({
 
 	return (
 		<View style={styles.qrViewContainer}>
-			<View style={styles.qrContainer}>
-				<TouchableOpacity
-					color="white"
-					activeOpacity={1}
-					onPress={handleCopy}
-					onLongPress={handleCopyQrCode}>
-					<QRCode
-						value={url}
-						size={qrSize}
-						logo={{ uri: profile?.image || '' }}
-						logoBackgroundColor={profile?.image ? '#fff' : 'transparent'}
-						logoSize={50}
-						logoBorderRadius={999}
-						logoMargin={9}
-						quietZone={20}
-						getRef={(c): void => {
-							if (c) {
-								c.toDataURL((data: string) => (qrRef.current = data));
-							}
-						}}
-					/>
-				</TouchableOpacity>
+			<TouchableOpacity
+				style={styles.qrCode}
+				color="white"
+				activeOpacity={1}
+				onPress={handleCopy}
+				onLongPress={handleCopyQrCode}>
+				<QRCode
+					value={url}
+					size={qrSize}
+					quietZone={20}
+					getRef={(c): void => {
+						if (c) {
+							c.toDataURL((data: string) => (qrRef.current = data));
+						}
+					}}
+				/>
+				<View style={styles.qrImageContainer}>
+					<ThemedView style={styles.qrImageOuter} color="white">
+						<ProfileImage url={url} image={profile?.image} size={68} />
+					</ThemedView>
+				</View>
 
 				{showCopy && (
 					<AnimatedView
-						entering={FadeIn.duration(500)}
-						exiting={FadeOut.duration(500)}
+						style={styles.tooltip}
 						color="transparent"
-						style={styles.tooltip}>
+						entering={FadeIn.duration(500)}
+						exiting={FadeOut.duration(500)}>
 						<Tooltip text={t('contact_copied')} />
 					</AnimatedView>
 				)}
-			</View>
+			</TouchableOpacity>
+
 			<Text02S style={styles.qrViewNote}>
 				{t('profile_scan_to_add', { name: truncate(firstName, 30) })}
 			</Text02S>
@@ -256,29 +253,36 @@ const styles = StyleSheet.create({
 		paddingBottom: 12,
 	},
 	content: {
-		flex: 1,
-		justifyContent: 'space-between',
+		flexGrow: 1,
 		paddingTop: 23,
 		paddingHorizontal: 16,
 	},
-	bottom: {
-		flex: 1,
-		flexDirection: 'column',
+	actions: {
+		flexDirection: 'row',
 	},
 	iconButton: {
 		marginRight: 16,
-	},
-	bottomHeader: {
-		flexDirection: 'row',
 	},
 	qrViewContainer: {
 		alignItems: 'center',
 		flex: 1,
 	},
-	qrContainer: {
+	qrCode: {
 		borderRadius: 10,
+		position: 'relative',
+		justifyContent: 'center',
+		alignItems: 'center',
 		marginTop: 32,
 		overflow: 'hidden',
+	},
+	qrImageContainer: {
+		...StyleSheet.absoluteFillObject,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	qrImageOuter: {
+		borderRadius: 50,
+		padding: 9,
 	},
 	qrViewNote: {
 		marginTop: 16,
@@ -286,7 +290,7 @@ const styles = StyleSheet.create({
 	tooltip: {
 		position: 'absolute',
 		alignSelf: 'center',
-		top: '68%',
+		top: '66%',
 	},
 });
 
