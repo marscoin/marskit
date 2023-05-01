@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, ReactNode, useMemo, useState } from 'react';
+import React, { ReactElement, ReactNode, memo, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -24,18 +24,19 @@ import {
 	TagIcon,
 	TransferIcon,
 	UsersIcon,
+	UserRectangleIcon,
 } from '../../../styles/icons';
 import { FAILED_BACKUP_CHECK_TIME } from '../../../utils/backup/backups-subscriber';
 import { updateBackup } from '../../../store/actions/backup';
 
 const Status = ({
-	icon,
+	Icon,
 	title,
 	isSyncedKey,
 	lastSync,
 	syncRequired,
 }: {
-	icon: ReactElement;
+	Icon: React.FunctionComponent<any>;
 	title: ReactNode;
 	isSyncedKey?: string;
 	lastSync?: number;
@@ -93,8 +94,10 @@ const Status = ({
 
 	return (
 		<View style={styles.status}>
-			<View style={styles.icon}>
-				{React.cloneElement(icon, { color: failed ? 'red' : 'green' })}
+			<View style={styles.iconContainer}>
+				<ThemedView color={failed ? 'red16' : 'green16'} style={styles.icon}>
+					<Icon width={16} height={16} color={failed ? 'red' : 'green'} />
+				</ThemedView>
 			</View>
 			<View style={styles.desc}>
 				<Text01M>{title}</Text01M>
@@ -118,55 +121,55 @@ const BackupSettings = ({
 
 	const categories = [
 		{
-			icon: <LightningHollow width={24} height={24} />,
+			Icon: LightningHollow,
 			title: t('backup.category_connections'),
 			isSyncedKey: 'remoteLdkBackupSynced',
 			lastSync: backup.remoteLdkBackupLastSync,
 			syncRequired: backup.remoteLdkBackupLastSyncRequired,
 		},
 		{
-			icon: <NoteIcon width={24} height={24} />,
+			Icon: NoteIcon,
 			title: t('backup.category_connection_receipts'),
 			isSyncedKey: 'remoteBlocktankBackupSynced',
 			lastSync: backup.remoteBlocktankBackupLastSync,
 			syncRequired: backup.remoteBlocktankBackupSyncRequired,
 		},
 		{
-			icon: <TransferIcon width={24} height={24} />,
+			Icon: TransferIcon,
 			title: t('backup.category_transaction_log'),
 			isSyncedKey: 'remoteLdkActivityBackupSynced',
 			lastSync: backup.remoteLdkActivityBackupLastSync,
 			syncRequired: backup.remoteLdkActivityBackupSyncRequired,
 		},
 		{
-			icon: <SettingsIcon width={24} height={24} />,
+			Icon: SettingsIcon,
 			title: t('backup.category_settings'),
 			isSyncedKey: 'remoteSettingsBackupSynced',
 			lastSync: backup.remoteSettingsBackupLastSync,
 			syncRequired: backup.remoteSettingsBackupSyncRequired,
 		},
 		{
-			icon: <RectanglesTwo width={24} height={24} />,
+			Icon: RectanglesTwo,
 			title: t('backup.category_widgets'),
 			isSyncedKey: 'remoteWidgetsBackupSynced',
 			lastSync: backup.remoteWidgetsBackupLastSync,
 			syncRequired: backup.remoteWidgetsBackupSyncRequired,
 		},
 		{
-			icon: <TagIcon width={24} height={24} />,
+			Icon: TagIcon,
 			title: t('backup.category_tags'),
 			isSyncedKey: 'remoteMetadataBackupSynced',
 			lastSync: backup.remoteMetadataBackupLastSync,
 			syncRequired: backup.remoteMetadataBackupSyncRequired,
 		},
 		{
-			icon: <UsersIcon width={24} height={24} />,
+			Icon: UserRectangleIcon,
 			title: t('backup.category_profile'),
 			lastSync: backup.hyperProfileSeedCheckSuccess,
 			syncRequired: backup.hyperProfileCheckRequested,
 		},
 		{
-			icon: <UsersIcon width={24} height={24} />,
+			Icon: UsersIcon,
 			title: t('backup.category_contacts'),
 			lastSync: backup.hyperContactsCheckSuccess,
 			syncRequired: backup.hyperContactsCheckRequested,
@@ -260,10 +263,16 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
-	icon: {
-		width: 56,
-		marginLeft: -16,
+	iconContainer: {
+		marginRight: 16,
 		alignItems: 'center',
+	},
+	icon: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: 16,
+		width: 32,
+		height: 32,
 	},
 	desc: {
 		flex: 1,
