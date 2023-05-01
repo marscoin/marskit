@@ -1,15 +1,15 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { closeBottomSheet } from '../../../store/actions/ui';
 import { showLaterButtonSelector } from '../../../store/reselect/ui';
-import { useAppSelector } from '../../../hooks/redux';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
 import { PinScreenProps } from '../../../navigation/types';
 
@@ -19,16 +19,7 @@ const PINPrompt = ({
 	navigation,
 }: PinScreenProps<'PINPrompt'>): ReactElement => {
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
-	const showLaterButton = useAppSelector(showLaterButtonSelector);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
+	const showLaterButton = useSelector(showLaterButtonSelector);
 
 	useBottomSheetBackPress('PINNavigation');
 
@@ -50,7 +41,7 @@ const PINPrompt = ({
 
 			<GlowImage image={imageSrc} imageSize={150} glowColor="green" />
 
-			<View style={buttonContainerStyles}>
+			<View style={styles.buttonContainer}>
 				{showLaterButton && (
 					<>
 						<Button
@@ -71,6 +62,7 @@ const PINPrompt = ({
 					testID="SecureWallet"
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };

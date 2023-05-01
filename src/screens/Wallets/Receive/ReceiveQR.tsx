@@ -14,7 +14,6 @@ import {
 	useWindowDimensions,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import QRCode from 'react-native-qrcode-svg';
 import { FadeIn, useSharedValue } from 'react-native-reanimated';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -47,6 +46,7 @@ import { getUnifiedUri } from '../../../utils/receive';
 import { ellipsis, sleep } from '../../../utils/helpers';
 import { getReceiveAddress } from '../../../utils/wallet';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import Tooltip from '../../../components/Tooltip';
 import Dot from '../../../components/SliderDots';
@@ -84,7 +84,6 @@ const ReceiveQR = ({
 }: ReceiveScreenProps<'ReceiveQR'>): ReactElement => {
 	const { t } = useTranslation('wallet');
 	const dimensions = useWindowDimensions();
-	const insets = useSafeAreaInsets();
 	const progressValue = useSharedValue(0);
 	const carouselRef = useRef<ICarouselInstance>(null);
 	const qrRef = useRef<string>();
@@ -105,14 +104,6 @@ const ReceiveQR = ({
 	);
 
 	useBottomSheetBackPress('receiveNavigation');
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const getLightningInvoice = useCallback(async (): Promise<void> => {
 		if (
@@ -513,7 +504,7 @@ const ReceiveQR = ({
 				</View>
 			)}
 
-			<View style={buttonContainerStyles}>
+			<View style={styles.buttonContainer}>
 				<Button
 					size="large"
 					text={t('receive_specify')}
@@ -521,6 +512,7 @@ const ReceiveQR = ({
 					testID="SpecifyInvoiceButton"
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };

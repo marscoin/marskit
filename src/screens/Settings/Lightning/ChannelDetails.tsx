@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Caption13Up, Caption13M, Text01M } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
 import LightningChannel, {
@@ -299,7 +299,7 @@ const ChannelDetails = ({
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={name}
 				onClosePress={(): void => {
@@ -552,7 +552,7 @@ const ChannelDetails = ({
 					)}
 				</View>
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 		</ThemedView>
 	);

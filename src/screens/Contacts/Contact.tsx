@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -15,7 +15,7 @@ import {
 	TrashIcon,
 } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import { deleteContact } from '../../utils/slashtags';
@@ -37,10 +37,10 @@ import {
 } from '../../store/reselect/wallet';
 import { showErrorNotification } from '../../utils/notifications';
 
-export const Contact = ({
+const Contact = ({
 	navigation,
 	route,
-}: RootStackScreenProps<'Contact'>): JSX.Element => {
+}: RootStackScreenProps<'Contact'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const { url } = route.params;
 	const [showDialog, setShowDialog] = useState(false);
@@ -122,7 +122,7 @@ export const Contact = ({
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('contact')}
 				navigateBack={false}
@@ -181,10 +181,7 @@ export const Contact = ({
 							<TrashIcon height={24} width={24} color="brand" />
 						</IconButton>
 					</View>
-					<ProfileLinks
-						links={profileLinksWithIds}
-						style={styles.profileDetails}
-					/>
+					<ProfileLinks style={styles.links} links={profileLinksWithIds} />
 
 					{showCopy && (
 						<AnimatedView
@@ -241,7 +238,7 @@ const styles = StyleSheet.create({
 	bottomHeader: {
 		flexDirection: 'row',
 	},
-	profileDetails: {
+	links: {
 		marginTop: 32,
 	},
 	tooltip: {

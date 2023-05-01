@@ -1,4 +1,10 @@
-import React, { memo, ReactNode, useCallback, useMemo } from 'react';
+import React, {
+	memo,
+	ReactElement,
+	ReactNode,
+	useCallback,
+	useMemo,
+} from 'react';
 import { View, StyleSheet, Image, ImageSourcePropType } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
@@ -8,7 +14,7 @@ import { Display, Text01S, Text02S } from '../../styles/text';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { setOnboardingProfileStep } from '../../store/actions/slashtags';
 import { ISlashtags } from '../../store/types/slashtags';
 import SwitchRow from '../../components/SwitchRow';
@@ -31,7 +37,7 @@ const crownImageSrc = require('../../assets/illustrations/crown.png');
 const coinsImageSrc = require('../../assets/illustrations/coins.png');
 
 export const ProfileIntro = memo(
-	({ navigation }: RootStackScreenProps<'Profile'>): JSX.Element => {
+	({ navigation }: RootStackScreenProps<'Profile'>): ReactElement => {
 		const { t } = useTranslation('slashtags');
 
 		return (
@@ -60,7 +66,7 @@ export const ProfileIntro = memo(
 
 export const OfflinePayments = ({
 	navigation,
-}: RootStackScreenProps<'Profile'>): JSX.Element => {
+}: RootStackScreenProps<'Profile'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const enableOfflinePayments = useSelector(enableOfflinePaymentsSelector);
 	const selectedWallet = useSelector(selectedWalletSelector);
@@ -125,7 +131,7 @@ const Layout = memo(
 		header: string;
 		children: ReactNode;
 		onNext?: () => void;
-	}): JSX.Element => {
+	}): ReactElement => {
 		const { isSmallScreen } = useScreenSize();
 		const onSwipeLeft = (): void => {
 			navigation.navigate('Wallet');
@@ -141,7 +147,7 @@ const Layout = memo(
 
 		return (
 			<GlowingBackground topLeft="brand">
-				<SafeAreaInsets type="top" />
+				<SafeAreaInset type="top" />
 				<NavigationHeader
 					title={header}
 					displayBackButton={true}
@@ -165,7 +171,7 @@ const Layout = memo(
 						/>
 					</View>
 				</DetectSwipe>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</GlowingBackground>
 		);
 	},
@@ -176,7 +182,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		paddingHorizontal: 32,
-		paddingBottom: 16,
 	},
 	imageContainer: {
 		flex: 1,

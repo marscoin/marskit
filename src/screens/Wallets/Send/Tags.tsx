@@ -1,7 +1,6 @@
-import React, { memo, ReactElement, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import React, { memo, ReactElement, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { BottomSheetTextInput } from '../../../styles/components';
@@ -11,7 +10,7 @@ import GradientView from '../../../components/GradientView';
 import Tag from '../../../components/Tag';
 import Button from '../../../components/Button';
 import { showErrorNotification } from '../../../utils/notifications';
-import useKeyboard, { Keyboard } from '../../../hooks/keyboard';
+import { Keyboard } from '../../../hooks/keyboard';
 import { addTxTag } from '../../../store/actions/wallet';
 import { addTag, deleteTag } from '../../../store/actions/metadata';
 import { lastUsedTagsSelector } from '../../../store/reselect/metadata';
@@ -20,28 +19,14 @@ import {
 	selectedWalletSelector,
 } from '../../../store/reselect/wallet';
 import type { SendScreenProps } from '../../../navigation/types';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 
 const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const { keyboardShown } = useKeyboard();
-	const insets = useSafeAreaInsets();
 	const [text, setText] = useState('');
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const lastUsedTags = useSelector(lastUsedTagsSelector);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown
-				? Platform.OS === 'ios'
-					? 16
-					: 40
-				: insets.bottom + 16,
-		}),
-		[keyboardShown, insets.bottom],
-	);
 
 	const handleSubmit = async (): Promise<void> => {
 		if (text.length === 0) {
@@ -117,7 +102,7 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 					testID="TagInputSend"
 				/>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						text={t('tags_add_button')}
 						size="large"
@@ -126,6 +111,7 @@ const Tags = ({ navigation }: SendScreenProps<'Tags'>): ReactElement => {
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

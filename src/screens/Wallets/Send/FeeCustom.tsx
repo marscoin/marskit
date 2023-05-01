@@ -1,11 +1,11 @@
 import React, { ReactElement, memo, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Caption13Up, Text01S } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
 import Button from '../../../components/Button';
 import Amount from '../../../components/Amount';
@@ -25,19 +25,10 @@ const FeeCustom = ({
 	navigation,
 }: SendScreenProps<'FeeCustom'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const transaction = useSelector(transactionSelector);
 	const [feeRate, setFeeRate] = useState(transaction.satsPerByte);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const totalFee = getTotalFee({
 		satsPerByte: feeRate,
@@ -99,7 +90,7 @@ const FeeCustom = ({
 
 				<NumberPad style={styles.numberPad} type="simple" onPress={onPress} />
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						size="large"
 						text={t('continue')}
@@ -108,6 +99,7 @@ const FeeCustom = ({
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

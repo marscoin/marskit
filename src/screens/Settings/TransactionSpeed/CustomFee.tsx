@@ -9,7 +9,7 @@ import { updateSettings } from '../../../store/actions/settings';
 import { ETransactionSpeed } from '../../../store/types/settings';
 import { handleNumberPadPress } from '../../../utils/numberpad';
 import SafeAreaView from '../../../components/SafeAreaView';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import Amount from '../../../components/Amount';
 import NumberPad from '../../../components/NumberPad';
@@ -79,7 +79,7 @@ const FeeCustom = ({
 						onPress={onContinue}
 					/>
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</SafeAreaView>
 	);

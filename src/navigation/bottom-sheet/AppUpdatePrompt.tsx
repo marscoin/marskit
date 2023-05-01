@@ -1,12 +1,12 @@
 import React, { memo, ReactElement, useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { __DISABLE_PERIODIC_REMINDERS__ } from '../../constants/env';
 import { Text01S } from '../../styles/text';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import GlowImage from '../../components/GlowImage';
 import { openURL } from '../../utils/helpers';
@@ -32,20 +32,11 @@ const CHECK_DELAY = 2500; // how long user needs to stay on Wallets screen befor
 const AppUpdatePrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 	const { t } = useTranslation('other');
 	const snapPoints = useSnapPoints('large');
-	const insets = useSafeAreaInsets();
 	const viewControllers = useAppSelector(viewControllersSelector);
 	const updateInfo = useAppSelector(availableUpdateSelector);
 	const ignoreTimestamp = useAppSelector(ignoreAppUpdateTimestampSelector);
 
 	useBottomSheetBackPress('appUpdatePrompt');
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const anyBottomSheetIsOpen = useMemo(() => {
 		const viewControllerKeys = objectKeys(viewControllers);
@@ -107,10 +98,8 @@ const AppUpdatePrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 					displayBackButton={false}
 				/>
 				<Text01S color="gray1">{t('update_text')}</Text01S>
-
 				<GlowImage image={imageSrc} />
-
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						variant="secondary"
@@ -126,6 +115,7 @@ const AppUpdatePrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 						onPress={onUpdate}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

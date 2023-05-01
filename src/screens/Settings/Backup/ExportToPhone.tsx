@@ -1,15 +1,14 @@
-import React, { memo, ReactElement, useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import React, { memo, ReactElement, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import Share, { ShareOptions } from 'react-native-share';
 import { useTranslation } from 'react-i18next';
 
 import { TextInput, View } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
-import useKeyboard from '../../../hooks/keyboard';
-import SafeAreaView from '../../../components/SafeAreaView';
 import NavigationHeader from '../../../components/NavigationHeader';
+import KeyboardAvoidingView from '../../../components/KeyboardAvoidingView';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
 import {
 	showErrorNotification,
 	showSuccessNotification,
@@ -24,7 +23,6 @@ const ExportToPhone = ({
 	navigation,
 }: SettingsScreenProps<'ExportToPhone'>): ReactElement => {
 	const { t } = useTranslation('backup');
-	const { keyboardShown } = useKeyboard();
 	const [password, setPassword] = useState('');
 	const [isCreating, setIsCreating] = useState(false);
 
@@ -33,15 +31,6 @@ const ExportToPhone = ({
 			cleanupBackupFiles().catch();
 		};
 	}, []);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown ? (Platform.OS === 'ios' ? 16 : 40) : 0,
-		}),
-		[keyboardShown],
-	);
 
 	const shareToFiles = async (filePath: string): Promise<void> => {
 		const shareOptions: ShareOptions = {
@@ -90,14 +79,14 @@ const ExportToPhone = ({
 	};
 
 	return (
-		<SafeAreaView>
+		<View style={styles.root}>
 			<NavigationHeader
 				title={t('export_title')}
 				onClosePress={(): void => {
 					navigation.navigate('Wallet');
 				}}
 			/>
-			<KeyboardAvoidingView style={styles.content} behavior="padding">
+			<KeyboardAvoidingView style={styles.content}>
 				<Text01S color="gray1">{t('export_text')}</Text01S>
 				<TextInput
 					style={styles.textField}
@@ -111,7 +100,7 @@ const ExportToPhone = ({
 					returnKeyType="done"
 				/>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						size="large"
@@ -120,17 +109,19 @@ const ExportToPhone = ({
 						onPress={onCreateBackup}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</KeyboardAvoidingView>
-			<SafeAreaInsets type="bottom" />
-		</SafeAreaView>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+	},
 	content: {
 		flexGrow: 1,
 		paddingHorizontal: 16,
-		paddingBottom: 16,
 	},
 	textField: {
 		marginTop: 32,

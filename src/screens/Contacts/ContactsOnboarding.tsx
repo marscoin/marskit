@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Trans, useTranslation } from 'react-i18next';
@@ -7,7 +7,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
 import { Display, Text01S } from '../../styles/text';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { setOnboardedContacts } from '../../store/actions/slashtags';
 import { RootStackParamList } from '../../navigation/types';
 
@@ -15,14 +15,14 @@ const imageSrc = require('../../assets/illustrations/book.png');
 
 type ContactsOnboardingProps = StackScreenProps<RootStackParamList, 'Contacts'>;
 
-export const ContactsOnboarding = ({
+const ContactsOnboarding = ({
 	navigation,
-}: ContactsOnboardingProps): JSX.Element => {
+}: ContactsOnboardingProps): ReactElement => {
 	const { t } = useTranslation('slashtags');
 
 	return (
 		<GlowingBackground topLeft="brand">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('contacts')}
 				displayBackButton={false}
@@ -60,7 +60,7 @@ export const ContactsOnboarding = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		marginHorizontal: 32,
-		paddingBottom: 16,
 	},
 	imageContainer: {
 		flex: 1,

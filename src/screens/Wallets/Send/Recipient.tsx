@@ -6,9 +6,8 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { validate } from 'bitcoin-address-validation';
@@ -20,6 +19,7 @@ import { Caption13Up } from '../../../styles/text';
 import { ClipboardTextIcon, ScanIcon, UserIcon } from '../../../styles/icons';
 import { useSlashtagsSDK } from '../../../components/SlashtagsProvider';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import IconButton from '../../../components/IconButton';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -50,7 +50,6 @@ const Recipient = ({
 }: SendScreenProps<'Recipient'>): ReactElement => {
 	const { t } = useTranslation('wallet');
 	const sdk = useSlashtagsSDK();
-	const insets = useSafeAreaInsets();
 	const { keyboardShown } = useKeyboard();
 	const lightningBalance = useLightningBalance(false);
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
@@ -64,18 +63,6 @@ const Recipient = ({
 	);
 
 	useBottomSheetBackPress('sendNavigation');
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown
-				? Platform.OS === 'ios'
-					? 16
-					: 40
-				: insets.bottom + 16,
-		}),
-		[keyboardShown, insets.bottom],
-	);
 
 	const getDecodeAndSetLightningInvoice =
 		useCallback(async (): Promise<void> => {
@@ -372,17 +359,16 @@ const Recipient = ({
 						</AnimatedView>
 					)}
 
-					<View style={buttonContainerStyles}>
-						<Button
-							text={t('continue')}
-							size="large"
-							disabled={isInvalid()}
-							onPress={onContinue}
-							testID="ContinueRecipient"
-						/>
-					</View>
+					<Button
+						text={t('continue')}
+						size="large"
+						disabled={isInvalid()}
+						onPress={onContinue}
+						testID="ContinueRecipient"
+					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };

@@ -11,7 +11,7 @@ import {
 import { IColors } from '../styles/colors';
 import Glow from './Glow';
 
-export const GlowImage = ({
+const GlowImage = ({
 	image,
 	imageSize = 220,
 	glowColor = 'brand',

@@ -18,7 +18,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import SearchInput from '../../components/SearchInput';
 import ActivityList from './ActivityList';
 import BlurView from '../../components/BlurView';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Tag from '../../components/Tag';
 import useColors from '../../hooks/colors';
 import { EPaymentType } from '../../store/types/wallet';
@@ -118,7 +118,7 @@ const ActivityFiltered = ({
 						setRadiusContainerHeight((h) => (h === 0 ? hh : h));
 					}}>
 					<BlurView>
-						<SafeAreaInsets type="top" />
+						<SafeAreaInset type="top" />
 						<NavigationHeader
 							title={t('activity_all')}
 							onClosePress={navigation.popToTop}

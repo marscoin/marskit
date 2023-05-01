@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Display, Text01B, Text01S, Text02B } from '../../styles/text';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import CheckButton from '../../components/CheckButton';
 import { openURL } from '../../utils/helpers';
@@ -40,7 +40,7 @@ const TermsOfUse = ({
 
 	return (
 		<GlowingBackground topLeft="brand">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<View style={styles.content}>
 				<ScrollView style={styles.tos}>
 					<Trans
@@ -116,7 +116,7 @@ const TermsOfUse = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -124,7 +124,6 @@ const TermsOfUse = ({
 const styles = StyleSheet.create({
 	content: {
 		flex: 1,
-		paddingBottom: 16,
 		paddingHorizontal: 32,
 	},
 	tos: {

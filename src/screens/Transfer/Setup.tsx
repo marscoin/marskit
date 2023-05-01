@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 import { AnimatedView } from '../../styles/components';
 import { Caption13Up, Display, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import NumberPadTextField from '../../components/NumberPadTextField';
@@ -203,7 +203,7 @@ const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('transfer_funds')}
 				onClosePress={(): void => {
@@ -281,7 +281,6 @@ const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 								disabled={isButtonDisabled}
 								onPress={onContinue}
 							/>
-							<SafeAreaInsets type="bottom" />
 						</AnimatedView>
 					)}
 				</View>
@@ -298,6 +297,7 @@ const Setup = ({ navigation }: TransferScreenProps<'Setup'>): ReactElement => {
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
 		marginBottom: 4,
 	},
 	buttonContainer: {
-		marginBottom: 16,
+		marginTop: 'auto',
 	},
 	numberpad: {
 		marginHorizontal: -16,

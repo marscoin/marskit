@@ -3,7 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Display, Text01S } from '../styles/text';
-import SafeAreaInsets from '../components/SafeAreaInsets';
+import SafeAreaInset from '../components/SafeAreaInset';
 import GlowingBackground from '../components/GlowingBackground';
 import Button from '../components/Button';
 import { sleep } from '../utils/helpers';
@@ -27,7 +27,7 @@ const BetaRisk = ({
 
 	return (
 		<GlowingBackground topLeft="yellow">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<View style={styles.content}>
 				<View style={styles.imageContainer}>
 					<Image style={styles.image} source={imageSrc} />
@@ -57,7 +57,7 @@ const BetaRisk = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -81,13 +81,12 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 4,
 	},
 	text: {
-		marginTop: 16,
+		marginTop: 4,
 	},
 	buttonContainer: {
 		flexDirection: 'row',
 		justifyContent: 'center',
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 	button: {
 		flex: 1,

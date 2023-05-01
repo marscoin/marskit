@@ -14,7 +14,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { AnimatedView } from '../../styles/components';
 import { Caption13Up, Display, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Barrel from './Barrel';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
@@ -453,7 +453,7 @@ const CustomSetup = ({
 
 	return (
 		<GlowingBackground topLeft="purple">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('add_instant_payments')}
 				onClosePress={(): void => {
@@ -532,7 +532,6 @@ const CustomSetup = ({
 							testID="CustomSetupContinue"
 							onPress={onContinue}
 						/>
-						<SafeAreaInsets type="bottom" />
 					</AnimatedView>
 				)}
 
@@ -548,6 +547,7 @@ const CustomSetup = ({
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -556,7 +556,6 @@ const styles = StyleSheet.create({
 	root: {
 		flex: 1,
 		marginTop: 8,
-		marginBottom: 16,
 		paddingHorizontal: 16,
 	},
 	text: {

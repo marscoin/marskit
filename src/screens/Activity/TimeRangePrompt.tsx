@@ -6,7 +6,7 @@ import { Subtitle, Text01M, Caption13Up } from '../../styles/text';
 import { View as ThemedView } from '../../styles/components';
 import { LeftSign, RightSign } from '../../styles/icons';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { closeBottomSheet } from '../../store/actions/ui';
 import {
 	useBottomSheetBackPress,
@@ -302,7 +302,7 @@ const TimeRangePrompt = ({
 
 				<Calendar onChange={onChange} />
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

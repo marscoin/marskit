@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { View as ThemedView } from '../styles/components';
 import { Caption13Up, Text01M } from '../styles/text';
 import ProfileImage from './ProfileImage';
-import { SlashtagURL } from './SlashtagURL';
+import SlashtagURL from './SlashtagURL';
 import { useProfile, useSelectedSlashtag } from '../hooks/slashtags';
 import { IContactRecord } from '../store/types/slashtags';
 import { useSlashtags } from './SlashtagsProvider';
@@ -22,7 +22,7 @@ export const ContactItem = ({
 	contact: IContactRecord;
 	size?: 'small' | 'normal';
 	onPress?: (contact: IContactRecord) => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const { url: myProfileURL } = useSelectedSlashtag();
 	const { profile } = useProfile(contact.url);

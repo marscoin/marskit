@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { View, StyleSheet, Keyboard } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import {
 import { PlusIcon } from '../../styles/icons';
 import ContactsOnboarding from './ContactsOnboarding';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import SearchInput from '../../components/SearchInput';
 import ContactsList from '../../components/ContactsList';
 import { showBottomSheet } from '../../store/actions/ui';
@@ -22,9 +22,7 @@ import { useSlashtags } from '../../components/SlashtagsProvider';
 import { IContactRecord } from '../../store/types/slashtags';
 import ProfileImage from '../../components/ProfileImage';
 
-export const Contacts = (
-	props: RootStackScreenProps<'Contacts'>,
-): JSX.Element => {
+const Contacts = (props: RootStackScreenProps<'Contacts'>): ReactElement => {
 	const onboarded = useSelector(onboardedContactsSelector);
 	const contacts = useSlashtags().contacts as { [url: string]: IContactRecord };
 	const showOnboarding = !onboarded && Object.keys(contacts).length === 0;
@@ -38,7 +36,7 @@ export const Contacts = (
 
 const ContactsScreen = ({
 	navigation,
-}: RootStackScreenProps<'Contacts'>): JSX.Element => {
+}: RootStackScreenProps<'Contacts'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const [searchFilter, setSearchFilter] = useState('');
 	const { url: myProfileURL } = useSelectedSlashtag();
@@ -46,7 +44,7 @@ const ContactsScreen = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('contacts')}
 				onClosePress={(): void => {
@@ -103,8 +101,7 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		justifyContent: 'space-between',
-		margin: 20,
-		marginTop: 0,
+		paddingHorizontal: 16,
 	},
 	searchRow: {
 		flexDirection: 'row',

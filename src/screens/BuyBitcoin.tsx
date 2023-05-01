@@ -3,7 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Display, Text01S } from '../styles/text';
-import SafeAreaInsets from '../components/SafeAreaInsets';
+import SafeAreaInset from '../components/SafeAreaInset';
 import GlowingBackground from '../components/GlowingBackground';
 import NavigationHeader from '../components/NavigationHeader';
 import Button from '../components/Button';
@@ -20,7 +20,7 @@ const BuyBitcoin = ({
 
 	return (
 		<GlowingBackground topLeft="orange">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				onClosePress={(): void => {
 					navigation.navigate('Wallet');
@@ -57,7 +57,7 @@ const BuyBitcoin = ({
 					/>
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -85,9 +85,7 @@ const styles = StyleSheet.create({
 	},
 	buttonContainer: {
 		flexDirection: 'row',
-		justifyContent: 'center',
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 	button: {
 		flex: 1,

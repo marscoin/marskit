@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { SlashURL } from '@synonymdev/slashtags-sdk';
 import { TouchableOpacity } from 'react-native';
@@ -7,7 +7,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { Caption13S, Text02M } from '../styles/text';
 import { IThemeColors } from '../styles/themes';
 
-export const SlashtagURL = ({
+const SlashtagURL = ({
 	url,
 	style,
 	color = 'brand',
@@ -19,7 +19,7 @@ export const SlashtagURL = ({
 	color?: keyof IThemeColors;
 	bold?: boolean;
 	onPress?: () => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const id = SlashURL.parse(url).id;
 	const Text = bold ? Text02M : Caption13S;
 
@@ -41,3 +41,5 @@ export const SlashtagURL = ({
 		</TouchableOpacity>
 	);
 };
+
+export default SlashtagURL;

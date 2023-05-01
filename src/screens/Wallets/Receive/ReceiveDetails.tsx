@@ -5,10 +5,9 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -20,6 +19,7 @@ import { Caption13Up, Text02B } from '../../../styles/text';
 import { SwitchIcon, TagIcon } from '../../../styles/icons';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import NumberPadTextField from '../../../components/NumberPadTextField';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
 import {
@@ -45,7 +45,6 @@ const ReceiveDetails = ({
 	navigation,
 }: ReceiveScreenProps<'ReceiveDetails'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const { keyboardShown } = useKeyboard();
 	const { isSmallScreen } = useScreenSize();
 	const [isInputFocused, setIsInputFocused] = useState(false);
@@ -53,19 +52,6 @@ const ReceiveDetails = ({
 	const invoice = useSelector(receiveSelector);
 	const unit = useSelector(balanceUnitSelector);
 	const { fiatTicker } = useCurrency();
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown
-				? Platform.OS === 'ios'
-					? 16
-					: 40
-				: insets.bottom + 16,
-		}),
-		[keyboardShown, insets.bottom],
-	);
 
 	// BTC -> satoshi -> fiat
 	const nextUnit = useMemo(() => {
@@ -180,7 +166,7 @@ const ReceiveDetails = ({
 							</AnimatedView>
 						)}
 
-						<View style={buttonContainerStyles}>
+						<View style={styles.buttonContainer}>
 							<Button
 								size="large"
 								text={t('receive_show_qr')}
@@ -217,7 +203,7 @@ const ReceiveDetails = ({
 
 						<ReceiveNumberPad />
 
-						<View style={buttonContainerStyles}>
+						<View style={styles.buttonContainer}>
 							<Button
 								size="large"
 								text={t('continue')}
@@ -228,6 +214,7 @@ const ReceiveDetails = ({
 					</View>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

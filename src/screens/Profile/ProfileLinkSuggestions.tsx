@@ -6,7 +6,7 @@ import NavigationHeader from '../../components/NavigationHeader';
 import { View as ThemedView } from '../../styles/components';
 import Button from '../../components/Button';
 import { updateProfileLink } from '../../store/actions/ui';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 const suggestions = [
@@ -28,7 +28,7 @@ const suggestions = [
 	'Spotify',
 ];
 
-export const ProfileLinkSuggestions = ({
+const ProfileLinkSuggestions = ({
 	navigation,
 }: RootStackScreenProps<'ProfileLinkSuggestions'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
@@ -40,7 +40,7 @@ export const ProfileLinkSuggestions = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('profile_link_suggestions_to_add')} />
 			<View style={styles.buttons}>
 				{suggestions.map((suggestion) => (
@@ -48,7 +48,7 @@ export const ProfileLinkSuggestions = ({
 						key={suggestion}
 						text={suggestion}
 						style={styles.button}
-						color="white32"
+						color="white16"
 						onPress={(): void => handleChoose(suggestion)}
 					/>
 				))}

@@ -11,7 +11,7 @@ import NavigationHeader from '../../../components/NavigationHeader';
 import SafeAreaView from '../../../components/SafeAreaView';
 import GlowImage from '../../../components/GlowImage';
 // import List, { EItemType, IListData } from '../../../components/List';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import type { SettingsScreenProps } from '../../../navigation/types';
 
 const imageSrc = require('../../../assets/illustrations/folder.png');
@@ -140,7 +140,7 @@ const BackupData = ({
 				}}
 			/> */}
 
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</SafeAreaView>
 	);
 };

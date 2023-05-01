@@ -1,7 +1,6 @@
 import React, { ReactElement, memo, useMemo, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +8,7 @@ import GradientView from '../../../components/GradientView';
 import { Switch } from '../../../styles/components';
 import { Subtitle, Text01M, Text02M, Caption13Up } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import Tag from '../../../components/Tag';
 import Store from '../../../store/types';
@@ -80,7 +80,6 @@ const CoinSelection = ({
 	navigation,
 }: SendScreenProps<'CoinSelection'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const { gray4 } = useColors();
 
 	const selectedWallet = useSelector(selectedWalletSelector);
@@ -90,14 +89,6 @@ const CoinSelection = ({
 	const coinSelectPreference = useSelector(coinSelectPreferenceSelector);
 	const [autoSelectionEnabled, setAutoSelectionEnabled] = useState(
 		transaction.inputs.length === utxos.length,
-	);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
 	);
 
 	const preference = useMemo(
@@ -210,7 +201,7 @@ const CoinSelection = ({
 					</View>
 				</View>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						size="large"
 						text={t('continue')}
@@ -219,6 +210,7 @@ const CoinSelection = ({
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

@@ -1,10 +1,9 @@
 import React, { ReactElement } from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { View } from '../../styles/components';
 import { Display, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
@@ -19,13 +18,13 @@ const MultipleDevices = ({
 
 	return (
 		<GlowingBackground topLeft="yellow">
-			<View color="transparent" style={styles.slide}>
-				<SafeAreaInsets type="top" />
+			<View style={styles.slide}>
+				<SafeAreaInset type="top" />
 				<NavigationHeader />
-				<View color="transparent" style={styles.imageContainer}>
+				<View style={styles.imageContainer}>
 					<Image style={styles.image} source={imageSrc} />
 				</View>
-				<View color="transparent" style={styles.textContent}>
+				<View style={styles.textContent}>
 					<Display>
 						<Trans
 							t={t}
@@ -40,7 +39,7 @@ const MultipleDevices = ({
 					</Text01S>
 				</View>
 
-				<View color="transparent" style={styles.buttonContainer}>
+				<View style={styles.buttonContainer}>
 					<Button
 						text={t('understood')}
 						size="large"
@@ -51,7 +50,7 @@ const MultipleDevices = ({
 						testID="MultipleButton"
 					/>
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</GlowingBackground>
 	);
@@ -62,7 +61,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		alignItems: 'stretch',
-		marginBottom: 16,
 	},
 	imageContainer: {
 		flex: 4,

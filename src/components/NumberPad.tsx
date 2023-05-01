@@ -115,7 +115,6 @@ const NumberPad = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingBottom: 16,
 	},
 	row: {
 		flex: 1,

@@ -7,7 +7,7 @@ import { Text01M, Text02M, Text02S } from '../../styles/text';
 import { TimerIconAlt } from '../../styles/icons';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import SwipeToConfirm from '../../components/SwipeToConfirm';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import AdjustValue from '../../components/AdjustValue';
 import Store from '../../store/types';
 import { closeBottomSheet } from '../../store/actions/ui';
@@ -285,7 +285,7 @@ const BoostPrompt = (): ReactElement => {
 
 				{isOpen && activityItem && <BoostForm activityItem={activityItem} />}
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);
@@ -295,7 +295,6 @@ const styles = StyleSheet.create({
 	root: {
 		flex: 1,
 		paddingHorizontal: 16,
-		paddingBottom: 16,
 	},
 	preparing: {
 		flex: 1,

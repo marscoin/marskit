@@ -10,7 +10,7 @@ import {
 } from '../../../styles/components';
 import { Subtitle, Caption13Up } from '../../../styles/text';
 import NavigationHeader from '../../../components/NavigationHeader';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import { getNodeId } from '../../../utils/lightning';
 import { showSuccessNotification } from '../../../utils/notifications';
 import { selectedNetworkSelector } from '../../../store/reselect/wallet';
@@ -38,7 +38,7 @@ const LightningNodeInfo = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('node_info')}
 				displayBackButton
@@ -80,7 +80,7 @@ const LightningNodeInfo = ({
 				)}
 			</View>
 
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

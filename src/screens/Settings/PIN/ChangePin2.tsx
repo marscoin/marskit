@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView, AnimatedView } from '../../../styles/components';
 import { Text01S, Text02S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import NumberPad from '../../../components/NumberPad';
 import useColors from '../../../hooks/colors';
@@ -73,7 +73,7 @@ const ChangePin2 = ({
 
 	return (
 		<ThemedView style={styles.container} testID="ChangePIN2">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t(origPIN ? 'cp_retype_title' : 'cp_setnew_title')}
 				onClosePress={(): void => {

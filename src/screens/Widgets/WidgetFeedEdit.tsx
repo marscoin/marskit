@@ -21,7 +21,7 @@ import {
 } from '../../styles/icons';
 import NavigationHeader from '../../components/NavigationHeader';
 import Button from '../../components/Button';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Store from '../../store/types';
 import { IWidget, SlashFeedJSON } from '../../store/types/widgets';
 import { useSlashtagsSDK } from '../../components/SlashtagsProvider';
@@ -35,7 +35,7 @@ import {
 } from '../../utils/widgets';
 import Divider from '../../components/Divider';
 import HourglassSpinner from '../../components/HourglassSpinner';
-import { SlashtagURL } from '../../components/SlashtagURL';
+import SlashtagURL from '../../components/SlashtagURL';
 import PriceWidget from '../../components/PriceWidget';
 import HeadlinesWidget from '../../components/HeadlinesWidget';
 import BlocksWidget from '../../components/BlocksWidget';
@@ -45,7 +45,7 @@ import FactsWidget from '../../components/FactsWidget';
 
 type Config = Partial<SlashFeedJSON> & { icon?: string };
 
-export const WidgetFeedEdit = ({
+const WidgetFeedEdit = ({
 	navigation,
 	route,
 }: RootStackScreenProps<'WidgetFeedEdit'>): ReactElement => {
@@ -187,7 +187,7 @@ export const WidgetFeedEdit = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={headerTitle}
 				onClosePress={(): void => {
@@ -342,7 +342,7 @@ export const WidgetFeedEdit = ({
 					</View>
 				</View>
 			)}
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };
@@ -354,7 +354,6 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		paddingHorizontal: 16,
-		paddingBottom: 16,
 	},
 	header: {
 		flexDirection: 'row',

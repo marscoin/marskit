@@ -1,4 +1,4 @@
-import React, { ErrorInfo } from 'react';
+import React, { ErrorInfo, ReactElement } from 'react';
 import {
 	View,
 	Text,
@@ -9,9 +9,10 @@ import {
 	Platform,
 } from 'react-native';
 import RNExitApp from 'react-native-exit-app';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Glow } from '../components/Glow';
+import SafeAreaInset from '../components/SafeAreaInset';
 import { openURL } from '../utils/helpers';
 import { createSupportLink } from '../utils/support';
 
@@ -19,7 +20,7 @@ const imageSrc = require('../assets/illustrations/cross.png');
 
 type ReactError = Error & ErrorInfo;
 
-const AppError = ({ error }: { error: ReactError }): JSX.Element => {
+const AppError = ({ error }: { error: ReactError }): ReactElement => {
 	const onClose = (): void => {
 		RNExitApp.exitApp();
 	};
@@ -36,7 +37,8 @@ const AppError = ({ error }: { error: ReactError }): JSX.Element => {
 	return (
 		<SafeAreaProvider>
 			<StatusBar barStyle="light-content" backgroundColor="black" />
-			<SafeAreaView style={styles.root}>
+			<View style={styles.root}>
+				<SafeAreaInset type="top" minPadding={16} />
 				<Text style={styles.header}>Unexpected Error</Text>
 
 				<View style={styles.background}>
@@ -76,7 +78,8 @@ const AppError = ({ error }: { error: ReactError }): JSX.Element => {
 						</TouchableOpacity>
 					</View>
 				</View>
-			</SafeAreaView>
+				<SafeAreaInset type="bottom" minPadding={16} />
+			</View>
 		</SafeAreaProvider>
 	);
 };
@@ -144,7 +147,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'center',
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 	button: {
 		borderRadius: 64,

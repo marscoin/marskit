@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { AnimatedView } from '../../styles/components';
 import { Display, Text01S } from '../../styles/text';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import BitkitLogo from '../../assets/bitkit-logo.svg';
 import DetectSwipe from '../../components/DetectSwipe';
@@ -77,7 +77,7 @@ const OnboardingWelcomeScreen = ({
 						<View style={styles.logoContainer} pointerEvents="none">
 							<BitkitLogo height={30} width={72} />
 						</View>
-						<SafeAreaInsets type="bottom" />
+						<SafeAreaInset type="bottom" minPadding={16} />
 					</View>
 				</View>
 			</DetectSwipe>
@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'center',
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 });
 
