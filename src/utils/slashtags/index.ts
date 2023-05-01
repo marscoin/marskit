@@ -439,3 +439,65 @@ export const readAsDataURL = async (
 
 	return base64 && `data:${mimeType};base64,${base64}`;
 };
+
+/**
+ * Checks if current versions for Profiles and Contacts hyperdrives are seeded by our server.
+ */
+export const checkBackup = async (
+	slashtag: Slashtag,
+): Promise<{
+	profile: boolean;
+	contacts: boolean;
+}> => {
+	const drives = [
+		slashtag.drivestore.get(),
+		slashtag.drivestore.get('contacts'),
+	];
+
+	const [profile, contacts] = await Promise.all(
+		drives.map(async (drive) => {
+			await drive.update();
+			await drive.getBlobs();
+
+			const lengths = [drive.core.length, drive.blobs.core.length];
+			const keys = [
+				b4a.toString(drive.key, 'hex'),
+				b4a.toString(drive.blobs.core.key, 'hex'),
+			];
+
+			drive.close();
+
+			try {
+				const [c1, c2] = await Promise.all(
+					keys.map(async (key) => {
+						const res = await fetch(
+							__SLASHTAGS_SEEDER_BASE_URL__ + '/seeding/hypercore/' + key,
+							{ method: 'GET' },
+						);
+						const status = await res.json();
+
+						return {
+							seeded: status.statusCode !== 404,
+							length: status.length ?? 0,
+						};
+					}),
+				);
+
+				return (
+					c1.seeded &&
+					c2.seeded &&
+					c1.length === lengths[0] &&
+					c2.length === lengths[1]
+				);
+			} catch (e) {
+				console.log('seeder request error: ', e.message);
+				return false;
+			}
+		}),
+	);
+
+	return {
+		profile,
+		contacts,
+	};
+};

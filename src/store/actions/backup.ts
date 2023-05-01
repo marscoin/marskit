@@ -6,7 +6,7 @@ import {
 } from '@synonymdev/react-native-ldk/dist/utils/types';
 
 import actions from './actions';
-import { getDispatch } from '../helpers';
+import { getBackupStore, getDispatch } from '../helpers';
 import {
 	EBackupCategories,
 	fetchBackup,
@@ -38,6 +38,10 @@ import { addActivityItems } from './activity';
 import { updateBlocktank } from './blocktank';
 import { IBlocktank } from '../types/blocktank';
 import { IActivity } from '../types/activity';
+import { checkBackup } from '../../utils/slashtags';
+import { showErrorNotification } from '../../utils/notifications';
+import { FAILED_BACKUP_CHECK_TIME } from '../../utils/backup/backups-subscriber';
+import i18n from '../../utils/i18n';
 
 const dispatch = getDispatch();
 
@@ -117,6 +121,7 @@ export const performRemoteLdkBackup = async (
 		payload: {
 			remoteLdkBackupSynced: true,
 			remoteLdkBackupLastSync: new Date().getTime(),
+			remoteLdkBackupLastSyncRequired: undefined,
 		},
 	});
 
@@ -126,12 +131,16 @@ export const performRemoteLdkBackup = async (
 export const performRemoteBackup = async <T>({
 	slashtag,
 	isSyncedKey,
+	syncRequiredKey,
+	syncCompletedKey,
 	backupCategory,
 	backup,
 	selectedNetwork,
 }: {
 	slashtag: Slashtag;
 	isSyncedKey: keyof IBackup;
+	syncRequiredKey: keyof IBackup;
+	syncCompletedKey: keyof IBackup;
 	backupCategory: EBackupCategories;
 	backup?: T;
 	selectedNetwork?: TAvailableNetworks;
@@ -160,6 +169,8 @@ export const performRemoteBackup = async <T>({
 		type: actions.BACKUP_UPDATE,
 		payload: {
 			[isSyncedKey]: true,
+			[syncRequiredKey]: undefined,
+			[syncCompletedKey]: new Date().getTime(),
 		},
 	});
 
@@ -553,6 +564,29 @@ export const setRemoteBackupsEnabled = (
 			remoteLdkBackupLastSync: undefined,
 		},
 	});
+};
+
+export const checkProfileAndContanctsBackup = async (
+	slashtag: Slashtag,
+): Promise<void> => {
+	dispatch({ type: actions.BACKUP_SEEDER_CHECK_START });
+	const payload = await checkBackup(slashtag);
+	dispatch({ type: actions.BACKUP_SEEDER_CHECK_END, payload });
+
+	// now check if backup is too old and show warning if it is
+	const now = new Date().getTime();
+	const backup = getBackupStore();
+	if (
+		(backup.hyperProfileCheckRequested &&
+			now - backup.hyperProfileCheckRequested > FAILED_BACKUP_CHECK_TIME) ||
+		(backup.hyperContactsCheckRequested &&
+			now - backup.hyperContactsCheckRequested > FAILED_BACKUP_CHECK_TIME)
+	) {
+		showErrorNotification({
+			title: i18n.t('settings:backup.failed_title'),
+			message: i18n.t('settings:backup.failed_message'),
+		});
+	}
 };
 
 /*
