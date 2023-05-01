@@ -1,15 +1,15 @@
 import React, { memo, ReactElement, useMemo, useState, useEffect } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01S, Text01M, Text02S } from '../../../styles/text';
+import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import BlurView from '../../../components/BlurView';
 import { getMnemonicPhrase, getBip39Passphrase } from '../../../utils/wallet';
 import { useBottomSheetBackPress } from '../../../hooks/bottomSheet';
-import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import { showErrorNotification } from '../../../utils/notifications';
 import type { BackupScreenProps } from '../../../navigation/types';
 
@@ -38,14 +38,6 @@ const ShowMnemonic = ({
 	const [show, setShow] = useState(false);
 	const [seed, setSeed] = useState<string[]>([]);
 	const [bip39Passphrase, setPassphrase] = useState<string>('');
-	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	useBottomSheetBackPress('backupNavigation');
 
@@ -121,7 +113,7 @@ const ShowMnemonic = ({
 				/>
 			</Text02S>
 
-			<View style={nextButtonContainer}>
+			<View style={styles.buttonContainer}>
 				{show && (
 					<Button
 						size="large"
@@ -139,6 +131,7 @@ const ShowMnemonic = ({
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</View>
 	);
 };
@@ -173,9 +166,8 @@ const styles = StyleSheet.create({
 		bottom: 5,
 		borderRadius: 10,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
-		width: '100%',
 	},
 	word: {
 		marginBottom: 8,

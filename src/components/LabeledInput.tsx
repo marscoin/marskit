@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React, { ReactElement, RefObject } from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { TextInput, BottomSheetTextInput } from '../styles/components';
 import { Caption13Up } from '../styles/text';
@@ -7,6 +7,7 @@ type LabeledInputProps = {
 	label: string;
 	children?: JSX.Element | JSX.Element[];
 	ref?: RefObject<any>;
+	autoFocus?: boolean;
 	multiline?: boolean;
 	value?: string;
 	returnKeyType?: 'default' | 'next' | 'done';
@@ -21,6 +22,7 @@ const LabeledInput = ({
 	label,
 	children,
 	ref,
+	autoFocus,
 	multiline,
 	value,
 	returnKeyType = 'done',
@@ -29,7 +31,7 @@ const LabeledInput = ({
 	placeholder,
 	style,
 	maxLength,
-}: LabeledInputProps): JSX.Element => {
+}: LabeledInputProps): ReactElement => {
 	const numberOfChildren = React.Children.toArray(children).length;
 
 	const textInputStyle =
@@ -63,6 +65,7 @@ const LabeledInput = ({
 						color="white"
 						autoCapitalize="none"
 						autoCorrect={false}
+						autoFocus={autoFocus}
 						placeholder={placeholder}
 						minHeight={multiline ? 72 : 52}
 						onChangeText={onChange}

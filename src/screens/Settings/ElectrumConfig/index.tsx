@@ -1,5 +1,5 @@
 import React, { memo, ReactElement, useEffect, useState } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { err, ok, Result } from '@synonymdev/result';
 import Url from 'url-parse';
@@ -29,7 +29,7 @@ import {
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import { getConnectedPeer, IPeerData } from '../../../utils/wallet/electrum';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import { RadioButtonGroup } from '../../../components/RadioButton';
 import type { SettingsScreenProps } from '../../../navigation/types';
 
@@ -222,66 +222,64 @@ const ElectrumConfig = ({
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('adv.electrum_server')}
 				actionIcon={<ScanIcon color="white" width={20} height={20} />}
 				onActionPress={navigateToScanner}
 			/>
-			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-				style={styles.content}>
-				<ScrollView bounces={false}>
-					<Text01S color="gray1">{t('es.connected_to')}</Text01S>
-					<View style={styles.row}>
-						<View style={styles.connectedPeer} testID="Status">
-							{connectedPeer ? (
-								<Text color="green" testID="Connected">
-									{connectedPeer.host}:{connectedPeer.port}
-								</Text>
-							) : (
-								<Text color="red" testID="Disconnected">
-									{t('es.disconnected')}
-								</Text>
-							)}
-						</View>
+			<ScrollView contentContainerStyle={styles.content} bounces={false}>
+				<Text01S color="gray1">{t('es.connected_to')}</Text01S>
+				<View style={styles.row}>
+					<View style={styles.connectedPeer} testID="Status">
+						{connectedPeer ? (
+							<Text color="green" testID="Connected">
+								{connectedPeer.host}:{connectedPeer.port}
+							</Text>
+						) : (
+							<Text color="red" testID="Disconnected">
+								{t('es.disconnected')}
+							</Text>
+						)}
 					</View>
+				</View>
 
-					<Caption13Up color="gray1" style={styles.label}>
-						{t('es.host')}
-					</Caption13Up>
-					<TextInput
-						style={styles.textInput}
-						textAlignVertical="center"
-						underlineColorAndroid="transparent"
-						autoCapitalize="none"
-						// @ts-ignore autoCompleteType -> autoComplete in newer version
-						autoCompleteType="off"
-						keyboardType="default"
-						autoCorrect={false}
-						onChangeText={setHost}
-						value={host}
-						returnKeyType="done"
-						testID="HostInput"
-					/>
+				<Caption13Up color="gray1" style={styles.label}>
+					{t('es.host')}
+				</Caption13Up>
+				<TextInput
+					style={styles.textInput}
+					textAlignVertical="center"
+					underlineColorAndroid="transparent"
+					autoCapitalize="none"
+					// @ts-ignore autoCompleteType -> autoComplete in newer version
+					autoCompleteType="off"
+					keyboardType="default"
+					autoCorrect={false}
+					onChangeText={setHost}
+					value={host}
+					returnKeyType="done"
+					testID="HostInput"
+				/>
 
-					<Caption13Up color="gray1" style={styles.label}>
-						{t('es.port')}
-					</Caption13Up>
-					<TextInput
-						style={styles.textInput}
-						textAlignVertical="center"
-						underlineColorAndroid="transparent"
-						autoCapitalize="none"
-						// @ts-ignore autoCompleteType -> autoComplete in newer version
-						autoCompleteType="off"
-						keyboardType="number-pad"
-						autoCorrect={false}
-						onChangeText={setPort}
-						value={port.toString()}
-						testID="PortInput"
-					/>
+				<Caption13Up color="gray1" style={styles.label}>
+					{t('es.port')}
+				</Caption13Up>
+				<TextInput
+					style={styles.textInput}
+					textAlignVertical="center"
+					underlineColorAndroid="transparent"
+					autoCapitalize="none"
+					// @ts-ignore autoCompleteType -> autoComplete in newer version
+					autoCompleteType="off"
+					keyboardType="number-pad"
+					autoCorrect={false}
+					onChangeText={setPort}
+					value={port.toString()}
+					testID="PortInput"
+				/>
 
+				<View style={styles.protocol}>
 					<Caption13Up color="gray1" style={styles.label}>
 						{t('es.protocol')}
 					</Caption13Up>
@@ -297,31 +295,32 @@ const ElectrumConfig = ({
 							}
 						}}
 					/>
+				</View>
 
-					<View style={styles.buttons}>
-						<Button
-							style={styles.button}
-							text={t('es.button_reset')}
-							variant="secondary"
-							size="large"
-							onPress={resetToDefault}
-							testID="ResetToDefault"
-						/>
-						<View style={styles.divider} />
-						<Button
-							style={styles.button}
-							text={t('es.button_connect')}
-							size="large"
-							loading={loading}
-							disabled={!hasEdited}
-							onPress={(): void => {
-								connectAndAddPeer({ host, port, protocol });
-							}}
-							testID="ConnectToHost"
-						/>
-					</View>
-				</ScrollView>
-			</KeyboardAvoidingView>
+				<View style={styles.buttons}>
+					<Button
+						style={styles.button}
+						text={t('es.button_reset')}
+						variant="secondary"
+						size="large"
+						onPress={resetToDefault}
+						testID="ResetToDefault"
+					/>
+					<View style={styles.divider} />
+					<Button
+						style={styles.button}
+						text={t('es.button_connect')}
+						size="large"
+						loading={loading}
+						disabled={!hasEdited}
+						onPress={(): void => {
+							connectAndAddPeer({ host, port, protocol });
+						}}
+						testID="ConnectToHost"
+					/>
+				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
+			</ScrollView>
 		</View>
 	);
 };
@@ -331,8 +330,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	content: {
+		flexGrow: 1,
 		paddingHorizontal: 16,
-		flex: 1,
 	},
 	row: {
 		flexDirection: 'row',
@@ -350,7 +349,10 @@ const styles = StyleSheet.create({
 	},
 	textInput: {
 		minHeight: 50,
-		marginVertical: 5,
+		marginTop: 5,
+	},
+	protocol: {
+		marginTop: 11,
 	},
 	buttons: {
 		marginTop: 16,

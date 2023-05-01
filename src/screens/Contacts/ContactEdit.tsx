@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useMemo, ReactElement } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../styles/components';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
+import KeyboardAvoidingView from '../../components/KeyboardAvoidingView';
 import ProfileCard, { MAX_NAME_LENGTH } from '../../components/ProfileCard';
 import Button from '../../components/Button';
 import { saveContact } from '../../utils/slashtags';
@@ -13,29 +14,18 @@ import { BasicProfile } from '../../store/types/slashtags';
 import { useSlashtags } from '../../components/SlashtagsProvider';
 import { RootStackScreenProps } from '../../navigation/types';
 import Divider from '../../components/Divider';
-import useKeyboard from '../../hooks/keyboard';
 import HourglassSpinner from '../../components/HourglassSpinner';
 
-export const ContactEdit = ({
+const ContactEdit = ({
 	navigation,
 	route,
-}: RootStackScreenProps<'ContactEdit'>): JSX.Element => {
+}: RootStackScreenProps<'ContactEdit'>): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const url = route.params.url;
-	const saved = useSlashtags().contacts[url];
+	const savedContact = useSlashtags().contacts[url];
 	const { slashtag } = useSelectedSlashtag();
-	const contact = useProfile(url, { resolve: !saved });
-	const { keyboardShown } = useKeyboard();
-	const [form, setForm] = useState<BasicProfile>(saved || {});
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			// extra padding needed because of KeyboardAvoidingView
-			paddingBottom: keyboardShown ? (Platform.OS === 'ios' ? 16 : 40) : 0,
-		}),
-		[keyboardShown],
-	);
+	const contact = useProfile(url, { resolve: !savedContact });
+	const [form, setForm] = useState<BasicProfile>(savedContact || {});
 
 	const profile = useMemo(
 		() => ({
@@ -47,13 +37,13 @@ export const ContactEdit = ({
 		[contact.profile, form],
 	);
 
-	const resolving = !saved && contact.resolving;
+	const resolving = !savedContact && contact.resolving;
 
 	const onDiscard = (): void => {
 		navigation.navigate('Contacts');
 	};
 
-	const onSaveContact = (): void => {
+	const onSave = (): void => {
 		// To avoid phishing attacks, a name should always be saved in contact record
 		slashtag && saveContact(slashtag, url, { name: profile.name });
 		navigation.navigate('Contact', { url });
@@ -61,34 +51,33 @@ export const ContactEdit = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
-				title={t(saved ? 'contact_edit_capital' : 'contact_add_capital')}
-				displayBackButton={resolving}
+				title={t(savedContact ? 'contact_edit_capital' : 'contact_add_capital')}
 				onClosePress={(): void => {
-					if (saved) {
+					if (savedContact) {
 						navigation.navigate('Contact', { url });
 					} else {
 						navigation.navigate('Contacts');
 					}
 				}}
 			/>
-			<KeyboardAvoidingView behavior="padding" style={styles.content}>
+			<KeyboardAvoidingView style={styles.content}>
 				<ProfileCard
 					url={url}
 					resolving={resolving}
 					profile={profile}
 					editable={true}
 					contact={true}
+					autoFocus={!!savedContact}
 					onChange={(_, value): void =>
 						setForm((prev) => ({ ...prev, name: value }))
 					}
 				/>
 
-				{resolving && <HourglassSpinner />}
-				{!resolving && <Divider />}
+				{resolving ? <HourglassSpinner /> : <Divider />}
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						text={t('discard')}
@@ -98,15 +87,15 @@ export const ContactEdit = ({
 					/>
 					<View style={styles.divider} />
 					<Button
+						style={styles.button}
 						text={t('save')}
 						size="large"
-						style={styles.button}
 						disabled={form.name?.length === 0}
-						onPress={onSaveContact}
+						onPress={onSave}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</KeyboardAvoidingView>
-			<SafeAreaInsets type="bottom" />
 		</ThemedView>
 	);
 };

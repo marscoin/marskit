@@ -8,14 +8,19 @@ import React, {
 	useState,
 } from 'react';
 import { FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import QRCode from 'react-native-qrcode-svg';
+import { err, ok, Result } from '@synonymdev/result';
+import Clipboard from '@react-native-clipboard/clipboard';
+import fuzzysort from 'fuzzysort';
 
 import {
 	TouchableOpacity,
 	View as ThemedView,
 } from '../../../styles/components';
 import { Subtitle, Text02S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import type { SettingsScreenProps } from '../../../navigation/types';
 import NavigationHeader from '../../../components/NavigationHeader';
 import {
@@ -24,7 +29,6 @@ import {
 	getPrivateKey,
 	getReceiveAddress,
 } from '../../../utils/wallet';
-import { useSelector } from 'react-redux';
 import {
 	addressTypeSelector,
 	currentWalletSelector,
@@ -37,15 +41,12 @@ import {
 	IUtxo,
 	TWalletName,
 } from '../../../store/types/wallet';
-import { err, ok, Result } from '@synonymdev/result';
 import Button from '../../../components/Button';
 import { addressContent, addressTypes } from '../../../store/shapes/wallet';
 import {
 	EAvailableNetworks,
 	TAvailableNetworks,
 } from '../../../utils/networks';
-import QRCode from 'react-native-qrcode-svg';
-import Clipboard from '@react-native-clipboard/clipboard';
 import {
 	showErrorNotification,
 	showSuccessNotification,
@@ -68,7 +69,6 @@ import {
 import { showBottomSheet } from '../../../store/actions/ui';
 import Store from '../../../store/types';
 import SearchInput from '../../../components/SearchInput';
-import fuzzysort from 'fuzzysort';
 import AddressViewerListItem from './AddressViewerListItem';
 import { IThemeColors } from '../../../styles/themes';
 import {
@@ -903,8 +903,8 @@ const AddressViewer = ({
 	LayoutAnimation.easeInEaseOut();
 
 	return (
-		<ThemedView style={styles.content} color="black">
-			<SafeAreaInsets type="top" />
+		<ThemedView style={styles.root}>
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('adv.address_viewer')}
 				displayBackButton={true}
@@ -912,229 +912,243 @@ const AddressViewer = ({
 					navigation.navigate('Wallet');
 				}}
 			/>
-			{displayQrCode && (
-				<View style={styles.qrCodeRow}>
-					<View style={styles.qrCode}>
-						<TouchableOpacity
-							color="white"
-							activeOpacity={1}
-							onPress={onQrCodePress}
-							style={styles.qrCode}>
-							<QRCode
-								value={privateKey ?? selectedAddress.address}
-								size={100}
-							/>
-						</TouchableOpacity>
-					</View>
-					<View>
-						<Text02S style={styles.headerText}>
-							{t('addr.index', { index: selectedAddress?.index })}
-						</Text02S>
-						<Text02S style={styles.headerText} testID="Path">
-							{t('addr.path', { path: selectedAddress?.path })}
-						</Text02S>
-						<TouchableOpacity
-							style={styles.headerText}
-							onPress={onPrivateKeyPress}>
-							<Text02S>
-								{t(privateKey ? 'addr.private_hide' : 'addr.private_view')}
+			<View style={styles.content}>
+				{displayQrCode && (
+					<View style={styles.qrCodeRow}>
+						<View style={styles.qrCode}>
+							<TouchableOpacity
+								color="white"
+								activeOpacity={1}
+								onPress={onQrCodePress}
+								style={styles.qrCode}>
+								<QRCode
+									value={privateKey ?? selectedAddress.address}
+									size={100}
+								/>
+							</TouchableOpacity>
+						</View>
+						<View>
+							<Text02S style={styles.headerText}>
+								{t('addr.index', { index: selectedAddress?.index })}
 							</Text02S>
-						</TouchableOpacity>
-						{config.selectedNetwork !== 'bitcoinRegtest' && (
+							<Text02S style={styles.headerText} testID="Path">
+								{t('addr.path', { path: selectedAddress?.path })}
+							</Text02S>
 							<TouchableOpacity
 								style={styles.headerText}
-								onPress={openBlockExplorer}>
-								<Text02S>View Block Explorer</Text02S>
+								onPress={onPrivateKeyPress}>
+								<Text02S>
+									{t(privateKey ? 'addr.private_hide' : 'addr.private_view')}
+								</Text02S>
 							</TouchableOpacity>
-						)}
-					</View>
-				</View>
-			)}
-			{privateKey && (
-				<Text02S style={styles.privKeyText}>
-					{t('addr.private_key', { privateKey })}
-				</Text02S>
-			)}
-			<SearchInput
-				//style={styles.searchInput}
-				value={searchTxt}
-				onChangeText={onSearch}
-				autoCapitalize="none"
-			/>
-			{enableDevOptions && (
-				<View style={styles.row}>
-					<Button
-						loading={loadingNetwork === EAvailableNetworks.bitcoinTestnet}
-						color={getAddressTypeButtonColor(EAvailableNetworks.bitcoinTestnet)}
-						text="Testnet"
-						onPress={(): void => {
-							updateNetwork(EAvailableNetworks.bitcoinTestnet).then();
-						}}
-					/>
-					<Button
-						loading={loadingNetwork === EAvailableNetworks.bitcoinRegtest}
-						color={getAddressTypeButtonColor(EAvailableNetworks.bitcoinRegtest)}
-						text="Regtest"
-						onPress={(): void => {
-							updateNetwork(EAvailableNetworks.bitcoinRegtest).then();
-						}}
-					/>
-					<Button
-						loading={loadingNetwork === EAvailableNetworks.bitcoin}
-						color={getAddressTypeButtonColor(EAvailableNetworks.bitcoin)}
-						text="Mainnet"
-						onPress={(): void => {
-							updateNetwork(EAvailableNetworks.bitcoin).then();
-						}}
-					/>
-				</View>
-			)}
-			{!searchTxt && (
-				<View style={styles.row}>
-					<Button
-						color={getAddressTypeButtonColor(EAddressType.p2pkh)}
-						text={EAddressType.p2pkh}
-						onPress={(): void => {
-							updateAddressType(EAddressType.p2pkh).then();
-						}}
-					/>
-					<Button
-						color={getAddressTypeButtonColor(EAddressType.p2sh)}
-						text={EAddressType.p2sh}
-						onPress={(): void => {
-							updateAddressType(EAddressType.p2sh).then();
-						}}
-					/>
-					<Button
-						color={getAddressTypeButtonColor(EAddressType.p2wpkh)}
-						text={EAddressType.p2wpkh}
-						onPress={(): void => {
-							updateAddressType(EAddressType.p2wpkh).then();
-						}}
-					/>
-				</View>
-			)}
-			{!searchTxt && (
-				<View style={styles.row}>
-					<Button
-						color={getAddressTypeButtonColor('change')}
-						text={t('addr.addr_change')}
-						onPress={(): void => {
-							toggleReceivingAddresses(false);
-						}}
-					/>
-					<Button
-						color={getAddressTypeButtonColor('receiving')}
-						text={t('addr.addr_receiving')}
-						onPress={(): void => {
-							toggleReceivingAddresses(true);
-						}}
-					/>
-				</View>
-			)}
-			<FlatList
-				// @ts-ignore
-				ref={flatListRef}
-				style={styles.content}
-				ListEmptyComponent={
-					<EmptyComponent
-						hasUtxos={utxos !== undefined}
-						config={config}
-						searchTxt={searchTxt}
-						loadingAddresses={loadingAddresses}
-					/>
-				}
-				ItemSeparatorComponent={Separator}
-				contentContainerStyle={styles.flatListContent}
-				data={flatlistData}
-				renderItem={({ item }): ReactElement => {
-					let balance;
-					let utxo;
-					let isSelected = false;
-					if (utxos) {
-						balance = getBalanceForAddress(item.address);
-						utxo = getUtxoForAddress(item.address);
-						if (utxo) {
-							isSelected = utxoIsSelected(utxo);
-						}
-					}
-					const backgroundColor = getAddressTypeButtonColor(
-						selectedAddress.address === item.address,
-					);
-					return (
-						<AddressViewerListItem
-							item={item}
-							balance={balance}
-							isSelected={isSelected}
-							backgroundColor={backgroundColor}
-							onItemRowPress={(): void => {
-								setSelectedAddress(item);
-							}}
-							onCheckMarkPress={(): void => {
-								onCheckMarkPress(utxo, isSelected);
-							}}
-						/>
-					);
-				}}
-				keyExtractor={(item: IAddress): string => item.path}
-			/>
-			<>
-				{totalBalance > 0 && (
-					<View style={styles.spendFundsContainer}>
-						{selectedUtxosLength > 0 && (
-							<Button
-								text={spendFundsButtonText}
-								onPress={(): void => {
-									onSpendFundsPress(utxosLength, selectedUtxosLength).then();
-								}}
-							/>
-						)}
-						<Subtitle style={styles.spendFundsText}>
-							{t('addr.sats_found', { totalBalance })}
-						</Subtitle>
+							{config.selectedNetwork !== 'bitcoinRegtest' && (
+								<TouchableOpacity
+									style={styles.headerText}
+									onPress={openBlockExplorer}>
+									<Text02S>View Block Explorer</Text02S>
+								</TouchableOpacity>
+							)}
+						</View>
 					</View>
 				)}
+				{privateKey && (
+					<Text02S style={styles.privKeyText}>
+						{t('addr.private_key', { privateKey })}
+					</Text02S>
+				)}
+				<SearchInput
+					style={styles.searchInput}
+					value={searchTxt}
+					onChangeText={onSearch}
+					autoCapitalize="none"
+				/>
+				{enableDevOptions && (
+					<View style={styles.row}>
+						<Button
+							loading={loadingNetwork === EAvailableNetworks.bitcoinTestnet}
+							color={getAddressTypeButtonColor(
+								EAvailableNetworks.bitcoinTestnet,
+							)}
+							text="Testnet"
+							onPress={(): void => {
+								updateNetwork(EAvailableNetworks.bitcoinTestnet).then();
+							}}
+						/>
+						<Button
+							loading={loadingNetwork === EAvailableNetworks.bitcoinRegtest}
+							color={getAddressTypeButtonColor(
+								EAvailableNetworks.bitcoinRegtest,
+							)}
+							text="Regtest"
+							onPress={(): void => {
+								updateNetwork(EAvailableNetworks.bitcoinRegtest).then();
+							}}
+						/>
+						<Button
+							loading={loadingNetwork === EAvailableNetworks.bitcoin}
+							color={getAddressTypeButtonColor(EAvailableNetworks.bitcoin)}
+							text="Mainnet"
+							onPress={(): void => {
+								updateNetwork(EAvailableNetworks.bitcoin).then();
+							}}
+						/>
+					</View>
+				)}
+				{!searchTxt && (
+					<View style={styles.row}>
+						<Button
+							color={getAddressTypeButtonColor(EAddressType.p2pkh)}
+							text={EAddressType.p2pkh}
+							onPress={(): void => {
+								updateAddressType(EAddressType.p2pkh).then();
+							}}
+						/>
+						<Button
+							color={getAddressTypeButtonColor(EAddressType.p2sh)}
+							text={EAddressType.p2sh}
+							onPress={(): void => {
+								updateAddressType(EAddressType.p2sh).then();
+							}}
+						/>
+						<Button
+							color={getAddressTypeButtonColor(EAddressType.p2wpkh)}
+							text={EAddressType.p2wpkh}
+							onPress={(): void => {
+								updateAddressType(EAddressType.p2wpkh).then();
+							}}
+						/>
+					</View>
+				)}
+				{!searchTxt && (
+					<View style={styles.row}>
+						<Button
+							color={getAddressTypeButtonColor('change')}
+							text={t('addr.addr_change')}
+							onPress={(): void => {
+								toggleReceivingAddresses(false);
+							}}
+						/>
+						<Button
+							color={getAddressTypeButtonColor('receiving')}
+							text={t('addr.addr_receiving')}
+							onPress={(): void => {
+								toggleReceivingAddresses(true);
+							}}
+						/>
+					</View>
+				)}
+				<FlatList
+					// @ts-ignore
+					ref={flatListRef}
+					ListEmptyComponent={
+						<EmptyComponent
+							hasUtxos={utxos !== undefined}
+							config={config}
+							searchTxt={searchTxt}
+							loadingAddresses={loadingAddresses}
+						/>
+					}
+					ItemSeparatorComponent={Separator}
+					contentContainerStyle={styles.flatListContent}
+					data={flatlistData}
+					renderItem={({ item }): ReactElement => {
+						let balance;
+						let utxo;
+						let isSelected = false;
+						if (utxos) {
+							balance = getBalanceForAddress(item.address);
+							utxo = getUtxoForAddress(item.address);
+							if (utxo) {
+								isSelected = utxoIsSelected(utxo);
+							}
+						}
+						const backgroundColor = getAddressTypeButtonColor(
+							selectedAddress.address === item.address,
+						);
+						return (
+							<AddressViewerListItem
+								item={item}
+								balance={balance}
+								isSelected={isSelected}
+								backgroundColor={backgroundColor}
+								onItemRowPress={(): void => {
+									setSelectedAddress(item);
+								}}
+								onCheckMarkPress={(): void => {
+									onCheckMarkPress(utxo, isSelected);
+								}}
+							/>
+						);
+					}}
+					keyExtractor={(item: IAddress): string => item.path}
+				/>
+				<>
+					{totalBalance > 0 && (
+						<View style={styles.spendFundsContainer}>
+							{selectedUtxosLength > 0 && (
+								<Button
+									text={spendFundsButtonText}
+									onPress={(): void => {
+										onSpendFundsPress(utxosLength, selectedUtxosLength).then();
+									}}
+								/>
+							)}
+							<Subtitle style={styles.spendFundsText}>
+								{t('addr.sats_found', { totalBalance })}
+							</Subtitle>
+						</View>
+					)}
+				</>
+
 				<View style={styles.footer}>
+					<Button style={styles.backToTop} text="↑" onPress={scrollToTop} />
+					<View style={styles.divider} />
 					<Button
-						text="↑"
-						onPress={async (): Promise<void> => {
-							scrollToTop();
-						}}
-					/>
-					<Button
+						style={styles.footerButton}
 						text={t('addr.gen_20')}
 						loading={isGeneratingMoreAddresses}
 						onPress={onGenerateMorePress}
 					/>
 					{!utxos && (
-						<Button
-							text={t('addr.check_balances')}
-							loading={isCheckingBalances}
-							onPress={onCheckBalance}
-						/>
+						<>
+							<View style={styles.divider} />
+							<Button
+								style={styles.footerButton}
+								text={t('addr.check_balances')}
+								loading={isCheckingBalances}
+								onPress={onCheckBalance}
+							/>
+						</>
 					)}
 				</View>
-			</>
+			</View>
 
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };
 
 const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+	},
 	content: {
 		flex: 1,
+		paddingHorizontal: 16,
 	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-evenly',
-		marginVertical: 2,
+		marginBottom: 2,
 	},
 	qrCodeRow: {
 		flexDirection: 'row',
 		alignItems: 'flex-start',
 		marginTop: -20,
+	},
+	searchInput: {
+		marginVertical: 8,
 	},
 	flatListContent: {
 		flexGrow: 1,
@@ -1171,14 +1185,23 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		alignItems: 'center',
 	},
+	spendFundsText: {
+		marginVertical: 5,
+	},
 	footer: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		justifyContent: 'space-around',
-		paddingVertical: 2,
+		justifyContent: 'space-between',
+		paddingTop: 2,
 	},
-	spendFundsText: {
-		marginVertical: 5,
+	footerButton: {
+		flex: 1,
+	},
+	divider: {
+		width: 2,
+	},
+	backToTop: {
+		minWidth: 50,
 	},
 });
 

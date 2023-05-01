@@ -1,13 +1,13 @@
 import React, { memo, ReactElement, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S, Text01M } from '../../../styles/text';
-import Button from '../../../components/Button';
 import { shuffleArray } from '../../../utils/helpers';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
+import Button from '../../../components/Button';
 import type { BackupScreenProps } from '../../../navigation/types';
 
 const Word = ({
@@ -36,15 +36,6 @@ const ConfirmMnemonic = ({
 	const [seed, setSeed] = useState(Array(origSeed.length).fill(undefined));
 	const [pressed, setPressed] = useState(Array(origSeed.length).fill(false));
 	const shuffled = useMemo(() => shuffleArray(origSeed), [origSeed]);
-
-	const insets = useSafeAreaInsets();
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const handleWordPress = (word: string, index: number): void => {
 		// find index of the last filled word
@@ -127,7 +118,7 @@ const ConfirmMnemonic = ({
 				</View>
 			</View>
 
-			<View style={nextButtonContainer}>
+			<View style={styles.buttonContainer}>
 				{!showButton && (
 					<Button
 						size="large"
@@ -143,6 +134,7 @@ const ConfirmMnemonic = ({
 					/>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -176,10 +168,9 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 		flex: 1,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 		paddingHorizontal: 32,
-		width: '100%',
 	},
 	word: {
 		marginBottom: 8,

@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { TouchableOpacity } from '../../../styles/components';
@@ -17,6 +16,7 @@ import { SwitchIcon } from '../../../styles/icons';
 import { IColors } from '../../../styles/colors';
 import GradientView from '../../../components/GradientView';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Money from '../../../components/Money';
 import ProfileImage from '../../../components/ProfileImage';
 import NumberPadTextField from '../../../components/NumberPadTextField';
@@ -48,14 +48,13 @@ import { convertToSats } from '../../../utils/exchange-rate';
 import { TRANSACTION_DEFAULTS } from '../../../utils/wallet/constants';
 import type { SendScreenProps } from '../../../navigation/types';
 
-const ContactImage = ({ url }: { url: string }): JSX.Element => {
+const ContactImage = ({ url }: { url: string }): ReactElement => {
 	const { profile } = useProfile(url);
 	return <ProfileImage url={url} image={profile.image} size={24} />;
 };
 
 const Amount = ({ navigation }: SendScreenProps<'Amount'>): ReactElement => {
 	const { t } = useTranslation('wallet');
-	const insets = useSafeAreaInsets();
 	const { fiatTicker } = useCurrency();
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
@@ -65,14 +64,6 @@ const Amount = ({ navigation }: SendScreenProps<'Amount'>): ReactElement => {
 	const isMaxSendAmount = useSelector(transactionMaxSelector);
 	const [text, setText] = useState('');
 	const [error, setError] = useState(false);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	// Set initial text for NumberPadTextField
 	useEffect(() => {
@@ -278,7 +269,7 @@ const Amount = ({ navigation }: SendScreenProps<'Amount'>): ReactElement => {
 					/>
 				</View>
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						size="large"
 						text={t('continue')}
@@ -288,6 +279,7 @@ const Amount = ({ navigation }: SendScreenProps<'Amount'>): ReactElement => {
 					/>
 				</View>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

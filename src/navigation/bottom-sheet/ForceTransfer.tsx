@@ -1,12 +1,12 @@
-import React, { memo, ReactElement, useEffect, useMemo } from 'react';
+import React, { memo, ReactElement, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S } from '../../styles/text';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import { closeBottomSheet, showBottomSheet } from '../../store/actions/ui';
 import GlowImage from '../../components/GlowImage';
@@ -35,18 +35,9 @@ const GIVE_UP = 1000 * 60 * 30;
 const ForceTransfer = (): ReactElement => {
 	const { t } = useTranslation('lightning');
 	const snapPoints = useSnapPoints('large');
-	const insets = useSafeAreaInsets();
 	const startTime = useSelector(startCoopCloseTimestampSelector);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	useBottomSheetBackPress('forceTransfer');
 
@@ -155,7 +146,7 @@ const ForceTransfer = (): ReactElement => {
 
 				<GlowImage image={imageSrc} imageSize={205} glowColor="yellow" />
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						variant="secondary"
@@ -171,6 +162,7 @@ const ForceTransfer = (): ReactElement => {
 						onPress={onContinue}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

@@ -1,12 +1,12 @@
 import React, { memo, ReactElement, useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../styles/components';
 import { UsersIcon } from '../../styles/icons';
 import { useProfile, useSelectedSlashtag } from '../../hooks/slashtags';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import ProfileCard from '../../components/ProfileCard';
 import ProfileLinks from '../../components/ProfileLinks';
 import Divider from '../../components/Divider';
@@ -30,41 +30,31 @@ const ProfileDetails = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				style={styles.header}
 				title={t('profile')}
-				onClosePress={(): void => {
-					navigation.navigate('Wallet');
-				}}
+				actionIcon={<UsersIcon height={24} width={24} />}
 				onActionPress={(): void => {
 					navigation.navigate('Contacts');
 				}}
-				actionIcon={<UsersIcon height={24} width={24} />}
+				onClosePress={(): void => {
+					navigation.navigate('Wallet');
+				}}
 			/>
 
-			<ScrollView>
-				<View style={styles.content}>
-					<ProfileCard url={url} profile={profile} resolving={false} />
-					<Divider />
-					<View style={styles.bottom}>
-						<ProfileLinks
-							links={profileLinksWithIds}
-							style={styles.profileDetails}
-						/>
-					</View>
-				</View>
-				<View style={styles.buttonContainer}>
-					<Button
-						style={styles.button}
-						text={t('profile_edit')}
-						size="large"
-						onPress={(): void => {
-							navigation.navigate('ProfileEdit');
-						}}
-					/>
-				</View>
-				<SafeAreaInsets type="bottom" />
+			<ScrollView contentContainerStyle={styles.content}>
+				<ProfileCard url={url} profile={profile} resolving={false} />
+				<Divider />
+				<ProfileLinks links={profileLinksWithIds} />
+				<Button
+					text={t('profile_edit')}
+					size="large"
+					onPress={(): void => {
+						navigation.navigate('ProfileEdit');
+					}}
+				/>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
 		</ThemedView>
 	);
@@ -73,32 +63,14 @@ const ProfileDetails = ({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingBottom: 16,
 	},
 	header: {
 		paddingBottom: 12,
 	},
 	content: {
-		flex: 1,
-		justifyContent: 'space-between',
+		flexGrow: 1,
 		paddingTop: 23,
 		paddingHorizontal: 16,
-	},
-	bottom: {
-		flex: 1,
-		flexDirection: 'column',
-	},
-	profileDetails: {
-		marginTop: 40,
-	},
-	buttonContainer: {
-		flexDirection: 'row',
-		justifyContent: 'center',
-		marginTop: 'auto',
-	},
-	button: {
-		flex: 1,
-		marginTop: 16,
 	},
 });
 

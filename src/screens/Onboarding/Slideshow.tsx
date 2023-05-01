@@ -27,7 +27,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { AnimatedView, TouchableOpacity } from '../../styles/components';
 import { Caption13M, Display, Text01M, Text01S } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowingBackground from '../../components/GlowingBackground';
 import Dot from '../../components/SliderDots';
 import Button from '../../components/Button';
@@ -111,7 +111,7 @@ const Slideshow = ({
 								{t('slide1_text')}
 							</Text01S>
 						</View>
-						<SafeAreaInsets type="bottom" />
+						<SafeAreaInset type="bottom" minPadding={16} />
 					</View>
 				),
 			},
@@ -135,7 +135,7 @@ const Slideshow = ({
 								{t('slide2_text')}
 							</Text01S>
 						</View>
-						<SafeAreaInsets type="bottom" />
+						<SafeAreaInset type="bottom" minPadding={16} />
 					</View>
 				),
 			},
@@ -159,7 +159,7 @@ const Slideshow = ({
 								{t('slide3_text')}
 							</Text01S>
 						</View>
-						<SafeAreaInsets type="bottom" />
+						<SafeAreaInset type="bottom" minPadding={16} />
 					</View>
 				),
 			},
@@ -209,7 +209,7 @@ const Slideshow = ({
 								/>
 							</View>
 						</View>
-						<SafeAreaInsets type="bottom" />
+						<SafeAreaInset type="bottom" minPadding={16} />
 					</View>
 				),
 			},
@@ -327,7 +327,7 @@ const Slideshow = ({
 						color="transparent"
 						style={[styles.headerButtonContainer, skipOpacity]}>
 						<Pressable style={styles.skipButton} onPress={onSkip}>
-							<SafeAreaInsets type="top" />
+							<SafeAreaInset type="top" />
 							<Text01M color="gray1">{t('skip')}</Text01M>
 						</Pressable>
 					</AnimatedView>

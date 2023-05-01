@@ -7,7 +7,7 @@ import { Text01S, Text02S } from '../../styles/text';
 import SearchInput from '../../components/SearchInput';
 import List, { IListData } from '../../components/List';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { SettingsScreenProps } from '../../navigation/types';
 import { SettingsStackParamList } from '../../navigation/settings/SettingsNavigator';
 
@@ -58,7 +58,7 @@ const SettingsView = ({
 		<ThemedView
 			style={[fullHeight && styles.fullHeight, style]}
 			color={fullHeight ? 'black' : 'transparent'}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={title}
 				displayBackButton={showBackNavigation}
@@ -107,7 +107,7 @@ const SettingsView = ({
 				<View style={styles.childrenContent}>{children}</View>
 			)}
 
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

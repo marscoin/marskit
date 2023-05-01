@@ -1,12 +1,12 @@
 import React, { memo, ReactElement, useMemo, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { __DISABLE_PERIODIC_REMINDERS__ } from '../../../constants/env';
 import { Text01S } from '../../../styles/text';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { ignoreBackup } from '../../../store/actions/user';
@@ -44,7 +44,6 @@ const handleBackup = (): void => {
 const BackupPrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 	const { t } = useTranslation('security');
 	const snapPoints = useSnapPoints('medium');
-	const insets = useSafeAreaInsets();
 	const { satoshis: balance } = useBalance({ onchain: true, lightning: true });
 	const empty = useNoTransactions();
 	const viewControllers = useAppSelector(viewControllersSelector);
@@ -59,14 +58,6 @@ const BackupPrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 			.filter((view) => view !== 'backupPrompt')
 			.some((view) => viewControllers[view].isOpen);
 	}, [viewControllers]);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	// if backup has not been verified
 	// and wallet has transactions
@@ -117,7 +108,7 @@ const BackupPrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 				/>
 				<Text01S color="white5">{text}</Text01S>
 				<GlowImage image={imageSrc} imageSize={170} glowColor="blue" />
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						size="large"
@@ -133,6 +124,7 @@ const BackupPrompt = ({ enabled }: { enabled: boolean }): ReactElement => {
 						onPress={handleBackup}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

@@ -7,7 +7,7 @@ import GlowImage from './GlowImage';
 
 const imageSrc = require('../assets/illustrations/hourglass.png');
 
-export const HourglassSpinner = ({
+const HourglassSpinner = ({
 	style,
 }: {
 	style?: StyleProp<ViewStyle>;

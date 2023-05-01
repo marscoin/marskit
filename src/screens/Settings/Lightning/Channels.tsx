@@ -25,7 +25,7 @@ import {
 	UpArrow,
 	PlusIcon,
 } from '../../../styles/icons';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Button from '../../../components/Button';
 import NavigationHeader from '../../../components/NavigationHeader';
 import LightningChannel, {
@@ -344,7 +344,7 @@ const Channels = ({
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('connections')}
 				onActionPress={addConnectionIsDisabled ? undefined : handleAdd}
@@ -604,8 +604,8 @@ const Channels = ({
 						onPress={handleAdd}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</ScrollView>
-			<SafeAreaInsets type="bottom" />
 		</ThemedView>
 	);
 };
@@ -613,7 +613,6 @@ const Channels = ({
 const styles = StyleSheet.create({
 	root: {
 		flex: 1,
-		justifyContent: 'space-between',
 	},
 	content: {
 		paddingHorizontal: 16,

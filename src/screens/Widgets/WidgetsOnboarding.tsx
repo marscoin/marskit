@@ -6,7 +6,7 @@ import Button from '../../components/Button';
 import DetectSwipe from '../../components/DetectSwipe';
 import GlowingBackground from '../../components/GlowingBackground';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { setWidgetsOnboarding } from '../../store/actions/widgets';
 import { Display, Text01S } from '../../styles/text';
 import type { WidgetsScreenProps } from '../../navigation/types';
@@ -83,7 +83,7 @@ const Layout = ({
 	illustration: ImageSourcePropType;
 	children: ReactNode;
 	onNext: () => void;
-}): JSX.Element => {
+}): ReactElement => {
 	const { t } = useTranslation('slashtags');
 
 	const onSwipeRight = (): void => {
@@ -92,7 +92,7 @@ const Layout = ({
 
 	return (
 		<GlowingBackground topLeft="brand">
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				displayBackButton={true}
 				onClosePress={(): void => {
@@ -105,17 +105,20 @@ const Layout = ({
 						<Image source={illustration} style={styles.illustration} />
 					</View>
 					<View style={styles.middleContainer}>{children}</View>
-					<Button
-						testID="ContinueWidgets"
-						text={t('continue')}
-						size="large"
-						onPress={(): void => {
-							onNext?.();
-						}}
-					/>
+					<View style={styles.buttonContainer}>
+						<Button
+							style={styles.button}
+							text={t('continue')}
+							size="large"
+							testID="ContinueWidgets"
+							onPress={(): void => {
+								onNext?.();
+							}}
+						/>
+					</View>
 				</View>
 			</DetectSwipe>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GlowingBackground>
 	);
 };
@@ -125,7 +128,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'space-between',
 		paddingHorizontal: 32,
-		paddingBottom: 16,
 	},
 	imageContainer: {
 		alignSelf: 'center',
@@ -144,6 +146,14 @@ const styles = StyleSheet.create({
 		width: 280,
 	},
 	middleContainer: {
+		flex: 1,
+	},
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginTop: 'auto',
+	},
+	button: {
 		flex: 1,
 	},
 });

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { BottomSheetTextInput } from '../../styles/components';
 import { Subtitle, Text13UP } from '../../styles/text';
 import BottomSheetWrapper from '../../components/BottomSheetWrapper';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { closeBottomSheet } from '../../store/actions/ui';
 import Tag from '../../components/Tag';
 import { addMetaTxTag, addTag, deleteTag } from '../../store/actions/metadata';
@@ -126,7 +126,9 @@ const ActivityTagsPrompt = (): ReactElement => {
 
 				{isOpen && id && <Form id={id} />}
 
-				<SafeAreaInsets type="bottom" />
+				{/* TODO: add 'Add' button */}
+
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

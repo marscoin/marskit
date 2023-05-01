@@ -16,7 +16,7 @@ const DefaultRightComponent = ({ value }: { value?: string }): ReactElement => {
 	return <Text01M numberOfLines={1}>{value}</Text01M>;
 };
 
-export const FeedWidget = ({
+const FeedWidget = ({
 	url,
 	widget,
 	icon,

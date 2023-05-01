@@ -3,7 +3,6 @@ import React, {
 	ReactElement,
 	useCallback,
 	useEffect,
-	useMemo,
 	useRef,
 } from 'react';
 import {
@@ -15,7 +14,6 @@ import {
 	View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Lottie from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -26,6 +24,7 @@ import Glow from '../../components/Glow';
 import AmountToggle from '../../components/AmountToggle';
 import { closeBottomSheet } from '../../store/actions/ui';
 import BottomSheetNavigationHeader from '../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import { rootNavigation } from '../../navigation/root/RootNavigator';
 import { useAppSelector } from '../../hooks/redux';
 import {
@@ -41,17 +40,8 @@ const imageSrc = require('../../assets/illustrations/coin-stack-x.png');
 const NewTxPrompt = (): ReactElement => {
 	const { t } = useTranslation('wallet');
 	const snapPoints = useSnapPoints('large');
-	const insets = useSafeAreaInsets();
 	const animationRef = useRef<Lottie>(null);
 	const appState = useRef(AppState.currentState);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.confirming,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const { txId } = useAppSelector((state) => {
 		return viewControllerSelector(state, 'newTxPrompt');
@@ -114,42 +104,39 @@ const NewTxPrompt = (): ReactElement => {
 				<View style={styles.confetti} pointerEvents="none">
 					<Lottie ref={animationRef} source={confettiSrc} autoPlay loop />
 				</View>
-				<View>
-					<BottomSheetNavigationHeader
-						title={t('payment_received')}
-						displayBackButton={false}
+				<BottomSheetNavigationHeader
+					title={t('payment_received')}
+					displayBackButton={false}
+				/>
+				{activityItem && (
+					<AmountToggle
+						sats={activityItem.value}
+						reverse={true}
+						space={16}
+						onPress={handlePress}
+						testID="NewTxPrompt"
 					/>
-					{activityItem && (
-						<AmountToggle
-							sats={activityItem.value}
-							reverse={true}
-							space={16}
-							onPress={handlePress}
-							testID="NewTxPrompt"
-						/>
+				)}
+
+				<View style={styles.imageContainer} pointerEvents="none">
+					<Glow style={styles.glow} size={600} color="white32" />
+					<Image source={imageSrc} style={styles.image3} />
+					<Image source={imageSrc} style={styles.image2} />
+					<Image source={imageSrc} style={styles.image1} />
+					<Image source={imageSrc} style={styles.image4} />
+				</View>
+
+				<TouchableOpacity style={styles.confirming} onPress={handlePress}>
+					{isOnchainItem && !activityItem?.confirmed && (
+						<>
+							<ClockIcon color="gray1" />
+							<Text02M color="gray1" style={styles.confirmingText}>
+								{t('payment_confirming')}
+							</Text02M>
+						</>
 					)}
-				</View>
-
-				<View>
-					<View style={styles.imageContainer} pointerEvents="none">
-						<Glow style={styles.glow} size={600} color="white32" />
-						<Image source={imageSrc} style={styles.image3} />
-						<Image source={imageSrc} style={styles.image2} />
-						<Image source={imageSrc} style={styles.image1} />
-						<Image source={imageSrc} style={styles.image4} />
-					</View>
-
-					<TouchableOpacity style={buttonContainerStyles} onPress={handlePress}>
-						{isOnchainItem && !activityItem?.confirmed && (
-							<>
-								<ClockIcon color="gray1" />
-								<Text02M color="gray1" style={styles.confirmingText}>
-									{t('payment_confirming')}
-								</Text02M>
-							</>
-						)}
-					</TouchableOpacity>
-				</View>
+				</TouchableOpacity>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);
@@ -159,7 +146,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		paddingHorizontal: 16,
-		justifyContent: 'space-between',
+		// justifyContent: 'space-between',
 	},
 	confetti: {
 		...StyleSheet.absoluteFillObject,
@@ -172,6 +159,7 @@ const styles = StyleSheet.create({
 		zIndex: 1,
 	},
 	imageContainer: {
+		marginTop: 'auto',
 		alignSelf: 'center',
 		position: 'relative',
 		height: 200,
@@ -212,7 +200,6 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 	},
 	confirming: {
-		marginTop: 'auto',
 		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center',

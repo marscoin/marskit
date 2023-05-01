@@ -13,7 +13,7 @@ import { showErrorNotification } from '../../utils/notifications';
 import { View as ThemedView } from '../../styles/components';
 import { Text01S } from '../../styles/text';
 import NavigationHeader from '../../components/NavigationHeader';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import Button from '../../components/Button';
 import Dialog from '../../components/Dialog';
 import { RecoveryStackScreenProps } from '../../navigation/types';
@@ -97,7 +97,7 @@ const Recovery = ({
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('recovery')} displayBackButton={false} />
 			<View style={styles.content}>
 				<Text01S color="gray1">{t('recovery_text')}</Text01S>
@@ -155,7 +155,7 @@ const Recovery = ({
 				onConfirm={onWipeAppConfirmed}
 			/>
 
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

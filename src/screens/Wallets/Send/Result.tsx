@@ -2,12 +2,10 @@ import React, {
 	memo,
 	ReactElement,
 	useCallback,
-	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import { StyleSheet, View, Platform, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import Lottie from 'lottie-react-native';
@@ -15,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Subtitle, Text01S } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -44,7 +43,6 @@ const Result = ({
 }: SendScreenProps<'Result'>): ReactElement => {
 	const { t } = useTranslation('wallet');
 	const { success, txId, errorTitle, errorMessage } = route.params;
-	const insets = useSafeAreaInsets();
 	const animationRef = useRef<Lottie>(null);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
@@ -55,14 +53,6 @@ const Result = ({
 	});
 	const { sdk } = useSlashtags();
 	const [loading, setLoading] = useState(false);
-
-	const buttonContainer = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	let imageSrc;
 	let title;
@@ -207,7 +197,7 @@ const Result = ({
 
 			<GlowImage image={imageSrc} imageSize={200} glowColor={glowColor} />
 
-			<View style={buttonContainer}>
+			<View style={styles.buttonContainer}>
 				{success && activityItem && (
 					<>
 						<Button
@@ -242,6 +232,7 @@ const Result = ({
 					</>
 				)}
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };

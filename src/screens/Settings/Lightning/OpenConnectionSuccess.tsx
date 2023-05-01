@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -24,7 +24,7 @@ const OpenConnectionSuccess = ({
 
 	return (
 		<ThemedView style={styles.root}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title="Connection Opened" displayBackButton={false} />
 			<View style={styles.content}>
 				<Text01S color="gray1">
@@ -38,7 +38,7 @@ const OpenConnectionSuccess = ({
 					<Button text="OK" size="large" onPress={onContinue} />
 				</View>
 			</View>
-			<SafeAreaInsets type="bottom" />
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
 	},
 	buttons: {
 		marginTop: 'auto',
-		marginBottom: 16,
 	},
 });
 

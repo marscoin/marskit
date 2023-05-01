@@ -8,13 +8,13 @@ import React, {
 } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import rnBiometrics from 'react-native-biometrics';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Switch } from '../../../styles/components';
 import { Text01M, Text01S } from '../../../styles/text';
 import { FaceIdIcon, TouchIdIcon } from '../../../styles/icons';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -35,21 +35,12 @@ const AskForBiometrics = ({
 	navigation,
 }: PinScreenProps<'AskForBiometrics'>): ReactElement => {
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
 	const [biometryData, setBiometricData] = useState<IsSensorAvailableResult>();
 	const [shouldEnableBiometrics, setShouldEnableBiometrics] = useState(false);
 
 	useEffect(() => {
 		rnBiometrics.isSensorAvailable().then((data) => setBiometricData(data));
 	}, []);
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const buttonText = useMemo(() => {
 		return t(!biometryData?.available ? 'skip' : 'continue');
@@ -146,7 +137,7 @@ const AskForBiometrics = ({
 					</>
 				)}
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					{!biometryData?.available && (
 						<>
 							<Button
@@ -169,6 +160,7 @@ const AskForBiometrics = ({
 						testID="ContinueButton"
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</GradientView>
 	);

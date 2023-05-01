@@ -9,7 +9,7 @@ import { sleep } from '../../utils/helpers';
 import { useSelectedSlashtag } from '../../hooks/slashtags';
 import { updateUser } from '../../store/actions/user';
 import GlowingBackground from '../../components/GlowingBackground';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 import GlowImage from '../../components/GlowImage';
 import Button from '../../components/Button';
 import LoadingWalletScreen from './Loading';
@@ -130,7 +130,7 @@ const RestoringScreen = (): ReactElement => {
 					onConfirm={proceedWithoutBackup}
 				/>
 
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		);
 	}
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingHorizontal: 32,
 		paddingTop: 120,
-		paddingBottom: 16,
 	},
 	title: {
 		marginBottom: 8,

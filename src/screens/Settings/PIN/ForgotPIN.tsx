@@ -1,11 +1,11 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Text01S } from '../../../styles/text';
 import BottomSheetWrapper from '../../../components/BottomSheetWrapper';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { closeBottomSheet } from '../../../store/actions/ui';
@@ -20,14 +20,6 @@ const imageSrc = require('../../../assets/illustrations/restore.png');
 const ForgotPIN = (): ReactElement => {
 	const { t } = useTranslation('security');
 	const snapPoints = useSnapPoints('large');
-	const insets = useSafeAreaInsets();
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	useBottomSheetBackPress('forgotPIN');
 
@@ -50,7 +42,7 @@ const ForgotPIN = (): ReactElement => {
 
 				<GlowImage image={imageSrc} imageSize={192} />
 
-				<View style={buttonContainerStyles}>
+				<View style={styles.buttonContainer}>
 					<Button
 						style={styles.button}
 						size="large"
@@ -58,6 +50,7 @@ const ForgotPIN = (): ReactElement => {
 						onPress={handlePress}
 					/>
 				</View>
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 		</BottomSheetWrapper>
 	);

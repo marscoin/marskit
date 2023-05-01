@@ -1,11 +1,10 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { View as ThemedView } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import NavigationHeader from '../../../components/NavigationHeader';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -17,15 +16,6 @@ const PinChanged = ({
 	navigation,
 }: SettingsScreenProps<'PinChanged'>): ReactElement => {
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
-
-	const buttonContainerStyles = useMemo(
-		() => ({
-			...styles.buttonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
-	);
 
 	const handleButtonPress = (): void => {
 		navigation.navigate('SecuritySettings');
@@ -33,7 +23,7 @@ const PinChanged = ({
 
 	return (
 		<ThemedView style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<NavigationHeader title={t('cp_changed_title')} />
 
 			<View style={styles.message}>
@@ -42,7 +32,7 @@ const PinChanged = ({
 
 			<GlowImage image={imageSrc} imageSize={200} glowColor="green" />
 
-			<View style={buttonContainerStyles}>
+			<View style={styles.buttonContainer}>
 				<Button
 					size="large"
 					text={t('ok')}
@@ -50,6 +40,7 @@ const PinChanged = ({
 					onPress={handleButtonPress}
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</ThemedView>
 	);
 };

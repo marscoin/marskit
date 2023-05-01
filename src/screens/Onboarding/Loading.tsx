@@ -5,7 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { AnimatedView } from '../../styles/components';
 import { Display } from '../../styles/text';
-import SafeAreaInsets from '../../components/SafeAreaInsets';
+import SafeAreaInset from '../../components/SafeAreaInset';
 
 const imageSrc = require('../../assets/illustrations/rocket.png');
 
@@ -53,7 +53,7 @@ const LoadingWalletScreen = (): ReactElement => {
 
 	return (
 		<View style={styles.container}>
-			<SafeAreaInsets type="top" />
+			<SafeAreaInset type="top" />
 			<View style={styles.loadingText}>
 				<Display>
 					<Trans

@@ -42,7 +42,7 @@ type WCM = {
 	pageY: number;
 };
 
-export const Widgets = (): ReactElement => {
+const Widgets = (): ReactElement => {
 	const { t } = useTranslation('slashtags');
 	const widgets = useSelector((state: Store) => state.widgets.widgets);
 	const sortOrder = useSelector((state: Store) => state.widgets.sortOrder);

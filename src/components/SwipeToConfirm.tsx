@@ -21,7 +21,7 @@ import { Text02M } from '../styles/text';
 import { RightArrow } from '../styles/icons';
 import { IThemeColors } from '../styles/themes';
 import useColors from '../hooks/colors';
-import { LoadingSpinner } from './Spinner';
+import LoadingSpinner from './Spinner';
 
 const CIRCLE_SIZE = 60;
 const GRAB_SIZE = 120;

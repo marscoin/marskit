@@ -1,12 +1,12 @@
 import React, { memo, ReactElement, useMemo } from 'react';
 import { StyleSheet, View, Pressable } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
 import { Switch } from '../../../styles/components';
 import { Text01S, Text01M } from '../../../styles/text';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import GradientView from '../../../components/GradientView';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -20,7 +20,6 @@ const imageSrc = require('../../../assets/illustrations/check.png');
 const Result = ({ route }: PinScreenProps<'Result'>): ReactElement => {
 	const { bio, type } = route.params;
 	const { t } = useTranslation('security');
-	const insets = useSafeAreaInsets();
 	const pinForPayments = useSelector(pinForPaymentsSelector);
 
 	const biometricsName = useMemo(
@@ -31,14 +30,6 @@ const Result = ({ route }: PinScreenProps<'Result'>): ReactElement => {
 				? t('bio_face_id')
 				: type ?? t('bio'),
 		[type, t],
-	);
-
-	const nextButtonContainer = useMemo(
-		() => ({
-			...styles.nextButtonContainer,
-			paddingBottom: insets.bottom + 16,
-		}),
-		[insets.bottom],
 	);
 
 	const handleTogglePress = (): void => {
@@ -76,7 +67,7 @@ const Result = ({ route }: PinScreenProps<'Result'>): ReactElement => {
 				<Switch onValueChange={handleTogglePress} value={pinForPayments} />
 			</Pressable>
 
-			<View style={nextButtonContainer}>
+			<View style={styles.buttonContainer}>
 				<Button
 					size="large"
 					text={t('ok')}
@@ -84,6 +75,7 @@ const Result = ({ route }: PinScreenProps<'Result'>): ReactElement => {
 					testID="OK"
 				/>
 			</View>
+			<SafeAreaInset type="bottom" minPadding={16} />
 		</GradientView>
 	);
 };
@@ -103,10 +95,9 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 32,
 		marginBottom: 32,
 	},
-	nextButtonContainer: {
+	buttonContainer: {
 		marginTop: 'auto',
 		paddingHorizontal: 32,
-		width: '100%',
 	},
 });
 

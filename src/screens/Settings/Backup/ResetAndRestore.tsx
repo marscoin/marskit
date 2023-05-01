@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from '../../../styles/components';
 import { Text01S } from '../../../styles/text';
 import NavigationHeader from '../../../components/NavigationHeader';
-import SafeAreaInsets from '../../../components/SafeAreaInsets';
-import SafeAreaView from '../../../components/SafeAreaView';
+import SafeAreaInset from '../../../components/SafeAreaInset';
 import Dialog from '../../../components/Dialog';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
@@ -23,12 +22,11 @@ const ResetAndRestore = ({
 	const [showDialog, setShowDialog] = useState(false);
 
 	return (
-		<SafeAreaView>
+		<View style={styles.root}>
+			<SafeAreaInset type="top" />
 			<NavigationHeader
 				title={t('reset_title')}
-				onClosePress={(): void => {
-					navigation.navigate('Wallet');
-				}}
+				onClosePress={(): void => navigation.navigate('Wallet')}
 			/>
 			<View style={styles.container}>
 				<Text01S color="gray1">{t('reset_text')}</Text01S>
@@ -53,7 +51,7 @@ const ResetAndRestore = ({
 						onPress={(): void => setShowDialog(true)}
 					/>
 				</View>
-				<SafeAreaInsets type="bottom" />
+				<SafeAreaInset type="bottom" minPadding={16} />
 			</View>
 
 			<Dialog
@@ -66,18 +64,20 @@ const ResetAndRestore = ({
 					setShowDialog(false);
 				}}
 			/>
-		</SafeAreaView>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+	},
 	container: {
 		flex: 1,
 		paddingHorizontal: 16,
 	},
 	buttonContainer: {
 		marginTop: 'auto',
-		marginBottom: 16,
 		flexDirection: 'row',
 		justifyContent: 'center',
 	},
