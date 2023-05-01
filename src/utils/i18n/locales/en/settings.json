@@ -68,7 +68,15 @@
 		"latest": "latest data backup",
 		"status_failed": "Failed Backup: {{time}}",
 		"status_success": "Latest Backup: {{time}}",
-		"status_empty": "Backup not needed"
+		"status_empty": "Backup not needed",
+		"category_connections": "Connections",
+		"category_connection_receipts": "Connection Receipts",
+		"category_transaction_log": "Transaction Log",
+		"category_settings": "Settings",
+		"category_widgets": "Widgets",
+		"category_tags": "Tags",
+		"category_profile": "Profile",
+		"category_contacts": "Contacts"
 	},
 	"adv": {
 		"section_payments": "Payments",
