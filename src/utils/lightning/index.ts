@@ -1209,6 +1209,10 @@ export const rebroadcastAllKnownTransactions = async (): Promise<any> => {
 	return await lm.rebroadcastAllKnownTransactions();
 };
 
+export const recoverOutputs = async (): Promise<Result<string>> => {
+	return await lm.recoverOutputs();
+};
+
 /**
  * Returns total reserve balance for all open lightning channels.
  * @param {TWalletName} [selectedWallet]
