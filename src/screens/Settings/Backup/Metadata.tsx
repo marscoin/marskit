@@ -1,19 +1,33 @@
 import React, { memo, ReactElement, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
-import { Text01S } from '../../../styles/text';
+import { Text01S, Text02B, Text02S } from '../../../styles/text';
 import GradientView from '../../../components/GradientView';
 import BottomSheetNavigationHeader from '../../../components/BottomSheetNavigationHeader';
 import SafeAreaInset from '../../../components/SafeAreaInset';
 import GlowImage from '../../../components/GlowImage';
 import Button from '../../../components/Button';
 import { closeBottomSheet } from '../../../store/actions/ui';
+import { useSelector } from 'react-redux';
+import { backupSelector } from '../../../store/reselect/backup';
 
 const imageSrc = require('../../../assets/illustrations/tag.png');
 
 const Metadata = (): ReactElement => {
 	const { t } = useTranslation('security');
+	const backup = useSelector(backupSelector);
+
+	const arr = [
+		backup.remoteLdkBackupLastSync,
+		backup.remoteSettingsBackupLastSync,
+		backup.remoteWidgetsBackupLastSync,
+		backup.remoteMetadataBackupLastSync,
+		backup.remoteLdkActivityBackupLastSync,
+		backup.remoteBlocktankBackupLastSync,
+	].filter((i) => i !== undefined) as Array<number>;
+
+	const max = Math.max(...arr);
 
 	const handleButtonPress = useCallback((): void => {
 		closeBottomSheet('backupNavigation');
@@ -30,6 +44,31 @@ const Metadata = (): ReactElement => {
 			<GlowImage image={imageSrc} imageSize={200} />
 
 			<View style={styles.buttonContainer}>
+				{max && (
+					<Text02S style={styles.last}>
+						<Trans
+							t={t}
+							i18nKey="mnemonic_latest_backup"
+							components={{
+								bold: <Text02B />,
+							}}
+							values={{
+								time: t('intl:dateTime', {
+									v: new Date(max),
+									formatParams: {
+										v: {
+											year: 'numeric',
+											month: 'long',
+											day: 'numeric',
+											hour: 'numeric',
+											minute: 'numeric',
+										},
+									},
+								}),
+							}}
+						/>
+					</Text02S>
+				)}
 				<Button
 					size="large"
 					text={t('ok')}
@@ -48,6 +87,9 @@ const styles = StyleSheet.create({
 	},
 	text: {
 		paddingHorizontal: 32,
+	},
+	last: {
+		marginBottom: 16,
 	},
 	buttonContainer: {
 		marginTop: 'auto',

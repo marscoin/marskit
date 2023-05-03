@@ -16,6 +16,7 @@ import { IUi } from './types/ui';
 import { IUser } from './types/user';
 import { IWidgetsStore } from './types/widgets';
 import { IChecksShape } from './types/checks';
+import { IBackup } from './types/backup';
 
 /*
 Used to retrieve the store outside of a component.
@@ -73,6 +74,10 @@ export const getWidgetsStore = (): IWidgetsStore => {
 
 export const getChecksStore = (): IChecksShape => {
 	return cloneDeep(store.getState()[EStore.checks]);
+};
+
+export const getBackupStore = (): IBackup => {
+	return cloneDeep(store.getState()[EStore.backup]);
 };
 
 /*
