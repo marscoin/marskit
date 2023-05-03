@@ -34,6 +34,7 @@ export const unsettledStatuses = [0, 100, 200, 300, 350, 500];
  * @returns {void}
  */
 export const setupBlocktank = (selectedNetwork: TAvailableNetworks): void => {
+	bt.setHeaders({ 'User-Agent': 'Bitkit' });
 	if (selectedNetwork === EAvailableNetworks.bitcoinTestnet) {
 		return;
 	} else if (selectedNetwork === EAvailableNetworks.bitcoinRegtest) {
