@@ -39,6 +39,7 @@ import {
 	getNodeId,
 	payLightningInvoice,
 	rebroadcastAllKnownTransactions,
+	recoverOutputs,
 	refreshLdk,
 	setupLdk,
 } from '../../../utils/lightning';
@@ -51,6 +52,7 @@ import {
 } from '../../../hooks/lightning';
 import {
 	showErrorNotification,
+	showInfoNotification,
 	showSuccessNotification,
 } from '../../../utils/notifications';
 import {
@@ -209,6 +211,8 @@ const Channels = ({
 	const [refreshingLdk, setRefreshingLdk] = useState(false);
 	const [restartingLdk, setRestartingLdk] = useState(false);
 	const [rebroadcastingLdk, setRebroadcastingLdk] = useState(false);
+	const [spendingStuckOutputs, setSpendingStuckOutputs] = useState(false);
+
 	const [peer, setPeer] = useState('');
 
 	const colors = useColors();
@@ -505,6 +509,26 @@ const Channels = ({
 								setRebroadcastingLdk(false);
 							}}
 							testID="RebroadcastLDKTXS"
+						/>
+						<Button
+							style={styles.devButton}
+							text="Spend stuck outputs"
+							loading={spendingStuckOutputs}
+							onPress={async (): Promise<void> => {
+								setSpendingStuckOutputs(true);
+								const res = await recoverOutputs();
+								if (res.isOk()) {
+									showInfoNotification({
+										message: res.value,
+									});
+								} else {
+									showErrorNotification({
+										title: 'No stuck outputs recovered',
+										message: res.error.message,
+									});
+								}
+								setSpendingStuckOutputs(false);
+							}}
 						/>
 						<Button
 							style={styles.devButton}
