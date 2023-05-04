@@ -47,7 +47,6 @@ const ReceiveDetails = ({
 	const { t } = useTranslation('wallet');
 	const { keyboardShown } = useKeyboard();
 	const { isSmallScreen } = useScreenSize();
-	const [isInputFocused, setIsInputFocused] = useState(false);
 	const [showNumberPad, setShowNumberPad] = useState(false);
 	const invoice = useSelector(receiveSelector);
 	const unit = useSelector(balanceUnitSelector);
@@ -116,8 +115,6 @@ const ReceiveDetails = ({
 									blurOnSubmit={true}
 									returnKeyType="done"
 									testID="ReceiveNote"
-									onFocus={(): void => setIsInputFocused(true)}
-									onBlur={(): void => setIsInputFocused(false)}
 									onChangeText={(txt): void => {
 										updateInvoice({ message: txt });
 									}}
@@ -125,7 +122,7 @@ const ReceiveDetails = ({
 							</View>
 						</View>
 
-						{!keyboardShown && !isInputFocused && (
+						{!keyboardShown && (
 							<AnimatedView
 								style={styles.bottom}
 								color="transparent"
