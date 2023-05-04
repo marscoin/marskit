@@ -112,9 +112,10 @@ const NewTxPrompt = (): ReactElement => {
 					<AmountToggle
 						sats={activityItem.value}
 						reverse={true}
-						space={16}
-						onPress={handlePress}
+						space={12}
+						decimalLength="long"
 						testID="NewTxPrompt"
+						onPress={handlePress}
 					/>
 				)}
 

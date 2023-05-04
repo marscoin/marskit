@@ -579,7 +579,7 @@ const ReviewAndSend = ({
 						sats={amount}
 						decimalLength="long"
 						reverse={true}
-						space={16}
+						space={12}
 					/>
 
 					<View style={styles.sectionContainer}>
@@ -681,14 +681,14 @@ const ReviewAndSend = ({
 									</View>
 									<View style={styles.tagsContainer}>
 										<Button
-											color="white04"
+											color="white06"
 											text={t('tags_add')}
 											icon={<TagIcon color="brand" width={16} />}
+											testID="TagsAddSend"
 											onPress={(): void => {
 												Keyboard.dismiss();
 												navigation.navigate('Tags');
 											}}
-											testID="TagsAddSend"
 										/>
 									</View>
 								</View>

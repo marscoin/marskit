@@ -141,7 +141,7 @@ const Confirm = ({
 					<Caption13Up style={styles.amountCaption} color="purple">
 						{t('spending_label')}
 					</Caption13Up>
-					<AmountToggle sats={spendingAmount} />
+					<AmountToggle sats={spendingAmount} secondaryFont="text01m" />
 				</View>
 
 				<SwipeToConfirm

@@ -39,7 +39,7 @@ const EnabledSlashtagsProfileButton = (): ReactElement => {
 			{profile?.name ? (
 				<Title>{truncate(profile?.name, 20)}</Title>
 			) : (
-				<Title>{t('your_name')}</Title>
+				<Title>{t('your_name_capital')}</Title>
 			)}
 		</TouchableOpacity>
 	);

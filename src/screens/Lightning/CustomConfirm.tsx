@@ -139,14 +139,14 @@ const CustomConfirm = ({
 							<Caption13Up color="purple" style={styles.space}>
 								{t('spending_label')}
 							</Caption13Up>
-							<AmountToggle sats={spendingAmount} />
+							<AmountToggle sats={spendingAmount} secondaryFont="text01m" />
 						</View>
 
 						<View style={styles.block}>
 							<Caption13Up color="purple" style={styles.space}>
 								{t('receiving_label')}
 							</Caption13Up>
-							<AmountToggle sats={receivingAmount} />
+							<AmountToggle sats={receivingAmount} secondaryFont="text01m" />
 						</View>
 					</AnimatedView>
 				)}

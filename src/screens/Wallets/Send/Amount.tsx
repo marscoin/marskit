@@ -220,7 +220,7 @@ const Amount = ({ navigation }: SendScreenProps<'Amount'>): ReactElement => {
 							<Money
 								key="small"
 								sats={availableAmount}
-								size="caption13M"
+								size="text02m"
 								decimalLength="long"
 								testID="AvailableAmount"
 								{...availableAmountProps}

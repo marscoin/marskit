@@ -320,7 +320,7 @@ const OnchainActivityDetail = ({
 			<Money
 				sats={value}
 				unit={EBalanceUnit.fiat}
-				size="caption13M"
+				size="caption13Up"
 				color="gray1"
 			/>
 			<View style={styles.title}>
@@ -632,7 +632,7 @@ const LightningActivityDetail = ({
 			<Money
 				sats={value}
 				unit={EBalanceUnit.fiat}
-				size="caption13M"
+				size="caption13Up"
 				color="gray1"
 			/>
 			<View style={styles.title}>

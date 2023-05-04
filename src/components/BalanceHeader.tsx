@@ -76,11 +76,12 @@ const BalanceHeader = (): ReactElement => {
 							pending: (
 								<Money
 									color="gray1"
-									size="caption13M"
+									size="caption13Up"
 									sats={claimableBalance}
 									unit={balanceUnit}
 									enableHide={true}
 									symbol={false}
+									decimalLength="long"
 								/>
 							),
 						}}
