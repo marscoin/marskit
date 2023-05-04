@@ -8,7 +8,6 @@ import React, {
 // import Rate, { AndroidMarket } from 'react-native-rate';
 import {
 	View,
-	ScrollView,
 	Image,
 	// Share,
 	// Platform,
@@ -155,9 +154,7 @@ const About = ({
 					navigation.navigate('Wallet');
 				}}
 			/>
-			<ScrollView
-				contentContainerStyle={styles.content}
-				showsVerticalScrollIndicator={false}>
+			<View style={styles.content}>
 				<Text01S style={styles.text} color="gray1">
 					<Trans
 						t={t}
@@ -228,7 +225,7 @@ const About = ({
 				</View>
 
 				<SafeAreaInset type="bottom" minPadding={16} />
-			</ScrollView>
+			</View>
 		</GlowingBackground>
 	);
 };
