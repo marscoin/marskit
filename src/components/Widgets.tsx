@@ -196,9 +196,7 @@ const Widgets = (): ReactElement => {
 		return (
 			<>
 				<View style={styles.titleRow}>
-					<Caption13Up style={styles.title} color="gray1">
-						{t('widgets')}
-					</Caption13Up>
+					<Caption13Up color="gray1">{t('widgets')}</Caption13Up>
 				</View>
 				<Text color="gray">{t('disabled')}</Text>
 			</>
@@ -208,9 +206,7 @@ const Widgets = (): ReactElement => {
 	return (
 		<>
 			<View style={styles.titleRow} testID="WidgetsTitle">
-				<Caption13Up style={styles.title} color="gray1">
-					{t('widgets')}
-				</Caption13Up>
+				<Caption13Up color="gray1">{t('widgets')}</Caption13Up>
 				{widgetsArray.length > 0 && (
 					<TouchableOpacity
 						style={styles.edit}
@@ -230,6 +226,7 @@ const Widgets = (): ReactElement => {
 				</View>
 				<Text01M>{t('widget_add')}</Text01M>
 			</TouchableOpacity>
+			<View style={styles.divider} />
 			<Modal
 				transparent={true}
 				visible={editing}
@@ -273,20 +270,26 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-	},
-	title: {
-		paddingTop: 32,
-		paddingBottom: 8,
+		paddingTop: 30,
 	},
 	edit: {
-		paddingTop: 32,
-		paddingBottom: 8,
+		// increase hitbox
+		paddingTop: 10,
+		marginTop: -10,
+		paddingBottom: 10,
+		marginBottom: -10,
+		paddingRight: 16,
+		marginRight: -16,
 		paddingLeft: 16,
+		marginLeft: -16,
 	},
 	add: {
-		height: 88,
+		marginTop: 27,
 		flexDirection: 'row',
 		alignItems: 'center',
+	},
+	divider: {
+		paddingBottom: 27,
 		borderBottomColor: 'rgba(255, 255, 255, 0.1)',
 		borderBottomWidth: 1,
 	},
