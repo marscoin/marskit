@@ -96,7 +96,7 @@ const NumberPadTextField = ({
 				<Money
 					style={styles.secondary}
 					sats={satoshis}
-					size="text01m"
+					size="caption13Up"
 					color="gray1"
 					{...{ ...(unit === EBalanceUnit.fiat ? btcProps : fiatProps) }}
 				/>

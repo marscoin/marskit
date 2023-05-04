@@ -94,6 +94,7 @@ const ReceiveDetails = ({
 			<View style={styles.content}>
 				<NumberPadTextField
 					value={invoice.numberPadText}
+					showPlaceholder={showNumberPad}
 					testID="ReceiveNumberPadTextField"
 					onPress={(): void => setShowNumberPad(true)}
 				/>

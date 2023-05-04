@@ -13,6 +13,7 @@ import { EBalanceUnit } from '../store/types/wallet';
 const AmountToggle = ({
 	sats,
 	unit,
+	secondaryFont = 'caption13Up',
 	space = 0, // space between the rows
 	reverse = false,
 	disable = false,
@@ -23,6 +24,7 @@ const AmountToggle = ({
 	testID,
 }: {
 	sats: number;
+	secondaryFont?: 'text01m' | 'caption13Up';
 	unit?: EBalanceUnit;
 	reverse?: boolean;
 	space?: number;
@@ -51,7 +53,7 @@ const AmountToggle = ({
 			<Money
 				key="secondary"
 				sats={sats}
-				size="text01m"
+				size={secondaryFont}
 				color="gray1"
 				decimalLength={decimalLength}
 				{...{ ...(primaryUnit === EBalanceUnit.fiat ? btcProps : fiatProps) }}
@@ -59,7 +61,7 @@ const AmountToggle = ({
 		];
 
 		return reverse ? arr.reverse() : arr;
-	}, [primaryUnit, sats, reverse, space, decimalLength]);
+	}, [primaryUnit, sats, reverse, space, decimalLength, secondaryFont]);
 
 	LayoutAnimation.easeInEaseOut();
 

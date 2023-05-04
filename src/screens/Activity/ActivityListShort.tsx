@@ -94,7 +94,7 @@ const ActivityListShort = (): ReactElement => {
 
 const styles = StyleSheet.create({
 	content: {
-		paddingTop: 30,
+		paddingTop: 32,
 		marginBottom: 16,
 	},
 	title: {

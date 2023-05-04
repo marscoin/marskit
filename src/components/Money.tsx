@@ -4,12 +4,10 @@ import { useSelector } from 'react-redux';
 
 import {
 	Caption13M,
+	Caption13Up,
 	Display,
-	Headline,
 	Text01M,
-	Text01S,
 	Text02M,
-	Text02S,
 	Title,
 } from '../styles/text';
 import { BIcon, LightningIcon } from '../styles/icons';
@@ -36,13 +34,11 @@ interface IMoney {
 	testID?: string;
 	size?:
 		| 'display'
-		| 'text01s'
 		| 'text01m'
-		| 'text02s'
 		| 'text02m'
 		| 'caption13M'
-		| 'title'
-		| 'headline';
+		| 'caption13Up'
+		| 'title';
 }
 
 const Money = (props: IMoney): ReactElement => {
@@ -68,20 +64,15 @@ const Money = (props: IMoney): ReactElement => {
 
 	const [Text, lineHeight, iconHeight, iconWidth] = useMemo(() => {
 		switch (size) {
-			case 'headline':
-				// Override lineHeight for Display font
-				return [Headline, '41px', 40, 20];
 			case 'title':
 				return [Title, undefined, 26, 12];
-			case 'text01s':
-				return [Text01S, undefined, 21, 10];
 			case 'text01m':
 				return [Text01M, undefined, 21, 10];
-			case 'text02s':
-				return [Text02S, undefined, 18, 9];
 			case 'text02m':
 				return [Text02M, undefined, 18, 9];
 			case 'caption13M':
+				return [Caption13Up, undefined, 16, 8];
+			case 'caption13Up':
 				return [Caption13M, undefined, 16, 8];
 			default:
 				// Override lineHeight for Display font

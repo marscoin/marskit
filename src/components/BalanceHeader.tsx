@@ -76,11 +76,12 @@ const BalanceHeader = (): ReactElement => {
 							pending: (
 								<Money
 									color="gray1"
-									size="caption13M"
+									size="caption13Up"
 									sats={claimableBalance}
 									unit={balanceUnit}
 									enableHide={true}
 									symbol={false}
+									decimalLength="long"
 								/>
 							),
 						}}
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
 		paddingLeft: 16,
 	},
 	row: {
-		marginTop: 13,
+		marginTop: 6,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',

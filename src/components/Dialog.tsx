@@ -44,44 +44,46 @@ const Dialog = ({
 	}
 
 	return (
-		<Modal
-			animationType="fade"
-			// on iOS transparent={true} leads to a bug
-			// use it with presentationStyle="fullScreen" to get a black background
-			// https://github.com/facebook/react-native/issues/34018
-			transparent={true}
-			presentationStyle="fullScreen"
-			visible={visible}
-			onRequestClose={onRequestClose}>
-			<View style={styles.centeredView}>
-				<View style={styles.view}>
-					<View style={styles.text}>
-						<Text style={styles.title}>{title}</Text>
-						<Text style={styles.description}>{description}</Text>
-					</View>
-					<View
-						style={styles.buttons}
-						testID={visible ? visibleTestID : undefined}>
-						{onCancel && (
-							<TouchableOpacity
-								style={[styles.button, styles.buttonLeft]}
-								onPress={onCancel}
-								testID="DialogCancel">
-								<Text style={styles.buttonText}>{cancelText}</Text>
-							</TouchableOpacity>
-						)}
-						{onConfirm && (
-							<TouchableOpacity
-								style={styles.button}
-								onPress={onConfirm}
-								testID="DialogConfirm">
-								<Text style={styles.buttonText}>{confirmText}</Text>
-							</TouchableOpacity>
-						)}
-					</View>
+		<>
+			{visible && (
+				<View>
+					<Modal
+						animationType="fade"
+						transparent={true}
+						visible={visible}
+						onRequestClose={onRequestClose}>
+						<View style={styles.centeredView}>
+							<View style={styles.view}>
+								<View style={styles.text}>
+									<Text style={styles.title}>{title}</Text>
+									<Text style={styles.description}>{description}</Text>
+								</View>
+								<View
+									style={styles.buttons}
+									testID={visible ? visibleTestID : undefined}>
+									{onCancel && (
+										<TouchableOpacity
+											style={[styles.button, styles.buttonLeft]}
+											onPress={onCancel}
+											testID="DialogCancel">
+											<Text style={styles.buttonText}>{cancelText}</Text>
+										</TouchableOpacity>
+									)}
+									{onConfirm && (
+										<TouchableOpacity
+											style={styles.button}
+											onPress={onConfirm}
+											testID="DialogConfirm">
+											<Text style={styles.buttonText}>{confirmText}</Text>
+										</TouchableOpacity>
+									)}
+								</View>
+							</View>
+						</View>
+					</Modal>
 				</View>
-			</View>
-		</Modal>
+			)}
+		</>
 	);
 };
 
