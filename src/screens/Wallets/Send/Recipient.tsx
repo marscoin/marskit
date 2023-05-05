@@ -54,7 +54,6 @@ const Recipient = ({
 	const lightningBalance = useLightningBalance(false);
 	const [decodedInvoice, setDecodedInvoice] = useState<TInvoice>();
 	const [handledOsPaste, setHandledOsPaste] = useState(false);
-	const [showImage, setShowImage] = useState(true);
 	const selectedWallet = useSelector(selectedWalletSelector);
 	const selectedNetwork = useSelector(selectedNetworkSelector);
 	const transaction = useSelector(transactionSelector);
@@ -157,14 +156,6 @@ const Recipient = ({
 		selectedWallet,
 	]);
 
-	useEffect(() => {
-		if (keyboardShown) {
-			setShowImage(false);
-		} else {
-			setShowImage(true);
-		}
-	}, [keyboardShown]);
-
 	const handleScan = (): void => {
 		navigation.navigate('Scanner');
 	};
@@ -217,13 +208,7 @@ const Recipient = ({
 		[index, value, selectedNetwork, selectedWallet, sdk, t],
 	);
 
-	const onFocus = useCallback((): void => {
-		setShowImage(false);
-	}, []);
-
 	const onBlur = useCallback(async (): Promise<void> => {
-		setShowImage(true);
-
 		//An OS Paste was triggered. No need to process onBlur data.
 		if (handledOsPaste) {
 			return;
@@ -326,11 +311,10 @@ const Recipient = ({
 				</Caption13Up>
 
 				<AddressOrSlashpay
-					style={[styles.input, !showImage && styles.inputKeyboard]}
+					style={[styles.input, keyboardShown && styles.inputKeyboard]}
 					value={transaction.lightningInvoice || address}
 					slashTagsUrl={transaction.slashTagsUrl}
 					onChangeText={onChangeText}
-					onFocus={onFocus}
 					onBlur={onBlur}
 					testID="AddressOrSlashpay">
 					<IconButton style={styles.inputAction} onPress={handleScan}>
@@ -348,8 +332,8 @@ const Recipient = ({
 					</IconButton>
 				</AddressOrSlashpay>
 
-				<View style={[styles.bottom, !showImage && styles.bottomKeyboard]}>
-					{!keyboardShown && showImage && (
+				<View style={[styles.bottom, keyboardShown && styles.bottomKeyboard]}>
+					{!keyboardShown && (
 						<AnimatedView
 							style={styles.image}
 							color="transparent"
