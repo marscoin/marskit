@@ -880,6 +880,17 @@ export const resetWalletStore = async (): Promise<Result<string>> => {
 	return ok('');
 };
 
+/**
+ * Sets up a transaction for a given wallet by gathering inputs, setting the next available change address as an output and sets up the baseline fee structure.
+ * This function will not override previously set transaction data. To do that you'll need to call resetOnChainTransaction.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @param {EAddressType} [addressType]
+ * @param {string[]} [inputTxHashes]
+ * @param {IUtxo[]} [utxos]
+ * @param {boolean} [rbf]
+ * @returns {Promise<Result<Partial<IBitcoinTransactionData>>>}
+ */
 export const setupOnChainTransaction = async ({
 	selectedWallet,
 	selectedNetwork,
@@ -1155,6 +1166,12 @@ export const updateSelectedFeeId = async ({
 	}
 };
 
+/**
+ * This completely resets the on-chain transaction data for the specified wallet and network.
+ * @param {TWalletName} [selectedWallet]
+ * @param {TAvailableNetworks} [selectedNetwork]
+ * @returns {Result<string>}
+ */
 export const resetOnChainTransaction = ({
 	selectedWallet,
 	selectedNetwork,

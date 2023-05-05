@@ -171,7 +171,7 @@ const ReviewAndSend = ({
 	const transactionTotal = amount + transaction.fee;
 	const selectedFeeId = transaction.selectedFeeId;
 	const satsPerByte = transaction.satsPerByte;
-	const address = transaction.outputs[outputIndex].address ?? '';
+	const address = transaction?.outputs[outputIndex]?.address ?? '';
 
 	useEffect(() => {
 		setupFeeForOnChainTransaction();
