@@ -97,7 +97,6 @@ const SendNavigation = (): ReactElement => {
 	const initialRouteName = screen ?? 'Recipient';
 
 	const onOpen = async (): Promise<void> => {
-		resetOnChainTransaction();
 		await setupOnChainTransaction();
 		setupFeeForOnChainTransaction();
 	};
