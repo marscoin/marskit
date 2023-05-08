@@ -30,7 +30,7 @@ import {
 	startChannelPurchase,
 } from '../../store/actions/blocktank';
 import { showErrorNotification } from '../../utils/notifications';
-import { convertToSats } from '../../utils/exchange-rate';
+import { convertToSats, getFiatDisplayValues } from '../../utils/exchange-rate';
 import { SPENDING_LIMIT_RATIO } from '../../utils/wallet/constants';
 import type { LightningScreenProps } from '../../navigation/types';
 import {
@@ -78,7 +78,11 @@ const QuickSetup = ({
 		return convertToSats(textFieldValue, unit);
 	}, [textFieldValue, unit]);
 
-	const blocktankSpendingLimit = blocktankService.max_chan_spending;
+	const diff = 0.01;
+	const btSpendingLimit = blocktankService.max_chan_spending;
+	const btSpendingLimitBalanced = Math.round(
+		btSpendingLimit / 2 - btSpendingLimit * diff,
+	);
 	const spendableBalance = Math.round(onchainBalance * SPENDING_LIMIT_RATIO);
 	const savingsAmount = onchainBalance - spendingAmount;
 	const savingsPercentage = Math.round((savingsAmount / onchainBalance) * 100);
@@ -87,8 +91,17 @@ const QuickSetup = ({
 	);
 
 	const spendingLimit = useMemo(() => {
-		return Math.min(spendableBalance, blocktankSpendingLimit);
-	}, [spendableBalance, blocktankSpendingLimit]);
+		return Math.min(spendableBalance, btSpendingLimitBalanced);
+	}, [spendableBalance, btSpendingLimitBalanced]);
+
+	const btSpendingLimitBalancedUsd = useMemo((): string => {
+		const { fiatWhole } = getFiatDisplayValues({
+			satoshis: btSpendingLimitBalanced,
+			currency: 'USD',
+		});
+
+		return fiatWhole;
+	}, [btSpendingLimitBalanced]);
 
 	// BTC -> satoshi -> fiat
 	const nextUnit = useMemo(() => {
@@ -135,7 +148,7 @@ const QuickSetup = ({
 
 		// Ensure local balance is bigger than remote balance
 		const localBalance = Math.max(
-			Math.round(spendingAmount * 1.1),
+			Math.round(spendingAmount + spendingAmount * diff),
 			blocktankService.min_channel_size,
 		);
 		const purchaseResponse = await startChannelPurchase({
@@ -211,13 +224,17 @@ const QuickSetup = ({
 							</View>
 						</AnimatedView>
 
-						{spendingAmount === Math.round(blocktankSpendingLimit) && (
+						{spendingAmount === Math.round(btSpendingLimitBalanced) && (
 							<AnimatedView
 								style={styles.note}
 								entering={FadeIn}
 								exiting={FadeOut}
 								testID="QuickSetupBlocktankNote">
-								<Text02S color="gray1">{t('note_blocktank_limit')}</Text02S>
+								<Text02S color="gray1">
+									{t('note_blocktank_limit', {
+										usdValue: btSpendingLimitBalancedUsd,
+									})}
+								</Text02S>
 							</AnimatedView>
 						)}
 
