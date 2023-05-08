@@ -35,7 +35,7 @@ const Recovery = ({
 	}, []);
 
 	const onExportLogs = async (): Promise<void> => {
-		const result = await zipLogs();
+		const result = await zipLogs({ limit: 20, allAccounts: true });
 		if (result.isErr()) {
 			showErrorNotification({
 				title: t('lightning:error_logs'),
