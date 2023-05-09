@@ -467,6 +467,9 @@ const AddressViewer = ({
 			_config: TAddressViewerConfig,
 			_allAddresses: TAddressViewerData,
 		): void => {
+			if (privateKey) {
+				setPrivateKey(undefined);
+			}
 			if (!_allAddresses) {
 				_allAddresses = allAddresses;
 			}
@@ -513,6 +516,9 @@ const AddressViewer = ({
 				return;
 			}
 			setLoadingNetwork(n);
+			if (privateKey) {
+				setPrivateKey(undefined);
+			}
 			resetUtxos();
 			const newConfig = {
 				...config,
@@ -543,7 +549,14 @@ const AddressViewer = ({
 			setLoadingNetwork(undefined);
 			handleScroll(maxIndex);
 		},
-		[config, handleScroll, resetUtxos, selectedWallet, updateSelectedAddress],
+		[
+			config,
+			handleScroll,
+			privateKey,
+			resetUtxos,
+			selectedWallet,
+			updateSelectedAddress,
+		],
 	);
 
 	/**
@@ -654,8 +667,11 @@ const AddressViewer = ({
 			const filtered = fuzzyRes.map((r) => r.obj);
 			const sorted = Object.values(filtered).sort((a, b) => a.index - b.index);
 			setFilterAddresses(sorted);
+			if (privateKey) {
+				setPrivateKey(undefined);
+			}
 		},
-		[searchableAddresses],
+		[privateKey, searchableAddresses],
 	);
 
 	/**
@@ -785,6 +801,7 @@ const AddressViewer = ({
 	 */
 	const onCheckBalance = useCallback(async (): Promise<void> => {
 		setIsCheckingBalances(true);
+		setPrivateKey(undefined);
 
 		// Ensure we switch networks if the user opted to do-so.
 		if (selectedNetwork !== config.selectedNetwork) {
@@ -1072,6 +1089,7 @@ const AddressViewer = ({
 								isSelected={isSelected}
 								backgroundColor={backgroundColor}
 								onItemRowPress={(): void => {
+									setPrivateKey(undefined);
 									setSelectedAddress(item);
 								}}
 								onCheckMarkPress={(): void => {
