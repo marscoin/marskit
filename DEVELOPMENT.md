@@ -7,7 +7,7 @@ Make sure you have [setup your environment for React Native](https://reactnative
 1. Clone the repository
 
 ```shell
-git clone git@github.com:synonymdev/bitkit.git && cd bitkit
+git clone git@github.com:marscoin/marskit.git && cd marskit
 ```
 
 2. Switch Node version
@@ -18,11 +18,14 @@ Switch to the Node.js version defined in `.nvmrc`. If `nvm` (or similiar) is ins
 
 ```shell
 yarn install
+yarn add react-native-permissions
 ```
 
 4. Setup iOS or Android dependencies
 
 ```shell
+brew install cocoapods
+pod install
 yarn setup-ios
 ```
 
@@ -31,6 +34,8 @@ or
 ```shell
 yarn setup-android
 ```
+
+You may have to go into the nodes-assets folder and do a yarn install in there to get the missing node-modules folder
 
 5. Start the project
 
@@ -48,11 +53,11 @@ yarn android
 
 ## Testing
 
-Bitkit uses two types of testing: unit and end-to-end (E2E) tests.
+Marskit uses two types of testing: unit and end-to-end (E2E) tests.
 
 ### 1. Unit tests
 
-Before running unit tests, you need to install Docker and run bitcoind and the electrum server in regtest mode. You can do this by using the docker-compose.yml file from the **tests** directory:
+Before running unit tests, you need to install Docker and run marscoind and the electrum server in regtest mode. You can do this by using the docker-compose.yml file from the **tests** directory:
 
 ```sh
 cd __tests__
