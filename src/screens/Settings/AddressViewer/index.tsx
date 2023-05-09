@@ -486,7 +486,7 @@ const AddressViewer = ({
 				setSelectedAddress(_allAddresses[type].changeAddresses[0]);
 			}
 		},
-		[allAddresses],
+		[allAddresses, privateKey],
 	);
 
 	/**
