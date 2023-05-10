@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:bitkit.xcodeproj">
+      location = "group:/Users/novalis78/Projects/marskit/ios/marskit.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
