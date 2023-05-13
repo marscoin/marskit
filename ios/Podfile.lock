@@ -81,9 +81,9 @@ PODS:
   - lottie-react-native (5.1.5):
     - lottie-ios (~> 3.4.0)
     - React-Core
-  - MMKV (1.2.15):
-    - MMKVCore (~> 1.2.15)
-  - MMKVCore (1.2.15)
+  - MMKV (1.2.16):
+    - MMKVCore (~> 1.2.16)
+  - MMKVCore (1.2.16)
   - nodejs-mobile-react-native (0.8.1):
     - React-Core
   - OpenSSL-Universal (1.1.1100)
@@ -812,8 +812,8 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: 3e722c63015fdb9c27638b0a77969fc412067c18
-  MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
-  MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
+  MMKV: 784471ce430a2e2d16afef9053d63fab1b357d9e
+  MMKVCore: 9cfef4c48c6c46f66226fc2e4634d78490206a48
   nodejs-mobile-react-native: e35e7ed7ecfca168f168983e9557f1c5278d864b
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -881,6 +881,6 @@ SPEC CHECKSUMS:
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: bb277cebcaada22fda90f4a37439c3294c3d2ab8
+PODFILE CHECKSUM: 77680b6e3f7f77910fd8f9e382f732ff20ead714
 
 COCOAPODS: 1.12.1

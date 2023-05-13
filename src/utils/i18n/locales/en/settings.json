@@ -8,17 +8,17 @@
 	"security_title": "Security and Privacy",
 	"backup_title": "Back up or Restore",
 	"advanced_title": "Advanced",
-	"about_title": "About Bitkit",
+	"about_title": "About Marskit",
 	"about": {
-		"text": "Bitkit hands you the keys to your money, profile, contacts, and web accounts.\n\nThis <easterEgg>Orange Pill</easterEgg> was carefully crafted by Synonym Software Ltd.",
+		"text": "Marskit hands you the keys to your money, profile, contacts, and web accounts.\n\nThis <easterEgg>Orange Pill</easterEgg> was carefully crafted by Synonym Software Ltd.",
 		"support": "Support",
 		"report_bug": "Report a bug or contribute",
 		"legal": "Legal",
 		"version": "Version",
 		"op_title": "Orange Pilled",
 		"op_text": "Who will you <brand>Orange-Pill?</brand>",
-		"op_share": "Share Bitkit With A Friend",
-		"op_message": "Download Bitkit, Your Ultimate Bitcoin Toolkit. Handing you the keys to reshape your digital life. {{appStoreUrl}}"
+		"op_share": "Share Marskit With A Friend",
+		"op_message": "Download Marskit, Your Ultimate Marscoin Toolkit. Handing you the keys to reshape your digital life. {{appStoreUrl}}"
 	},
 	"dev_title": "Dev Settings",
 	"general": {
@@ -27,10 +27,10 @@
 		"currency_footer": "Prices powered by Bitfinex & CoinGecko.",
 		"currency_most_used": "Most Used",
 		"currency_other": "Other Currencies",
-		"unit": "Bitcoin unit",
-		"unit_title": "Bitcoin Unit",
-		"unit_display": "Display Bitcoin amounts as",
-		"unit_bitcoin": "Bitcoin",
+		"unit": "Marscoin unit",
+		"unit_title": "Marscoin Unit",
+		"unit_display": "Display Marscoin amounts as",
+		"unit_Marscoin": "Marscoin",
 		"unit_satoshis": "Satoshis",
 		"speed": "Transaction speed",
 		"speed_title": "Transaction Speed",
@@ -44,7 +44,7 @@
 		"suggestions_display": "Display suggestions",
 		"suggestions_reset": "Reset suggestions",
 		"reset_title": "Reset Suggestions?",
-		"reset_desc": "Are you sure you want to reset the suggestions? They will reappear in case you have removed them from your Bitkit wallet overview."
+		"reset_desc": "Are you sure you want to reset the suggestions? They will reappear in case you have removed them from your Marskit wallet overview."
 	},
 	"security": {
 		"clipboard": "Read clipboard for ease of use",
@@ -64,7 +64,7 @@
 		"export": "Export wallet data to phone",
 		"reset": "Reset and restore wallet",
 		"failed_title": "Data Backup Failure",
-		"failed_message": "Bitkit failed to back up it's data. Please check your connection.",
+		"failed_message": "Marskit failed to back up it's data. Please check your connection.",
 		"latest": "latest data backup",
 		"status_failed": "Failed Backup: {{time}}",
 		"status_success": "Latest Backup: {{time}}",
@@ -81,7 +81,7 @@
 	"adv": {
 		"section_payments": "Payments",
 		"section_networks": "Networks",
-		"address_type": "Bitcoin Address Type",
+		"address_type": "Marscoin Address Type",
 		"coin_selection": "Coin Selection",
 		"cs_method": "Coin Selection Method",
 		"cs_manual": "Manual",
@@ -101,7 +101,7 @@
 		"lightning_connections": "Lightning Connections",
 		"lightning_node": "Lightning Node",
 		"electrum_server": "Electrum Server",
-		"bitcoin_network": "Bitcoin Network"
+		"Marscoin_network": "Marscoin Network"
 	},
 	"fee": {
 		"fast": {
@@ -160,7 +160,7 @@
 		"server_updated_message": "Successfully connected to {{host}}:{{port}}",
 		"server_error": "Unable to connect to Electrum Server",
 		"qr_error_title": "No Connection Data Detected",
-		"qr_error_message": "Sorry, Bitkit is not able to read this QR code.",
+		"qr_error_message": "Sorry, Marskit is not able to read this QR code.",
 		"connected_to": "Currently connected to",
 		"disconnected": "disconnected",
 		"host": "Host",
