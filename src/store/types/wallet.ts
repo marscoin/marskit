@@ -29,24 +29,24 @@ export type TAssetType = 'bitcoin' | 'tether';
 export type NetworkTypePath = '0' | '1'; //"mainnet" | "testnet"
 
 export enum EBitcoinUnit {
-	satoshi = 'satoshi',
-	BTC = 'BTC',
+	satoshi = 'zubrin',
+	BTC = 'MARS',
 }
 
 export enum EBalanceUnit {
-	satoshi = 'satoshi',
-	BTC = 'BTC',
+	satoshi = 'zubrin',
+	BTC = 'MARS',
 	fiat = 'fiat',
 }
 
-export type TBitcoinAbbreviation = 'sats' | 'BTC';
+export type TBitcoinAbbreviation = 'zubrins' | 'MARS';
 
 export type TBitcoinLabel =
 	| 'Bitcoin Mainnet'
 	| 'Bitcoin Testnet'
 	| 'Bitcoin Regtest';
 
-export type TTicker = 'BTC' | 'tBTC';
+export type TTicker = 'MARS' | 'tMARS';
 
 export type TGetByteCountInput =
 	| `MULTISIG-P2SH:${number}-${number}`

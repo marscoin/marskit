@@ -171,7 +171,7 @@ export const getBitcoinDisplayValues = ({
 		let bitcoinSymbol = '₿';
 		let bitcoinTicker = bitcoinUnit;
 
-		let bitcoinFormatted: string = bitcoinUnits(satoshis, 'satoshi')
+		let bitcoinFormatted: string = bitcoinUnits(satoshis, 'zubrin')
 			.to(bitcoinUnit)
 			.value()
 			.toString();
@@ -268,7 +268,7 @@ export const getFiatDisplayValues = ({
 
 		// this throws if exchangeRate is 0
 		bitcoinUnits.setFiat(currency, exchangeRate);
-		let fiatValue: number = bitcoinUnits(satoshis, 'satoshi')
+		let fiatValue: number = bitcoinUnits(satoshis, 'zubrin')
 			.to(currency)
 			.value();
 
